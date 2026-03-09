@@ -1,0 +1,488 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/manifest.schema.json",
+  "title": "Composable Artifact Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact",
+    "storage",
+    "links",
+    "provenance",
+    "integrity",
+    "immutability"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Schema version for the manifest format (not the JSON Schema draft).",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "examples": [ "1.0.0" ]
+    },
+
+    "artifact": {
+      "$ref": "#/$defs/artifact"
+    },
+
+    "storage": {
+      "$ref": "#/$defs/storage"
+    },
+
+    "links": {
+      "$ref": "#/$defs/links"
+    },
+
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+
+    "integrity": {
+      "$ref": "#/$defs/integrity"
+    },
+
+    "immutability": {
+      "$ref": "#/$defs/immutability"
+    },
+
+    "extensions": {
+      "type": "object",
+      "description": "Optional vendor- or tool-specific fields. Keep composable systems clean by namespacing keys.",
+      "additionalProperties": true
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "immutability": {
+            "properties": { "mode": { "const": "immutable" } },
+            "required": [ "mode" ]
+          }
+        },
+        "required": [ "immutability" ]
+      },
+      "then": {
+        "description": "If immutable, require at least one strong hash and forbid 'none' verification.",
+        "properties": {
+          "integrity": {
+            "properties": {
+              "hashes": {
+                "minItems": 1,
+                "contains": {
+                  "type": "object",
+                  "properties": { "alg": { "not": { "const": "none" } } },
+                  "required": [ "alg", "value" ]
+                }
+              },
+              "verification": { "not": { "const": "none" } }
+            },
+            "required": [ "hashes", "verification" ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "immutability": {
+            "properties": { "mode": { "const": "immutable" } },
+            "required": [ "mode" ]
+          },
+          "storage": {
+            "properties": { "primary": { "type": "string" } },
+            "required": [ "primary" ]
+          }
+        },
+        "required": [ "immutability", "storage" ]
+      },
+      "then": {
+        "description": "If immutable, strongly recommend content-addressed URIs via pattern (enforced if you choose the CA mode)."
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "immutability": {
+            "properties": { "mode": { "const": "content-addressed" } },
+            "required": [ "mode" ]
+          }
+        },
+        "required": [ "immutability" ]
+      },
+      "then": {
+        "description": "If content-addressed, primary URI MUST include a hash token (sha256 or blake3) to be self-describing.",
+        "properties": {
+          "storage": {
+            "properties": {
+              "primary": {
+                "type": "string",
+                "pattern": "(sha256:[a-f0-9]{64}|blake3:[a-f0-9]{64})"
+              }
+            },
+            "required": [ "primary" ]
+          }
+        }
+      }
+    }
+  ],
+
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "type", "name" ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [ "doc", "diagram", "package", "bundle" ],
+          "description": "Artifact category."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-friendly identifier (not necessarily unique)."
+        },
+        "media_type": {
+          "type": "string",
+          "description": "Optional MIME type (e.g., application/pdf, image/svg+xml, application/zip)."
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional size in bytes."
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true,
+          "description": "Optional tags for indexing."
+        }
+      }
+    },
+
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "primary" ],
+      "properties": {
+        "primary": {
+          "type": "string",
+          "format": "uri",
+          "description": "Canonical storage URI for the artifact payload."
+        },
+        "alternates": {
+          "type": "array",
+          "description": "Optional mirrors (e.g., second region, different store, signed URL).",
+          "items": { "$ref": "#/$defs/storage_entry" },
+          "uniqueItems": false
+        }
+      }
+    },
+
+    "storage_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "uri" ],
+      "properties": {
+        "uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "role": {
+          "type": "string",
+          "enum": [ "mirror", "cache", "signed", "archive", "reference" ],
+          "description": "How this URI should be treated."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "For signed/cache URIs."
+        }
+      }
+    },
+
+    "links": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "project", "version" ],
+      "properties": {
+        "project": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to project record (repo, work item, document hub, etc.)."
+        },
+        "version": {
+          "type": "string",
+          "description": "Artifact version label (semantic, build ID, git SHA, etc.).",
+          "minLength": 1
+        },
+        "related": {
+          "type": "array",
+          "description": "Optional typed links to related artifacts/manifests.",
+          "items": { "$ref": "#/$defs/related_link" }
+        }
+      }
+    },
+
+    "related_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "rel", "target" ],
+      "properties": {
+        "rel": {
+          "type": "string",
+          "description": "Relationship type (e.g., 'source', 'derived-from', 'includes', 'supersedes').",
+          "minLength": 1
+        },
+        "target": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI of the related thing (often another manifest)."
+        }
+      }
+    },
+
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "run", "prompt", "plugin" ],
+      "properties": {
+        "run": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [ "run_id", "started_at" ],
+          "properties": {
+            "run_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Unique run/execution identifier."
+            },
+            "started_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "ended_at": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "actor": {
+              "type": "string",
+              "description": "Optional: user/service identity that initiated the run."
+            },
+            "environment": {
+              "type": "string",
+              "description": "Optional: environment name (dev/test/prod) or execution context."
+            }
+          }
+        },
+
+        "prompt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [ "prompt_ref" ],
+          "properties": {
+            "prompt_ref": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Reference to the prompt content (URI, blob path, message id, etc.)."
+            },
+            "prompt_hash": {
+              "$ref": "#/$defs/hash",
+              "description": "Optional hash of the exact prompt content."
+            }
+          }
+        },
+
+        "plugin": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [ "name", "version", "ref" ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Pinned reference (container digest, commit SHA, registry digest, etc.)."
+            },
+            "entrypoint": {
+              "type": "string",
+              "description": "Optional: subcommand/handler invoked."
+            }
+          }
+        }
+      }
+    },
+
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "hashes", "verification" ],
+      "properties": {
+        "hashes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/hash" },
+          "description": "One or more hashes of the artifact payload (recommended: sha256)."
+        },
+        "verification": {
+          "type": "string",
+          "enum": [ "none", "hash", "hash+signature" ],
+          "description": "Validation expectation for consumers."
+        },
+        "signature": {
+          "$ref": "#/$defs/signature",
+          "description": "Optional signature block when verification includes signatures."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "verification": { "const": "hash+signature" } },
+            "required": [ "verification" ]
+          },
+          "then": { "required": [ "signature" ] }
+        }
+      ]
+    },
+
+    "hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "alg", "value" ],
+      "properties": {
+        "alg": {
+          "type": "string",
+          "enum": [ "sha256", "sha512", "blake3", "none" ]
+        },
+        "value": {
+          "type": "string",
+          "description": "Lowercase hex digest (or empty if alg=none).",
+          "pattern": "^[a-f0-9]*$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "alg": { "const": "sha256" } },
+            "required": [ "alg" ]
+          },
+          "then": { "properties": { "value": { "pattern": "^[a-f0-9]{64}$" } } }
+        },
+        {
+          "if": {
+            "properties": { "alg": { "const": "sha512" } },
+            "required": [ "alg" ]
+          },
+          "then": { "properties": { "value": { "pattern": "^[a-f0-9]{128}$" } } }
+        },
+        {
+          "if": {
+            "properties": { "alg": { "const": "blake3" } },
+            "required": [ "alg" ]
+          },
+          "then": { "properties": { "value": { "pattern": "^[a-f0-9]{64}$" } } }
+        },
+        {
+          "if": {
+            "properties": { "alg": { "const": "none" } },
+            "required": [ "alg" ]
+          },
+          "then": { "properties": { "value": { "maxLength": 0 } } }
+        }
+      ]
+    },
+
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "alg", "value" ],
+      "properties": {
+        "alg": {
+          "type": "string",
+          "enum": [ "ed25519", "rsa-pss-sha256", "ecdsa-p256-sha256" ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Signature bytes, base64 or base64url."
+        },
+        "key_id": {
+          "type": "string",
+          "description": "Optional key identifier (KMS key id, cert thumbprint, JWKS kid, etc.)."
+        }
+      }
+    },
+
+    "immutability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [ "mode" ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [ "mutable", "immutable", "content-addressed" ],
+          "description": "Immutability contract for the artifact payload."
+        },
+        "rules": {
+          "type": "array",
+          "description": "Optional extra constraints consumers can enforce.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "forbid-overwrite",
+              "require-hash-match",
+              "require-signature",
+              "require-content-addressed-uri"
+            ]
+          },
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "mode": { "const": "immutable" } },
+            "required": [ "mode" ]
+          },
+          "then": {
+            "properties": {
+              "rules": {
+                "default": [ "forbid-overwrite", "require-hash-match" ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "mode": { "const": "content-addressed" } },
+            "required": [ "mode" ]
+          },
+          "then": {
+            "properties": {
+              "rules": {
+                "default": [
+                  "forbid-overwrite",
+                  "require-hash-match",
+                  "require-content-addressed-uri"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
