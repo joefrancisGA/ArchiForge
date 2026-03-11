@@ -5,7 +5,7 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.Coordinator.Services;
 
-public sealed class CoordinatorService
+public sealed class CoordinatorService : ICoordinatorService
 {
     public CoordinationResult CreateRun(ArchitectureRequest request)
     {

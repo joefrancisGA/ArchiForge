@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ArchiForge.Contracts.Metadata;
 
-namespace ArchiForge.Data.Repositories
+namespace ArchiForge.Data.Repositories;
+
+public interface IArchitectureRunRepository
 {
-    internal interface IArchitectureRunRepository
-    {
-    }
+    Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default);
+    Task<ArchitectureRun?> GetByIdAsync(string runId, CancellationToken cancellationToken = default);
+    Task UpdateStatusAsync(
+        string runId,
+        ArchiForge.Contracts.Common.ArchitectureRunStatus status,
+        string? currentManifestVersion = null,
+        DateTime? completedUtc = null,
+        CancellationToken cancellationToken = default);
 }
