@@ -21,11 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Contracts.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.DecisionEngine.Tests", "ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj", "{F67A2885-8223-48FE-9280-C10F5CBA831E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{EE8C39A4-20ED-4C77-959F-D3FD22054A3F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0716A087-0A1A-48DB-A6A7-8CF799E65FED} = {0716A087-0A1A-48DB-A6A7-8CF799E65FED}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Coordinator.Tests", "ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj", "{D84FD236-A30A-49ED-BE82-53D481026B8F}"
 EndProject
 Global
@@ -62,10 +57,6 @@ Global
 		{F67A2885-8223-48FE-9280-C10F5CBA831E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F67A2885-8223-48FE-9280-C10F5CBA831E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F67A2885-8223-48FE-9280-C10F5CBA831E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE8C39A4-20ED-4C77-959F-D3FD22054A3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE8C39A4-20ED-4C77-959F-D3FD22054A3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE8C39A4-20ED-4C77-959F-D3FD22054A3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE8C39A4-20ED-4C77-959F-D3FD22054A3F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D84FD236-A30A-49ED-BE82-53D481026B8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D84FD236-A30A-49ED-BE82-53D481026B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D84FD236-A30A-49ED-BE82-53D481026B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU

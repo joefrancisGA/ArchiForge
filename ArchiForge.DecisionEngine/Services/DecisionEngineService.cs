@@ -10,6 +10,7 @@ namespace ArchiForge.DecisionEngine.Services;
 public sealed class DecisionEngineService : IDecisionEngineService
 {
     public DecisionMergeResult MergeResults(
+        string runId,
         ArchitectureRequest request,
         string manifestVersion,
         IReadOnlyCollection<AgentResult> results,
@@ -42,7 +43,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
             return output;
         }
 
-        var manifest = CreateBaseManifest(request, manifestVersion, parentManifestVersion);
+        var manifest = CreateBaseManifest(runId, request, manifestVersion, parentManifestVersion);
 
         MergeAgentResultsIntoManifest(request, validResults, manifest, output);
 
@@ -109,13 +110,14 @@ public sealed class DecisionEngineService : IDecisionEngineService
     }
 
     private static GoldenManifest CreateBaseManifest(
+        string runId,
         ArchitectureRequest request,
         string manifestVersion,
         string? parentManifestVersion)
     {
         return new GoldenManifest
         {
-            RunId = request.RequestId,
+            RunId = runId,
             SystemName = request.SystemName,
             Services = [],
             Datastores = [],
@@ -132,7 +134,7 @@ public sealed class DecisionEngineService : IDecisionEngineService
             {
                 ManifestVersion = manifestVersion,
                 ParentManifestVersion = parentManifestVersion,
-                ChangeDescription = $"Initial merged manifest for request {request.RequestId}",
+                ChangeDescription = $"Merged manifest for run {runId}",
                 DecisionTraceIds = [],
                 CreatedUtc = DateTime.UtcNow
             }
@@ -570,9 +572,4 @@ public sealed class DecisionEngineService : IDecisionEngineService
             RelationshipType = source.RelationshipType,
             Description = source.Description
         };
-
-    public DecisionMergeResult MergeResults(string runId, ArchitectureRequest request, string manifestVersion, IReadOnlyCollection<AgentResult> results, string? parentManifestVersion = null)
-    {
-        throw new NotImplementedException();
-    }
 }

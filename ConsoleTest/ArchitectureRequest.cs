@@ -159,6 +159,7 @@ var costResult = new AgentResult
 var engine = new DecisionEngineService();
 
 var merge = engine.MergeResults(
+    "1",
     decisionServiceRequest,
     manifestVersion: "v1",
     results: [topologyResult, complianceResult, costResult],
