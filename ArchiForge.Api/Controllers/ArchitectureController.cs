@@ -1,4 +1,4 @@
-﻿using ArchiForge.Api.Diagnostics;
+using ArchiForge.Api.Diagnostics;
 using ArchiForge.Api.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
@@ -7,6 +7,7 @@ using ArchiForge.Coordinator.Services;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -23,6 +24,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IEvidenceBundleRepository _evidenceBundleRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IArchitectureRequestRepository _requestRepository;
+    private readonly IHostEnvironment _environment;
 
     public ArchitectureController(
         ICoordinatorService coordinatorService,
@@ -33,7 +35,8 @@ public sealed class ArchitectureController : ControllerBase
         IGoldenManifestRepository manifestRepository,
         IEvidenceBundleRepository evidenceBundleRepository,
         IDecisionTraceRepository decisionTraceRepository,
-        IArchitectureRequestRepository requestRepository)
+        IArchitectureRequestRepository requestRepository,
+        IHostEnvironment environment)
     {
         _coordinatorService = coordinatorService;
         _decisionEngineService = decisionEngineService;
@@ -44,6 +47,7 @@ public sealed class ArchitectureController : ControllerBase
         _evidenceBundleRepository = evidenceBundleRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _requestRepository = requestRepository;
+        _environment = environment;
     }
 
     [HttpPost("request")]
@@ -277,6 +281,11 @@ public sealed class ArchitectureController : ControllerBase
     [FromRoute] string runId,
     CancellationToken cancellationToken)
     {
+        if (!_environment.IsDevelopment())
+        {
+            return NotFound();
+        }
+
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
