@@ -1,7 +1,9 @@
+using ArchiForge.Api.Health;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api
 {
@@ -18,6 +20,8 @@ namespace ArchiForge.Api
             builder.Services.AddOpenApi();
 
             builder.Services.AddSingleton<SqlConnectionFactory>();
+            builder.Services.AddHealthChecks()
+                .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
@@ -53,7 +57,7 @@ namespace ArchiForge.Api
 
             app.UseAuthorization();
 
-
+            app.MapHealthChecks("/health");
             app.MapControllers();
 
             app.Run();
