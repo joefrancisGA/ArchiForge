@@ -1,4 +1,5 @@
-﻿using ArchiForge.Api.Models;
+﻿using ArchiForge.Api.Diagnostics;
+using ArchiForge.Api.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -267,5 +268,55 @@ public sealed class ArchitectureController : ControllerBase
         }
 
         return "v1";
+    }
+
+    [HttpPost("run/{runId}/seed-fake-results")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SeedFakeResults(
+    [FromRoute] string runId,
+    CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return NotFound(new { error = $"Run '{runId}' was not found." });
+        }
+
+        var architectureRequest = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+        if (architectureRequest is null)
+        {
+            return NotFound(new
+            {
+                error = $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found."
+            });
+        }
+
+        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        if (tasks.Count == 0)
+        {
+            return BadRequest(new { error = "No tasks exist for this run." });
+        }
+
+        var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
+
+        foreach (var result in fakeResults)
+        {
+            await _resultRepository.CreateAsync(result, cancellationToken);
+        }
+
+        await _runRepository.UpdateStatusAsync(
+            runId,
+            ArchitectureRunStatus.ReadyForCommit,
+            currentManifestVersion: run.CurrentManifestVersion,
+            completedUtc: null,
+            cancellationToken: cancellationToken);
+
+        return Ok(new
+        {
+            message = "Fake results seeded.",
+            runId,
+            resultCount = fakeResults.Count
+        });
     }
 }
