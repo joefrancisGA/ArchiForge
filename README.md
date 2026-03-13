@@ -1,0 +1,77 @@
+# ArchiForge
+
+ArchiForge is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
+
+## Prerequisites
+
+- [.NET 9 SDK](https://dotnet.microsoft.com/download)
+- SQL Server (LocalDB, Express, or full) with a database for ArchiForge
+
+## Database Setup
+
+1. Create a database (e.g. `ArchiForge2`).
+2. Run the schema script:
+
+   ```bash
+   sqlcmd -S localhost -d ArchiForge2 -i ArchiForge.Data/SQL/ArchiForge.sql
+   ```
+
+   Or execute `ArchiForge.Data/SQL/ArchiForge.sql` in SQL Server Management Studio / Azure Data Studio.
+
+3. Update the connection string in `ArchiForge.Api/appsettings.json` if needed:
+
+   ```json
+   "ConnectionStrings": {
+     "ArchiForge": "Server=localhost;Database=ArchiForge2;Trusted_Connection=True;TrustServerCertificate=True;"
+   }
+   ```
+
+## Running the API
+
+```bash
+dotnet run --project ArchiForge.Api
+```
+
+The API listens on the URLs configured for the project (typically `http://localhost:5xxx` and `https://localhost:7xxx`).
+
+In Development:
+
+- **Swagger UI**: `/swagger`
+- **Health check**: `GET /health`
+
+## Running Tests
+
+```bash
+dotnet test
+```
+
+Integration tests require a database. Ensure the connection string in `appsettings.json` (or `appsettings.Development.json`) points to a valid database with the schema applied.
+
+## API Flow
+
+1. **Create run** – `POST /architecture/request`  
+   Submit an `ArchitectureRequest` (system name, environment, cloud provider, constraints). Returns a run and agent tasks.
+
+2. **Submit agent results** – `POST /architecture/run/{runId}/result`  
+   Submit results from topology, cost, and compliance agents.
+
+3. **Commit** – `POST /architecture/run/{runId}/commit`  
+   Merge results and produce a versioned manifest. Requires at least one agent result per run.
+
+4. **Get manifest** – `GET /architecture/manifest/{version}`  
+   Retrieve a committed manifest by version.
+
+Other endpoints:
+
+- `GET /architecture/run/{runId}` – Fetch run status, tasks, and results
+- `POST /architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
+
+## Project Structure
+
+| Project | Description |
+|---------|-------------|
+| ArchiForge.Api | ASP.NET Core Web API, controllers, health checks |
+| ArchiForge.Contracts | DTOs, request/response types, manifest models |
+| ArchiForge.Coordinator | Run creation, task generation |
+| ArchiForge.DecisionEngine | Merges agent results into manifests |
+| ArchiForge.Data | Repositories, SQL persistence |
