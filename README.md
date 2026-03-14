@@ -131,6 +131,25 @@ dotnet run --project ConsoleTest -- artifacts <runId>
 
 - **API URL**: Set `apiUrl` in `archiforge.json` or the `ARCHIFORGE_API_URL` environment variable. Default: `http://localhost:5128`.
 
+### Installing as a global .NET tool
+
+Package and install the CLI locally:
+
+```bash
+# From the solution root
+dotnet pack ConsoleTest/ConsoleTest.csproj -c Release -o nupkg
+
+# Install globally
+dotnet tool install -g ArchiForge.Cli --add-source ./nupkg
+
+# Run (no need for dotnet run)
+archiforge new MyProject
+archiforge run
+archiforge status <runId>
+```
+
+To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
+
 ## Project Structure
 
 | Project | Description |
