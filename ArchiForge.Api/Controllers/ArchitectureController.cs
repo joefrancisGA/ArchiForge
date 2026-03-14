@@ -1,11 +1,6 @@
-using ArchiForge.Api.Diagnostics;
 using ArchiForge.Api.Models;
-using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Common;
+using ArchiForge.Api.Services;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
-using ArchiForge.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 
@@ -15,38 +10,14 @@ namespace ArchiForge.Api.Controllers;
 [Route("architecture")]
 public sealed class ArchitectureController : ControllerBase
 {
-    private readonly ICoordinatorService _coordinatorService;
-    private readonly IDecisionEngineService _decisionEngineService;
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentTaskRepository _taskRepository;
-    private readonly IAgentResultRepository _resultRepository;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IEvidenceBundleRepository _evidenceBundleRepository;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IArchitectureRequestRepository _requestRepository;
+    private readonly IArchitectureApplicationService _applicationService;
     private readonly IHostEnvironment _environment;
 
     public ArchitectureController(
-        ICoordinatorService coordinatorService,
-        IDecisionEngineService decisionEngineService,
-        IArchitectureRunRepository runRepository,
-        IAgentTaskRepository taskRepository,
-        IAgentResultRepository resultRepository,
-        IGoldenManifestRepository manifestRepository,
-        IEvidenceBundleRepository evidenceBundleRepository,
-        IDecisionTraceRepository decisionTraceRepository,
-        IArchitectureRequestRepository requestRepository,
+        IArchitectureApplicationService applicationService,
         IHostEnvironment environment)
     {
-        _coordinatorService = coordinatorService;
-        _decisionEngineService = decisionEngineService;
-        _runRepository = runRepository;
-        _taskRepository = taskRepository;
-        _resultRepository = resultRepository;
-        _manifestRepository = manifestRepository;
-        _evidenceBundleRepository = evidenceBundleRepository;
-        _decisionTraceRepository = decisionTraceRepository;
-        _requestRepository = requestRepository;
+        _applicationService = applicationService;
         _environment = environment;
     }
 
@@ -62,29 +33,17 @@ public sealed class ArchitectureController : ControllerBase
             return BadRequest(new { error = "Request body is required." });
         }
 
-        var coordination = _coordinatorService.CreateRun(request);
+        var result = await _applicationService.CreateRunAsync(request, cancellationToken);
 
-        if (!coordination.Success)
+        if (!result.Success)
         {
-            return BadRequest(new { errors = coordination.Errors });
+            return BadRequest(new { errors = result.Errors });
         }
-
-        await _requestRepository.CreateAsync(request, cancellationToken);
-        await _runRepository.CreateAsync(coordination.Run, cancellationToken);
-        await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
-        await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
-
-        var response = new CreateArchitectureRunResponse
-        {
-            Run = coordination.Run,
-            EvidenceBundle = coordination.EvidenceBundle,
-            Tasks = coordination.Tasks
-        };
 
         return CreatedAtAction(
             nameof(GetRun),
-            new { runId = coordination.Run.RunId },
-            response);
+            new { runId = result.Response!.Run.RunId },
+            result.Response);
     }
 
     [HttpGet("run/{runId}")]
@@ -94,20 +53,17 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var result = await _applicationService.GetRunAsync(runId, cancellationToken);
+        if (result is null)
         {
             return NotFound(new { error = $"Run '{runId}' was not found." });
         }
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-
         return Ok(new
         {
-            run,
-            tasks,
-            results
+            result.Run,
+            result.Tasks,
+            result.Results
         });
     }
 
@@ -125,47 +81,20 @@ public sealed class ArchitectureController : ControllerBase
             return BadRequest(new { error = "Agent result is required." });
         }
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
-        {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
-        }
+        var result = await _applicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
-        if (!string.Equals(request.Result.RunId, runId, StringComparison.OrdinalIgnoreCase))
+        if (!result.Success)
         {
-            return BadRequest(new
-            {
-                error = $"Result RunId '{request.Result.RunId}' does not match route runId '{runId}'."
-            });
-        }
-
-        await _resultRepository.CreateAsync(request.Result, cancellationToken);
-
-        var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (allResults.Count >= 3 && run.Status == ArchitectureRunStatus.TasksGenerated)
-        {
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.ReadyForCommit,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken);
-        }
-        else
-        {
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.WaitingForResults,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken);
+            if (result.Error?.Contains("was not found") == true)
+                return NotFound(new { error = result.Error });
+            return BadRequest(new { error = result.Error });
         }
 
         return Accepted(new
         {
             message = "Agent result accepted.",
             runId,
-            resultId = request.Result.ResultId
+            resultId = result.ResultId
         });
     }
 
@@ -177,81 +106,31 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var result = await _applicationService.CommitRunAsync(runId, cancellationToken);
+
+        if (!result.Success)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
-        }
-
-        var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
-        if (request is null)
-        {
-            return NotFound(new
-            {
-                error = $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found."
-            });
-        }
-
-        var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (allResults.Count == 0)
-        {
-            return BadRequest(new { error = "Cannot commit run with no agent results." });
-        }
-
-        var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-            ? "v1"
-            : IncrementManifestVersion(run.CurrentManifestVersion);
-
-        var merge = _decisionEngineService.MergeResults(
-            runId,
-            request,
-            manifestVersion,
-            allResults,
-            parentManifestVersion: run.CurrentManifestVersion);
-
-        if (!merge.Success)
-        {
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Failed,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: DateTime.UtcNow,
-                cancellationToken: cancellationToken);
-
+            var isNotFound = result.Errors.Any(e => e.Contains("not found"));
+            if (isNotFound)
+                return NotFound(new { error = result.Errors.First() });
             return BadRequest(new
             {
-                errors = merge.Errors,
-                warnings = merge.Warnings
+                errors = result.Errors,
+                warnings = result.Warnings
             });
         }
 
-        await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
-        await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
-
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.Committed,
-            currentManifestVersion: merge.Manifest.Metadata.ManifestVersion,
-            completedUtc: DateTime.UtcNow,
-            cancellationToken: cancellationToken);
-
-        var response = new CommitRunResponse
-        {
-            Manifest = merge.Manifest,
-            DecisionTraces = merge.DecisionTraces,
-            Warnings = merge.Warnings
-        };
-
-        return Ok(response);
+        return Ok(result.Response);
     }
+
     [HttpGet("manifest/{version}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetManifest(
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var manifest = await _applicationService.GetManifestAsync(version, cancellationToken);
         if (manifest is null)
         {
             return NotFound(new { error = $"Manifest '{version}' was not found." });
@@ -260,72 +139,32 @@ public sealed class ArchitectureController : ControllerBase
         return Ok(manifest);
     }
 
-    private static string IncrementManifestVersion(string currentVersion)
-    {
-        if (string.IsNullOrWhiteSpace(currentVersion))
-            return "v1";
-
-        if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
-            int.TryParse(currentVersion[1..], out var versionNumber))
-        {
-            return $"v{versionNumber + 1}";
-        }
-
-        return "v1";
-    }
-
     [HttpPost("run/{runId}/seed-fake-results")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SeedFakeResults(
-    [FromRoute] string runId,
-    CancellationToken cancellationToken)
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
     {
         if (!_environment.IsDevelopment())
         {
             return NotFound();
         }
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var result = await _applicationService.SeedFakeResultsAsync(runId, cancellationToken);
+
+        if (!result.Success)
         {
-            return NotFound(new { error = $"Run '{runId}' was not found." });
+            if (result.Error?.Contains("was not found") == true)
+                return NotFound(new { error = result.Error });
+            return BadRequest(new { error = result.Error });
         }
-
-        var architectureRequest = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
-        if (architectureRequest is null)
-        {
-            return NotFound(new
-            {
-                error = $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found."
-            });
-        }
-
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (tasks.Count == 0)
-        {
-            return BadRequest(new { error = "No tasks exist for this run." });
-        }
-
-        var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
-
-        foreach (var result in fakeResults)
-        {
-            await _resultRepository.CreateAsync(result, cancellationToken);
-        }
-
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.ReadyForCommit,
-            currentManifestVersion: run.CurrentManifestVersion,
-            completedUtc: null,
-            cancellationToken: cancellationToken);
 
         return Ok(new
         {
             message = "Fake results seeded.",
             runId,
-            resultCount = fakeResults.Count
+            resultCount = result.ResultCount
         });
     }
 }

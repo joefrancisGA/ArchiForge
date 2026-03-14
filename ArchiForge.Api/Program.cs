@@ -1,4 +1,5 @@
 using ArchiForge.Api.Health;
+using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
 using ArchiForge.Coordinator.Services;
 using FluentValidation;
@@ -30,6 +31,7 @@ namespace ArchiForge.Api
             builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
+            builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
