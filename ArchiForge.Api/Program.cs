@@ -1,4 +1,5 @@
 using ArchiForge.Api.Health;
+using ArchiForge.Api.Middleware;
 using Serilog;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
@@ -75,6 +76,7 @@ namespace ArchiForge.Api
                 throw new InvalidOperationException("Database migration failed.");
             }
 
+            app.UseMiddleware<CorrelationIdMiddleware>();
             app.UseExceptionHandler(exceptionHandlerApp =>
             {
                 exceptionHandlerApp.Run(async context =>
