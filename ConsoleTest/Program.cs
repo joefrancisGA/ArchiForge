@@ -163,6 +163,37 @@ namespace ArchiForge
             return (proc.ExitCode, stdout, stderr);
         }
 
+        private static ArchitectureRequest BuildArchitectureRequest(
+            ArchiForgeProjectScaffolder.ArchiForgeConfig config,
+            string briefContent)
+        {
+            var arch = config.Architecture;
+            var request = new ArchitectureRequest
+            {
+                RequestId = Guid.NewGuid().ToString("N"),
+                SystemName = config.ProjectName,
+                Description = briefContent,
+                Environment = arch?.Environment ?? "prod",
+                CloudProvider = ParseCloudProvider(arch?.CloudProvider),
+                Constraints = arch?.Constraints ?? [],
+                RequiredCapabilities = arch?.RequiredCapabilities ?? [],
+                Assumptions = arch?.Assumptions ?? [],
+                PriorManifestVersion = arch?.PriorManifestVersion
+            };
+            return request;
+        }
+
+        private static CloudProvider ParseCloudProvider(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return CloudProvider.Azure;
+            return value.Trim().ToLowerInvariant() switch
+            {
+                "azure" => CloudProvider.Azure,
+                "1" => CloudProvider.Azure,
+                _ => CloudProvider.Azure
+            };
+        }
+
         private static async Task<int> ArchiForge_RunAsync()
         {
             string projectRoot = Directory.GetCurrentDirectory();
@@ -191,17 +222,7 @@ namespace ArchiForge
                 return 1;
             }
 
-            var request = new ArchitectureRequest
-            {
-                RequestId = Guid.NewGuid().ToString("N"),
-                SystemName = config.ProjectName,
-                Description = briefContent,
-                Environment = "prod",
-                CloudProvider = CloudProvider.Azure,
-                Constraints = [],
-                RequiredCapabilities = [],
-                Assumptions = []
-            };
+            var request = BuildArchitectureRequest(config, briefContent);
 
             var baseUrl = ArchiForgeApiClient.GetDefaultBaseUrl();
             var client = new ArchiForgeApiClient(baseUrl);

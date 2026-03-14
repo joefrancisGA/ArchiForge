@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -184,6 +184,33 @@ public static class ArchiForgeProjectScaffolder
 
         [JsonPropertyName("infra")]
         public InfraSection Infra { get; set; } = new();
+
+        [JsonPropertyName("architecture")]
+        public ArchitectureSection? Architecture { get; set; }
+    }
+
+    /// <summary>
+    /// Optional architecture request overrides. Enriches the API request when running from archiforge.json.
+    /// </summary>
+    public sealed class ArchitectureSection
+    {
+        [JsonPropertyName("environment")]
+        public string? Environment { get; set; }
+
+        [JsonPropertyName("cloudProvider")]
+        public string? CloudProvider { get; set; }
+
+        [JsonPropertyName("constraints")]
+        public List<string>? Constraints { get; set; }
+
+        [JsonPropertyName("requiredCapabilities")]
+        public List<string>? RequiredCapabilities { get; set; }
+
+        [JsonPropertyName("assumptions")]
+        public List<string>? Assumptions { get; set; }
+
+        [JsonPropertyName("priorManifestVersion")]
+        public string? PriorManifestVersion { get; set; }
     }
 
     public sealed class InputsSection
@@ -232,6 +259,14 @@ public static class ArchiForgeProjectScaffolder
                     Enabled = false,
                     Path = "infra/terraform"
                 }
+            },
+            Architecture = new ArchitectureSection
+            {
+                Environment = "prod",
+                CloudProvider = "Azure",
+                Constraints = ["Private endpoints required", "Use managed identity"],
+                RequiredCapabilities = ["Azure AI Search", "SQL", "Managed Identity"],
+                Assumptions = ["Moderate query volume", "Internal enterprise usage only"]
             }
         };
 
