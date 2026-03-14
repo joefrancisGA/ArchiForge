@@ -10,7 +10,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`).
-2. Apply the schema from `ArchiForge.Data/SQL/ArchiForge.sql` (e.g. via `sqlcmd` or SSMS).
+2. Configure the connection string. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes.
 3. Store the connection string in User Secrets (development):
 
    ```bash
