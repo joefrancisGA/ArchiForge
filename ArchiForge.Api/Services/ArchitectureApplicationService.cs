@@ -34,7 +34,8 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         IGoldenManifestRepository manifestRepository,
         IEvidenceBundleRepository evidenceBundleRepository,
         IDecisionTraceRepository decisionTraceRepository,
-        IArchitectureRequestRepository requestRepository)
+        IArchitectureRequestRepository requestRepository,
+        ILogger<ArchitectureApplicationService> logger)
     {
         _coordinatorService = coordinatorService;
         _decisionEngineService = decisionEngineService;

@@ -5,6 +5,7 @@ using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
 using ArchiForge.Coordinator.Services;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
