@@ -9,6 +9,7 @@ using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 using Asp.Versioning;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api
@@ -44,6 +45,17 @@ namespace ArchiForge.Api
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
+            });
+
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.AddFixedWindowLimiter("fixed", config =>
+                {
+                    config.Window = TimeSpan.FromMinutes(1);
+                    config.PermitLimit = 100;
+                    config.QueueLimit = 0;
+                });
             });
 
             builder.Services.AddCors(options =>
@@ -114,6 +126,8 @@ namespace ArchiForge.Api
             app.UseHttpsRedirection();
 
             app.UseCors("ArchiForge");
+
+            app.UseRateLimiter();
 
             app.UseAuthorization();
 

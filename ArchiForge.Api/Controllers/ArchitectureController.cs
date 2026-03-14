@@ -3,6 +3,7 @@ using ArchiForge.Api.Services;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Hosting;
 
 namespace ArchiForge.Api.Controllers;
@@ -10,6 +11,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
+[EnableRateLimiting("fixed")]
 public sealed class ArchitectureController : ControllerBase
 {
     private readonly IArchitectureApplicationService _applicationService;
