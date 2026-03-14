@@ -43,22 +43,22 @@ Integration tests use in-memory SQLite by default—no SQL Server required. The 
 
 ## API Flow
 
-1. **Create run** – `POST /architecture/request`  
+1. **Create run** – `POST /v1/architecture/request`  
    Submit an `ArchitectureRequest` (system name, environment, cloud provider, constraints). Returns a run and agent tasks.
 
-2. **Submit agent results** – `POST /architecture/run/{runId}/result`  
+2. **Submit agent results** – `POST /v1/architecture/run/{runId}/result`  
    Submit results from topology, cost, and compliance agents.
 
-3. **Commit** – `POST /architecture/run/{runId}/commit`  
+3. **Commit** – `POST /v1/architecture/run/{runId}/commit`  
    Merge results and produce a versioned manifest. Requires at least one agent result per run.
 
-4. **Get manifest** – `GET /architecture/manifest/{version}`  
+4. **Get manifest** – `GET /v1/architecture/manifest/{version}`  
    Retrieve a committed manifest by version.
 
 Other endpoints:
 
-- `GET /architecture/run/{runId}` – Fetch run status, tasks, and results
-- `POST /architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
+- `GET /v1/architecture/run/{runId}` – Fetch run status, tasks, and results
+- `POST /v1/architecture/run/{runId}/seed-fake-results` – (Development only) Seed deterministic fake results for smoke testing
 
 ## Project Structure
 

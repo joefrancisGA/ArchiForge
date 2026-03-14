@@ -1,13 +1,15 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Contracts.Requests;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
-[Route("architecture")]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/architecture")]
 public sealed class ArchitectureController : ControllerBase
 {
     private readonly IArchitectureApplicationService _applicationService;

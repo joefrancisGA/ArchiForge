@@ -31,7 +31,7 @@ public class ArchitectureTests : IntegrationTestBase
         var json = JsonSerializer.Serialize(request);
 
         var response = await Client.PostAsync(
-            "/architecture/request",
+            "/v1/architecture/request",
             new StringContent(json, Encoding.UTF8, "application/json"));
 
         response.EnsureSuccessStatusCode();
@@ -56,7 +56,7 @@ public class ArchitectureTests : IntegrationTestBase
         var json = JsonSerializer.Serialize(request);
 
         var create = await Client.PostAsync(
-            "/architecture/request",
+            "/v1/architecture/request",
             new StringContent(json, Encoding.UTF8, "application/json"));
 
         create.EnsureSuccessStatusCode();
@@ -70,19 +70,19 @@ public class ArchitectureTests : IntegrationTestBase
             .GetString();
 
         var seed = await Client.PostAsync(
-            $"/architecture/run/{runId}/seed-fake-results",
+            $"/v1/architecture/run/{runId}/seed-fake-results",
             null);
 
         seed.EnsureSuccessStatusCode();
 
         var commit = await Client.PostAsync(
-            $"/architecture/run/{runId}/commit",
+            $"/v1/architecture/run/{runId}/commit",
             null);
 
         commit.EnsureSuccessStatusCode();
 
         var manifest = await Client.GetAsync(
-            "/architecture/manifest/v1");
+            "/v1/architecture/manifest/v1");
 
         manifest.EnsureSuccessStatusCode();
     }

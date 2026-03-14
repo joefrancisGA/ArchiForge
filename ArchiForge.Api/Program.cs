@@ -8,8 +8,8 @@ using FluentValidation;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
+using Asp.Versioning;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using FluentValidation.AspNetCore;
 
 namespace ArchiForge.Api
 {
@@ -27,6 +27,16 @@ namespace ArchiForge.Api
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+            }).AddMvc().AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<ArchitectureRequestValidator>();
             builder.Services.AddOpenApi();
@@ -95,7 +105,10 @@ namespace ArchiForge.Api
             {
                 app.MapOpenApi();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArchiForge API v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArchiForge API v1");
+                });
             }
 
             app.UseHttpsRedirection();

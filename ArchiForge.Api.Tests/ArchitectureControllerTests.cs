@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     {
         var request = TestRequestFactory.CreateArchitectureRequest("REQ-API-001");
 
-        var response = await Client.PostAsync("/architecture/request", JsonContent(request));
+        var response = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -40,7 +40,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     public async Task GetRun_ReturnsTasks()
     {
         var createResponse = await Client.PostAsync(
-            "/architecture/request",
+            "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-002")));
 
         createResponse.EnsureSuccessStatusCode();
@@ -50,7 +50,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         var runId = created!.Run.RunId;
 
-        var getResponse = await Client.GetAsync($"/architecture/run/{runId}");
+        var getResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
 
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -65,7 +65,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     public async Task SeedFakeResults_Works()
     {
         var createResponse = await Client.PostAsync(
-            "/architecture/request",
+            "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-003")));
 
         createResponse.EnsureSuccessStatusCode();
@@ -75,7 +75,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var runId = created!.Run.RunId;
 
         var seedResponse = await Client.PostAsync(
-            $"/architecture/run/{runId}/seed-fake-results",
+            $"/v1/architecture/run/{runId}/seed-fake-results",
             content: null);
 
         seedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -85,7 +85,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         seedPayload!.RunId.Should().Be(runId);
         seedPayload.ResultCount.Should().Be(3);
 
-        var getRunResponse = await Client.GetAsync($"/architecture/run/{runId}");
+        var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         getRunResponse.EnsureSuccessStatusCode();
 
         var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
@@ -96,7 +96,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     public async Task CommitRun_CreatesManifest()
     {
         var createResponse = await Client.PostAsync(
-            "/architecture/request",
+            "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-004")));
 
         createResponse.EnsureSuccessStatusCode();
@@ -104,10 +104,10 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         var runId = created!.Run.RunId;
 
-        var seedResponse = await Client.PostAsync($"/architecture/run/{runId}/seed-fake-results", null);
+        var seedResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
         seedResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/architecture/run/{runId}/commit", null);
+        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
 
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -127,7 +127,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     public async Task GoldenPath_EndToEnd()
     {
         var createResponse = await Client.PostAsync(
-            "/architecture/request",
+            "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-005")));
 
         createResponse.EnsureSuccessStatusCode();
@@ -138,16 +138,16 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var runId = created!.Run.RunId;
         runId.Should().NotBeNullOrWhiteSpace();
 
-        var getRunResponse = await Client.GetAsync($"/architecture/run/{runId}");
+        var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         getRunResponse.EnsureSuccessStatusCode();
 
         var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         getRunPayload!.Tasks.Should().HaveCount(3);
 
-        var seedResponse = await Client.PostAsync($"/architecture/run/{runId}/seed-fake-results", null);
+        var seedResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
         seedResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/architecture/run/{runId}/commit", null);
+        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
         var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
@@ -156,7 +156,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
         manifestVersion.Should().Be("v1");
 
-        var manifestResponse = await Client.GetAsync($"/architecture/manifest/{manifestVersion}");
+        var manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
         manifestResponse.EnsureSuccessStatusCode();
 
         var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(new JsonOptions().JsonSerializerOptions);
