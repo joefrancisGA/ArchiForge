@@ -20,6 +20,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
+using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
@@ -97,6 +98,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
+            builder.Services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
             builder.Services.AddScoped<IAgentExecutorResolver, DefaultAgentExecutorResolver>();
             builder.Services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
             builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();

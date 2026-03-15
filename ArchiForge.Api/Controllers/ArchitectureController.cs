@@ -1,6 +1,7 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
+using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Exports;
@@ -36,6 +37,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IAgentResultRepository _resultRepository;
     private readonly IAgentResultDiffService _agentResultDiffService;
     private readonly IAgentResultDiffSummaryFormatter _agentResultDiffSummaryFormatter;
+    private readonly IDeterminismCheckService _determinismCheckService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -54,7 +56,8 @@ public sealed class ArchitectureController : ControllerBase
         IManifestDiffExportService manifestDiffExportService,
         IAgentResultRepository resultRepository,
         IAgentResultDiffService agentResultDiffService,
-        IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter)
+        IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
+        IDeterminismCheckService determinismCheckService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -73,6 +76,7 @@ public sealed class ArchitectureController : ControllerBase
         _resultRepository = resultRepository;
         _agentResultDiffService = agentResultDiffService;
         _agentResultDiffSummaryFormatter = agentResultDiffSummaryFormatter;
+        _determinismCheckService = determinismCheckService;
     }
 
     [HttpPost("request")]
@@ -168,6 +172,37 @@ public sealed class ArchitectureController : ControllerBase
                 Manifest = result.Manifest,
                 DecisionTraces = result.DecisionTraces,
                 Warnings = result.Warnings
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("run/{runId}/determinism-check")]
+    [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RunDeterminismCheck(
+        [FromRoute] string runId,
+        [FromBody] DeterminismCheckRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new DeterminismCheckRequest();
+        request.RunId = runId;
+
+        try
+        {
+            var result = await _determinismCheckService.RunAsync(request, cancellationToken);
+
+            return Ok(new DeterminismCheckResponse
+            {
+                Result = result
             });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
