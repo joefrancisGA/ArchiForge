@@ -118,12 +118,15 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            newStatus,
-            currentManifestVersion: run.CurrentManifestVersion,
-            completedUtc: null,
-            cancellationToken: cancellationToken);
+        if (newStatus != run.Status)
+        {
+            await _runRepository.UpdateStatusAsync(
+                runId,
+                newStatus,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken);
+        }
 
         _logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
             runId, result.ResultId, result.AgentType, newStatus);
@@ -190,14 +193,17 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
         await _resultRepository.CreateManyAsync(fakeResults, cancellationToken);
 
+        var newStatus = HasAllRequiredAgentTypes(fakeResults)
+            ? ArchitectureRunStatus.ReadyForCommit
+            : ArchitectureRunStatus.WaitingForResults;
         await _runRepository.UpdateStatusAsync(
             runId,
-            ArchitectureRunStatus.ReadyForCommit,
+            newStatus,
             currentManifestVersion: run.CurrentManifestVersion,
             completedUtc: null,
             cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}", runId, fakeResults.Count);
+        _logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }
