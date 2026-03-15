@@ -1,6 +1,7 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
+using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
@@ -29,6 +30,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IArchitectureExportService _exportService;
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository;
+    private readonly IManifestDiffService _manifestDiffService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -41,7 +43,8 @@ public sealed class ArchitectureController : ControllerBase
         IManifestSummaryGenerator summaryGenerator,
         IArchitectureExportService exportService,
         IAgentEvidencePackageRepository agentEvidencePackageRepository,
-        IAgentExecutionTraceRepository agentExecutionTraceRepository)
+        IAgentExecutionTraceRepository agentExecutionTraceRepository,
+        IManifestDiffService manifestDiffService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -54,6 +57,7 @@ public sealed class ArchitectureController : ControllerBase
         _exportService = exportService;
         _agentEvidencePackageRepository = agentEvidencePackageRepository;
         _agentExecutionTraceRepository = agentExecutionTraceRepository;
+        _manifestDiffService = manifestDiffService;
     }
 
     [HttpPost("request")]
@@ -259,6 +263,36 @@ public sealed class ArchitectureController : ControllerBase
         }
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
+    }
+
+    [HttpGet("manifest/compare")]
+    [ProducesResponseType(typeof(ManifestCompareResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareManifests(
+        [FromQuery] string leftVersion,
+        [FromQuery] string rightVersion,
+        CancellationToken cancellationToken)
+    {
+        var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        if (left is null)
+        {
+            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+        }
+
+        var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
+        if (right is null)
+        {
+            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+        }
+
+        var diff = _manifestDiffService.Compare(left, right);
+
+        return Ok(new ManifestCompareResponse
+        {
+            LeftManifest = left,
+            RightManifest = right,
+            Diff = diff
+        });
     }
 
     [HttpGet("manifest/{version}")]

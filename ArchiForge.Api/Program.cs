@@ -20,6 +20,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
+using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
@@ -101,6 +102,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
             builder.Services.AddScoped<IArchitectureExportService, MarkdownArchitectureExportService>();
+            builder.Services.AddScoped<IManifestDiffService, ManifestDiffService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
