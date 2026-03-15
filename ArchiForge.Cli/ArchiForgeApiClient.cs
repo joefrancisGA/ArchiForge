@@ -49,6 +49,16 @@ public sealed class ArchiForgeApiClient
             .Build();
     }
 
+    /// <summary>
+    /// Constructor for testing: use a provided HttpClient (e.g. with a mock handler).
+    /// No retry pipeline is used so tests get deterministic behavior.
+    /// </summary>
+    public ArchiForgeApiClient(HttpClient httpClient)
+    {
+        _http = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>().Build();
+    }
+
     public static string GetDefaultBaseUrl() =>
         Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL") ?? "http://localhost:5128";
 
