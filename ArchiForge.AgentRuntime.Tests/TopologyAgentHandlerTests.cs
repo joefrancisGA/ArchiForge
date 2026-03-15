@@ -86,7 +86,8 @@ public sealed class TopologyAgentHandlerTests
 
         var completionClient = new StubAgentCompletionClient(json);
         var parser = new AgentResultParser();
-        var handler = new TopologyAgentHandler(completionClient, parser);
+        var traceRecorder = new NoOpTraceRecorder();
+        var handler = new TopologyAgentHandler(completionClient, parser, traceRecorder);
 
         var request = new ArchitectureRequest
         {

@@ -68,3 +68,32 @@ CREATE TABLE IF NOT EXISTS DecisionTraces
     EventJson TEXT NOT NULL,
     CreatedUtc TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS AgentEvidencePackages
+(
+    EvidencePackageId TEXT NOT NULL PRIMARY KEY,
+    RunId TEXT NOT NULL,
+    RequestId TEXT NOT NULL,
+    SystemName TEXT NOT NULL,
+    Environment TEXT NOT NULL,
+    CloudProvider TEXT NOT NULL,
+    EvidenceJson TEXT NOT NULL,
+    CreatedUtc TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_AgentEvidencePackages_RunId ON AgentEvidencePackages (RunId);
+
+CREATE TABLE IF NOT EXISTS AgentExecutionTraces
+(
+    TraceId TEXT NOT NULL PRIMARY KEY,
+    RunId TEXT NOT NULL,
+    TaskId TEXT NOT NULL,
+    AgentType TEXT NOT NULL,
+    ParseSucceeded INTEGER NOT NULL,
+    ErrorMessage TEXT NULL,
+    TraceJson TEXT NOT NULL,
+    CreatedUtc TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_AgentExecutionTraces_RunId ON AgentExecutionTraces (RunId);
+CREATE INDEX IF NOT EXISTS IX_AgentExecutionTraces_TaskId ON AgentExecutionTraces (TaskId);

@@ -64,7 +64,8 @@ public sealed class CriticAgentHandlerTests
 
         var completionClient = new StubAgentCompletionClient(json);
         var parser = new AgentResultParser();
-        var handler = new CriticAgentHandler(completionClient, parser);
+        var traceRecorder = new NoOpTraceRecorder();
+        var handler = new CriticAgentHandler(completionClient, parser, traceRecorder);
 
         var request = new ArchitectureRequest
         {

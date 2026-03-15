@@ -108,6 +108,8 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
             builder.Services.AddScoped<IDecisionTraceRepository, DecisionTraceRepository>();
             builder.Services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
+            builder.Services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
+            builder.Services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
 
             var agentMode = builder.Configuration["AgentExecution:Mode"];
             if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))

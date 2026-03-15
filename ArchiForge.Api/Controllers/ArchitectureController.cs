@@ -27,6 +27,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IManifestSummaryGenerator _summaryGenerator;
     private readonly IArchitectureExportService _exportService;
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
+    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -37,7 +38,8 @@ public sealed class ArchitectureController : ControllerBase
         IDiagramGenerator diagramGenerator,
         IManifestSummaryGenerator summaryGenerator,
         IArchitectureExportService exportService,
-        IAgentEvidencePackageRepository agentEvidencePackageRepository)
+        IAgentEvidencePackageRepository agentEvidencePackageRepository,
+        IAgentExecutionTraceRepository agentExecutionTraceRepository)
     {
         _architectureRunService = architectureRunService;
         _architectureApplicationService = architectureApplicationService;
@@ -48,6 +50,7 @@ public sealed class ArchitectureController : ControllerBase
         _summaryGenerator = summaryGenerator;
         _exportService = exportService;
         _agentEvidencePackageRepository = agentEvidencePackageRepository;
+        _agentExecutionTraceRepository = agentExecutionTraceRepository;
     }
 
     [HttpPost("request")]
@@ -378,6 +381,27 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
+    [HttpGet("run/{runId}/traces")]
+    [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunTraces(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return NotFound(new { error = $"Run '{runId}' was not found." });
+        }
+
+        var traces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        return Ok(new AgentExecutionTraceResponse
+        {
+            Traces = traces.ToList()
+        });
+    }
+
     [HttpGet("run/{runId}/full")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -392,7 +416,9 @@ public sealed class ArchitectureController : ControllerBase
         }
 
         object? manifest = null;
+        object? evidence = null;
         IEnumerable<object> decisionTraces = [];
+        IEnumerable<object> agentExecutionTraces = [];
 
         if (!string.IsNullOrWhiteSpace(data.Run.CurrentManifestVersion))
         {
@@ -400,13 +426,18 @@ public sealed class ArchitectureController : ControllerBase
             decisionTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
         }
 
+        evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        agentExecutionTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
         return Ok(new
         {
             run = data.Run,
             tasks = data.Tasks,
             results = data.Results,
             manifest,
-            decisionTraces
+            evidence,
+            decisionTraces,
+            agentExecutionTraces
         });
     }
 }

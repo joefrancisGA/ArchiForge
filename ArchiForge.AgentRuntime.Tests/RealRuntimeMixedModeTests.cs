@@ -170,20 +170,24 @@ public sealed class RealRuntimeMixedModeTests
 """;
 
         var parser = new AgentResultParser();
+        var traceRecorder = new NoOpTraceRecorder();
 
         var topologyHandler = new TopologyAgentHandler(
             new StubAgentCompletionClient(topologyJson),
-            parser);
+            parser,
+            traceRecorder);
 
         var complianceHandler = new ComplianceAgentHandler(
             new StubAgentCompletionClient(complianceJson),
-            parser);
+            parser,
+            traceRecorder);
 
         var costHandler = new CostAgentHandler();
 
         var criticHandler = new CriticAgentHandler(
             new StubAgentCompletionClient(criticJson),
-            parser);
+            parser,
+            traceRecorder);
 
         var executor = new RealAgentExecutor(new IAgentHandler[]
         {

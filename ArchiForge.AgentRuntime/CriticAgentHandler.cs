@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -7,15 +8,23 @@ namespace ArchiForge.AgentRuntime;
 
 public sealed class CriticAgentHandler : IAgentHandler
 {
+    private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = true
+    };
+
     private readonly IAgentCompletionClient _completionClient;
     private readonly IAgentResultParser _resultParser;
+    private readonly IAgentExecutionTraceRecorder _traceRecorder;
 
     public CriticAgentHandler(
         IAgentCompletionClient completionClient,
-        IAgentResultParser resultParser)
+        IAgentResultParser resultParser,
+        IAgentExecutionTraceRecorder traceRecorder)
     {
         _completionClient = completionClient;
         _resultParser = resultParser;
+        _traceRecorder = traceRecorder;
     }
 
     public AgentType AgentType => AgentType.Critic;
@@ -34,18 +43,53 @@ public sealed class CriticAgentHandler : IAgentHandler
         var systemPrompt = BuildSystemPrompt();
         var userPrompt = BuildUserPrompt(runId, request, evidence, task);
 
-        var rawJson = await _completionClient.CompleteJsonAsync(
-            systemPrompt,
-            userPrompt,
-            cancellationToken);
+        string rawJson = string.Empty;
 
-        var parsed = _resultParser.ParseAndValidate(
-            rawJson,
-            expectedRunId: runId,
-            expectedTaskId: task.TaskId,
-            expectedAgentType: AgentType.Critic);
+        try
+        {
+            rawJson = await _completionClient.CompleteJsonAsync(
+                systemPrompt,
+                userPrompt,
+                cancellationToken);
 
-        return parsed;
+            var parsed = _resultParser.ParseAndValidate(
+                rawJson,
+                expectedRunId: runId,
+                expectedTaskId: task.TaskId,
+                expectedAgentType: AgentType.Critic);
+
+            var parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
+
+            await _traceRecorder.RecordAsync(
+                runId,
+                task.TaskId,
+                AgentType.Critic,
+                systemPrompt,
+                userPrompt,
+                rawJson,
+                parsedJson,
+                parseSucceeded: true,
+                errorMessage: null,
+                cancellationToken: cancellationToken);
+
+            return parsed;
+        }
+        catch (Exception ex)
+        {
+            await _traceRecorder.RecordAsync(
+                runId,
+                task.TaskId,
+                AgentType.Critic,
+                systemPrompt,
+                userPrompt,
+                rawJson,
+                parsedResultJson: null,
+                parseSucceeded: false,
+                errorMessage: ex.Message,
+                cancellationToken: cancellationToken);
+
+            throw;
+        }
     }
 
     private static string BuildSystemPrompt()
