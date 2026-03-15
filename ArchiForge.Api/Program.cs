@@ -1,9 +1,11 @@
+using System.Text.Json;
+using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
-using Serilog;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Validators;
+using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -14,6 +16,8 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using ArchiForge.AgentRuntime;
+using ArchiForge.Application;
 
 namespace ArchiForge.Api
 {
@@ -93,6 +97,40 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IGoldenManifestRepository, GoldenManifestRepository>();
             builder.Services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
             builder.Services.AddScoped<IDecisionTraceRepository, DecisionTraceRepository>();
+
+            var agentMode = builder.Configuration["AgentExecution:Mode"];
+            if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+            {
+                builder.Services.AddScoped<IAgentExecutor, DeterministicAgentSimulator>();
+            }
+            else
+            {
+                builder.Services.AddScoped<IAgentExecutor, RealAgentExecutor>();
+                builder.Services.AddScoped<IAgentHandler, TopologyAgentHandler>();
+                builder.Services.AddScoped<IAgentHandler, CostAgentHandler>();
+                builder.Services.AddScoped<IAgentHandler, ComplianceAgentHandler>();
+                builder.Services.AddScoped<IAgentHandler, CriticAgentHandler>();
+                builder.Services.AddScoped<IAgentResultParser, AgentResultParser>();
+                // For production with LLM, replace FakeAgentCompletionClient with AzureOpenAiCompletionClient.
+                var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+                builder.Services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
+                    (_, __, runId, taskId) =>
+                    {
+                        var dummyRequest = new ArchitectureRequest
+                        {
+                            SystemName = "Default",
+                            Description = "Default request for fake topology response.",
+                            Environment = "prod"
+                        };
+                        var result = FakeScenarioFactory.CreateTopologyResult(
+                            runId ?? string.Empty,
+                            taskId ?? string.Empty,
+                            dummyRequest);
+                        return JsonSerializer.Serialize(result, jsonOptions);
+                    }));
+            }
+
+            builder.Services.AddScoped<ArchitectureRunOrchestrator>();
 
             var app = builder.Build();
 
