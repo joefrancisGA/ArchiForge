@@ -473,6 +473,22 @@ public sealed class ArchitectureApplicationServiceTests
     }
 
     [Fact]
+    public async Task SeedFakeResultsAsync_WhenRunStatusNotAllowed_ReturnsError()
+    {
+        var run = ValidRun();
+        run.Status = ArchitectureRunStatus.ReadyForCommit;
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+
+        var result = await _sut.SeedFakeResultsAsync("run-1");
+
+        result.Should().NotBeNull();
+        result!.Success.Should().BeFalse();
+        result.Error.Should().Contain("does not accept results").And.Contain("ReadyForCommit");
+        _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runRepository.Verify(r => r.UpdateStatusAsync(It.IsAny<string>(), It.IsAny<ArchitectureRunStatus>(), It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task SeedFakeResultsAsync_WhenRunNotFound_ReturnsError()
     {
         _runRepository.Setup(r => r.GetByIdAsync("nonexistent", It.IsAny<CancellationToken>())).ReturnsAsync((ArchitectureRun?)null);

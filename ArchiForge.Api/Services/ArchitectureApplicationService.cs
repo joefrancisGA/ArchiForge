@@ -159,6 +159,13 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.");
         }
 
+        if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
+        {
+            var allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
+            return new SeedFakeResultsResult(false, 0,
+                $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.");
+        }
+
         var architectureRequest = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
         {
