@@ -147,15 +147,18 @@ public sealed class ArchitectureApplicationServiceTests
     }
 
     [Fact]
-    public async Task SubmitAgentResultAsync_WhenThreeResults_TransitionsToReadyForCommit()
+    public async Task SubmitAgentResultAsync_WhenThreeResultsWithDistinctRequiredTypes_TransitionsToReadyForCommit()
     {
         var run = ValidRun();
         var result = ValidResult("run-1", AgentType.Compliance);
+        result.TaskId = "task-compliance";
         var existingResults = new List<AgentResult>
         {
             ValidResult("run-1", AgentType.Topology),
             ValidResult("run-1", AgentType.Cost)
         };
+        existingResults[0].TaskId = "task-topology";
+        existingResults[1].TaskId = "task-cost";
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(existingResults);
@@ -166,6 +169,32 @@ public sealed class ArchitectureApplicationServiceTests
 
         sutResult.Success.Should().BeTrue();
         _runRepository.Verify(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task SubmitAgentResultAsync_WhenThreeResultsButSameAgentType_StaysWaitingForResults()
+    {
+        var run = ValidRun();
+        var result = ValidResult("run-1", AgentType.Topology);
+        result.TaskId = "task-topology-3";
+        var existingResults = new List<AgentResult>
+        {
+            ValidResult("run-1", AgentType.Topology),
+            ValidResult("run-1", AgentType.Topology)
+        };
+        existingResults[0].TaskId = "task-topology-1";
+        existingResults[1].TaskId = "task-topology-2";
+
+        _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
+        _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(existingResults);
+        _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        var sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
+
+        sutResult.Success.Should().BeTrue();
+        _runRepository.Verify(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>()), Times.Once);
+        _runRepository.Verify(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]

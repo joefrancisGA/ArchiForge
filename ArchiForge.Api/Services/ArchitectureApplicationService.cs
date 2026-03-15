@@ -11,8 +11,8 @@ namespace ArchiForge.Api.Services;
 
 public sealed class ArchitectureApplicationService : IArchitectureApplicationService
 {
-    /// <summary>Number of agent results (Topology, Cost, Compliance) required before a run can transition to ReadyForCommit.</summary>
-    private const int RequiredResultCount = 3;
+    /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
+    private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance];
 
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IAgentTaskRepository _taskRepository;
@@ -74,8 +74,11 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
         await _resultRepository.CreateAsync(result, cancellationToken);
 
-        var totalResultCount = existingResults.Count + 1;
-        var newStatus = totalResultCount >= RequiredResultCount && run.Status == ArchitectureRunStatus.TasksGenerated
+        var allResults = existingResults.Append(result).ToList();
+        var agentTypesPresent = allResults.Select(r => r.AgentType).ToHashSet();
+        var hasAllRequiredAgentTypes = RequiredAgentTypes.IsSubsetOf(agentTypesPresent)
+            && agentTypesPresent.IsSubsetOf(RequiredAgentTypes);
+        var newStatus = hasAllRequiredAgentTypes && run.Status == ArchitectureRunStatus.TasksGenerated
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
