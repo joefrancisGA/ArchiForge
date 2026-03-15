@@ -14,7 +14,7 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, commit <runId>, seed <runId>, artifacts <runId>, health");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, health");
                 return 1;
             }
 
@@ -48,6 +48,14 @@ namespace ArchiForge
                         return 1;
                     }
                     return await ArchiForge_StatusAsync(args[1]);
+
+                case "submit":
+                    if (args.Length <= 2)
+                    {
+                        Console.WriteLine("Usage: archiforge submit <runId> <result.json>");
+                        return 1;
+                    }
+                    return await ArchiForge_SubmitAsync(args[1], args[2]);
 
                 case "commit":
                     if (args.Length <= 1)

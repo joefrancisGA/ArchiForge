@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using Polly;
 using Polly.Retry;
@@ -101,6 +102,38 @@ public sealed class ArchiForgeApiClient
         catch (TaskCanceledException)
         {
             return CreateRunResult.Fail(null, "Request timed out.");
+        }
+    }
+
+    /// <summary>
+    /// Submit an agent result for a run.
+    /// </summary>
+    public async Task<SubmitResultResult?> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken ct = default)
+    {
+        try
+        {
+            result.RunId = runId;
+            var request = new SubmitAgentResultRequest { Result = result };
+            var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/result";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, request, _jsonOptions, cancellationToken)), ct);
+            var content = await response.Content.ReadAsStringAsync(ct);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = TryParseError(content);
+                return new SubmitResultResult(false, null, error ?? content);
+            }
+
+            var parsed = JsonSerializer.Deserialize<SubmitResultResponse>(content, _jsonOptions);
+            return new SubmitResultResult(true, parsed?.ResultId, null);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return new SubmitResultResult(false, null, "Request timed out.");
         }
     }
 
@@ -295,5 +328,19 @@ public sealed class ArchiForgeApiClient
         public string Message { get; set; } = "";
         public string RunId { get; set; } = "";
         public int ResultCount { get; set; }
+    }
+
+    public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error);
+
+    public sealed class SubmitResultResponse
+    {
+        public string Message { get; set; } = "";
+        public string RunId { get; set; } = "";
+        public string ResultId { get; set; } = "";
+    }
+
+    internal sealed class SubmitAgentResultRequest
+    {
+        public AgentResult Result { get; set; } = new();
     }
 }
