@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
+    <ProjectReference Include="..\ArchiForge.Data\ArchiForge.Data.csproj" />
     <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
   </ItemGroup>
 

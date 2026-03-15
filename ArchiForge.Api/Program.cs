@@ -88,6 +88,7 @@ namespace ArchiForge.Api
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
+            builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();

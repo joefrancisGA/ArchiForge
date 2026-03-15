@@ -1,4 +1,4 @@
-﻿namespace ArchiForge.Api.Tests;
+namespace ArchiForge.Api.Tests;
 
 public sealed class CreateRunResponseDto
 {
@@ -39,6 +39,12 @@ public sealed class SeedFakeResultsResponseDto
     public string Message { get; set; } = string.Empty;
     public string RunId { get; set; } = string.Empty;
     public int ResultCount { get; set; }
+}
+
+public sealed class ExecuteRunResponseDto
+{
+    public string RunId { get; set; } = string.Empty;
+    public List<object> Results { get; set; } = [];
 }
 
 public sealed class CommitRunResponseDto

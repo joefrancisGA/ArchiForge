@@ -1,79 +1,37 @@
 using ArchiForge.Api.Diagnostics;
-using ArchiForge.Api.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.Coordinator.Services;
 using ArchiForge.Data.Repositories;
-using ArchiForge.DecisionEngine.Services;
 using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Services;
 
 public sealed class ArchitectureApplicationService : IArchitectureApplicationService
 {
-    private readonly ICoordinatorService _coordinatorService;
-    private readonly IDecisionEngineService _decisionEngineService;
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IAgentTaskRepository _taskRepository;
     private readonly IAgentResultRepository _resultRepository;
     private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IEvidenceBundleRepository _evidenceBundleRepository;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IArchitectureRequestRepository _requestRepository;
     private readonly ILogger<ArchitectureApplicationService> _logger;
 
     public ArchitectureApplicationService(
-        ICoordinatorService coordinatorService,
-        IDecisionEngineService decisionEngineService,
         IArchitectureRunRepository runRepository,
         IAgentTaskRepository taskRepository,
         IAgentResultRepository resultRepository,
         IGoldenManifestRepository manifestRepository,
-        IEvidenceBundleRepository evidenceBundleRepository,
-        IDecisionTraceRepository decisionTraceRepository,
         IArchitectureRequestRepository requestRepository,
         ILogger<ArchitectureApplicationService> logger)
     {
-        _coordinatorService = coordinatorService;
-        _decisionEngineService = decisionEngineService;
         _runRepository = runRepository;
         _taskRepository = taskRepository;
         _resultRepository = resultRepository;
         _manifestRepository = manifestRepository;
-        _evidenceBundleRepository = evidenceBundleRepository;
-        _decisionTraceRepository = decisionTraceRepository;
         _requestRepository = requestRepository;
         _logger = logger;
-    }
-
-    public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
-    {
-        var coordination = _coordinatorService.CreateRun(request);
-        if (!coordination.Success)
-        {
-            _logger.LogWarning("Create run failed for RequestId {RequestId}: {Errors}",
-                request.RequestId, string.Join("; ", coordination.Errors));
-            return new CreateRunResult(false, null, coordination.Errors);
-        }
-
-        await _requestRepository.CreateAsync(request, cancellationToken);
-        await _runRepository.CreateAsync(coordination.Run, cancellationToken);
-        await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
-        await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
-
-        _logger.LogInformation("Architecture run created: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}",
-            coordination.Run.RunId, request.RequestId, request.SystemName);
-
-        var response = new CreateArchitectureRunResponse
-        {
-            Run = coordination.Run,
-            EvidenceBundle = coordination.EvidenceBundle,
-            Tasks = coordination.Tasks
-        };
-        return new CreateRunResult(true, response, []);
     }
 
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -121,73 +79,6 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         return new SubmitResultResult(true, result.ResultId, null);
     }
 
-    public async Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default)
-    {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
-        {
-            return new CommitRunResult(false, null, ["Run not found"], []);
-        }
-
-        var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
-        if (request is null)
-        {
-            return new CommitRunResult(false, null,
-                [$"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found."], []);
-        }
-
-        var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        if (allResults.Count == 0)
-        {
-            return new CommitRunResult(false, null, ["Cannot commit run with no agent results."], []);
-        }
-
-        var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-            ? "v1"
-            : IncrementManifestVersion(run.CurrentManifestVersion);
-
-        var merge = _decisionEngineService.MergeResults(
-            runId,
-            request,
-            manifestVersion,
-            allResults,
-            parentManifestVersion: run.CurrentManifestVersion);
-
-        if (!merge.Success)
-        {
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Failed,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: DateTime.UtcNow,
-                cancellationToken: cancellationToken);
-
-            return new CommitRunResult(false, null, merge.Errors, merge.Warnings);
-        }
-
-        await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
-        await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
-
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.Committed,
-            currentManifestVersion: merge.Manifest.Metadata.ManifestVersion,
-            completedUtc: DateTime.UtcNow,
-            cancellationToken: cancellationToken);
-
-        var response = new CommitRunResponse
-        {
-            Manifest = merge.Manifest,
-            DecisionTraces = merge.DecisionTraces,
-            Warnings = merge.Warnings
-        };
-
-        _logger.LogInformation("Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, SystemName={SystemName}",
-            runId, merge.Manifest.Metadata.ManifestVersion, merge.Manifest.SystemName);
-
-        return new CommitRunResult(true, response, [], merge.Warnings);
-    }
-
     public async Task<GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
     {
         return await _manifestRepository.GetByVersionAsync(version, cancellationToken);
@@ -231,19 +122,5 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         _logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}", runId, fakeResults.Count);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
-    }
-
-    private static string IncrementManifestVersion(string currentVersion)
-    {
-        if (string.IsNullOrWhiteSpace(currentVersion))
-            return "v1";
-
-        if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
-            int.TryParse(currentVersion[1..], out var versionNumber))
-        {
-            return $"v{versionNumber + 1}";
-        }
-
-        return "v1";
     }
 }

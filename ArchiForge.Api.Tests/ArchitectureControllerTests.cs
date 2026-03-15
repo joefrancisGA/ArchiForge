@@ -124,6 +124,67 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task ExecuteRun_ExecutesTasksAndReturnsResults()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-EXEC")));
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        created.Should().NotBeNull();
+        var runId = created!.Run.RunId;
+
+        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+
+        executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        executePayload.Should().NotBeNull();
+        executePayload!.RunId.Should().Be(runId);
+        executePayload.Results.Should().HaveCount(3);
+    }
+
+    [Fact]
+    public async Task GoldenPath_EndToEnd_WithExecute()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-API-006")));
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        created.Should().NotBeNull();
+
+        var runId = created!.Run.RunId;
+        runId.Should().NotBeNullOrWhiteSpace();
+
+        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
+        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        commitResponse.EnsureSuccessStatusCode();
+
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        commitPayload.Should().NotBeNull();
+
+        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        manifestVersion.Should().Be("v1");
+
+        var manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
+        manifestResponse.EnsureSuccessStatusCode();
+
+        var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(new JsonOptions().JsonSerializerOptions);
+        manifestPayload.Should().NotBeNull();
+        manifestPayload!.SystemName.Should().Be("EnterpriseRag");
+        manifestPayload.Services.Should().NotBeEmpty();
+        manifestPayload.Datastores.Should().NotBeEmpty();
+        manifestPayload.Governance.RequiredControls.Should().NotBeEmpty();
+        manifestPayload.Metadata.DecisionTraceIds.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public async Task GoldenPath_EndToEnd()
     {
         var createResponse = await Client.PostAsync(
