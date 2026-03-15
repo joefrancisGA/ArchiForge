@@ -156,6 +156,58 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
+    [HttpPost("run/{runId}/result")]
+    [ProducesResponseType(typeof(SubmitAgentResultResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SubmitAgentResult(
+        [FromRoute] string runId,
+        [FromBody] SubmitAgentResultRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request?.Result is null)
+        {
+            return BadRequest(new { error = "Agent result is required." });
+        }
+
+        var result = await _architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
+        if (!result.Success)
+        {
+            if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
+            {
+                return NotFound(new { error = result.Error });
+            }
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
+    }
+
+    [HttpPost("run/{runId}/seed-fake-results")]
+    [ProducesResponseType(typeof(SeedFakeResultsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SeedFakeResults(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
+        if (result is null)
+        {
+            return NotFound(new { error = $"Run '{runId}' was not found." });
+        }
+        if (!result.Success)
+        {
+            if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
+            {
+                return NotFound(new { error = result.Error });
+            }
+            return BadRequest(new { error = result.Error });
+        }
+
+        return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
+    }
+
     [HttpGet("manifest/{version}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
