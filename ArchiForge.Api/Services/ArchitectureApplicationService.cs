@@ -111,7 +111,8 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
         await _resultRepository.CreateAsync(result, cancellationToken);
 
-        var allResults = existingResults.Append(result).ToList();
+        // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
+        var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
         var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
         var newStatus = hasAllRequiredAgentTypes
             ? ArchitectureRunStatus.ReadyForCommit
