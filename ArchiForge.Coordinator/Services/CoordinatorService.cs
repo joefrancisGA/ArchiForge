@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
@@ -155,7 +155,8 @@ public sealed class CoordinatorService : ICoordinatorService
         [
             CreateTopologyTask(runId, evidenceBundle, request),
             CreateCostTask(runId, evidenceBundle, request),
-            CreateComplianceTask(runId, evidenceBundle, request)
+            CreateComplianceTask(runId, evidenceBundle, request),
+            CreateCriticTask(runId, evidenceBundle, request)
         ];
     }
 
@@ -269,5 +270,43 @@ public sealed class CoordinatorService : ICoordinatorService
         return
             $"Validate the proposed architecture for system '{request.SystemName}' " +
             $"against policy constraints: {string.Join(", ", request.Constraints)}";
+    }
+
+    private static AgentTask CreateCriticTask(
+        string runId,
+        EvidenceBundle evidenceBundle,
+        ArchitectureRequest request)
+    {
+        return new AgentTask
+        {
+            TaskId = Guid.NewGuid().ToString("N"),
+            RunId = runId,
+            AgentType = AgentType.Critic,
+            Objective = BuildCriticObjective(request),
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = DateTime.UtcNow,
+            CompletedUtc = null,
+            EvidenceBundleRef = evidenceBundle.EvidenceBundleId,
+            AllowedTools =
+            [
+                "architecture-review-checklist",
+                "policy-pack-reader"
+            ],
+            AllowedSources =
+            [
+                "architecture-request",
+                "policy-pack",
+                "service-catalog",
+                "prior-manifest"
+            ]
+        };
+    }
+
+    private static string BuildCriticObjective(ArchitectureRequest request)
+    {
+        return
+            $"Critique the implied architecture for system '{request.SystemName}' " +
+            $"and identify omissions, contradictions, or weak assumptions " +
+            $"that may undermine enterprise readiness or governance.";
     }
 }

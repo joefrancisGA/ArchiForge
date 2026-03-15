@@ -12,7 +12,7 @@ namespace ArchiForge.Api.Services;
 public sealed class ArchitectureApplicationService : IArchitectureApplicationService
 {
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
-    private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance];
+    private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
 
     /// <summary>Run statuses that allow submitting agent results.</summary>
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses =

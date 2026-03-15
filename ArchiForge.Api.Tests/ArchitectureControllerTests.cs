@@ -27,12 +27,13 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         payload!.Run.Should().NotBeNull();
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
         payload.Run.RequestId.Should().Be("REQ-API-001");
-        payload.Tasks.Should().HaveCount(3);
+        payload.Tasks.Should().HaveCount(4);
         payload.Tasks.Select(t => t.AgentType).Should().Contain(new[]
         {
             "Topology",
             "Cost",
-            "Compliance"
+            "Compliance",
+            "Critic"
         });
     }
 
@@ -57,7 +58,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var payload = await getResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         payload.Should().NotBeNull();
         payload!.Run.RunId.Should().Be(runId);
-        payload.Tasks.Should().HaveCount(3);
+        payload.Tasks.Should().HaveCount(4);
         payload.Results.Should().BeEmpty();
     }
 
@@ -83,13 +84,13 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         executePayload.Should().NotBeNull();
         executePayload!.RunId.Should().Be(runId);
-        executePayload.Results.Should().HaveCount(3);
+        executePayload.Results.Should().HaveCount(4);
 
         var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         getRunResponse.EnsureSuccessStatusCode();
 
         var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
-        getRunPayload!.Results.Should().HaveCount(3);
+        getRunPayload!.Results.Should().HaveCount(4);
     }
 
     [Fact]
@@ -142,7 +143,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         executePayload.Should().NotBeNull();
         executePayload!.RunId.Should().Be(runId);
-        executePayload.Results.Should().HaveCount(3);
+        executePayload.Results.Should().HaveCount(4);
     }
 
     [Fact]
@@ -203,7 +204,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         getRunResponse.EnsureSuccessStatusCode();
 
         var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
-        getRunPayload!.Tasks.Should().HaveCount(3);
+        getRunPayload!.Tasks.Should().HaveCount(4);
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
