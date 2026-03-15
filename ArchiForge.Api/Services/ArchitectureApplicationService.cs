@@ -113,7 +113,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
         var allResults = existingResults.Append(result).ToList();
         var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
-        var newStatus = hasAllRequiredAgentTypes && run.Status == ArchitectureRunStatus.TasksGenerated
+        var newStatus = hasAllRequiredAgentTypes
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
