@@ -31,6 +31,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository;
     private readonly IManifestDiffService _manifestDiffService;
+    private readonly IManifestDiffSummaryFormatter _manifestDiffSummaryFormatter;
+    private readonly IManifestDiffExportService _manifestDiffExportService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -44,7 +46,9 @@ public sealed class ArchitectureController : ControllerBase
         IArchitectureExportService exportService,
         IAgentEvidencePackageRepository agentEvidencePackageRepository,
         IAgentExecutionTraceRepository agentExecutionTraceRepository,
-        IManifestDiffService manifestDiffService)
+        IManifestDiffService manifestDiffService,
+        IManifestDiffSummaryFormatter manifestDiffSummaryFormatter,
+        IManifestDiffExportService manifestDiffExportService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -58,6 +62,8 @@ public sealed class ArchitectureController : ControllerBase
         _agentEvidencePackageRepository = agentEvidencePackageRepository;
         _agentExecutionTraceRepository = agentExecutionTraceRepository;
         _manifestDiffService = manifestDiffService;
+        _manifestDiffSummaryFormatter = manifestDiffSummaryFormatter;
+        _manifestDiffExportService = manifestDiffExportService;
     }
 
     [HttpPost("request")]
@@ -293,6 +299,103 @@ public sealed class ArchitectureController : ControllerBase
             RightManifest = right,
             Diff = diff
         });
+    }
+
+    [HttpGet("manifest/compare/summary")]
+    [ProducesResponseType(typeof(ManifestCompareSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareManifestsSummary(
+        [FromQuery] string leftVersion,
+        [FromQuery] string rightVersion,
+        CancellationToken cancellationToken)
+    {
+        var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        if (left is null)
+        {
+            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+        }
+
+        var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
+        if (right is null)
+        {
+            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+        }
+
+        var diff = _manifestDiffService.Compare(left, right);
+        var summary = _manifestDiffSummaryFormatter.FormatMarkdown(diff);
+
+        return Ok(new ManifestCompareSummaryResponse
+        {
+            LeftManifestVersion = leftVersion,
+            RightManifestVersion = rightVersion,
+            Format = "markdown",
+            Summary = summary,
+            Diff = diff
+        });
+    }
+
+    [HttpGet("manifest/compare/export")]
+    [ProducesResponseType(typeof(ManifestCompareExportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareManifestsExport(
+        [FromQuery] string leftVersion,
+        [FromQuery] string rightVersion,
+        CancellationToken cancellationToken)
+    {
+        var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        if (left is null)
+        {
+            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+        }
+
+        var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
+        if (right is null)
+        {
+            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+        }
+
+        var diff = _manifestDiffService.Compare(left, right);
+        var summary = _manifestDiffSummaryFormatter.FormatMarkdown(diff);
+        var content = _manifestDiffExportService.GenerateMarkdownExport(left, right, diff, summary);
+
+        return Ok(new ManifestCompareExportResponse
+        {
+            LeftManifestVersion = leftVersion,
+            RightManifestVersion = rightVersion,
+            Format = "markdown",
+            FileName = $"compare_{leftVersion}_to_{rightVersion}.md",
+            Content = content
+        });
+    }
+
+    [HttpGet("manifest/compare/export/file")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadCompareManifestsExport(
+        [FromQuery] string leftVersion,
+        [FromQuery] string rightVersion,
+        CancellationToken cancellationToken)
+    {
+        var left = await _manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        if (left is null)
+        {
+            return NotFound(new { error = $"Manifest '{leftVersion}' was not found." });
+        }
+
+        var right = await _manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
+        if (right is null)
+        {
+            return NotFound(new { error = $"Manifest '{rightVersion}' was not found." });
+        }
+
+        var diff = _manifestDiffService.Compare(left, right);
+        var summary = _manifestDiffSummaryFormatter.FormatMarkdown(diff);
+        var content = _manifestDiffExportService.GenerateMarkdownExport(left, right, diff, summary);
+
+        var fileName = $"compare_{leftVersion}_to_{rightVersion}.md";
+        var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+
+        return File(bytes, "text/markdown", fileName);
     }
 
     [HttpGet("manifest/{version}")]

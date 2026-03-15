@@ -103,6 +103,8 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
             builder.Services.AddScoped<IArchitectureExportService, MarkdownArchitectureExportService>();
             builder.Services.AddScoped<IManifestDiffService, ManifestDiffService>();
+            builder.Services.AddScoped<IManifestDiffSummaryFormatter, MarkdownManifestDiffSummaryFormatter>();
+            builder.Services.AddScoped<IManifestDiffExportService, MarkdownManifestDiffExportService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
