@@ -48,6 +48,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "expected", "expected", "{1B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Cli", "ArchiForge.Cli\ArchiForge.Cli.csproj", "{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Cli.Tests", "ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj", "{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F391F1CE-53C6-475C-9C9C-7B7F859408ED}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\Users\jafra\OneDrive\ArchiForge\archiforge_design.md = ..\..\Users\jafra\OneDrive\ArchiForge\archiforge_design.md
@@ -99,6 +101,10 @@ Global
 		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +124,7 @@ Global
 		{64DDAD70-E4DB-401E-AD8A-235C97409E14} = {D32098F6-7916-4389-9210-A50803425AC0}
 		{1B09D673-406E-4BF4-95DF-557D9147521D} = {D32098F6-7916-4389-9210-A50803425AC0}
 		{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A} = {128DBBE7-315A-4005-BED1-BA51A521D8FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FD97131-0FD0-4645-8251-FB97CFE92CE5}
