@@ -55,4 +55,29 @@ public sealed class DecisionTraceRepository : IDecisionTraceRepository
             rows,
             cancellationToken: cancellationToken));
     }
+
+    public async Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT EventJson
+            FROM DecisionTraces
+            WHERE RunId = @RunId
+            ORDER BY CreatedUtc;
+            """;
+
+        using var connection = _connectionFactory.CreateConnection();
+
+        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+            sql,
+            new { RunId = runId },
+            cancellationToken: cancellationToken));
+
+        return rows
+            .Select(json => JsonSerializer.Deserialize<DecisionTrace>(json, ContractJson.Default))
+            .Where(x => x is not null)
+            .Cast<DecisionTrace>()
+            .ToList();
+    }
 }

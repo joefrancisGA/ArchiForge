@@ -21,7 +21,7 @@ using ArchiForge.Application;
 
 namespace ArchiForge.Api
 {
-    public class Program
+    public partial class Program
     {
         public static void Main(string[] args)
         {
@@ -186,3 +186,5 @@ namespace ArchiForge.Api
         }
     }
 }
+
+public partial class Program { }

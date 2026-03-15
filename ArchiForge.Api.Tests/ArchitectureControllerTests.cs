@@ -62,7 +62,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task SeedFakeResults_Works()
+    public async Task ExecuteRun_SeedsResults()
     {
         var createResponse = await Client.PostAsync(
             "/v1/architecture/request",
@@ -74,16 +74,16 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         var runId = created!.Run.RunId;
 
-        var seedResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/seed-fake-results",
+        var executeResponse = await Client.PostAsync(
+            $"/v1/architecture/run/{runId}/execute",
             content: null);
 
-        seedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var seedPayload = await seedResponse.Content.ReadFromJsonAsync<SeedFakeResultsResponseDto>(new JsonOptions().JsonSerializerOptions);
-        seedPayload.Should().NotBeNull();
-        seedPayload!.RunId.Should().Be(runId);
-        seedPayload.ResultCount.Should().Be(3);
+        var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        executePayload.Should().NotBeNull();
+        executePayload!.RunId.Should().Be(runId);
+        executePayload.Results.Should().HaveCount(3);
 
         var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         getRunResponse.EnsureSuccessStatusCode();
@@ -104,8 +104,8 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         var runId = created!.Run.RunId;
 
-        var seedResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
-        seedResponse.EnsureSuccessStatusCode();
+        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
 
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
 
@@ -205,8 +205,8 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
         getRunPayload!.Tasks.Should().HaveCount(3);
 
-        var seedResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/seed-fake-results", null);
-        seedResponse.EnsureSuccessStatusCode();
+        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
 
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
