@@ -1,5 +1,6 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Application;
+using ArchiForge.Application.Diagrams;
 using ArchiForge.Data.Repositories;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
@@ -20,6 +21,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IAgentResultRepository _resultRepository;
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
+    private readonly IDiagramGenerator _diagramGenerator;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -27,7 +29,8 @@ public sealed class ArchitectureController : ControllerBase
         IAgentTaskRepository taskRepository,
         IAgentResultRepository resultRepository,
         IGoldenManifestRepository manifestRepository,
-        IDecisionTraceRepository decisionTraceRepository)
+        IDecisionTraceRepository decisionTraceRepository,
+        IDiagramGenerator diagramGenerator)
     {
         _architectureRunService = architectureRunService;
         _runRepository = runRepository;
@@ -35,6 +38,7 @@ public sealed class ArchitectureController : ControllerBase
         _resultRepository = resultRepository;
         _manifestRepository = manifestRepository;
         _decisionTraceRepository = decisionTraceRepository;
+        _diagramGenerator = diagramGenerator;
     }
 
     [HttpPost("request")]
@@ -170,6 +174,31 @@ public sealed class ArchitectureController : ControllerBase
         }
 
         return Ok(manifest);
+    }
+
+    [HttpGet("manifest/{version}/diagram")]
+    [ProducesResponseType(typeof(DiagramResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetManifestDiagram(
+        [FromRoute] string version,
+        CancellationToken cancellationToken)
+    {
+        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return NotFound(new { error = $"Manifest '{version}' was not found." });
+        }
+
+        var mermaid = _diagramGenerator.GenerateMermaid(manifest);
+
+        var response = new DiagramResponse
+        {
+            ManifestVersion = version,
+            Format = "mermaid",
+            Diagram = mermaid
+        };
+
+        return Ok(response);
     }
 
     [HttpGet("run/{runId}/full")]

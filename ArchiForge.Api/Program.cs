@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
+using ArchiForge.Application.Diagrams;
 
 namespace ArchiForge.Api
 {
@@ -89,6 +90,7 @@ namespace ArchiForge.Api
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
+            builder.Services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
