@@ -25,15 +25,27 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Configure the connection string. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes.
-3. Store the connection string in User Secrets (development):
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes.
 
-   ```bash
-   cd ArchiForge.Api
-   dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost;Database=ArchiForge2;Trusted_Connection=True;TrustServerCertificate=True;"
-   ```
+## Secrets (development)
 
-   For production, use environment variables or your hosting provider's secret store.
+**Do not commit connection strings or API keys.** The API project has [User Secrets](https://learn.microsoft.com/en-us/aspnet/core/security/app-secrets) enabled. In Development, configuration is loaded from User Secrets after `appsettings.*.json`.
+
+From the repo root:
+
+```bash
+cd ArchiForge.Api
+
+# Required: database connection (use your own connection string or the dev Docker one below)
+dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;"
+
+# Optional: only if using real agents (AgentExecution:Mode != Simulator) with Azure OpenAI
+dotnet user-secrets set "AzureOpenAI:Endpoint" "https://your-resource.openai.azure.com/"
+dotnet user-secrets set "AzureOpenAI:ApiKey" "your-api-key"
+dotnet user-secrets set "AzureOpenAI:DeploymentName" "gpt-4o"
+```
+
+**Production:** Use environment variables or your hosting provider’s secret store (e.g. Azure Key Vault, AWS Secrets Manager). Do not use User Secrets in production.
 
 ## Running the API
 
