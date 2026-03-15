@@ -1,4 +1,5 @@
 using ArchiForge.Api.Models;
+using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Data.Repositories;
@@ -16,26 +17,20 @@ namespace ArchiForge.Api.Controllers;
 public sealed class ArchitectureController : ControllerBase
 {
     private readonly IArchitectureRunService _architectureRunService;
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentTaskRepository _taskRepository;
-    private readonly IAgentResultRepository _resultRepository;
+    private readonly IArchitectureApplicationService _architectureApplicationService;
     private readonly IGoldenManifestRepository _manifestRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IDiagramGenerator _diagramGenerator;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
-        IArchitectureRunRepository runRepository,
-        IAgentTaskRepository taskRepository,
-        IAgentResultRepository resultRepository,
+        IArchitectureApplicationService architectureApplicationService,
         IGoldenManifestRepository manifestRepository,
         IDecisionTraceRepository decisionTraceRepository,
         IDiagramGenerator diagramGenerator)
     {
         _architectureRunService = architectureRunService;
-        _runRepository = runRepository;
-        _taskRepository = taskRepository;
-        _resultRepository = resultRepository;
+        _architectureApplicationService = architectureApplicationService;
         _manifestRepository = manifestRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _diagramGenerator = diagramGenerator;
@@ -143,20 +138,17 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var data = await _architectureApplicationService.GetRunAsync(runId, cancellationToken);
+        if (data is null)
         {
             return NotFound(new { error = $"Run '{runId}' was not found." });
         }
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-
         return Ok(new
         {
-            run,
-            tasks,
-            results
+            run = data.Run,
+            tasks = data.Tasks,
+            results = data.Results
         });
     }
 
@@ -167,7 +159,7 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var manifest = await _architectureApplicationService.GetManifestAsync(version, cancellationToken);
         if (manifest is null)
         {
             return NotFound(new { error = $"Manifest '{version}' was not found." });
@@ -183,7 +175,7 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string version,
         CancellationToken cancellationToken)
     {
-        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        var manifest = await _architectureApplicationService.GetManifestAsync(version, cancellationToken);
         if (manifest is null)
         {
             return NotFound(new { error = $"Manifest '{version}' was not found." });
@@ -208,29 +200,26 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var data = await _architectureApplicationService.GetRunAsync(runId, cancellationToken);
+        if (data is null)
         {
             return NotFound(new { error = $"Run '{runId}' was not found." });
         }
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
-
         object? manifest = null;
         IEnumerable<object> decisionTraces = [];
 
-        if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+        if (!string.IsNullOrWhiteSpace(data.Run.CurrentManifestVersion))
         {
-            manifest = await _manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            manifest = await _manifestRepository.GetByVersionAsync(data.Run.CurrentManifestVersion, cancellationToken);
             decisionTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
         }
 
         return Ok(new
         {
-            run,
-            tasks,
-            results,
+            run = data.Run,
+            tasks = data.Tasks,
+            results = data.Results,
             manifest,
             decisionTraces
         });
