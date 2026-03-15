@@ -75,7 +75,25 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
                 $"Result RunId '{result.RunId}' does not match route runId '{runId}'.");
         }
 
-        var existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasksTask = _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var existingResultsTask = _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        await Task.WhenAll(tasksTask, existingResultsTask);
+        var tasks = await tasksTask;
+        var existingResults = await existingResultsTask;
+
+        var task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
+        if (task is null)
+        {
+            return new SubmitResultResult(false, null,
+                $"Task '{result.TaskId}' was not found for run '{runId}'.");
+        }
+
+        if (task.AgentType != result.AgentType)
+        {
+            return new SubmitResultResult(false, null,
+                $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.");
+        }
+
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
         {
             return new SubmitResultResult(false, null,
