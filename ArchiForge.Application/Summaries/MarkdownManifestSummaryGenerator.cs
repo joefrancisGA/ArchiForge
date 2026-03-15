@@ -1,4 +1,6 @@
 using System.Text;
+using ArchiForge.Application.Evidence;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 
@@ -6,7 +8,16 @@ namespace ArchiForge.Application.Summaries;
 
 public sealed class MarkdownManifestSummaryGenerator : IManifestSummaryGenerator
 {
-    public string GenerateMarkdown(GoldenManifest manifest)
+    private readonly IEvidenceSummaryFormatter _evidenceFormatter;
+
+    public MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter)
+    {
+        _evidenceFormatter = evidenceFormatter;
+    }
+
+    public string GenerateMarkdown(
+        GoldenManifest manifest,
+        AgentEvidencePackage? evidence = null)
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
@@ -149,6 +160,15 @@ public sealed class MarkdownManifestSummaryGenerator : IManifestSummaryGenerator
         if (manifest.Metadata.DecisionTraceIds.Count > 0)
         {
             sb.AppendLine($"- Decision Trace Count: {manifest.Metadata.DecisionTraceIds.Count}");
+        }
+
+        if (evidence is not null)
+        {
+            sb.AppendLine();
+            sb.AppendLine("---");
+            sb.AppendLine();
+            sb.AppendLine(_evidenceFormatter.FormatMarkdown(evidence).Trim());
+            sb.AppendLine();
         }
 
         return sb.ToString();

@@ -2,6 +2,7 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Data.Repositories;
 using ArchiForge.Contracts.Requests;
@@ -24,6 +25,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IDiagramGenerator _diagramGenerator;
     private readonly IManifestSummaryGenerator _summaryGenerator;
+    private readonly IArchitectureExportService _exportService;
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
 
     public ArchitectureController(
@@ -34,6 +36,7 @@ public sealed class ArchitectureController : ControllerBase
         IDecisionTraceRepository decisionTraceRepository,
         IDiagramGenerator diagramGenerator,
         IManifestSummaryGenerator summaryGenerator,
+        IArchitectureExportService exportService,
         IAgentEvidencePackageRepository agentEvidencePackageRepository)
     {
         _architectureRunService = architectureRunService;
@@ -43,6 +46,7 @@ public sealed class ArchitectureController : ControllerBase
         _decisionTraceRepository = decisionTraceRepository;
         _diagramGenerator = diagramGenerator;
         _summaryGenerator = summaryGenerator;
+        _exportService = exportService;
         _agentEvidencePackageRepository = agentEvidencePackageRepository;
     }
 
@@ -264,7 +268,8 @@ public sealed class ArchitectureController : ControllerBase
             return NotFound(new { error = $"Manifest '{version}' was not found." });
         }
 
-        var markdown = _summaryGenerator.GenerateMarkdown(manifest);
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
+        var markdown = _summaryGenerator.GenerateMarkdown(manifest, evidence);
 
         var response = new ManifestSummaryResponse
         {
@@ -274,6 +279,78 @@ public sealed class ArchitectureController : ControllerBase
         };
 
         return Ok(response);
+    }
+
+    [HttpGet("manifest/{version}/bundle")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetManifestBundle(
+        [FromRoute] string version,
+        CancellationToken cancellationToken)
+    {
+        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return NotFound(new { error = $"Manifest '{version}' was not found." });
+        }
+
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
+        var diagram = _diagramGenerator.GenerateMermaid(manifest);
+        var summary = _summaryGenerator.GenerateMarkdown(manifest, evidence);
+
+        return Ok(new
+        {
+            manifestVersion = version,
+            manifest,
+            diagram,
+            summary
+        });
+    }
+
+    [HttpGet("manifest/{version}/export")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetManifestExport(
+        [FromRoute] string version,
+        CancellationToken cancellationToken)
+    {
+        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return NotFound(new { error = $"Manifest '{version}' was not found." });
+        }
+
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
+        var diagram = _diagramGenerator.GenerateMermaid(manifest);
+        var summary = _summaryGenerator.GenerateMarkdown(manifest, evidence);
+        var markdown = _exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
+
+        return Ok(new { manifestVersion = version, format = "markdown", content = markdown });
+    }
+
+    [HttpGet("manifest/{version}/export/download")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadManifestExport(
+        [FromRoute] string version,
+        CancellationToken cancellationToken)
+    {
+        var manifest = await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        if (manifest is null)
+        {
+            return NotFound(new { error = $"Manifest '{version}' was not found." });
+        }
+
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
+        var diagram = _diagramGenerator.GenerateMermaid(manifest);
+        var summary = _summaryGenerator.GenerateMarkdown(manifest, evidence);
+        var markdown = _exportService.GenerateMarkdownPackage(manifest, diagram, summary, evidence);
+
+        var fileName = $"architecture-export-{version}.md";
+        return File(
+            System.Text.Encoding.UTF8.GetBytes(markdown),
+            "text/markdown",
+            fileName);
     }
 
     [HttpGet("run/{runId}/evidence")]

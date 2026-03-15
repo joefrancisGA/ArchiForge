@@ -20,6 +20,7 @@ using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
+using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 
 namespace ArchiForge.Api
@@ -93,7 +94,9 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IDiagramGenerator, MermaidDiagramGenerator>();
+            builder.Services.AddScoped<IEvidenceSummaryFormatter, MarkdownEvidenceSummaryFormatter>();
             builder.Services.AddScoped<IManifestSummaryGenerator, MarkdownManifestSummaryGenerator>();
+            builder.Services.AddScoped<IArchitectureExportService, MarkdownArchitectureExportService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
