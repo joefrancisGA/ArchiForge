@@ -121,11 +121,17 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         return new SubmitResultResult(true, result.ResultId, null);
     }
 
+    /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
     private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult> results)
     {
-        var agentTypesPresent = results.Select(r => r.AgentType).ToHashSet();
-        return RequiredAgentTypes.IsSubsetOf(agentTypesPresent)
-            && agentTypesPresent.IsSubsetOf(RequiredAgentTypes);
+        if (results.Count != RequiredAgentTypes.Count)
+            return false;
+        foreach (var required in RequiredAgentTypes)
+        {
+            if (results.Count(r => r.AgentType == required) != 1)
+                return false;
+        }
+        return true;
     }
 
     public async Task<GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
@@ -162,11 +168,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         }
 
         var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
-
-        foreach (var result in fakeResults)
-        {
-            await _resultRepository.CreateAsync(result, cancellationToken);
-        }
+        await _resultRepository.CreateManyAsync(fakeResults, cancellationToken);
 
         await _runRepository.UpdateStatusAsync(
             runId,

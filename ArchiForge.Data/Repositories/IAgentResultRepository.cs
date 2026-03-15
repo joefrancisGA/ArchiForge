@@ -1,9 +1,10 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 
 namespace ArchiForge.Data.Repositories;
 
 public interface IAgentResultRepository
 {
     Task CreateAsync(AgentResult result, CancellationToken cancellationToken = default);
+    Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default);
 }

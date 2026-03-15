@@ -59,6 +59,49 @@ public sealed class AgentResultRepository : IAgentResultRepository
             cancellationToken: cancellationToken));
     }
 
+    public async Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default)
+    {
+        if (results.Count == 0)
+            return;
+
+        const string sql = """
+            INSERT INTO AgentResults
+            (
+                ResultId,
+                TaskId,
+                RunId,
+                AgentType,
+                Confidence,
+                ResultJson,
+                CreatedUtc
+            )
+            VALUES
+            (
+                @ResultId,
+                @TaskId,
+                @RunId,
+                @AgentType,
+                @Confidence,
+                @ResultJson,
+                @CreatedUtc
+            );
+            """;
+
+        var args = results.Select(result => new
+        {
+            result.ResultId,
+            result.TaskId,
+            result.RunId,
+            AgentType = result.AgentType.ToString(),
+            result.Confidence,
+            ResultJson = JsonSerializer.Serialize(result, ContractJson.Default),
+            result.CreatedUtc
+        });
+
+        using var connection = _connectionFactory.CreateConnection();
+        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
         const string sql = """
