@@ -14,6 +14,10 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance];
 
+    /// <summary>Run statuses that allow submitting agent results.</summary>
+    private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses =
+        [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
+
     private readonly IArchitectureRunRepository _runRepository;
     private readonly IAgentTaskRepository _taskRepository;
     private readonly IAgentResultRepository _resultRepository;
@@ -59,6 +63,12 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             return new SubmitResultResult(false, null, $"Run '{runId}' was not found.");
         }
 
+        if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
+        {
+            return new SubmitResultResult(false, null,
+                $"Run is in status '{run.Status}' and does not accept agent results. Only TasksGenerated or WaitingForResults runs can receive results.");
+        }
+
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
         {
             return new SubmitResultResult(false, null,
@@ -75,9 +85,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         await _resultRepository.CreateAsync(result, cancellationToken);
 
         var allResults = existingResults.Append(result).ToList();
-        var agentTypesPresent = allResults.Select(r => r.AgentType).ToHashSet();
-        var hasAllRequiredAgentTypes = RequiredAgentTypes.IsSubsetOf(agentTypesPresent)
-            && agentTypesPresent.IsSubsetOf(RequiredAgentTypes);
+        var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
         var newStatus = hasAllRequiredAgentTypes && run.Status == ArchitectureRunStatus.TasksGenerated
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
@@ -93,6 +101,13 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
             runId, result.ResultId, result.AgentType, newStatus);
 
         return new SubmitResultResult(true, result.ResultId, null);
+    }
+
+    private static bool HasAllRequiredAgentTypes(IReadOnlyList<AgentResult> results)
+    {
+        var agentTypesPresent = results.Select(r => r.AgentType).ToHashSet();
+        return RequiredAgentTypes.IsSubsetOf(agentTypesPresent)
+            && agentTypesPresent.IsSubsetOf(RequiredAgentTypes);
     }
 
     public async Task<GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
@@ -119,6 +134,13 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         if (tasks.Count == 0)
         {
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.");
+        }
+
+        var existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        if (existingResults.Count > 0)
+        {
+            _logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", runId, existingResults.Count);
+            return new SeedFakeResultsResult(true, 0, null);
         }
 
         var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
