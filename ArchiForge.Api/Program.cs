@@ -67,11 +67,14 @@ namespace ArchiForge.Api
             builder.Services.AddRateLimiter(options =>
             {
                 options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                var permitLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+                var windowMinutes = builder.Configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
+                var queueLimit = builder.Configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
                 options.AddFixedWindowLimiter("fixed", config =>
                 {
-                    config.Window = TimeSpan.FromMinutes(1);
-                    config.PermitLimit = 100;
-                    config.QueueLimit = 0;
+                    config.Window = TimeSpan.FromMinutes(windowMinutes);
+                    config.PermitLimit = permitLimit;
+                    config.QueueLimit = queueLimit;
                 });
             });
 

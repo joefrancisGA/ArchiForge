@@ -60,6 +60,8 @@ In Development:
 - **Swagger UI**: `/swagger`
 - **Health check**: `GET /health`
 
+Rate limiting is applied to `/v1/architecture/*` endpoints. Defaults: 100 requests per minute per client. Override in `appsettings.json` under `RateLimiting:FixedWindow` (`PermitLimit`, `WindowMinutes`, `QueueLimit`) or via configuration/environment variables.
+
 ## Running Tests
 
 ```bash
