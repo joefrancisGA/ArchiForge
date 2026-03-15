@@ -40,6 +40,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IAgentResultDiffSummaryFormatter _agentResultDiffSummaryFormatter;
     private readonly IDeterminismCheckService _determinismCheckService;
     private readonly IArchitectureAnalysisService _architectureAnalysisService;
+    private readonly IArchitectureAnalysisExportService _architectureAnalysisExportService;
+    private readonly IArchitectureAnalysisDocxExportService _docxExportService;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -60,7 +62,9 @@ public sealed class ArchitectureController : ControllerBase
         IAgentResultDiffService agentResultDiffService,
         IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
         IDeterminismCheckService determinismCheckService,
-        IArchitectureAnalysisService architectureAnalysisService)
+        IArchitectureAnalysisService architectureAnalysisService,
+        IArchitectureAnalysisExportService architectureAnalysisExportService,
+        IArchitectureAnalysisDocxExportService docxExportService)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -81,6 +85,8 @@ public sealed class ArchitectureController : ControllerBase
         _agentResultDiffSummaryFormatter = agentResultDiffSummaryFormatter;
         _determinismCheckService = determinismCheckService;
         _architectureAnalysisService = architectureAnalysisService;
+        _architectureAnalysisExportService = architectureAnalysisExportService;
+        _docxExportService = docxExportService;
     }
 
     [HttpPost("request")]
@@ -755,6 +761,103 @@ public sealed class ArchitectureController : ControllerBase
             {
                 Report = report
             });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("run/{runId}/analysis-report/export")]
+    [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportAnalysisReport(
+        [FromRoute] string runId,
+        [FromBody] ArchitectureAnalysisRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ArchitectureAnalysisRequest();
+        request.RunId = runId;
+
+        try
+        {
+            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
+            var content = _architectureAnalysisExportService.GenerateMarkdown(report);
+
+            return Ok(new ArchitectureAnalysisExportResponse
+            {
+                RunId = runId,
+                Format = "markdown",
+                FileName = $"analysis_{runId}.md",
+                Content = content
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("run/{runId}/analysis-report/export/file")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadAnalysisReport(
+        [FromRoute] string runId,
+        [FromBody] ArchitectureAnalysisRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ArchitectureAnalysisRequest();
+        request.RunId = runId;
+
+        try
+        {
+            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
+            var content = _architectureAnalysisExportService.GenerateMarkdown(report);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+
+            return File(bytes, "text/markdown", $"analysis_{runId}.md");
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("run/{runId}/analysis-report/export/docx")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportAnalysisReportDocx(
+        [FromRoute] string runId,
+        [FromBody] ArchitectureAnalysisRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ArchitectureAnalysisRequest();
+        request.RunId = runId;
+
+        try
+        {
+            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
+            var bytes = _docxExportService.GenerateDocx(report);
+
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                $"analysis_{runId}.docx");
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {

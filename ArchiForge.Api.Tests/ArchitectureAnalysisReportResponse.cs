@@ -28,12 +28,6 @@ public sealed class ArchitectureAnalysisReportDto
     public List<string> Warnings { get; set; } = [];
 }
 
-public sealed class AgentEvidencePackageDto
-{
-    public string RunId { get; set; } = string.Empty;
-    public string SystemName { get; set; } = string.Empty;
-}
-
 public sealed class AgentExecutionTraceDto
 {
     public string TraceId { get; set; } = string.Empty;
@@ -42,26 +36,4 @@ public sealed class AgentExecutionTraceDto
     public string SystemPrompt { get; set; } = string.Empty;
     public string UserPrompt { get; set; } = string.Empty;
     public string RawResponse { get; set; } = string.Empty;
-}
-
-public sealed class DeterminismCheckResultDto
-{
-    public string SourceRunId { get; set; } = string.Empty;
-    public int Iterations { get; set; }
-    public bool IsDeterministic { get; set; }
-    public List<string> Warnings { get; set; } = [];
-}
-
-public sealed class ManifestDiffDto
-{
-    public string LeftManifestVersion { get; set; } = string.Empty;
-    public string RightManifestVersion { get; set; } = string.Empty;
-    public List<string> Warnings { get; set; } = [];
-}
-
-public sealed class AgentResultDiffDto
-{
-    public string LeftRunId { get; set; } = string.Empty;
-    public string RightRunId { get; set; } = string.Empty;
-    public List<string> Warnings { get; set; } = [];
 }
