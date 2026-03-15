@@ -77,7 +77,7 @@ Other endpoints:
 
 ## CLI (ArchiForge.Cli)
 
-The ArchiForge CLI is wired to the ArchiForge API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. Run commands with:
+The ArchiForge CLI is wired to the ArchiForge API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. For a full command and config reference, see [docs/CLI_USAGE.md](docs/CLI_USAGE.md). Run commands with:
 
 ```bash
 dotnet run --project ArchiForge.Cli -- <command> [options]

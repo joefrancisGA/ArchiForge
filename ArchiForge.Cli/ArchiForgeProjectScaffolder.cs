@@ -47,6 +47,8 @@ public static class ArchiForgeProjectScaffolder
         public string? BaseDirectory { get; set; } = null; // default: current directory
         public bool OverwriteExistingFiles { get; set; } = false;
         public bool IncludeTerraformStubs { get; set; } = true; // "optional; you can stub it initially"
+        /// <summary>When true, attempt to register the project in SQL Server (PROJECTS table). Default false so scaffolding works without a database.</summary>
+        public bool RegisterProject { get; set; } = false;
     }
 
     public static string CreateProject(ScaffoldOptions options)
@@ -86,28 +88,31 @@ public static class ArchiForgeProjectScaffolder
 
         WriteFile(Path.Combine(projectRoot, "docs", "README.md"), BuildDocsReadme(options.ProjectName), options.OverwriteExistingFiles);
 
-        const string connectionString = "Server=LOCALHOST;Database=ArchiForge;Trusted_Connection=True;";
-        string sqlQuery = "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) VALUES (@ProjectName, @BaseDirectory, @OverwriteExistingFiles, @IncludeTerraformStubs)";
+        if (options.RegisterProject)
+        {
+            const string connectionString = "Server=LOCALHOST;Database=ArchiForge;Trusted_Connection=True;";
+            string sqlQuery = "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) VALUES (@ProjectName, @BaseDirectory, @OverwriteExistingFiles, @IncludeTerraformStubs)";
 
-        try
-        {
-            using SqlConnection connection = new SqlConnection(connectionString);
-            connection.Open();
-            Console.WriteLine("Connection successful.");
-            using SqlCommand command = new SqlCommand(sqlQuery, connection);
-            command.Parameters.Add("@ProjectName", SqlDbType.NVarChar, 0).Value = options.ProjectName;
-            command.Parameters.Add("@BaseDirectory", SqlDbType.NVarChar, 0).Value = options.BaseDirectory ?? (object)DBNull.Value;
-            command.Parameters.Add("@OverwriteExistingFiles", SqlDbType.Bit, 0).Value = options.OverwriteExistingFiles;
-            command.Parameters.Add("@IncludeTerraformStubs", SqlDbType.Bit, 0).Value = options.IncludeTerraformStubs;
-            command.ExecuteNonQuery();
-        }
-        catch (SqlException ex)
-        {
-            Console.WriteLine("SQL Error: " + ex.Message);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("General Error: " + ex.Message);
+            try
+            {
+                using SqlConnection connection = new SqlConnection(connectionString);
+                connection.Open();
+                Console.WriteLine("Connection successful.");
+                using SqlCommand command = new SqlCommand(sqlQuery, connection);
+                command.Parameters.Add("@ProjectName", SqlDbType.NVarChar, 0).Value = options.ProjectName;
+                command.Parameters.Add("@BaseDirectory", SqlDbType.NVarChar, 0).Value = options.BaseDirectory ?? (object)DBNull.Value;
+                command.Parameters.Add("@OverwriteExistingFiles", SqlDbType.Bit, 0).Value = options.OverwriteExistingFiles;
+                command.Parameters.Add("@IncludeTerraformStubs", SqlDbType.Bit, 0).Value = options.IncludeTerraformStubs;
+                command.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("SQL Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("General Error: " + ex.Message);
+            }
         }
 
         Console.WriteLine("Created Project " + options.ProjectName);
