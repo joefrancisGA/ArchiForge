@@ -33,6 +33,9 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IManifestDiffSummaryFormatter _manifestDiffSummaryFormatter;
     private readonly IManifestDiffExportService _manifestDiffExportService;
+    private readonly IAgentResultRepository _resultRepository;
+    private readonly IAgentResultDiffService _agentResultDiffService;
+    private readonly IAgentResultDiffSummaryFormatter _agentResultDiffSummaryFormatter;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -48,7 +51,10 @@ public sealed class ArchitectureController : ControllerBase
         IAgentExecutionTraceRepository agentExecutionTraceRepository,
         IManifestDiffService manifestDiffService,
         IManifestDiffSummaryFormatter manifestDiffSummaryFormatter,
-        IManifestDiffExportService manifestDiffExportService)
+        IManifestDiffExportService manifestDiffExportService,
+        IAgentResultRepository resultRepository,
+        IAgentResultDiffService agentResultDiffService,
+        IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -64,6 +70,9 @@ public sealed class ArchitectureController : ControllerBase
         _manifestDiffService = manifestDiffService;
         _manifestDiffSummaryFormatter = manifestDiffSummaryFormatter;
         _manifestDiffExportService = manifestDiffExportService;
+        _resultRepository = resultRepository;
+        _agentResultDiffService = agentResultDiffService;
+        _agentResultDiffSummaryFormatter = agentResultDiffSummaryFormatter;
     }
 
     [HttpPost("request")]
@@ -396,6 +405,71 @@ public sealed class ArchitectureController : ControllerBase
         var bytes = System.Text.Encoding.UTF8.GetBytes(content);
 
         return File(bytes, "text/markdown", fileName);
+    }
+
+    [HttpGet("run/compare/agents")]
+    [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareAgentResults(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken);
+        if (leftRun is null)
+        {
+            return NotFound(new { error = $"Run '{leftRunId}' was not found." });
+        }
+
+        var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken);
+        if (rightRun is null)
+        {
+            return NotFound(new { error = $"Run '{rightRunId}' was not found." });
+        }
+
+        var leftResults = await _resultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        var rightResults = await _resultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+
+        var diff = _agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
+
+        return Ok(new AgentResultCompareResponse
+        {
+            Diff = diff
+        });
+    }
+
+    [HttpGet("run/compare/agents/summary")]
+    [ProducesResponseType(typeof(AgentResultCompareSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareAgentResultsSummary(
+        [FromQuery] string leftRunId,
+        [FromQuery] string rightRunId,
+        CancellationToken cancellationToken)
+    {
+        var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken);
+        if (leftRun is null)
+        {
+            return NotFound(new { error = $"Run '{leftRunId}' was not found." });
+        }
+
+        var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken);
+        if (rightRun is null)
+        {
+            return NotFound(new { error = $"Run '{rightRunId}' was not found." });
+        }
+
+        var leftResults = await _resultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        var rightResults = await _resultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+
+        var diff = _agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
+        var summary = _agentResultDiffSummaryFormatter.FormatMarkdown(diff);
+
+        return Ok(new AgentResultCompareSummaryResponse
+        {
+            Format = "markdown",
+            Summary = summary,
+            Diff = diff
+        });
     }
 
     [HttpGet("manifest/{version}")]
