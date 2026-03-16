@@ -70,6 +70,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
     private readonly IBackgroundJobQueue _jobs;
+    private readonly ILogger<ArchitectureController> _logger;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -106,7 +107,8 @@ public sealed class ArchitectureController : ControllerBase
         IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
         IComparisonAuditService comparisonAuditService,
         IComparisonRecordRepository comparisonRecordRepository,
-        IBackgroundJobQueue jobs)
+        IBackgroundJobQueue jobs,
+        ILogger<ArchitectureController> logger)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -143,6 +145,7 @@ public sealed class ArchitectureController : ControllerBase
         _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
         _jobs = jobs;
+        _logger = logger;
     }
 
     [HttpPost("request")]
@@ -157,6 +160,9 @@ public sealed class ArchitectureController : ControllerBase
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var result = await _architectureRunService.CreateRunAsync(request, cancellationToken);
@@ -167,6 +173,13 @@ public sealed class ArchitectureController : ControllerBase
                 EvidenceBundle = result.EvidenceBundle,
                 Tasks = result.Tasks
             };
+
+            _logger.LogInformation(
+                "Run created: RunId={RunId}, RequestId={RequestId}, User={User}, CorrelationId={CorrelationId}",
+                result.Run.RunId,
+                request.RequestId,
+                user,
+                correlationId);
 
             return CreatedAtAction(
                 nameof(GetRun),
@@ -188,6 +201,9 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var result = await _architectureRunService.ExecuteRunAsync(runId, cancellationToken);
@@ -197,6 +213,13 @@ public sealed class ArchitectureController : ControllerBase
                 RunId = result.RunId,
                 Results = result.Results
             };
+
+            _logger.LogInformation(
+                "Run executed: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                result.Results.Count,
+                user,
+                correlationId);
 
             return Ok(response);
         }
@@ -222,6 +245,9 @@ public sealed class ArchitectureController : ControllerBase
     {
         request ??= new ReplayRunRequest();
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var result = await _replayRunService.ReplayAsync(
@@ -231,7 +257,7 @@ public sealed class ArchitectureController : ControllerBase
                 request.ManifestVersionOverride,
                 cancellationToken);
 
-            return Ok(new ReplayRunResponse
+            var response = new ReplayRunResponse
             {
                 OriginalRunId = result.OriginalRunId,
                 ReplayRunId = result.ReplayRunId,
@@ -240,7 +266,17 @@ public sealed class ArchitectureController : ControllerBase
                 Manifest = result.Manifest,
                 DecisionTraces = result.DecisionTraces,
                 Warnings = result.Warnings
-            });
+            };
+
+            _logger.LogInformation(
+                "Run replayed: OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
+                result.OriginalRunId,
+                result.ReplayRunId,
+                result.ExecutionMode,
+                user,
+                correlationId);
+
+            return Ok(response);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
@@ -293,6 +329,9 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var result = await _architectureRunService.CommitRunAsync(runId, cancellationToken);
@@ -303,6 +342,14 @@ public sealed class ArchitectureController : ControllerBase
                 DecisionTraces = result.DecisionTraces,
                 Warnings = result.Warnings
             };
+
+            _logger.LogInformation(
+                "Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                result.Manifest.Metadata.ManifestVersion,
+                result.Warnings.Count,
+                user,
+                correlationId);
 
             return Ok(response);
         }
@@ -373,6 +420,9 @@ public sealed class ArchitectureController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         var result = await _architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
         if (!result.Success)
         {
@@ -382,6 +432,13 @@ public sealed class ArchitectureController : ControllerBase
             }
             return this.BadRequestProblem(result.Error ?? "Seed failed.");
         }
+
+        _logger.LogInformation(
+            "Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
+            runId,
+            result.ResultCount,
+            user,
+            correlationId);
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
     }
@@ -1077,18 +1134,30 @@ public sealed class ArchitectureController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
             var content = _architectureAnalysisExportService.GenerateMarkdown(report);
 
-            return Ok(new ArchitectureAnalysisExportResponse
+            var response = new ArchitectureAnalysisExportResponse
             {
                 RunId = runId,
                 Format = "markdown",
                 FileName = $"analysis_{runId}.md",
                 Content = content
-            });
+            };
+
+            _logger.LogInformation(
+                "Analysis markdown export generated: RunId={RunId}, Format={Format}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                response.Format,
+                user,
+                correlationId);
+
+            return Ok(response);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
@@ -1113,11 +1182,21 @@ public sealed class ArchitectureController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
             var content = _architectureAnalysisExportService.GenerateMarkdown(report);
             var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+
+            _logger.LogInformation(
+                "Analysis markdown file export generated: RunId={RunId}, Bytes={Length}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                bytes.Length,
+                user,
+                correlationId);
 
             return File(bytes, "text/markdown", $"analysis_{runId}.md");
         }
@@ -1144,10 +1223,20 @@ public sealed class ArchitectureController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
             var bytes = await _docxExportService.GenerateDocxAsync(report, cancellationToken);
+
+            _logger.LogInformation(
+                "Analysis DOCX export generated: RunId={RunId}, Bytes={Length}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                bytes.Length,
+                user,
+                correlationId);
 
             return File(
                 bytes,
@@ -1349,6 +1438,9 @@ public sealed class ArchitectureController : ControllerBase
     {
         request ??= new ConsultingDocxExportRequest();
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         try
         {
             var resolved = _consultingDocxExportProfileSelector.Resolve(
@@ -1427,6 +1519,14 @@ public sealed class ArchitectureController : ControllerBase
                 notes: "Consulting DOCX export generated.",
                 cancellationToken: cancellationToken);
 
+            _logger.LogInformation(
+                "Consulting DOCX export generated: RunId={RunId}, Profile={Profile}, Bytes={Length}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                resolved.SelectedProfileName,
+                bytes.Length,
+                user,
+                correlationId);
+
             Response.Headers["X-ArchiForge-Selected-Profile"] = resolved.SelectedProfileName;
             Response.Headers["X-ArchiForge-Profile-AutoSelected"] = resolved.WasAutoSelected.ToString();
             Response.Headers["X-ArchiForge-Profile-Reason"] = resolved.ResolutionReason;
@@ -1491,10 +1591,22 @@ public sealed class ArchitectureController : ControllerBase
             CompareRunId = request.CompareRunId
         };
 
+        var user = User?.Identity?.Name ?? "anonymous";
+        var correlationId = HttpContext.TraceIdentifier;
+
         var jobId = _jobs.Enqueue(fileName, contentType, async ct =>
         {
             var report = await _architectureAnalysisService.BuildAsync(analysisRequest, ct);
             var bytes = await _architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(report, ct);
+
+            _logger.LogInformation(
+                "Consulting DOCX async export job completed: RunId={RunId}, Profile={Profile}, Bytes={Length}, User={User}, CorrelationId={CorrelationId}",
+                runId,
+                profileName,
+                bytes.Length,
+                user,
+                correlationId);
+
             return new BackgroundJobFile(fileName, contentType, bytes);
         });
 
