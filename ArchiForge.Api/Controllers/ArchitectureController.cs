@@ -13,6 +13,10 @@ using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using ApiConsultingDocxProfileRecommendationRequest =
+    ArchiForge.Api.Models.ConsultingDocxProfileRecommendationRequest;
+using AppConsultingDocxProfileRecommendationRequest =
+    ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -877,12 +881,12 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(ConsultingDocxProfileRecommendationResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult RecommendConsultingDocxTemplateProfile(
-        [FromBody] ConsultingDocxProfileRecommendationRequest? request)
+        [FromBody] ApiConsultingDocxProfileRecommendationRequest? request)
     {
-        request ??= new ConsultingDocxProfileRecommendationRequest();
+        request ??= new ApiConsultingDocxProfileRecommendationRequest();
 
         var recommendation = _consultingDocxTemplateRecommendationService.Recommend(
-            new Application.Analysis.ConsultingDocxProfileRecommendationRequest
+            new AppConsultingDocxProfileRecommendationRequest
             {
                 Audience = request.Audience,
                 ExternalDelivery = request.ExternalDelivery,

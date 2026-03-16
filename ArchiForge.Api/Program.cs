@@ -133,6 +133,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IConsultingDocxTemplateOptionsProvider, DefaultConsultingDocxTemplateOptionsProvider>();
             builder.Services.AddScoped<IDocumentLogoProvider, FileSystemDocumentLogoProvider>();
             builder.Services.AddScoped<IArchitectureAnalysisConsultingDocxExportService, ConsultingDocxArchitectureAnalysisExportService>();
+            builder.Services.AddSingleton<IConsultingDocxTemplateProfileResolver, DefaultConsultingDocxTemplateProfileResolver>();
             builder.Services.AddScoped<IConsultingDocxTemplateRecommendationService, ConsultingDocxTemplateRecommendationService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
