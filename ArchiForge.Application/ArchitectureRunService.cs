@@ -5,6 +5,7 @@ using ArchiForge.Coordinator.Services;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.AgentSimulator.Services;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Application;
 
@@ -22,6 +23,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
     private readonly IEvidenceBundleRepository _evidenceBundleRepository;
     private readonly IDecisionTraceRepository _decisionTraceRepository;
     private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
+    private readonly ILogger<ArchitectureRunService> _logger;
 
     public ArchitectureRunService(
         ICoordinatorService coordinator,
@@ -35,7 +37,8 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         IGoldenManifestRepository manifestRepository,
         IEvidenceBundleRepository evidenceBundleRepository,
         IDecisionTraceRepository decisionTraceRepository,
-        IAgentEvidencePackageRepository agentEvidencePackageRepository)
+        IAgentEvidencePackageRepository agentEvidencePackageRepository,
+        ILogger<ArchitectureRunService> logger)
     {
         _coordinator = coordinator;
         _agentExecutor = agentExecutor;
@@ -49,6 +52,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         _evidenceBundleRepository = evidenceBundleRepository;
         _decisionTraceRepository = decisionTraceRepository;
         _agentEvidencePackageRepository = agentEvidencePackageRepository;
+        _logger = logger;
     }
 
     public async Task<CreateRunResult> CreateRunAsync(
@@ -63,10 +67,22 @@ public sealed class ArchitectureRunService : IArchitectureRunService
                 $"CreateRun failed: {string.Join("; ", coordination.Errors)}");
         }
 
+        _logger.LogInformation(
+            "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
+            coordination.Run.RunId,
+            request.RequestId,
+            request.SystemName,
+            request.Environment);
+
         await _requestRepository.CreateAsync(request, cancellationToken);
         await _runRepository.CreateAsync(coordination.Run, cancellationToken);
         await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
         await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+
+        _logger.LogInformation(
+            "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
+            coordination.Run.RunId,
+            coordination.Tasks.Count);
 
         return new CreateRunResult
         {
@@ -80,6 +96,10 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         string runId,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation(
+            "Executing architecture run: RunId={RunId}",
+            runId);
+
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{runId}' not found.");
 
@@ -115,6 +135,11 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             completedUtc: null,
             cancellationToken: cancellationToken);
 
+        _logger.LogInformation(
+            "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
+            runId,
+            results.Count);
+
         return new ExecuteRunResult
         {
             RunId = runId,
@@ -126,6 +151,10 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         string runId,
         CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation(
+            "Committing architecture run: RunId={RunId}",
+            runId);
+
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{runId}' not found.");
 
@@ -171,6 +200,12 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             merge.Manifest.Metadata.ManifestVersion,
             DateTime.UtcNow,
             cancellationToken);
+
+        _logger.LogInformation(
+            "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
+            runId,
+            merge.Manifest.Metadata.ManifestVersion,
+            merge.Warnings.Count);
 
         return new CommitRunResult
         {
