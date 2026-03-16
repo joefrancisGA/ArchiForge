@@ -4,8 +4,24 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml.Drawing;
+using WpRun = DocumentFormat.OpenXml.Wordprocessing.Run;
+using DrRun = DocumentFormat.OpenXml.Drawing.Run;
+using WpText = DocumentFormat.OpenXml.Wordprocessing.Text;
+using DrText = DocumentFormat.OpenXml.Drawing.Text;
 using DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using WpRunProperties = DocumentFormat.OpenXml.Wordprocessing.RunProperties;
+using DrRunProperties = DocumentFormat.OpenXml.Drawing.RunProperties;
+using WpNonVisualGraphicFrameDrawingProperties =
+    DocumentFormat.OpenXml.Drawing.Wordprocessing.NonVisualGraphicFrameDrawingProperties;
 using DocumentFormat.OpenXml.Drawing.Pictures;
+using DrNonVisualPictureProperties = DocumentFormat.OpenXml.Drawing.NonVisualPictureProperties;
+using DrPicNonVisualPictureProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualPictureProperties;
+using DrNonVisualGraphicFrameDrawingProperties = DocumentFormat.OpenXml.Drawing.NonVisualGraphicFrameDrawingProperties;
+using DrPicNonVisualDrawingProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualDrawingProperties;
+using DrPicNonVisualPictureDrawingProperties = DocumentFormat.OpenXml.Drawing.Pictures.NonVisualPictureDrawingProperties;
+using DrPicture = DocumentFormat.OpenXml.Drawing.Picture;
+using DrPicPicture = DocumentFormat.OpenXml.Drawing.Pictures.Picture;
+using DrPicBlipFill = DocumentFormat.OpenXml.Drawing.Pictures.BlipFill;
 using ArchiForge.Application.Diagrams;
 
 namespace ArchiForge.Application.Analysis;
@@ -250,33 +266,33 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
 
     private static void AddHeading(Body body, string text, int level)
     {
-        body.AppendChild(new Paragraph(
-            new ParagraphProperties(
+        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+            new DocumentFormat.OpenXml.Wordprocessing.ParagraphProperties(
                 new ParagraphStyleId { Val = $"Heading{level}" }),
-            new Run(new Text(text))));
+            new WpRun(new WpText(text))));
     }
 
     private static void AddParagraph(Body body, string text, bool bold = false)
     {
-        var run = new Run(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
-
+        var run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        
         if (bold)
         {
-            run.RunProperties = new RunProperties(new Bold());
+            run.RunProperties = new WpRunProperties(new Bold());
         }
 
-        body.AppendChild(new Paragraph(run));
+        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(run));
     }
 
     private static void AddBullet(Body body, string text)
     {
-        body.AppendChild(new Paragraph(
-            new Run(new Text($"• {text}") { Space = SpaceProcessingModeValues.Preserve })));
+        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(
+            new WpRun(new WpText($"• {text}") { Space = SpaceProcessingModeValues.Preserve })));
     }
 
     private static void AddSpacer(Body body)
     {
-        body.AppendChild(new Paragraph(new Run(new Text(string.Empty))));
+        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new WpRun(new WpText(string.Empty))));
     }
 
     private static void AddMultilineParagraphs(Body body, string text)
@@ -295,12 +311,12 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
 
         foreach (var line in text.Replace("\r\n", "\n").Split('\n'))
         {
-            var run = new Run(new Text(line) { Space = SpaceProcessingModeValues.Preserve })
+            var run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
             {
-                RunProperties = new RunProperties(new RunFonts { Ascii = "Consolas" })
+                RunProperties = new WpRunProperties(new RunFonts { Ascii = "Consolas" })
             };
 
-            body.AppendChild(new Paragraph(run));
+            body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(run));
         }
     }
 
@@ -353,22 +369,22 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
                     Id = 1U,
                     Name = imageName
                 },
-                new NonVisualGraphicFrameDrawingProperties(
+                new WpNonVisualGraphicFrameDrawingProperties(
                     new GraphicFrameLocks { NoChangeAspect = true }),
                 new Graphic(
                     new GraphicData(
-                        new Picture(
-                            new NonVisualPictureProperties(
-                                new NonVisualDrawingProperties
+                        new DrPicPicture(
+                            new DrPicNonVisualPictureProperties(
+                                new DrPicNonVisualDrawingProperties
                                 {
                                     Id = 0U,
                                     Name = imageName
                                 },
-                                new NonVisualPictureDrawingProperties()),
-                            new BlipFill(
+                                new DrPicNonVisualPictureDrawingProperties()),
+                            new DrPicBlipFill(
                                 new Blip { Embed = relationshipId },
                                 new Stretch(new FillRectangle())),
-                            new ShapeProperties(
+                            new DocumentFormat.OpenXml.Drawing.ShapeProperties(
                                 new Transform2D(
                                     new Offset { X = 0L, Y = 0L },
                                     new Extents { Cx = widthEmus, Cy = heightEmus }),
@@ -387,6 +403,6 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
                 DistanceFromRight = 0U
             });
 
-        body.AppendChild(new Paragraph(new Run(drawing)));
+        body.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Paragraph(new DrRun(drawing)));
     }
 }

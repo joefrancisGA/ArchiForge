@@ -27,6 +27,9 @@ public sealed class CorrelationIdMiddleware
         {
             activity.SetTag("correlation.id", correlationId);
             activity.SetTag("http.request_id", context.TraceIdentifier);
+            var runId = context.Request.RouteValues["runId"]?.ToString();
+            if (!string.IsNullOrEmpty(runId))
+                activity.SetTag("archiforge.run_id", runId);
         }
 
         using (LogContext.PushProperty("CorrelationId", correlationId))

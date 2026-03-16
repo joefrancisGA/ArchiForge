@@ -27,6 +27,8 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using OpenTelemetry.Exporter.Prometheus;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -76,12 +78,14 @@ namespace ArchiForge.Api
                 {
                     tracing.AddAspNetCoreInstrumentation();
                     tracing.AddHttpClientInstrumentation();
-                    tracing.AddSqlClientInstrumentation(options =>
-                    {
-                        options.SetDbStatementForText = true;
-                        options.SetDbStatementForStoredProcedure = true;
-                    });
+                    tracing.AddSqlClientInstrumentation();
                     tracing.AddConsoleExporter();
+                })
+                .WithMetrics(metrics =>
+                {
+                    metrics.AddAspNetCoreInstrumentation();
+                    metrics.AddHttpClientInstrumentation();
+                    metrics.AddPrometheusExporter();
                 });
 
             builder.Services.AddRateLimiter(options =>
@@ -263,6 +267,7 @@ namespace ArchiForge.Api
             app.UseAuthorization();
 
             app.MapHealthChecks("/health");
+            app.UseOpenTelemetryPrometheusScrapingEndpoint();
             app.MapControllers();
 
             app.Run();
