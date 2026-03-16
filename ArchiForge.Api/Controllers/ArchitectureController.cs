@@ -774,7 +774,6 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayComparison(
         [FromRoute] string comparisonRecordId,
         [FromBody] ApiReplayComparisonRequest? request,
@@ -798,6 +797,10 @@ public sealed class ArchitectureController : ControllerBase
             Response.Headers["X-ArchiForge-ComparisonType"] = result.ComparisonType;
             Response.Headers["X-ArchiForge-ReplayMode"] = result.ReplayMode;
             Response.Headers["X-ArchiForge-VerificationPassed"] = result.VerificationPassed.ToString();
+            if (result.VerificationMessage is { } msg)
+            {
+                Response.Headers["X-ArchiForge-VerificationMessage"] = msg;
+            }
 
             if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             {
@@ -831,9 +834,28 @@ public sealed class ArchitectureController : ControllerBase
 
             return BadRequest(new { error = $"Unsupported replay result format '{result.Format}'." });
         }
-        catch (ComparisonVerificationFailedException ex)
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
-            return Conflict(new { error = ex.Message });
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("comparisons/{comparisonRecordId}/drift")]
+    [ProducesResponseType(typeof(DriftAnalysisResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AnalyzeComparisonDrift(
+        [FromRoute] string comparisonRecordId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+            return Ok(MapDriftAnalysis(drift));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
@@ -845,11 +867,27 @@ public sealed class ArchitectureController : ControllerBase
         }
     }
 
+    private static DriftAnalysisResponse MapDriftAnalysis(Application.Analysis.DriftAnalysisResult drift)
+    {
+        return new DriftAnalysisResponse
+        {
+            DriftDetected = drift.DriftDetected,
+            Summary = drift.Summary,
+            Items = drift.Items.Select(i => new DriftItemResponse
+            {
+                Category = i.Category,
+                Path = i.Path,
+                StoredValue = i.StoredValue,
+                RegeneratedValue = i.RegeneratedValue,
+                Description = i.Description
+            }).ToList()
+        };
+    }
+
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ReplayComparisonMetadata(
         [FromRoute] string comparisonRecordId,
         [FromBody] ApiReplayComparisonRequest? request,
@@ -877,12 +915,9 @@ public sealed class ArchitectureController : ControllerBase
                 FileName = result.FileName,
                 ReplayMode = result.ReplayMode,
                 VerificationPassed = result.VerificationPassed,
-                VerificationMessage = result.VerificationMessage
+                VerificationMessage = result.VerificationMessage,
+                DriftAnalysis = result.DriftAnalysis is null ? null : MapDriftAnalysis(result.DriftAnalysis)
             });
-        }
-        catch (ComparisonVerificationFailedException ex)
-        {
-            return Conflict(new { error = ex.Message });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {

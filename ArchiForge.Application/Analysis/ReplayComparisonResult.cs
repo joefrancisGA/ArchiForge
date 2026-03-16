@@ -22,5 +22,8 @@ public sealed class ReplayComparisonResult
 
     /// <summary>When replay mode is Verify: message describing verification outcome.</summary>
     public string? VerificationMessage { get; set; }
+
+    /// <summary>When replay mode is Verify and drift detected: structured drift analysis.</summary>
+    public DriftAnalysisResult? DriftAnalysis { get; set; }
 }
 

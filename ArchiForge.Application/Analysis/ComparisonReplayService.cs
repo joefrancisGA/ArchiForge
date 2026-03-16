@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
@@ -6,13 +5,8 @@ namespace ArchiForge.Application.Analysis;
 
 public sealed class ComparisonReplayService : IComparisonReplayService
 {
-    private static readonly JsonSerializerOptions EquivalenceJsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = false,
-        PropertyNameCaseInsensitive = true
-    };
-
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
+    private readonly IComparisonDriftAnalyzer _driftAnalyzer;
     private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService;
     private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndSummaryFormatter;
     private readonly IEndToEndReplayComparisonExportService _endToEndExportService;
@@ -22,6 +16,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
 
     public ComparisonReplayService(
         IComparisonRecordRepository comparisonRecordRepository,
+        IComparisonDriftAnalyzer driftAnalyzer,
         IEndToEndReplayComparisonService endToEndReplayComparisonService,
         IEndToEndReplayComparisonSummaryFormatter endToEndSummaryFormatter,
         IEndToEndReplayComparisonExportService endToEndExportService,
@@ -30,6 +25,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         IRunExportRecordRepository runExportRecordRepository)
     {
         _comparisonRecordRepository = comparisonRecordRepository;
+        _driftAnalyzer = driftAnalyzer;
         _endToEndReplayComparisonService = endToEndReplayComparisonService;
         _endToEndSummaryFormatter = endToEndSummaryFormatter;
         _endToEndExportService = endToEndExportService;
@@ -70,6 +66,54 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         };
     }
 
+    public async Task<DriftAnalysisResult> AnalyzeDriftAsync(
+        string comparisonRecordId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(comparisonRecordId))
+        {
+            throw new InvalidOperationException("ComparisonRecordId is required.");
+        }
+
+        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+
+        if (record is null)
+        {
+            throw new InvalidOperationException(
+                $"Comparison record '{comparisonRecordId}' was not found.");
+        }
+
+        return record.ComparisonType switch
+        {
+            "end-to-end-replay" => await AnalyzeDriftEndToEndAsync(record, cancellationToken),
+            "export-record-diff" => await AnalyzeDriftExportDiffAsync(record, cancellationToken),
+            _ => throw new InvalidOperationException(
+                $"Drift analysis is not supported for comparison type '{record.ComparisonType}'.")
+        };
+    }
+
+    private async Task<DriftAnalysisResult> AnalyzeDriftEndToEndAsync(
+        ComparisonRecord record,
+        CancellationToken cancellationToken)
+    {
+        var stored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)
+            ?? throw new InvalidOperationException(
+                $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
+        var regenerated = await RegenerateEndToEndAsync(record, cancellationToken);
+        return _driftAnalyzer.Analyze(stored, regenerated);
+    }
+
+    private async Task<DriftAnalysisResult> AnalyzeDriftExportDiffAsync(
+        ComparisonRecord record,
+        CancellationToken cancellationToken)
+    {
+        var stored = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record)
+            ?? throw new InvalidOperationException(
+                $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
+        var regenerated = await RegenerateExportDiffAsync(record, cancellationToken);
+        return _driftAnalyzer.Analyze(stored, regenerated);
+    }
+
     private async Task<ReplayComparisonResult> ReplayEndToEndAsync(
         ComparisonRecord record,
         string format,
@@ -90,14 +134,19 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 report = await RegenerateEndToEndAsync(record, cancellationToken);
                 break;
             case ComparisonReplayMode.Verify:
-                var stored = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)
+                var storedE2E = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)
                     ?? throw new InvalidOperationException(
                         $"Comparison record '{record.ComparisonRecordId}' did not contain a valid end-to-end payload.");
                 report = await RegenerateEndToEndAsync(record, cancellationToken);
-                if (!AreReportsEquivalent(stored, report))
+                var driftE2E = _driftAnalyzer.Analyze(storedE2E, report);
+                if (driftE2E.DriftDetected)
                 {
-                    throw new ComparisonVerificationFailedException(
-                        $"Comparison record '{record.ComparisonRecordId}': regenerated end-to-end comparison does not match stored payload. Engine or architecture drift detected.");
+                    var verifyResult = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
+                    verifyResult.ReplayMode = FormatReplayMode(mode);
+                    verifyResult.VerificationPassed = false;
+                    verifyResult.VerificationMessage = driftE2E.Summary;
+                    verifyResult.DriftAnalysis = driftE2E;
+                    return verifyResult;
                 }
                 break;
             default:
@@ -128,15 +177,6 @@ public sealed class ComparisonReplayService : IComparisonReplayService
             record.LeftRunId,
             record.RightRunId,
             cancellationToken);
-    }
-
-    private static bool AreReportsEquivalent(
-        EndToEndReplayComparisonReport stored,
-        EndToEndReplayComparisonReport regenerated)
-    {
-        var leftJson = JsonSerializer.Serialize(stored, EquivalenceJsonOptions);
-        var rightJson = JsonSerializer.Serialize(regenerated, EquivalenceJsonOptions);
-        return leftJson == rightJson;
     }
 
     private async Task<ReplayComparisonResult> BuildEndToEndResultAsync(
@@ -226,14 +266,27 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 diff = await RegenerateExportDiffAsync(record, cancellationToken);
                 break;
             case ComparisonReplayMode.Verify:
-                var stored = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record)
+                var storedDiff = ComparisonRecordPayloadRehydrator.RehydrateExportDiff(record)
                     ?? throw new InvalidOperationException(
                         $"Comparison record '{record.ComparisonRecordId}' did not contain a valid export-diff payload.");
                 diff = await RegenerateExportDiffAsync(record, cancellationToken);
-                if (!AreExportDiffsEquivalent(stored, diff))
+                var driftExport = _driftAnalyzer.Analyze(storedDiff, diff);
+                if (driftExport.DriftDetected)
                 {
-                    throw new ComparisonVerificationFailedException(
-                        $"Comparison record '{record.ComparisonRecordId}': regenerated export-record diff does not match stored payload. Engine or architecture drift detected.");
+                    var markdownExport = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+                    var resultExport = new ReplayComparisonResult
+                    {
+                        ComparisonRecordId = record.ComparisonRecordId,
+                        ComparisonType = record.ComparisonType,
+                        Format = "markdown",
+                        FileName = $"comparison_{record.ComparisonRecordId}.md",
+                        Content = markdownExport,
+                        ReplayMode = FormatReplayMode(mode),
+                        VerificationPassed = false,
+                        VerificationMessage = driftExport.Summary,
+                        DriftAnalysis = driftExport
+                    };
+                    return resultExport;
                 }
                 break;
             default:
@@ -282,15 +335,6 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 $"Export record '{record.RightExportRecordId}' was not found.");
 
         return _exportRecordDiffService.Compare(left, right);
-    }
-
-    private static bool AreExportDiffsEquivalent(
-        ExportRecordDiffResult stored,
-        ExportRecordDiffResult regenerated)
-    {
-        var leftJson = JsonSerializer.Serialize(stored, EquivalenceJsonOptions);
-        var rightJson = JsonSerializer.Serialize(regenerated, EquivalenceJsonOptions);
-        return leftJson == rightJson;
     }
 
     private static ComparisonReplayMode ParseReplayMode(string? replayMode)

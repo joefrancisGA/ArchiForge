@@ -15,5 +15,7 @@ public sealed class ReplayComparisonMetadataResponse
     public bool VerificationPassed { get; set; }
 
     public string? VerificationMessage { get; set; }
+
+    public DriftAnalysisResponse? DriftAnalysis { get; set; }
 }
 
