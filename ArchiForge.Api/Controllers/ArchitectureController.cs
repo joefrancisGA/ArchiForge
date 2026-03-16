@@ -206,7 +206,7 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.DeterminismFailed);
         }
     }
 
@@ -248,7 +248,7 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ExportFailed);
         }
     }
 
@@ -280,7 +280,7 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ExportFailed);
         }
     }
 
@@ -312,7 +312,7 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex)
         {
-            return this.BadRequestProblem(ex.Message);
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ExportFailed);
         }
     }
 

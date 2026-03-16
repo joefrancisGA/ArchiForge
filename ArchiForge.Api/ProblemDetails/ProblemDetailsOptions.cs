@@ -17,4 +17,8 @@ public static class ProblemTypes
     public const string InternalError = Base + "#internal-error";
     public const string BadRequest = Base + "#bad-request";
     public const string ResourceNotFound = Base + "#resource-not-found";
+
+    public const string InvalidRunState = Base + "#invalid-run-state";
+    public const string DeterminismFailed = Base + "#determinism-failed";
+    public const string ExportFailed = Base + "#export-failed";
 }
