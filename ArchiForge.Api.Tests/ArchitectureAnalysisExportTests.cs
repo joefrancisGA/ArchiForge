@@ -50,14 +50,19 @@ public sealed class ArchitectureAnalysisExportTests : IntegrationTestBase
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-
         var payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload!.RunId.Should().Be(runId);
         payload.Format.Should().Be("markdown");
         payload.FileName.Should().Be($"analysis_{runId}.md");
-        payload.Content.Should().Contain("# ArchiForge Analysis Report");
+        payload.Content.Should().NotBeNullOrWhiteSpace();
+
+        var lines = payload.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        lines[0].Trim().Should().Be("# ArchiForge Analysis Report");
+
         payload.Content.Should().Contain("## Evidence Package");
+        payload.Content.Should().Contain("## Architecture Manifest");
         payload.Content.Should().Contain("## Agent Execution Traces");
+        payload.Content.Should().Contain("## Architecture Summary");
     }
 }
