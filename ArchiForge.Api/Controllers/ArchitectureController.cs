@@ -61,6 +61,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IRunExportAuditService _runExportAuditService;
     private readonly IRunExportRecordRepository _runExportRecordRepository;
     private readonly IExportReplayService _exportReplayService;
+    private readonly IExportRecordDiffService _exportRecordDiffService;
+    private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -89,7 +91,9 @@ public sealed class ArchitectureController : ControllerBase
         AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
         IRunExportAuditService runExportAuditService,
         IRunExportRecordRepository runExportRecordRepository,
-        IExportReplayService exportReplayService)
+        IExportReplayService exportReplayService,
+        IExportRecordDiffService exportRecordDiffService,
+        IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -118,6 +122,8 @@ public sealed class ArchitectureController : ControllerBase
         _runExportAuditService = runExportAuditService;
         _runExportRecordRepository = runExportRecordRepository;
         _exportReplayService = exportReplayService;
+        _exportRecordDiffService = exportRecordDiffService;
+        _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter;
     }
 
     [HttpPost("request")]
@@ -971,6 +977,64 @@ public sealed class ArchitectureController : ControllerBase
         return Ok(new RunExportRecordResponse
         {
             Record = record
+        });
+    }
+
+    [HttpGet("run/exports/compare")]
+    [ProducesResponseType(typeof(ExportRecordDiffResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareExportRecords(
+        [FromQuery] string leftExportRecordId,
+        [FromQuery] string rightExportRecordId,
+        CancellationToken cancellationToken)
+    {
+        var left = await _runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        if (left is null)
+        {
+            return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        var right = await _runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        if (right is null)
+        {
+            return this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        var diff = _exportRecordDiffService.Compare(left, right);
+
+        return Ok(new ExportRecordDiffResponse
+        {
+            Diff = diff
+        });
+    }
+
+    [HttpGet("run/exports/compare/summary")]
+    [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareExportRecordsSummary(
+        [FromQuery] string leftExportRecordId,
+        [FromQuery] string rightExportRecordId,
+        CancellationToken cancellationToken)
+    {
+        var left = await _runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        if (left is null)
+        {
+            return this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        var right = await _runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        if (right is null)
+        {
+            return this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        var diff = _exportRecordDiffService.Compare(left, right);
+        var summary = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+
+        return Ok(new ExportRecordDiffSummaryResponse
+        {
+            Format = "markdown",
+            Summary = summary
         });
     }
 
