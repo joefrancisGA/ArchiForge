@@ -102,3 +102,23 @@ CREATE INDEX IX_AgentExecutionTraces_RunId
 
 CREATE INDEX IX_AgentExecutionTraces_TaskId
     ON AgentExecutionTraces (TaskId);
+
+CREATE TABLE RunExportRecords
+(
+    ExportRecordId NVARCHAR(64) NOT NULL PRIMARY KEY,
+    RunId NVARCHAR(64) NOT NULL,
+    ExportType NVARCHAR(100) NOT NULL,
+    Format NVARCHAR(50) NOT NULL,
+    FileName NVARCHAR(260) NOT NULL,
+    TemplateProfile NVARCHAR(100) NULL,
+    TemplateProfileDisplayName NVARCHAR(200) NULL,
+    WasAutoSelected BIT NOT NULL,
+    ResolutionReason NVARCHAR(MAX) NULL,
+    ManifestVersion NVARCHAR(100) NULL,
+    Notes NVARCHAR(MAX) NULL,
+    RecordJson NVARCHAR(MAX) NOT NULL,
+    CreatedUtc DATETIME2 NOT NULL
+);
+
+CREATE INDEX IX_RunExportRecords_RunId
+    ON RunExportRecords (RunId);

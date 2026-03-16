@@ -54,6 +54,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IArchitectureAnalysisConsultingDocxExportService _architectureAnalysisConsultingDocxExportService;
     private readonly IConsultingDocxTemplateRecommendationService _consultingDocxTemplateRecommendationService;
     private readonly AppConsultingDocxExportProfileSelector _consultingDocxExportProfileSelector;
+    private readonly IRunExportAuditService _runExportAuditService;
+    private readonly IRunExportRecordRepository _runExportRecordRepository;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -79,7 +81,9 @@ public sealed class ArchitectureController : ControllerBase
         IArchitectureAnalysisDocxExportService docxExportService,
         IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
         IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
-        AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector)
+        AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
+        IRunExportAuditService runExportAuditService,
+        IRunExportRecordRepository runExportRecordRepository)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -105,6 +109,8 @@ public sealed class ArchitectureController : ControllerBase
         _architectureAnalysisConsultingDocxExportService = architectureAnalysisConsultingDocxExportService;
         _consultingDocxTemplateRecommendationService = consultingDocxTemplateRecommendationService;
         _consultingDocxExportProfileSelector = consultingDocxExportProfileSelector;
+        _runExportAuditService = runExportAuditService;
+        _runExportRecordRepository = runExportRecordRepository;
     }
 
     [HttpPost("request")]
@@ -921,6 +927,46 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
+    [HttpGet("run/{runId}/exports")]
+    [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunExportHistory(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        var exports = await _runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        return Ok(new RunExportHistoryResponse
+        {
+            Exports = exports.ToList()
+        });
+    }
+
+    [HttpGet("run/exports/{exportRecordId}")]
+    [ProducesResponseType(typeof(RunExportRecordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunExportRecord(
+        [FromRoute] string exportRecordId,
+        CancellationToken cancellationToken)
+    {
+        var record = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        if (record is null)
+        {
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(new RunExportRecordResponse
+        {
+            Record = record
+        });
+    }
+
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -973,6 +1019,19 @@ public sealed class ArchitectureController : ControllerBase
                 cancellationToken);
 
             var fileName = $"analysis_{resolved.SelectedProfileName}_{runId}.docx";
+
+            await _runExportAuditService.RecordAsync(
+                runId: runId,
+                exportType: "analysis-report-consulting-docx",
+                format: "docx",
+                fileName: fileName,
+                templateProfile: resolved.SelectedProfileName,
+                templateProfileDisplayName: resolved.SelectedProfileDisplayName,
+                wasAutoSelected: resolved.WasAutoSelected,
+                resolutionReason: resolved.ResolutionReason,
+                manifestVersion: report.Manifest?.Metadata.ManifestVersion,
+                notes: "Consulting DOCX export generated.",
+                cancellationToken: cancellationToken);
 
             Response.Headers["X-ArchiForge-Selected-Profile"] = resolved.SelectedProfileName;
             Response.Headers["X-ArchiForge-Profile-AutoSelected"] = resolved.WasAutoSelected.ToString();

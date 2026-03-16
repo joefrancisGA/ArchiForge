@@ -141,6 +141,8 @@ namespace ArchiForge.Api
             builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
+            builder.Services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
+            builder.Services.AddScoped<IRunExportAuditService, RunExportAuditService>();
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
             builder.Services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
             builder.Services.AddScoped<IArchitectureAnalysisExportService, MarkdownArchitectureAnalysisExportService>();
