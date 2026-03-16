@@ -962,7 +962,9 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRunTraces(
         [FromRoute] string runId,
-        CancellationToken cancellationToken)
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
     {
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
@@ -970,11 +972,22 @@ public sealed class ArchitectureController : ControllerBase
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var traces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        var allTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        var paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
+        var (skip, take) = paging.Normalize();
+
+        var pagedTraces = allTraces
+            .OrderBy(t => t.CreatedUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
 
         return Ok(new AgentExecutionTraceResponse
         {
-            Traces = traces.ToList()
+            Traces = pagedTraces,
+            TotalCount = allTraces.Count,
+            PageNumber = paging.PageNumber,
+            PageSize = paging.PageSize
         });
     }
 
