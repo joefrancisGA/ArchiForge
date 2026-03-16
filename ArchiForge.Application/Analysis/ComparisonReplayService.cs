@@ -42,10 +42,11 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         }
 
         var format = NormalizeFormat(request.Format);
+        var profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
 
         return record.ComparisonType switch
         {
-            "end-to-end-replay" => await ReplayEndToEndAsync(record, format, cancellationToken),
+            "end-to-end-replay" => await ReplayEndToEndAsync(record, format, profile, cancellationToken),
             "export-record-diff" => await ReplayExportDiffAsync(record, format, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Replay is not supported for comparison type '{record.ComparisonType}'.")
@@ -55,6 +56,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
     private async Task<ReplayComparisonResult> ReplayEndToEndAsync(
         ComparisonRecord record,
         string format,
+        string profile,
         CancellationToken cancellationToken)
     {
         var report = ComparisonRecordPayloadRehydrator.RehydrateEndToEnd(record)
@@ -63,7 +65,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
 
         if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
-            var markdown = _endToEndExportService.GenerateMarkdown(report);
+            var markdown = _endToEndExportService.GenerateMarkdown(report, profile);
 
             return new ReplayComparisonResult
             {
@@ -75,11 +77,26 @@ public sealed class ComparisonReplayService : IComparisonReplayService
             };
         }
 
+        if (string.Equals(format, "html", StringComparison.OrdinalIgnoreCase))
+        {
+            var html = _endToEndExportService.GenerateHtml(report, profile);
+
+            return new ReplayComparisonResult
+            {
+                ComparisonRecordId = record.ComparisonRecordId,
+                ComparisonType = record.ComparisonType,
+                Format = "html",
+                FileName = $"comparison_{record.ComparisonRecordId}.html",
+                Content = html
+            };
+        }
+
         if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
         {
             var bytes = await _endToEndExportService.GenerateDocxAsync(
                 report,
-                cancellationToken);
+                cancellationToken,
+                profile);
 
             return new ReplayComparisonResult
             {
@@ -87,6 +104,23 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 ComparisonType = record.ComparisonType,
                 Format = "docx",
                 FileName = $"comparison_{record.ComparisonRecordId}.docx",
+                BinaryContent = bytes
+            };
+        }
+
+        if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            var bytes = await _endToEndExportService.GeneratePdfAsync(
+                report,
+                cancellationToken,
+                profile);
+
+            return new ReplayComparisonResult
+            {
+                ComparisonRecordId = record.ComparisonRecordId,
+                ComparisonType = record.ComparisonType,
+                Format = "pdf",
+                FileName = $"comparison_{record.ComparisonRecordId}.pdf",
                 BinaryContent = bytes
             };
         }

@@ -787,7 +787,8 @@ public sealed class ArchitectureController : ControllerBase
                 new AppReplayComparisonRequest
                 {
                     ComparisonRecordId = comparisonRecordId,
-                    Format = request.Format
+                    Format = request.Format,
+                    Profile = request.Profile
                 },
                 cancellationToken);
 
@@ -801,11 +802,26 @@ public sealed class ArchitectureController : ControllerBase
                 return File(bytes, "text/markdown", result.FileName);
             }
 
+            if (string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
+            {
+                var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
+
+                return File(bytes, "text/html", result.FileName);
+            }
+
             if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
             {
                 return File(
                     result.BinaryContent ?? Array.Empty<byte>(),
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    result.FileName);
+            }
+
+            if (string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                return File(
+                    result.BinaryContent ?? Array.Empty<byte>(),
+                    "application/pdf",
                     result.FileName);
             }
 
@@ -838,7 +854,8 @@ public sealed class ArchitectureController : ControllerBase
                 new AppReplayComparisonRequest
                 {
                     ComparisonRecordId = comparisonRecordId,
-                    Format = request.Format
+                    Format = request.Format,
+                    Profile = request.Profile
                 },
                 cancellationToken);
 
