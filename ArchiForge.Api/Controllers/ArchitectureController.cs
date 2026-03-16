@@ -801,6 +801,30 @@ public sealed class ArchitectureController : ControllerBase
             {
                 Response.Headers["X-ArchiForge-VerificationMessage"] = msg;
             }
+            if (result.LeftRunId is { } leftRunId)
+            {
+                Response.Headers["X-ArchiForge-LeftRunId"] = leftRunId;
+            }
+            if (result.RightRunId is { } rightRunId)
+            {
+                Response.Headers["X-ArchiForge-RightRunId"] = rightRunId;
+            }
+            if (result.LeftExportRecordId is { } leftExportId)
+            {
+                Response.Headers["X-ArchiForge-LeftExportRecordId"] = leftExportId;
+            }
+            if (result.RightExportRecordId is { } rightExportId)
+            {
+                Response.Headers["X-ArchiForge-RightExportRecordId"] = rightExportId;
+            }
+            if (result.CreatedUtc is { } createdUtc)
+            {
+                Response.Headers["X-ArchiForge-CreatedUtc"] = createdUtc.ToString("O");
+            }
+            if (result.FormatProfile is { } formatProfile)
+            {
+                Response.Headers["X-ArchiForge-Format-Profile"] = formatProfile;
+            }
 
             if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             {
@@ -907,6 +931,31 @@ public sealed class ArchitectureController : ControllerBase
                 },
                 cancellationToken);
 
+            if (result.LeftRunId is { } leftRunId)
+            {
+                Response.Headers["X-ArchiForge-LeftRunId"] = leftRunId;
+            }
+            if (result.RightRunId is { } rightRunId)
+            {
+                Response.Headers["X-ArchiForge-RightRunId"] = rightRunId;
+            }
+            if (result.LeftExportRecordId is { } leftExportId)
+            {
+                Response.Headers["X-ArchiForge-LeftExportRecordId"] = leftExportId;
+            }
+            if (result.RightExportRecordId is { } rightExportId)
+            {
+                Response.Headers["X-ArchiForge-RightExportRecordId"] = rightExportId;
+            }
+            if (result.CreatedUtc is { } createdUtc)
+            {
+                Response.Headers["X-ArchiForge-CreatedUtc"] = createdUtc.ToString("O");
+            }
+            if (result.FormatProfile is { } formatProfile)
+            {
+                Response.Headers["X-ArchiForge-Format-Profile"] = formatProfile;
+            }
+
             return Ok(new ReplayComparisonMetadataResponse
             {
                 ComparisonRecordId = result.ComparisonRecordId,
@@ -916,7 +965,13 @@ public sealed class ArchitectureController : ControllerBase
                 ReplayMode = result.ReplayMode,
                 VerificationPassed = result.VerificationPassed,
                 VerificationMessage = result.VerificationMessage,
-                DriftAnalysis = result.DriftAnalysis is null ? null : MapDriftAnalysis(result.DriftAnalysis)
+                DriftAnalysis = result.DriftAnalysis is null ? null : MapDriftAnalysis(result.DriftAnalysis),
+                LeftRunId = result.LeftRunId,
+                RightRunId = result.RightRunId,
+                LeftExportRecordId = result.LeftExportRecordId,
+                RightExportRecordId = result.RightExportRecordId,
+                CreatedUtc = result.CreatedUtc,
+                FormatProfile = result.FormatProfile
             });
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))

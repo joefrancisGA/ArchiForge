@@ -17,5 +17,17 @@ public sealed class ReplayComparisonMetadataResponse
     public string? VerificationMessage { get; set; }
 
     public DriftAnalysisResponse? DriftAnalysis { get; set; }
+
+    public string? LeftRunId { get; set; }
+
+    public string? RightRunId { get; set; }
+
+    public string? LeftExportRecordId { get; set; }
+
+    public string? RightExportRecordId { get; set; }
+
+    public DateTime? CreatedUtc { get; set; }
+
+    public string? FormatProfile { get; set; }
 }
 

@@ -142,6 +142,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 if (driftE2E.DriftDetected)
                 {
                     var verifyResult = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
+                    SetRecordMetadata(verifyResult, record, profile);
                     verifyResult.ReplayMode = FormatReplayMode(mode);
                     verifyResult.VerificationPassed = false;
                     verifyResult.VerificationMessage = driftE2E.Summary;
@@ -189,7 +190,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
             var markdown = _endToEndExportService.GenerateMarkdown(report, profile);
-            return new ReplayComparisonResult
+            var r = new ReplayComparisonResult
             {
                 ComparisonRecordId = record.ComparisonRecordId,
                 ComparisonType = record.ComparisonType,
@@ -197,12 +198,14 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 FileName = $"comparison_{record.ComparisonRecordId}.md",
                 Content = markdown
             };
+            SetRecordMetadata(r, record, profile);
+            return r;
         }
 
         if (string.Equals(format, "html", StringComparison.OrdinalIgnoreCase))
         {
             var html = _endToEndExportService.GenerateHtml(report, profile);
-            return new ReplayComparisonResult
+            var r = new ReplayComparisonResult
             {
                 ComparisonRecordId = record.ComparisonRecordId,
                 ComparisonType = record.ComparisonType,
@@ -210,6 +213,8 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 FileName = $"comparison_{record.ComparisonRecordId}.html",
                 Content = html
             };
+            SetRecordMetadata(r, record, profile);
+            return r;
         }
 
         if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
@@ -218,7 +223,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 report,
                 cancellationToken,
                 profile);
-            return new ReplayComparisonResult
+            var r = new ReplayComparisonResult
             {
                 ComparisonRecordId = record.ComparisonRecordId,
                 ComparisonType = record.ComparisonType,
@@ -226,6 +231,8 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 FileName = $"comparison_{record.ComparisonRecordId}.docx",
                 BinaryContent = bytes
             };
+            SetRecordMetadata(r, record, profile);
+            return r;
         }
 
         if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
@@ -234,7 +241,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 report,
                 cancellationToken,
                 profile);
-            return new ReplayComparisonResult
+            var r = new ReplayComparisonResult
             {
                 ComparisonRecordId = record.ComparisonRecordId,
                 ComparisonType = record.ComparisonType,
@@ -242,6 +249,8 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 FileName = $"comparison_{record.ComparisonRecordId}.pdf",
                 BinaryContent = bytes
             };
+            SetRecordMetadata(r, record, profile);
+            return r;
         }
 
         throw new InvalidOperationException($"Unsupported replay format '{format}'.");
@@ -286,6 +295,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                         VerificationMessage = driftExport.Summary,
                         DriftAnalysis = driftExport
                     };
+                    SetRecordMetadata(resultExport, record, null);
                     return resultExport;
                 }
                 break;
@@ -309,12 +319,23 @@ public sealed class ComparisonReplayService : IComparisonReplayService
             Content = markdown,
             ReplayMode = FormatReplayMode(mode)
         };
+        SetRecordMetadata(result, record, null);
         if (mode == ComparisonReplayMode.Verify)
         {
             result.VerificationPassed = true;
             result.VerificationMessage = "Regenerated comparison matches stored payload.";
         }
         return result;
+    }
+
+    private static void SetRecordMetadata(ReplayComparisonResult r, ComparisonRecord record, string? formatProfile)
+    {
+        r.LeftRunId = record.LeftRunId;
+        r.RightRunId = record.RightRunId;
+        r.LeftExportRecordId = record.LeftExportRecordId;
+        r.RightExportRecordId = record.RightExportRecordId;
+        r.CreatedUtc = record.CreatedUtc;
+        r.FormatProfile = formatProfile;
     }
 
     private async Task<ExportRecordDiffResult> RegenerateExportDiffAsync(

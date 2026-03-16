@@ -25,5 +25,23 @@ public sealed class ReplayComparisonResult
 
     /// <summary>When replay mode is Verify and drift detected: structured drift analysis.</summary>
     public DriftAnalysisResult? DriftAnalysis { get; set; }
+
+    /// <summary>Left run ID (end-to-end or run that owns left export).</summary>
+    public string? LeftRunId { get; set; }
+
+    /// <summary>Right run ID (end-to-end or run that owns right export).</summary>
+    public string? RightRunId { get; set; }
+
+    /// <summary>Left export record ID (export-record-diff).</summary>
+    public string? LeftExportRecordId { get; set; }
+
+    /// <summary>Right export record ID (export-record-diff).</summary>
+    public string? RightExportRecordId { get; set; }
+
+    /// <summary>When the comparison record was created (UTC).</summary>
+    public DateTime? CreatedUtc { get; set; }
+
+    /// <summary>Export format profile used (e.g. default, detailed).</summary>
+    public string? FormatProfile { get; set; }
 }
 
