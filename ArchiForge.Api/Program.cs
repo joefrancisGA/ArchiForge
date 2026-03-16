@@ -27,6 +27,8 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace ArchiForge.Api
 {
@@ -63,6 +65,24 @@ namespace ArchiForge.Api
             {
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
             });
+
+            builder.Services.AddOpenTelemetry()
+                .ConfigureResource(resource => resource
+                    .AddService(
+                        serviceName: "ArchiForge.Api",
+                        serviceVersion: typeof(Program).Assembly.GetName().Version?.ToString() ?? "unknown",
+                        serviceInstanceId: Environment.MachineName))
+                .WithTracing(tracing =>
+                {
+                    tracing.AddAspNetCoreInstrumentation();
+                    tracing.AddHttpClientInstrumentation();
+                    tracing.AddSqlClientInstrumentation(options =>
+                    {
+                        options.SetDbStatementForText = true;
+                        options.SetDbStatementForStoredProcedure = true;
+                    });
+                    tracing.AddConsoleExporter();
+                });
 
             builder.Services.AddRateLimiter(options =>
             {
