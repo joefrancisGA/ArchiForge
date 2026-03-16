@@ -1,3 +1,4 @@
+using ArchiForge.Api;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -772,6 +773,7 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReplayComparison(
@@ -829,31 +831,29 @@ public sealed class ArchitectureController : ControllerBase
             if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
             {
                 var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
-
-                return File(bytes, "text/markdown", result.FileName);
+                return new FileWithRangeResult(Request, bytes, "text/markdown", result.FileName);
             }
 
             if (string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
             {
                 var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
-
-                return File(bytes, "text/html", result.FileName);
+                return new FileWithRangeResult(Request, bytes, "text/html", result.FileName);
             }
 
             if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
             {
-                return File(
-                    result.BinaryContent ?? Array.Empty<byte>(),
+                var bytes = result.BinaryContent ?? Array.Empty<byte>();
+                return new FileWithRangeResult(
+                    Request,
+                    bytes,
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     result.FileName);
             }
 
             if (string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase))
             {
-                return File(
-                    result.BinaryContent ?? Array.Empty<byte>(),
-                    "application/pdf",
-                    result.FileName);
+                var bytes = result.BinaryContent ?? Array.Empty<byte>();
+                return new FileWithRangeResult(Request, bytes, "application/pdf", result.FileName);
             }
 
             return BadRequest(new { error = $"Unsupported replay result format '{result.Format}'." });
