@@ -1,6 +1,7 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
+using ArchiForge.Api.Jobs;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Determinism;
@@ -68,6 +69,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IEndToEndReplayComparisonExportService _endToEndReplayComparisonExportService;
     private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
+    private readonly IBackgroundJobQueue _jobs;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -103,7 +105,8 @@ public sealed class ArchitectureController : ControllerBase
         IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
         IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
         IComparisonAuditService comparisonAuditService,
-        IComparisonRecordRepository comparisonRecordRepository)
+        IComparisonRecordRepository comparisonRecordRepository,
+        IBackgroundJobQueue jobs)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -139,6 +142,7 @@ public sealed class ArchitectureController : ControllerBase
         _endToEndReplayComparisonExportService = endToEndReplayComparisonExportService;
         _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
+        _jobs = jobs;
     }
 
     [HttpPost("request")]
@@ -1141,6 +1145,34 @@ public sealed class ArchitectureController : ControllerBase
         }
     }
 
+    [HttpPost("run/{runId}/analysis-report/export/docx/async")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult ExportAnalysisReportDocxAsync(
+        [FromRoute] string runId,
+        [FromBody] ArchitectureAnalysisRequest? request)
+    {
+        request ??= new ArchitectureAnalysisRequest();
+        request.RunId = runId;
+
+        var fileName = $"analysis_{runId}.docx";
+        var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        var jobId = _jobs.Enqueue(fileName, contentType, async ct =>
+        {
+            var report = await _architectureAnalysisService.BuildAsync(request, ct);
+            var bytes = await _docxExportService.GenerateDocxAsync(report, ct);
+            return new BackgroundJobFile(fileName, contentType, bytes);
+        });
+
+        var statusUrl = Url.Action("GetJob", "Jobs", new { jobId, version = "1.0" }) ?? $"/v1/jobs/{jobId}";
+        var downloadUrl = Url.Action("DownloadJobFile", "Jobs", new { jobId, version = "1.0" }) ?? $"/v1/jobs/{jobId}/file";
+
+        Response.Headers.Location = statusUrl;
+        return Accepted(new { jobId, statusUrl, downloadUrl });
+    }
+
     [HttpPost("analysis-report/export/docx/consulting/resolve-profile")]
     [ProducesResponseType(typeof(ConsultingDocxExportResponse), StatusCodes.Status200OK)]
     [Authorize(Policy = "CanExportConsultingDocx")]
@@ -1390,6 +1422,77 @@ public sealed class ArchitectureController : ControllerBase
         {
             return this.BadRequestProblem(ex.Message);
         }
+    }
+
+    [HttpPost("run/{runId}/analysis-report/export/docx/consulting/async")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "CanExportConsultingDocx")]
+    public IActionResult ExportConsultingAnalysisReportDocxAsync(
+        [FromRoute] string runId,
+        [FromBody] ConsultingDocxExportRequest? request)
+    {
+        request ??= new ConsultingDocxExportRequest();
+
+        var resolved = _consultingDocxExportProfileSelector.Resolve(
+            request.TemplateProfile,
+            new AppConsultingDocxProfileRecommendationRequest
+            {
+                Audience = request.Audience,
+                ExternalDelivery = request.ExternalDelivery,
+                ExecutiveFriendly = request.ExecutiveFriendly,
+                RegulatedEnvironment = request.RegulatedEnvironment,
+                NeedDetailedEvidence = request.NeedDetailedEvidence,
+                NeedExecutionTraces = request.NeedExecutionTraces,
+                NeedDeterminismOrCompareAppendices = request.NeedDeterminismOrCompareAppendices
+            });
+
+        var profileName = resolved.SelectedProfileName;
+        var fileName = $"analysis_{profileName}_{runId}.docx";
+        var contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        var analysisRequest = new ArchitectureAnalysisRequest
+        {
+            RunId = runId,
+            IncludeEvidence = request.IncludeEvidence,
+            IncludeExecutionTraces = request.IncludeExecutionTraces,
+            IncludeManifest = request.IncludeManifest,
+            IncludeDiagram = request.IncludeDiagram,
+            IncludeSummary = request.IncludeSummary,
+            IncludeDeterminismCheck = request.IncludeDeterminismCheck,
+            DeterminismIterations = request.DeterminismIterations,
+            IncludeManifestCompare = request.IncludeManifestCompare,
+            CompareManifestVersion = request.CompareManifestVersion,
+            IncludeAgentResultCompare = request.IncludeAgentResultCompare,
+            CompareRunId = request.CompareRunId
+        };
+
+        var jobId = _jobs.Enqueue(fileName, contentType, async ct =>
+        {
+            var report = await _architectureAnalysisService.BuildAsync(analysisRequest, ct);
+            var bytes = await _architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(report, ct);
+            return new BackgroundJobFile(fileName, contentType, bytes);
+        });
+
+        var statusUrl = Url.Action("GetJob", "Jobs", new { jobId, version = "1.0" }) ?? $"/v1/jobs/{jobId}";
+        var downloadUrl = Url.Action("DownloadJobFile", "Jobs", new { jobId, version = "1.0" }) ?? $"/v1/jobs/{jobId}/file";
+
+        Response.Headers.Location = statusUrl;
+        Response.Headers["X-ArchiForge-Selected-Profile"] = resolved.SelectedProfileName;
+        Response.Headers["X-ArchiForge-Profile-AutoSelected"] = resolved.WasAutoSelected.ToString();
+        Response.Headers["X-ArchiForge-Profile-Reason"] = resolved.ResolutionReason;
+
+        return Accepted(new
+        {
+            jobId,
+            statusUrl,
+            downloadUrl,
+            selectedProfileName = resolved.SelectedProfileName,
+            selectedProfileDisplayName = resolved.SelectedProfileDisplayName,
+            wasAutoSelected = resolved.WasAutoSelected,
+            resolutionReason = resolved.ResolutionReason
+        });
     }
 
     [HttpPost("analysis-report/export/docx/consulting/profiles/recommend")]

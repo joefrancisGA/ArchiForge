@@ -1,6 +1,7 @@
 using ArchiForge.AgentRuntime;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Authentication;
+using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
@@ -83,6 +84,9 @@ namespace ArchiForge.Api
                     policy.RequireClaim("permission", "export:consulting-docx"));
             });
 
+            var prometheusEnabled = builder.Configuration.GetValue("Observability:Prometheus:Enabled", false);
+            var consoleExporterEnabled = builder.Configuration.GetValue("Observability:ConsoleExporter:Enabled", builder.Environment.IsDevelopment());
+
             builder.Services.AddOpenTelemetry()
                 .ConfigureResource(resource => resource
                     .AddService(
@@ -94,13 +98,19 @@ namespace ArchiForge.Api
                     tracing.AddAspNetCoreInstrumentation();
                     tracing.AddHttpClientInstrumentation();
                     tracing.AddSqlClientInstrumentation();
-                    tracing.AddConsoleExporter();
+                    if (consoleExporterEnabled)
+                    {
+                        tracing.AddConsoleExporter();
+                    }
                 })
                 .WithMetrics(metrics =>
                 {
                     metrics.AddAspNetCoreInstrumentation();
                     metrics.AddHttpClientInstrumentation();
-                    metrics.AddPrometheusExporter();
+                    if (prometheusEnabled)
+                    {
+                        metrics.AddPrometheusExporter();
+                    }
                 });
 
             builder.Services.AddRateLimiter(options =>
@@ -138,6 +148,8 @@ namespace ArchiForge.Api
             builder.Services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
             builder.Services.AddHealthChecks()
                 .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
+            builder.Services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
+            builder.Services.AddHostedService(sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
             builder.Services.AddScoped<IRunExportRecordRepository, RunExportRecordRepository>();
             builder.Services.AddScoped<IRunExportAuditService, RunExportAuditService>();
             builder.Services.AddScoped<IArchitectureApplicationService, ArchitectureApplicationService>();
@@ -301,7 +313,10 @@ namespace ArchiForge.Api
             app.UseAuthorization();
 
             app.MapHealthChecks("/health");
-            app.UseOpenTelemetryPrometheusScrapingEndpoint();
+            if (prometheusEnabled)
+            {
+                app.UseOpenTelemetryPrometheusScrapingEndpoint();
+            }
             app.MapControllers();
 
             app.Run();

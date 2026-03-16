@@ -26,7 +26,15 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
         // If API key auth is disabled, treat all requests as authenticated so existing callers/tests keep working.
         if (!enabled)
         {
-            var identity = new ClaimsIdentity(Array.Empty<Claim>(), Scheme.Name);
+            // When disabled, include full permissions so policy-protected endpoints continue to work locally.
+            var identity = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Name, "DevUser"),
+                new Claim("permission", "commit:run"),
+                new Claim("permission", "seed:results"),
+                new Claim("permission", "export:consulting-docx"),
+                new Claim("permission", "metrics:read")
+            }, Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, Scheme.Name);
             return Task.FromResult(AuthenticateResult.Success(ticket));
@@ -37,17 +45,40 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
         }
 
-        var expectedKey = _configuration["Authentication:ApiKey:Key"];
-        if (string.IsNullOrWhiteSpace(expectedKey) ||
-            !string.Equals(providedKey.ToString(), expectedKey, StringComparison.Ordinal))
+        var key = providedKey.ToString();
+
+        var adminKey = _configuration["Authentication:ApiKey:AdminKey"];
+        var readerKey = _configuration["Authentication:ApiKey:ReadOnlyKey"];
+
+        string? userName;
+        Claim[] claims;
+
+        if (!string.IsNullOrWhiteSpace(adminKey) && string.Equals(key, adminKey, StringComparison.Ordinal))
+        {
+            userName = "ApiKeyAdmin";
+            claims =
+            [
+                new Claim(ClaimTypes.Name, userName),
+                new Claim("permission", "commit:run"),
+                new Claim("permission", "seed:results"),
+                new Claim("permission", "export:consulting-docx"),
+                new Claim("permission", "metrics:read")
+            ];
+        }
+        else if (!string.IsNullOrWhiteSpace(readerKey) && string.Equals(key, readerKey, StringComparison.Ordinal))
+        {
+            userName = "ApiKeyReadOnly";
+            claims =
+            [
+                new Claim(ClaimTypes.Name, userName),
+                new Claim("permission", "metrics:read")
+            ];
+        }
+        else
         {
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
         }
 
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, "ApiKeyUser")
-        };
         var successIdentity = new ClaimsIdentity(claims, Scheme.Name);
         var successPrincipal = new ClaimsPrincipal(successIdentity);
         var successTicket = new AuthenticationTicket(successPrincipal, Scheme.Name);
