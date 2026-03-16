@@ -66,6 +66,8 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IEndToEndReplayComparisonService _endToEndReplayComparisonService;
     private readonly IEndToEndReplayComparisonSummaryFormatter _endToEndReplayComparisonSummaryFormatter;
     private readonly IEndToEndReplayComparisonExportService _endToEndReplayComparisonExportService;
+    private readonly IComparisonAuditService _comparisonAuditService;
+    private readonly IComparisonRecordRepository _comparisonRecordRepository;
 
     public ArchitectureController(
         IArchitectureRunService architectureRunService,
@@ -99,7 +101,9 @@ public sealed class ArchitectureController : ControllerBase
         IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
         IEndToEndReplayComparisonService endToEndReplayComparisonService,
         IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
-        IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService)
+        IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
+        IComparisonAuditService comparisonAuditService,
+        IComparisonRecordRepository comparisonRecordRepository)
     {
         _architectureRunService = architectureRunService;
         _replayRunService = replayRunService;
@@ -133,6 +137,8 @@ public sealed class ArchitectureController : ControllerBase
         _endToEndReplayComparisonService = endToEndReplayComparisonService;
         _endToEndReplayComparisonSummaryFormatter = endToEndReplayComparisonSummaryFormatter;
         _endToEndReplayComparisonExportService = endToEndReplayComparisonExportService;
+        _comparisonAuditService = comparisonAuditService;
+        _comparisonRecordRepository = comparisonRecordRepository;
     }
 
     [HttpPost("request")]
@@ -591,14 +597,17 @@ public sealed class ArchitectureController : ControllerBase
         }
     }
 
-    [HttpGet("run/compare/end-to-end/summary")]
+    [HttpPost("run/compare/end-to-end/summary")]
     [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareRunsEndToEndSummary(
         [FromQuery] string leftRunId,
         [FromQuery] string rightRunId,
+        [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
+        request ??= new PersistComparisonRequest();
+
         try
         {
             var report = await _endToEndReplayComparisonService.BuildAsync(
@@ -607,6 +616,15 @@ public sealed class ArchitectureController : ControllerBase
                 cancellationToken);
 
             var summary = _endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
+
+            if (request.Persist)
+            {
+                var comparisonRecordId = await _comparisonAuditService.RecordEndToEndAsync(
+                    report,
+                    summary,
+                    cancellationToken);
+                Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
+            }
 
             return Ok(new EndToEndReplayComparisonSummaryResponse
             {
@@ -618,6 +636,67 @@ public sealed class ArchitectureController : ControllerBase
         {
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
+    }
+
+    [HttpGet("run/{runId}/comparisons")]
+    [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunComparisonHistory(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        var records = await _comparisonRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        return Ok(new ComparisonHistoryResponse
+        {
+            Records = records.ToList()
+        });
+    }
+
+    [HttpGet("run/exports/{exportRecordId}/comparisons")]
+    [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetExportRecordComparisonHistory(
+        [FromRoute] string exportRecordId,
+        CancellationToken cancellationToken)
+    {
+        var export = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        if (export is null)
+        {
+            return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        var records = await _comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, cancellationToken);
+
+        return Ok(new ComparisonHistoryResponse
+        {
+            Records = records.ToList()
+        });
+    }
+
+    [HttpGet("comparisons/{comparisonRecordId}")]
+    [ProducesResponseType(typeof(ComparisonRecordResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetComparisonRecord(
+        [FromRoute] string comparisonRecordId,
+        CancellationToken cancellationToken)
+    {
+        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        if (record is null)
+        {
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(new ComparisonRecordResponse
+        {
+            Record = record
+        });
     }
 
     [HttpGet("run/compare/end-to-end/export")]
@@ -1162,14 +1241,17 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
-    [HttpGet("run/exports/compare/summary")]
+    [HttpPost("run/exports/compare/summary")]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareExportRecordsSummary(
         [FromQuery] string leftExportRecordId,
         [FromQuery] string rightExportRecordId,
+        [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
+        request ??= new PersistComparisonRequest();
+
         var left = await _runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
         if (left is null)
         {
@@ -1184,6 +1266,15 @@ public sealed class ArchitectureController : ControllerBase
 
         var diff = _exportRecordDiffService.Compare(left, right);
         var summary = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+
+        if (request.Persist)
+        {
+            var comparisonRecordId = await _comparisonAuditService.RecordExportDiffAsync(
+                diff,
+                summary,
+                cancellationToken);
+            Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
+        }
 
         return Ok(new ExportRecordDiffSummaryResponse
         {

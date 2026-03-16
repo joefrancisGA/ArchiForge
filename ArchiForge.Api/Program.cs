@@ -156,6 +156,8 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IEndToEndReplayComparisonService, EndToEndReplayComparisonService>();
             builder.Services.AddScoped<IEndToEndReplayComparisonSummaryFormatter, MarkdownEndToEndReplayComparisonSummaryFormatter>();
             builder.Services.AddScoped<IEndToEndReplayComparisonExportService, EndToEndReplayComparisonExportService>();
+            builder.Services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
+            builder.Services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();
             builder.Services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();

@@ -8,9 +8,9 @@ namespace ArchiForge.Data.Repositories;
 
 public sealed class RunExportRecordRepository : IRunExportRecordRepository
 {
-    private readonly SqlConnectionFactory _connectionFactory;
+    private readonly IDbConnectionFactory _connectionFactory;
 
-    public RunExportRecordRepository(SqlConnectionFactory connectionFactory)
+    public RunExportRecordRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
     }

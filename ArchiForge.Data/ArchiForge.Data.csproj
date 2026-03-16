@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\001_InitialSchema.sql" />
+    <EmbeddedResource Include="Migrations\*.sql" />
     <EmbeddedResource Include="SQL\ArchiForge.Sqlite.sql" LogicalName="ArchiForge.Data.SQL.ArchiForge.Sqlite.sql" />
   </ItemGroup>
   <ItemGroup>

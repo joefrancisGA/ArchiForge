@@ -97,3 +97,56 @@ CREATE TABLE IF NOT EXISTS AgentExecutionTraces
 
 CREATE INDEX IF NOT EXISTS IX_AgentExecutionTraces_RunId ON AgentExecutionTraces (RunId);
 CREATE INDEX IF NOT EXISTS IX_AgentExecutionTraces_TaskId ON AgentExecutionTraces (TaskId);
+
+CREATE TABLE IF NOT EXISTS RunExportRecords
+(
+    ExportRecordId TEXT NOT NULL PRIMARY KEY,
+    RunId TEXT NOT NULL,
+    ExportType TEXT NOT NULL,
+    Format TEXT NOT NULL,
+    FileName TEXT NOT NULL,
+    TemplateProfile TEXT NULL,
+    TemplateProfileDisplayName TEXT NULL,
+    WasAutoSelected INTEGER NOT NULL,
+    ResolutionReason TEXT NULL,
+    ManifestVersion TEXT NULL,
+    Notes TEXT NULL,
+    AnalysisRequestJson TEXT NULL,
+    IncludedEvidence INTEGER NULL,
+    IncludedExecutionTraces INTEGER NULL,
+    IncludedManifest INTEGER NULL,
+    IncludedDiagram INTEGER NULL,
+    IncludedSummary INTEGER NULL,
+    IncludedDeterminismCheck INTEGER NULL,
+    DeterminismIterations INTEGER NULL,
+    IncludedManifestCompare INTEGER NULL,
+    CompareManifestVersion TEXT NULL,
+    IncludedAgentResultCompare INTEGER NULL,
+    CompareRunId TEXT NULL,
+    RecordJson TEXT NOT NULL,
+    CreatedUtc TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_RunExportRecords_RunId ON RunExportRecords (RunId);
+
+CREATE TABLE IF NOT EXISTS ComparisonRecords
+(
+    ComparisonRecordId TEXT NOT NULL PRIMARY KEY,
+    ComparisonType TEXT NOT NULL,
+    LeftRunId TEXT NULL,
+    RightRunId TEXT NULL,
+    LeftManifestVersion TEXT NULL,
+    RightManifestVersion TEXT NULL,
+    LeftExportRecordId TEXT NULL,
+    RightExportRecordId TEXT NULL,
+    Format TEXT NOT NULL,
+    SummaryMarkdown TEXT NULL,
+    PayloadJson TEXT NOT NULL,
+    Notes TEXT NULL,
+    CreatedUtc TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_ComparisonRecords_LeftRunId ON ComparisonRecords (LeftRunId);
+CREATE INDEX IF NOT EXISTS IX_ComparisonRecords_RightRunId ON ComparisonRecords (RightRunId);
+CREATE INDEX IF NOT EXISTS IX_ComparisonRecords_LeftExportRecordId ON ComparisonRecords (LeftExportRecordId);
+CREATE INDEX IF NOT EXISTS IX_ComparisonRecords_RightExportRecordId ON ComparisonRecords (RightExportRecordId);
