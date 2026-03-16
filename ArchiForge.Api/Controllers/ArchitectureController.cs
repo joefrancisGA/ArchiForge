@@ -20,6 +20,10 @@ using AppConsultingDocxProfileRecommendationRequest =
     ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest;
 using AppConsultingDocxExportProfileSelector =
     ArchiForge.Application.Analysis.IConsultingDocxExportProfileSelector;
+using ApiReplayExportRequest =
+    ArchiForge.Api.Models.ReplayExportRequest;
+using AppReplayExportRequest =
+    ArchiForge.Application.Analysis.ReplayExportRequest;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -1111,15 +1115,15 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReplayExport(
         [FromRoute] string exportRecordId,
-        [FromBody] ReplayExportRequest? request,
+        [FromBody] ApiReplayExportRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new ReplayExportRequest();
+        request ??= new ApiReplayExportRequest();
 
         try
         {
             var result = await _exportReplayService.ReplayAsync(
-                new Application.Analysis.ReplayExportRequest
+                new AppReplayExportRequest
                 {
                     ExportRecordId = exportRecordId,
                     RecordReplayExport = request.RecordReplayExport
@@ -1152,15 +1156,15 @@ public sealed class ArchitectureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReplayExportMetadata(
         [FromRoute] string exportRecordId,
-        [FromBody] ReplayExportRequest? request,
+        [FromBody] ApiReplayExportRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new ReplayExportRequest();
+        request ??= new ApiReplayExportRequest();
 
         try
         {
             var result = await _exportReplayService.ReplayAsync(
-                new Application.Analysis.ReplayExportRequest
+                new AppReplayExportRequest
                 {
                     ExportRecordId = exportRecordId,
                     RecordReplayExport = false
