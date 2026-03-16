@@ -15,9 +15,8 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock,
         IConfiguration configuration)
-        : base(options, logger, encoder, clock)
+        : base(options, logger, encoder)
     {
         _configuration = configuration;
     }
