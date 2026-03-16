@@ -103,6 +103,27 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{runId}' not found.");
 
+        // Idempotency: if the run has already been executed and is ready for commit or committed,
+        // return the existing results instead of re-executing agents.
+        if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
+        {
+            var existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            if (existingResults.Count > 0)
+            {
+                _logger.LogInformation(
+                    "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
+                    runId,
+                    run.Status,
+                    existingResults.Count);
+
+                return new ExecuteRunResult
+                {
+                    RunId = runId,
+                    Results = existingResults.ToList()
+                };
+            }
+        }
+
         var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
@@ -157,6 +178,31 @@ public sealed class ArchitectureRunService : IArchitectureRunService
 
         var run = await _runRepository.GetByIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{runId}' not found.");
+
+        // Idempotency: if the run is already committed and has a manifest version,
+        // return the existing manifest and decision traces instead of creating a new manifest version.
+        if (run.Status is ArchitectureRunStatus.Committed &&
+            !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+        {
+            var existingManifest = await _manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            if (existingManifest is not null)
+            {
+                var existingTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+                _logger.LogInformation(
+                    "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
+                    runId,
+                    run.CurrentManifestVersion,
+                    existingTraces.Count);
+
+                return new CommitRunResult
+                {
+                    Manifest = existingManifest,
+                    DecisionTraces = existingTraces.ToList(),
+                    Warnings = []
+                };
+            }
+        }
 
         var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
