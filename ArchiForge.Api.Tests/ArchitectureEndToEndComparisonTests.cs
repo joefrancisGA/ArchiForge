@@ -39,7 +39,7 @@ public sealed class ArchitectureEndToEndComparisonTests : IntegrationTestBase
 
         replayResponse.EnsureSuccessStatusCode();
 
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponse>(JsonOptions);
+        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         replayPayload.Should().NotBeNull();
         var replayRunId = replayPayload!.ReplayRunId;
 

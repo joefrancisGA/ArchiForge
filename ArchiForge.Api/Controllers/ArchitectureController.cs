@@ -25,6 +25,10 @@ using ApiReplayExportRequest =
     ArchiForge.Api.Models.ReplayExportRequest;
 using AppReplayExportRequest =
     ArchiForge.Application.Analysis.ReplayExportRequest;
+using ApiReplayComparisonRequest =
+    ArchiForge.Api.Models.ReplayComparisonRequest;
+using AppReplayComparisonRequest =
+    ArchiForge.Application.Analysis.ReplayComparisonRequest;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -69,6 +73,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IEndToEndReplayComparisonExportService _endToEndReplayComparisonExportService;
     private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
+    private readonly IComparisonReplayService _comparisonReplayService;
     private readonly IBackgroundJobQueue _jobs;
     private readonly ILogger<ArchitectureController> _logger;
 
@@ -107,6 +112,7 @@ public sealed class ArchitectureController : ControllerBase
         IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
         IComparisonAuditService comparisonAuditService,
         IComparisonRecordRepository comparisonRecordRepository,
+        IComparisonReplayService comparisonReplayService,
         IBackgroundJobQueue jobs,
         ILogger<ArchitectureController> logger)
     {
@@ -144,6 +150,7 @@ public sealed class ArchitectureController : ControllerBase
         _endToEndReplayComparisonExportService = endToEndReplayComparisonExportService;
         _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
+        _comparisonReplayService = comparisonReplayService;
         _jobs = jobs;
         _logger = logger;
     }
@@ -761,6 +768,96 @@ public sealed class ArchitectureController : ControllerBase
         {
             Record = record
         });
+    }
+
+    [HttpPost("comparisons/{comparisonRecordId}/replay")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReplayComparison(
+        [FromRoute] string comparisonRecordId,
+        [FromBody] ApiReplayComparisonRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ApiReplayComparisonRequest();
+
+        try
+        {
+            var result = await _comparisonReplayService.ReplayAsync(
+                new AppReplayComparisonRequest
+                {
+                    ComparisonRecordId = comparisonRecordId,
+                    Format = request.Format
+                },
+                cancellationToken);
+
+            Response.Headers["X-ArchiForge-ComparisonRecordId"] = result.ComparisonRecordId;
+            Response.Headers["X-ArchiForge-ComparisonType"] = result.ComparisonType;
+
+            if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
+            {
+                var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
+
+                return File(bytes, "text/markdown", result.FileName);
+            }
+
+            if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
+            {
+                return File(
+                    result.BinaryContent ?? Array.Empty<byte>(),
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    result.FileName);
+            }
+
+            return BadRequest(new { error = $"Unsupported replay result format '{result.Format}'." });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
+    [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReplayComparisonMetadata(
+        [FromRoute] string comparisonRecordId,
+        [FromBody] ApiReplayComparisonRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ApiReplayComparisonRequest();
+
+        try
+        {
+            var result = await _comparisonReplayService.ReplayAsync(
+                new AppReplayComparisonRequest
+                {
+                    ComparisonRecordId = comparisonRecordId,
+                    Format = request.Format
+                },
+                cancellationToken);
+
+            return Ok(new ReplayComparisonMetadataResponse
+            {
+                ComparisonRecordId = result.ComparisonRecordId,
+                ComparisonType = result.ComparisonType,
+                Format = result.Format,
+                FileName = result.FileName
+            });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("run/compare/end-to-end/export")]

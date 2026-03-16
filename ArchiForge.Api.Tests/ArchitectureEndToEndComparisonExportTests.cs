@@ -39,7 +39,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestB
 
         replayResponse.EnsureSuccessStatusCode();
 
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponse>(JsonOptions);
+        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         var replayRunId = replayPayload!.ReplayRunId;
 
         var response = await Client.GetAsync(
@@ -79,7 +79,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestB
 
         replayResponse.EnsureSuccessStatusCode();
 
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponse>(JsonOptions);
+        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         var replayRunId = replayPayload!.ReplayRunId;
 
         var response = await Client.GetAsync(
