@@ -790,16 +790,36 @@ public sealed class ArchitectureController : ControllerBase
         [FromQuery] DateTime? createdFromUtc,
         [FromQuery] DateTime? createdToUtc,
         [FromQuery] string? tag,
+        [FromQuery] int skip = 0,
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
     {
+        var normalizedType = string.IsNullOrWhiteSpace(comparisonType) ? null : comparisonType.Trim();
+        if (normalizedType is not null
+            && !string.Equals(normalizedType, "end-to-end-replay", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(normalizedType, "export-record-diff", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { error = $"Unsupported comparisonType '{comparisonType}'. Supported: end-to-end-replay, export-record-diff." });
+        }
+
+        if (createdFromUtc is not null && createdToUtc is not null && createdFromUtc > createdToUtc)
+        {
+            return BadRequest(new { error = "createdFromUtc must be <= createdToUtc." });
+        }
+
+        if (skip < 0)
+        {
+            return BadRequest(new { error = "skip must be >= 0." });
+        }
+
         var records = await _comparisonRecordRepository.SearchAsync(
-            comparisonType,
+            normalizedType,
             leftRunId,
             rightRunId,
             createdFromUtc,
             createdToUtc,
             tag,
+            skip,
             limit,
             cancellationToken);
 
@@ -807,6 +827,7 @@ public sealed class ArchitectureController : ControllerBase
         {
             Records = records.ToList(),
             Limit = limit,
+            Skip = skip,
             ComparisonType = comparisonType,
             LeftRunId = leftRunId,
             RightRunId = rightRunId,

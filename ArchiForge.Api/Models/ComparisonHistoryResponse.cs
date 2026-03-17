@@ -8,6 +8,8 @@ public sealed class ComparisonHistoryResponse
 
     public int? Limit { get; set; }
 
+    public int? Skip { get; set; }
+
     public string? ComparisonType { get; set; }
 
     public string? LeftRunId { get; set; }

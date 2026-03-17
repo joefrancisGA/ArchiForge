@@ -256,6 +256,7 @@ public sealed class ArchiForgeApiClient
         string? leftRunId,
         string? rightRunId,
         string? tag,
+        int skip,
         int limit,
         CancellationToken ct = default)
     {
@@ -270,6 +271,7 @@ public sealed class ArchiForgeApiClient
                 query["rightRunId"] = rightRunId;
             if (!string.IsNullOrWhiteSpace(tag))
                 query["tag"] = tag;
+            query["skip"] = skip.ToString();
             query["limit"] = limit.ToString();
 
             var uri = "/v1/architecture/comparisons";
@@ -326,6 +328,8 @@ public sealed class ArchiForgeApiClient
         string replayMode,
         string? profile,
         bool persistReplay,
+        string? outPath,
+        bool force,
         CancellationToken ct = default)
     {
         try
@@ -347,20 +351,165 @@ public sealed class ArchiForgeApiClient
                 return false;
             }
 
+            if (response.Headers.TryGetValues("X-ArchiForge-PersistedReplayRecordId", out var persistedValues))
+            {
+                var persistedId = persistedValues.FirstOrDefault();
+                if (!string.IsNullOrWhiteSpace(persistedId))
+                {
+                    Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
+                }
+            }
+
             var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
                            ?? response.Content.Headers.ContentDisposition?.FileName
                            ?? $"comparison_{comparisonRecordId}.{format}";
             fileName = fileName.Trim('"');
 
+            var targetPath = fileName;
+            if (!string.IsNullOrWhiteSpace(outPath))
+            {
+                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
+                {
+                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    targetPath = Path.Combine(outPath, fileName);
+                }
+                else
+                {
+                    var dir = Path.GetDirectoryName(outPath);
+                    if (!string.IsNullOrWhiteSpace(dir))
+                        Directory.CreateDirectory(dir);
+                    targetPath = outPath;
+                }
+            }
+
+            if (File.Exists(targetPath) && !force)
+            {
+                Console.WriteLine($"Refusing to overwrite existing file: {targetPath}");
+                Console.WriteLine("Re-run with --force to overwrite, or choose a different --out path.");
+                return false;
+            }
+
             var bytes = await response.Content.ReadAsByteArrayAsync(ct);
-            await File.WriteAllBytesAsync(fileName, bytes, ct);
-            Console.WriteLine($"Replay exported to {fileName}");
+            await File.WriteAllBytesAsync(targetPath, bytes, ct);
+            Console.WriteLine($"Replay exported to {targetPath}");
             return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Replay failed: {ex.Message}");
             return false;
+        }
+    }
+
+    public sealed class DriftItem
+    {
+        public string Category { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+
+    public sealed class DriftAnalysis
+    {
+        public bool DriftDetected { get; set; }
+        public string Summary { get; set; } = string.Empty;
+        public List<DriftItem> Items { get; set; } = [];
+    }
+
+    public async Task<DriftAnalysis?> GetComparisonDriftAsync(string comparisonRecordId, CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
+            var content = await response.Content.ReadAsStringAsync(ct);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+            var result = new DriftAnalysis
+            {
+                DriftDetected = root.TryGetProperty("driftDetected", out var dd) && dd.ValueKind == JsonValueKind.True,
+                Summary = root.TryGetProperty("summary", out var s) ? (s.GetString() ?? "") : ""
+            };
+
+            if (root.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var it in items.EnumerateArray())
+                {
+                    result.Items.Add(new DriftItem
+                    {
+                        Category = it.TryGetProperty("category", out var c) ? (c.GetString() ?? "") : "",
+                        Path = it.TryGetProperty("path", out var p) ? (p.GetString() ?? "") : "",
+                        Description = it.TryGetProperty("description", out var d) ? d.GetString() : null
+                    });
+                }
+            }
+
+            return result;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public sealed class ReplayDiagnostics
+    {
+        public List<ReplayDiagnosticsEntry> RecentReplays { get; set; } = [];
+    }
+
+    public sealed class ReplayDiagnosticsEntry
+    {
+        public DateTime TimestampUtc { get; set; }
+        public string ComparisonRecordId { get; set; } = string.Empty;
+        public string ComparisonType { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;
+        public string ReplayMode { get; set; } = string.Empty;
+        public long DurationMs { get; set; }
+        public bool Success { get; set; }
+        public bool MetadataOnly { get; set; }
+        public string? PersistedReplayRecordId { get; set; }
+        public string? ErrorMessage { get; set; }
+    }
+
+    public async Task<ReplayDiagnostics?> GetReplayDiagnosticsAsync(int maxCount, CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={maxCount}";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+            var content = await response.Content.ReadAsStringAsync(ct);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+            var result = new ReplayDiagnostics();
+            if (root.TryGetProperty("recentReplays", out var arr) && arr.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var it in arr.EnumerateArray())
+                {
+                    result.RecentReplays.Add(new ReplayDiagnosticsEntry
+                    {
+                        TimestampUtc = it.TryGetProperty("timestampUtc", out var t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
+                        ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out var id) ? (id.GetString() ?? "") : "",
+                        ComparisonType = it.TryGetProperty("comparisonType", out var ctEl) ? (ctEl.GetString() ?? "") : "",
+                        Format = it.TryGetProperty("format", out var f) ? (f.GetString() ?? "") : "",
+                        ReplayMode = it.TryGetProperty("replayMode", out var rm) ? (rm.GetString() ?? "") : "",
+                        DurationMs = it.TryGetProperty("durationMs", out var dm) && dm.TryGetInt64(out var l) ? l : 0,
+                        Success = it.TryGetProperty("success", out var ok) && ok.ValueKind == JsonValueKind.True,
+                        MetadataOnly = it.TryGetProperty("metadataOnly", out var mo) && mo.ValueKind == JsonValueKind.True,
+                        PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out var pr) ? pr.GetString() : null,
+                        ErrorMessage = it.TryGetProperty("errorMessage", out var em) ? em.GetString() : null
+                    });
+                }
+            }
+            return result;
+        }
+        catch
+        {
+            return null;
         }
     }
 

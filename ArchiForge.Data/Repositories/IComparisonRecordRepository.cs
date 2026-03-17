@@ -27,6 +27,7 @@ public interface IComparisonRecordRepository
         DateTime? createdFromUtc,
         DateTime? createdToUtc,
         string? tag,
+        int skip,
         int limit,
         CancellationToken cancellationToken = default);
 

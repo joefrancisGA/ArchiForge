@@ -134,18 +134,22 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         DateTime? createdFromUtc,
         DateTime? createdToUtc,
         string? tag,
+        int skip,
         int limit,
         CancellationToken cancellationToken = default)
     {
         const string baseSql = """
-            SELECT TOP (@Limit) *
+            SELECT *
             FROM ComparisonRecords
             WHERE 1 = 1
             """;
 
         var conditions = new List<string>();
         var parameters = new DynamicParameters();
-        parameters.Add("@Limit", limit <= 0 ? 50 : Math.Min(limit, 500));
+        var safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
+        var safeSkip = skip < 0 ? 0 : skip;
+        parameters.Add("@Limit", safeLimit);
+        parameters.Add("@Skip", safeSkip);
 
         if (!string.IsNullOrWhiteSpace(comparisonType))
         {
@@ -189,7 +193,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         {
             sql += " AND " + string.Join(" AND ", conditions);
         }
-        sql += " ORDER BY CreatedUtc DESC;";
+        // SQLite and SQL Server both support ORDER BY + OFFSET/FETCH with parameterization.
+        sql += " ORDER BY CreatedUtc DESC OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
 
         var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,

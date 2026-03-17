@@ -161,8 +161,10 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--limit <n>]");
-                Console.WriteLine("   or: archiforge comparisons replay <comparisonRecordId> [--format ...] [--mode ...] [--profile <profile>] [--persist]");
+                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--skip <n>] [--limit <n>]");
+                Console.WriteLine("   or: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
+                Console.WriteLine("   or: archiforge comparisons drift <comparisonRecordId>");
+                Console.WriteLine("   or: archiforge comparisons diagnostics [--limit <n>]");
                 Console.WriteLine("   or: archiforge comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
                 return 1;
             }
@@ -181,6 +183,10 @@ namespace ArchiForge
                     return await ArchiForge_Comparisons_ListAsync(client, args.Skip(1).ToArray());
                 case "replay":
                     return await ArchiForge_Comparisons_ReplayAsync(client, args.Skip(1).ToArray());
+                case "drift":
+                    return await ArchiForge_Comparisons_DriftAsync(client, args.Skip(1).ToArray());
+                case "diagnostics":
+                    return await ArchiForge_Comparisons_DiagnosticsAsync(client, args.Skip(1).ToArray());
                 case "tag":
                     return await ArchiForge_Comparisons_TagAsync(client, args.Skip(1).ToArray());
                 default:
@@ -195,6 +201,7 @@ namespace ArchiForge
             string? leftRun = null;
             string? rightRun = null;
             string? tag = null;
+            int skip = 0;
             int limit = 20;
 
             for (var i = 0; i < args.Length; i++)
@@ -213,6 +220,10 @@ namespace ArchiForge
                     case "--tag" when i + 1 < args.Length:
                         tag = args[++i];
                         break;
+                    case "--skip" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsedSkip):
+                        skip = parsedSkip;
+                        i++;
+                        break;
                     case "--limit" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed):
                         limit = parsed;
                         i++;
@@ -220,7 +231,7 @@ namespace ArchiForge
                 }
             }
 
-            var result = await client.SearchComparisonsAsync(type, leftRun, rightRun, tag, limit);
+            var result = await client.SearchComparisonsAsync(type, leftRun, rightRun, tag, skip, limit);
             if (result is null)
             {
                 Console.WriteLine("No comparison records found or request failed.");
@@ -282,7 +293,7 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist]");
+                Console.WriteLine("Usage: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
                 return 1;
             }
 
@@ -291,6 +302,8 @@ namespace ArchiForge
             var mode = "artifact";
             string? profile = null;
             var persist = false;
+            string? outPath = null;
+            var force = false;
 
             for (var i = 1; i < args.Length; i++)
             {
@@ -308,11 +321,74 @@ namespace ArchiForge
                     case "--persist":
                         persist = true;
                         break;
+                    case "--out" when i + 1 < args.Length:
+                        outPath = args[++i];
+                        break;
+                    case "--force":
+                        force = true;
+                        break;
                 }
             }
 
-            var ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist);
+            var ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
             return ok ? 0 : 1;
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_DriftAsync(ArchiForgeApiClient client, string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: archiforge comparisons drift <comparisonRecordId>");
+                return 1;
+            }
+
+            var comparisonRecordId = args[0];
+            var drift = await client.GetComparisonDriftAsync(comparisonRecordId);
+            if (drift is null)
+            {
+                Console.WriteLine("Failed to get drift analysis (unauthorized, not found, or request failed).");
+                return 1;
+            }
+
+            Console.WriteLine($"DriftDetected={drift.DriftDetected}");
+            Console.WriteLine(drift.Summary);
+            foreach (var item in drift.Items.Take(25))
+            {
+                Console.WriteLine($"- [{item.Category}] {item.Path}: {item.Description}");
+            }
+            if (drift.Items.Count > 25)
+            {
+                Console.WriteLine($"(showing 25 of {drift.Items.Count} items)");
+            }
+
+            return 0;
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_DiagnosticsAsync(ArchiForgeApiClient client, string[] args)
+        {
+            var limit = 20;
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "--limit" && i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed))
+                {
+                    limit = parsed;
+                    i++;
+                }
+            }
+
+            var diagnostics = await client.GetReplayDiagnosticsAsync(limit);
+            if (diagnostics is null)
+            {
+                Console.WriteLine("Failed to get replay diagnostics (unauthorized or request failed).");
+                return 1;
+            }
+
+            foreach (var e in diagnostics.RecentReplays)
+            {
+                Console.WriteLine($"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
+            }
+
+            return 0;
         }
 
         private static int ArchiForge_Dev_Up()
