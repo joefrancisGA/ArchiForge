@@ -202,6 +202,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IAgentResultDiffSummaryFormatter, MarkdownAgentResultDiffSummaryFormatter>();
             builder.Services.AddScoped<IExportRecordDiffService, ExportRecordDiffService>();
             builder.Services.AddScoped<IExportRecordDiffSummaryFormatter, MarkdownExportRecordDiffSummaryFormatter>();
+            builder.Services.AddScoped<IExportRecordDiffExportService, ExportRecordDiffExportService>();
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();

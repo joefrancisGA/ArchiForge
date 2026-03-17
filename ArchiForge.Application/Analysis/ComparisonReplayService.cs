@@ -13,6 +13,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
     private readonly IEndToEndReplayComparisonExportService _endToEndExportService;
     private readonly IExportRecordDiffService _exportRecordDiffService;
     private readonly IExportRecordDiffSummaryFormatter _exportRecordDiffSummaryFormatter;
+    private readonly IExportRecordDiffExportService _exportRecordDiffExportService;
     private readonly IRunExportRecordRepository _runExportRecordRepository;
 
     public ComparisonReplayService(
@@ -24,6 +25,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         IEndToEndReplayComparisonExportService endToEndExportService,
         IExportRecordDiffService exportRecordDiffService,
         IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
+        IExportRecordDiffExportService exportRecordDiffExportService,
         IRunExportRecordRepository runExportRecordRepository)
     {
         _comparisonRecordRepository = comparisonRecordRepository;
@@ -34,6 +36,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
         _endToEndExportService = endToEndExportService;
         _exportRecordDiffService = exportRecordDiffService;
         _exportRecordDiffSummaryFormatter = exportRecordDiffSummaryFormatter;
+        _exportRecordDiffExportService = exportRecordDiffExportService;
         _runExportRecordRepository = runExportRecordRepository;
     }
 
@@ -318,8 +321,28 @@ public sealed class ComparisonReplayService : IComparisonReplayService
 
         if (!string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
-            throw new InvalidOperationException(
-                "Export-record diff replay currently supports markdown only.");
+            if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
+            {
+                var bytes = await _exportRecordDiffExportService.GenerateDocxAsync(diff, cancellationToken);
+                var resultDocx = new ReplayComparisonResult
+                {
+                    ComparisonRecordId = record.ComparisonRecordId,
+                    ComparisonType = record.ComparisonType,
+                    Format = "docx",
+                    FileName = $"comparison_{record.ComparisonRecordId}.docx",
+                    BinaryContent = bytes,
+                    ReplayMode = FormatReplayMode(mode)
+                };
+                if (mode == ComparisonReplayMode.Verify)
+                {
+                    resultDocx.VerificationPassed = true;
+                    resultDocx.VerificationMessage = "Regenerated comparison matches stored payload.";
+                }
+                SetRecordMetadata(resultDocx, record, formatProfile: null);
+                return resultDocx;
+            }
+
+            throw new InvalidOperationException($"Unsupported replay format '{format}' for export-record diff.");
         }
 
         var markdown = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
@@ -338,6 +361,7 @@ public sealed class ComparisonReplayService : IComparisonReplayService
             result.VerificationPassed = true;
             result.VerificationMessage = "Regenerated comparison matches stored payload.";
         }
+        SetRecordMetadata(result, record, formatProfile: null);
         return result;
     }
 
