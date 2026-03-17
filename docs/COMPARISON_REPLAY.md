@@ -256,7 +256,21 @@ Comparison records support an optional **label** (short string, e.g. `release-1.
 - **PATCH** `/v1/architecture/comparisons/{comparisonRecordId}` with body `{ "label": "…", "tags": ["t1", "t2"] }` to set or update label and tags (pass `null` or empty to clear).
 - **GET** search and single-record responses include `label` and `tags`.
 - **GET** `/v1/architecture/comparisons?tag=release-1.2` returns only records that have that tag.
+- **GET** `/v1/architecture/comparisons?skip=0&limit=20&sortBy=createdUtc&sortDir=desc` supports paging and sorting.
+- **Cursor paging**: `/v1/architecture/comparisons?limit=20&sortBy=createdUtc&sortDir=desc` returns `nextCursor`, which you can pass back as `cursor=<nextCursor>` to fetch the next page (cursor format: `<utcTicks>:<comparisonRecordId>`).
 - CLI: `archiforge comparisons list` shows label and tags; `archiforge comparisons tag <id> --label x --tag t1 --tag t2` updates them.
+
+### Batch replay
+
+To replay multiple saved comparisons in one request, use:
+
+- **POST** `/v1/architecture/comparisons/replay/batch` → returns a ZIP file containing one exported artifact per record.
+
+### Summary endpoint
+
+To fetch the stored comparison summary (or a regenerated markdown summary if none is stored):
+
+- **GET** `/v1/architecture/comparisons/{comparisonRecordId}/summary`
 
 ### Drift report export
 

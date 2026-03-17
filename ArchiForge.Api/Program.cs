@@ -193,6 +193,7 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
             builder.Services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
             builder.Services.AddScoped<IComparisonReplayService, ComparisonReplayService>();
+            builder.Services.AddScoped<IComparisonDriftReportExportService, ComparisonDriftReportExportService>();
             builder.Services.AddSingleton<ArchiForge.Api.Services.IReplayDiagnosticsRecorder, ArchiForge.Api.Services.ReplayDiagnosticsRecorder>();
             builder.Services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
             builder.Services.AddScoped<IReplayRunService, ReplayRunService>();

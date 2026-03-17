@@ -161,10 +161,12 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--skip <n>] [--limit <n>]");
+                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--tag <tag>] [--skip <n>] [--limit <n>] [--cursor <cursor>] [--sort-by <createdUtc|type|label|leftRunId|rightRunId>] [--sort <asc|desc>] [--json|--table]");
                 Console.WriteLine("   or: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
-                Console.WriteLine("   or: archiforge comparisons drift <comparisonRecordId>");
-                Console.WriteLine("   or: archiforge comparisons diagnostics [--limit <n>]");
+                Console.WriteLine("   or: archiforge comparisons replay-batch <id1,id2,...> [--format ...] [--mode ...] [--profile ...] [--persist] [--out <path>] [--force]");
+                Console.WriteLine("   or: archiforge comparisons summary <comparisonRecordId> [--json]");
+                Console.WriteLine("   or: archiforge comparisons drift <comparisonRecordId> [--json]");
+                Console.WriteLine("   or: archiforge comparisons diagnostics [--limit <n>] [--json|--table]");
                 Console.WriteLine("   or: archiforge comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
                 return 1;
             }
@@ -183,6 +185,10 @@ namespace ArchiForge
                     return await ArchiForge_Comparisons_ListAsync(client, args.Skip(1).ToArray());
                 case "replay":
                     return await ArchiForge_Comparisons_ReplayAsync(client, args.Skip(1).ToArray());
+                case "replay-batch":
+                    return await ArchiForge_Comparisons_ReplayBatchAsync(client, args.Skip(1).ToArray());
+                case "summary":
+                    return await ArchiForge_Comparisons_SummaryAsync(client, args.Skip(1).ToArray());
                 case "drift":
                     return await ArchiForge_Comparisons_DriftAsync(client, args.Skip(1).ToArray());
                 case "diagnostics":
@@ -205,6 +211,8 @@ namespace ArchiForge
             string? label = null;
             string? tag = null;
             string? tags = null;
+            string? cursor = null;
+            string sortBy = "createdUtc";
             string sortDir = "desc";
             int skip = 0;
             int limit = 20;
@@ -239,6 +247,12 @@ namespace ArchiForge
                     case "--tags" when i + 1 < args.Length:
                         tags = args[++i];
                         break;
+                    case "--cursor" when i + 1 < args.Length:
+                        cursor = args[++i];
+                        break;
+                    case "--sort-by" when i + 1 < args.Length:
+                        sortBy = args[++i];
+                        break;
                     case "--sort" when i + 1 < args.Length:
                         sortDir = args[++i];
                         break;
@@ -264,7 +278,9 @@ namespace ArchiForge
                 leftExport, rightExport,
                 label,
                 tag, tags,
+                sortBy,
                 sortDir,
+                cursor,
                 skip, limit);
             if (result is null)
             {
@@ -284,6 +300,12 @@ namespace ArchiForge
                     result,
                     new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                 Console.WriteLine(json);
+                if (!string.IsNullOrWhiteSpace(result.NextCursor))
+                {
+                    // Keep it easy to copy/paste into the next call.
+                    Console.WriteLine();
+                    Console.WriteLine($"nextCursor: {result.NextCursor}");
+                }
                 return 0;
             }
 
@@ -412,20 +434,108 @@ namespace ArchiForge
             return ok ? 0 : 1;
         }
 
-        private static async Task<int> ArchiForge_Comparisons_DriftAsync(ArchiForgeApiClient client, string[] args)
+        private static async Task<int> ArchiForge_Comparisons_ReplayBatchAsync(ArchiForgeApiClient client, string[] args)
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Usage: archiforge comparisons drift <comparisonRecordId>");
+                Console.WriteLine("Usage: archiforge comparisons replay-batch <id1,id2,...> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
+                return 1;
+            }
+
+            var ids = args[0]
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var format = "markdown";
+            var mode = "artifact";
+            string? profile = null;
+            var persist = false;
+            string? outPath = null;
+            var force = false;
+
+            for (var i = 1; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--format" when i + 1 < args.Length:
+                        format = args[++i];
+                        break;
+                    case "--mode" when i + 1 < args.Length:
+                        mode = args[++i];
+                        break;
+                    case "--profile" when i + 1 < args.Length:
+                        profile = args[++i];
+                        break;
+                    case "--persist":
+                        persist = true;
+                        break;
+                    case "--out" when i + 1 < args.Length:
+                        outPath = args[++i];
+                        break;
+                    case "--force":
+                        force = true;
+                        break;
+                }
+            }
+
+            var ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
+            return ok ? 0 : 1;
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_SummaryAsync(ArchiForgeApiClient client, string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: archiforge comparisons summary <comparisonRecordId> [--json]");
                 return 1;
             }
 
             var comparisonRecordId = args[0];
+            var asJson = args.Any(a => a == "--json");
+            var summary = await client.GetComparisonSummaryAsync(comparisonRecordId);
+            if (summary is null)
+            {
+                Console.WriteLine("Failed to get comparison summary (unauthorized, not found, or request failed).");
+                return 1;
+            }
+
+            if (asJson)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                Console.WriteLine(json);
+                return 0;
+            }
+
+            Console.WriteLine(summary.Summary);
+            return 0;
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_DriftAsync(ArchiForgeApiClient client, string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: archiforge comparisons drift <comparisonRecordId> [--json]");
+                return 1;
+            }
+
+            var comparisonRecordId = args[0];
+            var asJson = args.Any(a => a == "--json");
             var drift = await client.GetComparisonDriftAsync(comparisonRecordId);
             if (drift is null)
             {
                 Console.WriteLine("Failed to get drift analysis (unauthorized, not found, or request failed).");
                 return 1;
+            }
+
+            if (asJson)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(
+                    drift,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                Console.WriteLine(json);
+                return 0;
             }
 
             Console.WriteLine($"DriftDetected={drift.DriftDetected}");

@@ -72,6 +72,48 @@ public sealed class ArchitectureComparisonSearchTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task SearchComparisons_CursorPaging_ReturnsNextPage()
+    {
+        ComparisonHistoryResponseDto page1;
+        ComparisonHistoryResponseDto page2;
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
+            for (var i = 0; i < 5; i++)
+            {
+                await repo.CreateAsync(new ComparisonRecord
+                {
+                    ComparisonRecordId = $"cmp_cursor_{i}_{Guid.NewGuid():N}",
+                    ComparisonType = "end-to-end-replay",
+                    LeftRunId = "L",
+                    RightRunId = "R",
+                    Format = "json+markdown",
+                    SummaryMarkdown = "s",
+                    PayloadJson = "{}",
+                    CreatedUtc = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(i)
+                });
+            }
+        }
+
+        page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+            "/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortBy=createdUtc&sortDir=desc&limit=2",
+            JsonOptions))!;
+
+        page1.Records.Should().HaveCount(2);
+        page1.NextCursor.Should().NotBeNullOrWhiteSpace();
+
+        page2 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+            $"/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortBy=createdUtc&sortDir=desc&limit=2&cursor={Uri.EscapeDataString(page1.NextCursor!)}",
+            JsonOptions))!;
+
+        page2.Records.Should().HaveCount(2);
+        page1.Records.Select(r => r.ComparisonRecordId)
+            .Intersect(page2.Records.Select(r => r.ComparisonRecordId))
+            .Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task SearchComparisons_InvalidParameters_ReturnsBadRequest()
     {
         var badType = await Client.GetAsync("/v1/architecture/comparisons?comparisonType=nope");
@@ -85,6 +127,9 @@ public sealed class ArchitectureComparisonSearchTests : IntegrationTestBase
 
         var badSort = await Client.GetAsync("/v1/architecture/comparisons?sortDir=sideways");
         badSort.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var badSortBy = await Client.GetAsync("/v1/architecture/comparisons?sortBy=anythingElse");
+        badSortBy.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

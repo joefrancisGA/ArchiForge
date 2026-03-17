@@ -260,7 +260,9 @@ public sealed class ArchiForgeApiClient
         string? label,
         string? tag,
         string? tags,
+        string? sortBy,
         string? sortDir,
+        string? cursor,
         int skip,
         int limit,
         CancellationToken ct = default)
@@ -284,8 +286,12 @@ public sealed class ArchiForgeApiClient
                 query["tag"] = tag;
             if (!string.IsNullOrWhiteSpace(tags))
                 query["tags"] = tags;
+            if (!string.IsNullOrWhiteSpace(sortBy))
+                query["sortBy"] = sortBy;
             if (!string.IsNullOrWhiteSpace(sortDir))
                 query["sortDir"] = sortDir;
+            if (!string.IsNullOrWhiteSpace(cursor))
+                query["cursor"] = cursor;
             query["skip"] = skip.ToString();
             query["limit"] = limit.ToString();
 
@@ -329,7 +335,10 @@ public sealed class ArchiForgeApiClient
                 });
             }
 
-            return new ComparisonHistoryResult { Records = list };
+            var nextCursor = root.TryGetProperty("nextCursor", out var nc) && nc.ValueKind == JsonValueKind.String
+                ? nc.GetString()
+                : null;
+            return new ComparisonHistoryResult { Records = list, NextCursor = nextCursor };
         }
         catch
         {
@@ -412,6 +421,103 @@ public sealed class ArchiForgeApiClient
         catch (Exception ex)
         {
             Console.WriteLine($"Replay failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public sealed class ComparisonSummary
+    {
+        public string ComparisonRecordId { get; set; } = string.Empty;
+        public string ComparisonType { get; set; } = string.Empty;
+        public string Format { get; set; } = string.Empty;
+        public string Summary { get; set; } = string.Empty;
+    }
+
+    public async Task<ComparisonSummary?> GetComparisonSummaryAsync(string comparisonRecordId, CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/summary";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+            var content = await response.Content.ReadAsStringAsync(ct);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return JsonSerializer.Deserialize<ComparisonSummary>(content, _jsonOptions);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> ReplayComparisonsBatchToZipAsync(
+        IReadOnlyList<string> comparisonRecordIds,
+        string format,
+        string replayMode,
+        string? profile,
+        bool persistReplay,
+        string? outPath,
+        bool force,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = "/v1/architecture/comparisons/replay/batch";
+            var body = new
+            {
+                comparisonRecordIds,
+                format,
+                replayMode,
+                profile,
+                persistReplay
+            };
+
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                var contentError = await response.Content.ReadAsStringAsync(ct);
+                Console.WriteLine($"Batch replay failed ({(int)response.StatusCode}): {contentError}");
+                return false;
+            }
+
+            var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                           ?? response.Content.Headers.ContentDisposition?.FileName
+                           ?? "comparison_replays.zip";
+            fileName = fileName.Trim('"');
+
+            var targetPath = fileName;
+            if (!string.IsNullOrWhiteSpace(outPath))
+            {
+                if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
+                {
+                    Directory.CreateDirectory(outPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                    targetPath = Path.Combine(outPath, fileName);
+                }
+                else
+                {
+                    var dir = Path.GetDirectoryName(outPath);
+                    if (!string.IsNullOrWhiteSpace(dir))
+                        Directory.CreateDirectory(dir);
+                    targetPath = outPath;
+                }
+            }
+
+            if (File.Exists(targetPath) && !force)
+            {
+                Console.WriteLine($"Refusing to overwrite existing file: {targetPath}");
+                Console.WriteLine("Re-run with --force to overwrite, or choose a different --out path.");
+                return false;
+            }
+
+            var bytes = await response.Content.ReadAsByteArrayAsync(ct);
+            await File.WriteAllBytesAsync(targetPath, bytes, ct);
+            Console.WriteLine($"Batch replay exported to {targetPath}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Batch replay failed: {ex.Message}");
             return false;
         }
     }
@@ -554,6 +660,8 @@ public sealed class ArchiForgeApiClient
     public sealed class ComparisonHistoryResult
     {
         public List<ComparisonRecordSummary> Records { get; set; } = [];
+
+        public string? NextCursor { get; set; }
     }
 
     public sealed class ComparisonRecordSummary

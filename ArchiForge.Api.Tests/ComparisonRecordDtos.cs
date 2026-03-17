@@ -33,7 +33,11 @@ public sealed class ComparisonHistoryResponseDto
 
     public List<string> Tags { get; set; } = [];
 
+    public string? SortBy { get; set; }
+
     public string? SortDir { get; set; }
+
+    public string? NextCursor { get; set; }
 }
 
 public sealed class ComparisonRecordDto

@@ -49,6 +49,8 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 | `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
+| `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |
+| `comparisons summary <comparisonRecordId>` | Get the stored summary (or regenerated markdown) for a comparison record. |
 | `comparisons drift <comparisonRecordId>` | Run drift analysis for a saved comparison record. |
 | `comparisons diagnostics` | Show recent replay activity (requires replay diagnostics permission). |
 | `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
@@ -75,7 +77,9 @@ Supported flags:
 - `--label <label>`
 - `--tag <tag>` (single tag)
 - `--tags <t1,t2,...>` (multi-tag match)
-- `--sort <asc|desc>` (defaults to `desc`)
+- `--cursor <cursor>` to use cursor-based paging (API `cursor` query param)
+- `--sort-by <createdUtc|type|label|leftRunId|rightRunId>` (defaults to `createdUtc`)
+- `--sort <asc|desc>` (defaults to `desc`, maps to API `sortDir`)
 - `--skip <n>` and `--limit <n>` for paging
 - `--json` to output machine-readable JSON
 - `--table` to output an aligned table
@@ -118,10 +122,22 @@ archiforge comparisons replay <id> --format docx --out outputs --force
 archiforge comparisons replay <id> --mode verify --persist
 ```
 
+### Batch replay (download ZIP)
+
+```bash
+archiforge comparisons replay-batch <id1,id2,...> [--format docx] [--out outputs] [--force]
+```
+
+### Summary
+
+```bash
+archiforge comparisons summary <comparisonRecordId> [--json]
+```
+
 ### Drift analysis
 
 ```bash
-archiforge comparisons drift <comparisonRecordId>
+archiforge comparisons drift <comparisonRecordId> [--json]
 ```
 
 ### Replay diagnostics

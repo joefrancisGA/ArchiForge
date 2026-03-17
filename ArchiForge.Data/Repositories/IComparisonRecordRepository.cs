@@ -30,8 +30,26 @@ public interface IComparisonRecordRepository
         string? rightExportRecordId,
         string? label,
         IReadOnlyList<string>? tags,
+        string? sortBy,
         string? sortDir,
         int skip,
+        int limit,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ComparisonRecord>> SearchByCursorAsync(
+        string? comparisonType,
+        string? leftRunId,
+        string? rightRunId,
+        DateTime? createdFromUtc,
+        DateTime? createdToUtc,
+        string? leftExportRecordId,
+        string? rightExportRecordId,
+        string? label,
+        IReadOnlyList<string>? tags,
+        string? sortBy,
+        string? sortDir,
+        DateTime? cursorCreatedUtc,
+        string? cursorComparisonRecordId,
         int limit,
         CancellationToken cancellationToken = default);
 

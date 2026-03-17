@@ -1,5 +1,6 @@
 using ArchiForge.Api;
 using System.Diagnostics;
+using System.IO.Compression;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -13,6 +14,7 @@ using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using Microsoft.AspNetCore.Authorization;
 using ArchiForge.Data.Repositories;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
@@ -805,6 +807,49 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
+    [HttpGet("comparisons/{comparisonRecordId}/summary")]
+    [ProducesResponseType(typeof(ComparisonSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetComparisonSummary(
+        [FromRoute] string comparisonRecordId,
+        CancellationToken cancellationToken)
+    {
+        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        if (record is null)
+        {
+            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
+        }
+
+        if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
+        {
+            return Ok(new ComparisonSummaryResponse
+            {
+                ComparisonRecordId = record.ComparisonRecordId,
+                ComparisonType = record.ComparisonType,
+                Format = "markdown",
+                Summary = record.SummaryMarkdown
+            });
+        }
+
+        var replay = await _comparisonReplayService.ReplayAsync(
+            new AppReplayComparisonRequest
+            {
+                ComparisonRecordId = comparisonRecordId,
+                Format = "markdown",
+                ReplayMode = "artifact",
+                PersistReplay = false
+            },
+            cancellationToken);
+
+        return Ok(new ComparisonSummaryResponse
+        {
+            ComparisonRecordId = replay.ComparisonRecordId,
+            ComparisonType = replay.ComparisonType,
+            Format = "markdown",
+            Summary = replay.Content ?? string.Empty
+        });
+    }
+
     [HttpGet("comparisons")]
     [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> SearchComparisonRecords(
@@ -818,7 +863,9 @@ public sealed class ArchitectureController : ControllerBase
         [FromQuery] DateTime? createdToUtc,
         [FromQuery] string? tag,
         [FromQuery] string[]? tags,
+        [FromQuery] string? sortBy = "createdUtc",
         [FromQuery] string? sortDir = "desc",
+        [FromQuery] string? cursor = null,
         [FromQuery] int skip = 0,
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
@@ -848,6 +895,16 @@ public sealed class ArchitectureController : ControllerBase
             return BadRequest(new { error = "sortDir must be 'asc' or 'desc'." });
         }
 
+        if (sortBy is not null
+            && !string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(sortBy, "type", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(sortBy, "label", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(sortBy, "leftRunId", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(sortBy, "rightRunId", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { error = "sortBy must be one of: createdUtc, type, label, leftRunId, rightRunId." });
+        }
+
         var normalizedTags = (tags ?? [])
             .SelectMany(t => (t ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Where(t => !string.IsNullOrWhiteSpace(t))
@@ -862,20 +919,67 @@ public sealed class ArchitectureController : ControllerBase
                 .ToList();
         }
 
-        var records = await _comparisonRecordRepository.SearchAsync(
-            normalizedType,
-            leftRunId,
-            rightRunId,
-            createdFromUtc,
-            createdToUtc,
-            leftExportRecordId,
-            rightExportRecordId,
-            label,
-            normalizedTags,
-            sortDir,
-            skip,
-            limit,
-            cancellationToken);
+        DateTime? cursorCreatedUtc = null;
+        string? cursorId = null;
+        if (!string.IsNullOrWhiteSpace(cursor))
+        {
+            var parts = cursor.Split(':', 2);
+            if (parts.Length != 2 || !long.TryParse(parts[0], out var ticks) || string.IsNullOrWhiteSpace(parts[1]))
+            {
+                return BadRequest(new { error = "cursor must be formatted as '<utcTicks>:<comparisonRecordId>'." });
+            }
+            cursorCreatedUtc = new DateTime(ticks, DateTimeKind.Utc);
+            cursorId = parts[1];
+        }
+
+        IReadOnlyList<ComparisonRecord> records;
+        if (!string.IsNullOrWhiteSpace(cursor))
+        {
+            // Cursor paging currently supports createdUtc ordering only.
+            if (!string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new { error = "cursor paging currently requires sortBy=createdUtc." });
+            }
+
+            records = await _comparisonRecordRepository.SearchByCursorAsync(
+                normalizedType,
+                leftRunId,
+                rightRunId,
+                createdFromUtc,
+                createdToUtc,
+                leftExportRecordId,
+                rightExportRecordId,
+                label,
+                normalizedTags,
+                sortBy,
+                sortDir,
+                cursorCreatedUtc,
+                cursorId,
+                limit,
+                cancellationToken);
+        }
+        else
+        {
+            records = await _comparisonRecordRepository.SearchAsync(
+                normalizedType,
+                leftRunId,
+                rightRunId,
+                createdFromUtc,
+                createdToUtc,
+                leftExportRecordId,
+                rightExportRecordId,
+                label,
+                normalizedTags,
+                sortBy,
+                sortDir,
+                skip,
+                limit,
+                cancellationToken);
+        }
+
+        var nextCursor = records.Count > 0 && string.Equals(sortBy, "createdUtc", StringComparison.OrdinalIgnoreCase)
+            ? $"{records.Last().CreatedUtc.Ticks}:{records.Last().ComparisonRecordId}"
+            : null;
 
         return Ok(new ComparisonHistoryResponse
         {
@@ -892,7 +996,9 @@ public sealed class ArchitectureController : ControllerBase
             CreatedToUtc = createdToUtc,
             Tag = tag,
             Tags = normalizedTags,
-            SortDir = sortDir
+            SortBy = sortBy,
+            SortDir = sortDir,
+            NextCursor = nextCursor
         });
     }
 
@@ -1258,6 +1364,72 @@ public sealed class ArchitectureController : ControllerBase
             _logger.LogWarning(ex, "Comparison replay metadata failed: ComparisonRecordId={ComparisonRecordId}, Error={Error}", comparisonRecordId, ex.Message);
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    [HttpPost("comparisons/replay/batch")]
+    [Authorize(Policy = "CanReplayComparisons")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ReplayComparisonsBatch(
+        [FromBody] BatchReplayComparisonRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new BatchReplayComparisonRequest();
+
+        if (request.ComparisonRecordIds.Count == 0)
+        {
+            return BadRequest(new { error = "comparisonRecordIds is required." });
+        }
+
+        if (request.ComparisonRecordIds.Count > 50)
+        {
+            return BadRequest(new { error = "comparisonRecordIds max is 50." });
+        }
+
+        var format = request.Format ?? "markdown";
+        var mode = request.ReplayMode ?? "artifact";
+
+        await using var ms = new MemoryStream();
+        using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (var id in request.ComparisonRecordIds.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                var result = await _comparisonReplayService.ReplayAsync(
+                    new AppReplayComparisonRequest
+                    {
+                        ComparisonRecordId = id,
+                        Format = format,
+                        ReplayMode = mode,
+                        Profile = request.Profile,
+                        PersistReplay = request.PersistReplay
+                    },
+                    cancellationToken);
+
+                var entryName = result.FileName;
+                if (string.IsNullOrWhiteSpace(entryName))
+                {
+                    entryName = $"comparison_{id}.{result.Format}";
+                }
+
+                var entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
+                await using var entryStream = entry.Open();
+
+                if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
+                {
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
+                    await entryStream.WriteAsync(bytes, cancellationToken);
+                }
+                else
+                {
+                    var bytes = result.BinaryContent ?? Array.Empty<byte>();
+                    await entryStream.WriteAsync(bytes, cancellationToken);
+                }
+            }
+        }
+
+        ms.Position = 0;
+        return File(ms.ToArray(), "application/zip", "comparison_replays.zip");
     }
 
     [HttpGet("comparisons/diagnostics/replay")]
