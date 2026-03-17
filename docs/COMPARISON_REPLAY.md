@@ -219,6 +219,16 @@ curl -X POST \
 
 ---
 
+### Observability
+
+- **Structured logging**  
+  Each replay (file or metadata) is logged with structured properties: `ComparisonRecordId`, `ComparisonType`, `Format`, `ReplayMode`, `PersistReplay`, `DurationMs`, and (for file replay) `VerificationPassed`. Failures (not found, validation) are logged as warnings with the error message.
+
+- **Replay diagnostics endpoint**  
+  `GET /v1/architecture/comparisons/diagnostics/replay?maxCount=50` returns the last replay operations (in-memory ring buffer, default capacity 100). Query parameter `maxCount` (1–100) limits how many entries are returned. Each entry includes timestamp, comparison record ID, type, format, replay mode, duration, success flag, verification result (when applicable), and optional error message. Use this to inspect recent replay activity and any verification failures without parsing logs.
+
+---
+
 ### Notes and limitations
 
 - **PDF format** is currently only available for end‑to‑end replay (`ComparisonType = "end-to-end-replay"`).  

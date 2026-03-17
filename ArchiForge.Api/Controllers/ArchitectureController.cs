@@ -1,4 +1,5 @@
 using ArchiForge.Api;
+using System.Diagnostics;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
@@ -75,6 +76,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
     private readonly IComparisonReplayService _comparisonReplayService;
+    private readonly IReplayDiagnosticsRecorder _replayDiagnosticsRecorder;
     private readonly IBackgroundJobQueue _jobs;
     private readonly ILogger<ArchitectureController> _logger;
 
@@ -114,6 +116,7 @@ public sealed class ArchitectureController : ControllerBase
         IComparisonAuditService comparisonAuditService,
         IComparisonRecordRepository comparisonRecordRepository,
         IComparisonReplayService comparisonReplayService,
+        IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
         IBackgroundJobQueue jobs,
         ILogger<ArchitectureController> logger)
     {
@@ -152,6 +155,7 @@ public sealed class ArchitectureController : ControllerBase
         _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
         _comparisonReplayService = comparisonReplayService;
+        _replayDiagnosticsRecorder = replayDiagnosticsRecorder;
         _jobs = jobs;
         _logger = logger;
     }
@@ -782,6 +786,7 @@ public sealed class ArchitectureController : ControllerBase
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
+        var sw = Stopwatch.StartNew();
 
         try
         {
@@ -795,6 +800,25 @@ public sealed class ArchitectureController : ControllerBase
                     PersistReplay = request.PersistReplay
                 },
                 cancellationToken);
+
+            sw.Stop();
+            _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+            {
+                TimestampUtc = DateTime.UtcNow,
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = result.ComparisonType,
+                Format = result.Format,
+                ReplayMode = result.ReplayMode,
+                PersistReplay = request.PersistReplay,
+                DurationMs = sw.ElapsedMilliseconds,
+                Success = true,
+                VerificationPassed = result.VerificationPassed,
+                PersistedReplayRecordId = result.PersistedReplayRecordId,
+                MetadataOnly = false
+            });
+            _logger.LogInformation(
+                "Comparison replay completed: ComparisonRecordId={ComparisonRecordId}, ComparisonType={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
+                comparisonRecordId, result.ComparisonType, result.Format, result.ReplayMode, request.PersistReplay, sw.ElapsedMilliseconds, result.VerificationPassed);
 
             Response.Headers["X-ArchiForge-ComparisonRecordId"] = result.ComparisonRecordId;
             Response.Headers["X-ArchiForge-ComparisonType"] = result.ComparisonType;
@@ -865,12 +889,35 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
+            sw.Stop();
+            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message);
+            _logger.LogWarning(ex, "Comparison replay not found: ComparisonRecordId={ComparisonRecordId}", comparisonRecordId);
             return NotFound(new { error = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
+            sw.Stop();
+            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message);
+            _logger.LogWarning(ex, "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, Error={Error}", comparisonRecordId, ex.Message);
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    private void RecordReplayFailure(string comparisonRecordId, ApiReplayComparisonRequest request, long durationMs, string errorMessage)
+    {
+        _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+        {
+            TimestampUtc = DateTime.UtcNow,
+            ComparisonRecordId = comparisonRecordId,
+            ComparisonType = string.Empty,
+            Format = request.Format ?? "markdown",
+            ReplayMode = request.ReplayMode ?? "artifact",
+            PersistReplay = request.PersistReplay,
+            DurationMs = durationMs,
+            Success = false,
+            ErrorMessage = errorMessage,
+            MetadataOnly = false
+        });
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
@@ -923,6 +970,7 @@ public sealed class ArchitectureController : ControllerBase
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
+        var sw = Stopwatch.StartNew();
 
         try
         {
@@ -936,6 +984,25 @@ public sealed class ArchitectureController : ControllerBase
                     PersistReplay = request.PersistReplay
                 },
                 cancellationToken);
+
+            sw.Stop();
+            _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+            {
+                TimestampUtc = DateTime.UtcNow,
+                ComparisonRecordId = comparisonRecordId,
+                ComparisonType = result.ComparisonType,
+                Format = result.Format,
+                ReplayMode = result.ReplayMode,
+                PersistReplay = request.PersistReplay,
+                DurationMs = sw.ElapsedMilliseconds,
+                Success = true,
+                VerificationPassed = result.VerificationPassed,
+                PersistedReplayRecordId = result.PersistedReplayRecordId,
+                MetadataOnly = true
+            });
+            _logger.LogInformation(
+                "Comparison replay metadata completed: ComparisonRecordId={ComparisonRecordId}, ComparisonType={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, DurationMs={DurationMs}",
+                comparisonRecordId, result.ComparisonType, result.Format, result.ReplayMode, sw.ElapsedMilliseconds);
 
             if (result.LeftRunId is { } leftRunId)
             {
@@ -987,12 +1054,43 @@ public sealed class ArchitectureController : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
         {
+            sw.Stop();
+            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message);
+            _logger.LogWarning(ex, "Comparison replay metadata not found: ComparisonRecordId={ComparisonRecordId}", comparisonRecordId);
             return NotFound(new { error = ex.Message });
         }
         catch (InvalidOperationException ex)
         {
+            sw.Stop();
+            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message);
+            _logger.LogWarning(ex, "Comparison replay metadata failed: ComparisonRecordId={ComparisonRecordId}, Error={Error}", comparisonRecordId, ex.Message);
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    [HttpGet("comparisons/diagnostics/replay")]
+    [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
+    public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
+    {
+        var entries = _replayDiagnosticsRecorder.GetRecent(Math.Clamp(maxCount, 1, 100));
+        return Ok(new ReplayDiagnosticsResponse
+        {
+            RecentReplays = entries.Select(e => new ReplayDiagnosticsEntryDto
+            {
+                TimestampUtc = e.TimestampUtc,
+                ComparisonRecordId = e.ComparisonRecordId,
+                ComparisonType = e.ComparisonType,
+                Format = e.Format,
+                ReplayMode = e.ReplayMode,
+                PersistReplay = e.PersistReplay,
+                DurationMs = e.DurationMs,
+                Success = e.Success,
+                VerificationPassed = e.VerificationPassed,
+                PersistedReplayRecordId = e.PersistedReplayRecordId,
+                ErrorMessage = e.ErrorMessage,
+                MetadataOnly = e.MetadataOnly
+            }).ToList()
+        });
     }
 
     [HttpGet("run/compare/end-to-end/export")]
