@@ -108,6 +108,8 @@ public sealed class ReplayRunService : IReplayRunService
                 request,
                 manifestVersion,
                 results,
+                evaluations: [],
+                decisionNodes: [],
                 parentManifestVersion: originalRun.CurrentManifestVersion);
 
             if (!merge.Success)

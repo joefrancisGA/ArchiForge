@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Manifest;
@@ -14,6 +14,8 @@ public sealed class DecisionEngineService : IDecisionEngineService
         ArchitectureRequest request,
         string manifestVersion,
         IReadOnlyCollection<AgentResult> results,
+        IReadOnlyCollection<AgentEvaluation> evaluations,
+        IReadOnlyCollection<DecisionNode> decisionNodes,
         string? parentManifestVersion = null)
     {
         var output = new DecisionMergeResult();
@@ -36,6 +38,9 @@ public sealed class DecisionEngineService : IDecisionEngineService
             return output;
         }
 
+        evaluations ??= [];
+        decisionNodes ??= [];
+
         var validResults = ValidateAndFilterResults(results, output);
 
         if (output.Errors.Count > 0)
@@ -47,6 +52,8 @@ public sealed class DecisionEngineService : IDecisionEngineService
 
         MergeAgentResultsIntoManifest(request, validResults, manifest, output);
 
+        ApplyDecisionNodes(runId, decisionNodes, manifest, output);
+
         ApplyGovernanceDefaults(manifest, request, validResults, output);
 
         EnsureRequiredControlsAreAppliedToRelevantComponents(manifest, output);
@@ -55,6 +62,95 @@ public sealed class DecisionEngineService : IDecisionEngineService
 
         output.Manifest = manifest;
         return output;
+    }
+
+    private static void ApplyDecisionNodes(
+        string runId,
+        IReadOnlyCollection<DecisionNode> decisionNodes,
+        GoldenManifest manifest,
+        DecisionMergeResult output)
+    {
+        var topologyAcceptance = decisionNodes.FirstOrDefault(d =>
+            string.Equals(d.Topic, "TopologyAcceptance", StringComparison.OrdinalIgnoreCase));
+        if (topologyAcceptance is not null)
+        {
+            var selected = topologyAcceptance.Options.FirstOrDefault(o => o.OptionId == topologyAcceptance.SelectedOptionId);
+            if (selected is not null &&
+                selected.Description.StartsWith("Reject", StringComparison.OrdinalIgnoreCase))
+            {
+                output.Errors.Add("Topology proposal was rejected by Decision Engine v2.");
+                return;
+            }
+
+            AddTrace(
+                output,
+                runId,
+                "DecisionResolution",
+                $"TopologyAcceptance: {selected?.Description ?? "Unknown"} | {topologyAcceptance.Rationale}",
+                new Dictionary<string, string>
+                {
+                    ["decisionTopic"] = "TopologyAcceptance",
+                    ["outcome"] = selected?.Description ?? "Unknown",
+                    ["confidence"] = topologyAcceptance.Confidence.ToString("F3")
+                });
+        }
+
+        var securityPromotion = decisionNodes.FirstOrDefault(d =>
+            string.Equals(d.Topic, "SecurityControlPromotion", StringComparison.OrdinalIgnoreCase));
+        if (securityPromotion is not null)
+        {
+            var selected = securityPromotion.Options.FirstOrDefault(o => o.OptionId == securityPromotion.SelectedOptionId);
+            if (selected is not null)
+            {
+                if (selected.Description.Contains("Private Endpoints", StringComparison.OrdinalIgnoreCase) &&
+                    !manifest.Governance.RequiredControls.Contains("Private Endpoints", StringComparer.OrdinalIgnoreCase))
+                {
+                    manifest.Governance.RequiredControls.Add("Private Endpoints");
+                }
+
+                if (selected.Description.Contains("Managed Identity", StringComparison.OrdinalIgnoreCase) &&
+                    !manifest.Governance.RequiredControls.Contains("Managed Identity", StringComparer.OrdinalIgnoreCase))
+                {
+                    manifest.Governance.RequiredControls.Add("Managed Identity");
+                }
+
+                AddTrace(
+                    output,
+                    runId,
+                    "DecisionResolution",
+                    $"SecurityControlPromotion: {selected.Description} | {securityPromotion.Rationale}",
+                    new Dictionary<string, string>
+                    {
+                        ["decisionTopic"] = "SecurityControlPromotion",
+                        ["outcome"] = selected.Description,
+                        ["confidence"] = securityPromotion.Confidence.ToString("F3")
+                    });
+            }
+        }
+
+        var complexityDecision = decisionNodes.FirstOrDefault(d =>
+            string.Equals(d.Topic, "ComplexityDisposition", StringComparison.OrdinalIgnoreCase));
+        if (complexityDecision is not null)
+        {
+            var selected = complexityDecision.Options.FirstOrDefault(o => o.OptionId == complexityDecision.SelectedOptionId);
+            if (selected is not null &&
+                selected.Description.Contains("Reduce complexity", StringComparison.OrdinalIgnoreCase))
+            {
+                manifest.Governance.PolicyConstraints.Add("Review architecture scope for MVP complexity reduction.");
+            }
+
+            AddTrace(
+                output,
+                runId,
+                "DecisionResolution",
+                $"ComplexityDisposition: {selected?.Description ?? "Unknown"} | {complexityDecision.Rationale}",
+                new Dictionary<string, string>
+                {
+                    ["decisionTopic"] = "ComplexityDisposition",
+                    ["outcome"] = selected?.Description ?? "Unknown",
+                    ["confidence"] = complexityDecision.Confidence.ToString("F3")
+                });
+        }
     }
 
     private static List<AgentResult> ValidateAndFilterResults(

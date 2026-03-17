@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
@@ -88,7 +88,9 @@ public sealed class DecisionEngineServiceTests
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
-            results: [topology, compliance]);
+            results: [topology, compliance],
+            evaluations: [],
+            decisionNodes: []);
 
         result.Success.Should().BeTrue();
         result.Manifest.RunId.Should().Be("RUN-001");
@@ -119,7 +121,9 @@ public sealed class DecisionEngineServiceTests
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
-            results: [malformed]);
+            results: [malformed],
+            evaluations: [],
+            decisionNodes: []);
 
         result.Success.Should().BeFalse();
         result.Errors.Should().NotBeEmpty();
@@ -177,7 +181,9 @@ public sealed class DecisionEngineServiceTests
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
-            results: [topology, compliance]);
+            results: [topology, compliance],
+            evaluations: [],
+            decisionNodes: []);
 
         result.Success.Should().BeTrue();
         result.Manifest.Services.Should().ContainSingle();
@@ -242,7 +248,9 @@ public sealed class DecisionEngineServiceTests
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
-            results: [topology, compliance]);
+            results: [topology, compliance],
+            evaluations: [],
+            decisionNodes: []);
 
         result.Success.Should().BeTrue();
         result.Manifest.Datastores.Should().ContainSingle();
@@ -313,7 +321,9 @@ public sealed class DecisionEngineServiceTests
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
-            results: [topologyA, topologyB]);
+            results: [topologyA, topologyB],
+            evaluations: [],
+            decisionNodes: []);
 
         result.Success.Should().BeTrue();
         result.Manifest.Services.Should().ContainSingle();
@@ -360,13 +370,17 @@ public sealed class DecisionEngineServiceTests
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
-            results: [topology]);
+            results: [topology],
+            evaluations: [],
+            decisionNodes: []);
 
         var v2 = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v2",
             results: [topology],
+            evaluations: [],
+            decisionNodes: [],
             parentManifestVersion: "v1");
 
         v1.Success.Should().BeTrue();

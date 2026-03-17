@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Manifest;
@@ -65,7 +65,14 @@ public sealed class DecisionEngineServiceTests
 
         var service = new DecisionEngineService();
 
-        var result = service.MergeResults("1", request, "v1", [topology, compliance]);
+        var result = service.MergeResults(
+            "1",
+            request,
+            "v1",
+            [topology, compliance],
+            evaluations: [],
+            decisionNodes: [],
+            parentManifestVersion: null);
 
         Assert.True(result.Success);
         Assert.Single(result.Manifest.Services);
@@ -98,7 +105,14 @@ public sealed class DecisionEngineServiceTests
 
         var service = new DecisionEngineService();
 
-        var result = service.MergeResults("1", request, "v1", [malformed]);
+        var result = service.MergeResults(
+            "1",
+            request,
+            "v1",
+            [malformed],
+            evaluations: [],
+            decisionNodes: [],
+            parentManifestVersion: null);
 
         Assert.False(result.Success);
         Assert.NotEmpty(result.Errors);

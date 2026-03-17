@@ -2,17 +2,16 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Requests;
 
-namespace ArchiForge.DecisionEngine.Services;
+namespace ArchiForge.Application.Decisions;
 
-public interface IDecisionEngineV2
+public interface IAgentEvaluationService
 {
-    Task<IReadOnlyList<DecisionNode>> ResolveAsync(
+    Task<IReadOnlyList<AgentEvaluation>> EvaluateAsync(
         string runId,
         ArchitectureRequest request,
         AgentEvidencePackage evidence,
         IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentResult> results,
-        IReadOnlyCollection<AgentEvaluation> evaluations,
         CancellationToken cancellationToken = default);
 }
 

@@ -100,7 +100,9 @@ public sealed class DeterministicAgentSimulatorTests
             coordination.Run.RunId,
             request,
             "v1",
-            results);
+            results,
+            evaluations: [],
+            decisionNodes: []);
 
         merge.Success.Should().BeTrue();
         merge.Manifest.SystemName.Should().Be("EnterpriseRag");

@@ -7,18 +7,21 @@ public sealed class AgentEvaluation
 {
     public string EvaluationId { get; set; } = Guid.NewGuid().ToString("N");
 
-    /// <summary>Decision topic key, e.g. "Datastore:Redis".</summary>
-    public string Topic { get; set; } = string.Empty;
+    public string RunId { get; set; } = string.Empty;
 
-    /// <summary>Optional: match by option description. If empty, applies to the selected option for the topic.</summary>
-    public string? OptionDescription { get; set; }
+    /// <summary>The agent task this evaluation targets.</summary>
+    public string TargetAgentTaskId { get; set; } = string.Empty;
 
-    /// <summary>"support" or "oppose".</summary>
+    /// <summary>"support", "strengthen", "oppose", or "caution".</summary>
     public string EvaluationType { get; set; } = string.Empty;
 
-    /// <summary>Signed delta. For oppose, the absolute value is treated as opposition magnitude.</summary>
+    /// <summary>Signed delta. Oppose/caution should be negative or will be treated as absolute opposition.</summary>
     public double ConfidenceDelta { get; set; }
 
+    public string Rationale { get; set; } = string.Empty;
+
     public List<string> EvidenceRefs { get; set; } = [];
+
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }
 

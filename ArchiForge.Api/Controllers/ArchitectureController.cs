@@ -76,6 +76,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IComparisonAuditService _comparisonAuditService;
     private readonly IComparisonRecordRepository _comparisonRecordRepository;
     private readonly IComparisonReplayService _comparisonReplayService;
+    private readonly IDecisionNodeRepository _decisionNodeRepository;
     private readonly IReplayDiagnosticsRecorder _replayDiagnosticsRecorder;
     private readonly Application.Analysis.IDriftReportFormatter _driftReportFormatter;
     private readonly Application.Analysis.DriftReportDocxExport _driftReportDocxExport;
@@ -118,6 +119,7 @@ public sealed class ArchitectureController : ControllerBase
         IComparisonAuditService comparisonAuditService,
         IComparisonRecordRepository comparisonRecordRepository,
         IComparisonReplayService comparisonReplayService,
+        IDecisionNodeRepository decisionNodeRepository,
         IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
         Application.Analysis.IDriftReportFormatter driftReportFormatter,
         Application.Analysis.DriftReportDocxExport driftReportDocxExport,
@@ -159,6 +161,7 @@ public sealed class ArchitectureController : ControllerBase
         _comparisonAuditService = comparisonAuditService;
         _comparisonRecordRepository = comparisonRecordRepository;
         _comparisonReplayService = comparisonReplayService;
+        _decisionNodeRepository = decisionNodeRepository;
         _replayDiagnosticsRecorder = replayDiagnosticsRecorder;
         _driftReportFormatter = driftReportFormatter;
         _driftReportDocxExport = driftReportDocxExport;
@@ -738,6 +741,27 @@ public sealed class ArchitectureController : ControllerBase
         return Ok(new ComparisonHistoryResponse
         {
             Records = records.ToList()
+        });
+    }
+
+    [HttpGet("run/{runId}/decisions")]
+    [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunDecisions(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
+        {
+            return NotFound(new { error = $"Run '{runId}' was not found." });
+        }
+
+        var decisions = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        return Ok(new DecisionNodeResponse
+        {
+            Decisions = decisions.ToList()
         });
     }
 

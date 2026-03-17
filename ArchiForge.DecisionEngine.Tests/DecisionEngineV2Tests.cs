@@ -1,6 +1,7 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
+using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
 using FluentAssertions;
 
@@ -34,13 +35,15 @@ public sealed class DecisionEngineV2Tests
 
         var decisions = await _engine.ResolveAsync(
             "RUN-1",
-            results,
-            evaluations: [],
-            new AgentEvidencePackage { RunId = "RUN-1", RequestId = "REQ-1", SystemName = "S" });
+            request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
+            evidence: new AgentEvidencePackage { RunId = "RUN-1", RequestId = "REQ-1", SystemName = "S" },
+            tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
+            results: results,
+            evaluations: []);
 
-        var node = decisions.Single(d => d.Topic == "Datastore:redis");
+        var node = decisions.Single(d => d.Topic == "TopologyAcceptance");
         node.Options.Should().HaveCount(2);
-        node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Include").OptionId);
+        node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Accept topology proposal").OptionId);
     }
 
     [Fact]
@@ -68,21 +71,24 @@ public sealed class DecisionEngineV2Tests
         {
             new()
             {
-                Topic = "Datastore:redis",
-                OptionDescription = "Include",
+                RunId = "RUN-1",
+                TargetAgentTaskId = "T-1",
                 EvaluationType = "oppose",
-                ConfidenceDelta = -1.0
+                ConfidenceDelta = -1.0,
+                Rationale = "Oppose topology changes."
             }
         };
 
         var decisions = await _engine.ResolveAsync(
             "RUN-1",
-            results,
-            evals,
-            new AgentEvidencePackage { RunId = "RUN-1", RequestId = "REQ-1", SystemName = "S" });
+            request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
+            evidence: new AgentEvidencePackage { RunId = "RUN-1", RequestId = "REQ-1", SystemName = "S" },
+            tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
+            results: results,
+            evaluations: evals);
 
-        var node = decisions.Single(d => d.Topic == "Datastore:redis");
-        node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Exclude").OptionId);
+        var node = decisions.Single(d => d.Topic == "TopologyAcceptance");
+        node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Reject topology proposal").OptionId);
         node.OpposingEvaluationIds.Should().Contain(evals[0].EvaluationId);
     }
 }

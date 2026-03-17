@@ -216,6 +216,9 @@ namespace ArchiForge.Api
             builder.Services.AddScoped<ICoordinatorService, CoordinatorService>();
             builder.Services.AddScoped<IDecisionEngineService, DecisionEngineService>();
             builder.Services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
+            builder.Services.AddScoped<ArchiForge.Application.Decisions.IAgentEvaluationService, ArchiForge.Application.Decisions.DefaultAgentEvaluationService>();
+            builder.Services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
+            builder.Services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
             builder.Services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
             builder.Services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
             builder.Services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();

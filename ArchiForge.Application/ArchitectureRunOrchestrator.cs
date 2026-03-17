@@ -55,16 +55,20 @@ public sealed class ArchitectureRunOrchestrator
         // v2 resolves structured decisions (weighted arguments). Evaluations are currently optional.
         var decisions = await _decisionEngineV2.ResolveAsync(
             coordination.Run.RunId,
+            request,
+            evidence,
+            coordination.Tasks,
             results,
             evaluations: [],
-            evidence,
-            cancellationToken);
+            cancellationToken: cancellationToken);
 
         var merged = _decisionEngine.MergeResults(
             coordination.Run.RunId,
             request,
             "v1",
-            results);
+            results,
+            evaluations: [],
+            decisionNodes: decisions.ToList());
 
         merged.Decisions = decisions.ToList();
         return merged;

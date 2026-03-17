@@ -259,7 +259,14 @@ public sealed class RealRuntimeMixedModeTests
         var results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
         var engine = new DecisionEngineService();
-        var merge = engine.MergeResults("RUN-001", request, "v1", results);
+        var merge = engine.MergeResults(
+            runId: "RUN-001",
+            request: request,
+            manifestVersion: "v1",
+            results: results,
+            evaluations: [],
+            decisionNodes: [],
+            parentManifestVersion: null);
 
         merge.Success.Should().BeTrue();
         merge.Manifest.Services.Should().Contain(s => s.ServiceName == "rag-api");

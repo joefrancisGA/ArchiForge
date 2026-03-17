@@ -1,4 +1,5 @@
 using ArchiForge.Application.Evidence;
+using ArchiForge.Application.Decisions;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
@@ -14,6 +15,10 @@ public sealed class ArchitectureRunService : IArchitectureRunService
     private readonly ICoordinatorService _coordinator;
     private readonly IAgentExecutor _agentExecutor;
     private readonly IDecisionEngineService _decisionEngine;
+    private readonly IAgentEvaluationService _agentEvaluationService;
+    private readonly IAgentEvaluationRepository _agentEvaluationRepository;
+    private readonly IDecisionEngineV2 _decisionEngineV2;
+    private readonly IDecisionNodeRepository _decisionNodeRepository;
     private readonly IEvidenceBuilder _evidenceBuilder;
     private readonly IArchitectureRequestRepository _requestRepository;
     private readonly IArchitectureRunRepository _runRepository;
@@ -29,6 +34,10 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         ICoordinatorService coordinator,
         IAgentExecutor agentExecutor,
         IDecisionEngineService decisionEngine,
+        IAgentEvaluationService agentEvaluationService,
+        IAgentEvaluationRepository agentEvaluationRepository,
+        IDecisionEngineV2 decisionEngineV2,
+        IDecisionNodeRepository decisionNodeRepository,
         IEvidenceBuilder evidenceBuilder,
         IArchitectureRequestRepository requestRepository,
         IArchitectureRunRepository runRepository,
@@ -43,6 +52,10 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         _coordinator = coordinator;
         _agentExecutor = agentExecutor;
         _decisionEngine = decisionEngine;
+        _agentEvaluationService = agentEvaluationService;
+        _agentEvaluationRepository = agentEvaluationRepository;
+        _decisionEngineV2 = decisionEngineV2;
+        _decisionNodeRepository = decisionNodeRepository;
         _evidenceBuilder = evidenceBuilder;
         _requestRepository = requestRepository;
         _runRepository = runRepository;
@@ -144,10 +157,17 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             tasks,
             cancellationToken);
 
-        foreach (var result in results)
-        {
-            await _resultRepository.CreateAsync(result, cancellationToken);
-        }
+        await _resultRepository.CreateManyAsync(results, cancellationToken);
+
+        var evaluations = await _agentEvaluationService.EvaluateAsync(
+            runId,
+            request,
+            evidence,
+            tasks,
+            results,
+            cancellationToken);
+
+        await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
 
         await _runRepository.UpdateStatusAsync(
             runId,
@@ -207,11 +227,27 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
+        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
+            ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
+
+        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
         var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
         if (results.Count == 0)
         {
             throw new InvalidOperationException($"No agent results found for run '{runId}'.");
         }
+
+        var evaluations = await _agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
+        var decisionNodes = await _decisionEngineV2.ResolveAsync(
+            runId,
+            request,
+            evidence,
+            tasks,
+            results,
+            evaluations,
+            cancellationToken);
+
+        await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
 
         var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
             ? "v1"
@@ -222,6 +258,8 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             request,
             manifestVersion,
             results,
+            evaluations,
+            decisionNodes,
             run.CurrentManifestVersion);
 
         if (!merge.Success)

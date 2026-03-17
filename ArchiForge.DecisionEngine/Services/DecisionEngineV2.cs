@@ -1,6 +1,8 @@
 using System.Text;
 using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
+using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.DecisionEngine.Services;
 
@@ -11,172 +13,205 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
 {
     public Task<IReadOnlyList<DecisionNode>> ResolveAsync(
         string runId,
+        ArchitectureRequest request,
+        AgentEvidencePackage evidence,
+        IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentResult> results,
         IReadOnlyCollection<AgentEvaluation> evaluations,
-        AgentEvidencePackage evidence,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(evidence);
+        ArgumentNullException.ThrowIfNull(tasks);
         ArgumentNullException.ThrowIfNull(results);
         ArgumentNullException.ThrowIfNull(evaluations);
-        ArgumentNullException.ThrowIfNull(evidence);
 
-        // Extract candidate decisions from agent proposals in a simple, interpretable way.
-        // Topics are stable string keys so replay/diff can compare over time.
-        var topics = new Dictionary<string, DecisionNode>(StringComparer.OrdinalIgnoreCase);
+        var decisions = new List<DecisionNode>();
 
-        foreach (var r in results)
+        var topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology);
+        var topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
+
+        if (topologyTask is null || topologyResult is null)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (r?.ProposedChanges is null) continue;
-
-            foreach (var svc in r.ProposedChanges.AddedServices ?? [])
-            {
-                if (string.IsNullOrWhiteSpace(svc.ServiceName)) continue;
-                AddOrUpdateIncludeDecision(topics, $"Service:{svc.ServiceName}", r);
-            }
-
-            foreach (var ds in r.ProposedChanges.AddedDatastores ?? [])
-            {
-                if (string.IsNullOrWhiteSpace(ds.DatastoreName)) continue;
-                AddOrUpdateIncludeDecision(topics, $"Datastore:{ds.DatastoreName}", r);
-            }
-
-            foreach (var rel in r.ProposedChanges.AddedRelationships ?? [])
-            {
-                if (string.IsNullOrWhiteSpace(rel.SourceId) || string.IsNullOrWhiteSpace(rel.TargetId)) continue;
-                AddOrUpdateIncludeDecision(topics, $"Relationship:{rel.SourceId}->{rel.TargetId}", r);
-            }
-
-            foreach (var control in r.ProposedChanges.RequiredControls ?? [])
-            {
-                if (string.IsNullOrWhiteSpace(control)) continue;
-                AddOrUpdateIncludeDecision(topics, $"Control:{control}", r);
-            }
+            return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
         }
 
-        // Apply evaluations to influence option scores.
-        foreach (var e in evaluations)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (e is null) continue;
-            if (string.IsNullOrWhiteSpace(e.Topic)) continue;
+        decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));
+        decisions.Add(BuildSecurityControlsDecision(runId, topologyTask, topologyResult, evaluations));
+        decisions.Add(BuildComplexityDecision(runId, topologyTask, topologyResult, evaluations));
 
-            if (!topics.TryGetValue(e.Topic, out var node))
-                continue;
-
-            var option = ResolveTargetOption(node, e.OptionDescription);
-            if (option is null) continue;
-
-            if (string.Equals(e.EvaluationType, "support", StringComparison.OrdinalIgnoreCase))
-            {
-                option.SupportScore += e.ConfidenceDelta;
-                node.SupportingEvaluationIds.Add(e.EvaluationId);
-            }
-            else if (string.Equals(e.EvaluationType, "oppose", StringComparison.OrdinalIgnoreCase))
-            {
-                option.OppositionScore += Math.Abs(e.ConfidenceDelta);
-                node.OpposingEvaluationIds.Add(e.EvaluationId);
-            }
-
-            if (e.EvidenceRefs.Count > 0)
-            {
-                option.EvidenceRefs = option.EvidenceRefs
-                    .Union(e.EvidenceRefs, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
-        }
-
-        // Resolve winner per topic.
-        foreach (var node in topics.Values)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (node.Options.Count == 0) continue;
-
-            var winner = node.Options
-                .OrderByDescending(o => o.FinalScore)
-                .ThenByDescending(o => o.BaseConfidence)
-                .First();
-
-            node.SelectedOptionId = winner.OptionId;
-            node.Confidence = winner.FinalScore;
-            node.Rationale = BuildRationale(node, winner);
-        }
-
-        return Task.FromResult<IReadOnlyList<DecisionNode>>(
-            topics.Values
-                .OrderBy(n => n.Topic, StringComparer.OrdinalIgnoreCase)
-                .ToList());
+        return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
     }
 
-    private static void AddOrUpdateIncludeDecision(
-        Dictionary<string, DecisionNode> topics,
-        string topic,
-        AgentResult source)
+    private static DecisionNode BuildTopologyAcceptanceDecision(
+        string runId,
+        AgentTask topologyTask,
+        AgentResult topologyResult,
+        IReadOnlyCollection<AgentEvaluation> evaluations)
     {
-        if (!topics.TryGetValue(topic, out var node))
-        {
-            node = new DecisionNode
-            {
-                Topic = topic,
-                Options = new List<DecisionOption>
-                {
-                    new()
-                    {
-                        Description = "Include",
-                        BaseConfidence = 0.0
-                    },
-                    new()
-                    {
-                        Description = "Exclude",
-                        BaseConfidence = 0.0
-                    }
-                }
-            };
-            topics[topic] = node;
-        }
+        var relevant = evaluations
+            .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
+            .ToList();
 
-        var include = node.Options.First(o => string.Equals(o.Description, "Include", StringComparison.OrdinalIgnoreCase));
-        include.BaseConfidence = Math.Max(include.BaseConfidence, source.Confidence);
-        if (source.EvidenceRefs.Count > 0)
+        var baseConfidence = topologyResult.Confidence;
+        var support = relevant
+            .Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase) ||
+                        e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+            .Sum(e => Math.Max(0, e.ConfidenceDelta));
+
+        var opposition = relevant
+            .Where(e => e.EvaluationType.Equals("oppose", StringComparison.OrdinalIgnoreCase) ||
+                        e.EvaluationType.Equals("caution", StringComparison.OrdinalIgnoreCase))
+            .Sum(e => Math.Abs(e.ConfidenceDelta));
+
+        var accept = new DecisionOption
         {
-            include.EvidenceRefs = include.EvidenceRefs
-                .Union(source.EvidenceRefs, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
+            Description = "Accept topology proposal",
+            BaseConfidence = baseConfidence,
+            SupportScore = support,
+            OppositionScore = opposition,
+            EvidenceRefs = relevant.SelectMany(e => e.EvidenceRefs).Distinct(StringComparer.OrdinalIgnoreCase).ToList()
+        };
+
+        var reject = new DecisionOption
+        {
+            Description = "Reject topology proposal",
+            BaseConfidence = 0.10,
+            SupportScore = opposition,
+            OppositionScore = support
+        };
+
+        var selected = accept.FinalScore >= reject.FinalScore ? accept : reject;
+
+        return new DecisionNode
+        {
+            RunId = runId,
+            Topic = "TopologyAcceptance",
+            Options = [accept, reject],
+            SelectedOptionId = selected.OptionId,
+            Confidence = selected.FinalScore,
+            Rationale = selected == accept
+                ? "Topology proposal retained after applying support and opposition signals."
+                : "Topology proposal rejected due to accumulated opposition signals.",
+            SupportingEvaluationIds = relevant
+                .Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase) ||
+                            e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+                .Select(e => e.EvaluationId)
+                .ToList(),
+            OpposingEvaluationIds = relevant
+                .Where(e => e.EvaluationType.Equals("oppose", StringComparison.OrdinalIgnoreCase) ||
+                            e.EvaluationType.Equals("caution", StringComparison.OrdinalIgnoreCase))
+                .Select(e => e.EvaluationId)
+                .ToList(),
+            CreatedUtc = DateTime.UtcNow
+        };
     }
 
-    private static DecisionOption? ResolveTargetOption(DecisionNode node, string? optionDescription)
+    private static DecisionNode BuildSecurityControlsDecision(
+        string runId,
+        AgentTask topologyTask,
+        AgentResult topologyResult,
+        IReadOnlyCollection<AgentEvaluation> evaluations)
     {
-        if (!string.IsNullOrWhiteSpace(optionDescription))
-        {
-            return node.Options.FirstOrDefault(o =>
-                string.Equals(o.Description, optionDescription.Trim(), StringComparison.OrdinalIgnoreCase));
-        }
+        var relevant = evaluations
+            .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
+            .ToList();
 
-        // Default to affecting "Include" if present.
-        return node.Options.FirstOrDefault(o =>
-            string.Equals(o.Description, "Include", StringComparison.OrdinalIgnoreCase))
-               ?? node.Options.FirstOrDefault();
+        var promotePrivateEndpoints = relevant.Any(e =>
+            e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase) &&
+            e.Rationale.Contains("private", StringComparison.OrdinalIgnoreCase));
+
+        var promoteManagedIdentity = relevant.Any(e =>
+            e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase) &&
+            e.Rationale.Contains("managed identity", StringComparison.OrdinalIgnoreCase));
+
+        var controls = new List<string>();
+
+        if (promotePrivateEndpoints)
+            controls.Add("Private Endpoints");
+
+        if (promoteManagedIdentity)
+            controls.Add("Managed Identity");
+
+        var promote = new DecisionOption
+        {
+            Description = controls.Count == 0
+                ? "No control promotion"
+                : $"Promote controls: {string.Join(", ", controls)}",
+            BaseConfidence = controls.Count == 0 ? 0.30 : 0.80,
+            SupportScore = relevant.Where(e => e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+                .Sum(e => Math.Max(0, e.ConfidenceDelta)),
+            OppositionScore = 0
+        };
+
+        return new DecisionNode
+        {
+            RunId = runId,
+            Topic = "SecurityControlPromotion",
+            Options = [promote],
+            SelectedOptionId = promote.OptionId,
+            Confidence = promote.FinalScore,
+            Rationale = promote.Description,
+            SupportingEvaluationIds = relevant
+                .Where(e => e.EvaluationType.Equals("strengthen", StringComparison.OrdinalIgnoreCase))
+                .Select(e => e.EvaluationId)
+                .ToList(),
+            CreatedUtc = DateTime.UtcNow
+        };
     }
 
-    private static string BuildRationale(DecisionNode node, DecisionOption winner)
+    private static DecisionNode BuildComplexityDecision(
+        string runId,
+        AgentTask topologyTask,
+        AgentResult topologyResult,
+        IReadOnlyCollection<AgentEvaluation> evaluations)
     {
-        var sb = new StringBuilder();
-        sb.Append($"Selected '{winner.Description}' for '{node.Topic}'. ");
-        sb.Append($"Score={winner.FinalScore:F2} (base={winner.BaseConfidence:F2}, +support={winner.SupportScore:F2}, -oppose={winner.OppositionScore:F2}).");
+        var relevant = evaluations
+            .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
+            .ToList();
 
-        if (node.SupportingEvaluationIds.Count > 0)
+        var cautions = relevant
+            .Where(e => e.EvaluationType.Equals("caution", StringComparison.OrdinalIgnoreCase) ||
+                        e.EvaluationType.Equals("oppose", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var keep = new DecisionOption
         {
-            sb.Append($" SupportingEvaluations={node.SupportingEvaluationIds.Count}.");
-        }
+            Description = "Keep current solution complexity",
+            BaseConfidence = 0.60,
+            SupportScore = relevant.Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase))
+                .Sum(e => Math.Max(0, e.ConfidenceDelta)),
+            OppositionScore = cautions.Sum(e => Math.Abs(e.ConfidenceDelta))
+        };
 
-        if (node.OpposingEvaluationIds.Count > 0)
+        var reduce = new DecisionOption
         {
-            sb.Append($" OpposingEvaluations={node.OpposingEvaluationIds.Count}.");
-        }
+            Description = "Reduce complexity / consider MVP trimming",
+            BaseConfidence = cautions.Count > 0 ? 0.65 : 0.20,
+            SupportScore = cautions.Sum(e => Math.Abs(e.ConfidenceDelta)),
+            OppositionScore = 0
+        };
 
-        return sb.ToString();
+        var selected = keep.FinalScore >= reduce.FinalScore ? keep : reduce;
+
+        return new DecisionNode
+        {
+            RunId = runId,
+            Topic = "ComplexityDisposition",
+            Options = [keep, reduce],
+            SelectedOptionId = selected.OptionId,
+            Confidence = selected.FinalScore,
+            Rationale = selected == keep
+                ? "Complexity retained because opposition did not outweigh the base design confidence."
+                : "Complexity reduction recommended due to caution and opposition signals.",
+            SupportingEvaluationIds = relevant
+                .Where(e => e.EvaluationType.Equals("support", StringComparison.OrdinalIgnoreCase))
+                .Select(e => e.EvaluationId)
+                .ToList(),
+            OpposingEvaluationIds = cautions.Select(e => e.EvaluationId).ToList(),
+            CreatedUtc = DateTime.UtcNow
+        };
     }
 }
 

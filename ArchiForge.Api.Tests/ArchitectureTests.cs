@@ -114,7 +114,9 @@ public class ArchitectureTests : IntegrationTestBase
             "RUN-FIXTURE",
             request,
             "v1",
-            new[] { topology, cost, compliance });
+            new[] { topology, cost, compliance },
+            evaluations: [],
+            decisionNodes: []);
 
         result.Success.Should().BeTrue();
 
