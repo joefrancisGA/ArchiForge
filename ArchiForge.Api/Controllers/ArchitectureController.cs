@@ -15,6 +15,7 @@ using ArchiForge.Application.Summaries;
 using Microsoft.AspNetCore.Authorization;
 using ArchiForge.Data.Repositories;
 using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Requests;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
@@ -58,6 +59,7 @@ public sealed class ArchitectureController : ControllerBase
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IManifestDiffSummaryFormatter _manifestDiffSummaryFormatter;
     private readonly IManifestDiffExportService _manifestDiffExportService;
+    private readonly IAgentTaskRepository _taskRepository;
     private readonly IAgentResultRepository _resultRepository;
     private readonly IAgentResultDiffService _agentResultDiffService;
     private readonly IAgentResultDiffSummaryFormatter _agentResultDiffSummaryFormatter;
@@ -102,6 +104,7 @@ public sealed class ArchitectureController : ControllerBase
         IManifestDiffService manifestDiffService,
         IManifestDiffSummaryFormatter manifestDiffSummaryFormatter,
         IManifestDiffExportService manifestDiffExportService,
+        IAgentTaskRepository taskRepository,
         IAgentResultRepository resultRepository,
         IAgentResultDiffService agentResultDiffService,
         IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
@@ -145,6 +148,7 @@ public sealed class ArchitectureController : ControllerBase
         _manifestDiffService = manifestDiffService;
         _manifestDiffSummaryFormatter = manifestDiffSummaryFormatter;
         _manifestDiffExportService = manifestDiffExportService;
+        _taskRepository = taskRepository;
         _resultRepository = resultRepository;
         _agentResultDiffService = agentResultDiffService;
         _agentResultDiffSummaryFormatter = agentResultDiffSummaryFormatter;
@@ -390,24 +394,19 @@ public sealed class ArchitectureController : ControllerBase
     }
 
     [HttpGet("run/{runId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var data = await _architectureApplicationService.GetRunAsync(runId, cancellationToken);
-        if (data is null)
+        var response = await BuildRunDetailsResponseAsync(runId, cancellationToken);
+        if (response is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        return Ok(new
-        {
-            run = data.Run,
-            tasks = data.Tasks,
-            results = data.Results
-        });
+        return Ok(response);
     }
 
     [HttpPost("run/{runId}/result")]
@@ -1886,43 +1885,36 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
-    [HttpGet("run/{runId}/full")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetRunFull(
-        [FromRoute] string runId,
+    private async Task<RunDetailsResponse?> BuildRunDetailsResponseAsync(
+        string runId,
         CancellationToken cancellationToken)
     {
-        var data = await _architectureApplicationService.GetRunAsync(runId, cancellationToken);
-        if (data is null)
+        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        if (run is null)
         {
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+            return null;
         }
 
-        object? manifest = null;
-        object? evidence = null;
-        IEnumerable<object> decisionTraces = [];
-        IEnumerable<object> agentExecutionTraces = [];
+        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
-        if (!string.IsNullOrWhiteSpace(data.Run.CurrentManifestVersion))
+        GoldenManifest? manifest = null;
+        List<DecisionTrace> decisionTraces = [];
+
+        if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
         {
-            manifest = await _manifestRepository.GetByVersionAsync(data.Run.CurrentManifestVersion, cancellationToken);
-            decisionTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+            manifest = await _manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            decisionTraces = (await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
         }
 
-        evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
-        agentExecutionTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
-
-        return Ok(new
+        return new RunDetailsResponse
         {
-            run = data.Run,
-            tasks = data.Tasks,
-            results = data.Results,
-            manifest,
-            evidence,
-            decisionTraces,
-            agentExecutionTraces
-        });
+            Run = run,
+            Tasks = tasks.ToList(),
+            Results = results.ToList(),
+            Manifest = manifest,
+            DecisionTraces = decisionTraces
+        };
     }
 
     [HttpPost("run/{runId}/analysis-report")]
