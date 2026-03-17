@@ -133,7 +133,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string? rightRunId,
         DateTime? createdFromUtc,
         DateTime? createdToUtc,
-        string? tag,
+        string? leftExportRecordId,
+        string? rightExportRecordId,
+        string? label,
+        IReadOnlyList<string>? tags,
+        string? sortDir,
         int skip,
         int limit,
         CancellationToken cancellationToken = default)
@@ -182,10 +186,37 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         }
 
         using var connection = _connectionFactory.CreateConnection();
-        if (!string.IsNullOrWhiteSpace(tag))
+        if (!string.IsNullOrWhiteSpace(leftExportRecordId))
         {
-            parameters.Add("@Tag", tag);
-            conditions.Add(IsSqlite(connection) ? "EXISTS (SELECT 1 FROM json_each(COALESCE(Tags,'[]')) WHERE json_each.value = @Tag)" : "EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = @Tag)");
+            conditions.Add("LeftExportRecordId = @LeftExportRecordId");
+            parameters.Add("@LeftExportRecordId", leftExportRecordId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(rightExportRecordId))
+        {
+            conditions.Add("RightExportRecordId = @RightExportRecordId");
+            parameters.Add("@RightExportRecordId", rightExportRecordId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(label))
+        {
+            conditions.Add("Label = @Label");
+            parameters.Add("@Label", label);
+        }
+
+        var isSqlite = IsSqlite(connection);
+        if (tags is { Count: > 0 })
+        {
+            for (var i = 0; i < tags.Count; i++)
+            {
+                var t = tags[i];
+                if (string.IsNullOrWhiteSpace(t)) continue;
+                var paramName = $"@Tag{i}";
+                parameters.Add(paramName, t);
+                conditions.Add(isSqlite
+                    ? $"EXISTS (SELECT 1 FROM json_each(COALESCE(Tags,'[]')) WHERE json_each.value = {paramName})"
+                    : $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
+            }
         }
 
         var sql = baseSql;
@@ -193,8 +224,13 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         {
             sql += " AND " + string.Join(" AND ", conditions);
         }
-        // SQLite and SQL Server both support ORDER BY + OFFSET/FETCH with parameterization.
-        sql += " ORDER BY CreatedUtc DESC OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
+        var sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
+        sql += sortDescending
+            ? " ORDER BY CreatedUtc DESC"
+            : " ORDER BY CreatedUtc ASC";
+        sql += isSqlite
+            ? " LIMIT @Limit OFFSET @Skip;"
+            : " OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
 
         var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,

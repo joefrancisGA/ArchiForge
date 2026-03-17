@@ -255,7 +255,12 @@ public sealed class ArchiForgeApiClient
         string? comparisonType,
         string? leftRunId,
         string? rightRunId,
+        string? leftExportRecordId,
+        string? rightExportRecordId,
+        string? label,
         string? tag,
+        string? tags,
+        string? sortDir,
         int skip,
         int limit,
         CancellationToken ct = default)
@@ -269,8 +274,18 @@ public sealed class ArchiForgeApiClient
                 query["leftRunId"] = leftRunId;
             if (!string.IsNullOrWhiteSpace(rightRunId))
                 query["rightRunId"] = rightRunId;
+            if (!string.IsNullOrWhiteSpace(leftExportRecordId))
+                query["leftExportRecordId"] = leftExportRecordId;
+            if (!string.IsNullOrWhiteSpace(rightExportRecordId))
+                query["rightExportRecordId"] = rightExportRecordId;
+            if (!string.IsNullOrWhiteSpace(label))
+                query["label"] = label;
             if (!string.IsNullOrWhiteSpace(tag))
                 query["tag"] = tag;
+            if (!string.IsNullOrWhiteSpace(tags))
+                query["tags"] = tags;
+            if (!string.IsNullOrWhiteSpace(sortDir))
+                query["sortDir"] = sortDir;
             query["skip"] = skip.ToString();
             query["limit"] = limit.ToString();
 

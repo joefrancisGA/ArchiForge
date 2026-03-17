@@ -200,7 +200,12 @@ namespace ArchiForge
             string? type = null;
             string? leftRun = null;
             string? rightRun = null;
+            string? leftExport = null;
+            string? rightExport = null;
+            string? label = null;
             string? tag = null;
+            string? tags = null;
+            string sortDir = "desc";
             int skip = 0;
             int limit = 20;
 
@@ -217,8 +222,23 @@ namespace ArchiForge
                     case "--right-run" when i + 1 < args.Length:
                         rightRun = args[++i];
                         break;
+                    case "--left-export" when i + 1 < args.Length:
+                        leftExport = args[++i];
+                        break;
+                    case "--right-export" when i + 1 < args.Length:
+                        rightExport = args[++i];
+                        break;
+                    case "--label" when i + 1 < args.Length:
+                        label = args[++i];
+                        break;
                     case "--tag" when i + 1 < args.Length:
                         tag = args[++i];
+                        break;
+                    case "--tags" when i + 1 < args.Length:
+                        tags = args[++i];
+                        break;
+                    case "--sort" when i + 1 < args.Length:
+                        sortDir = args[++i];
                         break;
                     case "--skip" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsedSkip):
                         skip = parsedSkip;
@@ -231,7 +251,13 @@ namespace ArchiForge
                 }
             }
 
-            var result = await client.SearchComparisonsAsync(type, leftRun, rightRun, tag, skip, limit);
+            var result = await client.SearchComparisonsAsync(
+                type, leftRun, rightRun,
+                leftExport, rightExport,
+                label,
+                tag, tags,
+                sortDir,
+                skip, limit);
             if (result is null)
             {
                 Console.WriteLine("No comparison records found or request failed.");

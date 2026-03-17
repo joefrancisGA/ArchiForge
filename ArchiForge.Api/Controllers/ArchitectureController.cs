@@ -787,9 +787,14 @@ public sealed class ArchitectureController : ControllerBase
         [FromQuery] string? comparisonType,
         [FromQuery] string? leftRunId,
         [FromQuery] string? rightRunId,
+        [FromQuery] string? leftExportRecordId,
+        [FromQuery] string? rightExportRecordId,
+        [FromQuery] string? label,
         [FromQuery] DateTime? createdFromUtc,
         [FromQuery] DateTime? createdToUtc,
         [FromQuery] string? tag,
+        [FromQuery] string[]? tags,
+        [FromQuery] string? sortDir = "desc",
         [FromQuery] int skip = 0,
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
@@ -812,13 +817,38 @@ public sealed class ArchitectureController : ControllerBase
             return BadRequest(new { error = "skip must be >= 0." });
         }
 
+        if (sortDir is not null
+            && !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new { error = "sortDir must be 'asc' or 'desc'." });
+        }
+
+        var normalizedTags = (tags ?? [])
+            .SelectMany(t => (t ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            normalizedTags.AddRange(tag.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            normalizedTags = normalizedTags
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
         var records = await _comparisonRecordRepository.SearchAsync(
             normalizedType,
             leftRunId,
             rightRunId,
             createdFromUtc,
             createdToUtc,
-            tag,
+            leftExportRecordId,
+            rightExportRecordId,
+            label,
+            normalizedTags,
+            sortDir,
             skip,
             limit,
             cancellationToken);
@@ -831,9 +861,14 @@ public sealed class ArchitectureController : ControllerBase
             ComparisonType = comparisonType,
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
+            LeftExportRecordId = leftExportRecordId,
+            RightExportRecordId = rightExportRecordId,
+            Label = label,
             CreatedFromUtc = createdFromUtc,
             CreatedToUtc = createdToUtc,
-            Tag = tag
+            Tag = tag,
+            Tags = normalizedTags,
+            SortDir = sortDir
         });
     }
 

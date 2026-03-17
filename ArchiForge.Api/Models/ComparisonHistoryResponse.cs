@@ -16,10 +16,20 @@ public sealed class ComparisonHistoryResponse
 
     public string? RightRunId { get; set; }
 
+    public string? LeftExportRecordId { get; set; }
+
+    public string? RightExportRecordId { get; set; }
+
+    public string? Label { get; set; }
+
     public DateTime? CreatedFromUtc { get; set; }
 
     public DateTime? CreatedToUtc { get; set; }
 
     public string? Tag { get; set; }
+
+    public List<string> Tags { get; set; } = [];
+
+    public string? SortDir { get; set; }
 }
 

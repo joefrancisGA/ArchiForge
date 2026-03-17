@@ -26,7 +26,11 @@ public interface IComparisonRecordRepository
         string? rightRunId,
         DateTime? createdFromUtc,
         DateTime? createdToUtc,
-        string? tag,
+        string? leftExportRecordId,
+        string? rightExportRecordId,
+        string? label,
+        IReadOnlyList<string>? tags,
+        string? sortDir,
         int skip,
         int limit,
         CancellationToken cancellationToken = default);
