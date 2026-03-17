@@ -130,4 +130,53 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
         public DateTime? CompletedUtc { get; set; }
         public string? CurrentManifestVersion { get; set; }
     }
+
+    public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT
+                r.RunId,
+                r.RequestId,
+                r.Status,
+                r.CreatedUtc,
+                r.CompletedUtc,
+                r.CurrentManifestVersion,
+                req.SystemName
+            FROM ArchitectureRuns r
+            INNER JOIN ArchitectureRequests req
+                ON r.RequestId = req.RequestId
+            ORDER BY r.CreatedUtc DESC, r.RunId DESC;
+            """;
+
+        using var connection = _connectionFactory.CreateConnection();
+
+        var rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
+            sql,
+            cancellationToken: cancellationToken));
+
+        return rows
+            .Select(row => new ArchitectureRunListItem
+            {
+                RunId = row.RunId,
+                RequestId = row.RequestId,
+                Status = row.Status,
+                CreatedUtc = row.CreatedUtc,
+                CompletedUtc = row.CompletedUtc,
+                CurrentManifestVersion = row.CurrentManifestVersion,
+                SystemName = row.SystemName
+            })
+            .ToList();
+    }
+
+    private sealed class ArchitectureRunListItemRow
+    {
+        public string RunId { get; set; } = string.Empty;
+        public string RequestId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime CreatedUtc { get; set; }
+        public DateTime? CompletedUtc { get; set; }
+        public string? CurrentManifestVersion { get; set; }
+        public string SystemName { get; set; } = string.Empty;
+    }
 }

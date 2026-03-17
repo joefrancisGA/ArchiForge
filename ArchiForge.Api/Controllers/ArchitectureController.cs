@@ -1917,6 +1917,28 @@ public sealed class ArchitectureController : ControllerBase
         };
     }
 
+    [HttpGet("runs")]
+    [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)
+    {
+        var items = await _runRepository.ListAsync(cancellationToken);
+
+        var response = items
+            .Select(r => new RunListItemResponse
+            {
+                RunId = r.RunId,
+                RequestId = r.RequestId,
+                Status = r.Status,
+                CreatedUtc = r.CreatedUtc,
+                CompletedUtc = r.CompletedUtc,
+                CurrentManifestVersion = r.CurrentManifestVersion,
+                SystemName = r.SystemName
+            })
+            .ToList();
+
+        return Ok(response);
+    }
+
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

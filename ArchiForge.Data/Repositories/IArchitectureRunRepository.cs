@@ -1,4 +1,4 @@
-﻿using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Data.Repositories;
 
@@ -11,5 +11,8 @@ public interface IArchitectureRunRepository
         ArchiForge.Contracts.Common.ArchitectureRunStatus status,
         string? currentManifestVersion = null,
         DateTime? completedUtc = null,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
         CancellationToken cancellationToken = default);
 }
