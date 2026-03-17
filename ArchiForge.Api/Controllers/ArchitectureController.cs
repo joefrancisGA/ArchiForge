@@ -775,6 +775,38 @@ public sealed class ArchitectureController : ControllerBase
         });
     }
 
+    [HttpGet("comparisons")]
+    [ProducesResponseType(typeof(ComparisonHistoryResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SearchComparisonRecords(
+        [FromQuery] string? comparisonType,
+        [FromQuery] string? leftRunId,
+        [FromQuery] string? rightRunId,
+        [FromQuery] DateTime? createdFromUtc,
+        [FromQuery] DateTime? createdToUtc,
+        [FromQuery] int limit = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var records = await _comparisonRecordRepository.SearchAsync(
+            comparisonType,
+            leftRunId,
+            rightRunId,
+            createdFromUtc,
+            createdToUtc,
+            limit,
+            cancellationToken);
+
+        return Ok(new ComparisonHistoryResponse
+        {
+            Records = records.ToList(),
+            Limit = limit,
+            ComparisonType = comparisonType,
+            LeftRunId = leftRunId,
+            RightRunId = rightRunId,
+            CreatedFromUtc = createdFromUtc,
+            CreatedToUtc = createdToUtc
+        });
+    }
+
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
     [Authorize(Policy = "CanReplayComparisons")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]

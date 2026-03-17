@@ -119,4 +119,70 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<ComparisonRecord>> SearchAsync(
+        string? comparisonType,
+        string? leftRunId,
+        string? rightRunId,
+        DateTime? createdFromUtc,
+        DateTime? createdToUtc,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        const string baseSql = """
+            SELECT TOP (@Limit) *
+            FROM ComparisonRecords
+            WHERE 1 = 1
+            """;
+
+        var conditions = new List<string>();
+        var parameters = new DynamicParameters();
+        parameters.Add("@Limit", limit <= 0 ? 50 : Math.Min(limit, 500));
+
+        if (!string.IsNullOrWhiteSpace(comparisonType))
+        {
+            conditions.Add("ComparisonType = @ComparisonType");
+            parameters.Add("@ComparisonType", comparisonType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(leftRunId))
+        {
+            conditions.Add("LeftRunId = @LeftRunId");
+            parameters.Add("@LeftRunId", leftRunId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(rightRunId))
+        {
+            conditions.Add("RightRunId = @RightRunId");
+            parameters.Add("@RightRunId", rightRunId);
+        }
+
+        if (createdFromUtc is not null)
+        {
+            conditions.Add("CreatedUtc >= @CreatedFromUtc");
+            parameters.Add("@CreatedFromUtc", createdFromUtc);
+        }
+
+        if (createdToUtc is not null)
+        {
+            conditions.Add("CreatedUtc <= @CreatedToUtc");
+            parameters.Add("@CreatedToUtc", createdToUtc);
+        }
+
+        var sql = baseSql;
+        if (conditions.Count > 0)
+        {
+            sql += " AND " + string.Join(" AND ", conditions);
+        }
+        sql += " ORDER BY CreatedUtc DESC;";
+
+        using var connection = _connectionFactory.CreateConnection();
+
+        var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
+            sql,
+            parameters,
+            cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }

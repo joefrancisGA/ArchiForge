@@ -251,6 +251,123 @@ public sealed class ArchiForgeApiClient
         }
     }
 
+    public async Task<ComparisonHistoryResult?> SearchComparisonsAsync(
+        string? comparisonType,
+        string? leftRunId,
+        string? rightRunId,
+        int limit,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrWhiteSpace(comparisonType))
+                query["comparisonType"] = comparisonType;
+            if (!string.IsNullOrWhiteSpace(leftRunId))
+                query["leftRunId"] = leftRunId;
+            if (!string.IsNullOrWhiteSpace(rightRunId))
+                query["rightRunId"] = rightRunId;
+            query["limit"] = limit.ToString();
+
+            var uri = "/v1/architecture/comparisons";
+            var qs = query.ToString();
+            if (!string.IsNullOrEmpty(qs))
+                uri += "?" + qs;
+
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+            var content = await response.Content.ReadAsStringAsync(ct);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            using var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+            var recordsProp = root.GetProperty("records");
+            var list = new List<ComparisonRecordSummary>();
+            foreach (var item in recordsProp.EnumerateArray())
+            {
+                list.Add(new ComparisonRecordSummary
+                {
+                    ComparisonRecordId = item.GetProperty("comparisonRecordId").GetString() ?? string.Empty,
+                    ComparisonType = item.GetProperty("comparisonType").GetString() ?? string.Empty,
+                    LeftRunId = item.TryGetProperty("leftRunId", out var lr) && lr.ValueKind != JsonValueKind.Null ? lr.GetString() : null,
+                    RightRunId = item.TryGetProperty("rightRunId", out var rr) && rr.ValueKind != JsonValueKind.Null ? rr.GetString() : null,
+                    LeftExportRecordId = item.TryGetProperty("leftExportRecordId", out var le) && le.ValueKind != JsonValueKind.Null ? le.GetString() : null,
+                    RightExportRecordId = item.TryGetProperty("rightExportRecordId", out var re) && re.ValueKind != JsonValueKind.Null ? re.GetString() : null,
+                    CreatedUtc = item.TryGetProperty("createdUtc", out var cu) && cu.ValueKind == JsonValueKind.String
+                        ? DateTime.Parse(cu.GetString()!)
+                        : default
+                });
+            }
+
+            return new ComparisonHistoryResult { Records = list };
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> ReplayComparisonToFileAsync(
+        string comparisonRecordId,
+        string format,
+        string replayMode,
+        string? profile,
+        bool persistReplay,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay";
+            var body = new
+            {
+                format,
+                replayMode,
+                profile,
+                persistReplay
+            };
+
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                var contentError = await response.Content.ReadAsStringAsync(ct);
+                Console.WriteLine($"Replay failed ({(int)response.StatusCode}): {contentError}");
+                return false;
+            }
+
+            var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                           ?? response.Content.Headers.ContentDisposition?.FileName
+                           ?? $"comparison_{comparisonRecordId}.{format}";
+            fileName = fileName.Trim('"');
+
+            var bytes = await response.Content.ReadAsByteArrayAsync(ct);
+            await File.WriteAllBytesAsync(fileName, bytes, ct);
+            Console.WriteLine($"Replay exported to {fileName}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Replay failed: {ex.Message}");
+            return false;
+        }
+    }
+
+    public sealed class ComparisonHistoryResult
+    {
+        public List<ComparisonRecordSummary> Records { get; set; } = [];
+    }
+
+    public sealed class ComparisonRecordSummary
+    {
+        public string ComparisonRecordId { get; set; } = string.Empty;
+        public string ComparisonType { get; set; } = string.Empty;
+        public string? LeftRunId { get; set; }
+        public string? RightRunId { get; set; }
+        public string? LeftExportRecordId { get; set; }
+        public string? RightExportRecordId { get; set; }
+        public DateTime CreatedUtc { get; set; }
+    }
+
     /// <summary>
     /// Parse error message from JSON. Supports RFC 7807 Problem Details (detail, title) and legacy (error, errors).
     /// </summary>

@@ -19,5 +19,14 @@ public interface IComparisonRecordRepository
     Task<IReadOnlyList<ComparisonRecord>> GetByExportRecordIdAsync(
         string exportRecordId,
         CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ComparisonRecord>> SearchAsync(
+        string? comparisonType,
+        string? leftRunId,
+        string? rightRunId,
+        DateTime? createdFromUtc,
+        DateTime? createdToUtc,
+        int limit,
+        CancellationToken cancellationToken = default);
 }
 

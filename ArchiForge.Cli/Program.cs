@@ -20,7 +20,7 @@ namespace ArchiForge
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, health");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health");
                 return 1;
             }
 
@@ -88,6 +88,9 @@ namespace ArchiForge
                     var saveArtifacts = args.Length > 2 && args[2] == "--save";
                     return await ArchiForge_ArtifactsAsync(args[1], saveArtifacts);
 
+                case "comparisons":
+                    return await ArchiForge_ComparisonsAsync(args.Skip(1).ToArray());
+
                 case "health":
                     return await ArchiForge_HealthAsync();
 
@@ -152,6 +155,120 @@ namespace ArchiForge
             Console.WriteLine($"FAIL - Cannot reach ArchiForge API at {baseUrl}");
             Console.WriteLine("Ensure the API is running: dotnet run --project ArchiForge.Api");
             return 1;
+        }
+
+        private static async Task<int> ArchiForge_ComparisonsAsync(string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: archiforge comparisons list [--type <type>] [--left-run <runId>] [--right-run <runId>] [--limit <n>]");
+                Console.WriteLine("   or: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist]");
+                return 1;
+            }
+
+            var sub = args[0];
+            var config = TryLoadConfigFromCwd();
+            var baseUrl = GetBaseUrl(config);
+            if (!await EnsureApiConnectedAsync(baseUrl))
+                return 1;
+
+            var client = new ArchiForgeApiClient(baseUrl);
+
+            switch (sub)
+            {
+                case "list":
+                    return await ArchiForge_Comparisons_ListAsync(client, args.Skip(1).ToArray());
+                case "replay":
+                    return await ArchiForge_Comparisons_ReplayAsync(client, args.Skip(1).ToArray());
+                default:
+                    Console.WriteLine($"Unknown subcommand for comparisons: {sub}");
+                    return 1;
+            }
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_ListAsync(ArchiForgeApiClient client, string[] args)
+        {
+            string? type = null;
+            string? leftRun = null;
+            string? rightRun = null;
+            int limit = 20;
+
+            for (var i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--type" when i + 1 < args.Length:
+                        type = args[++i];
+                        break;
+                    case "--left-run" when i + 1 < args.Length:
+                        leftRun = args[++i];
+                        break;
+                    case "--right-run" when i + 1 < args.Length:
+                        rightRun = args[++i];
+                        break;
+                    case "--limit" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed):
+                        limit = parsed;
+                        i++;
+                        break;
+                }
+            }
+
+            var result = await client.SearchComparisonsAsync(type, leftRun, rightRun, limit);
+            if (result is null)
+            {
+                Console.WriteLine("No comparison records found or request failed.");
+                return 1;
+            }
+
+            if (result.Records.Count == 0)
+            {
+                Console.WriteLine("No comparison records matched the filters.");
+                return 0;
+            }
+
+            foreach (var r in result.Records)
+            {
+                Console.WriteLine($"{r.CreatedUtc:O} | {r.ComparisonRecordId} | {r.ComparisonType} | LeftRun={r.LeftRunId} RightRun={r.RightRunId} LeftExport={r.LeftExportRecordId} RightExport={r.RightExportRecordId}");
+            }
+
+            return 0;
+        }
+
+        private static async Task<int> ArchiForge_Comparisons_ReplayAsync(ArchiForgeApiClient client, string[] args)
+        {
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: archiforge comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist]");
+                return 1;
+            }
+
+            var comparisonRecordId = args[0];
+            var format = "markdown";
+            var mode = "artifact";
+            string? profile = null;
+            var persist = false;
+
+            for (var i = 1; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--format" when i + 1 < args.Length:
+                        format = args[++i];
+                        break;
+                    case "--mode" when i + 1 < args.Length:
+                        mode = args[++i];
+                        break;
+                    case "--profile" when i + 1 < args.Length:
+                        profile = args[++i];
+                        break;
+                    case "--persist":
+                        persist = true;
+                        break;
+                }
+            }
+
+            var ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist);
+            return ok ? 0 : 1;
         }
 
         private static int ArchiForge_Dev_Up()

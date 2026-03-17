@@ -8,6 +8,18 @@ public sealed class ComparisonRecordResponseDto
 public sealed class ComparisonHistoryResponseDto
 {
     public List<ComparisonRecordDto> Records { get; set; } = [];
+
+    public int? Limit { get; set; }
+
+    public string? ComparisonType { get; set; }
+
+    public string? LeftRunId { get; set; }
+
+    public string? RightRunId { get; set; }
+
+    public DateTime? CreatedFromUtc { get; set; }
+
+    public DateTime? CreatedToUtc { get; set; }
 }
 
 public sealed class ComparisonRecordDto
