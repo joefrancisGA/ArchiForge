@@ -155,39 +155,30 @@ public sealed class ExportsController : ControllerBase
     {
         request ??= new ApiReplayExportRequest();
 
-        try
-        {
-            var result = await _exportReplayService.ReplayAsync(
-                new AppReplayExportRequest
-                {
-                    ExportRecordId = exportRecordId,
-                    RecordReplayExport = request.RecordReplayExport
-                },
-                cancellationToken);
-
-            if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
+        var result = await _exportReplayService.ReplayAsync(
+            new AppReplayExportRequest
             {
-                return File(result.Content ?? Array.Empty<byte>(), "text/markdown", result.FileName);
-            }
+                ExportRecordId = exportRecordId,
+                RecordReplayExport = request.RecordReplayExport
+            },
+            cancellationToken);
 
-            if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-            {
-                return File(
-                    result.Content ?? Array.Empty<byte>(),
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    result.FileName);
-            }
+        if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
+        {
+            return File(result.Content ?? Array.Empty<byte>(), "text/markdown", result.FileName);
+        }
 
-            return BadRequest(new { error = $"Unsupported replay format '{result.Format}'." });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
         {
-            return NotFound(new { error = ex.Message });
+            return File(
+                result.Content ?? Array.Empty<byte>(),
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                result.FileName);
         }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+
+        return this.BadRequestProblem(
+            $"Unsupported replay format '{result.Format}'.",
+            ProblemTypes.BadRequest);
     }
 
     [HttpPost("run/exports/{exportRecordId}/replay/metadata")]
@@ -201,31 +192,20 @@ public sealed class ExportsController : ControllerBase
     {
         request ??= new ApiReplayExportRequest();
 
-        try
-        {
-            var result = await _exportReplayService.ReplayAsync(
-                new AppReplayExportRequest
-                {
-                    ExportRecordId = exportRecordId,
-                    RecordReplayExport = request.RecordReplayExport
-                },
-                cancellationToken);
-
-            return Ok(new ReplayExportMetadataResponse
+        var result = await _exportReplayService.ReplayAsync(
+            new AppReplayExportRequest
             {
-                ExportRecordId = result.ExportRecordId,
-                Format = result.Format,
-                FileName = result.FileName
-            });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                ExportRecordId = exportRecordId,
+                RecordReplayExport = request.RecordReplayExport
+            },
+            cancellationToken);
+
+        return Ok(new ReplayExportMetadataResponse
         {
-            return NotFound(new { error = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+            ExportRecordId = result.ExportRecordId,
+            Format = result.Format,
+            FileName = result.FileName
+        });
     }
 }
 

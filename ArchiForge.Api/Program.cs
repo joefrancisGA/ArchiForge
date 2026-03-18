@@ -50,7 +50,10 @@ namespace ArchiForge.Api
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.Filters.Add<ApiProblemDetailsExceptionFilter>();
+            });
             builder.Services.AddProblemDetails();
             builder.Services.AddApiVersioning(options =>
             {

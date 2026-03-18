@@ -683,21 +683,22 @@ public sealed class ComparisonsController : ControllerBase
                 return new FileWithRangeResult(Request, bytes, "application/pdf", result.FileName);
             }
 
-            return BadRequest(new { error = $"Unsupported replay result format '{result.Format}'." });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            sw.Stop();
-            RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message, metadataOnly: false);
-            _logger.LogWarning(ex, "Comparison replay not found: ComparisonRecordId={ComparisonRecordId}", comparisonRecordId);
-            return NotFound(new { error = ex.Message });
+            return this.BadRequestProblem(
+                $"Unsupported replay result format '{result.Format}'.",
+                ProblemTypes.BadRequest);
         }
         catch (InvalidOperationException ex)
         {
             sw.Stop();
+            var notFound = ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase);
             RecordReplayFailure(comparisonRecordId, request, sw.ElapsedMilliseconds, ex.Message, metadataOnly: false);
-            _logger.LogWarning(ex, "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, Error={Error}", comparisonRecordId, ex.Message);
-            return BadRequest(new { error = ex.Message });
+            _logger.LogWarning(
+                ex,
+                "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, Error={Error}",
+                comparisonRecordId,
+                notFound,
+                ex.Message);
+            throw;
         }
     }
 
@@ -709,19 +710,8 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
-            return Ok(MapDriftAnalysis(drift));
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return NotFound(new { error = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        return Ok(MapDriftAnalysis(drift));
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/drift-report")]
@@ -734,38 +724,30 @@ public sealed class ComparisonsController : ControllerBase
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
-            var normalizedFormat = (format ?? "markdown").Trim().ToLowerInvariant();
+        var drift = await _comparisonReplayService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        var normalizedFormat = (format ?? "markdown").Trim().ToLowerInvariant();
 
-            if (normalizedFormat == "markdown")
-            {
-                var content = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
-                var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-                return File(bytes, "text/markdown", $"drift-report_{comparisonRecordId}.md");
-            }
-            if (normalizedFormat == "html")
-            {
-                var content = _driftReportFormatter.FormatHtml(drift, comparisonRecordId);
-                var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-                return File(bytes, "text/html", $"drift-report_{comparisonRecordId}.html");
-            }
-            if (normalizedFormat == "docx")
-            {
-                var bytes = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
-                return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"drift-report_{comparisonRecordId}.docx");
-            }
-            return BadRequest(new { error = $"Unsupported drift report format '{format}'. Use markdown, html, or docx." });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        if (normalizedFormat == "markdown")
         {
-            return NotFound(new { error = ex.Message });
+            var content = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+            return File(bytes, "text/markdown", $"drift-report_{comparisonRecordId}.md");
         }
-        catch (InvalidOperationException ex)
+        if (normalizedFormat == "html")
         {
-            return BadRequest(new { error = ex.Message });
+            var content = _driftReportFormatter.FormatHtml(drift, comparisonRecordId);
+            var bytes = System.Text.Encoding.UTF8.GetBytes(content);
+            return File(bytes, "text/html", $"drift-report_{comparisonRecordId}.html");
         }
+        if (normalizedFormat == "docx")
+        {
+            var bytes = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
+            return File(bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", $"drift-report_{comparisonRecordId}.docx");
+        }
+
+        return this.BadRequestProblem(
+            $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
+            ProblemTypes.BadRequest);
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
