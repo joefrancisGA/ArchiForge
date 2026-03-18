@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using ArchiForge.Contracts.Common;
 
 namespace ArchiForge.Contracts.Metadata;
@@ -20,6 +20,9 @@ public sealed class ArchitectureRun
     public DateTime? CompletedUtc { get; set; }
 
     public string? CurrentManifestVersion { get; set; }
+
+    /// <summary>Context snapshot ID created during run creation (nullable for older runs).</summary>
+    public string? ContextSnapshotId { get; set; }
 
     public List<string> TaskIds { get; set; } = [];
 }

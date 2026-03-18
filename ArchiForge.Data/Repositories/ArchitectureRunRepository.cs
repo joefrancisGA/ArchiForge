@@ -24,7 +24,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 Status,
                 CreatedUtc,
                 CompletedUtc,
-                CurrentManifestVersion
+                CurrentManifestVersion,
+                ContextSnapshotId
             )
             VALUES
             (
@@ -33,7 +34,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 @Status,
                 @CreatedUtc,
                 @CompletedUtc,
-                @CurrentManifestVersion
+                @CurrentManifestVersion,
+                @ContextSnapshotId
             );
             """;
 
@@ -48,7 +50,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 Status = run.Status.ToString(),
                 run.CreatedUtc,
                 run.CompletedUtc,
-                run.CurrentManifestVersion
+                run.CurrentManifestVersion,
+                run.ContextSnapshotId
             },
             cancellationToken: cancellationToken));
     }
@@ -62,7 +65,8 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
                 Status,
                 CreatedUtc,
                 CompletedUtc,
-                CurrentManifestVersion
+                CurrentManifestVersion,
+                ContextSnapshotId
             FROM ArchitectureRuns
             WHERE RunId = @RunId;
             """;
@@ -87,6 +91,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
             CreatedUtc = row.CreatedUtc,
             CompletedUtc = row.CompletedUtc,
             CurrentManifestVersion = row.CurrentManifestVersion,
+            ContextSnapshotId = row.ContextSnapshotId,
             TaskIds = []
         };
     }
@@ -129,6 +134,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
         public DateTime CreatedUtc { get; set; }
         public DateTime? CompletedUtc { get; set; }
         public string? CurrentManifestVersion { get; set; }
+        public string? ContextSnapshotId { get; set; }
     }
 
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(

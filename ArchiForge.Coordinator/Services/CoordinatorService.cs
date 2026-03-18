@@ -28,20 +28,26 @@ public sealed class CoordinatorService : ICoordinatorService
         }
 
         var runId = Guid.NewGuid().ToString("N");
-        var evidenceBundle = BuildEvidenceBundle(request);
-        var tasks = BuildStarterTasks(runId, evidenceBundle, request);
-        var run = BuildRun(runId, request, tasks);
+        var run = BuildRun(runId, request);
 
-        // Context ingestion: build snapshot for this run (static connector for now)
+        // Context ingestion MUST occur before tasks are built.
         var ingestionRequest = new ContextIngestionRequest
         {
             RunId = Guid.Parse(runId),
-            ProjectId = request.RequestId,
+            ProjectId = request.SystemName,
             Description = request.Description
         };
 
-        // Fire-and-forget ingestion; errors will surface in logs but shouldn't block run creation.
-        _ = _contextIngestionService.IngestAsync(ingestionRequest, CancellationToken.None);
+        var contextSnapshot = _contextIngestionService
+            .IngestAsync(ingestionRequest, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+
+        run.ContextSnapshotId = contextSnapshot.SnapshotId.ToString("N");
+
+        var evidenceBundle = BuildEvidenceBundle(request);
+        var tasks = BuildStarterTasks(runId, evidenceBundle, request);
+        run.TaskIds = [.. tasks.Select(t => t.TaskId)];
 
         output.Run = run;
         output.EvidenceBundle = evidenceBundle;
@@ -74,8 +80,7 @@ public sealed class CoordinatorService : ICoordinatorService
 
     private static ArchitectureRun BuildRun(
         string runId,
-        ArchitectureRequest request,
-        IReadOnlyCollection<AgentTask> tasks)
+        ArchitectureRequest request)
     {
         return new ArchitectureRun
         {
@@ -85,7 +90,7 @@ public sealed class CoordinatorService : ICoordinatorService
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = null,
             CurrentManifestVersion = null,
-            TaskIds = [.. tasks.Select(t => t.TaskId)]
+            TaskIds = []
         };
     }
 
