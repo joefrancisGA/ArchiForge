@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchiForge.Api\ArchiForge.Api.csproj" />
+    <ProjectReference Include="..\ArchiForge.Application\ArchiForge.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

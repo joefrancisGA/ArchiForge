@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using ArchiForge.Api.Models;
 using FluentAssertions;
@@ -91,6 +92,46 @@ public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestB
 
         var bytes = await response.Content.ReadAsByteArrayAsync();
         bytes.Length.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task DownloadEndToEndComparisonMarkdown_RangeRequest_Returns206PartialContent()
+    {
+        var createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-E2E-RANGE-001")));
+
+        createResponse.EnsureSuccessStatusCode();
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        var runId = created!.Run.RunId;
+
+        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+
+        var replayResponse = await Client.PostAsync(
+            $"/v1/architecture/run/{runId}/replay",
+            JsonContent(new
+            {
+                commitReplay = true,
+                executionMode = "Current",
+                manifestVersionOverride = "v1-replay"
+            }));
+        replayResponse.EnsureSuccessStatusCode();
+        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        var replayRunId = replayPayload!.ReplayRunId;
+
+        var url =
+            $"/v1/architecture/run/compare/end-to-end/export/file?leftRunId={runId}&rightRunId={replayRunId}";
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.Range = new RangeHeaderValue(0, 15);
+
+        var response = await Client.SendAsync(req);
+
+        response.StatusCode.Should().Be(HttpStatusCode.PartialContent);
+        response.Headers.AcceptRanges.ToString().Should().Contain("bytes");
+        response.Content.Headers.ContentRange.Should().NotBeNull();
+        var body = await response.Content.ReadAsByteArrayAsync();
+        body.Length.Should().Be(16);
     }
 }
 

@@ -25,12 +25,26 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
 
         if (ex is ComparisonVerificationFailedException cvf)
         {
-            context.Result = CreateProblemResult(
-                statusCode: StatusCodes.Status422UnprocessableEntity,
-                title: "Unprocessable Entity",
-                detail: cvf.Message,
-                type: ProblemTypes.ComparisonVerificationFailed,
-                instance: instance);
+            var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Type = ProblemTypes.ComparisonVerificationFailed,
+                Title = "Unprocessable Entity",
+                Status = StatusCodes.Status422UnprocessableEntity,
+                Detail = cvf.Message,
+                Instance = string.IsNullOrWhiteSpace(instance) ? null : instance
+            };
+            if (cvf.Drift is { } drift)
+            {
+                problem.Extensions["driftDetected"] = drift.DriftDetected;
+                if (!string.IsNullOrWhiteSpace(drift.Summary))
+                    problem.Extensions["driftSummary"] = drift.Summary;
+            }
+
+            context.Result = new ObjectResult(problem)
+            {
+                StatusCode = problem.Status,
+                ContentTypes = { ProblemJsonMediaType }
+            };
             context.ExceptionHandled = true;
             return;
         }

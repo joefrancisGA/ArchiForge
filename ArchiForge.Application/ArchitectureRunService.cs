@@ -224,6 +224,23 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             }
         }
 
+        if (run.Status != ArchitectureRunStatus.ReadyForCommit)
+        {
+            if (run.Status == ArchitectureRunStatus.Failed)
+            {
+                throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
+            }
+
+            if (run.Status == ArchitectureRunStatus.Committed)
+            {
+                throw new ConflictException(
+                    $"Run '{runId}' is already committed but the manifest could not be loaded for idempotent replay.");
+            }
+
+            throw new ConflictException(
+                $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
+        }
+
         var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 

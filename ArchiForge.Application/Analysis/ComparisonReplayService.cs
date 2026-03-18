@@ -176,13 +176,9 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 var driftE2E = _driftAnalyzer.Analyze(storedE2E, report);
                 if (driftE2E.DriftDetected)
                 {
-                    var verifyResult = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
-                    SetRecordMetadata(verifyResult, record, profile);
-                    verifyResult.ReplayMode = FormatReplayMode(mode);
-                    verifyResult.VerificationPassed = false;
-                    verifyResult.VerificationMessage = driftE2E.Summary;
-                    verifyResult.DriftAnalysis = driftE2E;
-                    return verifyResult;
+                    throw new ComparisonVerificationFailedException(
+                        driftE2E.Summary ?? "Comparison verification failed: regenerated end-to-end comparison does not match stored payload.",
+                        driftE2E);
                 }
                 break;
             default:
@@ -317,21 +313,9 @@ public sealed class ComparisonReplayService : IComparisonReplayService
                 var driftExport = _driftAnalyzer.Analyze(storedDiff, diff);
                 if (driftExport.DriftDetected)
                 {
-                    var markdownExport = _exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
-                    var resultExport = new ReplayComparisonResult
-                    {
-                        ComparisonRecordId = record.ComparisonRecordId,
-                        ComparisonType = record.ComparisonType,
-                        Format = "markdown",
-                        FileName = $"comparison_{record.ComparisonRecordId}.md",
-                        Content = markdownExport,
-                        ReplayMode = FormatReplayMode(mode),
-                        VerificationPassed = false,
-                        VerificationMessage = driftExport.Summary,
-                        DriftAnalysis = driftExport
-                    };
-                    SetRecordMetadata(resultExport, record, null);
-                    return resultExport;
+                    throw new ComparisonVerificationFailedException(
+                        driftExport.Summary ?? "Comparison verification failed: regenerated export diff does not match stored payload.",
+                        driftExport);
                 }
                 break;
             default:

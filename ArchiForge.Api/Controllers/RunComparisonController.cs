@@ -104,15 +104,8 @@ public sealed class RunComparisonController : ControllerBase
         [FromQuery] string rightRunId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
-            return Ok(new EndToEndReplayComparisonResponse { Report = report });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
+        var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
+        return Ok(new EndToEndReplayComparisonResponse { Report = report });
     }
 
     [HttpPost("run/compare/end-to-end/summary")]
@@ -125,22 +118,15 @@ public sealed class RunComparisonController : ControllerBase
         CancellationToken cancellationToken)
     {
         request ??= new PersistComparisonRequest();
-        try
+        var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
+        var summary = _endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
+        if (request.Persist)
         {
-            var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
-            var summary = _endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report);
-            if (request.Persist)
-            {
-                var comparisonRecordId = await _comparisonAuditService.RecordEndToEndAsync(report, summary, cancellationToken);
-                Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
-            }
+            var comparisonRecordId = await _comparisonAuditService.RecordEndToEndAsync(report, summary, cancellationToken);
+            Response.Headers["X-ArchiForge-ComparisonRecordId"] = comparisonRecordId;
+        }
 
-            return Ok(new EndToEndReplayComparisonSummaryResponse { Format = "markdown", Summary = summary });
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
+        return Ok(new EndToEndReplayComparisonSummaryResponse { Format = "markdown", Summary = summary });
     }
 
     [HttpGet("run/compare/end-to-end/export")]
@@ -177,17 +163,10 @@ public sealed class RunComparisonController : ControllerBase
         [FromQuery] string rightRunId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
-            var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
-            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
-            return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
+        var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
+        var markdown = _endToEndReplayComparisonExportService.GenerateMarkdown(report);
+        var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.md";
+        return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
     }
 
     [HttpGet("run/compare/end-to-end/export/docx")]
@@ -198,20 +177,13 @@ public sealed class RunComparisonController : ControllerBase
         [FromQuery] string rightRunId,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
-            var bytes = await _endToEndReplayComparisonExportService.GenerateDocxAsync(report, cancellationToken);
-            var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.docx";
-            return ApiFileResults.RangeBytes(
-                Request,
-                bytes,
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                fileName);
-        }
-        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
-        }
+        var report = await _endToEndReplayComparisonService.BuildAsync(leftRunId, rightRunId, cancellationToken);
+        var bytes = await _endToEndReplayComparisonExportService.GenerateDocxAsync(report, cancellationToken);
+        var fileName = $"end_to_end_compare_{leftRunId}_to_{rightRunId}.docx";
+        return ApiFileResults.RangeBytes(
+            Request,
+            bytes,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            fileName);
     }
 }

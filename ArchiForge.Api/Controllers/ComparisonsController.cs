@@ -372,33 +372,12 @@ public sealed class ComparisonsController : ControllerBase
                 Response.Headers["X-ArchiForge-PersistedReplayRecordId"] = persistedId;
             }
 
-            if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase))
-            {
-                return ApiFileResults.RangeText(Request, result.Content, "text/markdown", result.FileName);
-            }
-
-            if (string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
-            {
-                return ApiFileResults.RangeText(Request, result.Content, "text/html", result.FileName);
-            }
-
-            if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-            {
-                return ApiFileResults.RangeBytes(
-                    Request,
-                    result.BinaryContent,
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    result.FileName);
-            }
-
-            if (string.Equals(result.Format, "pdf", StringComparison.OrdinalIgnoreCase))
-            {
-                return ApiFileResults.RangeBytes(Request, result.BinaryContent, "application/pdf", result.FileName);
-            }
-
-            return this.BadRequestProblem(
-                $"Unsupported replay result format '{result.Format}'.",
-                ProblemTypes.BadRequest);
+            return ReplayArtifactResponseFactory.ComparisonReplayFileOrBadRequest(
+                Request,
+                result,
+                () => this.BadRequestProblem(
+                    $"Unsupported replay result format '{result.Format}'.",
+                    ProblemTypes.BadRequest));
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
@@ -576,18 +555,8 @@ public sealed class ComparisonsController : ControllerBase
 
                 var entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
                 await using var entryStream = entry.Open();
-
-                if (string.Equals(result.Format, "markdown", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
-                {
-                    var bytes = System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
-                    await entryStream.WriteAsync(bytes, cancellationToken);
-                }
-                else
-                {
-                    var bytes = result.BinaryContent ?? Array.Empty<byte>();
-                    await entryStream.WriteAsync(bytes, cancellationToken);
-                }
+                var payload = ReplayArtifactResponseFactory.GetComparisonReplayEntryBytes(result);
+                await entryStream.WriteAsync(payload, cancellationToken);
             }
         }
 
