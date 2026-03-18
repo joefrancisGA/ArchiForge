@@ -1,13 +1,19 @@
 /*
   ArchiForge — SQLite consolidated schema (tests / local / reference)
 
+  Idempotency:
+    - CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS → safe to run repeatedly.
+    - SQLite cannot ADD COLUMN idempotently in plain SQL; if you open an older DB file that
+      predates a column (e.g. GraphSnapshotId on ArchitectureRuns), use DbUp migrations or
+      add the column once manually, then this script remains re-runnable.
+
   Aligns with DbUp migrations 001–006 (see ArchiForge.Data/Migrations/).
 
   Enable foreign keys per connection:
     PRAGMA foreign_keys = ON;
 
-  GraphSnapshotId: stored as TEXT (canonical GUID string) to match UNIQUEIDENTIFIER semantics on SQL Server.
-  Date/time columns: TEXT (ISO-8601), consistent with integration-test usage.
+  GraphSnapshotId: TEXT (canonical GUID string), analogous to SQL Server UNIQUEIDENTIFIER.
+  Date/time columns: TEXT (ISO-8601).
 */
 
 CREATE TABLE IF NOT EXISTS ArchitectureRequests
