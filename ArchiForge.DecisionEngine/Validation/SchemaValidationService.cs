@@ -50,39 +50,34 @@ public sealed class SchemaValidationService : ISchemaValidationService
             return result;
         }
 
-        JsonDocument? doc;
-
+        JsonDocument doc;
         try
         {
             doc = JsonDocument.Parse(json);
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
             result.Errors.Add($"{objectName} JSON could not be parsed: {ex.Message}");
             return result;
         }
 
-        if (doc is null)
+        using (doc)
         {
-            result.Errors.Add($"{objectName} JSON parsed to null.");
-            return result;
-        }
+            var evaluation = schema.Evaluate(
+                doc.RootElement,
+                new EvaluationOptions
+                {
+                    OutputFormat = OutputFormat.List
+                });
 
-        var evaluation = schema.Evaluate(
-            doc.RootElement,
-            new EvaluationOptions
+            if (evaluation.IsValid)
             {
-                OutputFormat = OutputFormat.List
-            });
+                return result;
+            }
 
-        if (evaluation.IsValid)
-        {
+            CollectErrors(evaluation, result.Errors, objectName);
             return result;
         }
-
-        CollectErrors(evaluation, result.Errors, objectName);
-
-        return result;
     }
 
     private static void CollectErrors(
@@ -94,8 +89,17 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             foreach (var kvp in evaluation.Errors)
             {
-                errors.Add($"{objectName} schema error at '{evaluation.InstanceLocation}': {kvp.Value}");
+                var message = kvp.Value ?? "(no message)";
+                var location = evaluation.InstanceLocation.ToString();
+                if (string.IsNullOrEmpty(location))
+                    location = "(unknown)";
+                errors.Add($"{objectName} schema error at '{location}': {message}");
             }
+        }
+
+        if (evaluation.Details is null)
+        {
+            return;
         }
 
         foreach (var detail in evaluation.Details)

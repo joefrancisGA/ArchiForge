@@ -7,8 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" Version="3.0.1">
-      <!-- Exclude broken analyzer that requires System.Memory 4.0.2.0 -->
-      <IncludeAssets>runtime; build; native; contentfiles; buildtransitive</IncludeAssets>
+      <ExcludeAssets>analyzers</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="8.8.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
