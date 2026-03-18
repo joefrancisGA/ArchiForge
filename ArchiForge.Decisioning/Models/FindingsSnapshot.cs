@@ -2,6 +2,9 @@ namespace ArchiForge.Decisioning.Models;
 
 public class FindingsSnapshot
 {
+    /// <summary>Snapshot container schema version.</summary>
+    public int SchemaVersion { get; set; } = FindingsSchema.CurrentSnapshotVersion;
+
     public Guid FindingsSnapshotId { get; set; }
     public Guid RunId { get; set; }
     public Guid ContextSnapshotId { get; set; }

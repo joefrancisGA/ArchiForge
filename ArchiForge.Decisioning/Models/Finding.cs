@@ -2,6 +2,9 @@ namespace ArchiForge.Decisioning.Models;
 
 public class Finding
 {
+    /// <summary>Schema version of this finding record (increment when envelope or payload contracts change).</summary>
+    public int FindingSchemaVersion { get; set; } = FindingsSchema.CurrentFindingVersion;
+
     public string FindingId { get; set; } = Guid.NewGuid().ToString("N");
     public string FindingType { get; set; } = default!;
     public string Category { get; set; } = default!;

@@ -128,6 +128,15 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     Severity = finding.Severity.ToString(),
                     SupportingFindingIds = new List<string> { finding.FindingId }
                 });
+
+                manifest.Decisions.Add(new ResolvedArchitectureDecision
+                {
+                    Category = "Security",
+                    Title = $"Enforce control: {payload.ControlName}",
+                    SelectedOption = "RequiredRemediation",
+                    Rationale = payload.Impact,
+                    SupportingFindingIds = new List<string> { finding.FindingId }
+                });
             }
         }
     }

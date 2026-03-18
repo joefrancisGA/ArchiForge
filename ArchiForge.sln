@@ -69,6 +69,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.KnowledgeGraph",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Decisioning", "ArchiForge.Decisioning\ArchiForge.Decisioning.csproj", "{3A7E2E2B-0C8F-4A1F-8A67-3E0B1B6C9D2E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Decisioning.Tests", "ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj", "{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,10 @@ Global
 		{3A7E2E2B-0C8F-4A1F-8A67-3E0B1B6C9D2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A7E2E2B-0C8F-4A1F-8A67-3E0B1B6C9D2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A7E2E2B-0C8F-4A1F-8A67-3E0B1B6C9D2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +179,8 @@ Global
 		{A9B8C7D6-E5F4-3210-9876-543210FEDCBA} = {128DBBE7-315A-4005-BED1-BA51A521D8FB}
 		{8FA568F0-9212-8B8C-05C8-7DB8CC48E7E9} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{EFD25BC6-2623-D707-A538-B8069B821FBA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3A7E2E2B-0C8F-4A1F-8A67-3E0B1B6C9D2E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF} = {128DBBE7-315A-4005-BED1-BA51A521D8FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3FD97131-0FD0-4645-8251-FB97CFE92CE5}

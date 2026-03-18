@@ -1,6 +1,9 @@
+using System.Diagnostics;
+using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Decisioning.Services;
 
@@ -9,24 +12,33 @@ public class FindingsOrchestrator : IFindingsOrchestrator
     private readonly IEnumerable<IFindingEngine> _engines;
     private readonly IFindingsSnapshotRepository _repository;
     private readonly IFindingPayloadValidator _validator;
+    private readonly ILogger<FindingsOrchestrator> _logger;
 
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingsSnapshotRepository repository)
+        : this(engines, repository, new NoOpFindingPayloadValidator(), SilentLogger.Instance)
     {
-        _engines = engines;
-        _repository = repository;
-        _validator = new NoOpFindingPayloadValidator();
     }
 
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingsSnapshotRepository repository,
         IFindingPayloadValidator validator)
+        : this(engines, repository, validator, SilentLogger.Instance)
+    {
+    }
+
+    public FindingsOrchestrator(
+        IEnumerable<IFindingEngine> engines,
+        IFindingsSnapshotRepository repository,
+        IFindingPayloadValidator validator,
+        ILogger<FindingsOrchestrator> logger)
     {
         _engines = engines;
         _repository = repository;
         _validator = validator;
+        _logger = logger;
     }
 
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
@@ -39,13 +51,30 @@ public class FindingsOrchestrator : IFindingsOrchestrator
 
         foreach (var engine in _engines)
         {
-            var findings = await engine.AnalyzeAsync(graphSnapshot, ct);
+            var sw = Stopwatch.StartNew();
+            IReadOnlyList<Finding> findings;
+            try
+            {
+                findings = await engine.AnalyzeAsync(graphSnapshot, ct);
+            }
+            catch (Exception ex)
+            {
+                sw.Stop();
+                _logger.LogError(ex,
+                    "Finding engine failed: EngineType={EngineType} Category={Category} DurationMs={DurationMs}",
+                    engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
+                throw;
+            }
+
+            sw.Stop();
+            _logger.LogInformation(
+                "Finding engine completed: EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}",
+                engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
+
             foreach (var finding in findings)
             {
                 if (string.IsNullOrWhiteSpace(finding.Category))
-                {
                     finding.Category = engine.Category;
-                }
 
                 _validator.Validate(finding);
 
@@ -66,8 +95,15 @@ public class FindingsOrchestrator : IFindingsOrchestrator
             ContextSnapshotId = contextSnapshotId,
             GraphSnapshotId = graphSnapshot.GraphSnapshotId,
             CreatedUtc = DateTime.UtcNow,
-            Findings = allFindings
+            Findings = allFindings,
+            SchemaVersion = FindingsSchema.CurrentSnapshotVersion
         };
+
+        FindingsSnapshotMigrator.Apply(snapshot);
+
+        _logger.LogInformation(
+            "Findings snapshot built: FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}",
+            snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 
         await _repository.SaveAsync(snapshot, ct);
 
@@ -78,8 +114,37 @@ public class FindingsOrchestrator : IFindingsOrchestrator
     {
         public void Validate(Finding finding)
         {
-            // no-op
+        }
+    }
+
+    /// <summary>ILogger that discards all output (no dependency on NullLogger from logging abstractions).</summary>
+    private sealed class SilentLogger : ILogger<FindingsOrchestrator>
+    {
+        public static readonly ILogger<FindingsOrchestrator> Instance = new SilentLogger();
+
+        private SilentLogger()
+        {
+        }
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+
+        public bool IsEnabled(LogLevel logLevel) => false;
+
+        public void Log<TState>(
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+        }
+
+        private sealed class NullScope : IDisposable
+        {
+            public static readonly NullScope Instance = new();
+            public void Dispose()
+            {
+            }
         }
     }
 }
-

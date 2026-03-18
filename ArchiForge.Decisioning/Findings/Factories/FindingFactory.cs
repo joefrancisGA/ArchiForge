@@ -16,6 +16,7 @@ public static class FindingFactory
     {
         return new Finding
         {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
             FindingType = "RequirementFinding",
             Category = "Requirement",
             EngineType = engineType,
@@ -45,6 +46,7 @@ public static class FindingFactory
     {
         return new Finding
         {
+            FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
             FindingType = "TopologyGap",
             Category = "Topology",
             EngineType = engineType,

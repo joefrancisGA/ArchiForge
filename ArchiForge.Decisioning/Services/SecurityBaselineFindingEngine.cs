@@ -27,6 +27,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
 
             findings.Add(new Finding
             {
+                FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
                 FindingType = "SecurityControlFinding",
                 Category = "Security",
                 EngineType = EngineType,

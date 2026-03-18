@@ -28,6 +28,22 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     IsMandatory = false,
                     AppliesToFindingType = "TopologyGap",
                     Action = "allow"
+                },
+                new DecisionRule
+                {
+                    Name = "Track security control findings",
+                    Priority = 88,
+                    IsMandatory = false,
+                    AppliesToFindingType = "SecurityControlFinding",
+                    Action = "allow"
+                },
+                new DecisionRule
+                {
+                    Name = "Prefer cost constraint findings",
+                    Priority = 85,
+                    IsMandatory = false,
+                    AppliesToFindingType = "CostConstraintFinding",
+                    Action = "prefer"
                 }
             }
         };

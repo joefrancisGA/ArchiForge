@@ -40,6 +40,13 @@ public class FindingPayloadValidator : IFindingPayloadValidator
             if (payload is null)
                 throw new InvalidOperationException("SecurityControlFinding payload is invalid.");
         }
+
+        if (finding.FindingType.Equals("CostConstraintFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
+            if (payload is null)
+                throw new InvalidOperationException("CostConstraintFinding payload is invalid.");
+        }
     }
 }
 
