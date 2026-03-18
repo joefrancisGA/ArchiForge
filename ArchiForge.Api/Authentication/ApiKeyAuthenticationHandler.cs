@@ -33,7 +33,9 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
                 new Claim("permission", "commit:run"),
                 new Claim("permission", "seed:results"),
                 new Claim("permission", "export:consulting-docx"),
-                new Claim("permission", "metrics:read")
+                new Claim("permission", "metrics:read"),
+                new Claim("permission", "replay:comparisons"),
+                new Claim("permission", "replay:diagnostics")
             }, Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, Scheme.Name);
@@ -62,7 +64,9 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
                 new Claim("permission", "commit:run"),
                 new Claim("permission", "seed:results"),
                 new Claim("permission", "export:consulting-docx"),
-                new Claim("permission", "metrics:read")
+                new Claim("permission", "metrics:read"),
+                new Claim("permission", "replay:comparisons"),
+                new Claim("permission", "replay:diagnostics")
             ];
         }
         else if (!string.IsNullOrWhiteSpace(readerKey) && string.Equals(key, readerKey, StringComparison.Ordinal))

@@ -147,6 +147,35 @@ namespace ArchiForge.Api
                     config.PermitLimit = expensivePermitLimit;
                     config.QueueLimit = expensiveQueueLimit;
                 });
+
+                // Replay: use stricter limits for heavy formats (docx/pdf) than light (markdown/html).
+                var replayLightPermitLimit = builder.Configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
+                var replayLightWindowMinutes = builder.Configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
+                var replayHeavyPermitLimit = builder.Configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
+                var replayHeavyWindowMinutes = builder.Configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
+
+                options.AddPolicy("replay", httpContext =>
+                {
+                    var fmt = (httpContext.Request.Query["format"].ToString() ?? "").Trim().ToLowerInvariant();
+                    var isHeavy = fmt is "docx" or "pdf";
+                    var window = TimeSpan.FromMinutes(isHeavy ? replayHeavyWindowMinutes : replayLightWindowMinutes);
+                    var permits = isHeavy ? replayHeavyPermitLimit : replayLightPermitLimit;
+
+                    var user = httpContext.User?.Identity?.Name;
+                    var key = string.IsNullOrWhiteSpace(user)
+                        ? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous"
+                        : user;
+
+                    var partitionKey = $"{key}:{(isHeavy ? "heavy" : "light")}";
+                    return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey,
+                        _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = permits,
+                            Window = window,
+                            QueueLimit = 0
+                        });
+                });
             });
 
             builder.Services.AddCors(options =>

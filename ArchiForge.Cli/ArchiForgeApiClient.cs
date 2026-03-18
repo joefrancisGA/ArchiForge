@@ -35,6 +35,13 @@ public sealed class ArchiForgeApiClient
         };
         _http.DefaultRequestHeaders.Add("Accept", "application/json");
 
+        var apiKey = Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
+        if (!string.IsNullOrWhiteSpace(apiKey))
+        {
+            _http.DefaultRequestHeaders.Remove("X-Api-Key");
+            _http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+        }
+
         _pipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
             .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
@@ -358,7 +365,8 @@ public sealed class ArchiForgeApiClient
     {
         try
         {
-            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay";
+            // Include format in querystring so the API rate limiter can apply heavy vs light policies.
+            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay?format={Uri.EscapeDataString(format)}";
             var body = new
             {
                 format,
@@ -422,6 +430,35 @@ public sealed class ArchiForgeApiClient
         {
             Console.WriteLine($"Replay failed: {ex.Message}");
             return false;
+        }
+    }
+
+    public async Task<string?> GetComparisonDriftJsonAsync(string comparisonRecordId, CancellationToken ct = default)
+    {
+        try
+        {
+            var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
+            return await response.Content.ReadAsStringAsync(ct);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<string?> GetReplayDiagnosticsJsonAsync(int maxCount = 50, CancellationToken ct = default)
+    {
+        try
+        {
+            var safe = Math.Clamp(maxCount, 1, 100);
+            var uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={safe}";
+            var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+            return await response.Content.ReadAsStringAsync(ct);
+        }
+        catch
+        {
+            return null;
         }
     }
 

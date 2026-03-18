@@ -1035,16 +1035,20 @@ public sealed class ArchitectureController : ControllerBase
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
     [Authorize(Policy = "CanReplayComparisons")]
+    [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReplayComparison(
         [FromRoute] string comparisonRecordId,
+        [FromQuery] string? format,
         [FromBody] ApiReplayComparisonRequest? request,
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
+        if (!string.IsNullOrWhiteSpace(format) && string.IsNullOrWhiteSpace(request.Format))
+            request.Format = format;
         var sw = Stopwatch.StartNew();
 
         try
