@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using ArchiForge.Api.Models;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 namespace ArchiForge.Api.Tests;
@@ -23,7 +22,7 @@ public sealed class ArchitectureSummaryTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         var runId = created!.Run.RunId;
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -32,14 +31,14 @@ public sealed class ArchitectureSummaryTests : IntegrationTestBase
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         var summaryResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(new JsonOptions().JsonSerializerOptions);
+        var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload!.Format.Should().Be("markdown");
         summaryPayload.Content.Should().Contain("# Architecture Summary: EnterpriseRag");

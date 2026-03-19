@@ -16,32 +16,8 @@ public sealed class ArchitectureEndToEndComparisonTests : IntegrationTestBase
     [Fact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {
-        var createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-E2E-001")));
-
-        createResponse.EnsureSuccessStatusCode();
-
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
-
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-
-        var replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = "v1-replay"
-            }));
-
-        replayResponse.EnsureSuccessStatusCode();
-
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
-        replayPayload.Should().NotBeNull();
-        var replayRunId = replayPayload!.ReplayRunId;
+        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+            Client, JsonOptions, "REQ-E2E-001");
 
         var response = await Client.GetAsync(
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={runId}&rightRunId={replayRunId}");

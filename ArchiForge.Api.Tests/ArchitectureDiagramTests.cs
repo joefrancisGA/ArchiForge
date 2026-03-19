@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using ArchiForge.Api.Models;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 namespace ArchiForge.Api.Tests;
@@ -23,7 +22,7 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         var runId = created!.Run.RunId;
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -32,14 +31,14 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         var diagramResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(new JsonOptions().JsonSerializerOptions);
+        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload!.Format.Should().Be("mermaid");
         diagramPayload.Diagram.Should().Contain("flowchart LR");
@@ -57,7 +56,7 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         var runId = created!.Run.RunId;
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -66,7 +65,7 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         var diagramResponse = await Client.GetAsync(
@@ -74,7 +73,7 @@ public sealed class ArchitectureDiagramTests : IntegrationTestBase
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(new JsonOptions().JsonSerializerOptions);
+        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload!.DiagramType.Should().Be("Mermaid");
         diagramPayload.Content.Should().Contain("flowchart TB");

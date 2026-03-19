@@ -22,7 +22,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        var payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload!.Run.Should().NotBeNull();
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
@@ -46,7 +46,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
 
         var runId = created!.Run.RunId;
@@ -55,7 +55,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await getResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var payload = await getResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload!.Run.RunId.Should().Be(runId);
         payload.Tasks.Should().HaveCount(4);
@@ -71,7 +71,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
 
         var runId = created!.Run.RunId;
 
@@ -81,7 +81,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         executePayload.Should().NotBeNull();
         executePayload!.RunId.Should().Be(runId);
         executePayload.Results.Should().HaveCount(4);
@@ -89,7 +89,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         getRunResponse.EnsureSuccessStatusCode();
 
-        var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
         getRunPayload!.Results.Should().HaveCount(4);
     }
 
@@ -102,7 +102,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         var runId = created!.Run.RunId;
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -112,7 +112,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
         commitPayload!.Manifest.Should().NotBeNull();
         commitPayload.Manifest.RunId.Should().Be(runId);
@@ -133,14 +133,14 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
         var runId = created!.Run.RunId;
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
 
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var executePayload = await executeResponse.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         executePayload.Should().NotBeNull();
         executePayload!.RunId.Should().Be(runId);
         executePayload.Results.Should().HaveCount(4);
@@ -155,7 +155,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
 
         var runId = created!.Run.RunId;
@@ -167,7 +167,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
         var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
@@ -176,7 +176,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
         manifestResponse.EnsureSuccessStatusCode();
 
-        var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(new JsonOptions().JsonSerializerOptions);
+        var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
         manifestPayload.Should().NotBeNull();
         manifestPayload!.SystemName.Should().Be("EnterpriseRag");
         manifestPayload.Services.Should().NotBeEmpty();
@@ -194,7 +194,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         created.Should().NotBeNull();
 
         var runId = created!.Run.RunId;
@@ -203,7 +203,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var getRunResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         getRunResponse.EnsureSuccessStatusCode();
 
-        var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
         getRunPayload!.Tasks.Should().HaveCount(4);
 
         var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
@@ -212,7 +212,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(new JsonOptions().JsonSerializerOptions);
+        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         commitPayload.Should().NotBeNull();
 
         var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
@@ -221,7 +221,7 @@ public sealed class ArchitectureControllerTests : IntegrationTestBase
         var manifestResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
         manifestResponse.EnsureSuccessStatusCode();
 
-        var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(new JsonOptions().JsonSerializerOptions);
+        var manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
         manifestPayload.Should().NotBeNull();
         manifestPayload!.SystemName.Should().Be("EnterpriseRag");
         manifestPayload.Services.Should().Contain(s => s.ServiceName == "rag-api");

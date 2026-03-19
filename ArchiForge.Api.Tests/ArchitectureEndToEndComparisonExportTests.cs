@@ -17,31 +17,8 @@ public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestB
     [Fact]
     public async Task ExportRunsEndToEndComparisonMarkdown_ReturnsMarkdown()
     {
-        var createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-E2E-EXPORT-001")));
-
-        createResponse.EnsureSuccessStatusCode();
-
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
-
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-
-        var replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = "v1-replay"
-            }));
-
-        replayResponse.EnsureSuccessStatusCode();
-
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
-        var replayRunId = replayPayload!.ReplayRunId;
+        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+            Client, JsonOptions, "REQ-E2E-EXPORT-001");
 
         var response = await Client.GetAsync(
             $"/v1/architecture/run/compare/end-to-end/export?leftRunId={runId}&rightRunId={replayRunId}");
@@ -57,31 +34,8 @@ public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestB
     [Fact]
     public async Task ExportRunsEndToEndComparisonDocx_ReturnsDocx()
     {
-        var createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-E2E-EXPORT-002")));
-
-        createResponse.EnsureSuccessStatusCode();
-
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
-
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-
-        var replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = "v1-replay"
-            }));
-
-        replayResponse.EnsureSuccessStatusCode();
-
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
-        var replayRunId = replayPayload!.ReplayRunId;
+        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+            Client, JsonOptions, "REQ-E2E-EXPORT-002");
 
         var response = await Client.GetAsync(
             $"/v1/architecture/run/compare/end-to-end/export/docx?leftRunId={runId}&rightRunId={replayRunId}");
@@ -97,28 +51,8 @@ public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestB
     [Fact]
     public async Task DownloadEndToEndComparisonMarkdown_RangeRequest_Returns206PartialContent()
     {
-        var createResponse = await Client.PostAsync(
-            "/v1/architecture/request",
-            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-E2E-RANGE-001")));
-
-        createResponse.EnsureSuccessStatusCode();
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
-
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
-
-        var replayResponse = await Client.PostAsync(
-            $"/v1/architecture/run/{runId}/replay",
-            JsonContent(new
-            {
-                commitReplay = true,
-                executionMode = "Current",
-                manifestVersionOverride = "v1-replay"
-            }));
-        replayResponse.EnsureSuccessStatusCode();
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
-        var replayRunId = replayPayload!.ReplayRunId;
+        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+            Client, JsonOptions, "REQ-E2E-RANGE-001");
 
         var url =
             $"/v1/architecture/run/compare/end-to-end/export/file?leftRunId={runId}&rightRunId={replayRunId}";
