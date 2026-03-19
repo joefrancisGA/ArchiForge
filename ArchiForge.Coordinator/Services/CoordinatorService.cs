@@ -2,6 +2,7 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Decisioning.Interfaces;
@@ -14,7 +15,8 @@ public sealed class CoordinatorService(
     IContextIngestionService contextIngestionService,
     IKnowledgeGraphService knowledgeGraphService,
     IFindingsOrchestrator findingsOrchestrator,
-    IDecisionEngine decisionEngine)
+    IDecisionEngine decisionEngine,
+    IArtifactSynthesisService artifactSynthesisService)
     : ICoordinatorService
 {
     public CoordinationResult CreateRun(ArchitectureRequest request)

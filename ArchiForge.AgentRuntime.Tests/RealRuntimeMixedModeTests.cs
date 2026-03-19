@@ -1,3 +1,8 @@
+using ArchiForge.ArtifactSynthesis.Generators;
+using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.ArtifactSynthesis.Renderers;
+using ArchiForge.ArtifactSynthesis.Repositories;
+using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -300,6 +305,23 @@ public sealed class RealRuntimeMixedModeTests
         merge.Manifest.Governance.RequiredControls.Should().Contain("Managed Identity");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Private Endpoints");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Diagnostic Logging");
+    }
+
+    private static IArtifactSynthesisService CreateArtifactSynthesisServiceForTests()
+    {
+        var renderer = new MermaidDiagramRenderer();
+        IEnumerable<IArtifactGenerator> generators =
+        [
+            new ReferenceArchitectureMarkdownGenerator(),
+            new DiagramAstGenerator(),
+            new MermaidDiagramArtifactGenerator(renderer),
+            new InventoryArtifactGenerator(),
+            new CostSummaryArtifactGenerator()
+        ];
+        return new ArtifactSynthesisService(
+            generators,
+            new InMemoryArtifactBundleRepository(),
+            new ArtifactBundleValidator());
     }
 
     private sealed class NullContextIngestionService : IContextIngestionService
