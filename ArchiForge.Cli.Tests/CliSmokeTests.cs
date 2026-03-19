@@ -8,7 +8,7 @@ public sealed class CliSmokeTests
     [Fact]
     public async Task RunAsync_WhenNoArgs_Returns1()
     {
-        var exit = await ArchiForge.Program.RunAsync([]);
+        var exit = await Program.RunAsync([]);
         exit.Should().Be(1);
     }
 
@@ -20,7 +20,7 @@ public sealed class CliSmokeTests
         try
         {
             Console.SetOut(new StringWriter(sb));
-            var exit = await ArchiForge.Program.RunAsync(["comparisons"]);
+            var exit = await Program.RunAsync(["comparisons"]);
             exit.Should().Be(1);
         }
         finally

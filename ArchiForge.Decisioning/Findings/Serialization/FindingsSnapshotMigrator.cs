@@ -46,13 +46,13 @@ public static class FindingsSnapshotMigrator
     private static string? InferPayloadTypeName(string findingType)
     {
         if (string.Equals(findingType, "RequirementFinding", StringComparison.OrdinalIgnoreCase))
-            return nameof(ArchiForge.Decisioning.Findings.Payloads.RequirementFindingPayload);
+            return nameof(Payloads.RequirementFindingPayload);
         if (string.Equals(findingType, "TopologyGap", StringComparison.OrdinalIgnoreCase))
-            return nameof(ArchiForge.Decisioning.Findings.Payloads.TopologyGapFindingPayload);
+            return nameof(Payloads.TopologyGapFindingPayload);
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
-            return nameof(ArchiForge.Decisioning.Findings.Payloads.SecurityControlFindingPayload);
+            return nameof(Payloads.SecurityControlFindingPayload);
         if (string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase))
-            return nameof(ArchiForge.Decisioning.Findings.Payloads.CostConstraintFindingPayload);
+            return nameof(Payloads.CostConstraintFindingPayload);
         return null;
     }
 }

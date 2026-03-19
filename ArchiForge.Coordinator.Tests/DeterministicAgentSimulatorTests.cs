@@ -56,10 +56,10 @@ public sealed class DeterministicAgentSimulatorTests
 
         results.Should().HaveCount(4);
         results.Select(r => r.AgentType).Should().Contain([
-            ArchiForge.Contracts.Common.AgentType.Topology,
-            ArchiForge.Contracts.Common.AgentType.Cost,
-            ArchiForge.Contracts.Common.AgentType.Compliance,
-            ArchiForge.Contracts.Common.AgentType.Critic
+            Contracts.Common.AgentType.Topology,
+            Contracts.Common.AgentType.Cost,
+            Contracts.Common.AgentType.Compliance,
+            Contracts.Common.AgentType.Critic
         ]);
     }
 
@@ -172,19 +172,19 @@ public sealed class DeterministicAgentSimulatorTests
 
     private static CoordinatorService CreateCoordinator()
     {
-        var findingsRepo = new ArchiForge.Decisioning.Repositories.InMemoryFindingsSnapshotRepository();
-        var manifestRepo = new ArchiForge.Decisioning.Repositories.InMemoryGoldenManifestRepository();
-        var traceRepo = new ArchiForge.Decisioning.Repositories.InMemoryDecisionTraceRepository();
-        var engines = new ArchiForge.Decisioning.Interfaces.IFindingEngine[]
+        var findingsRepo = new Decisioning.Repositories.InMemoryFindingsSnapshotRepository();
+        var manifestRepo = new Decisioning.Repositories.InMemoryGoldenManifestRepository();
+        var traceRepo = new Decisioning.Repositories.InMemoryDecisionTraceRepository();
+        var engines = new Decisioning.Interfaces.IFindingEngine[]
         {
             new ArchiForge.Decisioning.Services.RequirementFindingEngine(),
             new ArchiForge.Decisioning.Services.TopologySanityFindingEngine()
         };
         var findingsOrchestrator = new ArchiForge.Decisioning.Services.FindingsOrchestrator(engines, findingsRepo);
-        var ruleProvider = new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider();
+        var ruleProvider = new Decisioning.Rules.InMemoryDecisionRuleProvider();
         var decisionEngine = new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
             ruleProvider,
-            new ArchiForge.Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
+            new Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
             new ArchiForge.Decisioning.Services.GoldenManifestValidator(),
             manifestRepo,
             traceRepo);

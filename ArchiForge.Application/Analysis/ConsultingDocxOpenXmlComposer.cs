@@ -742,7 +742,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         var relationshipId = mainPart.GetIdOfPart(imagePart);
 
-        var drawing = new DocumentFormat.OpenXml.Wordprocessing.Drawing(
+        var drawing = new Drawing(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
                 new EffectExtent

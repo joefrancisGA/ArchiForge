@@ -11,7 +11,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
     public ComparisonRecordRepository(IDbConnectionFactory connectionFactory)
     {
         _connectionFactory = connectionFactory;
-        Infrastructure.ListStringTypeHandler.Register();
+        ListStringTypeHandler.Register();
     }
 
     public async Task CreateAsync(

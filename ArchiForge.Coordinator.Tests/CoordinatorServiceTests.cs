@@ -52,9 +52,9 @@ public sealed class CoordinatorServiceTests
         Assert.True(result.Success);
         Assert.NotNull(result.Run);
         Assert.Equal(4, result.Tasks.Count);
-        Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Topology);
-        Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Cost);
-        Assert.Contains(result.Tasks, t => t.AgentType == ArchiForge.Contracts.Common.AgentType.Compliance);
+        Assert.Contains(result.Tasks, t => t.AgentType == Contracts.Common.AgentType.Topology);
+        Assert.Contains(result.Tasks, t => t.AgentType == Contracts.Common.AgentType.Cost);
+        Assert.Contains(result.Tasks, t => t.AgentType == Contracts.Common.AgentType.Compliance);
     }
 
     private sealed class NullContextIngestionService : IContextIngestionService

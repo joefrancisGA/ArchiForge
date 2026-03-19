@@ -24,8 +24,8 @@ public sealed class ComparisonsController(
     IRunExportRecordRepository runExportRecordRepository,
     IComparisonRecordRepository comparisonRecordRepository,
     IComparisonReplayApiService comparisonReplayApiService,
-    Application.Analysis.IDriftReportFormatter driftReportFormatter,
-    Application.Analysis.DriftReportDocxExport driftReportDocxExport,
+    IDriftReportFormatter driftReportFormatter,
+    DriftReportDocxExport driftReportDocxExport,
     ILogger<ComparisonsController> logger)
     : ControllerBase
 {
@@ -201,7 +201,7 @@ public sealed class ComparisonsController(
         var sortBy = query.SortBy ?? "createdUtc";
         var sortDir = query.SortDir ?? "desc";
 
-        IReadOnlyList<ArchiForge.Contracts.Metadata.ComparisonRecord> records;
+        IReadOnlyList<Contracts.Metadata.ComparisonRecord> records;
         if (!string.IsNullOrWhiteSpace(query.Cursor))
         {
             records = await comparisonRecordRepository.SearchByCursorAsync(

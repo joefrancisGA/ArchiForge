@@ -227,18 +227,18 @@ public sealed class RealRuntimeMixedModeTests
         var coordinator = new CoordinatorService(
             new NullContextIngestionService(),
             new NullKnowledgeGraphService(),
-            new ArchiForge.Decisioning.Services.FindingsOrchestrator(
+            new Decisioning.Services.FindingsOrchestrator(
                 [
-                    new ArchiForge.Decisioning.Services.RequirementFindingEngine(),
-                    new ArchiForge.Decisioning.Services.TopologySanityFindingEngine()
+                    new Decisioning.Services.RequirementFindingEngine(),
+                    new Decisioning.Services.TopologySanityFindingEngine()
                 ],
-                new ArchiForge.Decisioning.Repositories.InMemoryFindingsSnapshotRepository()),
-            new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
-                new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider(),
-                new ArchiForge.Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
-                new ArchiForge.Decisioning.Services.GoldenManifestValidator(),
-                new ArchiForge.Decisioning.Repositories.InMemoryGoldenManifestRepository(),
-                new ArchiForge.Decisioning.Repositories.InMemoryDecisionTraceRepository()));
+                new Decisioning.Repositories.InMemoryFindingsSnapshotRepository()),
+            new Decisioning.Services.RuleBasedDecisionEngine(
+                new Decisioning.Rules.InMemoryDecisionRuleProvider(),
+                new Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
+                new Decisioning.Services.GoldenManifestValidator(),
+                new Decisioning.Repositories.InMemoryGoldenManifestRepository(),
+                new Decisioning.Repositories.InMemoryDecisionTraceRepository()));
         var coordination = coordinator.CreateRun(request);
 
         // Force known IDs used in stub payloads

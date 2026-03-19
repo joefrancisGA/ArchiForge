@@ -1,6 +1,6 @@
 namespace ArchiForge.ContextIngestion.Interfaces;
 
-using ArchiForge.ContextIngestion.Models;
+using Models;
 
 public interface IContextIngestionService
 {

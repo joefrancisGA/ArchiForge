@@ -26,7 +26,7 @@ public sealed class ManifestsController(
     IManifestDiffExportService manifestDiffExportService,
     IDiagramGenerator diagramGenerator,
     IManifestSummaryGenerator summaryGenerator,
-    ArchiForge.Application.Summaries.IManifestSummaryService manifestSummaryService,
+    IManifestSummaryService manifestSummaryService,
     IArchitectureExportService exportService,
     IAgentEvidencePackageRepository agentEvidencePackageRepository)
     : ControllerBase
@@ -286,7 +286,7 @@ public sealed class ManifestsController(
                 ProblemTypes.ValidationFailed);
         }
 
-        var options = new ArchiForge.Application.Summaries.ManifestSummaryOptions
+        var options = new ManifestSummaryOptions
         {
             IncludeRelationships = includeRelationships,
             IncludeRequiredControls = includeRequiredControls,

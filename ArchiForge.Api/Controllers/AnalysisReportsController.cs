@@ -30,12 +30,9 @@ public sealed class AnalysisReportsController(
     IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
     IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
     AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
-    IBackgroundJobQueue jobs,
-    ILogger<AnalysisReportsController> logger)
+    IBackgroundJobQueue jobs)
     : ControllerBase
 {
-    private readonly ILogger<AnalysisReportsController> _logger = logger;
-
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -213,7 +210,7 @@ public sealed class AnalysisReportsController(
         // requested profile key and recommendation inputs.
         var resolved = consultingDocxExportProfileSelector.Resolve(
             request.Profile,
-            new ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest());
+            new Application.Analysis.ConsultingDocxProfileRecommendationRequest());
 
         return Ok(new ConsultingDocxResolveProfileResponse
         {

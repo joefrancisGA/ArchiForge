@@ -8,7 +8,7 @@ public interface IArchitectureRunRepository
     Task<ArchitectureRun?> GetByIdAsync(string runId, CancellationToken cancellationToken = default);
     Task UpdateStatusAsync(
         string runId,
-        ArchiForge.Contracts.Common.ArchitectureRunStatus status,
+        Contracts.Common.ArchitectureRunStatus status,
         string? currentManifestVersion = null,
         DateTime? completedUtc = null,
         CancellationToken cancellationToken = default);

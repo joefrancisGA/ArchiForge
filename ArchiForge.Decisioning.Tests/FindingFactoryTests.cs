@@ -13,7 +13,7 @@ public sealed class FindingFactoryTests
             "requirement", "t", "r", "N", "text", true);
 
         f.FindingSchemaVersion.Should().Be(FindingsSchema.CurrentFindingVersion);
-        f.PayloadType.Should().Be(nameof(ArchiForge.Decisioning.Findings.Payloads.RequirementFindingPayload));
+        f.PayloadType.Should().Be(nameof(Findings.Payloads.RequirementFindingPayload));
         f.Category.Should().Be("Requirement");
     }
 }
