@@ -37,8 +37,8 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         }
 
         decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));
-        decisions.Add(BuildSecurityControlsDecision(runId, topologyTask, topologyResult, evaluations));
-        decisions.Add(BuildComplexityDecision(runId, topologyTask, topologyResult, evaluations));
+        decisions.Add(BuildSecurityControlsDecision(runId, topologyTask, evaluations));
+        decisions.Add(BuildComplexityDecision(runId, topologyTask, evaluations));
 
         return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
     }
@@ -110,7 +110,6 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
     private static DecisionNode BuildSecurityControlsDecision(
         string runId,
         AgentTask topologyTask,
-        AgentResult topologyResult,
         IReadOnlyCollection<AgentEvaluation> evaluations)
     {
         var relevant = evaluations
@@ -163,7 +162,6 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
     private static DecisionNode BuildComplexityDecision(
         string runId,
         AgentTask topologyTask,
-        AgentResult topologyResult,
         IReadOnlyCollection<AgentEvaluation> evaluations)
     {
         var relevant = evaluations

@@ -939,7 +939,7 @@ namespace ArchiForge.Cli
 
             var resp = result.Response!;
             var version = resp.Manifest.Metadata.ManifestVersion;
-            Console.WriteLine($"Committed: {resp.Manifest.SystemName ?? runId}");
+            Console.WriteLine($"Committed: {resp.Manifest.SystemName}");
             Console.WriteLine($"Manifest version: {version}");
             if (resp.Warnings.Count > 0)
             {

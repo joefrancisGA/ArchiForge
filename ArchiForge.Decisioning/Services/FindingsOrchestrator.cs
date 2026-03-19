@@ -114,7 +114,7 @@ public class FindingsOrchestrator(
         {
         }
 
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
+        public IDisposable BeginScope<TState>(TState state) where TState : notnull => NullScope.Instance;
 
         public bool IsEnabled(LogLevel logLevel) => false;
 
@@ -129,6 +129,7 @@ public class FindingsOrchestrator(
 
         private sealed class NullScope : IDisposable
         {
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public static readonly NullScope Instance = new();
             public void Dispose()
             {

@@ -19,7 +19,6 @@ public sealed class ArchitectureApplicationServiceTests
     private readonly Mock<IAgentResultRepository> _resultRepository;
     private readonly Mock<IGoldenManifestRepository> _manifestRepository;
     private readonly Mock<IArchitectureRequestRepository> _requestRepository;
-    private readonly Mock<ILogger<ArchitectureApplicationService>> _logger;
     private readonly ArchitectureApplicationService _sut;
 
     public ArchitectureApplicationServiceTests()
@@ -29,7 +28,7 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository = new Mock<IAgentResultRepository>();
         _manifestRepository = new Mock<IGoldenManifestRepository>();
         _requestRepository = new Mock<IArchitectureRequestRepository>();
-        _logger = new Mock<ILogger<ArchitectureApplicationService>>();
+        var logger = new Mock<ILogger<ArchitectureApplicationService>>();
 
         _sut = new ArchitectureApplicationService(
             _runRepository.Object,
@@ -37,7 +36,7 @@ public sealed class ArchitectureApplicationServiceTests
             _resultRepository.Object,
             _manifestRepository.Object,
             _requestRepository.Object,
-            _logger.Object);
+            logger.Object);
     }
 
     private static ArchitectureRequest ValidRequest() => new()
@@ -455,7 +454,6 @@ public sealed class ArchitectureApplicationServiceTests
         var run = ValidRun();
         var request = ValidRequest();
         var tasks = new List<AgentTask> { ValidTask(), ValidTask("run-1", AgentType.Cost), ValidTask("run-1", AgentType.Compliance) };
-        var fakeResults = new List<AgentResult> { ValidResult(), ValidResult("run-1", AgentType.Cost), ValidResult("run-1", AgentType.Compliance) };
 
         _runRepository.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>())).ReturnsAsync(run);
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);

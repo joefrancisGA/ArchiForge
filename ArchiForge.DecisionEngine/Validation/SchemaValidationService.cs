@@ -14,7 +14,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
     public SchemaValidationService(
         ILogger<SchemaValidationService> logger,
-        IOptions<SchemaValidationOptions> options)
+        IOptions<SchemaValidationOptions>? options)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
@@ -174,7 +174,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         {
             foreach (var kvp in evaluation.Errors)
             {
-                var message = kvp.Value ?? "(no message)";
+                var message = kvp.Value;
                 var location = evaluation.InstanceLocation.ToString();
                 if (string.IsNullOrEmpty(location))
                     location = "(root)";

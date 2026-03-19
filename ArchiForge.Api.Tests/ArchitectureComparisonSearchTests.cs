@@ -68,9 +68,6 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task SearchComparisons_CursorPaging_ReturnsNextPage()
     {
-        ComparisonHistoryResponseDto page1;
-        ComparisonHistoryResponseDto page2;
-
         using (var scope = _factory.Services.CreateScope())
         {
             var repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
@@ -90,14 +87,14 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             }
         }
 
-        page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        var page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortBy=createdUtc&sortDir=desc&limit=2",
             JsonOptions))!;
 
         page1.Records.Should().HaveCount(2);
         page1.NextCursor.Should().NotBeNullOrWhiteSpace();
 
-        page2 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        var page2 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             $"/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortBy=createdUtc&sortDir=desc&limit=2&cursor={Uri.EscapeDataString(page1.NextCursor!)}",
             JsonOptions))!;
 

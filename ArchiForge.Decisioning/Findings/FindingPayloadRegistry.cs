@@ -18,6 +18,6 @@ public static class FindingPayloadRegistry
     {
         if (string.IsNullOrWhiteSpace(payloadTypeName))
             return null;
-        return ByPayloadTypeName.TryGetValue(payloadTypeName, out var t) ? t : null;
+        return ByPayloadTypeName.GetValueOrDefault(payloadTypeName);
     }
 }

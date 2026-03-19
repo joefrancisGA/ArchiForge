@@ -34,15 +34,12 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
                 : new ExplainabilityTrace()
         };
 
-        if (root.TryGetProperty("payload", out var payloadEl) && payloadEl.ValueKind != JsonValueKind.Null)
-        {
-            var typeName = finding.PayloadType;
-            var payloadType = FindingPayloadRegistry.ResolvePayloadType(typeName);
-            if (payloadType is not null)
-                finding.Payload = JsonSerializer.Deserialize(payloadEl.GetRawText(), payloadType, options);
-            else
-                finding.Payload = payloadEl.Clone();
-        }
+        if (!root.TryGetProperty("payload", out var payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
+            return finding;
+
+        var typeName = finding.PayloadType;
+        var payloadType = FindingPayloadRegistry.ResolvePayloadType(typeName);
+        finding.Payload = payloadType is not null ? JsonSerializer.Deserialize(payloadEl.GetRawText(), payloadType, options) : payloadEl.Clone();
 
         return finding;
     }
