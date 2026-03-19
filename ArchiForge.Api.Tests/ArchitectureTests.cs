@@ -1,10 +1,11 @@
+using System.Text.Json;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
-using System.Text.Json;
-using ArchiForge.Api.Tests;
+
+namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
 public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)

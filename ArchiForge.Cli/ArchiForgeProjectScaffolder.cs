@@ -32,7 +32,7 @@ README.md
 
 
 
-namespace ArchiForge;
+namespace ArchiForge.Cli;
 
 
 

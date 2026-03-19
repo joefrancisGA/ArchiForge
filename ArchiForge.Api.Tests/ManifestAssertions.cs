@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 
-namespace ArchiForge.Api.Tests.Fixtures;
+namespace ArchiForge.Api.Tests;
 
 public static class ManifestAssertions
 {

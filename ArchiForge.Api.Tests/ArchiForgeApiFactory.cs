@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
+namespace ArchiForge.Api.Tests;
+
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
     /// <summary>Shared in-memory DB string; integration tests that touch SQLite directly must use the same value.</summary>

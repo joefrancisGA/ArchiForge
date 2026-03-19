@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
+namespace ArchiForge.Api.Tests;
 
 public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<ArchiForgeApiFactory>
 {

@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Interfaces;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 

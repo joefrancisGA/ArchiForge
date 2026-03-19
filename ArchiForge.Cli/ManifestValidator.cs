@@ -2,7 +2,7 @@ using System.Text.Json;
 using Json.More;
 using Json.Schema;
 
-namespace ArchiForge;
+namespace ArchiForge.Cli;
 
 public static class ManifestValidator
 {

@@ -1,3 +1,5 @@
+using ArchiForge.Decisioning.Manifest.Sections;
+
 namespace ArchiForge.Decisioning.Models;
 
 public class GoldenManifest

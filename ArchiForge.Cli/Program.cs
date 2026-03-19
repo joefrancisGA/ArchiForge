@@ -3,7 +3,7 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 
-namespace ArchiForge
+namespace ArchiForge.Cli
 {
     public static class Program
     {

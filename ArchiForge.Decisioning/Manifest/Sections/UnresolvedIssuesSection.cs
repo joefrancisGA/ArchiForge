@@ -1,4 +1,4 @@
-namespace ArchiForge.Decisioning.Models;
+namespace ArchiForge.Decisioning.Manifest.Sections;
 
 public class UnresolvedIssuesSection
 {

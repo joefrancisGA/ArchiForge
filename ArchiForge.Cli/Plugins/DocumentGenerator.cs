@@ -1,4 +1,4 @@
-namespace ArchiForge.Plugins
+namespace ArchiForge.Cli.Plugins
 {
     internal class DocumentGenerator
     {
