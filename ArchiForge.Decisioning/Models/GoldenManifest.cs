@@ -11,11 +11,11 @@ public class GoldenManifest
 
     public DateTime CreatedUtc { get; set; }
 
-    public string ManifestHash { get; set; } = default!;
+    public string ManifestHash { get; set; } = null!;
 
-    public string RuleSetId { get; set; } = default!;
-    public string RuleSetVersion { get; set; } = default!;
-    public string RuleSetHash { get; set; } = default!;
+    public string RuleSetId { get; set; } = null!;
+    public string RuleSetVersion { get; set; } = null!;
+    public string RuleSetHash { get; set; } = null!;
 
     public ManifestMetadata Metadata { get; set; } = new();
     public RequirementsCoverageSection Requirements { get; set; } = new();

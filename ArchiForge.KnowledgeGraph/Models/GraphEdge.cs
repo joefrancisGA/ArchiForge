@@ -2,12 +2,12 @@ namespace ArchiForge.KnowledgeGraph.Models;
 
 public class GraphEdge
 {
-    public string EdgeId { get; set; } = default!;
+    public string EdgeId { get; set; } = null!;
 
-    public string FromNodeId { get; set; } = default!;
+    public string FromNodeId { get; set; } = null!;
 
-    public string ToNodeId { get; set; } = default!;
+    public string ToNodeId { get; set; } = null!;
 
-    public string EdgeType { get; set; } = default!;
+    public string EdgeType { get; set; } = null!;
 }
 

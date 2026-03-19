@@ -731,8 +731,6 @@ namespace ArchiForge
             if (string.IsNullOrWhiteSpace(value)) return CloudProvider.Azure;
             return value.Trim().ToLowerInvariant() switch
             {
-                "azure" => CloudProvider.Azure,
-                "1" => CloudProvider.Azure,
                 _ => CloudProvider.Azure
             };
         }

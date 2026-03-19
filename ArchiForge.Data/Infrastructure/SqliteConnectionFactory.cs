@@ -10,7 +10,7 @@ namespace ArchiForge.Data.Infrastructure;
 /// </summary>
 public sealed class SqliteConnectionFactory(string connectionString) : IDbConnectionFactory
 {
-    private static readonly object SchemaLock = new();
+    private static readonly Lock SchemaLock = new();
     private static readonly HashSet<string> InitializedDatabases = [];
 
     public IDbConnection CreateConnection()

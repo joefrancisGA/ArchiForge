@@ -52,8 +52,8 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             {
                 var groups = manifest.Services
                     .GroupBy(s => groupBy == "runtimeplatform"
-                        ? (s.RuntimePlatform.ToString() ?? "Unknown")
-                        : (s.ServiceType.ToString() ?? "Unknown"), StringComparer.OrdinalIgnoreCase)
+                        ? (s.RuntimePlatform.ToString())
+                        : (s.ServiceType.ToString()), StringComparer.OrdinalIgnoreCase)
                     .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var g in groups)
@@ -185,7 +185,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         return cleaned;
     }
 
-    private static string EscapeLabel(string value) => (value ?? string.Empty).Replace("\"", "\\\"");
+    private static string EscapeLabel(string value) => (value).Replace("\"", "\\\"");
 
     private static string NormalizeLayout(string? value)
     {
@@ -193,7 +193,6 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         return v switch
         {
             "TB" => "TB",
-            "LR" => "LR",
             _ => "LR"
         };
     }
@@ -204,7 +203,6 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         return v switch
         {
             "none" => "none",
-            "type" => "type",
             _ => "type"
         };
     }
@@ -216,7 +214,6 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         {
             "runtimeplatform" => "runtimeplatform",
             "servicetype" => "servicetype",
-            "none" => "none",
             _ => "none"
         };
     }

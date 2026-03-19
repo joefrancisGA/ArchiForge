@@ -170,21 +170,21 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("#### System Prompt");
                 sb.AppendLine();
                 sb.AppendLine("```text");
-                sb.AppendLine(trace.SystemPrompt ?? string.Empty);
+                sb.AppendLine(trace.SystemPrompt);
                 sb.AppendLine("```");
                 sb.AppendLine();
 
                 sb.AppendLine("#### User Prompt");
                 sb.AppendLine();
                 sb.AppendLine("```text");
-                sb.AppendLine(trace.UserPrompt ?? string.Empty);
+                sb.AppendLine(trace.UserPrompt);
                 sb.AppendLine("```");
                 sb.AppendLine();
 
                 sb.AppendLine("#### Raw Response");
                 sb.AppendLine();
                 sb.AppendLine("```json");
-                sb.AppendLine(trace.RawResponse ?? string.Empty);
+                sb.AppendLine(trace.RawResponse);
                 sb.AppendLine("```");
                 sb.AppendLine();
 

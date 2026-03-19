@@ -92,12 +92,6 @@ public sealed class CoordinatorService(
     {
         var errors = new List<string>();
 
-        if (request is null)
-        {
-            errors.Add("Architecture request is required.");
-            return errors;
-        }
-
         if (string.IsNullOrWhiteSpace(request.RequestId))
             errors.Add("RequestId is required.");
 
