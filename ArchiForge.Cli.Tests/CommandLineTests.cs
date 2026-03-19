@@ -13,7 +13,7 @@ public sealed class CommandLineTests
             var exitCode = await Program.RunAsync([]);
 
             exitCode.Should().Be(1);
-            var output = outWriter.ToString() + errWriter.ToString();
+            var output = outWriter + errWriter.ToString();
             output.Should().Contain("Please provide a command");
             output.Should().Contain("Available commands");
         }
@@ -32,7 +32,7 @@ public sealed class CommandLineTests
             var exitCode = await Program.RunAsync(["invalid"]);
 
             exitCode.Should().Be(1);
-            var output = outWriter.ToString() + errWriter.ToString();
+            var output = outWriter + errWriter.ToString();
             output.Should().Contain("Unknown command");
             output.Should().Contain("invalid");
         }
@@ -51,7 +51,7 @@ public sealed class CommandLineTests
             var exitCode = await Program.RunAsync(["health"]);
 
             exitCode.Should().Be(1);
-            var output = outWriter.ToString() + errWriter.ToString();
+            var output = outWriter + errWriter.ToString();
             (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach"))
                 .Should().BeTrue("output should contain 'FAIL', 'Cannot connect', or 'Cannot reach'");
         }
@@ -70,7 +70,7 @@ public sealed class CommandLineTests
         {
             Directory.SetCurrentDirectory(temp.Path);
 
-            RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+            RedirectConsole(out _, out _, out var prevOut, out var prevErr);
             try
             {
                 var exitCode = await Program.RunAsync(["new", "TestProject"]);

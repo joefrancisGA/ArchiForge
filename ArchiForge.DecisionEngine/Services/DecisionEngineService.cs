@@ -666,7 +666,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             RuntimePlatform = source.RuntimePlatform,
             Purpose = source.Purpose,
             Tags = source.Tags.ToList(),
-            RequiredControls = source.RequiredControls.ToList() ?? []
+            RequiredControls = source.RequiredControls.ToList()
         };
 
     private static ManifestDatastore CloneDatastore(ManifestDatastore source) =>

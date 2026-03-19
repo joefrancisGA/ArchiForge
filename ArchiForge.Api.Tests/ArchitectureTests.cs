@@ -10,7 +10,7 @@ namespace ArchiForge.Api.Tests;
 [Trait("Category", "Integration")]
 public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    private static readonly DecisionEngineService _engine = new(new PassthroughSchemaValidationService());
+    private static readonly DecisionEngineService Engine = new(new PassthroughSchemaValidationService());
 
     [Fact]
     public async Task CreateArchitectureRun_ShouldReturnRunId()
@@ -102,7 +102,7 @@ public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBa
             FixtureLoader.Load<ExpectedManifestSummary>(
                 "expected/expected-manifest-summary.json");
 
-        var result = _engine.MergeResults(
+        var result = Engine.MergeResults(
             "RUN-FIXTURE",
             request,
             "v1",
