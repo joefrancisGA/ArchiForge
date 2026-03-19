@@ -6,6 +6,6 @@ public class RequirementCoverageItem
     public string RequirementText { get; set; } = default!;
     public bool IsMandatory { get; set; }
     public string CoverageStatus { get; set; } = default!;
-    public List<string> SupportingFindingIds { get; set; } = new();
+    public List<string> SupportingFindingIds { get; set; } = [];
 }
 

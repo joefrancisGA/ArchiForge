@@ -11,8 +11,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
         {
             RuleSetId = "in-memory",
             Version = "1",
-            Rules = new List<DecisionRule>
-            {
+            Rules =
+            [
                 new DecisionRule
                 {
                     Name = "Promote requirement findings",
@@ -21,6 +21,7 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     AppliesToFindingType = "RequirementFinding",
                     Action = "require"
                 },
+
                 new DecisionRule
                 {
                     Name = "Warn on topology gaps",
@@ -29,6 +30,7 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     AppliesToFindingType = "TopologyGap",
                     Action = "allow"
                 },
+
                 new DecisionRule
                 {
                     Name = "Track security control findings",
@@ -37,6 +39,7 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     AppliesToFindingType = "SecurityControlFinding",
                     Action = "allow"
                 },
+
                 new DecisionRule
                 {
                     Name = "Prefer cost constraint findings",
@@ -45,7 +48,7 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     AppliesToFindingType = "CostConstraintFinding",
                     Action = "prefer"
                 }
-            }
+            ]
         };
 
         ruleSet.ComputeHash();

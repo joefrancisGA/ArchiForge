@@ -22,13 +22,12 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
         payload.Run.RequestId.Should().Be("REQ-API-001");
         payload.Tasks.Should().HaveCount(4);
-        payload.Tasks.Select(t => t.AgentType).Should().Contain(new[]
-        {
+        payload.Tasks.Select(t => t.AgentType).Should().Contain([
             "Topology",
             "Cost",
             "Compliance",
             "Critic"
-        });
+        ]);
     }
 
     [Fact]

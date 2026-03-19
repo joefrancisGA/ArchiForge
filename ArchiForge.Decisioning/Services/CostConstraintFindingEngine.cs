@@ -41,7 +41,7 @@ public class CostConstraintFindingEngine : IFindingEngine
                     : FindingSeverity.Info,
                 Title = $"Cost constraint: {node.Label}",
                 Rationale = "A cost constraint node was found and should constrain architecture choices.",
-                RelatedNodeIds = new List<string> { node.NodeId },
+                RelatedNodeIds = [node.NodeId],
                 PayloadType = nameof(CostConstraintFindingPayload),
                 Payload = new CostConstraintFindingPayload
                 {
@@ -51,8 +51,8 @@ public class CostConstraintFindingEngine : IFindingEngine
                 },
                 Trace = new ExplainabilityTrace
                 {
-                    GraphNodeIdsExamined = new List<string> { node.NodeId },
-                    DecisionsTaken = new List<string> { "Emitted cost constraint finding from graph node." }
+                    GraphNodeIdsExamined = [node.NodeId],
+                    DecisionsTaken = ["Emitted cost constraint finding from graph node."]
                 }
             });
         }

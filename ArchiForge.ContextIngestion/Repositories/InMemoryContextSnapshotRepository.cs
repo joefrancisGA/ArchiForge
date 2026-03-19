@@ -5,7 +5,7 @@ namespace ArchiForge.ContextIngestion.Repositories;
 
 public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
 {
-    private readonly List<ContextSnapshot> _store = new();
+    private readonly List<ContextSnapshot> _store = [];
 
     public Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)
     {

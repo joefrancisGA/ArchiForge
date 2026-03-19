@@ -64,6 +64,6 @@ public static class ReplayArtifactResponseFactory
             || string.Equals(result.Format, "html", StringComparison.OrdinalIgnoreCase))
             return System.Text.Encoding.UTF8.GetBytes(result.Content ?? string.Empty);
 
-        return result.BinaryContent ?? Array.Empty<byte>();
+        return result.BinaryContent ?? [];
     }
 }

@@ -20,8 +20,7 @@ public sealed class ApiKeyAuthenticationHandler(
         if (!enabled)
         {
             // When disabled, include full permissions so policy-protected endpoints continue to work locally.
-            var identity = new ClaimsIdentity(new[]
-            {
+            var identity = new ClaimsIdentity([
                 new Claim(ClaimTypes.Name, "DevUser"),
                 new Claim("permission", "commit:run"),
                 new Claim("permission", "seed:results"),
@@ -29,7 +28,7 @@ public sealed class ApiKeyAuthenticationHandler(
                 new Claim("permission", "metrics:read"),
                 new Claim("permission", "replay:comparisons"),
                 new Claim("permission", "replay:diagnostics")
-            }, Scheme.Name);
+            ], Scheme.Name);
             var principal = new ClaimsPrincipal(identity);
             var ticket = new AuthenticationTicket(principal, Scheme.Name);
             return Task.FromResult(AuthenticateResult.Success(ticket));

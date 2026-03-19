@@ -6,7 +6,7 @@ namespace ArchiForge.Decisioning.Repositories;
 
 public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
 {
-    private readonly List<string> _store = new();
+    private readonly List<string> _store = [];
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = false

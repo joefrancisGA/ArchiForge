@@ -27,11 +27,11 @@ public sealed class CoordinatorServiceTests
         var findingsRepo = new InMemoryFindingsSnapshotRepository();
         var manifestRepo = new InMemoryGoldenManifestRepository();
         var traceRepo = new InMemoryDecisionTraceRepository();
-        IEnumerable<IFindingEngine> engines = new IFindingEngine[]
-        {
+        IEnumerable<IFindingEngine> engines =
+        [
             new RequirementFindingEngine(),
             new TopologySanityFindingEngine()
-        };
+        ];
         var findingsOrchestrator = new FindingsOrchestrator(engines, findingsRepo);
         var ruleProvider = new InMemoryDecisionRuleProvider();
         var decisionEngine = new RuleBasedDecisionEngine(

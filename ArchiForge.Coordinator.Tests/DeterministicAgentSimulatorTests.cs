@@ -55,13 +55,12 @@ public sealed class DeterministicAgentSimulatorTests
             coordination.Tasks);
 
         results.Should().HaveCount(4);
-        results.Select(r => r.AgentType).Should().Contain(new[]
-        {
+        results.Select(r => r.AgentType).Should().Contain([
             ArchiForge.Contracts.Common.AgentType.Topology,
             ArchiForge.Contracts.Common.AgentType.Cost,
             ArchiForge.Contracts.Common.AgentType.Compliance,
             ArchiForge.Contracts.Common.AgentType.Critic
-        });
+        ]);
     }
 
     [Fact]

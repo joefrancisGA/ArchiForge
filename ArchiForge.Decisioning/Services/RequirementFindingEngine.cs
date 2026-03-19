@@ -31,16 +31,13 @@ public class RequirementFindingEngine : IFindingEngine
                 requirementName: node.Label,
                 requirementText: requirementText ?? string.Empty,
                 isMandatory: true,
-                relatedNodeIds: new[] { node.NodeId });
+                relatedNodeIds: [node.NodeId]);
 
             finding.RecommendedActions.Add("Carry this requirement into the GoldenManifest.");
             finding.Trace = new ExplainabilityTrace
             {
-                GraphNodeIdsExamined = new List<string> { node.NodeId },
-                DecisionsTaken = new List<string>
-                {
-                    "Promote requirement into candidate architecture decision input."
-                }
+                GraphNodeIdsExamined = [node.NodeId],
+                DecisionsTaken = ["Promote requirement into candidate architecture decision input."]
             };
 
             findings.Add(finding);

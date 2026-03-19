@@ -11,7 +11,7 @@ public class FindingsSnapshot
     public Guid GraphSnapshotId { get; set; }
     public DateTime CreatedUtc { get; set; }
 
-    public List<Finding> Findings { get; set; } = new();
+    public List<Finding> Findings { get; set; } = [];
 
     public IReadOnlyList<Finding> GetByCategory(string category)
         => Findings

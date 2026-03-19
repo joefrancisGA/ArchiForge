@@ -228,11 +228,10 @@ public sealed class RealRuntimeMixedModeTests
             new NullContextIngestionService(),
             new NullKnowledgeGraphService(),
             new ArchiForge.Decisioning.Services.FindingsOrchestrator(
-                new ArchiForge.Decisioning.Interfaces.IFindingEngine[]
-                {
+                [
                     new ArchiForge.Decisioning.Services.RequirementFindingEngine(),
                     new ArchiForge.Decisioning.Services.TopologySanityFindingEngine()
-                },
+                ],
                 new ArchiForge.Decisioning.Repositories.InMemoryFindingsSnapshotRepository()),
             new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
                 new ArchiForge.Decisioning.Rules.InMemoryDecisionRuleProvider(),

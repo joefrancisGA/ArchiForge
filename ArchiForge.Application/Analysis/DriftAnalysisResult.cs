@@ -4,7 +4,7 @@ public sealed class DriftAnalysisResult
 {
     public bool DriftDetected { get; set; }
 
-    public List<DriftItem> Items { get; set; } = new();
+    public List<DriftItem> Items { get; set; } = [];
 
     public string Summary { get; set; } = string.Empty;
 }

@@ -81,7 +81,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
     private static List<string> ReadStringList(JsonElement root, string name)
     {
         if (!root.TryGetProperty(name, out var el) || el.ValueKind != JsonValueKind.Array)
-            return new List<string>();
+            return [];
         return el.EnumerateArray().Select(e => e.GetString() ?? "").Where(s => s.Length > 0).ToList();
     }
 

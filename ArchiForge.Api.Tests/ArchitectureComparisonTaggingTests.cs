@@ -42,7 +42,7 @@ public sealed class ArchitectureComparisonTaggingTests(ArchiForgeApiFactory fact
 
         var updated = await patch.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         updated!.Record.Label.Should().Be("incident-99");
-        updated.Record.Tags.Should().Contain(new[] { "incident", "urgent" });
+        updated.Record.Tags.Should().Contain(["incident", "urgent"]);
 
         var byTag = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?tags=incident,urgent&limit=50",

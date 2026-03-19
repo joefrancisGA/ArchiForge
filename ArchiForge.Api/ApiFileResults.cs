@@ -21,11 +21,11 @@ public static class ApiFileResults
         string contentType,
         string fileName)
     {
-        return new FileWithRangeResult(request, bytes ?? Array.Empty<byte>(), contentType, fileName);
+        return new FileWithRangeResult(request, bytes ?? [], contentType, fileName);
     }
 
     /// <summary>Standard download without range support (e.g. small ZIP payloads).</summary>
     public static IActionResult SimpleBytes(byte[]? bytes, string contentType, string fileName) =>
-        new FileContentResult(bytes ?? Array.Empty<byte>(), contentType) { FileDownloadName = fileName };
+        new FileContentResult(bytes ?? [], contentType) { FileDownloadName = fileName };
 }
 

@@ -5,7 +5,7 @@ namespace ArchiForge.KnowledgeGraph.Repositories;
 
 public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 {
-    private readonly List<GraphSnapshot> _store = new();
+    private readonly List<GraphSnapshot> _store = [];
 
     public Task SaveAsync(GraphSnapshot snapshot, CancellationToken ct)
     {

@@ -10,9 +10,9 @@ public class DecisionTrace
     public string RuleSetVersion { get; set; } = string.Empty;
     public string RuleSetHash { get; set; } = string.Empty;
 
-    public List<string> AppliedRuleIds { get; set; } = new();
-    public List<string> AcceptedFindingIds { get; set; } = new();
-    public List<string> RejectedFindingIds { get; set; } = new();
-    public List<string> Notes { get; set; } = new();
+    public List<string> AppliedRuleIds { get; set; } = [];
+    public List<string> AcceptedFindingIds { get; set; } = [];
+    public List<string> RejectedFindingIds { get; set; } = [];
+    public List<string> Notes { get; set; } = [];
 }
 

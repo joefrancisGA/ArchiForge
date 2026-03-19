@@ -105,7 +105,7 @@ public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBa
             "RUN-FIXTURE",
             request,
             "v1",
-            new[] { topology, cost, compliance },
+            [topology, cost, compliance],
             evaluations: [],
             decisionNodes: []);
 

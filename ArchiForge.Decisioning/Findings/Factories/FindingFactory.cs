@@ -23,7 +23,7 @@ public static class FindingFactory
             Severity = FindingSeverity.Info,
             Title = title,
             Rationale = rationale,
-            RelatedNodeIds = relatedNodeIds?.ToList() ?? new List<string>(),
+            RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
             {
@@ -53,7 +53,7 @@ public static class FindingFactory
             Severity = severity,
             Title = title,
             Rationale = rationale,
-            RelatedNodeIds = relatedNodeIds?.ToList() ?? new List<string>(),
+            RelatedNodeIds = relatedNodeIds?.ToList() ?? [],
             PayloadType = nameof(TopologyGapFindingPayload),
             Payload = new TopologyGapFindingPayload
             {

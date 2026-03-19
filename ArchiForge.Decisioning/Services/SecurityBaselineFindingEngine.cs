@@ -36,7 +36,7 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                     : FindingSeverity.Info,
                 Title = $"Security baseline control: {node.Label}",
                 Rationale = "A security baseline node was found in the graph and should influence resolved architecture decisions.",
-                RelatedNodeIds = new List<string> { node.NodeId },
+                RelatedNodeIds = [node.NodeId],
                 PayloadType = nameof(SecurityControlFindingPayload),
                 Payload = new SecurityControlFindingPayload
                 {
@@ -49,11 +49,8 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 },
                 Trace = new ExplainabilityTrace
                 {
-                    GraphNodeIdsExamined = new List<string> { node.NodeId },
-                    DecisionsTaken = new List<string>
-                    {
-                        "Converted security graph node into a security finding."
-                    }
+                    GraphNodeIdsExamined = [node.NodeId],
+                    DecisionsTaken = ["Converted security graph node into a security finding."]
                 }
             });
         }

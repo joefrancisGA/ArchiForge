@@ -25,9 +25,9 @@ public class GoldenManifest
     public ConstraintSection Constraints { get; set; } = new();
     public UnresolvedIssuesSection UnresolvedIssues { get; set; } = new();
 
-    public List<ResolvedArchitectureDecision> Decisions { get; set; } = new();
-    public List<string> Assumptions { get; set; } = new();
-    public List<string> Warnings { get; set; } = new();
+    public List<ResolvedArchitectureDecision> Decisions { get; set; } = [];
+    public List<string> Assumptions { get; set; } = [];
+    public List<string> Warnings { get; set; } = [];
 
     public ManifestProvenance Provenance { get; set; } = new();
 }

@@ -5,7 +5,7 @@ namespace ArchiForge.Decisioning.Repositories;
 
 public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 {
-    private readonly List<GoldenManifest> _store = new();
+    private readonly List<GoldenManifest> _store = [];
 
     public Task SaveAsync(GoldenManifest manifest, CancellationToken ct)
     {

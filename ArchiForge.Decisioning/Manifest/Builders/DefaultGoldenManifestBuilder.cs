@@ -64,7 +64,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 RequirementText = payload.RequirementText,
                 IsMandatory = payload.IsMandatory,
                 CoverageStatus = "Covered",
-                SupportingFindingIds = new List<string> { finding.FindingId }
+                SupportingFindingIds = [finding.FindingId]
             };
 
             manifest.Requirements.Covered.Add(item);
@@ -75,7 +75,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 Title = payload.RequirementName,
                 SelectedOption = "Accepted",
                 Rationale = payload.RequirementText,
-                SupportingFindingIds = new List<string> { finding.FindingId }
+                SupportingFindingIds = [finding.FindingId]
             });
         }
     }
@@ -96,7 +96,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 Title = finding.Title,
                 Description = payload?.Impact ?? finding.Rationale,
                 Severity = finding.Severity.ToString(),
-                SupportingFindingIds = new List<string> { finding.FindingId }
+                SupportingFindingIds = [finding.FindingId]
             });
         }
     }
@@ -126,7 +126,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     Title = $"Missing security control: {payload.ControlName}",
                     Description = payload.Impact,
                     Severity = finding.Severity.ToString(),
-                    SupportingFindingIds = new List<string> { finding.FindingId }
+                    SupportingFindingIds = [finding.FindingId]
                 });
 
                 manifest.Decisions.Add(new ResolvedArchitectureDecision
@@ -135,7 +135,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     Title = $"Enforce control: {payload.ControlName}",
                     SelectedOption = "RequiredRemediation",
                     Rationale = payload.Impact,
-                    SupportingFindingIds = new List<string> { finding.FindingId }
+                    SupportingFindingIds = [finding.FindingId]
                 });
             }
         }

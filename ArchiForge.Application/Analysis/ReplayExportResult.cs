@@ -12,7 +12,7 @@ public sealed class ReplayExportResult
 
     public string FileName { get; set; } = string.Empty;
 
-    public byte[] Content { get; set; } = Array.Empty<byte>();
+    public byte[] Content { get; set; } = [];
 
     public string? TemplateProfile { get; set; }
 

@@ -7,6 +7,6 @@ public class ResolvedArchitectureDecision
     public string Title { get; set; } = default!;
     public string SelectedOption { get; set; } = default!;
     public string Rationale { get; set; } = default!;
-    public List<string> SupportingFindingIds { get; set; } = new();
+    public List<string> SupportingFindingIds { get; set; } = [];
 }
 

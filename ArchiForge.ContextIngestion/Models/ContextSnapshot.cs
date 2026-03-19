@@ -8,13 +8,13 @@ public class ContextSnapshot
 
     public DateTime CreatedUtc { get; set; }
 
-    public List<CanonicalObject> CanonicalObjects { get; set; } = new();
+    public List<CanonicalObject> CanonicalObjects { get; set; } = [];
 
     public string? DeltaSummary { get; set; }
 
-    public List<string> Warnings { get; set; } = new();
+    public List<string> Warnings { get; set; } = [];
 
-    public List<string> Errors { get; set; } = new();
+    public List<string> Errors { get; set; } = [];
 
     public Dictionary<string, string> SourceHashes { get; set; } = new();
 }

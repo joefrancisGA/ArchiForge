@@ -181,8 +181,7 @@ internal static class ConsultingDocxOpenXmlComposer
         AddStyledParagraph(body, "This document was generated from the ArchiForge analysis pipeline.", "BodyText");
         AddSpacer(body, 1);
 
-        AddKeyValueTable(body, new[]
-        {
+        AddKeyValueTable(body, [
             ("Document Type", "Architecture Analysis Report"),
             ("Run ID", report.Run.RunId),
             ("Request ID", report.Run.RequestId),
@@ -190,7 +189,7 @@ internal static class ConsultingDocxOpenXmlComposer
             ("Created UTC", report.Run.CreatedUtc.ToString("O")),
             ("Completed UTC", report.Run.CompletedUtc?.ToString("O") ?? "n/a"),
             ("Manifest Version", report.Run.CurrentManifestVersion ?? "n/a")
-        });
+        ]);
     }
 
     private static void AddTableOfContentsPlaceholder(Body body)
@@ -393,14 +392,13 @@ internal static class ConsultingDocxOpenXmlComposer
 
         var gov = report.Manifest.Governance;
 
-        AddKeyValueTable(body, new[]
-        {
+        AddKeyValueTable(body, [
             ("Risk Classification", gov.RiskClassification ?? "n/a"),
             ("Cost Classification", gov.CostClassification ?? "n/a"),
             ("Required Controls", gov.RequiredControls.Count > 0 ? string.Join(", ", gov.RequiredControls) : "None"),
             ("Compliance Tags", gov.ComplianceTags.Count > 0 ? string.Join(", ", gov.ComplianceTags) : "None"),
             ("Policy Constraints", gov.PolicyConstraints.Count > 0 ? string.Join(", ", gov.PolicyConstraints) : "None")
-        });
+        ]);
     }
 
     private static void AddExplainabilitySection(

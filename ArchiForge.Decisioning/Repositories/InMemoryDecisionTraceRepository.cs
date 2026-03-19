@@ -5,7 +5,7 @@ namespace ArchiForge.Decisioning.Repositories;
 
 public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
-    private readonly List<DecisionTrace> _store = new();
+    private readonly List<DecisionTrace> _store = [];
 
     public Task SaveAsync(DecisionTrace trace, CancellationToken ct)
     {

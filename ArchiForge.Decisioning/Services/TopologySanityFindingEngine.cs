@@ -33,10 +33,7 @@ public class TopologySanityFindingEngine : IFindingEngine
             finding.RecommendedActions.Add("Ingest topology resources before architecture synthesis.");
             finding.Trace = new ExplainabilityTrace
             {
-                DecisionsTaken = new List<string>
-                {
-                    "Marked graph as incomplete for deployment-level decisions."
-                }
+                DecisionsTaken = ["Marked graph as incomplete for deployment-level decisions."]
             };
 
             findings.Add(finding);

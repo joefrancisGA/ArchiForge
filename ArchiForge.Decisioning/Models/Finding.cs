@@ -14,8 +14,8 @@ public class Finding
     public string Title { get; set; } = default!;
     public string Rationale { get; set; } = default!;
 
-    public List<string> RelatedNodeIds { get; set; } = new();
-    public List<string> RecommendedActions { get; set; } = new();
+    public List<string> RelatedNodeIds { get; set; } = [];
+    public List<string> RecommendedActions { get; set; } = [];
 
     public Dictionary<string, string> Properties { get; set; } = new();
 
