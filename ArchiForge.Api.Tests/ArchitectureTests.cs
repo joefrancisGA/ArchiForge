@@ -4,26 +4,13 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
-using Moq;
 using System.Text;
 using System.Text.Json;
 using Xunit;
 
 public class ArchitectureTests : IntegrationTestBase
 {
-    private static readonly DecisionEngineService _engine = new(CreatePassthroughSchemaValidation());
-
-    private static ISchemaValidationService CreatePassthroughSchemaValidation()
-    {
-        var mock = new Mock<ISchemaValidationService>();
-        mock.Setup(s => s.ValidateAgentResultJson(It.IsAny<string>())).Returns(new SchemaValidationResult());
-        mock.Setup(s => s.ValidateGoldenManifestJson(It.IsAny<string>())).Returns(new SchemaValidationResult());
-        mock.Setup(s => s.ValidateAgentResultJsonAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SchemaValidationResult());
-        mock.Setup(s => s.ValidateGoldenManifestJsonAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SchemaValidationResult());
-        return mock.Object;
-    }
+    private static readonly DecisionEngineService _engine = new(new PassthroughSchemaValidationService());
 
     public ArchitectureTests(ArchiForgeApiFactory factory)
         : base(factory)

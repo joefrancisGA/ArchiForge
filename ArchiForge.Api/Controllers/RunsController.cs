@@ -241,6 +241,7 @@ public sealed class RunsController : ControllerBase
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [Authorize(Policy = "CanCommitRuns")]
     public async Task<IActionResult> CommitRun(
         [FromRoute] string runId,

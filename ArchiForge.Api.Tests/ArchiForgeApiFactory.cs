@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
-    private const string SqliteInMemoryConnectionString = "Data Source=file:archiforge-test?mode=memory&cache=shared";
+    /// <summary>Shared in-memory DB string; integration tests that touch SQLite directly must use the same value.</summary>
+    public const string SqliteInMemoryConnectionString = "Data Source=file:archiforge-test?mode=memory&cache=shared";
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

@@ -1,32 +1,19 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
-using ArchiForge.Contracts.Findings;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
-using Moq;
 using Xunit;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
-public sealed class DecisionEngineServiceTests
+/// <summary>Broader merge scenarios (formerly in Api.Tests). Uses passthrough schema validation.</summary>
+public sealed class DecisionEngineServiceScenarioTests
 {
-    private readonly DecisionEngineService _service = new(CreatePassthroughSchemaValidation());
-
-    private static ISchemaValidationService CreatePassthroughSchemaValidation()
-    {
-        var mock = new Mock<ISchemaValidationService>();
-        mock.Setup(s => s.ValidateAgentResultJson(It.IsAny<string>())).Returns(new SchemaValidationResult());
-        mock.Setup(s => s.ValidateGoldenManifestJson(It.IsAny<string>())).Returns(new SchemaValidationResult());
-        mock.Setup(s => s.ValidateAgentResultJsonAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SchemaValidationResult());
-        mock.Setup(s => s.ValidateGoldenManifestJsonAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new SchemaValidationResult());
-        return mock.Object;
-    }
+    private readonly DecisionEngineService _service = new(new PassthroughSchemaValidationService());
 
     [Fact]
     public void MergeResults_ValidTopologyAndCompliance_CreatesManifest()

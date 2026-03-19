@@ -21,11 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
     <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\schemas\*.json" LinkBase="schemas" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

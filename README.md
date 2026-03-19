@@ -68,6 +68,8 @@ Rate limiting is applied to `/v1/architecture/*` endpoints. Defaults: 100 reques
 dotnet test
 ```
 
+See **[docs/BUILD.md](docs/BUILD.md)** for CPM, project-reference audits, and DecisionEngine’s Microsoft.Extensions bundle.
+
 Integration tests use in-memory SQLite by default—no SQL Server required. The schema is created automatically.
 
 **Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).

@@ -15,6 +15,10 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 `GET`/`POST` routes under `/v1/architecture/run/compare/end-to-end/...` that resolve runs by ID return **404** with problem type **`#run-not-found`** when a referenced run does not exist (not generic `#resource-not-found`).
 
+## Commit run — conflict
+
+`POST /v1/architecture/run/{runId}/commit` returns **409 Conflict** with problem type **`#conflict`** when the run is in Failed status, already committed, or otherwise not in a state that allows commit.
+
 ## OpenAPI / .NET 10
 
-Swagger documents the comparison replay **422** response. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.
+Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` on commit. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.

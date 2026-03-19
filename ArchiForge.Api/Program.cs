@@ -74,6 +74,7 @@ namespace ArchiForge.Api
                 c.SwaggerDoc("v1", new() { Title = "ArchiForge API", Version = "v1" });
                 c.OperationFilter<ArchiForge.Api.Swagger.ReplayExamplesOperationFilter>();
                 c.OperationFilter<ArchiForge.Api.Swagger.ComparisonHistoryQueryOperationFilter>();
+                c.OperationFilter<ArchiForge.Api.Swagger.ProblemDetailsResponsesOperationFilter>();
             });
 
             builder.Services.AddAuthentication("ApiKey")
