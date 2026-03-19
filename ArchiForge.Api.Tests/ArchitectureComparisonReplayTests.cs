@@ -6,13 +6,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureComparisonReplayTests : IntegrationTestBase
+public sealed class ArchitectureComparisonReplayTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureComparisonReplayTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task ReplayComparison_RecreatesPersistedEndToEndComparisonAsMarkdown()
     {

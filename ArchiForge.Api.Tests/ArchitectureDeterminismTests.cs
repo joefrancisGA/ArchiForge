@@ -6,13 +6,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureDeterminismTests : IntegrationTestBase
+public sealed class ArchitectureDeterminismTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureDeterminismTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task DeterminismCheck_ReturnsResult()
     {

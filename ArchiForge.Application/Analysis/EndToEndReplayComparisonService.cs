@@ -3,43 +3,25 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class EndToEndReplayComparisonService : IEndToEndReplayComparisonService
+public sealed class EndToEndReplayComparisonService(
+    IArchitectureRunRepository runRepository,
+    IAgentResultRepository agentResultRepository,
+    IGoldenManifestRepository manifestRepository,
+    IRunExportRecordRepository runExportRecordRepository,
+    IAgentResultDiffService agentResultDiffService,
+    IManifestDiffService manifestDiffService,
+    IExportRecordDiffService exportRecordDiffService)
+    : IEndToEndReplayComparisonService
 {
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentResultRepository _agentResultRepository;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IRunExportRecordRepository _runExportRecordRepository;
-    private readonly IAgentResultDiffService _agentResultDiffService;
-    private readonly IManifestDiffService _manifestDiffService;
-    private readonly IExportRecordDiffService _exportRecordDiffService;
-
-    public EndToEndReplayComparisonService(
-        IArchitectureRunRepository runRepository,
-        IAgentResultRepository agentResultRepository,
-        IGoldenManifestRepository manifestRepository,
-        IRunExportRecordRepository runExportRecordRepository,
-        IAgentResultDiffService agentResultDiffService,
-        IManifestDiffService manifestDiffService,
-        IExportRecordDiffService exportRecordDiffService)
-    {
-        _runRepository = runRepository;
-        _agentResultRepository = agentResultRepository;
-        _manifestRepository = manifestRepository;
-        _runExportRecordRepository = runExportRecordRepository;
-        _agentResultDiffService = agentResultDiffService;
-        _manifestDiffService = manifestDiffService;
-        _exportRecordDiffService = exportRecordDiffService;
-    }
-
     public async Task<EndToEndReplayComparisonReport> BuildAsync(
         string leftRunId,
         string rightRunId,
         CancellationToken cancellationToken = default)
     {
-        var leftRun = await _runRepository.GetByIdAsync(leftRunId, cancellationToken)
+        var leftRun = await runRepository.GetByIdAsync(leftRunId, cancellationToken)
             ?? throw new RunNotFoundException(leftRunId);
 
-        var rightRun = await _runRepository.GetByIdAsync(rightRunId, cancellationToken)
+        var rightRun = await runRepository.GetByIdAsync(rightRunId, cancellationToken)
             ?? throw new RunNotFoundException(rightRunId);
 
         var report = new EndToEndReplayComparisonReport
@@ -49,12 +31,12 @@ public sealed class EndToEndReplayComparisonService : IEndToEndReplayComparisonS
             RunDiff = BuildRunDiff(leftRun, rightRun)
         };
 
-        var leftResults = await _agentResultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        var rightResults = await _agentResultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        var leftResults = await agentResultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        var rightResults = await agentResultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
 
         if (leftResults.Count > 0 || rightResults.Count > 0)
         {
-            report.AgentResultDiff = _agentResultDiffService.Compare(
+            report.AgentResultDiff = agentResultDiffService.Compare(
                 leftRunId,
                 leftResults,
                 rightRunId,
@@ -68,17 +50,17 @@ public sealed class EndToEndReplayComparisonService : IEndToEndReplayComparisonS
         if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) &&
             !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
         {
-            var leftManifest = await _manifestRepository.GetByVersionAsync(
+            var leftManifest = await manifestRepository.GetByVersionAsync(
                 leftRun.CurrentManifestVersion,
                 cancellationToken);
 
-            var rightManifest = await _manifestRepository.GetByVersionAsync(
+            var rightManifest = await manifestRepository.GetByVersionAsync(
                 rightRun.CurrentManifestVersion,
                 cancellationToken);
 
             if (leftManifest is not null && rightManifest is not null)
             {
-                report.ManifestDiff = _manifestDiffService.Compare(leftManifest, rightManifest);
+                report.ManifestDiff = manifestDiffService.Compare(leftManifest, rightManifest);
             }
             else
             {
@@ -86,14 +68,14 @@ public sealed class EndToEndReplayComparisonService : IEndToEndReplayComparisonS
             }
         }
 
-        var leftExports = await _runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        var rightExports = await _runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        var leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        var rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
 
         var exportPairs = Math.Min(leftExports.Count, rightExports.Count);
 
         for (var i = 0; i < exportPairs; i++)
         {
-            report.ExportDiffs.Add(_exportRecordDiffService.Compare(leftExports[i], rightExports[i]));
+            report.ExportDiffs.Add(exportRecordDiffService.Compare(leftExports[i], rightExports[i]));
         }
 
         if (leftExports.Count != rightExports.Count)

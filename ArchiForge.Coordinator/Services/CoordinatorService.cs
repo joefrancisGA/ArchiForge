@@ -10,25 +10,13 @@ using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.Coordinator.Services;
 
-public sealed class CoordinatorService : ICoordinatorService
+public sealed class CoordinatorService(
+    IContextIngestionService contextIngestionService,
+    IKnowledgeGraphService knowledgeGraphService,
+    IFindingsOrchestrator findingsOrchestrator,
+    IDecisionEngine decisionEngine)
+    : ICoordinatorService
 {
-    private readonly IContextIngestionService _contextIngestionService;
-    private readonly IKnowledgeGraphService _knowledgeGraphService;
-    private readonly IFindingsOrchestrator _findingsOrchestrator;
-    private readonly IDecisionEngine _decisionEngine;
-
-    public CoordinatorService(
-        IContextIngestionService contextIngestionService,
-        IKnowledgeGraphService knowledgeGraphService,
-        IFindingsOrchestrator findingsOrchestrator,
-        IDecisionEngine decisionEngine)
-    {
-        _contextIngestionService = contextIngestionService;
-        _knowledgeGraphService = knowledgeGraphService;
-        _findingsOrchestrator = findingsOrchestrator;
-        _decisionEngine = decisionEngine;
-    }
-
     public CoordinationResult CreateRun(ArchitectureRequest request)
     {
         var output = new CoordinationResult();
@@ -51,21 +39,21 @@ public sealed class CoordinatorService : ICoordinatorService
             Description = request.Description
         };
 
-        var contextSnapshot = _contextIngestionService
+        var contextSnapshot = contextIngestionService
             .IngestAsync(ingestionRequest, CancellationToken.None)
             .GetAwaiter()
             .GetResult();
 
         run.ContextSnapshotId = contextSnapshot.SnapshotId.ToString("N");
 
-        var graphSnapshot = _knowledgeGraphService
+        var graphSnapshot = knowledgeGraphService
             .BuildSnapshotAsync(contextSnapshot, CancellationToken.None)
             .GetAwaiter()
             .GetResult();
 
         run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
 
-        var findingsSnapshot = _findingsOrchestrator
+        var findingsSnapshot = findingsOrchestrator
             .GenerateFindingsSnapshotAsync(
                 Guid.Parse(runId),
                 contextSnapshot.SnapshotId,
@@ -76,7 +64,7 @@ public sealed class CoordinatorService : ICoordinatorService
 
         run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
 
-        var decisionResult = _decisionEngine
+        var decisionResult = decisionEngine
             .DecideAsync(
                 Guid.Parse(runId),
                 contextSnapshot.SnapshotId,

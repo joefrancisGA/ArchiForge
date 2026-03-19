@@ -4,18 +4,12 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class RunExportAuditService : IRunExportAuditService
+public sealed class RunExportAuditService(IRunExportRecordRepository repository) : IRunExportAuditService
 {
-    private readonly IRunExportRecordRepository _repository;
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
-
-    public RunExportAuditService(IRunExportRecordRepository repository)
-    {
-        _repository = repository;
-    }
 
     public async Task<RunExportRecord> RecordAsync(
         string runId,
@@ -61,7 +55,7 @@ public sealed class RunExportAuditService : IRunExportAuditService
             CreatedUtc = DateTime.UtcNow
         };
 
-        await _repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken);
 
         return record;
     }

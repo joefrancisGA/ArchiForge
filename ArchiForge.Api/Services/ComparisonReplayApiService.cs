@@ -5,22 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Services;
 
-public sealed class ComparisonReplayApiService : IComparisonReplayApiService
+public sealed class ComparisonReplayApiService(
+    IComparisonReplayService inner,
+    IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
+    ILogger<ComparisonReplayApiService> logger)
+    : IComparisonReplayApiService
 {
-    private readonly IComparisonReplayService _inner;
-    private readonly IReplayDiagnosticsRecorder _replayDiagnosticsRecorder;
-    private readonly ILogger<ComparisonReplayApiService> _logger;
-
-    public ComparisonReplayApiService(
-        IComparisonReplayService inner,
-        IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
-        ILogger<ComparisonReplayApiService> logger)
-    {
-        _inner = inner;
-        _replayDiagnosticsRecorder = replayDiagnosticsRecorder;
-        _logger = logger;
-    }
-
     public async Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
         bool metadataOnly,
@@ -31,10 +21,10 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
         var sw = Stopwatch.StartNew();
         try
         {
-            var result = await _inner.ReplayAsync(request, cancellationToken);
+            var result = await inner.ReplayAsync(request, cancellationToken);
             sw.Stop();
 
-            _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+            replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
             {
                 TimestampUtc = DateTime.UtcNow,
                 ComparisonRecordId = request.ComparisonRecordId,
@@ -49,7 +39,7 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
                 MetadataOnly = metadataOnly
             });
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
                 request.ComparisonRecordId,
                 result.ComparisonType,
@@ -66,7 +56,7 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
         {
             sw.Stop();
 
-            _replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
+            replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
             {
                 TimestampUtc = DateTime.UtcNow,
                 ComparisonRecordId = request.ComparisonRecordId,
@@ -82,7 +72,7 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
 
             var notFound = ex is RunNotFoundException
                 || (ex is InvalidOperationException && ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase));
-            _logger.LogWarning(
+            logger.LogWarning(
                 ex,
                 "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",
                 request.ComparisonRecordId,
@@ -98,7 +88,7 @@ public sealed class ComparisonReplayApiService : IComparisonReplayApiService
         string comparisonRecordId,
         CancellationToken cancellationToken = default)
     {
-        return _inner.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        return inner.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
     }
 }
 

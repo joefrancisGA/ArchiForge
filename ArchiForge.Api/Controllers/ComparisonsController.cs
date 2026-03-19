@@ -20,33 +20,17 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [Authorize(AuthenticationSchemes = "ApiKey")]
-public sealed class ComparisonsController : ControllerBase
+public sealed class ComparisonsController(
+    IArchitectureRunRepository runRepository,
+    IRunExportRecordRepository runExportRecordRepository,
+    IComparisonRecordRepository comparisonRecordRepository,
+    IComparisonReplayApiService comparisonReplayApiService,
+    Application.Analysis.IDriftReportFormatter driftReportFormatter,
+    Application.Analysis.DriftReportDocxExport driftReportDocxExport,
+    ILogger<ComparisonsController> logger)
+    : ControllerBase
 {
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IRunExportRecordRepository _runExportRecordRepository;
-    private readonly IComparisonRecordRepository _comparisonRecordRepository;
-    private readonly IComparisonReplayApiService _comparisonReplayApiService;
-    private readonly Application.Analysis.IDriftReportFormatter _driftReportFormatter;
-    private readonly Application.Analysis.DriftReportDocxExport _driftReportDocxExport;
-    private readonly ILogger<ComparisonsController> _logger;
-
-    public ComparisonsController(
-        IArchitectureRunRepository runRepository,
-        IRunExportRecordRepository runExportRecordRepository,
-        IComparisonRecordRepository comparisonRecordRepository,
-        IComparisonReplayApiService comparisonReplayApiService,
-        Application.Analysis.IDriftReportFormatter driftReportFormatter,
-        Application.Analysis.DriftReportDocxExport driftReportDocxExport,
-        ILogger<ComparisonsController> logger)
-    {
-        _runRepository = runRepository;
-        _runExportRecordRepository = runExportRecordRepository;
-        _comparisonRecordRepository = comparisonRecordRepository;
-        _comparisonReplayApiService = comparisonReplayApiService;
-        _driftReportFormatter = driftReportFormatter;
-        _driftReportDocxExport = driftReportDocxExport;
-        _logger = logger;
-    }
+    private readonly ILogger<ComparisonsController> _logger = logger;
 
     private static readonly ComparisonHistoryQueryValidator ComparisonHistoryValidator = new();
 
@@ -97,13 +81,13 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var records = await _comparisonRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+        var records = await comparisonRecordRepository.GetByRunIdAsync(runId, cancellationToken);
 
         return Ok(new ComparisonHistoryResponse
         {
@@ -118,13 +102,13 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string exportRecordId,
         CancellationToken cancellationToken)
     {
-        var export = await _runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        var export = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (export is null)
         {
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
         }
 
-        var records = await _comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, cancellationToken);
+        var records = await comparisonRecordRepository.GetByExportRecordIdAsync(exportRecordId, cancellationToken);
 
         return Ok(new ComparisonHistoryResponse
         {
@@ -139,7 +123,7 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         if (record is null)
         {
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -158,7 +142,7 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         if (record is null)
         {
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -175,7 +159,7 @@ public sealed class ComparisonsController : ControllerBase
             });
         }
 
-        var replay = await _comparisonReplayApiService.ReplayAsync(
+        var replay = await comparisonReplayApiService.ReplayAsync(
             new AppReplayComparisonRequest
             {
                 ComparisonRecordId = comparisonRecordId,
@@ -221,7 +205,7 @@ public sealed class ComparisonsController : ControllerBase
         IReadOnlyList<ArchiForge.Contracts.Metadata.ComparisonRecord> records;
         if (!string.IsNullOrWhiteSpace(query.Cursor))
         {
-            records = await _comparisonRecordRepository.SearchByCursorAsync(
+            records = await comparisonRecordRepository.SearchByCursorAsync(
                 normalizedType,
                 query.LeftRunId,
                 query.RightRunId,
@@ -240,7 +224,7 @@ public sealed class ComparisonsController : ControllerBase
         }
         else
         {
-            records = await _comparisonRecordRepository.SearchAsync(
+            records = await comparisonRecordRepository.SearchAsync(
                 normalizedType,
                 query.LeftRunId,
                 query.RightRunId,
@@ -291,11 +275,11 @@ public sealed class ComparisonsController : ControllerBase
         CancellationToken cancellationToken = default)
     {
         request ??= new UpdateComparisonRecordRequest();
-        var exists = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        var exists = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         if (exists is null)
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var updated = await _comparisonRecordRepository.UpdateLabelAndTagsAsync(
+        var updated = await comparisonRecordRepository.UpdateLabelAndTagsAsync(
             comparisonRecordId,
             request.Label,
             request.Tags,
@@ -303,7 +287,7 @@ public sealed class ComparisonsController : ControllerBase
         if (!updated)
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var record = await _comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
+        var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         return Ok(new ComparisonRecordResponse { Record = record! });
     }
 
@@ -324,7 +308,7 @@ public sealed class ComparisonsController : ControllerBase
         request ??= new ApiReplayComparisonRequest();
         if (!string.IsNullOrWhiteSpace(format) && string.IsNullOrWhiteSpace(request.Format))
             request.Format = format;
-        var result = await _comparisonReplayApiService.ReplayAsync(
+        var result = await comparisonReplayApiService.ReplayAsync(
             new AppReplayComparisonRequest
             {
                 ComparisonRecordId = comparisonRecordId,
@@ -389,7 +373,7 @@ public sealed class ComparisonsController : ControllerBase
         [FromRoute] string comparisonRecordId,
         CancellationToken cancellationToken)
     {
-        var drift = await _comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        var drift = await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
         return Ok(MapDriftAnalysis(drift));
     }
 
@@ -403,22 +387,22 @@ public sealed class ComparisonsController : ControllerBase
         [FromQuery] string format = "markdown",
         CancellationToken cancellationToken = default)
     {
-        var drift = await _comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
+        var drift = await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
         var normalizedFormat = (format ?? "markdown").Trim().ToLowerInvariant();
 
         if (normalizedFormat == "markdown")
         {
-            var content = _driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
+            var content = driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
             return ApiFileResults.RangeText(Request, content, "text/markdown", $"drift-report_{comparisonRecordId}.md");
         }
         if (normalizedFormat == "html")
         {
-            var content = _driftReportFormatter.FormatHtml(drift, comparisonRecordId);
+            var content = driftReportFormatter.FormatHtml(drift, comparisonRecordId);
             return ApiFileResults.RangeText(Request, content, "text/html", $"drift-report_{comparisonRecordId}.html");
         }
         if (normalizedFormat == "docx")
         {
-            var bytes = _driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
+            var bytes = driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
             return ApiFileResults.RangeBytes(
                 Request,
                 bytes,
@@ -443,7 +427,7 @@ public sealed class ComparisonsController : ControllerBase
         CancellationToken cancellationToken)
     {
         request ??= new ApiReplayComparisonRequest();
-        var result = await _comparisonReplayApiService.ReplayAsync(
+        var result = await comparisonReplayApiService.ReplayAsync(
             new AppReplayComparisonRequest
             {
                 ComparisonRecordId = comparisonRecordId,
@@ -536,7 +520,7 @@ public sealed class ComparisonsController : ControllerBase
         {
             foreach (var id in request.ComparisonRecordIds.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var result = await _comparisonReplayApiService.ReplayAsync(
+                var result = await comparisonReplayApiService.ReplayAsync(
                     new AppReplayComparisonRequest
                     {
                         ComparisonRecordId = id,

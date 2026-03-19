@@ -7,13 +7,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureAnalysisDocxTests : IntegrationTestBase
+public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {

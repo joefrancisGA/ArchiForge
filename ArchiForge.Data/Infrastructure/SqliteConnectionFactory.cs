@@ -8,28 +8,22 @@ namespace ArchiForge.Data.Infrastructure;
 /// Creates SQLite connections, typically for in-memory testing.
 /// Ensures schema exists on first connection.
 /// </summary>
-public sealed class SqliteConnectionFactory : IDbConnectionFactory
+public sealed class SqliteConnectionFactory(string connectionString) : IDbConnectionFactory
 {
-    private readonly string _connectionString;
     private static readonly object SchemaLock = new();
     private static readonly HashSet<string> InitializedDatabases = [];
-
-    public SqliteConnectionFactory(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
 
     public IDbConnection CreateConnection()
     {
         EnsureSchema();
-        return new SqliteConnection(_connectionString);
+        return new SqliteConnection(connectionString);
     }
 
     private void EnsureSchema()
     {
         lock (SchemaLock)
         {
-            if (!InitializedDatabases.Add(_connectionString))
+            if (!InitializedDatabases.Add(connectionString))
                 return;
         }
 
@@ -40,7 +34,7 @@ public sealed class SqliteConnectionFactory : IDbConnectionFactory
         using var reader = new StreamReader(stream);
         var schema = reader.ReadToEnd();
 
-        using var connection = new SqliteConnection(_connectionString);
+        using var connection = new SqliteConnection(connectionString);
         connection.Open();
         using var cmd = connection.CreateCommand();
         cmd.CommandText = schema;

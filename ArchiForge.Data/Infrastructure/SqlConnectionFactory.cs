@@ -4,15 +4,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace ArchiForge.Data.Infrastructure;
 
-public sealed class SqlConnectionFactory : IDbConnectionFactory
+public sealed class SqlConnectionFactory(IConfiguration configuration) : IDbConnectionFactory
 {
-    private readonly string _connectionString;
-
-    public SqlConnectionFactory(IConfiguration configuration)
-    {
-        _connectionString = configuration.GetConnectionString("ArchiForge")
-            ?? throw new InvalidOperationException("Connection string 'ArchiForge' was not found.");
-    }
+    private readonly string _connectionString = configuration.GetConnectionString("ArchiForge")
+                                                ?? throw new InvalidOperationException("Connection string 'ArchiForge' was not found.");
 
     public IDbConnection CreateConnection()
     {

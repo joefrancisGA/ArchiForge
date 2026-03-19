@@ -9,7 +9,14 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Services;
 
-public sealed class ArchitectureApplicationService : IArchitectureApplicationService
+public sealed class ArchitectureApplicationService(
+    IArchitectureRunRepository runRepository,
+    IAgentTaskRepository taskRepository,
+    IAgentResultRepository resultRepository,
+    IGoldenManifestRepository manifestRepository,
+    IArchitectureRequestRepository requestRepository,
+    ILogger<ArchitectureApplicationService> logger)
+    : IArchitectureApplicationService
 {
     /// <summary>Agent types that must each have exactly one result before a run can transition to ReadyForCommit.</summary>
     private static readonly HashSet<AgentType> RequiredAgentTypes = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
@@ -18,40 +25,17 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
     private static readonly HashSet<ArchitectureRunStatus> ResultSubmissionAllowedStatuses =
         [ArchitectureRunStatus.TasksGenerated, ArchitectureRunStatus.WaitingForResults];
 
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentTaskRepository _taskRepository;
-    private readonly IAgentResultRepository _resultRepository;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IArchitectureRequestRepository _requestRepository;
-    private readonly ILogger<ArchitectureApplicationService> _logger;
-
-    public ArchitectureApplicationService(
-        IArchitectureRunRepository runRepository,
-        IAgentTaskRepository taskRepository,
-        IAgentResultRepository resultRepository,
-        IGoldenManifestRepository manifestRepository,
-        IArchitectureRequestRepository requestRepository,
-        ILogger<ArchitectureApplicationService> logger)
-    {
-        _runRepository = runRepository;
-        _taskRepository = taskRepository;
-        _resultRepository = resultRepository;
-        _manifestRepository = manifestRepository;
-        _requestRepository = requestRepository;
-        _logger = logger;
-    }
-
     public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
             return null;
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
             return null;
 
-        var tasksTask = _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var resultsTask = _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasksTask = taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var resultsTask = resultRepository.GetByRunIdAsync(runId, cancellationToken);
         await Task.WhenAll(tasksTask, resultsTask);
         var tasks = await tasksTask;
         var results = await resultsTask;
@@ -65,7 +49,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         if (result is null)
             return new SubmitResultResult(false, null, "Agent result is required.");
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return new SubmitResultResult(false, null, $"Run '{runId}' was not found.");
@@ -84,8 +68,8 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
                 $"Result RunId '{result.RunId}' does not match route runId '{runId}'.");
         }
 
-        var tasksTask = _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var existingResultsTask = _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasksTask = taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var existingResultsTask = resultRepository.GetByRunIdAsync(runId, cancellationToken);
         await Task.WhenAll(tasksTask, existingResultsTask);
         var tasks = await tasksTask;
         var existingResults = await existingResultsTask;
@@ -109,10 +93,10 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
                 $"A result for task '{result.TaskId}' has already been submitted for this run.");
         }
 
-        await _resultRepository.CreateAsync(result, cancellationToken);
+        await resultRepository.CreateAsync(result, cancellationToken);
 
         // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-        var allResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
         var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
         var newStatus = hasAllRequiredAgentTypes
             ? ArchitectureRunStatus.ReadyForCommit
@@ -120,7 +104,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
         if (newStatus != run.Status)
         {
-            await _runRepository.UpdateStatusAsync(
+            await runRepository.UpdateStatusAsync(
                 runId,
                 newStatus,
                 currentManifestVersion: run.CurrentManifestVersion,
@@ -128,7 +112,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
                 cancellationToken: cancellationToken);
         }
 
-        _logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
+        logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
             runId, result.ResultId, result.AgentType, newStatus);
 
         return new SubmitResultResult(true, result.ResultId, null);
@@ -149,7 +133,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
 
     public async Task<GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
     {
-        return await _manifestRepository.GetByVersionAsync(version, cancellationToken);
+        return await manifestRepository.GetByVersionAsync(version, cancellationToken);
     }
 
     public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)
@@ -157,7 +141,7 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.");
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.");
@@ -170,40 +154,40 @@ public sealed class ArchitectureApplicationService : IArchitectureApplicationSer
                 $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.");
         }
 
-        var architectureRequest = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+        var architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
         {
             return new SeedFakeResultsResult(false, 0,
                 $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.");
         }
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         if (tasks.Count == 0)
         {
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.");
         }
 
-        var existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
         if (existingResults.Count > 0)
         {
-            _logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", runId, existingResults.Count);
+            logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", runId, existingResults.Count);
             return new SeedFakeResultsResult(true, 0, null);
         }
 
         var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
-        await _resultRepository.CreateManyAsync(fakeResults, cancellationToken);
+        await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
 
         var newStatus = HasAllRequiredAgentTypes(fakeResults)
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
-        await _runRepository.UpdateStatusAsync(
+        await runRepository.UpdateStatusAsync(
             runId,
             newStatus,
             currentManifestVersion: run.CurrentManifestVersion,
             completedUtc: null,
             cancellationToken: cancellationToken);
 
-        _logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
+        logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }

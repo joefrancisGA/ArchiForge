@@ -5,15 +5,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class ArchitectureRunRepository : IArchitectureRunRepository
+public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFactory) : IArchitectureRunRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public ArchitectureRunRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -41,7 +34,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
             );
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -75,7 +68,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
             WHERE RunId = @RunId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
             sql,
@@ -117,7 +110,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
             WHERE RunId = @RunId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -161,7 +154,7 @@ public sealed class ArchitectureRunRepository : IArchitectureRunRepository
             ORDER BY r.CreatedUtc DESC, r.RunId DESC;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
             sql,

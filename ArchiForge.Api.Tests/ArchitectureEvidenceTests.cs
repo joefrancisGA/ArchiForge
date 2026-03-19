@@ -6,13 +6,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureEvidenceTests : IntegrationTestBase
+public sealed class ArchitectureEvidenceTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureEvidenceTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {

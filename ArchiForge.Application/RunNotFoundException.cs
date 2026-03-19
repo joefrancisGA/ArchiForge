@@ -3,13 +3,7 @@ namespace ArchiForge.Application;
 /// <summary>
 /// Thrown when an architecture run ID does not exist. Maps to HTTP 404 with problem type <c>run-not-found</c>.
 /// </summary>
-public sealed class RunNotFoundException : Exception
+public sealed class RunNotFoundException(string runId) : Exception($"Run '{runId}' was not found.")
 {
-    public RunNotFoundException(string runId)
-        : base($"Run '{runId}' was not found.")
-    {
-        RunId = runId;
-    }
-
-    public string RunId { get; }
+    public string RunId { get; } = runId;
 }

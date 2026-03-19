@@ -7,13 +7,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureDiagramTests : IntegrationTestBase
+public sealed class ArchitectureDiagramTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureDiagramTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {

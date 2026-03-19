@@ -2,22 +2,12 @@ using ArchiForge.Application.Diffs;
 
 namespace ArchiForge.Application.Determinism;
 
-public sealed class DeterminismCheckService : IDeterminismCheckService
+public sealed class DeterminismCheckService(
+    IReplayRunService replayRunService,
+    IAgentResultDiffService agentResultDiffService,
+    IManifestDiffService manifestDiffService)
+    : IDeterminismCheckService
 {
-    private readonly IReplayRunService _replayRunService;
-    private readonly IAgentResultDiffService _agentResultDiffService;
-    private readonly IManifestDiffService _manifestDiffService;
-
-    public DeterminismCheckService(
-        IReplayRunService replayRunService,
-        IAgentResultDiffService agentResultDiffService,
-        IManifestDiffService manifestDiffService)
-    {
-        _replayRunService = replayRunService;
-        _agentResultDiffService = agentResultDiffService;
-        _manifestDiffService = manifestDiffService;
-    }
-
     public async Task<DeterminismCheckResult> RunAsync(
         DeterminismCheckRequest request,
         CancellationToken cancellationToken = default)
@@ -35,7 +25,7 @@ public sealed class DeterminismCheckService : IDeterminismCheckService
             ExecutionMode = request.ExecutionMode
         };
 
-        var baseline = await _replayRunService.ReplayAsync(
+        var baseline = await replayRunService.ReplayAsync(
             request.RunId,
             request.ExecutionMode,
             commitReplay: request.CommitReplays,
@@ -46,14 +36,14 @@ public sealed class DeterminismCheckService : IDeterminismCheckService
 
         for (var i = 1; i <= request.Iterations; i++)
         {
-            var replay = await _replayRunService.ReplayAsync(
+            var replay = await replayRunService.ReplayAsync(
                 request.RunId,
                 request.ExecutionMode,
                 commitReplay: request.CommitReplays,
                 manifestVersionOverride: request.CommitReplays ? $"determinism-{i}" : null,
                 cancellationToken: cancellationToken);
 
-            var agentDiff = _agentResultDiffService.Compare(
+            var agentDiff = agentResultDiffService.Compare(
                 baseline.ReplayRunId,
                 baseline.Results,
                 replay.ReplayRunId,
@@ -86,7 +76,7 @@ public sealed class DeterminismCheckService : IDeterminismCheckService
 
             if (baseline.Manifest is not null && replay.Manifest is not null)
             {
-                var manifestDiff = _manifestDiffService.Compare(baseline.Manifest, replay.Manifest);
+                var manifestDiff = manifestDiffService.Compare(baseline.Manifest, replay.Manifest);
 
                 var hasManifestDrift =
                     manifestDiff.AddedServices.Count > 0 ||

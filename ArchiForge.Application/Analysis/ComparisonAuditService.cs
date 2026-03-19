@@ -4,19 +4,12 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class ComparisonAuditService : IComparisonAuditService
+public sealed class ComparisonAuditService(IComparisonRecordRepository repository) : IComparisonAuditService
 {
-    private readonly IComparisonRecordRepository _repository;
-
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
-
-    public ComparisonAuditService(IComparisonRecordRepository repository)
-    {
-        _repository = repository;
-    }
 
     public async Task<string> RecordEndToEndAsync(
         EndToEndReplayComparisonReport report,
@@ -36,7 +29,7 @@ public sealed class ComparisonAuditService : IComparisonAuditService
             CreatedUtc = DateTime.UtcNow
         };
 
-        await _repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
 
@@ -60,7 +53,7 @@ public sealed class ComparisonAuditService : IComparisonAuditService
             CreatedUtc = DateTime.UtcNow
         };
 
-        await _repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
 
@@ -86,7 +79,7 @@ public sealed class ComparisonAuditService : IComparisonAuditService
             CreatedUtc = DateTime.UtcNow
         };
 
-        await _repository.CreateAsync(record, cancellationToken);
+        await repository.CreateAsync(record, cancellationToken);
         return record.ComparisonRecordId;
     }
 }

@@ -12,21 +12,14 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
-public sealed class DiagnosticsController : ControllerBase
+public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagnosticsRecorder) : ControllerBase
 {
-    private readonly IReplayDiagnosticsRecorder _replayDiagnosticsRecorder;
- 
-    public DiagnosticsController(IReplayDiagnosticsRecorder replayDiagnosticsRecorder)
-    {
-        _replayDiagnosticsRecorder = replayDiagnosticsRecorder;
-    }
- 
     [HttpGet("comparisons/diagnostics/replay")]
     [Authorize(Policy = "CanViewReplayDiagnostics")]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
     {
-        var entries = _replayDiagnosticsRecorder.GetRecent(Math.Clamp(maxCount, 1, 100));
+        var entries = replayDiagnosticsRecorder.GetRecent(Math.Clamp(maxCount, 1, 100));
         return Ok(new ReplayDiagnosticsResponse
         {
             RecentReplays = entries.Select(e => new ReplayDiagnosticsEntryDto

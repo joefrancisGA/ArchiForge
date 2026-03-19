@@ -11,20 +11,12 @@ using QuestPDF.Infrastructure;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class EndToEndReplayComparisonExportService
+public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayComparisonSummaryFormatter summaryFormatter)
     : IEndToEndReplayComparisonExportService
 {
-    private readonly IEndToEndReplayComparisonSummaryFormatter _summaryFormatter;
-
     static EndToEndReplayComparisonExportService()
     {
         QuestPDF.Settings.License = LicenseType.Community;
-    }
-
-    public EndToEndReplayComparisonExportService(
-        IEndToEndReplayComparisonSummaryFormatter summaryFormatter)
-    {
-        _summaryFormatter = summaryFormatter;
     }
 
     public string GenerateMarkdown(EndToEndReplayComparisonReport report, string? profile = null)
@@ -34,7 +26,7 @@ public sealed class EndToEndReplayComparisonExportService
         var sb = new StringBuilder();
 
         AppendMarkdownHeader(sb, report);
-        sb.AppendLine(_summaryFormatter.FormatMarkdown(report).Trim());
+        sb.AppendLine(summaryFormatter.FormatMarkdown(report).Trim());
         sb.AppendLine();
 
         if (EndToEndComparisonExportProfile.IsShort(p))
@@ -84,7 +76,7 @@ public sealed class EndToEndReplayComparisonExportService
         sb.AppendLine("<p class=\"meta\">Profile: " + EscapeHtml(p) + "</p>");
         sb.AppendLine("<hr/>");
 
-        var summaryHtml = MarkdownToSimpleHtml(_summaryFormatter.FormatMarkdown(report).Trim());
+        var summaryHtml = MarkdownToSimpleHtml(summaryFormatter.FormatMarkdown(report).Trim());
         sb.AppendLine(summaryHtml);
         sb.AppendLine();
 
@@ -140,19 +132,19 @@ public sealed class EndToEndReplayComparisonExportService
             if (EndToEndComparisonExportProfile.IsShort(p))
             {
                 AddHeading(body, "Summary", 2);
-                AddParagraph(body, _summaryFormatter.FormatMarkdown(report).Trim());
+                AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
             }
             else if (EndToEndComparisonExportProfile.IsExecutive(p))
             {
                 AddHeading(body, "Summary", 2);
-                AddParagraph(body, _summaryFormatter.FormatMarkdown(report).Trim());
+                AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
                 AddSpacer(body);
                 AddDocxExecutiveSummary(body, report);
             }
             else
             {
                 AddHeading(body, "Summary", 2);
-                AddParagraph(body, _summaryFormatter.FormatMarkdown(report).Trim());
+                AddParagraph(body, summaryFormatter.FormatMarkdown(report).Trim());
                 AddSpacer(body);
                 AddHeading(body, "Run Metadata Diff", 2);
                 AddBullet(body, $"Request IDs Differ: {(report.RunDiff.RequestIdsDiffer ? "Yes" : "No")}");
@@ -248,7 +240,7 @@ public sealed class EndToEndReplayComparisonExportService
                     column.Item().PaddingBottom(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
 
                     column.Item().PaddingBottom(5).Text("Summary").Bold().FontSize(12);
-                    column.Item().PaddingBottom(10).Text(_summaryFormatter.FormatMarkdown(report).Trim());
+                    column.Item().PaddingBottom(10).Text(summaryFormatter.FormatMarkdown(report).Trim());
 
                     if (EndToEndComparisonExportProfile.IsShort(p))
                     {

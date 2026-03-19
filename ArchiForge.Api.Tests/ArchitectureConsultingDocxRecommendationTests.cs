@@ -7,13 +7,9 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureConsultingDocxRecommendationTests : IntegrationTestBase
+public sealed class ArchitectureConsultingDocxRecommendationTests(ArchiForgeApiFactory factory)
+    : IntegrationTestBase(factory)
 {
-    public ArchitectureConsultingDocxRecommendationTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task RecommendProfile_ForExecutiveAudience_ReturnsExecutive()
     {

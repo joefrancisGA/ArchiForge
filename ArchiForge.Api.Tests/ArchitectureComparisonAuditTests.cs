@@ -6,13 +6,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureComparisonAuditTests : IntegrationTestBase
+public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureComparisonAuditTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     private sealed class ReplayRunResponseDto
     {
         public string ReplayRunId { get; set; } = string.Empty;

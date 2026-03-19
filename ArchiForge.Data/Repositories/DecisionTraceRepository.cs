@@ -6,15 +6,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class DecisionTraceRepository : IDecisionTraceRepository
+public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public DecisionTraceRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -38,7 +31,7 @@ public sealed class DecisionTraceRepository : IDecisionTraceRepository
             );
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = traces.Select(t => new
         {
@@ -67,7 +60,7 @@ public sealed class DecisionTraceRepository : IDecisionTraceRepository
             ORDER BY CreatedUtc;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

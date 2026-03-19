@@ -7,28 +7,14 @@ using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.Decisioning.Services;
 
-public class RuleBasedDecisionEngine : IDecisionEngine
+public class RuleBasedDecisionEngine(
+    IDecisionRuleProvider ruleProvider,
+    IGoldenManifestBuilder manifestBuilder,
+    IGoldenManifestValidator manifestValidator,
+    IGoldenManifestRepository manifestRepository,
+    IDecisionTraceRepository traceRepository)
+    : IDecisionEngine
 {
-    private readonly IDecisionRuleProvider _ruleProvider;
-    private readonly IGoldenManifestBuilder _manifestBuilder;
-    private readonly IGoldenManifestValidator _manifestValidator;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IDecisionTraceRepository _traceRepository;
-
-    public RuleBasedDecisionEngine(
-        IDecisionRuleProvider ruleProvider,
-        IGoldenManifestBuilder manifestBuilder,
-        IGoldenManifestValidator manifestValidator,
-        IGoldenManifestRepository manifestRepository,
-        IDecisionTraceRepository traceRepository)
-    {
-        _ruleProvider = ruleProvider;
-        _manifestBuilder = manifestBuilder;
-        _manifestValidator = manifestValidator;
-        _manifestRepository = manifestRepository;
-        _traceRepository = traceRepository;
-    }
-
     public async Task<(GoldenManifest Manifest, DecisionTrace Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,
@@ -36,7 +22,7 @@ public class RuleBasedDecisionEngine : IDecisionEngine
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
-        var ruleSet = await _ruleProvider.GetRuleSetAsync(ct);
+        var ruleSet = await ruleProvider.GetRuleSetAsync(ct);
         var rules = ruleSet.Rules
             .OrderByDescending(r => r.Priority)
             .ToList();
@@ -90,7 +76,7 @@ public class RuleBasedDecisionEngine : IDecisionEngine
             }
         }
 
-        var manifest = _manifestBuilder.Build(
+        var manifest = manifestBuilder.Build(
             runId,
             contextSnapshotId,
             graphSnapshot,
@@ -98,11 +84,11 @@ public class RuleBasedDecisionEngine : IDecisionEngine
             trace,
             ruleSet);
 
-        _manifestValidator.Validate(manifest);
+        manifestValidator.Validate(manifest);
         manifest.ManifestHash = ComputeManifestHash(manifest);
 
-        await _traceRepository.SaveAsync(trace, ct);
-        await _manifestRepository.SaveAsync(manifest, ct);
+        await traceRepository.SaveAsync(trace, ct);
+        await manifestRepository.SaveAsync(manifest, ct);
 
         return (manifest, trace);
     }

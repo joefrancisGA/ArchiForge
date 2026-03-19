@@ -4,15 +4,9 @@ using ArchiForge.Application.Diagrams;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysisDocxExportService
+public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer)
+    : IArchitectureAnalysisDocxExportService
 {
-    private readonly IDiagramImageRenderer _diagramImageRenderer;
-
-    public DocxArchitectureAnalysisExportService(IDiagramImageRenderer diagramImageRenderer)
-    {
-        _diagramImageRenderer = diagramImageRenderer;
-    }
-
     public async Task<byte[]> GenerateDocxAsync(
         ArchitectureAnalysisReport report,
         CancellationToken cancellationToken = default)
@@ -133,7 +127,7 @@ public sealed class DocxArchitectureAnalysisExportService : IArchitectureAnalysi
         {
             builder.AddHeading("Architecture Diagram", 2);
 
-            var diagramBytes = await _diagramImageRenderer.RenderMermaidPngAsync(
+            var diagramBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
                 cancellationToken);
 

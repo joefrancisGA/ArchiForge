@@ -6,33 +6,18 @@ using ArchiForge.DecisionEngine.Services;
 
 namespace ArchiForge.Application;
 
-public sealed class ArchitectureRunOrchestrator
+public sealed class ArchitectureRunOrchestrator(
+    ICoordinatorService coordinator,
+    IAgentExecutor agentExecutor,
+    IDecisionEngineService decisionEngine,
+    IDecisionEngineV2 decisionEngineV2,
+    IEvidenceBuilder evidenceBuilder)
 {
-    private readonly ICoordinatorService _coordinator;
-    private readonly IAgentExecutor _agentExecutor;
-    private readonly IDecisionEngineService _decisionEngine;
-    private readonly IDecisionEngineV2 _decisionEngineV2;
-    private readonly IEvidenceBuilder _evidenceBuilder;
-
-    public ArchitectureRunOrchestrator(
-        ICoordinatorService coordinator,
-        IAgentExecutor agentExecutor,
-        IDecisionEngineService decisionEngine,
-        IDecisionEngineV2 decisionEngineV2,
-        IEvidenceBuilder evidenceBuilder)
-    {
-        _coordinator = coordinator;
-        _agentExecutor = agentExecutor;
-        _decisionEngine = decisionEngine;
-        _decisionEngineV2 = decisionEngineV2;
-        _evidenceBuilder = evidenceBuilder;
-    }
-
     public async Task<DecisionMergeResult> ExecuteAsync(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
     {
-        var coordination = _coordinator.CreateRun(request);
+        var coordination = coordinator.CreateRun(request);
 
         if (!coordination.Success)
         {
@@ -40,12 +25,12 @@ public sealed class ArchitectureRunOrchestrator
                 $"Coordination failed: {string.Join("; ", coordination.Errors)}");
         }
 
-        var evidence = await _evidenceBuilder.BuildAsync(
+        var evidence = await evidenceBuilder.BuildAsync(
             coordination.Run.RunId,
             request,
             cancellationToken);
 
-        var results = await _agentExecutor.ExecuteAsync(
+        var results = await agentExecutor.ExecuteAsync(
             coordination.Run.RunId,
             request,
             evidence,
@@ -53,7 +38,7 @@ public sealed class ArchitectureRunOrchestrator
             cancellationToken);
 
         // v2 resolves structured decisions (weighted arguments). Evaluations are currently optional.
-        var decisions = await _decisionEngineV2.ResolveAsync(
+        var decisions = await decisionEngineV2.ResolveAsync(
             coordination.Run.RunId,
             request,
             evidence,
@@ -62,7 +47,7 @@ public sealed class ArchitectureRunOrchestrator
             evaluations: [],
             cancellationToken: cancellationToken);
 
-        var merged = _decisionEngine.MergeResults(
+        var merged = decisionEngine.MergeResults(
             coordination.Run.RunId,
             request,
             "v1",

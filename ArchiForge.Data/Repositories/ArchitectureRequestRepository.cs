@@ -6,15 +6,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class ArchitectureRequestRepository : IArchitectureRequestRepository
+public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectionFactory)
+    : IArchitectureRequestRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public ArchitectureRequestRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -40,7 +34,7 @@ public sealed class ArchitectureRequestRepository : IArchitectureRequestReposito
 
         var json = JsonSerializer.Serialize(request, ContractJson.Default);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -64,7 +58,7 @@ public sealed class ArchitectureRequestRepository : IArchitectureRequestReposito
             WHERE RequestId = @RequestId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,

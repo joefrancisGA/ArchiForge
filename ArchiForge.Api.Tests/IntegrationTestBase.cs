@@ -3,14 +3,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
 
-public class IntegrationTestBase : IClassFixture<ArchiForgeApiFactory>
+public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<ArchiForgeApiFactory>
 {
-    protected readonly HttpClient Client;
-
-    public IntegrationTestBase(ArchiForgeApiFactory factory)
-    {
-        Client = factory.CreateClient();
-    }
+    protected readonly HttpClient Client = factory.CreateClient();
 
     protected StringContent JsonContent(object value)
     {

@@ -3,19 +3,11 @@ using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Services;
 
-public class ContextIngestionService : IContextIngestionService
+public class ContextIngestionService(
+    IEnumerable<IContextConnector> connectors,
+    IContextSnapshotRepository repo)
+    : IContextIngestionService
 {
-    private readonly IEnumerable<IContextConnector> _connectors;
-    private readonly IContextSnapshotRepository _repo;
-
-    public ContextIngestionService(
-        IEnumerable<IContextConnector> connectors,
-        IContextSnapshotRepository repo)
-    {
-        _connectors = connectors;
-        _repo = repo;
-    }
-
     public async Task<ContextSnapshot> IngestAsync(
         ContextIngestionRequest request,
         CancellationToken ct)
@@ -27,9 +19,9 @@ public class ContextIngestionService : IContextIngestionService
             CreatedUtc = DateTime.UtcNow
         };
 
-        var previous = await _repo.GetLatestAsync(request.ProjectId, ct);
+        var previous = await repo.GetLatestAsync(request.ProjectId, ct);
 
-        foreach (var connector in _connectors)
+        foreach (var connector in connectors)
         {
             var raw = await connector.FetchAsync(request, ct);
             var normalized = await connector.NormalizeAsync(raw, ct);
@@ -39,7 +31,7 @@ public class ContextIngestionService : IContextIngestionService
             snapshot.DeltaSummary = delta.Summary;
         }
 
-        await _repo.SaveAsync(snapshot, ct);
+        await repo.SaveAsync(snapshot, ct);
 
         return snapshot;
     }

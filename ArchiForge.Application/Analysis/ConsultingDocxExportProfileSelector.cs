@@ -3,27 +3,18 @@ using System.Linq;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class ConsultingDocxExportProfileSelector
+public sealed class ConsultingDocxExportProfileSelector(
+    IConsultingDocxTemplateProfileResolver profileResolver,
+    IConsultingDocxTemplateRecommendationService recommendationService)
     : IConsultingDocxExportProfileSelector
 {
-    private readonly IConsultingDocxTemplateProfileResolver _profileResolver;
-    private readonly IConsultingDocxTemplateRecommendationService _recommendationService;
-
-    public ConsultingDocxExportProfileSelector(
-        IConsultingDocxTemplateProfileResolver profileResolver,
-        IConsultingDocxTemplateRecommendationService recommendationService)
-    {
-        _profileResolver = profileResolver;
-        _recommendationService = recommendationService;
-    }
-
     public ResolvedConsultingDocxExportProfile Resolve(
         string? templateProfile,
         ConsultingDocxProfileRecommendationRequest recommendationRequest)
     {
         if (!string.IsNullOrWhiteSpace(templateProfile))
         {
-            var catalog = _profileResolver.GetCatalog();
+            var catalog = profileResolver.GetCatalog();
 
             var summary = catalog.Profiles.FirstOrDefault(x =>
                 string.Equals(x.ProfileName, templateProfile, StringComparison.OrdinalIgnoreCase));
@@ -37,7 +28,7 @@ public sealed class ConsultingDocxExportProfileSelector
             };
         }
 
-        var recommendation = _recommendationService.Recommend(recommendationRequest);
+        var recommendation = recommendationService.Recommend(recommendationRequest);
 
         return new ResolvedConsultingDocxExportProfile
         {

@@ -7,13 +7,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureEndToEndComparisonTests : IntegrationTestBase
+public sealed class ArchitectureEndToEndComparisonTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureEndToEndComparisonTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {

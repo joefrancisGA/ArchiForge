@@ -6,13 +6,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureDecisionEngineV2Tests : IntegrationTestBase
+public sealed class ArchitectureDecisionEngineV2Tests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureDecisionEngineV2Tests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task CommitRun_PersistsDecisionNodes()
     {

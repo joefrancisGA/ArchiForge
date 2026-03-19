@@ -24,39 +24,19 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
-public sealed class AnalysisReportsController : ControllerBase
+public sealed class AnalysisReportsController(
+    IArchitectureRunRepository runRepository,
+    IArchitectureAnalysisService architectureAnalysisService,
+    IArchitectureAnalysisExportService architectureAnalysisExportService,
+    IArchitectureAnalysisDocxExportService docxExportService,
+    IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
+    IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
+    AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
+    IBackgroundJobQueue jobs,
+    ILogger<AnalysisReportsController> logger)
+    : ControllerBase
 {
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IArchitectureAnalysisService _architectureAnalysisService;
-    private readonly IArchitectureAnalysisExportService _architectureAnalysisExportService;
-    private readonly IArchitectureAnalysisDocxExportService _docxExportService;
-    private readonly IArchitectureAnalysisConsultingDocxExportService _architectureAnalysisConsultingDocxExportService;
-    private readonly IConsultingDocxTemplateRecommendationService _consultingDocxTemplateRecommendationService;
-    private readonly AppConsultingDocxExportProfileSelector _consultingDocxExportProfileSelector;
-    private readonly IBackgroundJobQueue _jobs;
-    private readonly ILogger<AnalysisReportsController> _logger;
-
-    public AnalysisReportsController(
-        IArchitectureRunRepository runRepository,
-        IArchitectureAnalysisService architectureAnalysisService,
-        IArchitectureAnalysisExportService architectureAnalysisExportService,
-        IArchitectureAnalysisDocxExportService docxExportService,
-        IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
-        IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
-        AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
-        IBackgroundJobQueue jobs,
-        ILogger<AnalysisReportsController> logger)
-    {
-        _runRepository = runRepository;
-        _architectureAnalysisService = architectureAnalysisService;
-        _architectureAnalysisExportService = architectureAnalysisExportService;
-        _docxExportService = docxExportService;
-        _architectureAnalysisConsultingDocxExportService = architectureAnalysisConsultingDocxExportService;
-        _consultingDocxTemplateRecommendationService = consultingDocxTemplateRecommendationService;
-        _consultingDocxExportProfileSelector = consultingDocxExportProfileSelector;
-        _jobs = jobs;
-        _logger = logger;
-    }
+    private readonly ILogger<AnalysisReportsController> _logger = logger;
 
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
@@ -70,7 +50,7 @@ public sealed class AnalysisReportsController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -78,7 +58,7 @@ public sealed class AnalysisReportsController : ControllerBase
 
         try
         {
-            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
+            var report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
             return Ok(new ArchitectureAnalysisReportResponse { Report = report });
         }
         catch (InvalidOperationException ex)
@@ -99,7 +79,7 @@ public sealed class AnalysisReportsController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -107,8 +87,8 @@ public sealed class AnalysisReportsController : ControllerBase
 
         try
         {
-            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
-            var markdown = _architectureAnalysisExportService.GenerateMarkdown(report);
+            var report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            var markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return Ok(new ArchitectureAnalysisExportResponse
             {
                 RunId = runId,
@@ -135,7 +115,7 @@ public sealed class AnalysisReportsController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -143,8 +123,8 @@ public sealed class AnalysisReportsController : ControllerBase
 
         try
         {
-            var report = await _architectureAnalysisService.BuildAsync(request, cancellationToken);
-            var markdown = _architectureAnalysisExportService.GenerateMarkdown(report);
+            var report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            var markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"analysis-report-{runId}.md");
         }
         catch (InvalidOperationException ex)
@@ -165,7 +145,7 @@ public sealed class AnalysisReportsController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -173,8 +153,8 @@ public sealed class AnalysisReportsController : ControllerBase
 
         try
         {
-            var bytes = await _docxExportService.GenerateDocxAsync(
-                await _architectureAnalysisService.BuildAsync(request, cancellationToken),
+            var bytes = await docxExportService.GenerateDocxAsync(
+                await architectureAnalysisService.BuildAsync(request, cancellationToken),
                 cancellationToken);
             return ApiFileResults.RangeBytes(
                 Request,
@@ -200,19 +180,19 @@ public sealed class AnalysisReportsController : ControllerBase
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var jobId = _jobs.Enqueue(
+        var jobId = jobs.Enqueue(
             fileNameHint: $"analysis-report-{runId}.docx",
             contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             work: async ct =>
             {
-                var bytes = await _docxExportService.GenerateDocxAsync(
-                    await _architectureAnalysisService.BuildAsync(request, ct),
+                var bytes = await docxExportService.GenerateDocxAsync(
+                    await architectureAnalysisService.BuildAsync(request, ct),
                     ct);
                 return new BackgroundJobFile(
                     FileName: $"analysis-report-{runId}.docx",
@@ -233,7 +213,7 @@ public sealed class AnalysisReportsController : ControllerBase
 
         // TemplateName is currently advisory only; the selector resolves based on the
         // requested profile key and recommendation inputs.
-        var resolved = _consultingDocxExportProfileSelector.Resolve(
+        var resolved = consultingDocxExportProfileSelector.Resolve(
             request.Profile,
             new ArchiForge.Application.Analysis.ConsultingDocxProfileRecommendationRequest());
 
@@ -259,7 +239,7 @@ public sealed class AnalysisReportsController : ControllerBase
     {
         request ??= new ConsultingDocxExportRequest();
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -285,11 +265,11 @@ public sealed class AnalysisReportsController : ControllerBase
                 CompareRunId = request.CompareRunId
             };
 
-            var report = await _architectureAnalysisService.BuildAsync(
+            var report = await architectureAnalysisService.BuildAsync(
                 analysisRequest,
                 cancellationToken);
 
-            var bytes = await _architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
+            var bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
                 report,
                 cancellationToken);
 
@@ -316,13 +296,13 @@ public sealed class AnalysisReportsController : ControllerBase
     {
         request ??= new ConsultingDocxExportRequest();
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var jobId = _jobs.Enqueue(
+        var jobId = jobs.Enqueue(
             fileNameHint: $"analysis-report-consulting-{runId}.docx",
             contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             work: async ct =>
@@ -343,11 +323,11 @@ public sealed class AnalysisReportsController : ControllerBase
                     CompareRunId = request.CompareRunId
                 };
 
-                var report = await _architectureAnalysisService.BuildAsync(
+                var report = await architectureAnalysisService.BuildAsync(
                     analysisRequest,
                     ct);
 
-                var bytes = await _architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
+                var bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
                     report,
                     ct);
                 return new BackgroundJobFile(
@@ -367,7 +347,7 @@ public sealed class AnalysisReportsController : ControllerBase
     {
         request ??= new ApiConsultingDocxProfileRecommendationRequest();
 
-        var recommendation = _consultingDocxTemplateRecommendationService.Recommend(
+        var recommendation = consultingDocxTemplateRecommendationService.Recommend(
             new AppConsultingDocxProfileRecommendationRequest
             {
                 Audience = request.Audience,

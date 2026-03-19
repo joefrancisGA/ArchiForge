@@ -6,55 +6,47 @@ namespace ArchiForge.Api;
 /// Returns file content with support for HTTP Range requests (RFC 7233).
 /// Sets Accept-Ranges: bytes and responds with 206 Partial Content when a valid Range header is present.
 /// </summary>
-public sealed class FileWithRangeResult : IActionResult
+public sealed class FileWithRangeResult(
+    HttpRequest request,
+    byte[] fileContents,
+    string contentType,
+    string fileDownloadName)
+    : IActionResult
 {
-    private readonly HttpRequest _request;
-    private readonly byte[] _fileContents;
-    private readonly string _contentType;
-    private readonly string _fileDownloadName;
-
-    public FileWithRangeResult(HttpRequest request, byte[] fileContents, string contentType, string fileDownloadName)
-    {
-        _request = request;
-        _fileContents = fileContents;
-        _contentType = contentType;
-        _fileDownloadName = fileDownloadName;
-    }
-
     public async Task ExecuteResultAsync(ActionContext context)
     {
         var response = context.HttpContext.Response;
         response.Headers["Accept-Ranges"] = "bytes";
 
-        var totalLength = _fileContents.LongLength;
+        var totalLength = fileContents.LongLength;
         if (totalLength == 0)
         {
             response.ContentLength = 0;
             response.StatusCode = StatusCodes.Status200OK;
-            response.ContentType = _contentType;
-            response.Headers["Content-Disposition"] = $"attachment; filename=\"{_fileDownloadName}\"";
+            response.ContentType = contentType;
+            response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
             return;
         }
 
-        var range = ParseRange(_request.Headers.Range, totalLength);
+        var range = ParseRange(request.Headers.Range, totalLength);
         if (range is { Start: var start, End: var end })
         {
             var length = end - start + 1;
             response.StatusCode = StatusCodes.Status206PartialContent;
             response.Headers["Content-Range"] = $"bytes {start}-{end}/{totalLength}";
             response.ContentLength = length;
-            response.ContentType = _contentType;
-            response.Headers["Content-Disposition"] = $"attachment; filename=\"{_fileDownloadName}\"";
+            response.ContentType = contentType;
+            response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
 
-            await response.Body.WriteAsync(_fileContents.AsMemory((int)start, (int)length), context.HttpContext.RequestAborted);
+            await response.Body.WriteAsync(fileContents.AsMemory((int)start, (int)length), context.HttpContext.RequestAborted);
             return;
         }
 
         response.StatusCode = StatusCodes.Status200OK;
         response.ContentLength = totalLength;
-        response.ContentType = _contentType;
-        response.Headers["Content-Disposition"] = $"attachment; filename=\"{_fileDownloadName}\"";
-        await response.Body.WriteAsync(_fileContents, context.HttpContext.RequestAborted);
+        response.ContentType = contentType;
+        response.Headers["Content-Disposition"] = $"attachment; filename=\"{fileDownloadName}\"";
+        await response.Body.WriteAsync(fileContents, context.HttpContext.RequestAborted);
     }
 
     /// <summary>

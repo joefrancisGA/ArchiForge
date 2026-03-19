@@ -6,15 +6,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class AgentEvaluationRepository : IAgentEvaluationRepository
+public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFactory) : IAgentEvaluationRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public AgentEvaluationRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateManyAsync(
         IReadOnlyCollection<AgentEvaluation> evaluations,
         CancellationToken cancellationToken = default)
@@ -49,7 +42,7 @@ public sealed class AgentEvaluationRepository : IAgentEvaluationRepository
             );
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         foreach (var e in evaluations)
         {
@@ -82,7 +75,7 @@ public sealed class AgentEvaluationRepository : IAgentEvaluationRepository
             ORDER BY CreatedUtc;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

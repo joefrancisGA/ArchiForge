@@ -4,15 +4,9 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.AgentRuntime;
 
-public sealed class AgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
+public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository repository)
+    : IAgentExecutionTraceRecorder
 {
-    private readonly IAgentExecutionTraceRepository _repository;
-
-    public AgentExecutionTraceRecorder(IAgentExecutionTraceRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async Task RecordAsync(
         string runId,
         string taskId,
@@ -40,6 +34,6 @@ public sealed class AgentExecutionTraceRecorder : IAgentExecutionTraceRecorder
             CreatedUtc = DateTime.UtcNow
         };
 
-        await _repository.CreateAsync(trace, cancellationToken);
+        await repository.CreateAsync(trace, cancellationToken);
     }
 }

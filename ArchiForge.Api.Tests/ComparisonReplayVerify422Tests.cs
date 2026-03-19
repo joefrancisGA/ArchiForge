@@ -46,14 +46,10 @@ internal sealed class ForcedComparisonVerificationFailureService : IComparisonRe
 }
 
 [Trait("Category", "Integration")]
-public sealed class ComparisonReplayVerify422Tests : IClassFixture<ComparisonVerify422ApiFactory>
+public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory factory)
+    : IClassFixture<ComparisonVerify422ApiFactory>
 {
-    private readonly HttpClient _client;
-
-    public ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     [Fact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()

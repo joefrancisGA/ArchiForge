@@ -8,13 +8,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureCommitConflictTests : IntegrationTestBase
+public sealed class ArchitectureCommitConflictTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureCommitConflictTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task CommitBeforeExecute_Returns409Conflict()
     {

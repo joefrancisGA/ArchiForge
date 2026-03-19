@@ -294,3 +294,133 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 20. Api.Tests: test that invalid batch replay body returns 400 with validation errors
 - [x] 21. Api: extract AddOpenTelemetry into AddArchiForgeOpenTelemetry extension
 - [x] 22. Swagger: document description or link to API_CONTRACTS
+
+---
+
+## 23. Extract app pipeline into extension
+
+**Problem:** **Program.cs** still contains the middleware and endpoint pipeline (UseMiddleware, UseExceptionHandler, UseHttpsRedirection, UseCors, UseRateLimiter, UseAuthentication, UseAuthorization, MapHealthChecks, Prometheus scraping, MapControllers). Moving it into an extension would leave Program.cs with just builder setup, build, and Run.
+
+**Change:**
+- Add **UseArchiForgePipeline(this WebApplication app)** in **Startup/** (e.g. **PipelineExtensions.cs** or in **InfrastructureExtensions.cs**). Move the block from **app.UseMiddleware&lt;CorrelationIdMiddleware&gt;** through **app.MapControllers()** (and the Prometheus conditional) into that method. Call **app.UseArchiForgePipeline()** from **Program.cs** after **var app = builder.Build()** and the migration check.
+
+**Outcome:** Minimal Program.cs; pipeline logic in one place.
+
+---
+
+## 24. Document migration failure behavior
+
+**Problem:** README says "Migrations run automatically on startup via DbUp" but doesn't state that if migration fails, the API throws and does not start. Operators may not expect a hard failure.
+
+**Change:**
+- In **README.md** (Database Setup or Running the API), add one sentence: if the connection string is set and migration fails, the API throws and does not start (no fallback). Optionally mention that integration tests use in-memory SQLite and skip this path.
+
+**Outcome:** Clear runbook for migration failures.
+
+---
+
+## 25. Shared replay validation constants
+
+**Problem:** **ReplayComparisonRequestValidator** and **BatchReplayComparisonRequestValidator** both define **ValidFormats**, **ValidReplayModes**, and **ValidProfiles** with the same values. Duplication can drift.
+
+**Change:**
+- Create **ReplayValidationConstants** (or **ReplayValidationAllowedValues**) in **ArchiForge.Api/Validators/** with static readonly **ValidFormats**, **ValidReplayModes**, **ValidProfiles** (e.g. `HashSet<string>` with `StringComparer.OrdinalIgnoreCase`). Use them in both validators.
+
+**Outcome:** Single source of truth for allowed format/replayMode/profile values.
+
+---
+
+## 26. README: link TEST_STRUCTURE in Running Tests
+
+**Problem:** **docs/TEST_STRUCTURE.md** describes test categories and filtering but README only links to **docs/BUILD.md** in the Running Tests section. New contributors may miss TEST_STRUCTURE.
+
+**Change:**
+- In **README.md** under "Running Tests", add a line: see **docs/TEST_STRUCTURE.md** for test categories (Integration vs Unit) and filter examples (`Category=Integration`, `Category=Unit`).
+
+**Outcome:** Discoverability of test structure docs.
+
+---
+
+## 27. Extract AddSwaggerGen into extension
+
+**Problem:** **Program.cs** still contains the **AddSwaggerGen** block (SwaggerDoc with Title, Version, Description, and the three operation filters). Moving it into an extension would keep Program.cs thin and group Swagger config.
+
+**Change:**
+- Add **AddArchiForgeSwagger(this IServiceCollection services)** in **Startup/** (e.g. **SwaggerExtensions.cs**) and move the **AddSwaggerGen** lambda there (including the Description and operation filters). Call **builder.Services.AddArchiForgeSwagger()** from **Program.cs** instead of the inline **AddSwaggerGen**.
+
+**Outcome:** Shorter Program.cs; Swagger config in one place.
+
+---
+
+## Checklist (continued)
+
+- [x] 23. Api: extract app pipeline (middleware + Map*) into UseArchiForgePipeline extension
+- [x] 24. Docs: migration failure behavior (throw, no start)
+- [x] 25. Api: shared ReplayValidationConstants for replay validators
+- [x] 26. README: link TEST_STRUCTURE in Running Tests
+- [x] 27. Api: extract AddSwaggerGen into AddArchiForgeSwagger extension
+
+---
+
+## 28. Extract MVC/API service registration into extension
+
+**Problem:** **Program.cs** still contains **AddControllers** (with filter), **AddProblemDetails**, **AddApiVersioning** (and AddMvc, AddApiExplorer), **AddFluentValidationAutoValidation**, **AddValidatorsFromAssemblyContaining**, **AddOpenApi**, **AddEndpointsApiExplorer**, and **AddArchiForgeSwagger**. Moving these into an extension would leave Program with only builder configuration, Build(), migration check, and UseArchiForgePipeline().
+
+**Change:**
+- Add **AddArchiForgeMvc(this IServiceCollection services)** (or **AddArchiForgeApi**) in **Startup/** and move the block from **AddControllers** through **AddArchiForgeSwagger** there. Call **builder.Services.AddArchiForgeMvc()** from **Program.cs**. Ensure the extension has the necessary usings (Asp.Versioning, FluentValidation, etc.).
+
+**Outcome:** Minimal Program.cs; MVC/API/versioning/Swagger registration in one place.
+
+---
+
+## 29. API versioning documentation
+
+**Problem:** The API uses URL path versioning (e.g. `/v1/architecture/...`) and reports API versions, but this isn't documented for clients. README and API_CONTRACTS don't explain how to request a version or what the default is.
+
+**Change:**
+- In **README.md** or **docs/API_CONTRACTS.md**, add a short **API versioning** note: URL path segment `v1`; default version 1.0 when unspecified; response headers report supported versions; link to Asp.Versioning behavior if needed.
+
+**Outcome:** Clear contract for API versioning.
+
+---
+
+## 30. Correlation ID documentation
+
+**Problem:** **CorrelationIdMiddleware** sets **X-Correlation-ID** (request and response) and enriches tracing/logging, but this isn't documented. Operators and clients don't know they can send or use the header.
+
+**Change:**
+- In **README.md** (e.g. under Running the API or a new "Observability" bullet) or **docs/BUILD.md**, add one sentence: the API supports **X-Correlation-ID**; if the client sends it, the same value is returned and used for tracing and logs; if omitted, the server generates one (e.g. from TraceIdentifier).
+
+**Outcome:** Clear contract for correlation IDs.
+
+---
+
+## 31. ReplayValidationConstants unit test
+
+**Problem:** **ReplayValidationConstants** defines the allowed format, replayMode, and profile values. A change (e.g. adding a format or typo) could break validation or API contracts with no test coverage.
+
+**Change:**
+- Add a unit test (e.g. in **ArchiForge.Api.Tests** in a new **ReplayValidationConstantsTests.cs** or alongside validator tests) that asserts **ValidFormats** contains "markdown", "html", "docx", "json"; **ValidReplayModes** contains "artifact", "regenerate", "verify"; **ValidProfiles** contains "default", "short", "detailed", "executive". Tag with **Category=Unit**.
+
+**Outcome:** Regression protection for allowed values.
+
+---
+
+## 32. Key documentation index in README
+
+**Problem:** Important docs (BUILD.md, TEST_STRUCTURE.md, API_CONTRACTS.md, CLI_USAGE.md) are mentioned in different sections. New contributors may miss one.
+
+**Change:**
+- In **README.md**, add a short **Key documentation** section (e.g. after Prerequisites or at the end before Architecture docs) that lists in one place: **docs/BUILD.md** (build, CPM, project refs), **docs/TEST_STRUCTURE.md** (test categories, filtering), **docs/API_CONTRACTS.md** (422, 404, 409, validation), **docs/CLI_USAGE.md** (CLI reference). One line each. Optionally link **docs/COMPARISON_REPLAY.md** and **docs/ARCHITECTURE_INDEX.md** as next steps.
+
+**Outcome:** Single entry point for key docs.
+
+---
+
+## Checklist (continued)
+
+- [ ] 28. Api: extract MVC/API service registration (AddControllers through AddArchiForgeSwagger) into AddArchiForgeMvc extension
+- [ ] 29. Docs: API versioning (URL v1, default, report versions)
+- [ ] 30. Docs: Correlation ID (X-Correlation-ID header, request/response, tracing)
+- [ ] 31. Api.Tests: unit test for ReplayValidationConstants allowed values
+- [ ] 32. README: Key documentation section (BUILD, TEST_STRUCTURE, API_CONTRACTS, CLI_USAGE)

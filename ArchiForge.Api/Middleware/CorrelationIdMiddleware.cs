@@ -3,15 +3,9 @@ using Serilog.Context;
 
 namespace ArchiForge.Api.Middleware;
 
-public sealed class CorrelationIdMiddleware
+public sealed class CorrelationIdMiddleware(RequestDelegate next)
 {
     private const string HeaderName = "X-Correlation-ID";
-    private readonly RequestDelegate _next;
-
-    public CorrelationIdMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -34,7 +28,7 @@ public sealed class CorrelationIdMiddleware
 
         using (LogContext.PushProperty("CorrelationId", correlationId))
         {
-            await _next(context);
+            await next(context);
         }
     }
 }

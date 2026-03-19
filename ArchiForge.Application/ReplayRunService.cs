@@ -9,39 +9,19 @@ using ArchiForge.DecisionEngine.Services;
 
 namespace ArchiForge.Application;
 
-public sealed class ReplayRunService : IReplayRunService
+public sealed class ReplayRunService(
+    IAgentExecutorResolver agentExecutorResolver,
+    IDecisionEngineService decisionEngineService,
+    IArchitectureRequestRepository requestRepository,
+    IArchitectureRunRepository runRepository,
+    IAgentTaskRepository taskRepository,
+    IAgentResultRepository resultRepository,
+    IGoldenManifestRepository manifestRepository,
+    IDecisionTraceRepository decisionTraceRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository)
+    : IReplayRunService
 {
-    private readonly IAgentExecutorResolver _agentExecutorResolver;
-    private readonly IDecisionEngineService _decisionEngineService;
-    private readonly IArchitectureRequestRepository _requestRepository;
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentTaskRepository _taskRepository;
-    private readonly IAgentResultRepository _resultRepository;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
-
-    public ReplayRunService(
-        IAgentExecutorResolver agentExecutorResolver,
-        IDecisionEngineService decisionEngineService,
-        IArchitectureRequestRepository requestRepository,
-        IArchitectureRunRepository runRepository,
-        IAgentTaskRepository taskRepository,
-        IAgentResultRepository resultRepository,
-        IGoldenManifestRepository manifestRepository,
-        IDecisionTraceRepository decisionTraceRepository,
-        IAgentEvidencePackageRepository agentEvidencePackageRepository)
-    {
-        _agentExecutorResolver = agentExecutorResolver;
-        _decisionEngineService = decisionEngineService;
-        _requestRepository = requestRepository;
-        _runRepository = runRepository;
-        _taskRepository = taskRepository;
-        _resultRepository = resultRepository;
-        _manifestRepository = manifestRepository;
-        _decisionTraceRepository = decisionTraceRepository;
-        _agentEvidencePackageRepository = agentEvidencePackageRepository;
-    }
+    private readonly IAgentResultRepository _resultRepository = resultRepository;
 
     public async Task<ReplayRunResult> ReplayAsync(
         string originalRunId,
@@ -50,19 +30,19 @@ public sealed class ReplayRunService : IReplayRunService
         string? manifestVersionOverride = null,
         CancellationToken cancellationToken = default)
     {
-        var originalRun = await _runRepository.GetByIdAsync(originalRunId, cancellationToken)
+        var originalRun = await runRepository.GetByIdAsync(originalRunId, cancellationToken)
             ?? throw new InvalidOperationException($"Original run '{originalRunId}' not found.");
 
-        var request = await _requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
+        var request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
-        var tasks = await _taskRepository.GetByRunIdAsync(originalRunId, cancellationToken);
+        var tasks = await taskRepository.GetByRunIdAsync(originalRunId, cancellationToken);
         if (tasks.Count == 0)
         {
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
         }
 
-        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
+        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
             ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         var replayRunId = Guid.NewGuid().ToString("N");
@@ -85,7 +65,7 @@ public sealed class ReplayRunService : IReplayRunService
 
         var replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
 
-        var executor = _agentExecutorResolver.Resolve(executionMode);
+        var executor = agentExecutorResolver.Resolve(executionMode);
         var results = await executor.ExecuteAsync(
             replayRunId,
             request,
@@ -103,7 +83,7 @@ public sealed class ReplayRunService : IReplayRunService
                 ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
                 : manifestVersionOverride;
 
-            var merge = _decisionEngineService.MergeResults(
+            var merge = decisionEngineService.MergeResults(
                 replayRunId,
                 request,
                 manifestVersion,
@@ -122,8 +102,8 @@ public sealed class ReplayRunService : IReplayRunService
             decisionTraces = merge.DecisionTraces;
             warnings = merge.Warnings;
 
-            await _manifestRepository.CreateAsync(manifest, cancellationToken);
-            await _decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+            await manifestRepository.CreateAsync(manifest, cancellationToken);
+            await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
         }
 
         return new ReplayRunResult

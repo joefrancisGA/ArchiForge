@@ -2,17 +2,10 @@ using ArchiForge.AgentSimulator.Services;
 
 namespace ArchiForge.Application.Agents;
 
-public sealed class DefaultAgentExecutorResolver : IAgentExecutorResolver
+public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor) : IAgentExecutorResolver
 {
-    private readonly IAgentExecutor _currentExecutor;
-
-    public DefaultAgentExecutorResolver(IAgentExecutor currentExecutor)
-    {
-        _currentExecutor = currentExecutor;
-    }
-
     public IAgentExecutor Resolve(string executionMode)
     {
-        return _currentExecutor;
+        return currentExecutor;
     }
 }

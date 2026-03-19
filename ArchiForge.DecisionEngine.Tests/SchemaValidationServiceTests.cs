@@ -11,19 +11,13 @@ namespace ArchiForge.DecisionEngine.Tests;
 
 public sealed class SchemaValidationServiceTests
 {
-    private readonly Mock<ILogger<SchemaValidationService>> _loggerMock;
-    private readonly SchemaValidationOptions _options;
-
-    public SchemaValidationServiceTests()
+    private readonly Mock<ILogger<SchemaValidationService>> _loggerMock = new();
+    private readonly SchemaValidationOptions _options = new()
     {
-        _loggerMock = new Mock<ILogger<SchemaValidationService>>();
-        _options = new SchemaValidationOptions
-        {
-            AgentResultSchemaPath = "schemas/agentresult.schema.json",
-            GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
-            EnableDetailedErrors = true
-        };
-    }
+        AgentResultSchemaPath = "schemas/agentresult.schema.json",
+        GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
+        EnableDetailedErrors = true
+    };
 
     [Fact]
     public void Constructor_WithNullLogger_ThrowsArgumentNullException()

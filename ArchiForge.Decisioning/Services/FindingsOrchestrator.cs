@@ -7,13 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Decisioning.Services;
 
-public class FindingsOrchestrator : IFindingsOrchestrator
+public class FindingsOrchestrator(
+    IEnumerable<IFindingEngine> engines,
+    IFindingsSnapshotRepository repository,
+    IFindingPayloadValidator validator,
+    ILogger<FindingsOrchestrator> logger)
+    : IFindingsOrchestrator
 {
-    private readonly IEnumerable<IFindingEngine> _engines;
-    private readonly IFindingsSnapshotRepository _repository;
-    private readonly IFindingPayloadValidator _validator;
-    private readonly ILogger<FindingsOrchestrator> _logger;
-
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingsSnapshotRepository repository)
@@ -29,18 +29,6 @@ public class FindingsOrchestrator : IFindingsOrchestrator
     {
     }
 
-    public FindingsOrchestrator(
-        IEnumerable<IFindingEngine> engines,
-        IFindingsSnapshotRepository repository,
-        IFindingPayloadValidator validator,
-        ILogger<FindingsOrchestrator> logger)
-    {
-        _engines = engines;
-        _repository = repository;
-        _validator = validator;
-        _logger = logger;
-    }
-
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
         Guid contextSnapshotId,
@@ -49,7 +37,7 @@ public class FindingsOrchestrator : IFindingsOrchestrator
     {
         var allFindings = new List<Finding>();
 
-        foreach (var engine in _engines)
+        foreach (var engine in engines)
         {
             var sw = Stopwatch.StartNew();
             IReadOnlyList<Finding> findings;
@@ -60,14 +48,14 @@ public class FindingsOrchestrator : IFindingsOrchestrator
             catch (Exception ex)
             {
                 sw.Stop();
-                _logger.LogError(ex,
+                logger.LogError(ex,
                     "Finding engine failed: EngineType={EngineType} Category={Category} DurationMs={DurationMs}",
                     engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
                 throw;
             }
 
             sw.Stop();
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Finding engine completed: EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}",
                 engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
 
@@ -76,7 +64,7 @@ public class FindingsOrchestrator : IFindingsOrchestrator
                 if (string.IsNullOrWhiteSpace(finding.Category))
                     finding.Category = engine.Category;
 
-                _validator.Validate(finding);
+                validator.Validate(finding);
 
                 if (!string.Equals(finding.Category, engine.Category, StringComparison.OrdinalIgnoreCase))
                 {
@@ -101,11 +89,11 @@ public class FindingsOrchestrator : IFindingsOrchestrator
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Findings snapshot built: FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}",
             snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 
-        await _repository.SaveAsync(snapshot, ct);
+        await repository.SaveAsync(snapshot, ct);
 
         return snapshot;
     }

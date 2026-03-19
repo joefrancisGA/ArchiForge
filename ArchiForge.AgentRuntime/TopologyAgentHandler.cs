@@ -6,26 +6,16 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.AgentRuntime;
 
-public sealed class TopologyAgentHandler : IAgentHandler
+public sealed class TopologyAgentHandler(
+    IAgentCompletionClient completionClient,
+    IAgentResultParser resultParser,
+    IAgentExecutionTraceRecorder traceRecorder)
+    : IAgentHandler
 {
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
     {
         WriteIndented = true
     };
-
-    private readonly IAgentCompletionClient _completionClient;
-    private readonly IAgentResultParser _resultParser;
-    private readonly IAgentExecutionTraceRecorder _traceRecorder;
-
-    public TopologyAgentHandler(
-        IAgentCompletionClient completionClient,
-        IAgentResultParser resultParser,
-        IAgentExecutionTraceRecorder traceRecorder)
-    {
-        _completionClient = completionClient;
-        _resultParser = resultParser;
-        _traceRecorder = traceRecorder;
-    }
 
     public AgentType AgentType => AgentType.Topology;
 
@@ -47,12 +37,12 @@ public sealed class TopologyAgentHandler : IAgentHandler
 
         try
         {
-            rawJson = await _completionClient.CompleteJsonAsync(
+            rawJson = await completionClient.CompleteJsonAsync(
                 systemPrompt,
                 userPrompt,
                 cancellationToken);
 
-            var parsed = _resultParser.ParseAndValidate(
+            var parsed = resultParser.ParseAndValidate(
                 rawJson,
                 expectedRunId: runId,
                 expectedTaskId: task.TaskId,
@@ -60,7 +50,7 @@ public sealed class TopologyAgentHandler : IAgentHandler
 
             var parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
-            await _traceRecorder.RecordAsync(
+            await traceRecorder.RecordAsync(
                 runId,
                 task.TaskId,
                 AgentType.Topology,
@@ -76,7 +66,7 @@ public sealed class TopologyAgentHandler : IAgentHandler
         }
         catch (Exception ex)
         {
-            await _traceRecorder.RecordAsync(
+            await traceRecorder.RecordAsync(
                 runId,
                 task.TaskId,
                 AgentType.Topology,

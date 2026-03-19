@@ -6,15 +6,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class DecisionNodeRepository : IDecisionNodeRepository
+public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactory) : IDecisionNodeRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public DecisionNodeRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateManyAsync(
         IReadOnlyCollection<DecisionNode> decisions,
         CancellationToken cancellationToken = default)
@@ -49,7 +42,7 @@ public sealed class DecisionNodeRepository : IDecisionNodeRepository
             );
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         foreach (var decision in decisions)
         {
@@ -82,7 +75,7 @@ public sealed class DecisionNodeRepository : IDecisionNodeRepository
             ORDER BY CreatedUtc;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

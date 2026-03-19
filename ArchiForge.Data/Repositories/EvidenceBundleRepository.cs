@@ -6,12 +6,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class EvidenceBundleRepository : IEvidenceBundleRepository
+public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFactory) : IEvidenceBundleRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public EvidenceBundleRepository(IDbConnectionFactory connectionFactory) => _connectionFactory = connectionFactory;
-
     public async Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -33,7 +29,7 @@ public sealed class EvidenceBundleRepository : IEvidenceBundleRepository
 
         var json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -55,7 +51,7 @@ public sealed class EvidenceBundleRepository : IEvidenceBundleRepository
             WHERE EvidenceBundleId = @EvidenceBundleId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,

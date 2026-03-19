@@ -6,13 +6,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureExportRecordDiffTests : IntegrationTestBase
+public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureExportRecordDiffTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {

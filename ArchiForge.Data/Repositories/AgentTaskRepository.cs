@@ -5,15 +5,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class AgentTaskRepository : IAgentTaskRepository
+public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) : IAgentTaskRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public AgentTaskRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default)
     {
         const string sql = """
@@ -41,7 +34,7 @@ public sealed class AgentTaskRepository : IAgentTaskRepository
             );
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = tasks.Select(t => new
         {
@@ -78,7 +71,7 @@ public sealed class AgentTaskRepository : IAgentTaskRepository
             ORDER BY CreatedUtc;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,

@@ -3,25 +3,13 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class ExportReplayService : IExportReplayService
+public sealed class ExportReplayService(
+    IRunExportRecordRepository runExportRecordRepository,
+    IArchitectureAnalysisService architectureAnalysisService,
+    IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
+    IRunExportAuditService runExportAuditService)
+    : IExportReplayService
 {
-    private readonly IRunExportRecordRepository _runExportRecordRepository;
-    private readonly IArchitectureAnalysisService _architectureAnalysisService;
-    private readonly IArchitectureAnalysisConsultingDocxExportService _consultingDocxExportService;
-    private readonly IRunExportAuditService _runExportAuditService;
-
-    public ExportReplayService(
-        IRunExportRecordRepository runExportRecordRepository,
-        IArchitectureAnalysisService architectureAnalysisService,
-        IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
-        IRunExportAuditService runExportAuditService)
-    {
-        _runExportRecordRepository = runExportRecordRepository;
-        _architectureAnalysisService = architectureAnalysisService;
-        _consultingDocxExportService = consultingDocxExportService;
-        _runExportAuditService = runExportAuditService;
-    }
-
     public async Task<ReplayExportResult> ReplayAsync(
         ReplayExportRequest request,
         CancellationToken cancellationToken = default)
@@ -31,7 +19,7 @@ public sealed class ExportReplayService : IExportReplayService
             throw new InvalidOperationException("ExportRecordId is required.");
         }
 
-        var record = await _runExportRecordRepository.GetByIdAsync(
+        var record = await runExportRecordRepository.GetByIdAsync(
             request.ExportRecordId,
             cancellationToken);
 
@@ -61,7 +49,7 @@ public sealed class ExportReplayService : IExportReplayService
             CompareRunId = persistedRequest.CompareRunId
         };
 
-        var report = await _architectureAnalysisService.BuildAsync(
+        var report = await architectureAnalysisService.BuildAsync(
             analysisRequest,
             cancellationToken);
 
@@ -86,7 +74,7 @@ public sealed class ExportReplayService : IExportReplayService
         bool recordReplayExport,
         CancellationToken cancellationToken)
     {
-        var bytes = await _consultingDocxExportService.GenerateDocxAsync(
+        var bytes = await consultingDocxExportService.GenerateDocxAsync(
             report,
             cancellationToken);
 
@@ -94,7 +82,7 @@ public sealed class ExportReplayService : IExportReplayService
 
         if (recordReplayExport)
         {
-            await _runExportAuditService.RecordAsync(
+            await runExportAuditService.RecordAsync(
                 runId: record.RunId,
                 exportType: record.ExportType,
                 format: record.Format,

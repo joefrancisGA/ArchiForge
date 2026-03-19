@@ -4,23 +4,15 @@ using System.Linq;
 
 namespace ArchiForge.Application.Analysis;
 
-public sealed class ConsultingDocxTemplateRecommendationService
+public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxTemplateProfileResolver profileResolver)
     : IConsultingDocxTemplateRecommendationService
 {
-    private readonly IConsultingDocxTemplateProfileResolver _profileResolver;
-
-    public ConsultingDocxTemplateRecommendationService(
-        IConsultingDocxTemplateProfileResolver profileResolver)
-    {
-        _profileResolver = profileResolver;
-    }
-
     public ConsultingDocxProfileRecommendation Recommend(
         ConsultingDocxProfileRecommendationRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var catalog = _profileResolver.GetCatalog();
+        var catalog = profileResolver.GetCatalog();
         var available = catalog.Profiles
             .Select(p => p.ProfileName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);

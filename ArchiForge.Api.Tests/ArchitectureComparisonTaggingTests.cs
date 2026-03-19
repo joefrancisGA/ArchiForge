@@ -8,15 +8,9 @@ using ArchiForge.Data.Repositories;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureComparisonTaggingTests : IntegrationTestBase
+public sealed class ArchitectureComparisonTaggingTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly ArchiForgeApiFactory _factory;
-
-    public ArchitectureComparisonTaggingTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-        _factory = factory;
-    }
+    private readonly ArchiForgeApiFactory _factory = factory;
 
     [Fact]
     public async Task UpdateComparisonRecord_UpdatesLabelAndTags_ThenSearchFindsIt()

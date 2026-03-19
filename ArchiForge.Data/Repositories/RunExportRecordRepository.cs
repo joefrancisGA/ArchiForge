@@ -6,15 +6,8 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class RunExportRecordRepository : IRunExportRecordRepository
+public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFactory) : IRunExportRecordRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public RunExportRecordRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateAsync(
         RunExportRecord record,
         CancellationToken cancellationToken = default)
@@ -80,7 +73,7 @@ public sealed class RunExportRecordRepository : IRunExportRecordRepository
 
         var json = JsonSerializer.Serialize(record, ContractJson.Default);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -126,7 +119,7 @@ public sealed class RunExportRecordRepository : IRunExportRecordRepository
             ORDER BY CreatedUtc DESC;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -150,7 +143,7 @@ public sealed class RunExportRecordRepository : IRunExportRecordRepository
             WHERE ExportRecordId = @ExportRecordId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,

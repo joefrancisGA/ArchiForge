@@ -6,15 +6,9 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Summaries;
 
-public sealed class MarkdownManifestSummaryGenerator : IManifestSummaryGenerator
+public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter)
+    : IManifestSummaryGenerator
 {
-    private readonly IEvidenceSummaryFormatter _evidenceFormatter;
-
-    public MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter evidenceFormatter)
-    {
-        _evidenceFormatter = evidenceFormatter;
-    }
-
     public string GenerateMarkdown(
         GoldenManifest manifest,
         AgentEvidencePackage? evidence = null)
@@ -167,7 +161,7 @@ public sealed class MarkdownManifestSummaryGenerator : IManifestSummaryGenerator
             sb.AppendLine();
             sb.AppendLine("---");
             sb.AppendLine();
-            sb.AppendLine(_evidenceFormatter.FormatMarkdown(evidence).Trim());
+            sb.AppendLine(evidenceFormatter.FormatMarkdown(evidence).Trim());
             sb.AppendLine();
         }
 

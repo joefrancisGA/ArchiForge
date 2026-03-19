@@ -5,13 +5,8 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureRunDetailsTests : IntegrationTestBase
+public sealed class ArchitectureRunDetailsTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    public ArchitectureRunDetailsTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task GetRun_ReturnsTypedRunDetailsResponse()
     {

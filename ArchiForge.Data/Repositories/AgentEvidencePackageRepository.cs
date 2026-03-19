@@ -6,15 +6,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class AgentEvidencePackageRepository : IAgentEvidencePackageRepository
+public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connectionFactory)
+    : IAgentEvidencePackageRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public AgentEvidencePackageRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateAsync(
         AgentEvidencePackage evidencePackage,
         CancellationToken cancellationToken = default)
@@ -46,7 +40,7 @@ public sealed class AgentEvidencePackageRepository : IAgentEvidencePackageReposi
 
         var json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -75,7 +69,7 @@ public sealed class AgentEvidencePackageRepository : IAgentEvidencePackageReposi
             ORDER BY CreatedUtc DESC;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
@@ -97,7 +91,7 @@ public sealed class AgentEvidencePackageRepository : IAgentEvidencePackageReposi
             WHERE EvidencePackageId = @EvidencePackageId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,

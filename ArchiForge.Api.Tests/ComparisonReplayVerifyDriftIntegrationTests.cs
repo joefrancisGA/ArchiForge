@@ -14,13 +14,9 @@ namespace ArchiForge.Api.Tests;
 /// End-to-end: persisted comparison payload is tampered in DB, then verify replay returns 422 (real pipeline, not a stub service).
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class ComparisonReplayVerifyDriftIntegrationTests : IntegrationTestBase
+public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFactory factory)
+    : IntegrationTestBase(factory)
 {
-    public ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     [Trait("Category", "Integration")]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()

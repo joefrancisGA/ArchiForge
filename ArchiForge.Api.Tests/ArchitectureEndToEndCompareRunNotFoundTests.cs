@@ -5,13 +5,9 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureEndToEndCompareRunNotFoundTests : IntegrationTestBase
+public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchiForgeApiFactory factory)
+    : IntegrationTestBase(factory)
 {
-    public ArchitectureEndToEndCompareRunNotFoundTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task CompareRunsEndToEnd_WhenRunMissing_Returns404RunNotFound()
     {

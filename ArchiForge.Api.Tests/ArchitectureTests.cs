@@ -8,14 +8,9 @@ using Xunit;
 using ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public class ArchitectureTests : IntegrationTestBase
+public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
     private static readonly DecisionEngineService _engine = new(new PassthroughSchemaValidationService());
-
-    public ArchitectureTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
 
     [Fact]
     public async Task CreateArchitectureRun_ShouldReturnRunId()

@@ -8,13 +8,9 @@ using Xunit;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureEndToEndComparisonExportTests : IntegrationTestBase
+public sealed class ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFactory factory)
+    : IntegrationTestBase(factory)
 {
-    public ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-    }
-
     [Fact]
     public async Task ExportRunsEndToEndComparisonMarkdown_ReturnsMarkdown()
     {

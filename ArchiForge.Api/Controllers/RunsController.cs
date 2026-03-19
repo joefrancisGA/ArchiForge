@@ -19,52 +19,22 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
-public sealed class RunsController : ControllerBase
+public sealed class RunsController(
+    IArchitectureRunService architectureRunService,
+    IReplayRunService replayRunService,
+    IArchitectureApplicationService architectureApplicationService,
+    IArchitectureRunRepository runRepository,
+    IAgentTaskRepository taskRepository,
+    IAgentResultRepository resultRepository,
+    IGoldenManifestRepository manifestRepository,
+    IDecisionTraceRepository decisionTraceRepository,
+    IDeterminismCheckService determinismCheckService,
+    IDecisionNodeRepository decisionNodeRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    ILogger<RunsController> logger)
+    : ControllerBase
 {
-    private readonly IArchitectureRunService _architectureRunService;
-    private readonly IReplayRunService _replayRunService;
-    private readonly IArchitectureApplicationService _architectureApplicationService;
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentTaskRepository _taskRepository;
-    private readonly IAgentResultRepository _resultRepository;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IDeterminismCheckService _determinismCheckService;
-    private readonly IDecisionNodeRepository _decisionNodeRepository;
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
-    private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository;
-    private readonly ILogger<RunsController> _logger;
-
-    public RunsController(
-        IArchitectureRunService architectureRunService,
-        IReplayRunService replayRunService,
-        IArchitectureApplicationService architectureApplicationService,
-        IArchitectureRunRepository runRepository,
-        IAgentTaskRepository taskRepository,
-        IAgentResultRepository resultRepository,
-        IGoldenManifestRepository manifestRepository,
-        IDecisionTraceRepository decisionTraceRepository,
-        IDeterminismCheckService determinismCheckService,
-        IDecisionNodeRepository decisionNodeRepository,
-        IAgentEvidencePackageRepository agentEvidencePackageRepository,
-        IAgentExecutionTraceRepository agentExecutionTraceRepository,
-        ILogger<RunsController> logger)
-    {
-        _architectureRunService = architectureRunService;
-        _replayRunService = replayRunService;
-        _architectureApplicationService = architectureApplicationService;
-        _runRepository = runRepository;
-        _taskRepository = taskRepository;
-        _resultRepository = resultRepository;
-        _manifestRepository = manifestRepository;
-        _decisionTraceRepository = decisionTraceRepository;
-        _determinismCheckService = determinismCheckService;
-        _decisionNodeRepository = decisionNodeRepository;
-        _agentEvidencePackageRepository = agentEvidencePackageRepository;
-        _agentExecutionTraceRepository = agentExecutionTraceRepository;
-        _logger = logger;
-    }
-
     [HttpPost("request")]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -82,7 +52,7 @@ public sealed class RunsController : ControllerBase
 
         try
         {
-            var result = await _architectureRunService.CreateRunAsync(request, cancellationToken);
+            var result = await architectureRunService.CreateRunAsync(request, cancellationToken);
 
             var response = new CreateArchitectureRunResponse
             {
@@ -91,7 +61,7 @@ public sealed class RunsController : ControllerBase
                 Tasks = result.Tasks
             };
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Run created: RunId={RunId}, RequestId={RequestId}, User={User}, CorrelationId={CorrelationId}",
                 result.Run.RunId,
                 request.RequestId,
@@ -123,7 +93,7 @@ public sealed class RunsController : ControllerBase
 
         try
         {
-            var result = await _architectureRunService.ExecuteRunAsync(runId, cancellationToken);
+            var result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
 
             var response = new ExecuteRunResponse
             {
@@ -131,7 +101,7 @@ public sealed class RunsController : ControllerBase
                 Results = result.Results
             };
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Run executed: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
                 runId,
                 result.Results.Count,
@@ -167,7 +137,7 @@ public sealed class RunsController : ControllerBase
 
         try
         {
-            var result = await _replayRunService.ReplayAsync(
+            var result = await replayRunService.ReplayAsync(
                 runId,
                 request.ExecutionMode,
                 request.CommitReplay,
@@ -185,7 +155,7 @@ public sealed class RunsController : ControllerBase
                 Warnings = result.Warnings
             };
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Run replayed: OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
                 result.OriginalRunId,
                 result.ReplayRunId,
@@ -220,7 +190,7 @@ public sealed class RunsController : ControllerBase
 
         try
         {
-            var result = await _determinismCheckService.RunAsync(request, cancellationToken);
+            var result = await determinismCheckService.RunAsync(request, cancellationToken);
 
             return Ok(new DeterminismCheckResponse
             {
@@ -252,7 +222,7 @@ public sealed class RunsController : ControllerBase
 
         try
         {
-            var result = await _architectureRunService.CommitRunAsync(runId, cancellationToken);
+            var result = await architectureRunService.CommitRunAsync(runId, cancellationToken);
 
             var response = new CommitRunResponse
             {
@@ -261,7 +231,7 @@ public sealed class RunsController : ControllerBase
                 Warnings = result.Warnings
             };
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}, User={User}, CorrelationId={CorrelationId}",
                 runId,
                 result.Manifest.Metadata.ManifestVersion,
@@ -311,7 +281,7 @@ public sealed class RunsController : ControllerBase
             return this.BadRequestProblem("Agent result is required.", ProblemTypes.AgentResultRequired);
         }
 
-        var result = await _architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
+        var result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
         if (!result.Success)
         {
             if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
@@ -336,7 +306,7 @@ public sealed class RunsController : ControllerBase
         var user = User?.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
-        var result = await _architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
+        var result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
         if (!result.Success)
         {
             if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
@@ -346,7 +316,7 @@ public sealed class RunsController : ControllerBase
             return this.BadRequestProblem(result.Error ?? "Seed failed.");
         }
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
             runId,
             result.ResultCount,
@@ -363,13 +333,13 @@ public sealed class RunsController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var decisions = await _decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+        var decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
 
         return Ok(new DecisionNodeResponse
         {
@@ -384,13 +354,13 @@ public sealed class RunsController : ControllerBase
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
         if (evidence is null)
         {
             return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -411,13 +381,13 @@ public sealed class RunsController : ControllerBase
         [FromQuery] int pageSize = 50,
         CancellationToken cancellationToken = default)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var allTraces = await _agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        var allTraces = await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
         var paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
         var (skip, take) = paging.Normalize();
 
@@ -440,7 +410,7 @@ public sealed class RunsController : ControllerBase
     [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)
     {
-        var items = await _runRepository.ListAsync(cancellationToken);
+        var items = await runRepository.ListAsync(cancellationToken);
 
         var response = items
             .Select(r => new RunListItemResponse
@@ -462,22 +432,22 @@ public sealed class RunsController : ControllerBase
         string runId,
         CancellationToken cancellationToken)
     {
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken);
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             return null;
         }
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         GoldenManifest? manifest = null;
         List<DecisionTrace> decisionTraces = [];
 
         if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
         {
-            manifest = await _manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
-            decisionTraces = (await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
+            manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
         }
 
         return new RunDetailsResponse

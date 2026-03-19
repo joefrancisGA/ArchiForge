@@ -9,15 +9,9 @@ using ArchiForge.Data.Repositories;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
-public sealed class ArchitectureComparisonSearchTests : IntegrationTestBase
+public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
-    private readonly ArchiForgeApiFactory _factory;
-
-    public ArchitectureComparisonSearchTests(ArchiForgeApiFactory factory)
-        : base(factory)
-    {
-        _factory = factory;
-    }
+    private readonly ArchiForgeApiFactory _factory = factory;
 
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()

@@ -5,23 +5,16 @@ using System.Text.Encodings.Web;
 
 namespace ArchiForge.Api.Authentication;
 
-public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public sealed class ApiKeyAuthenticationHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder,
+    IConfiguration configuration)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
-    private readonly IConfiguration _configuration;
-
-    public ApiKeyAuthenticationHandler(
-        IOptionsMonitor<AuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder,
-        IConfiguration configuration)
-        : base(options, logger, encoder)
-    {
-        _configuration = configuration;
-    }
-
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var enabled = _configuration.GetValue("Authentication:ApiKey:Enabled", false);
+        var enabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
 
         // If API key auth is disabled, treat all requests as authenticated so existing callers/tests keep working.
         if (!enabled)
@@ -49,8 +42,8 @@ public sealed class ApiKeyAuthenticationHandler : AuthenticationHandler<Authenti
 
         var key = providedKey.ToString();
 
-        var adminKey = _configuration["Authentication:ApiKey:AdminKey"];
-        var readerKey = _configuration["Authentication:ApiKey:ReadOnlyKey"];
+        var adminKey = configuration["Authentication:ApiKey:AdminKey"];
+        var readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
 
         string? userName;
         Claim[] claims;

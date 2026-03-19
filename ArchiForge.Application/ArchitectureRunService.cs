@@ -10,69 +10,31 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Application;
 
-public sealed class ArchitectureRunService : IArchitectureRunService
+public sealed class ArchitectureRunService(
+    ICoordinatorService coordinator,
+    IAgentExecutor agentExecutor,
+    IDecisionEngineService decisionEngine,
+    IAgentEvaluationService agentEvaluationService,
+    IAgentEvaluationRepository agentEvaluationRepository,
+    IDecisionEngineV2 decisionEngineV2,
+    IDecisionNodeRepository decisionNodeRepository,
+    IEvidenceBuilder evidenceBuilder,
+    IArchitectureRequestRepository requestRepository,
+    IArchitectureRunRepository runRepository,
+    IAgentTaskRepository taskRepository,
+    IAgentResultRepository resultRepository,
+    IGoldenManifestRepository manifestRepository,
+    IEvidenceBundleRepository evidenceBundleRepository,
+    IDecisionTraceRepository decisionTraceRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    ILogger<ArchitectureRunService> logger)
+    : IArchitectureRunService
 {
-    private readonly ICoordinatorService _coordinator;
-    private readonly IAgentExecutor _agentExecutor;
-    private readonly IDecisionEngineService _decisionEngine;
-    private readonly IAgentEvaluationService _agentEvaluationService;
-    private readonly IAgentEvaluationRepository _agentEvaluationRepository;
-    private readonly IDecisionEngineV2 _decisionEngineV2;
-    private readonly IDecisionNodeRepository _decisionNodeRepository;
-    private readonly IEvidenceBuilder _evidenceBuilder;
-    private readonly IArchitectureRequestRepository _requestRepository;
-    private readonly IArchitectureRunRepository _runRepository;
-    private readonly IAgentTaskRepository _taskRepository;
-    private readonly IAgentResultRepository _resultRepository;
-    private readonly IGoldenManifestRepository _manifestRepository;
-    private readonly IEvidenceBundleRepository _evidenceBundleRepository;
-    private readonly IDecisionTraceRepository _decisionTraceRepository;
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository;
-    private readonly ILogger<ArchitectureRunService> _logger;
-
-    public ArchitectureRunService(
-        ICoordinatorService coordinator,
-        IAgentExecutor agentExecutor,
-        IDecisionEngineService decisionEngine,
-        IAgentEvaluationService agentEvaluationService,
-        IAgentEvaluationRepository agentEvaluationRepository,
-        IDecisionEngineV2 decisionEngineV2,
-        IDecisionNodeRepository decisionNodeRepository,
-        IEvidenceBuilder evidenceBuilder,
-        IArchitectureRequestRepository requestRepository,
-        IArchitectureRunRepository runRepository,
-        IAgentTaskRepository taskRepository,
-        IAgentResultRepository resultRepository,
-        IGoldenManifestRepository manifestRepository,
-        IEvidenceBundleRepository evidenceBundleRepository,
-        IDecisionTraceRepository decisionTraceRepository,
-        IAgentEvidencePackageRepository agentEvidencePackageRepository,
-        ILogger<ArchitectureRunService> logger)
-    {
-        _coordinator = coordinator;
-        _agentExecutor = agentExecutor;
-        _decisionEngine = decisionEngine;
-        _agentEvaluationService = agentEvaluationService;
-        _agentEvaluationRepository = agentEvaluationRepository;
-        _decisionEngineV2 = decisionEngineV2;
-        _decisionNodeRepository = decisionNodeRepository;
-        _evidenceBuilder = evidenceBuilder;
-        _requestRepository = requestRepository;
-        _runRepository = runRepository;
-        _taskRepository = taskRepository;
-        _resultRepository = resultRepository;
-        _manifestRepository = manifestRepository;
-        _evidenceBundleRepository = evidenceBundleRepository;
-        _decisionTraceRepository = decisionTraceRepository;
-        _agentEvidencePackageRepository = agentEvidencePackageRepository;
-        _logger = logger;
-    }
-
     public async Task<CreateRunResult> CreateRunAsync(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
     {
-        var coordination = _coordinator.CreateRun(request);
+        var coordination = coordinator.CreateRun(request);
 
         if (!coordination.Success)
         {
@@ -80,19 +42,19 @@ public sealed class ArchitectureRunService : IArchitectureRunService
                 $"CreateRun failed: {string.Join("; ", coordination.Errors)}");
         }
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
             coordination.Run.RunId,
             request.RequestId,
             request.SystemName,
             request.Environment);
 
-        await _requestRepository.CreateAsync(request, cancellationToken);
-        await _runRepository.CreateAsync(coordination.Run, cancellationToken);
-        await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
-        await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+        await requestRepository.CreateAsync(request, cancellationToken);
+        await runRepository.CreateAsync(coordination.Run, cancellationToken);
+        await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
+        await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
             coordination.Run.RunId,
             coordination.Tasks.Count);
@@ -109,21 +71,21 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         string runId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation(
+        logger.LogInformation(
             "Executing architecture run: RunId={RunId}",
             runId);
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken)
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{runId}' not found.");
 
         // Idempotency: if the run has already been executed and is ready for commit or committed,
         // return the existing results instead of re-executing agents.
         if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
         {
-            var existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
             if (existingResults.Count > 0)
             {
-                _logger.LogInformation(
+                logger.LogInformation(
                     "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
                     runId,
                     run.Status,
@@ -137,29 +99,29 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             }
         }
 
-        var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
+        var request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         if (tasks.Count == 0)
         {
             throw new InvalidOperationException($"No tasks found for run '{runId}'.");
         }
 
-        var evidence = await _evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+        var evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
-        await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+        await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
 
-        var results = await _agentExecutor.ExecuteAsync(
+        var results = await agentExecutor.ExecuteAsync(
             runId,
             request,
             evidence,
             tasks,
             cancellationToken);
 
-        await _resultRepository.CreateManyAsync(results, cancellationToken);
+        await resultRepository.CreateManyAsync(results, cancellationToken);
 
-        var evaluations = await _agentEvaluationService.EvaluateAsync(
+        var evaluations = await agentEvaluationService.EvaluateAsync(
             runId,
             request,
             evidence,
@@ -167,16 +129,16 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             results,
             cancellationToken);
 
-        await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+        await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
 
-        await _runRepository.UpdateStatusAsync(
+        await runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.ReadyForCommit,
             currentManifestVersion: run.CurrentManifestVersion,
             completedUtc: null,
             cancellationToken: cancellationToken);
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
             runId,
             results.Count);
@@ -192,11 +154,11 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         string runId,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation(
+        logger.LogInformation(
             "Committing architecture run: RunId={RunId}",
             runId);
 
-        var run = await _runRepository.GetByIdAsync(runId, cancellationToken)
+        var run = await runRepository.GetByIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{runId}' not found.");
 
         // Idempotency: if the run is already committed and has a manifest version,
@@ -204,12 +166,12 @@ public sealed class ArchitectureRunService : IArchitectureRunService
         if (run.Status is ArchitectureRunStatus.Committed &&
             !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
         {
-            var existingManifest = await _manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            var existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
             if (existingManifest is not null)
             {
-                var existingTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+                var existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
-                _logger.LogInformation(
+                logger.LogInformation(
                     "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
                     runId,
                     run.CurrentManifestVersion,
@@ -241,21 +203,21 @@ public sealed class ArchitectureRunService : IArchitectureRunService
                 $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
         }
 
-        var request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
+        var request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        var evidence = await _agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
+        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
 
-        var tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
         if (results.Count == 0)
         {
             throw new InvalidOperationException($"No agent results found for run '{runId}'.");
         }
 
-        var evaluations = await _agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
-        var decisionNodes = await _decisionEngineV2.ResolveAsync(
+        var evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
+        var decisionNodes = await decisionEngineV2.ResolveAsync(
             runId,
             request,
             evidence,
@@ -264,13 +226,13 @@ public sealed class ArchitectureRunService : IArchitectureRunService
             evaluations,
             cancellationToken);
 
-        await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
+        await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
 
         var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
             ? "v1"
             : IncrementManifestVersion(run.CurrentManifestVersion);
 
-        var merge = _decisionEngine.MergeResults(
+        var merge = decisionEngine.MergeResults(
             runId,
             request,
             manifestVersion,
@@ -281,7 +243,7 @@ public sealed class ArchitectureRunService : IArchitectureRunService
 
         if (!merge.Success)
         {
-            await _runRepository.UpdateStatusAsync(
+            await runRepository.UpdateStatusAsync(
                 runId,
                 ArchitectureRunStatus.Failed,
                 run.CurrentManifestVersion,
@@ -292,17 +254,17 @@ public sealed class ArchitectureRunService : IArchitectureRunService
                 $"CommitRun failed: {string.Join("; ", merge.Errors)}");
         }
 
-        await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
-        await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
+        await manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
+        await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
 
-        await _runRepository.UpdateStatusAsync(
+        await runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.Committed,
             merge.Manifest.Metadata.ManifestVersion,
             DateTime.UtcNow,
             cancellationToken);
 
-        _logger.LogInformation(
+        logger.LogInformation(
             "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
             runId,
             merge.Manifest.Metadata.ManifestVersion,

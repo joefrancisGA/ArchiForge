@@ -6,15 +6,9 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
-public sealed class AgentExecutionTraceRepository : IAgentExecutionTraceRepository
+public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectionFactory)
+    : IAgentExecutionTraceRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-
-    public AgentExecutionTraceRepository(IDbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task CreateAsync(
         AgentExecutionTrace trace,
         CancellationToken cancellationToken = default)
@@ -46,7 +40,7 @@ public sealed class AgentExecutionTraceRepository : IAgentExecutionTraceReposito
 
         var json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -75,7 +69,7 @@ public sealed class AgentExecutionTraceRepository : IAgentExecutionTraceReposito
             ORDER BY CreatedUtc;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -99,7 +93,7 @@ public sealed class AgentExecutionTraceRepository : IAgentExecutionTraceReposito
             ORDER BY CreatedUtc;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
