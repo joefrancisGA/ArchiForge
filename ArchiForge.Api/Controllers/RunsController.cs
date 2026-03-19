@@ -42,12 +42,7 @@ public sealed class RunsController(
         [FromBody] ArchitectureRequest request,
         CancellationToken cancellationToken)
     {
-        if (request is null)
-        {
-            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-        }
-
-        var user = User?.Identity?.Name ?? "anonymous";
+        var user = User.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
         try
@@ -88,7 +83,7 @@ public sealed class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var user = User?.Identity?.Name ?? "anonymous";
+        var user = User.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
         try
@@ -132,7 +127,7 @@ public sealed class RunsController(
     {
         request ??= new ReplayRunRequest();
 
-        var user = User?.Identity?.Name ?? "anonymous";
+        var user = User.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
         try
@@ -217,7 +212,7 @@ public sealed class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var user = User?.Identity?.Name ?? "anonymous";
+        var user = User.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
         try
@@ -276,7 +271,7 @@ public sealed class RunsController(
         [FromBody] SubmitAgentResultRequest request,
         CancellationToken cancellationToken)
     {
-        if (request?.Result is null)
+        if (request.Result is null)
         {
             return this.BadRequestProblem("Agent result is required.", ProblemTypes.AgentResultRequired);
         }
@@ -303,7 +298,7 @@ public sealed class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var user = User?.Identity?.Name ?? "anonymous";
+        var user = User.Identity?.Name ?? "anonymous";
         var correlationId = HttpContext.TraceIdentifier;
 
         var result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);

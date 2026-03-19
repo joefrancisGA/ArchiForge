@@ -25,12 +25,9 @@ public sealed class ComparisonsController(
     IComparisonRecordRepository comparisonRecordRepository,
     IComparisonReplayApiService comparisonReplayApiService,
     IDriftReportFormatter driftReportFormatter,
-    DriftReportDocxExport driftReportDocxExport,
-    ILogger<ComparisonsController> logger)
+    DriftReportDocxExport driftReportDocxExport)
     : ControllerBase
 {
-    private readonly ILogger<ComparisonsController> _logger = logger;
-
     private static readonly ComparisonHistoryQueryValidator ComparisonHistoryValidator = new();
 
     private sealed class ComparisonHistoryQueryValidator : AbstractValidator<ComparisonHistoryQuery>
@@ -387,31 +384,34 @@ public sealed class ComparisonsController(
         CancellationToken cancellationToken = default)
     {
         var drift = await comparisonReplayApiService.AnalyzeDriftAsync(comparisonRecordId, cancellationToken);
-        var normalizedFormat = (format ?? "markdown").Trim().ToLowerInvariant();
+        var normalizedFormat = format.Trim().ToLowerInvariant();
 
-        if (normalizedFormat == "markdown")
+        switch (normalizedFormat)
         {
-            var content = driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
-            return ApiFileResults.RangeText(Request, content, "text/markdown", $"drift-report_{comparisonRecordId}.md");
+            case "markdown":
+            {
+                var content = driftReportFormatter.FormatMarkdown(drift, comparisonRecordId);
+                return ApiFileResults.RangeText(Request, content, "text/markdown", $"drift-report_{comparisonRecordId}.md");
+            }
+            case "html":
+            {
+                var content = driftReportFormatter.FormatHtml(drift, comparisonRecordId);
+                return ApiFileResults.RangeText(Request, content, "text/html", $"drift-report_{comparisonRecordId}.html");
+            }
+            case "docx":
+            {
+                var bytes = driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
+                return ApiFileResults.RangeBytes(
+                    Request,
+                    bytes,
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    $"drift-report_{comparisonRecordId}.docx");
+            }
+            default:
+                return this.BadRequestProblem(
+                    $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
+                    ProblemTypes.BadRequest);
         }
-        if (normalizedFormat == "html")
-        {
-            var content = driftReportFormatter.FormatHtml(drift, comparisonRecordId);
-            return ApiFileResults.RangeText(Request, content, "text/html", $"drift-report_{comparisonRecordId}.html");
-        }
-        if (normalizedFormat == "docx")
-        {
-            var bytes = driftReportDocxExport.GenerateDocx(drift, comparisonRecordId);
-            return ApiFileResults.RangeBytes(
-                Request,
-                bytes,
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                $"drift-report_{comparisonRecordId}.docx");
-        }
-
-        return this.BadRequestProblem(
-            $"Unsupported drift report format '{format}'. Use markdown, html, or docx.",
-            ProblemTypes.BadRequest);
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
@@ -511,11 +511,12 @@ public sealed class ComparisonsController(
                 ProblemTypes.ValidationFailed);
         }
 
-        var format = request.Format ?? "markdown";
-        var mode = request.ReplayMode ?? "artifact";
+        var format = request.Format;
+        var mode = request.ReplayMode;
 
         await using var ms = new MemoryStream();
-        using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+
+        await using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
         {
             foreach (var id in request.ComparisonRecordIds.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
             {
@@ -538,7 +539,7 @@ public sealed class ComparisonsController(
                 }
 
                 var entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
-                await using var entryStream = entry.Open();
+                await using var entryStream = await entry.OpenAsync(cancellationToken);
                 var payload = ReplayArtifactResponseFactory.GetComparisonReplayEntryBytes(result);
                 await entryStream.WriteAsync(payload, cancellationToken);
             }

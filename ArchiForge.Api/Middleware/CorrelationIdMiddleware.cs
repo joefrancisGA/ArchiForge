@@ -10,8 +10,7 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context)
     {
         var correlationId = context.Request.Headers[HeaderName].FirstOrDefault()
-            ?? context.TraceIdentifier
-            ?? Guid.NewGuid().ToString("N");
+            ?? context.TraceIdentifier;
 
         context.Response.Headers[HeaderName] = correlationId;
         context.TraceIdentifier = correlationId;
