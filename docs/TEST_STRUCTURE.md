@@ -30,7 +30,7 @@ dotnet test --filter "Category=Integration"
 
 ## Fixtures and shared setup
 
-- **IntegrationTestBase** (Api.Tests) — provides `HttpClient` and `JsonOptions` from `ArchiForgeApiFactory`.
+- **IntegrationTestBase** (Api.Tests) — provides `HttpClient`, `JsonOptions`, and `JsonContent(object)` from `ArchiForgeApiFactory`. Tests that extend it should use the base `JsonOptions` and `JsonContent` for request/response JSON so behavior is consistent and configurable in one place.
 - **ComparisonReplayTestFixture** (Api.Tests) — static helpers: `CreateRunExecuteCommitReplayAsync`, `PersistEndToEndComparisonAsync` for comparison-replay flows.
 
 No separate “unit-only” test project exists; use `[Trait("Category", "Integration")]` and filter as above if you want to separate runs.

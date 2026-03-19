@@ -2,6 +2,8 @@
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering.
 
+**RunComparisonController** intentionally depends on three application services (`IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`) rather than a single facade, for clarity and testability.
+
 ## Full solution
 
 ```bash

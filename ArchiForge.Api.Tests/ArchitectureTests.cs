@@ -1,12 +1,11 @@
-using ArchiForge.Api.Tests;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using FluentAssertions;
-using System.Text;
 using System.Text.Json;
 using Xunit;
+using ArchiForge.Api.Tests;
 
 public class ArchitectureTests : IntegrationTestBase
 {
@@ -29,11 +28,9 @@ public class ArchitectureTests : IntegrationTestBase
             cloudProvider = 1
         };
 
-        var json = JsonSerializer.Serialize(request);
-
         var response = await Client.PostAsync(
             "/v1/architecture/request",
-            new StringContent(json, Encoding.UTF8, "application/json"));
+            JsonContent(request));
 
         response.EnsureSuccessStatusCode();
 
@@ -54,11 +51,9 @@ public class ArchitectureTests : IntegrationTestBase
             cloudProvider = 1
         };
 
-        var json = JsonSerializer.Serialize(request);
-
         var create = await Client.PostAsync(
             "/v1/architecture/request",
-            new StringContent(json, Encoding.UTF8, "application/json"));
+            JsonContent(request));
 
         create.EnsureSuccessStatusCode();
 

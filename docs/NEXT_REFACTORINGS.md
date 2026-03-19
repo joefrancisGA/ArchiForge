@@ -64,10 +64,38 @@ Candidates for the next round of refactors, in rough priority order.
 
 ---
 
+## 6. Use ComparisonReplayTestFixture in ArchitectureComparisonReplayTests
+
+**Problem:** **ArchitectureComparisonReplayTests** repeats the same create→execute→commit→replay flow, then persists via end-to-end summary and finally calls `POST comparisons/{comparisonRecordId}/replay`. Only the last step is unique; the rest matches **ComparisonReplayTestFixture**.
+
+**Change:**
+- Use `ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(Client, JsonOptions)` to get `(runId, replayRunId)`.
+- Use `ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(Client, runId, replayRunId)` to get `comparisonRecordId`.
+- Then `POST /v1/architecture/comparisons/{comparisonRecordId}/replay` with the desired body (e.g. `{ format = "markdown" }`).
+
+**Outcome:** One less place with duplicated run/replay/persist setup; consistent with other E2E comparison tests.
+
+---
+
+## 7. Audit remaining Api.Tests for JsonOptions / JsonContent
+
+**Problem:** After refactorings 1–2, some test files may still use `new JsonOptions().JsonSerializerOptions` or construct request bodies without using the base `JsonContent(object)`. Inconsistencies make it harder to change JSON behavior in one place.
+
+**Change:**
+- Grep for `new JsonOptions()` or `JsonSerializerOptions` in **ArchiForge.Api.Tests** and replace with inherited `JsonOptions` where the test extends **IntegrationTestBase**.
+- Where request bodies are built with `new StringContent(JsonSerializer.Serialize(...))`, prefer the base `JsonContent(value)` if the test has access to it.
+- Optionally add a one-line note in **TEST_STRUCTURE.md** that integration tests should use the base `JsonOptions` and `JsonContent`.
+
+**Outcome:** Full consistency across Api.Tests; single place to tune JSON for tests.
+
+---
+
 ## Checklist (for “integrate all changes” later)
 
 - [x] 1. Api.Tests: use `JsonOptions` / `JsonContent` from base everywhere
 - [x] 2. Api.Tests: use `ComparisonReplayTestFixture` in E2E comparison and export tests
-- [ ] 3. Application + Api: optional `IEndToEndComparisonFacade` and controller refactor (or document “no facade”)
-- [ ] 4. Docs: health check section in README or BUILD.md
-- [ ] 5. Api: FluentValidation for comparison replay request + docs/OpenAPI alignment
+- [x] 3. Application + Api: optional `IEndToEndComparisonFacade` and controller refactor (or document “no facade”)
+- [x] 4. Docs: health check section in README or BUILD.md
+- [x] 5. Api: FluentValidation for comparison replay request + docs/OpenAPI alignment
+- [x] 6. Api.Tests: use `ComparisonReplayTestFixture` in **ArchitectureComparisonReplayTests** (create→execute→commit→replay→persist via fixture, then call `comparisons/{id}/replay`)
+- [x] 7. Api.Tests: audit remaining tests for `JsonOptions` / `JsonContent` — any file still using `new JsonOptions().JsonSerializerOptions` or not using base `JsonContent` should be updated for consistency

@@ -58,7 +58,7 @@ The API listens on the URLs configured for the project (default `http://localhos
 In Development:
 
 - **Swagger UI**: `/swagger`
-- **Health check**: `GET /health`
+- **Health check**: `GET /health` — includes a database check; returns 200 when healthy and 503 (Unhealthy) when the DB check fails. Use for load balancers and runbooks.
 
 Rate limiting is applied to `/v1/architecture/*` endpoints. Defaults: 100 requests per minute per client. Override in `appsettings.json` under `RateLimiting:FixedWindow` (`PermitLimit`, `WindowMinutes`, `QueueLimit`) or via configuration/environment variables.
 

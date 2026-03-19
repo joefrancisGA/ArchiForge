@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +14,7 @@ public class IntegrationTestBase : IClassFixture<ArchiForgeApiFactory>
 
     protected StringContent JsonContent(object value)
     {
-        var json = JsonSerializer.Serialize(value, new JsonOptions().JsonSerializerOptions);
+        var json = JsonSerializer.Serialize(value, JsonOptions);
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 
