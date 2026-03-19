@@ -77,6 +77,12 @@ public sealed class CoordinatorService(
         run.GoldenManifestId = decisionResult.Manifest.ManifestId;
         run.DecisionTraceId = decisionResult.Trace.DecisionTraceId;
 
+        var artifactBundle = artifactSynthesisService
+            .SynthesizeAsync(decisionResult.Manifest, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+        run.ArtifactBundleId = artifactBundle.BundleId;
+
         var evidenceBundle = BuildEvidenceBundle(request);
         var tasks = BuildStarterTasks(runId, evidenceBundle, request, graphSnapshot);
         run.TaskIds = [.. tasks.Select(t => t.TaskId)];

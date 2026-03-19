@@ -101,7 +101,9 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
+#pragma warning disable IDE0305 // Simplify collection initialization
         return rows.ToList();
+#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> GetByExportRecordIdAsync(
@@ -122,7 +124,9 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             new { ExportRecordId = exportRecordId },
             cancellationToken: cancellationToken));
 
+#pragma warning disable IDE0305 // Simplify collection initialization
         return rows.ToList();
+#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     public async Task<IReadOnlyList<ComparisonRecord>> SearchAsync(

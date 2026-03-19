@@ -6,6 +6,7 @@ namespace ArchiForge.Cli;
 
 public static class ManifestValidator
 {
+    private static readonly JsonSerializerOptions s_jsonWriteIndented = new() { WriteIndented = true };
     public static void ValidateOrThrow(string schemaPath, string manifestPath)
     {
         if (!File.Exists(schemaPath)) throw new FileNotFoundException("Schema file not found.", schemaPath);
@@ -29,7 +30,7 @@ public static class ManifestValidator
         {
             var pretty = JsonSerializer.Serialize(
                 result.ToJsonDocument().RootElement,
-                new JsonSerializerOptions { WriteIndented = true });
+                s_jsonWriteIndented);
 
             throw new InvalidDataException("Manifest validation failed:\n" + pretty);
         }
@@ -47,7 +48,7 @@ public static class ManifestValidator
 
         errorsJson = JsonSerializer.Serialize(
             result.ToJsonDocument().RootElement,
-            new JsonSerializerOptions { WriteIndented = true });
+            s_jsonWriteIndented);
 
         return false;
     }

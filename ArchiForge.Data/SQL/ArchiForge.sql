@@ -43,6 +43,7 @@ BEGIN
         CurrentManifestVersion NVARCHAR(50)  NULL,
         ContextSnapshotId      NVARCHAR(64)  NULL,
         GraphSnapshotId        UNIQUEIDENTIFIER NULL,
+        ArtifactBundleId       UNIQUEIDENTIFIER NULL,
         CONSTRAINT FK_ArchitectureRuns_Request FOREIGN KEY (RequestId)
             REFERENCES dbo.ArchitectureRequests (RequestId)
     );
@@ -58,6 +59,11 @@ GO
 IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND name = N'GraphSnapshotId')
     ALTER TABLE dbo.ArchitectureRuns ADD GraphSnapshotId UNIQUEIDENTIFIER NULL;
+GO
+
+IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND name = N'ArtifactBundleId')
+    ALTER TABLE dbo.ArchitectureRuns ADD ArtifactBundleId UNIQUEIDENTIFIER NULL;
 GO
 
 IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ArchitectureRuns_Request')

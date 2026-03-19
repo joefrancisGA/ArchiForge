@@ -8,7 +8,7 @@ namespace ArchiForge.Api.ProblemDetails;
 /// </summary>
 public static class ProblemDetailsExtensions
 {
-    private const string ProblemJsonMediaType = "application/problem+json";
+    private const string ProblemJsonMediaType = ApplicationProblemMapper.ProblemJsonMediaType;
 
     /// <summary>
     /// Returns 400 Bad Request with a Problem Details body.
@@ -91,9 +91,11 @@ public static class ProblemDetailsExtensions
         if (exception is ConflictException)
             return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
 
-        if (exception.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-            return controller.NotFoundProblem(exception.Message, notFoundType ?? ProblemTypes.ResourceNotFound);
-
-        return controller.BadRequestProblem(exception.Message, badRequestType);
+        var instance = controller.Request.Path.Value;
+        return ApplicationProblemMapper.MapInvalidOperation(
+            exception,
+            instance,
+            badRequestType,
+            notFoundType);
     }
 }

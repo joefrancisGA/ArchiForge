@@ -19,7 +19,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 CompletedUtc,
                 CurrentManifestVersion,
                 ContextSnapshotId,
-                GraphSnapshotId
+                GraphSnapshotId,
+                ArtifactBundleId
             )
             VALUES
             (
@@ -30,7 +31,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 @CompletedUtc,
                 @CurrentManifestVersion,
                 @ContextSnapshotId,
-                @GraphSnapshotId
+                @GraphSnapshotId,
+                @ArtifactBundleId
             );
             """;
 
@@ -47,7 +49,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 run.CompletedUtc,
                 run.CurrentManifestVersion,
                 run.ContextSnapshotId,
-                run.GraphSnapshotId
+                run.GraphSnapshotId,
+                run.ArtifactBundleId
             },
             cancellationToken: cancellationToken));
     }
@@ -63,7 +66,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
                 CompletedUtc,
                 CurrentManifestVersion,
                 ContextSnapshotId,
-                GraphSnapshotId
+                GraphSnapshotId,
+                ArtifactBundleId
             FROM ArchitectureRuns
             WHERE RunId = @RunId;
             """;
@@ -134,6 +138,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         public string? CurrentManifestVersion { get; init; }
         public string? ContextSnapshotId { get; init; }
         public Guid? GraphSnapshotId { get; init; }
+        public Guid? ArtifactBundleId { get; init; }
     }
 
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(

@@ -193,6 +193,7 @@ public sealed class DeterministicAgentSimulatorTests
             new NullContextIngestionService(),
             new NullKnowledgeGraphService(),
             findingsOrchestrator,
-            decisionEngine);
+            decisionEngine,
+            TestArtifactSynthesisFactory.Create());
     }
 }

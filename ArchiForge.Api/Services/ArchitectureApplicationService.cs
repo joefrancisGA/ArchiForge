@@ -41,26 +41,31 @@ public sealed class ArchitectureApplicationService(
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult result, CancellationToken cancellationToken = default)
     {
+        if (result is null)
+            return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
+
         if (string.IsNullOrWhiteSpace(runId))
-            return new SubmitResultResult(false, null, "RunId is required.");
+            return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
         var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
-            return new SubmitResultResult(false, null, $"Run '{runId}' was not found.");
+            return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         }
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
             var allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
             return new SubmitResultResult(false, null,
-                $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.");
+                $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
         {
             return new SubmitResultResult(false, null,
-                $"Result RunId '{result.RunId}' does not match route runId '{runId}'.");
+                $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         var tasksTask = taskRepository.GetByRunIdAsync(runId, cancellationToken);
@@ -73,19 +78,22 @@ public sealed class ArchitectureApplicationService(
         if (task is null)
         {
             return new SubmitResultResult(false, null,
-                $"Task '{result.TaskId}' was not found for run '{runId}'.");
+                $"Task '{result.TaskId}' was not found for run '{runId}'.",
+                ApplicationServiceFailureKind.ResourceNotFound);
         }
 
         if (task.AgentType != result.AgentType)
         {
             return new SubmitResultResult(false, null,
-                $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.");
+                $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
         {
             return new SubmitResultResult(false, null,
-                $"A result for task '{result.TaskId}' has already been submitted for this run.");
+                $"A result for task '{result.TaskId}' has already been submitted for this run.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         await resultRepository.CreateAsync(result, cancellationToken);
@@ -134,32 +142,34 @@ public sealed class ArchitectureApplicationService(
     public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(runId))
-            return new SeedFakeResultsResult(false, 0, "RunId is required.");
+            return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
         var run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
-            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.");
+            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         }
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
             var allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
             return new SeedFakeResultsResult(false, 0,
-                $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.");
+                $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.",
+                ApplicationServiceFailureKind.BadRequest);
         }
 
         var architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
         {
             return new SeedFakeResultsResult(false, 0,
-                $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.");
+                $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.",
+                ApplicationServiceFailureKind.ResourceNotFound);
         }
 
         var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         if (tasks.Count == 0)
         {
-            return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.");
+            return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
         }
 
         var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);

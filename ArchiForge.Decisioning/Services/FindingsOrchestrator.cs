@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Decisioning.Services;
 
-public class FindingsOrchestrator(
+public partial class FindingsOrchestrator(
     IEnumerable<IFindingEngine> engines,
     IFindingsSnapshotRepository repository,
     IFindingPayloadValidator validator,
@@ -29,6 +29,24 @@ public class FindingsOrchestrator(
     {
     }
 
+    [LoggerMessage(
+        EventId = 1,
+        Level = LogLevel.Error,
+        Message = "Finding engine failed: EngineType={EngineType} Category={Category} DurationMs={DurationMs}")]
+    private partial void LogEngineFailed(Exception ex, string engineType, string category, long durationMs);
+
+    [LoggerMessage(
+        EventId = 2,
+        Level = LogLevel.Information,
+        Message = "Finding engine completed: EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}")]
+    private partial void LogEngineCompleted(string engineType, string category, long durationMs, int count);
+
+    [LoggerMessage(
+        EventId = 3,
+        Level = LogLevel.Information,
+        Message = "Findings snapshot built: FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}")]
+    private partial void LogSnapshotBuilt(Guid snapshotId, int total, int schemaVersion);
+
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
         Guid contextSnapshotId,
@@ -48,16 +66,12 @@ public class FindingsOrchestrator(
             catch (Exception ex)
             {
                 sw.Stop();
-                logger.LogError(ex,
-                    "Finding engine failed: EngineType={EngineType} Category={Category} DurationMs={DurationMs}",
-                    engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
+                LogEngineFailed(ex, engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
                 throw;
             }
 
             sw.Stop();
-            logger.LogInformation(
-                "Finding engine completed: EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}",
-                engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
+            LogEngineCompleted(engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
 
             foreach (var finding in findings)
             {
@@ -89,9 +103,7 @@ public class FindingsOrchestrator(
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
-        logger.LogInformation(
-            "Findings snapshot built: FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}",
-            snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
+        LogSnapshotBuilt(snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 
         await repository.SaveAsync(snapshot, ct);
 

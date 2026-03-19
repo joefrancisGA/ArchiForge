@@ -1,3 +1,4 @@
+using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Jobs;
@@ -302,21 +303,7 @@ public sealed class AnalysisReportsController(
             contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             work: async ct =>
             {
-                var analysisRequest = new ArchitectureAnalysisRequest
-                {
-                    RunId = runId,
-                    IncludeEvidence = request.IncludeEvidence,
-                    IncludeExecutionTraces = request.IncludeExecutionTraces,
-                    IncludeManifest = request.IncludeManifest,
-                    IncludeDiagram = request.IncludeDiagram,
-                    IncludeSummary = true,
-                    IncludeDeterminismCheck = request.IncludeDeterminismCheck,
-                    DeterminismIterations = request.DeterminismIterations,
-                    IncludeManifestCompare = request.IncludeManifestCompare,
-                    CompareManifestVersion = request.CompareManifestVersion,
-                    IncludeAgentResultCompare = request.IncludeAgentResultCompare,
-                    CompareRunId = request.CompareRunId
-                };
+                var analysisRequest = ConsultingDocxAnalysisRequestFactory.Create(runId, request);
 
                 var report = await architectureAnalysisService.BuildAsync(
                     analysisRequest,

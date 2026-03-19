@@ -561,3 +561,69 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 40. Api: extract response DTO mappers from controllers
 - [x] 41. Api.Tests: unit tests for ReplayComparisonRequestMapper + ReplayComparisonResultHeaders
 - [x] 42. Api: add using aliases to simplify ServiceCollectionExtensions registrations
+
+---
+
+## 43. Single source of truth for exception → ProblemDetails (filter + extensions)
+
+**Problem:** `ApiProblemDetailsExceptionFilter` maps `InvalidOperationException` with “not found” in the message to **`#resource-not-found`**, while controller helpers such as **`InvalidOperationProblem(..., notFoundType: ProblemTypes.RunNotFound)`** intentionally use **`#run-not-found`** for run-scoped actions. The two paths can drift and confuse clients.
+
+**Change:**
+- Extract a small shared mapper (e.g. `ApplicationExceptionProblemMapper.TryMap(Exception, ProblemDetailsOptions)`) used by both the filter and `ProblemDetailsExtensions`.
+- Support per-route or per-exception-type defaults (run vs generic resource) without duplicating string rules.
+
+**Outcome:** Consistent problem `type` and status codes whether the exception is handled in a catch block or bubbles to the filter.
+
+---
+
+## 44. Replace string-based “not found” checks in `RunsController` with typed outcomes
+
+**Problem:** `SubmitAgentResult` and `SeedFakeResults` still branch on **`result.Error.Contains("not found", ...)`** to choose 404 vs 400. That duplicates the fragile message convention used elsewhere.
+
+**Change:**
+- Extend application/API contracts so these operations return a discriminated result (e.g. `NotFound`, `ValidationFailed`, `Success`) or throw **`RunNotFoundException`** / **`InvalidOperationException`** with a stable code — then map in one place (item 43).
+
+**Outcome:** No substring matching on user-facing error strings; clearer tests.
+
+---
+
+## 45. Consolidate duplicate `Controllers` folder paths (casing)
+
+**Problem:** The repo shows both **`ArchiForge.Api/Controllers/`** and **`ArchiForge.Api\Controllers\`** (same files mirrored by path casing). On Windows this is confusing and risks editing the wrong copy or merge noise.
+
+**Change:**
+- Pick one canonical folder name (e.g. `Controllers`), **`git mv`** / normalize so only one path exists; ensure `.csproj` default includes remain valid.
+
+**Outcome:** One obvious location for API controllers; fewer duplicate paths in tooling search results.
+
+---
+
+## 46. Extract shared `ArchitectureAnalysisRequest` builders for consulting DOCX
+
+**Problem:** `AnalysisReportsController` builds a large **`ArchitectureAnalysisRequest`** from **`ConsultingDocxExportRequest`** twice (sync download and async job), with nearly identical property mapping.
+
+**Change:**
+- Add a static factory or mapper (e.g. `ConsultingDocxAnalysisRequestFactory.From(string runId, ConsultingDocxExportRequest request)`).
+
+**Outcome:** One place to update when analysis options or consulting flags change.
+
+---
+
+## 47. Further slim `RegisterDecisioningEngines` (aliases or partial class)
+
+**Problem:** After item 42, **`RegisterDecisioningEngines`** still repeats long **`Decisioning.Interfaces.*`** type names for engines, orchestrator, validator, etc.
+
+**Change:**
+- Add **`using` aliases** for `IFindingEngine`, `IFindingsOrchestrator`, `IGoldenManifestBuilder`, … **or** move registration into **`ServiceCollectionExtensions.Decisioning.cs`** as a `partial` class for readability.
+
+**Outcome:** Shorter, scannable registration blocks without changing behavior.
+
+---
+
+## Checklist (analysis — next five)
+
+- [x] 43. Api: unify exception → ProblemDetails mapping (filter + ProblemDetailsExtensions)
+- [x] 44. Application/Api: typed outcomes for submit/seed (remove string “not found” parsing)
+- [x] 45. Repo: single canonical Controllers folder path (no duplicate casing)
+- [x] 46. Api: extract consulting DOCX → ArchitectureAnalysisRequest builder
+- [x] 47. Api: aliases or partial class for RegisterDecisioningEngines verbosity

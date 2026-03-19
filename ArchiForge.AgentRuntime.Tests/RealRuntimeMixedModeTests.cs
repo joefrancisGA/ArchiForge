@@ -238,7 +238,8 @@ public sealed class RealRuntimeMixedModeTests
                 new Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
                 new Decisioning.Services.GoldenManifestValidator(),
                 new Decisioning.Repositories.InMemoryGoldenManifestRepository(),
-                new Decisioning.Repositories.InMemoryDecisionTraceRepository()));
+                new Decisioning.Repositories.InMemoryDecisionTraceRepository()),
+            CreateArtifactSynthesisServiceForTests());
         var coordination = coordinator.CreateRun(request);
 
         // Force known IDs used in stub payloads

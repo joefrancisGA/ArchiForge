@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />

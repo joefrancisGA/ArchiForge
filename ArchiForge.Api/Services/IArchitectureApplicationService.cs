@@ -16,6 +16,22 @@ public interface IArchitectureApplicationService
 
 public sealed record GetRunResult(ArchitectureRun Run, IReadOnlyList<AgentTask> Tasks, IReadOnlyList<AgentResult> Results);
 
-public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error);
+/// <summary>How the API should map a failed submit/seed operation to HTTP (when <see cref="SubmitResultResult.Success"/> is false).</summary>
+public enum ApplicationServiceFailureKind
+{
+    BadRequest,
+    RunNotFound,
+    ResourceNotFound
+}
 
-public sealed record SeedFakeResultsResult(bool Success, int ResultCount, string? Error);
+public sealed record SubmitResultResult(
+    bool Success,
+    string? ResultId,
+    string? Error,
+    ApplicationServiceFailureKind? FailureKind = null);
+
+public sealed record SeedFakeResultsResult(
+    bool Success,
+    int ResultCount,
+    string? Error,
+    ApplicationServiceFailureKind? FailureKind = null);

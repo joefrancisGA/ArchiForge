@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.Application\ArchiForge.Application.csproj" />

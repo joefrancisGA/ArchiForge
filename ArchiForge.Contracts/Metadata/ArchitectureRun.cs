@@ -36,5 +36,8 @@ public sealed class ArchitectureRun
     /// <summary>Decision trace ID created by the decision engine (nullable for older runs).</summary>
     public Guid? DecisionTraceId { get; set; }
 
+    /// <summary>Artifact bundle ID produced after golden manifest synthesis (nullable for older runs).</summary>
+    public Guid? ArtifactBundleId { get; set; }
+
     public List<string> TaskIds { get; set; } = [];
 }

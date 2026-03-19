@@ -37,6 +37,15 @@ namespace ArchiForge.Cli;
 
 public static class ArchiForgeProjectScaffolder
 {
+    /// <summary>Shared options for archiforge.json read/write (CA1869: single cached instance).</summary>
+    private static readonly JsonSerializerOptions s_jsonManifest = new()
+    {
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        AllowTrailingCommas = true
+    };
+
     public sealed class ScaffoldOptions
     {
         public string ProjectName { get; set; } = "";
@@ -49,12 +58,11 @@ public static class ArchiForgeProjectScaffolder
 
     public static string CreateProject(ScaffoldOptions options)
     {
-        Console.WriteLine("Creating Project " + options.ProjectName);
-
-        if (options is null) throw new ArgumentNullException(nameof(options));
-
+        ArgumentNullException.ThrowIfNull(options);
         if (string.IsNullOrWhiteSpace(options.ProjectName))
-            throw new ArgumentException("ProjectName is required.", nameof(options.ProjectName));
+            throw new ArgumentException("ProjectName is required. It cannot be null, empty, or whitespace.", nameof(options));
+
+        Console.WriteLine("Creating Project " + options.ProjectName);
 
         var baseDir = string.IsNullOrWhiteSpace(options.BaseDirectory)
             ? Directory.GetCurrentDirectory()
@@ -91,10 +99,10 @@ public static class ArchiForgeProjectScaffolder
 
             try
             {
-                using SqlConnection connection = new SqlConnection(connectionString);
+                using SqlConnection connection = new(connectionString);
                 connection.Open();
                 Console.WriteLine("Connection successful.");
-                using SqlCommand command = new SqlCommand(sqlQuery, connection);
+                using SqlCommand command = new(sqlQuery, connection);
                 command.Parameters.Add("@ProjectName", SqlDbType.NVarChar, 0).Value = options.ProjectName;
                 command.Parameters.Add("@BaseDirectory", SqlDbType.NVarChar, 0).Value = options.BaseDirectory ?? (object)DBNull.Value;
                 command.Parameters.Add("@OverwriteExistingFiles", SqlDbType.Bit, 0).Value = options.OverwriteExistingFiles;
@@ -119,7 +127,7 @@ public static class ArchiForgeProjectScaffolder
     {
         Directory.CreateDirectory(path);
     }
-
+        
     private static void WriteFile(string path, string contents, bool overwrite)
     {
         if (File.Exists(path) && !overwrite)
@@ -234,8 +242,7 @@ public static class ArchiForgeProjectScaffolder
                 Assumptions = ["Moderate query volume", "Internal enterprise usage only"]
             }
         };
-        var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
-        return JsonSerializer.Serialize(config, jsonOptions) + Environment.NewLine;
+        return JsonSerializer.Serialize(config, s_jsonManifest) + Environment.NewLine;
     }
 
     public static ArchiForgeConfig LoadConfig(string? projectRoot)
@@ -245,17 +252,11 @@ public static class ArchiForgeProjectScaffolder
             throw new FileNotFoundException("archiforge.json not found.", manifestPath);
 
         var json = File.ReadAllText(manifestPath, Encoding.UTF8);
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            ReadCommentHandling = JsonCommentHandling.Skip,
-            AllowTrailingCommas = true
-        };
 
         ArchiForgeConfig? config;
         try
         {
-            config = JsonSerializer.Deserialize<ArchiForgeConfig>(json, options);
+            config = JsonSerializer.Deserialize<ArchiForgeConfig>(json, s_jsonManifest);
         }
         catch (JsonException ex)
         {
@@ -291,14 +292,16 @@ public static class ArchiForgeProjectScaffolder
         if (!File.Exists(briefPath))
             throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
         var lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
+
         if (!File.Exists(lockPath))
             throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
-        if (config.Infra.Terraform.Enabled)
-        {
-            var tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
-            if (!Directory.Exists(tfDir))
-                throw new DirectoryNotFoundException($"Terraform directory not found at '{config.Infra.Terraform.Path}'.");
-        }
+
+        if (!config.Infra.Terraform.Enabled) return;
+
+        var tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
+
+        if (!Directory.Exists(tfDir))
+            throw new DirectoryNotFoundException($"Terraform directory not found at '{config.Infra.Terraform.Path}'.");
     }
 
     private static void EnsureRelativePathOrThrow(string path, string fieldName)

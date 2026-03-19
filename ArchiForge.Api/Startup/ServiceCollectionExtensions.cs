@@ -33,7 +33,7 @@ using InMemoryDecisionTraceRepository = ArchiForge.Decisioning.Interfaces.IDecis
 
 namespace ArchiForge.Api.Startup;
 
-internal static class ServiceCollectionExtensions
+internal static partial class ServiceCollectionExtensions
 {
     public static IServiceCollection AddArchiForgeApplicationServices(
         this IServiceCollection services,
@@ -47,6 +47,7 @@ internal static class ServiceCollectionExtensions
         RegisterContextIngestionAndKnowledgeGraph(services);
         RegisterDecisioningEngines(services);
         RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);
+        RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);
         services.AddScoped<ArchitectureRunOrchestrator>();
         return services;
@@ -132,23 +133,6 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<KnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
     }
 
-    private static void RegisterDecisioningEngines(IServiceCollection services)
-    {
-        services.AddSingleton<FindingsSnapshotRepository, Decisioning.Repositories.InMemoryFindingsSnapshotRepository>();
-        services.AddSingleton<InMemoryGoldenManifestRepository, Decisioning.Repositories.InMemoryGoldenManifestRepository>();
-        services.AddSingleton<InMemoryDecisionTraceRepository, Decisioning.Repositories.InMemoryDecisionTraceRepository>();
-        services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.RequirementFindingEngine>();
-        services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.TopologySanityFindingEngine>();
-        services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.SecurityBaselineFindingEngine>();
-        services.AddScoped<Decisioning.Interfaces.IFindingEngine, ArchiForge.Decisioning.Services.CostConstraintFindingEngine>();
-        services.AddScoped<Decisioning.Interfaces.IFindingsOrchestrator, ArchiForge.Decisioning.Services.FindingsOrchestrator>();
-        services.AddSingleton<Decisioning.Interfaces.IFindingPayloadValidator, ArchiForge.Decisioning.Services.FindingPayloadValidator>();
-        services.AddSingleton<Decisioning.Interfaces.IDecisionRuleProvider, Decisioning.Rules.InMemoryDecisionRuleProvider>();
-        services.AddScoped<Decisioning.Interfaces.IGoldenManifestBuilder, Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder>();
-        services.AddSingleton<Decisioning.Interfaces.IGoldenManifestValidator, ArchiForge.Decisioning.Services.GoldenManifestValidator>();
-        services.AddScoped<Decisioning.Interfaces.IDecisionEngine, ArchiForge.Decisioning.Services.RuleBasedDecisionEngine>();
-    }
-
     private static void RegisterCoordinatorDecisionEngineAndRepositories(
         IServiceCollection services,
         IConfiguration configuration)
@@ -172,6 +156,19 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
         services.AddHostedService<ConfigurationValidator>();
+    }
+
+    private static void RegisterArtifactSynthesis(IServiceCollection services)
+    {
+        services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
+        services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
+        services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
+        services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();
+        services.AddScoped<IArtifactGenerator, DiagramAstGenerator>();
+        services.AddScoped<IArtifactGenerator, MermaidDiagramArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator, InventoryArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator, CostSummaryArtifactGenerator>();
+        services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
     }
 
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)

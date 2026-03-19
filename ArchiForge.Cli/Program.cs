@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -7,6 +8,14 @@ namespace ArchiForge.Cli
 {
     public static class Program
     {
+        private static readonly JsonSerializerOptions s_jsonWriteIndented = new() { WriteIndented = true };
+
+        private static readonly JsonSerializerOptions s_jsonDeserializeAgentResult = new()
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
         private static async Task<int> Main(string[] args) => await RunAsync(args);
 
         /// <summary>
@@ -292,9 +301,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(
-                    result,
-                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(result, s_jsonWriteIndented);
                 Console.WriteLine(json);
                 if (!string.IsNullOrWhiteSpace(result.NextCursor))
                 {
@@ -499,7 +506,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(summary, s_jsonWriteIndented);
                 Console.WriteLine(json);
                 return 0;
             }
@@ -527,9 +534,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(
-                    drift,
-                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(drift, s_jsonWriteIndented);
                 Console.WriteLine(json);
                 return 0;
             }
@@ -573,9 +578,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(
-                    diagnostics,
-                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                var json = JsonSerializer.Serialize(diagnostics, s_jsonWriteIndented);
                 Console.WriteLine(json);
                 return 0;
             }
@@ -830,6 +833,8 @@ namespace ArchiForge.Cli
 
         private static void WriteRunSummary(string path, string apiBaseUrl, string runId, string requestId, int status, DateTime createdUtc, IReadOnlyList<ArchiForgeApiClient.AgentTaskInfo> tasks, string? manifestVersion)
         {
+#pragma warning disable IDE0300 // Simplify collection initialization
+#pragma warning disable IDE0301 // Simplify collection initialization
             var summary = new
             {
                 runId,
@@ -841,7 +846,9 @@ namespace ArchiForge.Cli
                 tasks = tasks.Select(t => new { t.TaskId, agentType = (AgentType)t.AgentType, t.Objective }).ToArray(),
                 artifactUris = manifestVersion != null ? new[] { $"{apiBaseUrl}/v1/architecture/manifest/{manifestVersion}" } : Array.Empty<string>()
             };
-            var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+#pragma warning restore IDE0301 // Simplify collection initialization
+#pragma warning restore IDE0300 // Simplify collection initialization
+            var json = JsonSerializer.Serialize(summary, s_jsonWriteIndented);
             File.WriteAllText(path, json);
         }
 
@@ -897,11 +904,7 @@ namespace ArchiForge.Cli
             try
             {
                 var json = await File.ReadAllTextAsync(resultFilePath);
-                result = System.Text.Json.JsonSerializer.Deserialize<AgentResult>(json, new System.Text.Json.JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-                }) ?? new AgentResult();
+                result = JsonSerializer.Deserialize<AgentResult>(json, s_jsonDeserializeAgentResult) ?? new AgentResult();
             }
             catch (Exception ex)
             {
@@ -1003,7 +1006,7 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var json = System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(manifest, s_jsonWriteIndented);
             Console.WriteLine($"Manifest version: {version}");
             Console.WriteLine();
 

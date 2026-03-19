@@ -2,6 +2,8 @@
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering.
 
+**API controllers:** Keep all MVC controllers under **`ArchiForge.Api/Controllers/`** (single folder). On Windows, tools may show the same path with `\` or `/`; on Linux, Git is case-sensitive—do not introduce a second `Controllers` directory that differs only by casing or path style, or you risk duplicate types and confusing diffs.
+
 **RunComparisonController** intentionally depends on three application services (`IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`) rather than a single facade, for clarity and testability.
 
 ## Full solution

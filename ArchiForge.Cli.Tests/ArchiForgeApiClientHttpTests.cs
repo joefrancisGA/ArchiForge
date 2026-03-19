@@ -10,6 +10,11 @@ namespace ArchiForge.Cli.Tests;
 /// </summary>
 public sealed class ArchiForgeApiClientHttpTests
 {
+    private static readonly JsonSerializerOptions s_jsonCamelCase = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private static ArchiForgeApiClient CreateClient(HttpResponseMessage response)
     {
         var handler = new MockHttpMessageHandler(response);
@@ -33,7 +38,7 @@ public sealed class ArchiForgeApiClientHttpTests
         {
             run = new { runId, requestId = "req-1", status = 0, createdUtc = DateTime.UtcNow, currentManifestVersion = (string?)null },
             tasks = Array.Empty<object>()
-        }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        }, s_jsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -70,7 +75,7 @@ public sealed class ArchiForgeApiClientHttpTests
             run = new { runId, requestId = "req-1", status = 0, createdUtc = DateTime.UtcNow, currentManifestVersion = (string?)null },
             tasks = Array.Empty<object>(),
             results = Array.Empty<object>()
-        }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        }, s_jsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -107,7 +112,7 @@ public sealed class ArchiForgeApiClientHttpTests
                 metadata = new { manifestVersion = version }
             },
             warnings = Array.Empty<string>()
-        }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        }, s_jsonCamelCase);
         var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 

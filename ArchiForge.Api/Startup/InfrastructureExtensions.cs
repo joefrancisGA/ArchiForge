@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Startup;
@@ -6,19 +7,17 @@ internal static class InfrastructureExtensions
 {
     public static IServiceCollection AddArchiForgeAuthorization(this IServiceCollection services)
     {
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("CanCommitRuns", policy =>
-                policy.RequireClaim("permission", "commit:run"));
-            options.AddPolicy("CanSeedResults", policy =>
-                policy.RequireClaim("permission", "seed:results"));
-            options.AddPolicy("CanExportConsultingDocx", policy =>
-                policy.RequireClaim("permission", "export:consulting-docx"));
-            options.AddPolicy("CanReplayComparisons", policy =>
-                policy.RequireClaim("permission", "replay:comparisons"));
-            options.AddPolicy("CanViewReplayDiagnostics", policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy("CanCommitRuns", policy =>
+                policy.RequireClaim("permission", "commit:run"))
+            .AddPolicy("CanSeedResults", policy =>
+                policy.RequireClaim("permission", "seed:results"))
+            .AddPolicy("CanExportConsultingDocx", policy =>
+                policy.RequireClaim("permission", "export:consulting-docx"))
+            .AddPolicy("CanReplayComparisons", policy =>
+                policy.RequireClaim("permission", "replay:comparisons"))
+            .AddPolicy("CanViewReplayDiagnostics", policy =>
                 policy.RequireClaim("permission", "replay:diagnostics"));
-        });
         return services;
     }
 

@@ -45,7 +45,8 @@ public sealed class CoordinatorServiceTests
             new NullContextIngestionService(),
             new NullKnowledgeGraphService(),
             findingsOrchestrator,
-            decisionEngine);
+            decisionEngine,
+            TestArtifactSynthesisFactory.Create());
 
         var result = service.CreateRun(request);
 

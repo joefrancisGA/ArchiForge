@@ -7,7 +7,7 @@
       predates a column (e.g. GraphSnapshotId on ArchitectureRuns), use DbUp migrations or
       add the column once manually, then this script remains re-runnable.
 
-  Aligns with DbUp migrations 001–006 (see ArchiForge.Data/Migrations/).
+  Aligns with DbUp migrations 001–007 (see ArchiForge.Data/Migrations/).
 
   Enable foreign keys per connection:
     PRAGMA foreign_keys = ON;

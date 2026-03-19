@@ -33,10 +33,12 @@ public sealed class ApiProblemDetailsExceptionFilterTests
             Summary = "payload mismatch"
         };
         var ex = new ComparisonVerificationFailedException("Verification failed.", drift);
+#pragma warning disable IDE0028 // Simplify collection initialization
         var context = new ExceptionContext(actionContext, new List<IFilterMetadata>())
         {
             Exception = ex
         };
+#pragma warning restore IDE0028 // Simplify collection initialization
 
         filter.OnException(context);
 

@@ -12,6 +12,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -20,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
-public sealed class RunsController(
+public sealed partial class RunsController(
     IArchitectureRunService architectureRunService,
     IReplayRunService replayRunService,
     IArchitectureApplicationService architectureApplicationService,
@@ -36,6 +37,9 @@ public sealed class RunsController(
     ILogger<RunsController> logger)
     : ControllerBase
 {
+    // Explicit field for Microsoft.Extensions.Logging LoggerMessage source generator (SYSLIB1019 with primary constructors).
+    private readonly ILogger<RunsController> _logger = logger;
+
     [HttpPost("request")]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,12 +56,7 @@ public sealed class RunsController(
 
             var response = RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
 
-            logger.LogInformation(
-                "Run created: RunId={RunId}, RequestId={RequestId}, User={User}, CorrelationId={CorrelationId}",
-                result.Run.RunId,
-                request.RequestId,
-                user,
-                correlationId);
+            LogRunCreated(result.Run.RunId, request.RequestId, user, correlationId);
 
             return CreatedAtAction(
                 nameof(GetRun),
@@ -88,12 +87,7 @@ public sealed class RunsController(
 
             var response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
-            logger.LogInformation(
-                "Run executed: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
-                runId,
-                result.Results.Count,
-                user,
-                correlationId);
+            LogRunExecuted(runId, result.Results.Count, user, correlationId);
 
             return Ok(response);
         }
@@ -136,13 +130,7 @@ public sealed class RunsController(
                 result.DecisionTraces,
                 result.Warnings);
 
-            logger.LogInformation(
-                "Run replayed: OriginalRunId={OriginalRunId}, ReplayRunId={ReplayRunId}, ExecutionMode={ExecutionMode}, User={User}, CorrelationId={CorrelationId}",
-                result.OriginalRunId,
-                result.ReplayRunId,
-                result.ExecutionMode,
-                user,
-                correlationId);
+            LogRunReplayed(result.OriginalRunId, result.ReplayRunId, result.ExecutionMode, user, correlationId);
 
             return Ok(response);
         }
@@ -202,8 +190,7 @@ public sealed class RunsController(
                 result.DecisionTraces,
                 result.Warnings);
 
-            logger.LogInformation(
-                "Run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}, User={User}, CorrelationId={CorrelationId}",
+            LogRunCommitted(
                 runId,
                 result.Manifest.Metadata.ManifestVersion,
                 result.Warnings.Count,
@@ -244,15 +231,11 @@ public sealed class RunsController(
         CancellationToken cancellationToken)
     {
         var result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
-        
-        if (result.Success) return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
-        
-        if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.NotFoundProblem(result.Error, ProblemTypes.RunNotFound);
-        }
-        return this.BadRequestProblem(result.Error ?? "Submission failed.");
 
+        if (result.Success)
+            return Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! });
+
+        return MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
     }
 
     [HttpPost("run/{runId}/seed-fake-results")]
@@ -269,20 +252,9 @@ public sealed class RunsController(
 
         var result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
         if (!result.Success)
-        {
-            if (result.Error is not null && result.Error.Contains("not found", StringComparison.OrdinalIgnoreCase))
-            {
-                return this.NotFoundProblem(result.Error, ProblemTypes.RunNotFound);
-            }
-            return this.BadRequestProblem(result.Error ?? "Seed failed.");
-        }
+            return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
 
-        logger.LogInformation(
-            "Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, User={User}, CorrelationId={CorrelationId}",
-            runId,
-            result.ResultCount,
-            user,
-            correlationId);
+        LogFakeResultsSeeded(runId, result.ResultCount, user, correlationId);
 
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
     }
@@ -417,6 +389,17 @@ public sealed class RunsController(
             results.ToList(),
             manifest,
             decisionTraces);
+    }
+
+    private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind, string defaultBadRequestDetail)
+    {
+        var detail = string.IsNullOrWhiteSpace(error) ? defaultBadRequestDetail : error!;
+        return kind switch
+        {
+            ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),
+            ApplicationServiceFailureKind.ResourceNotFound => this.NotFoundProblem(detail, ProblemTypes.ResourceNotFound),
+            _ => this.BadRequestProblem(detail),
+        };
     }
 }
 

@@ -43,14 +43,8 @@ public sealed class ComparisonReplayService(
 
         var record = await comparisonRecordRepository.GetByIdAsync(
             request.ComparisonRecordId,
-            cancellationToken);
-
-        if (record is null)
-        {
-            throw new InvalidOperationException(
+            cancellationToken) ?? throw new InvalidOperationException(
                 $"Comparison record '{request.ComparisonRecordId}' was not found.");
-        }
-
         var format = NormalizeFormat(request.Format);
         var profile = EndToEndComparisonExportProfile.Normalize(request.Profile);
         var mode = ParseReplayMode(request.ReplayMode);
@@ -85,14 +79,8 @@ public sealed class ComparisonReplayService(
             throw new InvalidOperationException("ComparisonRecordId is required.");
         }
 
-        var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-
-        if (record is null)
-        {
-            throw new InvalidOperationException(
+        var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ?? throw new InvalidOperationException(
                 $"Comparison record '{comparisonRecordId}' was not found.");
-        }
-
         return record.ComparisonType switch
         {
             "end-to-end-replay" => await AnalyzeDriftEndToEndAsync(record, cancellationToken),
