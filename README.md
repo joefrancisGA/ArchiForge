@@ -19,6 +19,11 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - SQL Server (LocalDB, Express, or full) with a database for ArchiForge
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archiforge dev up`)
+- Node.js 20+ (optional; for the operator UI in `archiforge-ui/`)
+
+## Operator UI (`archiforge-ui`)
+
+A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, and ZIP downloads. See [archiforge-ui/README.md](archiforge-ui/README.md).
 
 ## Development environment (`archiforge dev up`)
 
