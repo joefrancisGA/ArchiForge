@@ -54,6 +54,34 @@ public class FindingPayloadValidator : IFindingPayloadValidator
             if (payload is null)
                 throw new InvalidOperationException("PolicyApplicabilityFinding payload is invalid.");
         }
+
+        if (finding.FindingType.Equals("TopologyCoverageFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
+            if (payload is null)
+                throw new InvalidOperationException("TopologyCoverageFinding payload is invalid.");
+        }
+
+        if (finding.FindingType.Equals("SecurityCoverageFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
+            if (payload is null)
+                throw new InvalidOperationException("SecurityCoverageFinding payload is invalid.");
+        }
+
+        if (finding.FindingType.Equals("PolicyCoverageFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
+            if (payload is null)
+                throw new InvalidOperationException("PolicyCoverageFinding payload is invalid.");
+        }
+
+        if (finding.FindingType.Equals("RequirementCoverageFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
+            if (payload is null)
+                throw new InvalidOperationException("RequirementCoverageFinding payload is invalid.");
+        }
     }
 }
 

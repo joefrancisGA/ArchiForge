@@ -43,5 +43,17 @@ public static class FindingPayloadConverter
 
     public static PolicyApplicabilityFindingPayload? ToPolicyApplicabilityPayload(Finding finding)
         => ConvertPayload<PolicyApplicabilityFindingPayload>(finding);
+
+    public static TopologyCoverageFindingPayload? ToTopologyCoveragePayload(Finding finding)
+        => ConvertPayload<TopologyCoverageFindingPayload>(finding);
+
+    public static SecurityCoverageFindingPayload? ToSecurityCoveragePayload(Finding finding)
+        => ConvertPayload<SecurityCoverageFindingPayload>(finding);
+
+    public static PolicyCoverageFindingPayload? ToPolicyCoveragePayload(Finding finding)
+        => ConvertPayload<PolicyCoverageFindingPayload>(finding);
+
+    public static RequirementCoverageFindingPayload? ToRequirementCoveragePayload(Finding finding)
+        => ConvertPayload<RequirementCoverageFindingPayload>(finding);
 }
 

@@ -30,6 +30,10 @@ Currently included:
 - `SecurityControlFindingPayload`
 - `CostConstraintFindingPayload`
 - `PolicyApplicabilityFindingPayload`
+- `TopologyCoverageFindingPayload`
+- `SecurityCoverageFindingPayload`
+- `PolicyCoverageFindingPayload`
+- `RequirementCoverageFindingPayload`
 
 Engines should set:
 
@@ -78,7 +82,10 @@ Several engines use **`ArchiForge.KnowledgeGraph.Models.GraphSnapshotExtensions`
 | **`RequirementFindingEngine`** | **`RELATES_TO`** → expands **`RelatedNodeIds`** / trace |
 | **`SecurityBaselineFindingEngine`** | **`PROTECTS`** → related topology node IDs |
 | **`PolicyApplicabilityFindingEngine`** | **`APPLIES_TO`** → info vs gap (**Warning** when topology exists but no links) |
-| **`TopologySanityFindingEngine`** | **`TopologyResource`** nodes + **`Category`** for coverage gaps |
+| **`TopologyCoverageFindingEngine`** | **`IGraphCoverageAnalyzer.AnalyzeTopology`** — category coverage vs network/compute/storage/data |
+| **`SecurityCoverageFindingEngine`** | **`PROTECTS`** edges vs topology resources |
+| **`PolicyCoverageFindingEngine`** | **`APPLIES_TO`** / policy node presence |
+| **`RequirementCoverageFindingEngine`** | **`RELATES_TO`** from requirements to topology |
 
 See **`docs/KNOWLEDGE_GRAPH.md`** for how those edges are produced.
 

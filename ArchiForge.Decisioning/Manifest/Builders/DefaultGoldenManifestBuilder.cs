@@ -43,6 +43,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         PopulateSecurity(manifest, findingsSnapshot);
         PopulateCost(manifest, findingsSnapshot);
         PopulatePolicyApplicability(manifest, findingsSnapshot);
+        PopulateCoverageWarnings(manifest, findingsSnapshot);
         PopulateConstraints(manifest, findingsSnapshot, trace);
         PopulateProvenance(manifest, findingsSnapshot, trace);
 
@@ -265,6 +266,86 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             {
                 manifest.Assumptions.Add(
                     $"Policy '{payload.PolicyName}' applies to {payload.ApplicableTopologyResourceCount} topology resource(s) (APPLIES_TO in knowledge graph).");
+            }
+        }
+    }
+
+    private static void PopulateCoverageWarnings(
+        GoldenManifest manifest,
+        FindingsSnapshot findingsSnapshot)
+    {
+        foreach (var finding in findingsSnapshot.GetByType("TopologyCoverageFinding"))
+        {
+            var payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
+            if (payload is null || payload.MissingCategories.Count == 0)
+                continue;
+
+            foreach (var category in payload.MissingCategories)
+                manifest.Topology.Gaps.Add($"Missing topology category: {category}");
+
+            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+            {
+                IssueType = "TopologyCoverage",
+                Title = finding.Title,
+                Description = string.Join(", ", payload.MissingCategories),
+                Severity = finding.Severity.ToString(),
+                SupportingFindingIds = [finding.FindingId]
+            });
+        }
+
+        foreach (var finding in findingsSnapshot.GetByType("SecurityCoverageFinding"))
+        {
+            var payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
+            if (payload is null)
+                continue;
+
+            foreach (var resource in payload.UnprotectedResources)
+                manifest.Security.Gaps.Add($"{resource} is not protected");
+
+            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+            {
+                IssueType = "SecurityCoverage",
+                Title = finding.Title,
+                Description = string.Join(", ", payload.UnprotectedResources),
+                Severity = finding.Severity.ToString(),
+                SupportingFindingIds = [finding.FindingId]
+            });
+        }
+
+        foreach (var finding in findingsSnapshot.GetByType("PolicyCoverageFinding"))
+        {
+            var payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
+            if (payload is null)
+                continue;
+
+            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+            {
+                IssueType = "PolicyCoverage",
+                Title = finding.Title,
+                Description = payload.UncoveredResources.Count == 0
+                    ? finding.Rationale
+                    : string.Join(", ", payload.UncoveredResources),
+                Severity = finding.Severity.ToString(),
+                SupportingFindingIds = [finding.FindingId]
+            });
+        }
+
+        foreach (var finding in findingsSnapshot.GetByType("RequirementCoverageFinding"))
+        {
+            var payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
+            if (payload is null)
+                continue;
+
+            foreach (var req in payload.UncoveredRequirements)
+            {
+                manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
+                {
+                    RequirementName = req,
+                    RequirementText = req,
+                    IsMandatory = true,
+                    CoverageStatus = "Uncovered",
+                    SupportingFindingIds = [finding.FindingId]
+                });
             }
         }
     }

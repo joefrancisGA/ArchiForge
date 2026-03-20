@@ -1,0 +1,68 @@
+using ArchiForge.Decisioning.Analysis;
+using ArchiForge.Decisioning.Findings.Payloads;
+using ArchiForge.Decisioning.Interfaces;
+using ArchiForge.Decisioning.Models;
+using ArchiForge.KnowledgeGraph.Models;
+
+namespace ArchiForge.Decisioning.Services;
+
+public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFindingEngine
+{
+    public string EngineType => "policy-coverage";
+
+    public string Category => "Policy";
+
+    public Task<IReadOnlyList<Finding>> AnalyzeAsync(
+        GraphSnapshot graphSnapshot,
+        CancellationToken ct)
+    {
+        var result = analyzer.AnalyzePolicy(graphSnapshot);
+        var findings = new List<Finding>();
+
+        if (result.PolicyNodeCount == 0)
+        {
+            findings.Add(new Finding
+            {
+                FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+                FindingType = "PolicyCoverageFinding",
+                Category = Category,
+                EngineType = EngineType,
+                Severity = FindingSeverity.Warning,
+                Title = "No policy controls were found",
+                Rationale = "The graph contains no PolicyControl nodes.",
+                PayloadType = nameof(PolicyCoverageFindingPayload),
+                Payload = new PolicyCoverageFindingPayload
+                {
+                    PolicyNodeCount = 0,
+                    PolicyApplicabilityEdgeCount = 0,
+                    UncoveredResources = result.UncoveredResources
+                }
+            });
+
+            return Task.FromResult<IReadOnlyList<Finding>>(findings);
+        }
+
+        if (result.UncoveredResources.Count > 0)
+        {
+            findings.Add(new Finding
+            {
+                FindingSchemaVersion = FindingsSchema.CurrentFindingVersion,
+                FindingType = "PolicyCoverageFinding",
+                Category = Category,
+                EngineType = EngineType,
+                Severity = FindingSeverity.Warning,
+                Title = "Some topology resources are not covered by policy applicability edges",
+                Rationale = "Policy applicability coverage is incomplete for the current topology graph.",
+                PayloadType = nameof(PolicyCoverageFindingPayload),
+                Payload = new PolicyCoverageFindingPayload
+                {
+                    PolicyNodeCount = result.PolicyNodeCount,
+                    PolicyApplicabilityEdgeCount = result.PolicyApplicabilityEdgeCount,
+                    UncoveredResources = result.UncoveredResources
+                }
+            });
+        }
+
+        return Task.FromResult<IReadOnlyList<Finding>>(findings);
+    }
+}

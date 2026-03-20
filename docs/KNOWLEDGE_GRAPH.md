@@ -100,6 +100,12 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 
 ---
 
+## Graph coverage analysis (Decisioning)
+
+**`ArchiForge.Decisioning.Analysis`** provides **`IGraphCoverageAnalyzer`** / **`GraphCoverageAnalyzer`**, used by coverage finding engines (**`TopologyCoverageFindingEngine`**, **`SecurityCoverageFindingEngine`**, **`PolicyCoverageFindingEngine`**, **`RequirementCoverageFindingEngine`**) to reason over categories and typed edges. **`DefaultGoldenManifestBuilder.PopulateCoverageWarnings`** maps those findings into manifest gaps, security gaps, unresolved issues, and **`Requirements.Uncovered`**.
+
+---
+
 ## Suggested next refactors
 
 1. **Replace stringly-typed finding `GetByType("...")` calls** with a shared constants class (parallel to **`GraphNodeTypes`**).

@@ -33,6 +33,15 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
 
                 new DecisionRule
                 {
+                    Name = "Topology category coverage",
+                    Priority = 89,
+                    IsMandatory = false,
+                    AppliesToFindingType = "TopologyCoverageFinding",
+                    Action = "allow"
+                },
+
+                new DecisionRule
+                {
                     Name = "Track security control findings",
                     Priority = 88,
                     IsMandatory = false,
@@ -51,8 +60,35 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
 
                 new DecisionRule
                 {
-                    Name = "Prefer cost constraint findings",
+                    Name = "Security graph coverage",
+                    Priority = 86,
+                    IsMandatory = false,
+                    AppliesToFindingType = "SecurityCoverageFinding",
+                    Action = "allow"
+                },
+
+                new DecisionRule
+                {
+                    Name = "Policy graph coverage",
                     Priority = 85,
+                    IsMandatory = false,
+                    AppliesToFindingType = "PolicyCoverageFinding",
+                    Action = "allow"
+                },
+
+                new DecisionRule
+                {
+                    Name = "Requirement graph coverage",
+                    Priority = 84,
+                    IsMandatory = false,
+                    AppliesToFindingType = "RequirementCoverageFinding",
+                    Action = "allow"
+                },
+
+                new DecisionRule
+                {
+                    Name = "Prefer cost constraint findings",
+                    Priority = 82,
                     IsMandatory = false,
                     AppliesToFindingType = "CostConstraintFinding",
                     Action = "prefer"

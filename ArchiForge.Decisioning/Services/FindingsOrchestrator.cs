@@ -86,6 +86,11 @@ public partial class FindingsOrchestrator(
             }
         }
 
+        var dedupedFindings = allFindings
+            .GroupBy(x => $"{x.FindingType}|{x.Title}", StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
+
         var snapshot = new FindingsSnapshot
         {
             FindingsSnapshotId = Guid.NewGuid(),
@@ -93,7 +98,7 @@ public partial class FindingsOrchestrator(
             ContextSnapshotId = contextSnapshotId,
             GraphSnapshotId = graphSnapshot.GraphSnapshotId,
             CreatedUtc = DateTime.UtcNow,
-            Findings = allFindings,
+            Findings = dedupedFindings,
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion
         };
 

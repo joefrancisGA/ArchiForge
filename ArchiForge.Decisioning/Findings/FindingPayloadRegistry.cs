@@ -10,7 +10,11 @@ public static class FindingPayloadRegistry
         [nameof(TopologyGapFindingPayload)] = typeof(TopologyGapFindingPayload),
         [nameof(SecurityControlFindingPayload)] = typeof(SecurityControlFindingPayload),
         [nameof(CostConstraintFindingPayload)] = typeof(CostConstraintFindingPayload),
-        [nameof(PolicyApplicabilityFindingPayload)] = typeof(PolicyApplicabilityFindingPayload)
+        [nameof(PolicyApplicabilityFindingPayload)] = typeof(PolicyApplicabilityFindingPayload),
+        [nameof(TopologyCoverageFindingPayload)] = typeof(TopologyCoverageFindingPayload),
+        [nameof(SecurityCoverageFindingPayload)] = typeof(SecurityCoverageFindingPayload),
+        [nameof(PolicyCoverageFindingPayload)] = typeof(PolicyCoverageFindingPayload),
+        [nameof(RequirementCoverageFindingPayload)] = typeof(RequirementCoverageFindingPayload)
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

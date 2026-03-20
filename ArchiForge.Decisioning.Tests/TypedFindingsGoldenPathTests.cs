@@ -1,3 +1,4 @@
+using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Builders;
 using ArchiForge.Decisioning.Rules;
@@ -28,14 +29,10 @@ public sealed class TypedFindingsGoldenPathTests
                     EdgeType = "RELATES_TO",
                     Label = "relates to"
                 },
-                new GraphEdge
-                {
-                    EdgeId = "prot1",
-                    FromNodeId = "s1",
-                    ToNodeId = "t1",
-                    EdgeType = "PROTECTS",
-                    Label = "protects"
-                }
+                new GraphEdge { EdgeId = "p1", FromNodeId = "s1", ToNodeId = "t1", EdgeType = "PROTECTS", Label = "protects" },
+                new GraphEdge { EdgeId = "p2", FromNodeId = "s1", ToNodeId = "t2", EdgeType = "PROTECTS", Label = "protects" },
+                new GraphEdge { EdgeId = "p3", FromNodeId = "s1", ToNodeId = "t3", EdgeType = "PROTECTS", Label = "protects" },
+                new GraphEdge { EdgeId = "p4", FromNodeId = "s1", ToNodeId = "t4", EdgeType = "PROTECTS", Label = "protects" }
             },
             Nodes =
             {
@@ -51,6 +48,31 @@ public sealed class TypedFindingsGoldenPathTests
                     NodeId = "t1",
                     NodeType = "TopologyResource",
                     Label = "vpc",
+                    Category = "network",
+                    Properties = new()
+                },
+                new GraphNode
+                {
+                    NodeId = "t2",
+                    NodeType = "TopologyResource",
+                    Label = "vm",
+                    Category = "compute",
+                    Properties = new()
+                },
+                new GraphNode
+                {
+                    NodeId = "t3",
+                    NodeType = "TopologyResource",
+                    Label = "blob",
+                    Category = "storage",
+                    Properties = new()
+                },
+                new GraphNode
+                {
+                    NodeId = "t4",
+                    NodeType = "TopologyResource",
+                    Label = "db",
+                    Category = "data",
                     Properties = new()
                 },
                 new GraphNode
@@ -79,11 +101,13 @@ public sealed class TypedFindingsGoldenPathTests
             }
         };
 
+        var analyzer = new GraphCoverageAnalyzer();
         IFindingEngine[] engines =
         [
             new RequirementFindingEngine(),
-            new TopologySanityFindingEngine(),
+            new TopologyCoverageFindingEngine(analyzer),
             new SecurityBaselineFindingEngine(),
+            new SecurityCoverageFindingEngine(analyzer),
             new CostConstraintFindingEngine()
         ];
 

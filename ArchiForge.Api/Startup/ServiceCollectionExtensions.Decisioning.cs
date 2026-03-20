@@ -1,3 +1,4 @@
+using ArchiForge.Decisioning.Analysis;
 using Di = ArchiForge.Decisioning.Interfaces;
 using Dm = ArchiForge.Decisioning.Manifest.Builders;
 using Dr = ArchiForge.Decisioning.Rules;
@@ -9,10 +10,15 @@ internal static partial class ServiceCollectionExtensions
 {
     private static void RegisterDecisioningEngines(IServiceCollection services)
     {
+        services.AddSingleton<IGraphCoverageAnalyzer, GraphCoverageAnalyzer>();
+
         services.AddScoped<Di.IFindingEngine, Ds.RequirementFindingEngine>();
-        services.AddScoped<Di.IFindingEngine, Ds.TopologySanityFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.TopologyCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.SecurityCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.PolicyCoverageFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.CostConstraintFindingEngine>();
         services.AddScoped<Di.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
