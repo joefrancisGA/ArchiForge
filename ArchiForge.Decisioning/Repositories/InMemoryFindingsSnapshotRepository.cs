@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using System.Text.Json;
@@ -12,8 +13,15 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         WriteIndented = false
     };
 
-    public Task SaveAsync(FindingsSnapshot snapshot, CancellationToken ct)
+    public Task SaveAsync(
+        FindingsSnapshot snapshot,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = ct;
+        _ = connection;
+        _ = transaction;
         // Store as JSON to simulate durable persistence and ensure payload round-trips.
         var json = JsonSerializer.Serialize(snapshot, _jsonOptions);
         _store.Add(json);

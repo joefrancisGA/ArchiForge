@@ -1,4 +1,4 @@
-using System.Data.Common;
+using System.Data;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
@@ -16,7 +16,11 @@ public sealed class SqlFindingsSnapshotRepository : IFindingsSnapshotRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SaveAsync(FindingsSnapshot snapshot, CancellationToken ct)
+    public async Task SaveAsync(
+        FindingsSnapshot snapshot,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.FindingsSnapshots
@@ -39,8 +43,14 @@ public sealed class SqlFindingsSnapshotRepository : IFindingsSnapshotRepository
             FindingsJson = JsonEntitySerializer.Serialize(snapshot)
         };
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
     public async Task<FindingsSnapshot?> GetByIdAsync(Guid findingsSnapshotId, CancellationToken ct)

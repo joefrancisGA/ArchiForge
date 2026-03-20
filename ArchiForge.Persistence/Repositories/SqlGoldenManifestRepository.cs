@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
@@ -16,7 +17,11 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SaveAsync(GoldenManifest manifest, CancellationToken ct)
+    public async Task SaveAsync(
+        GoldenManifest manifest,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.GoldenManifests
@@ -63,8 +68,14 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             ProvenanceJson = JsonEntitySerializer.Serialize(manifest.Provenance)
         };
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
     public async Task<GoldenManifest?> GetByIdAsync(Guid manifestId, CancellationToken ct)

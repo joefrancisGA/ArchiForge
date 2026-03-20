@@ -1,4 +1,4 @@
-using System.Data.Common;
+using System.Data;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
@@ -17,7 +17,11 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SaveAsync(DecisionTrace trace, CancellationToken ct)
+    public async Task SaveAsync(
+        DecisionTrace trace,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.DecisioningTraces
@@ -48,8 +52,14 @@ public sealed class SqlDecisionTraceRepository : IDecisionTraceRepository
             NotesJson = JsonEntitySerializer.Serialize(trace.Notes)
         };
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
     public async Task<DecisionTrace?> GetByIdAsync(Guid decisionTraceId, CancellationToken ct)

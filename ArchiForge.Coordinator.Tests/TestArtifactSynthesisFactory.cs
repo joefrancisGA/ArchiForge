@@ -1,7 +1,6 @@
 using ArchiForge.ArtifactSynthesis.Generators;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Renderers;
-using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ArtifactSynthesis.Services;
 
 namespace ArchiForge.Coordinator.Tests;
@@ -21,7 +20,6 @@ internal static class TestArtifactSynthesisFactory
         ];
         return new ArtifactSynthesisService(
             generators,
-            new InMemoryArtifactBundleRepository(),
             new ArtifactBundleValidator());
     }
 }

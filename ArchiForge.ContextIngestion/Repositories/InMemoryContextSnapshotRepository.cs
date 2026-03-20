@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 
@@ -22,8 +23,15 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
         return Task.FromResult(_store.FirstOrDefault(s => s.SnapshotId == snapshotId));
     }
 
-    public Task SaveAsync(ContextSnapshot snapshot, CancellationToken ct)
+    public Task SaveAsync(
+        ContextSnapshot snapshot,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = ct;
+        _ = connection;
+        _ = transaction;
         _store.Add(snapshot);
         return Task.CompletedTask;
     }

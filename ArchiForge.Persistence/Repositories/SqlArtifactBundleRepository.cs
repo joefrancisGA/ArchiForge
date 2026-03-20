@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Persistence.Connections;
@@ -15,7 +16,11 @@ public sealed class SqlArtifactBundleRepository : IArtifactBundleRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SaveAsync(ArtifactBundle bundle, CancellationToken ct)
+    public async Task SaveAsync(
+        ArtifactBundle bundle,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.ArtifactBundles
@@ -38,8 +43,14 @@ public sealed class SqlArtifactBundleRepository : IArtifactBundleRepository
             TraceJson = JsonEntitySerializer.Serialize(bundle.Trace)
         };
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
     public async Task<ArtifactBundle?> GetByManifestIdAsync(Guid manifestId, CancellationToken ct)

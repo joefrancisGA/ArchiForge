@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Data;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
 
@@ -8,9 +9,15 @@ public sealed class InMemoryRunRepository : IRunRepository
 {
     private readonly ConcurrentDictionary<Guid, RunRecord> _store = new();
 
-    public Task SaveAsync(RunRecord run, CancellationToken ct)
+    public Task SaveAsync(
+        RunRecord run,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         _ = ct;
+        _ = connection;
+        _ = transaction;
         _store[run.RunId] = run;
         return Task.CompletedTask;
     }
@@ -33,9 +40,15 @@ public sealed class InMemoryRunRepository : IRunRepository
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
     }
 
-    public Task UpdateAsync(RunRecord run, CancellationToken ct)
+    public Task UpdateAsync(
+        RunRecord run,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         _ = ct;
+        _ = connection;
+        _ = transaction;
         _store[run.RunId] = run;
         return Task.CompletedTask;
     }

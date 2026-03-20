@@ -20,6 +20,7 @@
     <ProjectReference Include="..\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
     <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />

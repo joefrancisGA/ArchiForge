@@ -2,24 +2,17 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
-using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
+using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Orchestration;
 
 namespace ArchiForge.Coordinator.Services;
 
-public sealed class CoordinatorService(
-    IContextIngestionService contextIngestionService,
-    IKnowledgeGraphService knowledgeGraphService,
-    IFindingsOrchestrator findingsOrchestrator,
-    IDecisionEngine decisionEngine,
-    IArtifactSynthesisService artifactSynthesisService)
-    : ICoordinatorService
+public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrchestrator) : ICoordinatorService
 {
-    public CoordinationResult CreateRun(ArchitectureRequest request)
+    public async Task<CoordinationResult> CreateRunAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken = default)
     {
         var output = new CoordinationResult();
 
@@ -30,60 +23,24 @@ public sealed class CoordinatorService(
             return output;
         }
 
-        var runId = Guid.NewGuid().ToString("N");
-        var run = BuildRun(runId, request);
+        var authorityRun = await authorityRunOrchestrator.ExecuteAsync(
+            request.SystemName,
+            request.Description,
+            cancellationToken);
 
-        // Context ingestion MUST occur before tasks are built.
-        var ingestionRequest = new ContextIngestionRequest
+        var runId = authorityRun.RunId.ToString("N");
+        var run = BuildRunFromAuthority(authorityRun, request);
+
+        var graphSnapshot = new GraphSnapshot
         {
-            RunId = Guid.Parse(runId),
-            ProjectId = request.SystemName,
-            Description = request.Description
+            GraphSnapshotId = authorityRun.GraphSnapshotId ?? Guid.Empty,
+            ContextSnapshotId = authorityRun.ContextSnapshotId ?? Guid.Empty,
+            RunId = authorityRun.RunId,
+            CreatedUtc = DateTime.UtcNow,
+            Nodes = [],
+            Edges = [],
+            Warnings = []
         };
-
-        var contextSnapshot = contextIngestionService
-            .IngestAsync(ingestionRequest, CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
-
-        run.ContextSnapshotId = contextSnapshot.SnapshotId.ToString("N");
-
-        var graphSnapshot = knowledgeGraphService
-            .BuildSnapshotAsync(contextSnapshot, CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
-
-        run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
-
-        var findingsSnapshot = findingsOrchestrator
-            .GenerateFindingsSnapshotAsync(
-                Guid.Parse(runId),
-                contextSnapshot.SnapshotId,
-                graphSnapshot,
-                CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
-
-        run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
-
-        var decisionResult = decisionEngine
-            .DecideAsync(
-                Guid.Parse(runId),
-                contextSnapshot.SnapshotId,
-                graphSnapshot,
-                findingsSnapshot,
-                CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
-
-        run.GoldenManifestId = decisionResult.Manifest.ManifestId;
-        run.DecisionTraceId = decisionResult.Trace.DecisionTraceId;
-
-        var artifactBundle = artifactSynthesisService
-            .SynthesizeAsync(decisionResult.Manifest, CancellationToken.None)
-            .GetAwaiter()
-            .GetResult();
-        run.ArtifactBundleId = artifactBundle.BundleId;
 
         var evidenceBundle = BuildEvidenceBundle(request);
         var tasks = BuildStarterTasks(runId, evidenceBundle, request, graphSnapshot);
@@ -112,18 +69,22 @@ public sealed class CoordinatorService(
         return errors;
     }
 
-    private static ArchitectureRun BuildRun(
-        string runId,
-        ArchitectureRequest request)
+    private static ArchitectureRun BuildRunFromAuthority(RunRecord authorityRun, ArchitectureRequest request)
     {
         return new ArchitectureRun
         {
-            RunId = runId,
+            RunId = authorityRun.RunId.ToString("N"),
             RequestId = request.RequestId,
             Status = ArchitectureRunStatus.TasksGenerated,
             CreatedUtc = DateTime.UtcNow,
             CompletedUtc = null,
             CurrentManifestVersion = null,
+            ContextSnapshotId = authorityRun.ContextSnapshotId?.ToString("N"),
+            GraphSnapshotId = authorityRun.GraphSnapshotId,
+            FindingsSnapshotId = authorityRun.FindingsSnapshotId,
+            GoldenManifestId = authorityRun.GoldenManifestId,
+            DecisionTraceId = authorityRun.DecisionTraceId,
+            ArtifactBundleId = authorityRun.ArtifactBundleId,
             TaskIds = []
         };
     }

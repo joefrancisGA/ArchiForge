@@ -32,8 +32,6 @@ public class ContextIngestionService(
             snapshot.DeltaSummary = delta.Summary;
         }
 
-        await repo.SaveAsync(snapshot, ct);
-
         return snapshot;
     }
 }

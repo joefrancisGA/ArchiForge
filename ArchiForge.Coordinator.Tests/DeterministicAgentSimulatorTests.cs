@@ -2,12 +2,8 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
@@ -17,7 +13,7 @@ namespace ArchiForge.Coordinator.Tests;
 public sealed class DeterministicAgentSimulatorTests
 {
     [Fact]
-    public async Task Simulator_ShouldProduceDeterministicStarterResults()
+    public async Task Simulator_ShouldProduceDeterministicStarterResultsAsync()
     {
         var request = new ArchitectureRequest
         {
@@ -40,8 +36,8 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = CreateCoordinator();
-        var coordination = coordinator.CreateRun(request);
+        var coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        var coordination = await coordinator.CreateRunAsync(request);
 
         coordination.Success.Should().BeTrue();
 
@@ -64,7 +60,7 @@ public sealed class DeterministicAgentSimulatorTests
     }
 
     [Fact]
-    public async Task Simulator_AndDecisionEngine_ShouldProduceManifest()
+    public async Task Simulator_AndDecisionEngine_ShouldProduceManifestAsync()
     {
         var request = new ArchitectureRequest
         {
@@ -87,8 +83,8 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = CreateCoordinator();
-        var coordination = coordinator.CreateRun(request);
+        var coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        var coordination = await coordinator.CreateRunAsync(request);
 
         DeterministicAgentSimulator simulator = new();
         var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
@@ -143,57 +139,4 @@ public sealed class DeterministicAgentSimulatorTests
         };
     }
 
-    private sealed class NullContextIngestionService : IContextIngestionService
-    {
-        public Task<ContextSnapshot> IngestAsync(ContextIngestionRequest request, CancellationToken ct)
-        {
-            return Task.FromResult(new ContextSnapshot
-            {
-                SnapshotId = Guid.NewGuid(),
-                RunId = request.RunId,
-                CreatedUtc = DateTime.UtcNow
-            });
-        }
-    }
-
-    private sealed class NullKnowledgeGraphService : IKnowledgeGraphService
-    {
-        public Task<GraphSnapshot> BuildSnapshotAsync(ContextSnapshot contextSnapshot, CancellationToken ct)
-        {
-            return Task.FromResult(new GraphSnapshot
-            {
-                GraphSnapshotId = Guid.NewGuid(),
-                ContextSnapshotId = contextSnapshot.SnapshotId,
-                RunId = contextSnapshot.RunId,
-                CreatedUtc = DateTime.UtcNow
-            });
-        }
-    }
-
-    private static CoordinatorService CreateCoordinator()
-    {
-        var findingsRepo = new Decisioning.Repositories.InMemoryFindingsSnapshotRepository();
-        var manifestRepo = new Decisioning.Repositories.InMemoryGoldenManifestRepository();
-        var traceRepo = new Decisioning.Repositories.InMemoryDecisionTraceRepository();
-        var engines = new Decisioning.Interfaces.IFindingEngine[]
-        {
-            new ArchiForge.Decisioning.Services.RequirementFindingEngine(),
-            new ArchiForge.Decisioning.Services.TopologySanityFindingEngine()
-        };
-        var findingsOrchestrator = new ArchiForge.Decisioning.Services.FindingsOrchestrator(engines, findingsRepo);
-        var ruleProvider = new Decisioning.Rules.InMemoryDecisionRuleProvider();
-        var decisionEngine = new ArchiForge.Decisioning.Services.RuleBasedDecisionEngine(
-            ruleProvider,
-            new Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
-            new ArchiForge.Decisioning.Services.GoldenManifestValidator(),
-            manifestRepo,
-            traceRepo);
-
-        return new CoordinatorService(
-            new NullContextIngestionService(),
-            new NullKnowledgeGraphService(),
-            findingsOrchestrator,
-            decisionEngine,
-            TestArtifactSynthesisFactory.Create());
-    }
 }

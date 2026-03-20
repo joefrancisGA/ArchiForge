@@ -34,7 +34,7 @@ public sealed class ArchitectureRunService(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
     {
-        var coordination = coordinator.CreateRun(request);
+        var coordination = await coordinator.CreateRunAsync(request, cancellationToken);
 
         if (!coordination.Success)
         {

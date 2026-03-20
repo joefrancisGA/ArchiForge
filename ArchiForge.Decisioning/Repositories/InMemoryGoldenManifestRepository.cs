@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 
@@ -7,8 +8,15 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
 {
     private readonly List<GoldenManifest> _store = [];
 
-    public Task SaveAsync(GoldenManifest manifest, CancellationToken ct)
+    public Task SaveAsync(
+        GoldenManifest manifest,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = ct;
+        _ = connection;
+        _ = transaction;
         _store.Add(manifest);
         return Task.CompletedTask;
     }

@@ -18,6 +18,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<Di.IDecisionRuleProvider, Dr.InMemoryDecisionRuleProvider>();
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();
+        services.AddSingleton<Di.IManifestHashService, Ds.ManifestHashService>();
         services.AddScoped<Di.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
     }
 }

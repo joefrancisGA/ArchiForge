@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -7,8 +8,15 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
 {
     private readonly List<GraphSnapshot> _store = [];
 
-    public Task SaveAsync(GraphSnapshot snapshot, CancellationToken ct)
+    public Task SaveAsync(
+        GraphSnapshot snapshot,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = ct;
+        _ = connection;
+        _ = transaction;
         _store.Add(snapshot);
         return Task.CompletedTask;
     }

@@ -153,7 +153,7 @@ public sealed class ComparisonsController(
         var sortBy = query.SortBy ?? "createdUtc";
         var sortDir = query.SortDir ?? "desc";
 
-        IReadOnlyList<ArchiForge.Contracts.Metadata.ComparisonRecord> records;
+        IReadOnlyList<ComparisonRecord> records;
         if (!string.IsNullOrWhiteSpace(query.Cursor))
         {
             records = await comparisonRecordRepository.SearchByCursorAsync(

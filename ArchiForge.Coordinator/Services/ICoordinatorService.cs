@@ -1,8 +1,10 @@
-﻿using ArchiForge.Contracts.Requests;
+using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.Coordinator.Services;
 
 public interface ICoordinatorService
 {
-    CoordinationResult CreateRun(ArchitectureRequest request);
+    Task<CoordinationResult> CreateRunAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken = default);
 }

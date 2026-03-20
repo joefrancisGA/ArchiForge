@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 
@@ -7,8 +8,15 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
 {
     private readonly List<ArtifactBundle> _store = new();
 
-    public Task SaveAsync(ArtifactBundle bundle, CancellationToken ct)
+    public Task SaveAsync(
+        ArtifactBundle bundle,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = ct;
+        _ = connection;
+        _ = transaction;
         _store.Add(bundle);
         return Task.CompletedTask;
     }

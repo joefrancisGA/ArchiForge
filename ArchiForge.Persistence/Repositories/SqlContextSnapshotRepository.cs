@@ -1,4 +1,4 @@
-using System.Data.Common;
+using System.Data;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Persistence.Connections;
@@ -65,7 +65,11 @@ public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
         return row is null ? null : Map(row);
     }
 
-    public async Task SaveAsync(ContextSnapshot snapshot, CancellationToken ct)
+    public async Task SaveAsync(
+        ContextSnapshot snapshot,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.ContextSnapshots
@@ -93,8 +97,14 @@ public sealed class SqlContextSnapshotRepository : IContextSnapshotRepository
             SourceHashesJson = JsonEntitySerializer.Serialize(snapshot.SourceHashes)
         };
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
     private static ContextSnapshot Map(ContextSnapshotRow row)

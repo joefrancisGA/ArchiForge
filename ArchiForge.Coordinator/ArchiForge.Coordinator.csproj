@@ -7,11 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
-    <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
-    <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-using System.Data.Common;
+using System.Data;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Connections;
@@ -16,7 +16,11 @@ public sealed class SqlGraphSnapshotRepository : IGraphSnapshotRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SaveAsync(GraphSnapshot snapshot, CancellationToken ct)
+    public async Task SaveAsync(
+        GraphSnapshot snapshot,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.GraphSnapshots
@@ -42,8 +46,14 @@ public sealed class SqlGraphSnapshotRepository : IGraphSnapshotRepository
             WarningsJson = JsonEntitySerializer.Serialize(snapshot.Warnings)
         };
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, args, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
     public async Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)

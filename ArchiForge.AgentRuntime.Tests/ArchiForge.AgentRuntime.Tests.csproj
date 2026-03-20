@@ -18,6 +18,7 @@
     <ProjectReference Include="..\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj" />
     <ProjectReference Include="..\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj" />

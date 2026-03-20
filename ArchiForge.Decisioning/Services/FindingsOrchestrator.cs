@@ -9,23 +9,19 @@ namespace ArchiForge.Decisioning.Services;
 
 public partial class FindingsOrchestrator(
     IEnumerable<IFindingEngine> engines,
-    IFindingsSnapshotRepository repository,
     IFindingPayloadValidator validator,
     ILogger<FindingsOrchestrator> logger)
     : IFindingsOrchestrator
 {
-    public FindingsOrchestrator(
-        IEnumerable<IFindingEngine> engines,
-        IFindingsSnapshotRepository repository)
-        : this(engines, repository, new NoOpFindingPayloadValidator(), SilentLogger.Instance)
+    public FindingsOrchestrator(IEnumerable<IFindingEngine> engines)
+        : this(engines, new NoOpFindingPayloadValidator(), SilentLogger.Instance)
     {
     }
 
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
-        IFindingsSnapshotRepository repository,
         IFindingPayloadValidator validator)
-        : this(engines, repository, validator, SilentLogger.Instance)
+        : this(engines, validator, SilentLogger.Instance)
     {
     }
 
@@ -104,8 +100,6 @@ public partial class FindingsOrchestrator(
         FindingsSnapshotMigrator.Apply(snapshot);
 
         LogSnapshotBuilt(snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
-
-        await repository.SaveAsync(snapshot, ct);
 
         return snapshot;
     }

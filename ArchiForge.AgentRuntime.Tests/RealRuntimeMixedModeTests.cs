@@ -1,18 +1,11 @@
-using ArchiForge.ArtifactSynthesis.Generators;
-using ArchiForge.ArtifactSynthesis.Interfaces;
-using ArchiForge.ArtifactSynthesis.Renderers;
-using ArchiForge.ArtifactSynthesis.Repositories;
-using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.ContextIngestion.Interfaces;
-using ArchiForge.ContextIngestion.Models;
+using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Orchestration;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
-using ArchiForge.KnowledgeGraph.Interfaces;
-using ArchiForge.KnowledgeGraph.Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
@@ -229,23 +222,8 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
-        var coordinator = new CoordinatorService(
-            new NullContextIngestionService(),
-            new NullKnowledgeGraphService(),
-            new Decisioning.Services.FindingsOrchestrator(
-                [
-                    new Decisioning.Services.RequirementFindingEngine(),
-                    new Decisioning.Services.TopologySanityFindingEngine()
-                ],
-                new Decisioning.Repositories.InMemoryFindingsSnapshotRepository()),
-            new Decisioning.Services.RuleBasedDecisionEngine(
-                new Decisioning.Rules.InMemoryDecisionRuleProvider(),
-                new Decisioning.Manifest.Builders.DefaultGoldenManifestBuilder(),
-                new Decisioning.Services.GoldenManifestValidator(),
-                new Decisioning.Repositories.InMemoryGoldenManifestRepository(),
-                new Decisioning.Repositories.InMemoryDecisionTraceRepository()),
-            CreateArtifactSynthesisServiceForTests());
-        var coordination = coordinator.CreateRun(request);
+        var coordinator = new CoordinatorService(new FakeAuthorityRunOrchestratorForRuntimeTests());
+        var coordination = await coordinator.CreateRunAsync(request);
 
         // Force known IDs used in stub payloads
         var topologyTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Topology);
@@ -307,46 +285,24 @@ public sealed class RealRuntimeMixedModeTests
         merge.Manifest.Governance.RequiredControls.Should().Contain("Diagnostic Logging");
     }
 
-    private static IArtifactSynthesisService CreateArtifactSynthesisServiceForTests()
+    private sealed class FakeAuthorityRunOrchestratorForRuntimeTests : IAuthorityRunOrchestrator
     {
-        var renderer = new MermaidDiagramRenderer();
-        IEnumerable<IArtifactGenerator> generators =
-        [
-            new ReferenceArchitectureMarkdownGenerator(),
-            new DiagramAstGenerator(),
-            new MermaidDiagramArtifactGenerator(renderer),
-            new InventoryArtifactGenerator(),
-            new CostSummaryArtifactGenerator()
-        ];
-        return new ArtifactSynthesisService(
-            generators,
-            new InMemoryArtifactBundleRepository(),
-            new ArtifactBundleValidator());
-    }
-
-    private sealed class NullContextIngestionService : IContextIngestionService
-    {
-        public Task<ContextSnapshot> IngestAsync(ContextIngestionRequest request, CancellationToken ct)
+        public Task<RunRecord> ExecuteAsync(string projectId, string? description, CancellationToken ct)
         {
-            return Task.FromResult(new ContextSnapshot
+            _ = ct;
+            var runId = Guid.NewGuid();
+            return Task.FromResult(new RunRecord
             {
-                SnapshotId = Guid.NewGuid(),
-                RunId = request.RunId,
-                CreatedUtc = DateTime.UtcNow
-            });
-        }
-    }
-
-    private sealed class NullKnowledgeGraphService : IKnowledgeGraphService
-    {
-        public Task<GraphSnapshot> BuildSnapshotAsync(ContextSnapshot contextSnapshot, CancellationToken ct)
-        {
-            return Task.FromResult(new GraphSnapshot
-            {
+                RunId = runId,
+                ProjectId = projectId,
+                Description = description,
+                CreatedUtc = DateTime.UtcNow,
+                ContextSnapshotId = Guid.NewGuid(),
                 GraphSnapshotId = Guid.NewGuid(),
-                ContextSnapshotId = contextSnapshot.SnapshotId,
-                RunId = contextSnapshot.RunId,
-                CreatedUtc = DateTime.UtcNow
+                FindingsSnapshotId = Guid.NewGuid(),
+                GoldenManifestId = Guid.NewGuid(),
+                DecisionTraceId = Guid.NewGuid(),
+                ArtifactBundleId = Guid.NewGuid()
             });
         }
     }

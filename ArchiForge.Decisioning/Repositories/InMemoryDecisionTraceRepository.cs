@@ -1,3 +1,4 @@
+using System.Data;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 
@@ -7,8 +8,15 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
     private readonly List<DecisionTrace> _store = [];
 
-    public Task SaveAsync(DecisionTrace trace, CancellationToken ct)
+    public Task SaveAsync(
+        DecisionTrace trace,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
+        _ = ct;
+        _ = connection;
+        _ = transaction;
         _store.Add(trace);
         return Task.CompletedTask;
     }

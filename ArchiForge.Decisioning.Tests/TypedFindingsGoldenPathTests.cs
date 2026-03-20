@@ -1,6 +1,5 @@
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Builders;
-using ArchiForge.Decisioning.Repositories;
 using ArchiForge.Decisioning.Rules;
 using ArchiForge.Decisioning.Services;
 using ArchiForge.KnowledgeGraph.Models;
@@ -69,10 +68,7 @@ public sealed class TypedFindingsGoldenPathTests
             new CostConstraintFindingEngine()
         ];
 
-        var orchestrator = new FindingsOrchestrator(
-            engines,
-            new InMemoryFindingsSnapshotRepository(),
-            new FindingPayloadValidator());
+        var orchestrator = new FindingsOrchestrator(engines, new FindingPayloadValidator());
 
         var snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 
@@ -83,8 +79,7 @@ public sealed class TypedFindingsGoldenPathTests
             new InMemoryDecisionRuleProvider(),
             new DefaultGoldenManifestBuilder(),
             new GoldenManifestValidator(),
-            new InMemoryGoldenManifestRepository(),
-            new InMemoryDecisionTraceRepository());
+            new ManifestHashService());
 
         var (manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
 

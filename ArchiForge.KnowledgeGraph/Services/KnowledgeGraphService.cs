@@ -4,10 +4,7 @@ using ArchiForge.KnowledgeGraph.Models;
 
 namespace ArchiForge.KnowledgeGraph.Services;
 
-public class KnowledgeGraphService(
-    IGraphBuilder graphBuilder,
-    IGraphSnapshotRepository repository)
-    : IKnowledgeGraphService
+public class KnowledgeGraphService(IGraphBuilder graphBuilder) : IKnowledgeGraphService
 {
     public async Task<GraphSnapshot> BuildSnapshotAsync(
         ContextSnapshot contextSnapshot,
@@ -15,7 +12,7 @@ public class KnowledgeGraphService(
     {
         var buildResult = await graphBuilder.BuildAsync(contextSnapshot, ct);
 
-        var snapshot = new GraphSnapshot
+        return new GraphSnapshot
         {
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = contextSnapshot.SnapshotId,
@@ -25,10 +22,5 @@ public class KnowledgeGraphService(
             Edges = buildResult.Edges,
             Warnings = buildResult.Warnings
         };
-
-        await repository.SaveAsync(snapshot, ct);
-
-        return snapshot;
     }
 }
-

@@ -1,4 +1,4 @@
-using System.Data.Common;
+using System.Data;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
@@ -15,7 +15,11 @@ public sealed class SqlRunRepository : IRunRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task SaveAsync(RunRecord run, CancellationToken ct)
+    public async Task SaveAsync(
+        RunRecord run,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             INSERT INTO dbo.Runs
@@ -32,8 +36,14 @@ public sealed class SqlRunRepository : IRunRepository
             );
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 
     public async Task<RunRecord?> GetByIdAsync(Guid runId, CancellationToken ct)
@@ -74,7 +84,11 @@ public sealed class SqlRunRepository : IRunRepository
         return rows.ToList();
     }
 
-    public async Task UpdateAsync(RunRecord run, CancellationToken ct)
+    public async Task UpdateAsync(
+        RunRecord run,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         const string sql = """
             UPDATE dbo.Runs
@@ -90,7 +104,13 @@ public sealed class SqlRunRepository : IRunRepository
             WHERE RunId = @RunId;
             """;
 
-        await using var connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+        if (connection is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            return;
+        }
+
+        await using var owned = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 }

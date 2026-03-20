@@ -10,9 +10,12 @@ using ArchiForge.KnowledgeGraph.Repositories;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Compare;
+using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Queries;
+using ArchiForge.Persistence.Replay;
 using ArchiForge.Persistence.Repositories;
 using ArchiForge.Persistence.Sql;
+using ArchiForge.Persistence.Transactions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +46,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IRunRepository, InMemoryRunRepository>();
             services.AddSingleton<IAuthorityQueryService, InMemoryAuthorityQueryService>();
             services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
+            services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
             return services;
         }
 
@@ -70,6 +74,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IRunRepository, SqlRunRepository>();
         services.AddScoped<IAuthorityQueryService, DapperAuthorityQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
+        services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
+        services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
+        services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
 
         return services;
     }
