@@ -65,6 +65,11 @@ async function apiGet<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+/** Same proxy/scope/API-key behavior as other UI API calls; for graph modules, etc. */
+export async function fetchArchiForgeJson<T>(path: string): Promise<T> {
+  return apiGet<T>(path);
+}
+
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
   return apiGet<RunSummary[]>(
     `/api/authority/projects/${encodeURIComponent(projectId)}/runs?take=${take}`,

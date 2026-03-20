@@ -20,6 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/runs?projectId=default">Runs</Link>
               <Link href="/compare">Compare</Link>
               <Link href="/replay">Replay</Link>
+              <Link href="/graph">Graph</Link>
             </nav>
           </header>
           <AuthStatus />

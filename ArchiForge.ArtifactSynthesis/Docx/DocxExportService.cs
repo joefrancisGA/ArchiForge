@@ -2,6 +2,7 @@ using ArchiForge.ArtifactSynthesis.Docx.Builders;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Decisioning.Models;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
