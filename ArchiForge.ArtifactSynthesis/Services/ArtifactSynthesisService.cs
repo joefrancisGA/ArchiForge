@@ -37,7 +37,7 @@ public class ArtifactSynthesisService : IArtifactSynthesisService
             }
         };
 
-        foreach (var generator in _generators)
+        foreach (var generator in _generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
         {
             var artifact = await generator.GenerateAsync(manifest, ct);
             bundle.Artifacts.Add(artifact);

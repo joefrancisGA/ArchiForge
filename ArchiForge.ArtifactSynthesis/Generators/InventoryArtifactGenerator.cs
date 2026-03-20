@@ -28,6 +28,17 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             });
         }
 
+        foreach (var requirement in manifest.Requirements.Uncovered)
+        {
+            inventory.Items.Add(new InventoryItem
+            {
+                Category = "Requirement",
+                Name = requirement.RequirementName,
+                Status = requirement.CoverageStatus,
+                Notes = requirement.RequirementText
+            });
+        }
+
         foreach (var control in manifest.Security.Controls)
         {
             inventory.Items.Add(new InventoryItem
@@ -36,6 +47,17 @@ public class InventoryArtifactGenerator : IArtifactGenerator
                 Name = control.ControlName,
                 Status = control.Status,
                 Notes = control.Impact
+            });
+        }
+
+        foreach (var control in manifest.Compliance.Controls)
+        {
+            inventory.Items.Add(new InventoryItem
+            {
+                Category = "ComplianceControl",
+                Name = control.ControlName,
+                Status = control.Status,
+                Notes = control.AppliesToCategory
             });
         }
 

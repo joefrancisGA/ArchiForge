@@ -17,33 +17,50 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         _ = ct;
         var sb = new StringBuilder();
 
-        sb.AppendLine($"# {manifest.Metadata.Name}");
+        sb.AppendLine($"# Reference Architecture - {manifest.Metadata.Name}");
         sb.AppendLine();
         sb.AppendLine($"Status: {manifest.Metadata.Status}");
-        sb.AppendLine();
-        sb.AppendLine("## Summary");
-        sb.AppendLine(manifest.Metadata.Summary);
+        sb.AppendLine($"Version: {manifest.Metadata.Version}");
         sb.AppendLine();
 
-        sb.AppendLine("## Requirements Coverage");
+        sb.AppendLine("## Manifest Metadata");
+        sb.AppendLine($"- Rule Set: {manifest.RuleSetId} {manifest.RuleSetVersion}");
+        sb.AppendLine($"- Manifest Hash: {manifest.ManifestHash}");
+        sb.AppendLine();
+
+        sb.AppendLine("## Requirements");
         foreach (var item in manifest.Requirements.Covered)
         {
-            sb.AppendLine($"- {item.RequirementName}: {item.CoverageStatus}");
+            sb.AppendLine($"- Covered: {item.RequirementName}");
         }
-        if (manifest.Requirements.Covered.Count == 0)
+        foreach (var item in manifest.Requirements.Uncovered)
         {
-            sb.AppendLine("- No covered requirements.");
+            sb.AppendLine($"- Uncovered: {item.RequirementName}");
+        }
+        if (manifest.Requirements.Covered.Count == 0 && manifest.Requirements.Uncovered.Count == 0)
+        {
+            sb.AppendLine("- No requirements recorded.");
         }
         sb.AppendLine();
 
         sb.AppendLine("## Topology");
+        foreach (var pattern in manifest.Topology.SelectedPatterns)
+        {
+            sb.AppendLine($"- Pattern: {pattern}");
+        }
+        foreach (var resource in manifest.Topology.Resources)
+        {
+            sb.AppendLine($"- Resource: {resource}");
+        }
         foreach (var gap in manifest.Topology.Gaps)
         {
             sb.AppendLine($"- Gap: {gap}");
         }
-        if (manifest.Topology.Gaps.Count == 0)
+        if (manifest.Topology.SelectedPatterns.Count == 0 &&
+            manifest.Topology.Resources.Count == 0 &&
+            manifest.Topology.Gaps.Count == 0)
         {
-            sb.AppendLine("- No topology gaps.");
+            sb.AppendLine("- No topology information recorded.");
         }
         sb.AppendLine();
 
@@ -52,9 +69,28 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         {
             sb.AppendLine($"- {control.ControlName}: {control.Status}");
         }
-        if (manifest.Security.Controls.Count == 0)
+        foreach (var gap in manifest.Security.Gaps)
         {
-            sb.AppendLine("- No security controls recorded.");
+            sb.AppendLine($"- Gap: {gap}");
+        }
+        if (manifest.Security.Controls.Count == 0 && manifest.Security.Gaps.Count == 0)
+        {
+            sb.AppendLine("- No security posture recorded.");
+        }
+        sb.AppendLine();
+
+        sb.AppendLine("## Compliance");
+        foreach (var control in manifest.Compliance.Controls)
+        {
+            sb.AppendLine($"- {control.ControlId} {control.ControlName}: {control.Status}");
+        }
+        foreach (var gap in manifest.Compliance.Gaps)
+        {
+            sb.AppendLine($"- Gap: {gap}");
+        }
+        if (manifest.Compliance.Controls.Count == 0 && manifest.Compliance.Gaps.Count == 0)
+        {
+            sb.AppendLine("- No compliance posture recorded.");
         }
         sb.AppendLine();
 
@@ -66,6 +102,17 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         }
         sb.AppendLine();
 
+        sb.AppendLine("## Decisions");
+        foreach (var decision in manifest.Decisions)
+        {
+            sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
+        }
+        if (manifest.Decisions.Count == 0)
+        {
+            sb.AppendLine("- No decisions recorded.");
+        }
+        sb.AppendLine();
+
         sb.AppendLine("## Unresolved Issues");
         foreach (var issue in manifest.UnresolvedIssues.Items)
         {
@@ -74,17 +121,6 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         if (manifest.UnresolvedIssues.Items.Count == 0)
         {
             sb.AppendLine("- No unresolved issues.");
-        }
-        sb.AppendLine();
-
-        sb.AppendLine("## Decisions");
-        foreach (var decision in manifest.Decisions)
-        {
-            sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
-        }
-        if (manifest.Decisions.Count == 0)
-        {
-            sb.AppendLine("- No decisions.");
         }
 
         var content = sb.ToString();

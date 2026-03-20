@@ -203,10 +203,14 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<IArtifactBundleValidator, ArtifactBundleValidator>();
         services.AddSingleton<IDiagramRenderer, MermaidDiagramRenderer>();
         services.AddScoped<IArtifactGenerator, ReferenceArchitectureMarkdownGenerator>();
+        services.AddScoped<IArtifactGenerator, ArchitectureNarrativeArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator, ComplianceMatrixArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator, CoverageSummaryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, DiagramAstGenerator>();
         services.AddScoped<IArtifactGenerator, MermaidDiagramArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, InventoryArtifactGenerator>();
         services.AddScoped<IArtifactGenerator, CostSummaryArtifactGenerator>();
+        services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
     }
 

@@ -7,4 +7,8 @@ public static class ArtifactType
     public const string MermaidDiagram = "MermaidDiagram";
     public const string Inventory = "Inventory";
     public const string CostSummary = "CostSummary";
+    public const string ComplianceMatrix = "ComplianceMatrix";
+    public const string CoverageSummary = "CoverageSummary";
+    public const string ArchitectureNarrative = "ArchitectureNarrative";
+    public const string UnresolvedIssuesReport = "UnresolvedIssuesReport";
 }

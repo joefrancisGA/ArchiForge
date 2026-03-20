@@ -13,10 +13,14 @@ internal static class TestArtifactSynthesisFactory
         IEnumerable<IArtifactGenerator> generators =
         [
             new ReferenceArchitectureMarkdownGenerator(),
+            new ArchitectureNarrativeArtifactGenerator(),
+            new ComplianceMatrixArtifactGenerator(),
+            new CoverageSummaryArtifactGenerator(),
             new DiagramAstGenerator(),
             new MermaidDiagramArtifactGenerator(renderer),
             new InventoryArtifactGenerator(),
-            new CostSummaryArtifactGenerator()
+            new CostSummaryArtifactGenerator(),
+            new UnresolvedIssuesArtifactGenerator()
         ];
         return new ArtifactSynthesisService(
             generators,
