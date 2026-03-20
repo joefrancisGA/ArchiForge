@@ -55,5 +55,8 @@ public static class FindingPayloadConverter
 
     public static RequirementCoverageFindingPayload? ToRequirementCoveragePayload(Finding finding)
         => ConvertPayload<RequirementCoverageFindingPayload>(finding);
+
+    public static ComplianceFindingPayload? ToCompliancePayload(Finding finding)
+        => ConvertPayload<ComplianceFindingPayload>(finding);
 }
 

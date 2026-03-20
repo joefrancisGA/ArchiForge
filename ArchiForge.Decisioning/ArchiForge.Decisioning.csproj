@@ -15,4 +15,10 @@
     <ProjectReference Include="..\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Compliance\RulePacks\default-compliance.rules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

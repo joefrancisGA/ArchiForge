@@ -14,7 +14,8 @@ public static class FindingPayloadRegistry
         [nameof(TopologyCoverageFindingPayload)] = typeof(TopologyCoverageFindingPayload),
         [nameof(SecurityCoverageFindingPayload)] = typeof(SecurityCoverageFindingPayload),
         [nameof(PolicyCoverageFindingPayload)] = typeof(PolicyCoverageFindingPayload),
-        [nameof(RequirementCoverageFindingPayload)] = typeof(RequirementCoverageFindingPayload)
+        [nameof(RequirementCoverageFindingPayload)] = typeof(RequirementCoverageFindingPayload),
+        [nameof(ComplianceFindingPayload)] = typeof(ComplianceFindingPayload)
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

@@ -28,7 +28,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             (
                 ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, CostJson,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                 ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
                 WarningsJson, ProvenanceJson
             )
@@ -36,7 +36,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             (
                 @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
                 @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @CostJson,
+                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
                 @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
                 @WarningsJson, @ProvenanceJson
             );
@@ -59,6 +59,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             RequirementsJson = JsonEntitySerializer.Serialize(manifest.Requirements),
             TopologyJson = JsonEntitySerializer.Serialize(manifest.Topology),
             SecurityJson = JsonEntitySerializer.Serialize(manifest.Security),
+            ComplianceJson = JsonEntitySerializer.Serialize(manifest.Compliance),
             CostJson = JsonEntitySerializer.Serialize(manifest.Cost),
             ConstraintsJson = JsonEntitySerializer.Serialize(manifest.Constraints),
             UnresolvedIssuesJson = JsonEntitySerializer.Serialize(manifest.UnresolvedIssues),
@@ -84,7 +85,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             SELECT
                 ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
                 CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
-                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, CostJson,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
                 ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
                 WarningsJson, ProvenanceJson
             FROM dbo.GoldenManifests
@@ -115,6 +116,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             Requirements = JsonEntitySerializer.Deserialize<RequirementsCoverageSection>(row.RequirementsJson),
             Topology = JsonEntitySerializer.Deserialize<TopologySection>(row.TopologyJson),
             Security = JsonEntitySerializer.Deserialize<SecuritySection>(row.SecurityJson),
+            Compliance = DeserializeCompliance(row.ComplianceJson),
             Cost = JsonEntitySerializer.Deserialize<CostSection>(row.CostJson),
             Constraints = JsonEntitySerializer.Deserialize<ConstraintSection>(row.ConstraintsJson),
             UnresolvedIssues = JsonEntitySerializer.Deserialize<UnresolvedIssuesSection>(row.UnresolvedIssuesJson),
@@ -123,6 +125,13 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
             Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson),
             Provenance = JsonEntitySerializer.Deserialize<ManifestProvenance>(row.ProvenanceJson)
         };
+    }
+
+    private static ComplianceSection DeserializeCompliance(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new ComplianceSection();
+        return JsonEntitySerializer.Deserialize<ComplianceSection>(json);
     }
 
     private sealed class GoldenManifestRow
@@ -142,6 +151,7 @@ public sealed class SqlGoldenManifestRepository : IGoldenManifestRepository
         public string RequirementsJson { get; set; } = default!;
         public string TopologyJson { get; set; } = default!;
         public string SecurityJson { get; set; } = default!;
+        public string? ComplianceJson { get; set; }
         public string CostJson { get; set; } = default!;
         public string ConstraintsJson { get; set; } = default!;
         public string UnresolvedIssuesJson { get; set; } = default!;

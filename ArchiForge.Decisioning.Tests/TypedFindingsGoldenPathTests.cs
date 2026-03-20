@@ -1,4 +1,6 @@
 using ArchiForge.Decisioning.Analysis;
+using ArchiForge.Decisioning.Compliance.Evaluators;
+using ArchiForge.Decisioning.Compliance.Loaders;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Builders;
 using ArchiForge.Decisioning.Rules;
@@ -11,7 +13,7 @@ namespace ArchiForge.Decisioning.Tests;
 public sealed class TypedFindingsGoldenPathTests
 {
     [Fact]
-    public async Task EndToEnd_SecurityGapProducesDecision_AndCostPayloadInManifest()
+    public async Task EndToEnd_SecurityCostAndComplianceFlowThroughFindingsAndManifest()
     {
         var runId = Guid.NewGuid();
         var ctxId = Guid.NewGuid();
@@ -102,12 +104,23 @@ public sealed class TypedFindingsGoldenPathTests
         };
 
         var analyzer = new GraphCoverageAnalyzer();
+        var complianceRulePackPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Compliance",
+            "RulePacks",
+            "default-compliance.rules.json");
+        var complianceLoader = new FileComplianceRulePackLoader(complianceRulePackPath);
+        var complianceProvider = new FileComplianceRulePackProvider(complianceLoader);
+        var complianceValidator = new ComplianceRulePackValidator();
+        var complianceEvaluator = new GraphComplianceEvaluator();
+
         IFindingEngine[] engines =
         [
             new RequirementFindingEngine(),
             new TopologyCoverageFindingEngine(analyzer),
             new SecurityBaselineFindingEngine(),
             new SecurityCoverageFindingEngine(analyzer),
+            new ComplianceFindingEngine(complianceProvider, complianceValidator, complianceEvaluator),
             new CostConstraintFindingEngine()
         ];
 
@@ -132,6 +145,11 @@ public sealed class TypedFindingsGoldenPathTests
 
         manifest.Cost.MaxMonthlyCost.Should().Be(5000m);
         manifest.Security.Controls.Should().Contain(c => c.ControlId == "AC-2" && c.Status == "missing");
+        manifest.Compliance.Controls.Should().Contain(c => c.ControlId == "STO-001" && c.Status == "Gap");
+        manifest.Compliance.Controls.Should().Contain(c => c.ControlId == "DAT-001" && c.Status == "Gap");
+        manifest.Compliance.Gaps.Should().Contain(g => g.Contains("blob", StringComparison.OrdinalIgnoreCase));
+        manifest.Compliance.Gaps.Should().Contain(g => g.Contains("db", StringComparison.OrdinalIgnoreCase));
+        manifest.UnresolvedIssues.Items.Should().Contain(i => i.IssueType == "ComplianceGap");
         manifest.Decisions.Should().Contain(d =>
             d.Category == "Security" && d.SelectedOption == "RequiredRemediation" && d.Title.Contains("MFA"));
         manifest.Assumptions.Should().Contain(a => a.Contains("Preferred:", StringComparison.OrdinalIgnoreCase) && a.Contains("Cost", StringComparison.OrdinalIgnoreCase));

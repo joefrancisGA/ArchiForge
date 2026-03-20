@@ -41,6 +41,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         PopulateTopologyFromGraph(manifest, graphSnapshot);
         PopulateTopology(manifest, findingsSnapshot);
         PopulateSecurity(manifest, findingsSnapshot);
+        PopulateCompliance(manifest, findingsSnapshot);
         PopulateCost(manifest, findingsSnapshot);
         PopulatePolicyApplicability(manifest, findingsSnapshot);
         PopulateCoverageWarnings(manifest, findingsSnapshot);
@@ -80,6 +81,13 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .OrderBy(x => x.ControlName, StringComparer.OrdinalIgnoreCase)
             .ToList();
         manifest.Security.Gaps = manifest.Security.Gaps
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Compliance.Controls = manifest.Compliance.Controls
+            .OrderBy(x => x.ControlName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Compliance.Gaps = manifest.Compliance.Gaps
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -223,6 +231,41 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                     SupportingFindingIds = [finding.FindingId]
                 });
             }
+        }
+    }
+
+    private static void PopulateCompliance(
+        GoldenManifest manifest,
+        FindingsSnapshot findingsSnapshot)
+    {
+        foreach (var finding in findingsSnapshot.GetByType("ComplianceFinding"))
+        {
+            var payload = FindingPayloadConverter.ToCompliancePayload(finding);
+            if (payload is null)
+                continue;
+
+            manifest.Compliance.Controls.Add(new CompliancePostureItem
+            {
+                ControlId = payload.ControlId,
+                ControlName = payload.ControlName,
+                AppliesToCategory = payload.AppliesToCategory,
+                Status = "Gap"
+            });
+
+            if (payload.AffectedResources.Count > 0)
+            {
+                manifest.Compliance.Gaps.Add(
+                    $"{payload.ControlName}: {string.Join(", ", payload.AffectedResources)}");
+            }
+
+            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
+            {
+                IssueType = "ComplianceGap",
+                Title = finding.Title,
+                Description = finding.Rationale,
+                Severity = finding.Severity.ToString(),
+                SupportingFindingIds = [finding.FindingId]
+            });
         }
     }
 

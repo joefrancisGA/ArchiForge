@@ -1,0 +1,6 @@
+namespace ArchiForge.Decisioning.Compliance.Models;
+
+public class ComplianceEvaluationResult
+{
+    public List<ComplianceViolation> Violations { get; set; } = [];
+}

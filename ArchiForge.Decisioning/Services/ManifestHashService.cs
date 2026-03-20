@@ -25,6 +25,7 @@ public sealed class ManifestHashService : IManifestHashService
             manifest.Requirements,
             manifest.Topology,
             manifest.Security,
+            manifest.Compliance,
             manifest.Cost,
             manifest.Constraints,
             manifest.UnresolvedIssues,

@@ -130,6 +130,7 @@ BEGIN
         RequirementsJson NVARCHAR(MAX) NOT NULL,
         TopologyJson NVARCHAR(MAX) NOT NULL,
         SecurityJson NVARCHAR(MAX) NOT NULL,
+        ComplianceJson NVARCHAR(MAX) NOT NULL,
         CostJson NVARCHAR(MAX) NOT NULL,
         ConstraintsJson NVARCHAR(MAX) NOT NULL,
         UnresolvedIssuesJson NVARCHAR(MAX) NOT NULL,
@@ -161,5 +162,12 @@ BEGIN
 
     CREATE INDEX IX_ArtifactBundles_ManifestId
         ON dbo.ArtifactBundles(ManifestId);
+END;
+GO
+
+IF COL_LENGTH('dbo.GoldenManifests', 'ComplianceJson') IS NULL
+BEGIN
+    ALTER TABLE dbo.GoldenManifests
+        ADD ComplianceJson NVARCHAR(MAX) NOT NULL CONSTRAINT DF_GoldenManifests_ComplianceJson DEFAULT (N'{}');
 END;
 GO

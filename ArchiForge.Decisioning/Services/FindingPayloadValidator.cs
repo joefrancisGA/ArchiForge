@@ -82,6 +82,13 @@ public class FindingPayloadValidator : IFindingPayloadValidator
             if (payload is null)
                 throw new InvalidOperationException("RequirementCoverageFinding payload is invalid.");
         }
+
+        if (finding.FindingType.Equals("ComplianceFinding", StringComparison.OrdinalIgnoreCase))
+        {
+            var payload = FindingPayloadConverter.ToCompliancePayload(finding);
+            if (payload is null)
+                throw new InvalidOperationException("ComplianceFinding payload is invalid.");
+        }
     }
 }
 

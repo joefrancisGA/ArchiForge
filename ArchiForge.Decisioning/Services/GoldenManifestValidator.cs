@@ -25,6 +25,9 @@ public class GoldenManifestValidator : IGoldenManifestValidator
         if (manifest.Security is null)
             throw new InvalidOperationException("Security section is required.");
 
+        if (manifest.Compliance is null)
+            throw new InvalidOperationException("Compliance section is required.");
+
         if (manifest.Cost is null)
             throw new InvalidOperationException("Cost section is required.");
 

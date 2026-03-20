@@ -87,6 +87,15 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
 
                 new DecisionRule
                 {
+                    Name = "Record compliance rule pack findings",
+                    Priority = 81,
+                    IsMandatory = false,
+                    AppliesToFindingType = "ComplianceFinding",
+                    Action = "allow"
+                },
+
+                new DecisionRule
+                {
                     Name = "Prefer cost constraint findings",
                     Priority = 82,
                     IsMandatory = false,
