@@ -620,6 +620,66 @@ Candidates for the next round of refactors, in rough priority order.
 
 ---
 
+## 48. Document the context ingestion pipeline (connectors, parsers, API fields)
+
+**Problem:** Multi-connector ingestion (`IContextConnector`, parsers, deduplication) is not described in **`docs/ARCHITECTURE_CONTEXT.md`**, **`docs/DATA_MODEL.md`**, or **`docs/API_CONTRACTS.md`**. New `ArchitectureRequest` fields (`InlineRequirements`, `Documents`, `PolicyReferences`, `TopologyHints`, `SecurityBaselineHints`) are invisible to integrators.
+
+**Change:**
+- Add a short **“Context ingestion”** subsection (or new **`docs/CONTEXT_INGESTION.md`**) listing connector types, **`PlainTextContextDocumentParser`** line prefixes (`REQ:`, `POL:`, `TOP:`, `SEC:`), dedupe key idea (`ObjectType|Name|text`), and how **`ProjectId`** maps from **`SystemName`**.
+- In **`API_CONTRACTS.md`**, document the expanded create-run JSON body and that documents are inline (name, contentType, content), not file upload multipart (unless you add that later).
+
+**Outcome:** Onboarding and CLI/Swagger users know how to feed the pipeline.
+
+---
+
+## 49. Reintroduce real delta semantics in `ContextIngestionService`
+
+**Problem:** **`ContextIngestionService`** always passes **`null`** as **`previous`** to **`DeltaAsync`**, so summaries are always the “initial ingestion” branch and **`IContextSnapshotRepository.GetLatestAsync`** is unused. That was an intentional step; it’s now technical debt.
+
+**Change:**
+- Inject **`IContextSnapshotRepository`** (or a narrow **`IContextSnapshotLookup`**) and load **`GetLatestAsync(request.ProjectId, ct)`** once per ingest.
+- Pass **`previous`** into **`DeltaAsync`** (define what **`ContextSnapshot?`** means for “previous”: latest committed snapshot for project, or previous run only).
+- Optionally extract **`IContextDeltaComparer`** if connector-specific delta logic grows.
+
+**Outcome:** Meaningful **`DeltaSummary`** and a path to graph-level “what changed” features.
+
+---
+
+## 50. Harden `CanonicalDeduplicator` identity for non-`text` properties
+
+**Problem:** Dedupe key uses **`Properties["text"]`** only. **`PolicyReferenceConnector`** emits **`reference`** (and **`status`**) but often no **`text`**, so collisions are keyed only by **`ObjectType|Name|`** — weaker than intended for long or duplicate names.
+
+**Change:**
+- Extend **`GetStableText`** (or rename to **`GetDedupeFingerprint`**) to fall back to **`reference`**, then other stable fields, and document the precedence in code comments or **`docs/CONTEXT_INGESTION.md`**.
+- Add unit tests for “same policy reference from two connectors → one object”.
+
+**Outcome:** Safer merging when multiple sources describe the same policy/control.
+
+---
+
+## 51. Extract `ArchitectureRequest` → `ContextIngestionRequest` mapping
+
+**Problem:** **`CoordinatorService`** now owns a large **`new ContextIngestionRequest { ... }`** block. That couples the coordinator to ingestion shape and is awkward to unit test in isolation.
+
+**Change:**
+- Add **`IContextIngestionRequestFactory`** or static **`ContextIngestionRequestMapper.From(ArchitectureRequest)`** in **`ArchiForge.ContextIngestion`** (or **Application**) with tests for document mapping and list copies.
+
+**Outcome:** Single place to evolve the API ↔ ingestion boundary; thinner coordinator.
+
+---
+
+## 52. Validate and order multi-connector registration explicitly
+
+**Problem:** Connector **order** affects concatenated **`DeltaSummary`** and (if added) side effects. Registration in **`ServiceCollectionExtensions`** relies on implicit **`IEnumerable<IContextConnector>`** order. Empty documents / invalid **`ContentType`** are silently skipped in **`DocumentConnector`** with no warning on the snapshot.
+
+**Change:**
+- Document intended order (e.g. static → inline → documents → policy → topology → security) **or** register a single **`IContextConnector[]`** / ordered composite built in one method.
+- Optionally add **`FluentValidation`** for **`ArchitectureRequest`** document entries (non-empty **`Name`**, **`Content`**, known **`ContentType`** or warning list on **`ContextSnapshot.Warnings`** when no parser matches).
+
+**Outcome:** Predictable summaries and clearer failure modes for bad document input.
+
+---
+
 ## Checklist (analysis — next five)
 
 - [x] 43. Api: unify exception → ProblemDetails mapping (filter + ProblemDetailsExtensions)
@@ -627,3 +687,11 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 45. Repo: single canonical Controllers folder path (no duplicate casing)
 - [x] 46. Api: extract consulting DOCX → ArchitectureAnalysisRequest builder
 - [x] 47. Api: aliases or partial class for RegisterDecisioningEngines verbosity
+
+## Checklist (context ingestion — suggested next five)
+
+- [x] 48. Docs: context ingestion pipeline + expanded create-run contract
+- [x] 49. Refactor: `ContextIngestionService` + prior snapshot for real deltas
+- [x] 50. Refactor: deduplicator fingerprint for `reference` / non-text properties
+- [x] 51. Refactor: extract API → `ContextIngestionRequest` mapper
+- [x] 52. Refactor/docs: explicit connector order + validation or warnings for documents

@@ -36,7 +36,12 @@ public class DocumentConnector : IContextConnector
         {
             var parser = _parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
             if (parser is null)
+            {
+                batch.Warnings.Add(
+                    $"No context document parser for document '{document.Name}' " +
+                    $"(contentType='{document.ContentType}'). Document skipped.");
                 continue;
+            }
 
             var objects = await parser.ParseAsync(document, ct);
             batch.CanonicalObjects.AddRange(objects);

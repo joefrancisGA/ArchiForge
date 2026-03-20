@@ -131,12 +131,24 @@ internal static partial class ServiceCollectionExtensions
     {
         services.AddSingleton<IContextDocumentParser, PlainTextContextDocumentParser>();
 
-        services.AddSingleton<ContextConnector, StaticRequestContextConnector>();
-        services.AddSingleton<ContextConnector, InlineRequirementsConnector>();
-        services.AddSingleton<ContextConnector, PolicyReferenceConnector>();
-        services.AddSingleton<ContextConnector, TopologyHintsConnector>();
-        services.AddSingleton<ContextConnector, SecurityBaselineHintsConnector>();
-        services.AddSingleton<ContextConnector, DocumentConnector>();
+        // Concrete connectors (registered once each).
+        services.AddSingleton<StaticRequestContextConnector>();
+        services.AddSingleton<InlineRequirementsConnector>();
+        services.AddSingleton<PolicyReferenceConnector>();
+        services.AddSingleton<TopologyHintsConnector>();
+        services.AddSingleton<SecurityBaselineHintsConnector>();
+        services.AddSingleton<DocumentConnector>();
+
+        // Fixed pipeline order (affects concatenated delta summaries and mental model). See docs/CONTEXT_INGESTION.md.
+        services.AddSingleton<IEnumerable<ContextConnector>>(sp => new ContextConnector[]
+        {
+            sp.GetRequiredService<StaticRequestContextConnector>(),
+            sp.GetRequiredService<InlineRequirementsConnector>(),
+            sp.GetRequiredService<DocumentConnector>(),
+            sp.GetRequiredService<PolicyReferenceConnector>(),
+            sp.GetRequiredService<TopologyHintsConnector>(),
+            sp.GetRequiredService<SecurityBaselineHintsConnector>(),
+        });
 
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();
 

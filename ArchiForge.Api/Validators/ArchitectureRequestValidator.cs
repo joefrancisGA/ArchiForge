@@ -38,5 +38,40 @@ public sealed class ArchitectureRequestValidator : AbstractValidator<Architectur
         RuleFor(x => x.Assumptions)
             .NotNull().WithMessage("Assumptions must not be null.")
             .Must(c => c.Count <= 50).WithMessage("Assumptions must not exceed 50 items.");
+
+        RuleFor(x => x.InlineRequirements)
+            .NotNull().WithMessage("InlineRequirements must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("InlineRequirements must not exceed 100 items.");
+
+        RuleForEach(x => x.InlineRequirements)
+            .MaximumLength(4000).WithMessage("Each inline requirement must not exceed 4000 characters.");
+
+        RuleFor(x => x.Documents)
+            .NotNull().WithMessage("Documents must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("Documents must not exceed 50 items.");
+
+        RuleForEach(x => x.Documents)
+            .SetValidator(new ContextDocumentRequestValidator());
+
+        RuleFor(x => x.PolicyReferences)
+            .NotNull().WithMessage("PolicyReferences must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("PolicyReferences must not exceed 100 items.");
+
+        RuleForEach(x => x.PolicyReferences)
+            .MaximumLength(500).WithMessage("Each policy reference must not exceed 500 characters.");
+
+        RuleFor(x => x.TopologyHints)
+            .NotNull().WithMessage("TopologyHints must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("TopologyHints must not exceed 100 items.");
+
+        RuleForEach(x => x.TopologyHints)
+            .MaximumLength(2000).WithMessage("Each topology hint must not exceed 2000 characters.");
+
+        RuleFor(x => x.SecurityBaselineHints)
+            .NotNull().WithMessage("SecurityBaselineHints must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("SecurityBaselineHints must not exceed 100 items.");
+
+        RuleForEach(x => x.SecurityBaselineHints)
+            .MaximumLength(2000).WithMessage("Each security baseline hint must not exceed 2000 characters.");
     }
 }

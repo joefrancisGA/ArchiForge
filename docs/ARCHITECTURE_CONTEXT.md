@@ -80,10 +80,17 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 ---
 
+### Context ingestion
+
+Multi-source inputs (description, inline requirements, pasted documents, policy/topology/security hints) are normalized through **`ArchiForge.ContextIngestion`** into **`CanonicalObject`** records, deduplicated, and persisted as **`ContextSnapshot`** for the knowledge graph. See **`docs/CONTEXT_INGESTION.md`** for connector order, parsers (`REQ:` / `POL:` / … line prefixes), dedupe rules, and the mapping from **`ArchitectureRequest`** to **`ContextIngestionRequest`**.
+
+---
+
 ### Where to go next
 
 - Containers: `docs/ARCHITECTURE_CONTAINERS.md`
 - Components: `docs/ARCHITECTURE_COMPONENTS.md`
 - Key flows: `docs/ARCHITECTURE_FLOWS.md`
 - Data model: `docs/DATA_MODEL.md`
+- Context ingestion: `docs/CONTEXT_INGESTION.md`
 

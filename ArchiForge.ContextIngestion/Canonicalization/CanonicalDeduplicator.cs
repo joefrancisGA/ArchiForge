@@ -9,16 +9,24 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
     {
         return items
             .GroupBy(
-                x => $"{x.ObjectType}|{x.Name}|{GetStableText(x)}",
+                x => $"{x.ObjectType}|{x.Name}|{GetDedupeFingerprint(x)}",
                 StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
             .ToList();
     }
 
-    private static string GetStableText(CanonicalObject item)
+    /// <summary>
+    /// Stable identity for deduplication. Precedence: <c>text</c> → <c>reference</c> → empty.
+    /// Aligns with connectors that emit policy refs without a <c>text</c> property.
+    /// </summary>
+    internal static string GetDedupeFingerprint(CanonicalObject item)
     {
-        return item.Properties.TryGetValue("text", out var text)
-            ? text
-            : string.Empty;
+        if (item.Properties.TryGetValue("text", out var text) && !string.IsNullOrEmpty(text))
+            return text;
+
+        if (item.Properties.TryGetValue("reference", out var reference) && !string.IsNullOrEmpty(reference))
+            return reference;
+
+        return string.Empty;
     }
 }

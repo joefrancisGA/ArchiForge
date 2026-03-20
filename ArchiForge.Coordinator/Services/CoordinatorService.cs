@@ -1,4 +1,4 @@
-using ArchiForge.ContextIngestion.Models;
+using ArchiForge.ContextIngestion.Mapping;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
@@ -25,21 +25,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
         }
 
         var authorityRun = await authorityRunOrchestrator.ExecuteAsync(
-            new ContextIngestionRequest
-            {
-                ProjectId = request.SystemName,
-                Description = request.Description,
-                InlineRequirements = request.InlineRequirements.ToList(),
-                Documents = request.Documents.Select(d => new ContextDocumentReference
-                {
-                    Name = d.Name,
-                    ContentType = d.ContentType,
-                    Content = d.Content
-                }).ToList(),
-                PolicyReferences = request.PolicyReferences.ToList(),
-                TopologyHints = request.TopologyHints.ToList(),
-                SecurityBaselineHints = request.SecurityBaselineHints.ToList()
-            },
+            ContextIngestionRequestMapper.FromArchitectureRequest(request),
             cancellationToken);
 
         var runId = authorityRun.RunId.ToString("N");

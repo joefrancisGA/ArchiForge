@@ -38,3 +38,21 @@ The **batch replay** endpoint body (`comparisonRecordIds`, `format`, `replayMode
 ## OpenAPI / .NET 10
 
 Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` on commit. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.
+
+## Create run — `ArchitectureRequest` (context ingestion fields)
+
+`POST` routes that accept **`ArchitectureRequest`** (e.g. create run) may include optional ingestion fields in addition to **`Description`** / **`SystemName`**:
+
+| Field | Type | Notes |
+|-------|------|--------|
+| `inlineRequirements` | `string[]` | Each entry becomes a canonical **Requirement** (see `docs/CONTEXT_INGESTION.md`). Max **100** items, each max **4000** chars. |
+| `documents` | object[] | Inline uploads: **`name`**, **`contentType`**, **`content`** (not multipart files). Max **50** documents. **`contentType`** must be supported (currently **`text/plain`**, **`text/markdown`**). **`content`** max **500000** chars. |
+| `policyReferences` | `string[]` | Max **100** items, each max **500** chars → **PolicyControl** objects. |
+| `topologyHints` | `string[]` | Max **100** items, each max **2000** chars. |
+| `securityBaselineHints` | `string[]` | Max **100** items, each max **2000** chars. |
+
+Validation is performed with **FluentValidation** (`ArchitectureRequestValidator`, `ContextDocumentRequestValidator`). Invalid payloads return **400** with problem details.
+
+If a document’s content type is not supported by any registered parser, ingestion may still record **warnings** on the persisted **`ContextSnapshot`** (`warnings`) when that path is hit (e.g. non-HTTP callers). Normal API clients receive **400** before ingest for unknown document content types.
+
+Full pipeline behavior: **`docs/CONTEXT_INGESTION.md`**.

@@ -67,6 +67,23 @@ This document summarizes the persisted data model used by ArchiForge. It is base
 
 ---
 
+### Authority chain / context & graph (`ArchiForge.Persistence/Scripts/001_AuthorityStore.sql`)
+
+These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchiForge.Data` schema.
+
+#### `ContextSnapshots`
+
+- **Key**: `SnapshotId`
+- **Fields**: `RunId`, `ProjectId`, `CreatedUtc`, `CanonicalObjectsJson`, `DeltaSummary`, optional warnings/errors/source hashes (JSON columns as applicable)
+- **Why it matters**: durable **normalized context** after multi-connector ingestion; **`ProjectId`** + **`CreatedUtc`** index supports **latest snapshot per project** (used for connector delta messaging and future diff features).
+- **Pipeline detail**: `docs/CONTEXT_INGESTION.md`
+
+#### `GraphSnapshots`, `FindingsSnapshots`, …
+
+Linked to runs and context snapshots; see `001_AuthorityStore.sql` for full DDL.
+
+---
+
 ### Comparison records (`002_ComparisonRecords.sql` + `003_ComparisonRecords_LabelAndTags.sql`)
 
 #### `ComparisonRecords`
