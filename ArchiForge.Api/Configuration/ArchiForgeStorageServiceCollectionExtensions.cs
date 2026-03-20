@@ -10,6 +10,7 @@ using ArchiForge.KnowledgeGraph.Repositories;
 using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Provenance;
+using ArchiForge.Provenance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Orchestration;
@@ -49,6 +50,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
             services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
             services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
+            services.AddSingleton<IProvenanceSnapshotRepository, InMemoryProvenanceSnapshotRepository>();
+            services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
             return services;
         }
 
@@ -82,6 +85,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
+        services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
 
         return services;
     }
