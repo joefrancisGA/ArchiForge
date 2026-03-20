@@ -11,7 +11,9 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
+using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Transactions;
+using ArchiForge.Provenance;
 
 namespace ArchiForge.Persistence.Orchestration;
 
@@ -39,6 +41,8 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
     private readonly IGoldenManifestRepository _goldenManifestRepository;
     private readonly IArtifactSynthesisService _artifactSynthesisService;
     private readonly IArtifactBundleRepository _artifactBundleRepository;
+    private readonly IProvenanceBuilder _provenanceBuilder;
+    private readonly IProvenanceSnapshotRepository _provenanceSnapshotRepository;
 
     public AuthorityRunOrchestrator(
         IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
@@ -56,7 +60,9 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         IDecisionTraceRepository decisionTraceRepository,
         IGoldenManifestRepository goldenManifestRepository,
         IArtifactSynthesisService artifactSynthesisService,
-        IArtifactBundleRepository artifactBundleRepository)
+        IArtifactBundleRepository artifactBundleRepository,
+        IProvenanceBuilder provenanceBuilder,
+        IProvenanceSnapshotRepository provenanceSnapshotRepository)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
         _scopeContextProvider = scopeContextProvider;
@@ -74,6 +80,8 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         _goldenManifestRepository = goldenManifestRepository;
         _artifactSynthesisService = artifactSynthesisService;
         _artifactBundleRepository = artifactBundleRepository;
+        _provenanceBuilder = provenanceBuilder;
+        _provenanceSnapshotRepository = provenanceSnapshotRepository;
     }
 
     public async Task<RunRecord> ExecuteAsync(
@@ -258,6 +266,17 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             await _artifactBundleRepository.SaveAsync(bundle, ct, uow.Connection, uow.Transaction);
         else
             await _artifactBundleRepository.SaveAsync(bundle, ct);
+    }
+
+    private async Task SaveProvenanceAsync(
+        DecisionProvenanceSnapshot snapshot,
+        CancellationToken ct,
+        IArchiForgeUnitOfWork uow)
+    {
+        if (uow.SupportsExternalTransaction)
+            await _provenanceSnapshotRepository.SaveAsync(snapshot, ct, uow.Connection, uow.Transaction);
+        else
+            await _provenanceSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)

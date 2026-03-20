@@ -14,4 +14,7 @@ public class SynthesizedArtifact
     public string ContentHash { get; set; } = default!;
 
     public Dictionary<string, string> Metadata { get; set; } = new();
+
+    /// <summary>Architecture decisions that contributed to this artifact (provenance / explainability).</summary>
+    public List<string> ContributingDecisionIds { get; set; } = [];
 }

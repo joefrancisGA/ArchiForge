@@ -40,9 +40,13 @@ public class ArtifactSynthesisService : IArtifactSynthesisService
             }
         };
 
+        var decisionIds = manifest.Decisions.Select(x => x.DecisionId).ToList();
+
         foreach (var generator in _generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
         {
             var artifact = await generator.GenerateAsync(manifest, ct);
+            foreach (var id in decisionIds)
+                artifact.ContributingDecisionIds.Add(id);
             bundle.Artifacts.Add(artifact);
             bundle.Trace.GeneratorsUsed.Add(generator.GetType().Name);
         }

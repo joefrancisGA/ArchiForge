@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Analysis;
+using ArchiForge.Provenance;
 using ArchiForge.Decisioning.Compliance.Evaluators;
 using ArchiForge.Decisioning.Compliance.Loaders;
 using Di = ArchiForge.Decisioning.Interfaces;
@@ -40,5 +41,6 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();
         services.AddSingleton<Di.IManifestHashService, Ds.ManifestHashService>();
         services.AddScoped<Di.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
+        services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
     }
 }

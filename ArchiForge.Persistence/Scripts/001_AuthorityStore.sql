@@ -282,3 +282,21 @@ BEGIN
         ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, OccurredUtc DESC);
 END;
 GO
+
+IF OBJECT_ID('dbo.ProvenanceSnapshots', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ProvenanceSnapshots
+    (
+        Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        RunId UNIQUEIDENTIFIER NOT NULL,
+        GraphJson NVARCHAR(MAX) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ProvenanceSnapshots_Scope_Run
+        ON dbo.ProvenanceSnapshots (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC);
+END;
+GO

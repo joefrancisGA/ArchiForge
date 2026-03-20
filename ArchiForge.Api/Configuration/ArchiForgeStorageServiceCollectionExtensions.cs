@@ -9,6 +9,7 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Repositories;
 using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.Connections;
+using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Orchestration;
@@ -82,6 +83,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
+        services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
 
         return services;
     }
