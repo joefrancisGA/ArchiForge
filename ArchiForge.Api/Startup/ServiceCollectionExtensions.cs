@@ -33,6 +33,10 @@ using ArchiForge.ContextIngestion.Parsing;
 using ArchiForge.ContextIngestion.Summaries;
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
+using ArchiForge.KnowledgeGraph.Inference;
+using ArchiForge.KnowledgeGraph.Mapping;
+using ArchiForge.KnowledgeGraph.Interfaces;
+using ArchiForge.KnowledgeGraph.Services;
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
 using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
 
@@ -162,6 +166,9 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<IContextDeltaSummaryBuilder, DefaultContextDeltaSummaryBuilder>();
 
         services.AddScoped<ContextIngestionService, ArchiForge.ContextIngestion.Services.ContextIngestionService>();
+        services.AddScoped<IGraphNodeFactory, GraphNodeFactory>();
+        services.AddScoped<IGraphEdgeInferer, DefaultGraphEdgeInferer>();
+        services.AddSingleton<IGraphValidator, GraphValidator>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraphService, ArchiForge.KnowledgeGraph.Services.KnowledgeGraphService>();
     }
