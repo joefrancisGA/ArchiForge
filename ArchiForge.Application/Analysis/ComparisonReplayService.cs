@@ -150,11 +150,12 @@ public sealed class ComparisonReplayService(
 
         var result = await BuildEndToEndResultAsync(record, report, format, profile, cancellationToken);
         result.ReplayMode = FormatReplayMode(mode);
-        if (mode == ComparisonReplayMode.Verify)
-        {
-            result.VerificationPassed = true;
-            result.VerificationMessage = "Regenerated comparison matches stored payload.";
-        }
+
+        if (mode != ComparisonReplayMode.Verify) return result;
+
+        result.VerificationPassed = true;
+        result.VerificationMessage = "Regenerated comparison matches stored payload.";
+
         return result;
     }
 
@@ -229,7 +230,9 @@ public sealed class ComparisonReplayService(
             return r;
         }
 
-        if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Unsupported replay format '{format}'.");
+
         {
             var bytes = await endToEndExportService.GeneratePdfAsync(
                 report,
@@ -247,7 +250,6 @@ public sealed class ComparisonReplayService(
             return r;
         }
 
-        throw new InvalidOperationException($"Unsupported replay format '{format}'.");
     }
 
     private async Task<ReplayComparisonResult> ReplayExportDiffAsync(
@@ -287,28 +289,27 @@ public sealed class ComparisonReplayService(
 
         if (!string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
-            {
-                var bytes = await exportRecordDiffExportService.GenerateDocxAsync(diff, cancellationToken);
-                var resultDocx = new ReplayComparisonResult
-                {
-                    ComparisonRecordId = record.ComparisonRecordId,
-                    ComparisonType = record.ComparisonType,
-                    Format = "docx",
-                    FileName = $"comparison_{record.ComparisonRecordId}.docx",
-                    BinaryContent = bytes,
-                    ReplayMode = FormatReplayMode(mode)
-                };
-                if (mode == ComparisonReplayMode.Verify)
-                {
-                    resultDocx.VerificationPassed = true;
-                    resultDocx.VerificationMessage = "Regenerated comparison matches stored payload.";
-                }
-                SetRecordMetadata(resultDocx, record, formatProfile: null);
-                return resultDocx;
-            }
+            if (!string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"Unsupported replay format '{format}' for export-record diff.");
 
-            throw new InvalidOperationException($"Unsupported replay format '{format}' for export-record diff.");
+            var bytes = await exportRecordDiffExportService.GenerateDocxAsync(diff, cancellationToken);
+            var resultDocx = new ReplayComparisonResult
+            {
+                ComparisonRecordId = record.ComparisonRecordId,
+                ComparisonType = record.ComparisonType,
+                Format = "docx",
+                FileName = $"comparison_{record.ComparisonRecordId}.docx",
+                BinaryContent = bytes,
+                ReplayMode = FormatReplayMode(mode)
+            };
+            if (mode == ComparisonReplayMode.Verify)
+            {
+                resultDocx.VerificationPassed = true;
+                resultDocx.VerificationMessage = "Regenerated comparison matches stored payload.";
+            }
+            SetRecordMetadata(resultDocx, record, formatProfile: null);
+            return resultDocx;
+
         }
 
         var markdown = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);

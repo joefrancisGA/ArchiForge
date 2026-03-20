@@ -25,25 +25,25 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
             sb.AppendLine();
         }
 
-        if (drift.Items.Count > 0)
+        if (drift.Items.Count <= 0) return sb.ToString();
+
+        sb.AppendLine("## Differences");
+        sb.AppendLine();
+
+        foreach (var item in drift.Items)
         {
-            sb.AppendLine("## Differences");
-            sb.AppendLine();
-            foreach (var item in drift.Items)
+            sb.AppendLine($"- **{item.Category}** — `{item.Path}`");
+            if (!string.IsNullOrWhiteSpace(item.Description))
             {
-                sb.AppendLine($"- **{item.Category}** — `{item.Path}`");
-                if (!string.IsNullOrWhiteSpace(item.Description))
-                {
-                    sb.AppendLine($"  - {item.Description}");
-                }
-                if (item.StoredValue is not null)
-                {
-                    sb.AppendLine($"  - Stored: `{item.StoredValue}`");
-                }
-                if (item.RegeneratedValue is not null)
-                {
-                    sb.AppendLine($"  - Regenerated: `{item.RegeneratedValue}`");
-                }
+                sb.AppendLine($"  - {item.Description}");
+            }
+            if (item.StoredValue is not null)
+            {
+                sb.AppendLine($"  - Stored: `{item.StoredValue}`");
+            }
+            if (item.RegeneratedValue is not null)
+            {
+                sb.AppendLine($"  - Regenerated: `{item.RegeneratedValue}`");
             }
         }
 

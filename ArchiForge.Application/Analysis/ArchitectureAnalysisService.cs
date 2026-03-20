@@ -113,31 +113,30 @@ public sealed class ArchitectureAnalysisService(
             }
         }
 
-        if (request.IncludeAgentResultCompare)
+        if (!request.IncludeAgentResultCompare) return report;
+
+        if (string.IsNullOrWhiteSpace(request.CompareRunId))
         {
-            if (string.IsNullOrWhiteSpace(request.CompareRunId))
+            report.Warnings.Add("Agent-result comparison was requested but CompareRunId was not provided.");
+        }
+        else
+        {
+            var compareRun = await runRepository.GetByIdAsync(request.CompareRunId, cancellationToken);
+
+            if (compareRun is null)
             {
-                report.Warnings.Add("Agent-result comparison was requested but CompareRunId was not provided.");
+                report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             }
             else
             {
-                var compareRun = await runRepository.GetByIdAsync(request.CompareRunId, cancellationToken);
+                var leftResults = await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+                var rightResults = await resultRepository.GetByRunIdAsync(request.CompareRunId, cancellationToken);
 
-                if (compareRun is null)
-                {
-                    report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
-                }
-                else
-                {
-                    var leftResults = await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
-                    var rightResults = await resultRepository.GetByRunIdAsync(request.CompareRunId, cancellationToken);
-
-                    report.AgentResultDiff = agentResultDiffService.Compare(
-                        request.RunId,
-                        leftResults,
-                        request.CompareRunId,
-                        rightResults);
-                }
+                report.AgentResultDiff = agentResultDiffService.Compare(
+                    request.RunId,
+                    leftResults,
+                    request.CompareRunId,
+                    rightResults);
             }
         }
 

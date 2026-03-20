@@ -312,20 +312,19 @@ internal static class ConsultingDocxOpenXmlComposer
             }
         }
 
-        if (report.Evidence.Policies.Count > 0)
+        if (report.Evidence.Policies.Count <= 0) return;
+
+        AddHeading(body, "Policy Evidence", 2);
+
+        foreach (var policy in report.Evidence.Policies.OrderBy(x => x.Title))
         {
-            AddHeading(body, "Policy Evidence", 2);
+            AddStyledParagraph(body, policy.Title, "Strong");
+            AddBullet(body, $"Policy ID: {policy.PolicyId}");
+            AddBullet(body, $"Summary: {policy.Summary}");
 
-            foreach (var policy in report.Evidence.Policies.OrderBy(x => x.Title))
+            if (policy.RequiredControls.Count > 0)
             {
-                AddStyledParagraph(body, policy.Title, "Strong");
-                AddBullet(body, $"Policy ID: {policy.PolicyId}");
-                AddBullet(body, $"Summary: {policy.Summary}");
-
-                if (policy.RequiredControls.Count > 0)
-                {
-                    AddBullet(body, $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
-                }
+                AddBullet(body, $"Required Controls: {string.Join(", ", policy.RequiredControls)}");
             }
         }
     }
@@ -364,7 +363,8 @@ internal static class ConsultingDocxOpenXmlComposer
             }
         }
 
-        if (report.Manifest.Datastores.Count > 0)
+        if (report.Manifest.Datastores.Count <= 0) return;
+
         {
             AddHeading(body, "Datastores", 2);
 
@@ -440,11 +440,10 @@ internal static class ConsultingDocxOpenXmlComposer
             AddBullet(body, $"Is Deterministic: {(report.Determinism.IsDeterministic ? "Yes" : "No")}");
         }
 
-        if (report.ManifestDiff is not null || report.AgentResultDiff is not null)
-        {
-            AddSpacer(body);
-            AddCallout(body, "Comparison artifacts were included in this report. See Appendix C for detail.", options);
-        }
+        if (report.ManifestDiff is null && report.AgentResultDiff is null) return;
+
+        AddSpacer(body);
+        AddCallout(body, "Comparison artifacts were included in this report. See Appendix C for detail.", options);
     }
 
     private static void AddConclusions(
@@ -456,11 +455,10 @@ internal static class ConsultingDocxOpenXmlComposer
 
         AddStyledParagraph(body, options.ConclusionsText, "BodyText");
 
-        if (report.Warnings.Count > 0)
-        {
-            AddSpacer(body);
-            AddCallout(body, "Open warnings remain and should be resolved or explicitly accepted.", options);
-        }
+        if (report.Warnings.Count <= 0) return;
+
+        AddSpacer(body);
+        AddCallout(body, "Open warnings remain and should be resolved or explicitly accepted.", options);
     }
 
     private static void AddAppendices(
