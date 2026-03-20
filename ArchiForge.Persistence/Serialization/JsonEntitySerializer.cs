@@ -7,7 +7,12 @@ public static class JsonEntitySerializer
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNameCaseInsensitive = true,
-        WriteIndented = false
+        WriteIndented = false,
+        Converters =
+        {
+            new GraphNodeJsonConverter(),
+            new GraphEdgeJsonConverter()
+        }
     };
 
     public static string Serialize<T>(T value)

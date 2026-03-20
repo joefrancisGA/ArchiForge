@@ -16,13 +16,23 @@ public class RequirementFindingEngine : IFindingEngine
     {
         var findings = new List<Finding>();
 
-        var requirementNodes = graphSnapshot.Nodes
-            .Where(n => n.NodeType == "Requirement")
-            .ToList();
+        var requirementNodes = graphSnapshot.GetNodesByType("Requirement");
 
         foreach (var node in requirementNodes)
         {
             node.Properties.TryGetValue("text", out var requirementText);
+
+            var relatedFromGraph = graphSnapshot
+                .GetOutgoingTargets(node.NodeId, "RELATES_TO")
+                .Select(n => n.NodeId)
+                .ToList();
+
+            var relatedNodeIds = new List<string> { node.NodeId };
+            foreach (var id in relatedFromGraph)
+            {
+                if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))
+                    relatedNodeIds.Add(id);
+            }
 
             var finding = FindingFactory.CreateRequirementFinding(
                 engineType: EngineType,
@@ -31,13 +41,18 @@ public class RequirementFindingEngine : IFindingEngine
                 requirementName: node.Label,
                 requirementText: requirementText ?? string.Empty,
                 isMandatory: true,
-                relatedNodeIds: [node.NodeId]);
+                relatedNodeIds: relatedNodeIds);
 
             finding.RecommendedActions.Add("Carry this requirement into the GoldenManifest.");
             finding.Trace = new ExplainabilityTrace
             {
-                GraphNodeIdsExamined = [node.NodeId],
-                DecisionsTaken = ["Promote requirement into candidate architecture decision input."]
+                GraphNodeIdsExamined = relatedNodeIds,
+                DecisionsTaken =
+                [
+                    relatedFromGraph.Count > 0
+                        ? "Linked requirement to topology resources via RELATES_TO graph edges."
+                        : "Promote requirement into candidate architecture decision input."
+                ]
             };
 
             findings.Add(finding);
@@ -46,4 +61,3 @@ public class RequirementFindingEngine : IFindingEngine
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 }
-

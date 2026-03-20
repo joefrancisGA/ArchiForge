@@ -18,6 +18,25 @@ public sealed class TypedFindingsGoldenPathTests
         {
             GraphSnapshotId = Guid.NewGuid(),
             RunId = runId,
+            Edges =
+            {
+                new GraphEdge
+                {
+                    EdgeId = "rel1",
+                    FromNodeId = "r1",
+                    ToNodeId = "t1",
+                    EdgeType = "RELATES_TO",
+                    Label = "relates to"
+                },
+                new GraphEdge
+                {
+                    EdgeId = "prot1",
+                    FromNodeId = "s1",
+                    ToNodeId = "t1",
+                    EdgeType = "PROTECTS",
+                    Label = "protects"
+                }
+            },
             Nodes =
             {
                 new GraphNode
@@ -72,8 +91,12 @@ public sealed class TypedFindingsGoldenPathTests
 
         var snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 
+        snapshot.Findings.Should().Contain(f =>
+            f.FindingType == "RequirementFinding" && f.RelatedNodeIds.Contains("t1"));
+
         snapshot.Findings.Should().Contain(f => f.FindingType == "CostConstraintFinding");
-        snapshot.Findings.Should().Contain(f => f.FindingType == "SecurityControlFinding");
+        snapshot.Findings.Should().Contain(f =>
+            f.FindingType == "SecurityControlFinding" && f.RelatedNodeIds.Contains("t1"));
 
         var decisionEngine = new RuleBasedDecisionEngine(
             new InMemoryDecisionRuleProvider(),

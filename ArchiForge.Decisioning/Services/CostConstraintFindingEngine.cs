@@ -16,9 +16,7 @@ public class CostConstraintFindingEngine : IFindingEngine
     {
         var findings = new List<Finding>();
 
-        var costNodes = graphSnapshot.Nodes
-            .Where(n => n.NodeType == "CostConstraint")
-            .ToList();
+        var costNodes = graphSnapshot.GetNodesByType("CostConstraint");
 
         foreach (var node in costNodes)
         {

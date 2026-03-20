@@ -12,6 +12,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.TopologySanityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.SecurityBaselineFindingEngine>();
+        services.AddScoped<Di.IFindingEngine, Ds.PolicyApplicabilityFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.CostConstraintFindingEngine>();
         services.AddScoped<Di.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();

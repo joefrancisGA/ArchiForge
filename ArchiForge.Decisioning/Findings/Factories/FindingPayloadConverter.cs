@@ -40,5 +40,8 @@ public static class FindingPayloadConverter
 
     public static CostConstraintFindingPayload? ToCostConstraintPayload(Finding finding)
         => ConvertPayload<CostConstraintFindingPayload>(finding);
+
+    public static PolicyApplicabilityFindingPayload? ToPolicyApplicabilityPayload(Finding finding)
+        => ConvertPayload<PolicyApplicabilityFindingPayload>(finding);
 }
 

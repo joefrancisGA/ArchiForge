@@ -9,7 +9,8 @@ public static class FindingPayloadRegistry
         [nameof(RequirementFindingPayload)] = typeof(RequirementFindingPayload),
         [nameof(TopologyGapFindingPayload)] = typeof(TopologyGapFindingPayload),
         [nameof(SecurityControlFindingPayload)] = typeof(SecurityControlFindingPayload),
-        [nameof(CostConstraintFindingPayload)] = typeof(CostConstraintFindingPayload)
+        [nameof(CostConstraintFindingPayload)] = typeof(CostConstraintFindingPayload),
+        [nameof(PolicyApplicabilityFindingPayload)] = typeof(PolicyApplicabilityFindingPayload)
     };
 
     public static IReadOnlyDictionary<string, Type> RegisteredTypes => ByPayloadTypeName;

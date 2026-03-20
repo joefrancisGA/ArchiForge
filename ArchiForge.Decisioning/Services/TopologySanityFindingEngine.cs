@@ -16,9 +16,7 @@ public class TopologySanityFindingEngine : IFindingEngine
     {
         var findings = new List<Finding>();
 
-        var topologyNodes = graphSnapshot.Nodes
-            .Where(n => n.NodeType == "TopologyResource")
-            .ToList();
+        var topologyNodes = graphSnapshot.GetNodesByType("TopologyResource").ToList();
 
         if (topologyNodes.Count == 0)
         {

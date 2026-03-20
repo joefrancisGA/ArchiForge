@@ -16,14 +16,26 @@ public class SecurityBaselineFindingEngine : IFindingEngine
     {
         var findings = new List<Finding>();
 
-        var securityNodes = graphSnapshot.Nodes
-            .Where(n => n.NodeType == "SecurityBaseline")
-            .ToList();
+        var securityNodes = graphSnapshot.GetNodesByType("SecurityBaseline");
 
         foreach (var node in securityNodes)
         {
             node.Properties.TryGetValue("controlId", out var controlId);
             node.Properties.TryGetValue("status", out var status);
+
+            var protectedIds = graphSnapshot
+                .GetOutgoingTargets(node.NodeId, "PROTECTS")
+                .Select(n => n.NodeId)
+                .ToList();
+
+            var relatedNodeIds = new List<string> { node.NodeId };
+            foreach (var id in protectedIds)
+            {
+                if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))
+                    relatedNodeIds.Add(id);
+            }
+
+            var examined = new List<string>(relatedNodeIds);
 
             findings.Add(new Finding
             {
@@ -35,8 +47,10 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                     ? FindingSeverity.Error
                     : FindingSeverity.Info,
                 Title = $"Security baseline control: {node.Label}",
-                Rationale = "A security baseline node was found in the graph and should influence resolved architecture decisions.",
-                RelatedNodeIds = [node.NodeId],
+                Rationale = protectedIds.Count > 0
+                    ? "A security baseline node was found; PROTECTS edges associate it with topology resources that should inherit control scope."
+                    : "A security baseline node was found in the graph and should influence resolved architecture decisions.",
+                RelatedNodeIds = relatedNodeIds,
                 PayloadType = nameof(SecurityControlFindingPayload),
                 Payload = new SecurityControlFindingPayload
                 {
@@ -49,8 +63,13 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 },
                 Trace = new ExplainabilityTrace
                 {
-                    GraphNodeIdsExamined = [node.NodeId],
-                    DecisionsTaken = ["Converted security graph node into a security finding."]
+                    GraphNodeIdsExamined = examined,
+                    DecisionsTaken =
+                    [
+                        protectedIds.Count > 0
+                            ? "Included topology targets linked via PROTECTS edges in explainability scope."
+                            : "Converted security graph node into a security finding."
+                    ]
                 }
             });
         }
@@ -58,4 +77,3 @@ public class SecurityBaselineFindingEngine : IFindingEngine
         return Task.FromResult<IReadOnlyList<Finding>>(findings);
     }
 }
-
