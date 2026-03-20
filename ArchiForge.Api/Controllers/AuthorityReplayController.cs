@@ -1,6 +1,8 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.HttpContracts;
+using ArchiForge.Core.Audit;
 using ArchiForge.Persistence.Replay;
+using System.Text.Json;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +15,9 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/authority/replay")]
 [EnableRateLimiting("fixed")]
-public sealed class AuthorityReplayController(IAuthorityReplayService replayService) : ControllerBase
+public sealed class AuthorityReplayController(
+    IAuthorityReplayService replayService,
+    IAuditService auditService) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType(typeof(ReplayResponse), StatusCodes.Status200OK)]
@@ -36,6 +40,15 @@ public sealed class AuthorityReplayController(IAuthorityReplayService replayServ
 
         if (result is null)
             return NotFound();
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ReplayExecuted,
+                RunId = request.RunId,
+                DataJson = JsonSerializer.Serialize(new { mode, result.RebuiltManifest?.ManifestId })
+            },
+            ct);
 
         return Ok(new ReplayResponse
         {

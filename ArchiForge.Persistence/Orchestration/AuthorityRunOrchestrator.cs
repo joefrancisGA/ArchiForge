@@ -1,6 +1,8 @@
+using System.Text.Json;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Decisioning.Interfaces;
@@ -15,8 +17,15 @@ namespace ArchiForge.Persistence.Orchestration;
 
 public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
 {
+    private static readonly JsonSerializerOptions AuditJsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false
+    };
+
     private readonly IArchiForgeUnitOfWorkFactory _unitOfWorkFactory;
     private readonly IScopeContextProvider _scopeContextProvider;
+    private readonly IAuditService _auditService;
     private readonly IManifestHashService _manifestHashService;
     private readonly IRunRepository _runRepository;
     private readonly IContextIngestionService _contextIngestionService;
@@ -34,6 +43,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
     public AuthorityRunOrchestrator(
         IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
         IScopeContextProvider scopeContextProvider,
+        IAuditService auditService,
         IManifestHashService manifestHashService,
         IRunRepository runRepository,
         IContextIngestionService contextIngestionService,
@@ -50,6 +60,7 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
     {
         _unitOfWorkFactory = unitOfWorkFactory;
         _scopeContextProvider = scopeContextProvider;
+        _auditService = auditService;
         _manifestHashService = manifestHashService;
         _runRepository = runRepository;
         _contextIngestionService = contextIngestionService;
@@ -123,6 +134,18 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             await SaveTraceAsync(decisionResult.Trace, ct, uow);
             await SaveManifestAsync(decisionResult.Manifest, ct, uow);
 
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ManifestGenerated,
+                    RunId = run.RunId,
+                    ManifestId = decisionResult.Manifest.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { decisionResult.Manifest.ManifestHash, decisionResult.Manifest.RuleSetId },
+                        AuditJsonOptions)
+                },
+                ct);
+
             run.DecisionTraceId = decisionResult.Trace.DecisionTraceId;
             run.GoldenManifestId = decisionResult.Manifest.ManifestId;
             await UpdateRunAsync(run, ct, uow);
@@ -130,10 +153,39 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             var artifactBundle = await _artifactSynthesisService.SynthesizeAsync(decisionResult.Manifest, ct);
             await SaveArtifactBundleAsync(artifactBundle, ct, uow);
 
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArtifactsGenerated,
+                    RunId = run.RunId,
+                    ManifestId = decisionResult.Manifest.ManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { artifactBundle.BundleId, ArtifactCount = artifactBundle.Artifacts.Count },
+                        AuditJsonOptions)
+                },
+                ct);
+
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, ct, uow);
 
             await uow.CommitAsync(ct);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RunCompleted,
+                    RunId = run.RunId,
+                    ManifestId = run.GoldenManifestId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            run.GoldenManifestId,
+                            run.ArtifactBundleId,
+                            run.DecisionTraceId
+                        },
+                        AuditJsonOptions)
+                },
+                ct);
 
             return run;
         }

@@ -257,3 +257,28 @@ BEGIN
         CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333');
 END;
 GO
+
+/* Append-only audit stream (no UPDATE/DELETE from application code). */
+IF OBJECT_ID('dbo.AuditEvents', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.AuditEvents
+    (
+        EventId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        OccurredUtc DATETIME2 NOT NULL,
+        EventType NVARCHAR(100) NOT NULL,
+        ActorUserId NVARCHAR(200) NOT NULL,
+        ActorUserName NVARCHAR(200) NOT NULL,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        RunId UNIQUEIDENTIFIER NULL,
+        ManifestId UNIQUEIDENTIFIER NULL,
+        ArtifactId UNIQUEIDENTIFIER NULL,
+        DataJson NVARCHAR(MAX) NOT NULL,
+        CorrelationId NVARCHAR(200) NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_AuditEvents_Scope_OccurredUtc
+        ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, OccurredUtc DESC);
+END;
+GO

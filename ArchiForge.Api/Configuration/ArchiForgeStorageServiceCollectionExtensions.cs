@@ -7,6 +7,7 @@ using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Repositories;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Repositories;
+using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Compare;
@@ -48,6 +49,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IArtifactQueryService, InMemoryArtifactQueryService>();
             services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
             services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
+            services.AddSingleton<IAuditRepository, InMemoryAuditRepository>();
             return services;
         }
 
@@ -79,6 +81,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
+        services.AddScoped<IAuditRepository, DapperAuditRepository>();
 
         return services;
     }

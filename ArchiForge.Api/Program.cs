@@ -1,6 +1,7 @@
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
+using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
@@ -25,6 +26,7 @@ public partial class Program
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IScopeContextProvider, HttpScopeContextProvider>();
+        builder.Services.AddScoped<IAuditService, AuditService>();
 
         builder.Services.AddArchiForgeAuth(builder.Configuration);
         builder.Services.AddArchiForgeAuthorization();

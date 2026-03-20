@@ -2,6 +2,7 @@ using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
 using ArchiForge.ArtifactSynthesis.Packaging;
+using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Queries;
 using Asp.Versioning;
@@ -28,17 +29,20 @@ public sealed class ArtifactExportController : ControllerBase
     private readonly IAuthorityQueryService _authorityQueryService;
     private readonly IArtifactPackagingService _artifactPackagingService;
     private readonly IScopeContextProvider _scopeProvider;
+    private readonly IAuditService _auditService;
 
     public ArtifactExportController(
         IArtifactQueryService artifactQueryService,
         IAuthorityQueryService authorityQueryService,
         IArtifactPackagingService artifactPackagingService,
-        IScopeContextProvider scopeProvider)
+        IScopeContextProvider scopeProvider,
+        IAuditService auditService)
     {
         _artifactQueryService = artifactQueryService;
         _authorityQueryService = authorityQueryService;
         _artifactPackagingService = artifactPackagingService;
         _scopeProvider = scopeProvider;
+        _auditService = auditService;
     }
 
     [HttpGet("manifests/{manifestId:guid}")]
@@ -76,6 +80,15 @@ public sealed class ArtifactExportController : ControllerBase
 
         var file = _artifactPackagingService.BuildSingleFileExport(artifact);
 
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArtifactDownloaded,
+                ManifestId = manifestId,
+                ArtifactId = artifactId
+            },
+            ct);
+
         return File(file.Content, file.ContentType, file.FileName);
     }
 
@@ -92,6 +105,14 @@ public sealed class ArtifactExportController : ControllerBase
             return NotFound();
 
         var package = _artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BundleDownloaded,
+                ManifestId = manifestId
+            },
+            ct);
 
         return File(package.Content, package.ContentType, package.PackageFileName);
     }
@@ -125,6 +146,15 @@ public sealed class ArtifactExportController : ControllerBase
             artifacts,
             manifestJson,
             traceJson);
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.RunExported,
+                RunId = runId,
+                ManifestId = runDetail.GoldenManifest.ManifestId
+            },
+            ct);
 
         return File(package.Content, package.ContentType, package.PackageFileName);
     }
