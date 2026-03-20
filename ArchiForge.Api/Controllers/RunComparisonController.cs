@@ -1,3 +1,4 @@
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.ProblemDetails;
@@ -15,7 +16,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 public sealed class RunComparisonController(
     IArchitectureRunRepository runRepository,
     IAgentResultRepository resultRepository,
@@ -82,6 +83,7 @@ public sealed class RunComparisonController(
     }
 
     [HttpPost("run/compare/end-to-end/summary")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

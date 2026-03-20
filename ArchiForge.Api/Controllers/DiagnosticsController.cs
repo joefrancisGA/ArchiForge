@@ -1,3 +1,4 @@
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using Asp.Versioning;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchiForge.Api.Controllers;
  
 [ApiController]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]

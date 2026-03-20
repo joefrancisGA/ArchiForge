@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerApiBaseUrl } from "@/lib/config";
 
-function buildUpstreamHeaders(): Headers {
+function buildUpstreamHeaders(request: NextRequest): Headers {
   const h = new Headers();
   const key = process.env.ARCHIFORGE_API_KEY;
   if (key) h.set("X-Api-Key", key);
+  const auth = request.headers.get("authorization");
+  if (auth && auth.trim().length > 0) h.set("Authorization", auth);
   return h;
 }
 
@@ -18,7 +20,7 @@ async function forward(
   const search = request.nextUrl.search;
   const targetUrl = `${base}/${path}${search}`;
 
-  const headers = buildUpstreamHeaders();
+  const headers = buildUpstreamHeaders(request);
   if (method === "POST") {
     const contentType = request.headers.get("content-type");
     if (contentType) headers.set("Content-Type", contentType);

@@ -1,3 +1,4 @@
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.ProblemDetails;
@@ -14,7 +15,7 @@ using AppReplayExportRequest = ArchiForge.Application.Analysis.ReplayExportReque
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
@@ -89,6 +90,7 @@ public sealed class ExportsController(
     }
 
     [HttpPost("run/exports/compare/summary")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExportRecordDiffSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CompareExportRecordsSummary(
@@ -127,6 +129,7 @@ public sealed class ExportsController(
     }
 
     [HttpPost("run/exports/{exportRecordId}/replay")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -149,6 +152,7 @@ public sealed class ExportsController(
     }
 
     [HttpPost("run/exports/{exportRecordId}/replay/metadata")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayExportMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

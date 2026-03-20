@@ -1,3 +1,4 @@
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.ProblemDetails;
@@ -17,7 +18,7 @@ using Microsoft.Extensions.Logging;
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
@@ -41,6 +42,7 @@ public sealed partial class RunsController(
     private readonly ILogger<RunsController> _logger = logger;
 
     [HttpPost("request")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateRun(
@@ -70,6 +72,7 @@ public sealed partial class RunsController(
     }
 
     [HttpPost("run/{runId}/execute")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -98,6 +101,7 @@ public sealed partial class RunsController(
     }
 
     [HttpPost("run/{runId}/replay")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -141,6 +145,7 @@ public sealed partial class RunsController(
     }
 
     [HttpPost("run/{runId}/determinism-check")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -169,6 +174,7 @@ public sealed partial class RunsController(
     }
 
     [HttpPost("run/{runId}/commit")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -239,6 +245,7 @@ public sealed partial class RunsController(
     }
 
     [HttpPost("run/{runId}/seed-fake-results")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(SeedFakeResultsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

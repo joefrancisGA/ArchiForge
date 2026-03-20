@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
 using ArchiForge.ArtifactSynthesis.Packaging;
 using ArchiForge.Persistence.Queries;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("api/artifacts")]
 [EnableRateLimiting("fixed")]

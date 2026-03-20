@@ -47,3 +47,9 @@ Downloads use **`/api/proxy/...`** so the browser receives files without attachi
 - Authority: `/api/authority/...`
 - Artifacts: `/api/artifacts/...`
 - Replay modes: `ReconstructOnly`, `RebuildManifest`, `RebuildArtifacts` (see `ArchiForge.Persistence.Replay.ReplayMode`).
+
+## Auth
+
+- **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE`**: `development-bypass` (default) matches the API’s `ArchiForgeAuth:Mode` = `DevelopmentBypass` (no real sign-in; API authenticates a dev principal).
+- For **`JwtBearer`** API mode, set `ARCHIFORGE_API_KEY` only if you still use a gateway key; otherwise forward **`Authorization: Bearer`** from the browser (proxy passes it through) and implement `getBearerToken()` in `src/lib/api.ts`.
+- Verify the API principal: `GET /api/auth/me` (requires Reader+).

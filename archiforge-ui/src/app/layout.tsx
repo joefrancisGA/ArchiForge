@@ -1,4 +1,5 @@
 import "./globals.css";
+import { AuthStatus } from "@/components/AuthStatus";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/replay">Replay</Link>
             </nav>
           </header>
+          <AuthStatus />
           {children}
         </div>
       </body>

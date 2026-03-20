@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
@@ -19,7 +20,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 public sealed class ComparisonsController(
     IArchitectureRunRepository runRepository,
     IRunExportRecordRepository runExportRecordRepository,
@@ -243,6 +244,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [Authorize(Policy = "CanReplayComparisons")]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
@@ -273,6 +275,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/drift")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DriftAnalysisResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -326,6 +329,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [Authorize(Policy = "CanReplayComparisons")]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
@@ -365,6 +369,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpPost("comparisons/replay/batch")]
+    [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [Authorize(Policy = "CanReplayComparisons")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

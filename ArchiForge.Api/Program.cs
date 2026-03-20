@@ -1,9 +1,7 @@
-using ArchiForge.Api.Authentication;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
-using Microsoft.AspNetCore.Authentication;
 using Serilog;
 
 namespace ArchiForge.Api;
@@ -23,8 +21,7 @@ public partial class Program
 
         builder.Services.AddArchiForgeMvc();
 
-        builder.Services.AddAuthentication("ApiKey")
-            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", _ => { });
+        builder.Services.AddArchiForgeAuth(builder.Configuration);
         builder.Services.AddArchiForgeAuthorization();
 
         builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);

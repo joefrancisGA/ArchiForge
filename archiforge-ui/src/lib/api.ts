@@ -1,4 +1,5 @@
 import { getServerApiBaseUrl } from "@/lib/config";
+import { AUTH_MODE } from "@/lib/auth-config";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -17,15 +18,32 @@ function isBrowser(): boolean {
  * - Server (RSC): direct backend + optional ARCHIFORGE_API_KEY.
  * - Browser: same-origin `/api/proxy` (adds X-Api-Key on the server).
  */
+/**
+ * Future: return an access token from secure storage / session when using JWT against the API.
+ * The proxy can also forward an Authorization header from the browser when you set it on fetch.
+ */
+function getBearerToken(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  if (AUTH_MODE !== "jwt" && AUTH_MODE !== "jwt-bearer") return undefined;
+  return undefined;
+}
+
 function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   if (isBrowser()) {
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
-    return { url, headers: {} };
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+    };
+    const bearer = getBearerToken();
+    if (bearer) headers.Authorization = `Bearer ${bearer}`;
+    return { url, headers };
   }
 
   const base = getServerApiBaseUrl().replace(/\/$/, "");
   const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+  };
   const key = process.env.ARCHIFORGE_API_KEY;
   if (key) headers["X-Api-Key"] = key;
   return { url, headers };

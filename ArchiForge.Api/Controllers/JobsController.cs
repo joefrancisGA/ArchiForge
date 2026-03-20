@@ -1,3 +1,4 @@
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Jobs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,7 @@ using Asp.Versioning;
 namespace ArchiForge.Api.Controllers;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = "ApiKey")]
+[Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [Route("v{version:apiVersion}/jobs")]
 [ApiVersion("1.0")]
 public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase

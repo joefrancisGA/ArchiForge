@@ -25,6 +25,19 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, and ZIP downloads. See [archiforge-ui/README.md](archiforge-ui/README.md).
 
+## API authentication (`ArchiForgeAuth`)
+
+Configure in `appsettings.*` under **`ArchiForgeAuth`**:
+
+| Mode | Purpose |
+|------|---------|
+| **`DevelopmentBypass`** (default) | Local/dev: every request is authenticated as a configurable dev user with role `DevRole` (`Admin` by default). |
+| **`JwtBearer`** | Production-style JWT validation using `Authority` and optional `Audience`. Map app roles to `Admin` / `Operator` / `Reader` in your IdP. |
+
+Role claims are mapped to legacy **`permission`** claims via `ArchiForgeRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**.
+
+The older **`Authentication:ApiKey`** block is no longer wired in `Program.cs` (handler remains in the repo for reference). Use JWT or DevelopmentBypass instead.
+
 ## Development environment (`archiforge dev up`)
 
 From the ArchiForge repo directory (or any directory containing `docker-compose.yml`), run:
