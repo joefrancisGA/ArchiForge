@@ -1,6 +1,7 @@
 import { getServerApiBaseUrl } from "@/lib/config";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { getScopeHeaders } from "@/lib/scope";
+import type { GoldenManifestComparison } from "@/types/comparison";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -127,4 +128,13 @@ export function getBundleDownloadUrl(manifestId: string): string {
 
 export function getRunExportDownloadUrl(runId: string): string {
   return `/api/proxy/api/artifacts/runs/${runId}/export`;
+}
+
+/** DOCX package; optional second run appends comparison section. */
+export function getArchitecturePackageDocxUrl(runId: string, compareWithRunId?: string): string {
+  const q =
+    compareWithRunId && compareWithRunId.trim().length > 0
+      ? `?compareWithRunId=${encodeURIComponent(compareWithRunId.trim())}`
+      : "";
+  return `/api/proxy/api/docx/runs/${runId}/architecture-package${q}`;
 }

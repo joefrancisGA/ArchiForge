@@ -2,6 +2,7 @@ using ArchiForge.ArtifactSynthesis.Docx.Builders;
 using ArchiForge.ArtifactSynthesis.Docx.Helpers;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Core.Comparison;
 using ArchiForge.Decisioning.Models;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -248,4 +249,82 @@ public sealed class DocxExportService : IDocxExportService
             ],
             headerRow: true);
     }
+
+    private static void AppendManifestComparison(Body body, ComparisonResult c)
+    {
+        WordDocumentBuilder.AddHeading(body, "Architecture Comparison", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddBodyText(
+            body,
+            $"Base run: {c.BaseRunId} → Target run: {c.TargetRunId}");
+        WordDocumentBuilder.AddSpacer(body);
+
+        WordDocumentBuilder.AddHeading(body, "Summary Highlights", DocxStyleIds.Heading2);
+        if (c.SummaryHighlights.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "—");
+        else
+            WordDocumentBuilder.AddBulletList(body, c.SummaryHighlights);
+
+        WordDocumentBuilder.AddHeading(body, "Decision Changes", DocxStyleIds.Heading2);
+        if (c.DecisionChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No decision changes.");
+        else
+        {
+            foreach (var d in c.DecisionChanges)
+            {
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    $"{d.DecisionKey}: {FormatOptional(d.BaseValue)} → {FormatOptional(d.TargetValue)} ({d.ChangeType})");
+            }
+        }
+
+        WordDocumentBuilder.AddHeading(body, "Requirement Changes", DocxStyleIds.Heading2);
+        if (c.RequirementChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No requirement changes.");
+        else
+        {
+            foreach (var r in c.RequirementChanges)
+                WordDocumentBuilder.AddBodyText(body, $"{r.RequirementName}: {r.ChangeType}");
+        }
+
+        WordDocumentBuilder.AddHeading(body, "Security Posture Delta", DocxStyleIds.Heading2);
+        if (c.SecurityChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No security control changes.");
+        else
+        {
+            foreach (var s in c.SecurityChanges)
+            {
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    $"{s.ControlName}: {FormatOptional(s.BaseStatus)} → {FormatOptional(s.TargetStatus)}");
+            }
+        }
+
+        WordDocumentBuilder.AddHeading(body, "Topology Changes", DocxStyleIds.Heading2);
+        if (c.TopologyChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "No topology resource changes.");
+        else
+        {
+            foreach (var t in c.TopologyChanges)
+                WordDocumentBuilder.AddBodyText(body, $"{t.Resource} ({t.ChangeType})");
+        }
+
+        WordDocumentBuilder.AddHeading(body, "Cost Delta", DocxStyleIds.Heading2);
+        if (c.CostChanges.Count == 0)
+            WordDocumentBuilder.AddBodyText(body, "Maximum monthly cost unchanged.");
+        else
+        {
+            foreach (var x in c.CostChanges)
+            {
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    $"{FormatCost(x.BaseCost)} → {FormatCost(x.TargetCost)}");
+            }
+        }
+
+        WordDocumentBuilder.AddSpacer(body);
+    }
+
+    private static string FormatOptional(string? v) => string.IsNullOrEmpty(v) ? "—" : v;
+
+    private static string FormatCost(decimal? v) => v.HasValue ? v.Value.ToString("0.00") : "—";
 }

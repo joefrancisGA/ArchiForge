@@ -1,3 +1,5 @@
+using ArchiForge.Core.Comparison;
+
 namespace ArchiForge.ArtifactSynthesis.Docx.Models;
 
 public class DocxExportRequest
@@ -15,4 +17,7 @@ public class DocxExportRequest
 
     /// <summary>Embeds a diagram image (v1: PNG placeholder; later Mermaid/graph render).</summary>
     public bool IncludeArchitectureDiagram { get; set; } = true;
+
+    /// <summary>When set, appends an architecture comparison section (base = this export run).</summary>
+    public ComparisonResult? ManifestComparison { get; set; }
 }

@@ -21,6 +21,7 @@ using ArchiForge.ArtifactSynthesis.Renderers;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
+using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
@@ -183,6 +184,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddSchemaValidation(configuration);
         services.AddScoped<IDecisionEngineService, DecisionEngineService>();
         services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
+        services.AddSingleton<IComparisonService, ComparisonService>();
         services.AddScoped<Application.Decisions.IAgentEvaluationService, Application.Decisions.DefaultAgentEvaluationService>();
         services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
         services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
