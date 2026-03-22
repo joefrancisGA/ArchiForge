@@ -25,11 +25,11 @@ public class JsonInfrastructureDeclarationParser : IInfrastructureDeclarationPar
         }
         catch (JsonException)
         {
-            return Task.FromResult<IReadOnlyList<CanonicalObject>>(Array.Empty<CanonicalObject>());
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
         }
 
         if (doc?.Resources is null || doc.Resources.Count == 0)
-            return Task.FromResult<IReadOnlyList<CanonicalObject>>(Array.Empty<CanonicalObject>());
+            return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
         var results = new List<CanonicalObject>();
 

@@ -10,5 +10,5 @@ public class ReplayValidationResponse
     public bool ArtifactsPresent { get; set; }
     public bool ManifestHashMatches { get; set; }
     public bool ArtifactBundlePresentAfterReplay { get; set; }
-    public List<string> Notes { get; set; } = new();
+    public List<string> Notes { get; set; } = [];
 }

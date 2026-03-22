@@ -11,6 +11,6 @@ public class ArtifactBundle
     public Guid ManifestId { get; set; }
     public DateTime CreatedUtc { get; set; }
 
-    public List<SynthesizedArtifact> Artifacts { get; set; } = new();
+    public List<SynthesizedArtifact> Artifacts { get; set; } = [];
     public SynthesisTrace Trace { get; set; } = new();
 }

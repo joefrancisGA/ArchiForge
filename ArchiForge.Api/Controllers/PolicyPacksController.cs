@@ -1,14 +1,12 @@
-using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Core.Audit;
+using ArchiForge.Api.Services;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -21,11 +19,9 @@ public sealed class PolicyPacksController(
     IScopeContextProvider scopeProvider,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
-    IPolicyPackManagementService managementService,
     IPolicyPackResolver resolver,
     IEffectiveGovernanceLoader governanceLoader,
-    IAuditService auditService,
-    ILogger<PolicyPacksController> logger)
+    IPolicyPacksAppService policyPacksApp)
     : ControllerBase
 {
     [HttpPost]
@@ -37,7 +33,7 @@ public sealed class PolicyPacksController(
     {
         var scope = scopeProvider.GetCurrentScope();
 
-        var pack = await managementService.CreatePackAsync(
+        var pack = await policyPacksApp.CreatePackAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -45,14 +41,6 @@ public sealed class PolicyPacksController(
             request.Description ?? "",
             request.PackType,
             request.InitialContentJson ?? "{}",
-            ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackCreated,
-                DataJson = JsonSerializer.Serialize(new { pack.PolicyPackId, pack.Name, pack.PackType }),
-            },
             ct);
 
         return Ok(pack);
@@ -66,18 +54,10 @@ public sealed class PolicyPacksController(
         [FromBody] PublishPolicyPackVersionRequest request,
         CancellationToken ct = default)
     {
-        var version = await managementService.PublishVersionAsync(
+        var version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
             request.ContentJson ?? "{}",
-            ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackVersionPublished,
-                DataJson = JsonSerializer.Serialize(new { policyPackId, version.Version }),
-            },
             ct);
 
         return Ok(version);
@@ -93,17 +73,9 @@ public sealed class PolicyPacksController(
         CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
-
         var versionKey = request.Version.Trim();
-        var packVersion = await versionRepository.GetByPackAndVersionAsync(policyPackId, versionKey, ct);
-        if (packVersion is null)
-        {
-            return this.NotFoundProblem(
-                $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
-                ProblemTypes.PolicyPackVersionNotFound);
-        }
 
-        var assignment = await managementService.AssignAsync(
+        var assignment = await policyPacksApp.TryAssignAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -111,22 +83,12 @@ public sealed class PolicyPacksController(
             versionKey,
             ct);
 
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.PolicyPackAssigned,
-                DataJson = JsonSerializer.Serialize(
-                    new { assignment.AssignmentId, policyPackId, version = assignment.PolicyPackVersion }),
-            },
-            ct);
-
-        logger.LogInformation(
-            "Policy pack assigned. TenantId={TenantId}, WorkspaceId={WorkspaceId}, ProjectId={ProjectId}, PolicyPackId={PolicyPackId}, Version={Version}",
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            policyPackId,
-            versionKey);
+        if (assignment is null)
+        {
+            return this.NotFoundProblem(
+                $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
+                ProblemTypes.PolicyPackVersionNotFound);
+        }
 
         return Ok(assignment);
     }

@@ -107,13 +107,14 @@ public sealed class ManifestDiagramService : IManifestDiagramService
     private static string? ResolveExistingNodeId(
         string sourceOrTargetId,
         GoldenManifest manifest,
-        IReadOnlyDictionary<string, string> nodeIds)
+        Dictionary<string, string> nodeIds)
     {
         if (string.IsNullOrWhiteSpace(sourceOrTargetId))
             return null;
 
         var svc = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
+
         if (svc is not null)
         {
             var key = $"svc:{svc.ServiceId}";
@@ -124,15 +125,15 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         var ds = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
-        if (ds is not null)
+
+        if (ds is null) return null;
+
         {
             var key = $"ds:{ds.DatastoreId}";
             if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(key, out var id))
                 return id;
             return SanitizeId(string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreName : ds.DatastoreId);
         }
-
-        return null;
     }
 
     private static string BuildServiceLabel(ManifestService service, bool includeRuntimePlatform)

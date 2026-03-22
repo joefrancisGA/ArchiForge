@@ -76,7 +76,7 @@ public sealed class AuthorityReplayService(
             return result;
         }
 
-        var decisionResult = await decisionEngine.DecideAsync(
+        var (manifest, trace) = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,
             original.GraphSnapshot,
@@ -84,16 +84,16 @@ public sealed class AuthorityReplayService(
             ct);
 
         var writeScope = WriteScopeFromRun(original.Run);
-        ApplyScope(decisionResult.Trace, writeScope);
-        ApplyScope(decisionResult.Manifest, writeScope);
-        decisionResult.Manifest.ManifestHash = manifestHashService.ComputeHash(decisionResult.Manifest);
+        ApplyScope(trace, writeScope);
+        ApplyScope(manifest, writeScope);
+        manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
 
-        await decisionTraceRepository.SaveAsync(decisionResult.Trace, ct);
-        await goldenManifestRepository.SaveAsync(decisionResult.Manifest, ct);
+        await decisionTraceRepository.SaveAsync(trace, ct);
+        await goldenManifestRepository.SaveAsync(manifest, ct);
 
-        result.RebuiltManifest = decisionResult.Manifest;
+        result.RebuiltManifest = manifest;
 
-        var rebuiltHash = manifestHashService.ComputeHash(decisionResult.Manifest);
+        var rebuiltHash = manifestHashService.ComputeHash(manifest);
 
         if (original.GoldenManifest is not null)
         {
@@ -109,29 +109,22 @@ public sealed class AuthorityReplayService(
             }
         }
 
-        if (string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
-        {
-            var rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
-                decisionResult.Manifest,
-                ct);
+        if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase)) return result;
+        
+        var rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
+            manifest,
+            ct);
 
-            await artifactBundleRepository.SaveAsync(rebuiltArtifacts, ct);
+        await artifactBundleRepository.SaveAsync(rebuiltArtifacts, ct);
 
-            result.RebuiltArtifactBundle = rebuiltArtifacts;
-            result.Validation.ArtifactBundlePresentAfterReplay = rebuiltArtifacts.Artifacts.Count > 0;
+        result.RebuiltArtifactBundle = rebuiltArtifacts;
+        result.Validation.ArtifactBundlePresentAfterReplay = rebuiltArtifacts.Artifacts.Count > 0;
 
-            if (original.ArtifactBundle is not null)
-            {
-                if (original.ArtifactBundle.Artifacts.Count == rebuiltArtifacts.Artifacts.Count)
-                {
-                    result.Validation.Notes.Add("Rebuilt artifact count matches original artifact count.");
-                }
-                else
-                {
-                    result.Validation.Notes.Add("Rebuilt artifact count differs from original artifact count.");
-                }
-            }
-        }
+        if (original.ArtifactBundle is null) return result;
+
+        result.Validation.Notes.Add(original.ArtifactBundle.Artifacts.Count == rebuiltArtifacts.Artifacts.Count
+            ? "Rebuilt artifact count matches original artifact count."
+            : "Rebuilt artifact count differs from original artifact count.");
 
         return result;
     }

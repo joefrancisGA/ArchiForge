@@ -7,5 +7,5 @@ public class CanonicalObject
     public string Name { get; set; } = null!;
     public string SourceType { get; set; } = null!;
     public string SourceId { get; set; } = null!;
-    public Dictionary<string, string> Properties { get; set; } = new();
+    public Dictionary<string, string> Properties { get; set; } = [];
 }

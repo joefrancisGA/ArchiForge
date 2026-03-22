@@ -74,13 +74,10 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
     private static bool TryGetIgnoreCase(JsonElement obj, string name, out JsonElement value)
     {
-        foreach (var p in obj.EnumerateObject())
+        foreach (var p in obj.EnumerateObject().Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
-            if (p.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            {
-                value = p.Value;
-                return true;
-            }
+            value = p.Value;
+            return true;
         }
 
         value = default;

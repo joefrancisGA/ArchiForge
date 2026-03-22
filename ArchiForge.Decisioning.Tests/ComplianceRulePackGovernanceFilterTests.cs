@@ -50,7 +50,7 @@ public sealed class ComplianceRulePackGovernanceFilterTests
 
         var filtered = ComplianceRulePackGovernanceFilter.Filter(source, effective);
 
-        filtered.Rules.Select(r => r.RuleId).Should().BeEquivalentTo(["Alpha-Rule", "gamma"]);
+        filtered.Rules.Select(r => r.RuleId).Should().BeEquivalentTo("Alpha-Rule", "gamma");
     }
 
     [Fact]
@@ -81,6 +81,6 @@ public sealed class ComplianceRulePackGovernanceFilterTests
 
         var filtered = ComplianceRulePackGovernanceFilter.Filter(source, effective);
 
-        filtered.Rules.Select(r => r.RuleId).Should().BeEquivalentTo(["by-key", g.ToString("D")]);
+        filtered.Rules.Select(r => r.RuleId).Should().BeEquivalentTo("by-key", g.ToString("D"));
     }
 }

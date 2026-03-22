@@ -220,8 +220,8 @@ public sealed class AuthorityCompareService(
         IEnumerable<string>? left,
         IEnumerable<string>? right)
     {
-        var leftSet = new HashSet<string>(left ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
-        var rightSet = new HashSet<string>(right ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+        var leftSet = new HashSet<string>(left ?? [], StringComparer.OrdinalIgnoreCase);
+        var rightSet = new HashSet<string>(right ?? [], StringComparer.OrdinalIgnoreCase);
 
         foreach (var item in leftSet.Except(rightSet, StringComparer.OrdinalIgnoreCase))
         {

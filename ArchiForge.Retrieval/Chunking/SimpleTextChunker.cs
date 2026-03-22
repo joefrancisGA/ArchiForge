@@ -5,7 +5,7 @@ public sealed class SimpleTextChunker : ITextChunker
     public IReadOnlyList<string> Chunk(string text, int maxChars = 1200, int overlap = 150)
     {
         if (string.IsNullOrWhiteSpace(text))
-            return Array.Empty<string>();
+            return [];
 
         var chunks = new List<string>();
         var index = 0;

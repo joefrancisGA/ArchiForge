@@ -8,7 +8,7 @@ public class ManifestComparisonResult
     public string LeftManifestHash { get; set; } = null!;
     public string RightManifestHash { get; set; } = null!;
 
-    public List<DiffItem> Diffs { get; set; } = new();
+    public List<DiffItem> Diffs { get; set; } = [];
 
     public int AddedCount => Diffs.Count(x => x.DiffKind == DiffKind.Added);
     public int RemovedCount => Diffs.Count(x => x.DiffKind == DiffKind.Removed);

@@ -9,5 +9,5 @@ public class ManifestComparisonResponse
     public int AddedCount { get; set; }
     public int RemovedCount { get; set; }
     public int ChangedCount { get; set; }
-    public List<DiffItemResponse> Diffs { get; set; } = new();
+    public List<DiffItemResponse> Diffs { get; set; } = [];
 }

@@ -256,6 +256,7 @@ public sealed class AuthorityRunOrchestrator(
             await artifactBundleRepository.SaveAsync(bundle, ct);
     }
 
+    // ReSharper disable once UnusedMember.Local
     private async Task SaveProvenanceAsync(
         DecisionProvenanceSnapshot snapshot,
         CancellationToken ct,

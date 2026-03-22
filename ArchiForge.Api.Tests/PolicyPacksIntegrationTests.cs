@@ -36,7 +36,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
         created.Should().NotBeNull();
-        var packId = created!.PolicyPackId;
+        var packId = created.PolicyPackId;
 
         var assignResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
@@ -48,7 +48,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var effective = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSetResponse>(JsonOptions);
         effective.Should().NotBeNull();
-        effective!.Packs.Should().HaveCount(1);
+        effective.Packs.Should().HaveCount(1);
         effective.Packs[0].PolicyPackId.Should().Be(packId);
         effective.Packs[0].Version.Should().Be("1.0.0");
 
@@ -56,7 +56,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
         merged.Should().NotBeNull();
-        merged!.AdvisoryDefaults.Should().ContainKey("scanDepth");
+        merged.AdvisoryDefaults.Should().ContainKey("scanDepth");
         merged.AdvisoryDefaults["scanDepth"].Should().Be("standard");
         merged.Metadata.Should().ContainKey("tier");
     }
@@ -98,7 +98,49 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
         merged.Should().NotBeNull();
-        merged!.ComplianceRuleKeys.Should().BeEquivalentTo(["rule-alpha", "rule-beta"]);
+        merged.ComplianceRuleKeys.Should().BeEquivalentTo("rule-alpha", "rule-beta");
+    }
+
+    [Fact]
+    public async Task EffectiveContent_MergesAlertRuleIds_FromAssignedPack()
+    {
+        var idA = Guid.NewGuid();
+        var idB = Guid.NewGuid();
+        var contentJson = $$"""
+            {
+              "complianceRuleIds": [],
+              "complianceRuleKeys": [],
+              "alertRuleIds": [ "{{idA}}", "{{idB}}" ],
+              "compositeAlertRuleIds": [],
+              "advisoryDefaults": {},
+              "metadata": {}
+            }
+            """;
+
+        var createResponse = await Client.PostAsync(
+            "/v1/policy-packs",
+            JsonContent(
+                new
+                {
+                    name = "Alert ids pack",
+                    description = "",
+                    packType = "ProjectCustom",
+                    initialContentJson = contentJson,
+                }));
+        createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+        var packId = created!.PolicyPackId;
+
+        var assignResponse = await Client.PostAsync(
+            $"/v1/policy-packs/{packId}/assign",
+            JsonContent(new { version = "1.0.0" }));
+        assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
+        mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+        merged.Should().NotBeNull();
+        merged!.AlertRuleIds.Should().BeEquivalentTo([idA, idB]);
     }
 
     [Fact]
@@ -129,13 +171,13 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         var p2 = await Client.PostAsync($"/v1/policy-packs/{packId}/publish", JsonContent(bodyB));
         p2.StatusCode.Should().Be(HttpStatusCode.OK);
         var v2 = await p2.Content.ReadFromJsonAsync<PolicyPackVersionResponse>(JsonOptions);
-        v2!.PolicyPackVersionId.Should().Be(v1!.PolicyPackVersionId);
+        v2!.PolicyPackVersionId.Should().Be(v1.PolicyPackVersionId);
 
         var list = await Client.GetAsync($"/v1/policy-packs/{packId}/versions");
         list.StatusCode.Should().Be(HttpStatusCode.OK);
         var versions = await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
         versions.Should().NotBeNull();
-        versions!.Count(x => x.Version == "1.0.0").Should().Be(1);
+        versions.Count(x => x.Version == "1.0.0").Should().Be(1);
         versions.Single(x => x.Version == "1.0.0").ContentJson.Should().Contain("\"k\":\"b\"");
     }
 
@@ -194,34 +236,6 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
     [Fact]
     public async Task EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments()
     {
-        async Task<Guid> CreatePackAsync(string name, string complianceKey)
-        {
-            var contentJson = $$"""
-                {
-                  "complianceRuleIds": [],
-                  "complianceRuleKeys": [ "{{complianceKey}}" ],
-                  "alertRuleIds": [],
-                  "compositeAlertRuleIds": [],
-                  "advisoryDefaults": {},
-                  "metadata": {}
-                }
-                """;
-
-            var createResponse = await Client.PostAsync(
-                "/v1/policy-packs",
-                JsonContent(
-                    new
-                    {
-                        name,
-                        description = "",
-                        packType = "ProjectCustom",
-                        initialContentJson = contentJson,
-                    }));
-            createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
-            return created!.PolicyPackId;
-        }
-
         var packA = await CreatePackAsync("merge-pack-a", "merge-key-a");
         var packB = await CreatePackAsync("merge-pack-b", "merge-key-b");
 
@@ -242,7 +256,36 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
-        merged!.ComplianceRuleKeys.Should().BeEquivalentTo(["merge-key-a", "merge-key-b"]);
+        merged!.ComplianceRuleKeys.Should().BeEquivalentTo("merge-key-a", "merge-key-b");
+        return;
+
+        async Task<Guid> CreatePackAsync(string name, string complianceKey)
+        {
+            var contentJson = $$"""
+                                {
+                                  "complianceRuleIds": [],
+                                  "complianceRuleKeys": [ "{{complianceKey}}" ],
+                                  "alertRuleIds": [],
+                                  "compositeAlertRuleIds": [],
+                                  "advisoryDefaults": {},
+                                  "metadata": {}
+                                }
+                                """;
+
+            var createResponse = await Client.PostAsync(
+                "/v1/policy-packs",
+                JsonContent(
+                    new
+                    {
+                        name,
+                        description = "",
+                        packType = "ProjectCustom",
+                        initialContentJson = contentJson,
+                    }));
+            createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            return created!.PolicyPackId;
+        }
     }
 
     private sealed class PolicyPackResponse
@@ -273,7 +316,8 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
     private sealed class PolicyPackContentResponse
     {
         public List<string> ComplianceRuleKeys { get; init; } = [];
+        public List<Guid> AlertRuleIds { get; init; } = [];
         public Dictionary<string, string> AdvisoryDefaults { get; init; } = new();
-        public Dictionary<string, string> Metadata { get; init; } = new();
+        public Dictionary<string, string> Metadata { get; init; } = [];
     }
 }

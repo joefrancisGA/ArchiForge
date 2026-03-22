@@ -4,7 +4,7 @@ namespace ArchiForge.Persistence.Audit;
 
 public sealed class InMemoryAuditRepository : IAuditRepository
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
     private readonly List<AuditEvent> _events = [];
 
     public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)

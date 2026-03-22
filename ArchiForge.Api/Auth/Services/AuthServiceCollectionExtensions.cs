@@ -55,31 +55,27 @@ public static class AuthServiceCollectionExtensions
 
         services.AddScoped<IClaimsTransformation, ArchiForgeRoleClaimsTransformation>();
 
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy(ArchiForgePolicies.ReadAuthority, policy =>
+        services.AddAuthorizationBuilder()
+            .AddPolicy(ArchiForgePolicies.ReadAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(
                     ArchiForgeRoles.Reader,
                     ArchiForgeRoles.Operator,
                     ArchiForgeRoles.Admin);
-            });
-
-            options.AddPolicy(ArchiForgePolicies.ExecuteAuthority, policy =>
+            })
+            .AddPolicy(ArchiForgePolicies.ExecuteAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(
                     ArchiForgeRoles.Operator,
                     ArchiForgeRoles.Admin);
-            });
-
-            options.AddPolicy(ArchiForgePolicies.AdminAuthority, policy =>
+            })
+            .AddPolicy(ArchiForgePolicies.AdminAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(ArchiForgeRoles.Admin);
             });
-        });
 
         return services;
     }

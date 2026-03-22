@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Alerts;
 public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
 {
     private readonly List<AlertRule> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(AlertRule rule, CancellationToken ct)
     {

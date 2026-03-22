@@ -18,7 +18,7 @@ public class AlertEvaluationContext
     public ImprovementPlan? ImprovementPlan { get; set; }
     public ComparisonResult? ComparisonResult { get; set; }
 
-    public IReadOnlyList<RecommendationRecord> RecommendationRecords { get; set; } = Array.Empty<RecommendationRecord>();
+    public IReadOnlyList<RecommendationRecord> RecommendationRecords { get; set; } = [];
     public RecommendationLearningProfile? LearningProfile { get; set; }
 
     /// <summary>

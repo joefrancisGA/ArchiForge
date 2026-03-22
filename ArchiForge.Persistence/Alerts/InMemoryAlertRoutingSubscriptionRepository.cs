@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Alerts;
 public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSubscriptionRepository
 {
     private readonly List<AlertRoutingSubscription> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {

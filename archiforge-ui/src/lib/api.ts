@@ -1,3 +1,4 @@
+import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { getScopeHeaders } from "@/lib/scope";
@@ -264,7 +265,7 @@ export async function listArchitectureDigests(take = 20): Promise<ArchitectureDi
 }
 
 export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
-  return apiGet<DigestSubscription[]>("/v1/digest-subscriptions");
+  return apiGet<DigestSubscription[]>(`/${ApiV1Routes.digestSubscriptions}`);
 }
 
 export async function createDigestSubscription(body: {
@@ -274,7 +275,7 @@ export async function createDigestSubscription(body: {
   isEnabled?: boolean;
   metadataJson?: string;
 }): Promise<DigestSubscription> {
-  return apiPostJson<DigestSubscription>("/v1/digest-subscriptions", {
+  return apiPostJson<DigestSubscription>(`/${ApiV1Routes.digestSubscriptions}`, {
     name: body.name,
     channelType: body.channelType,
     destination: body.destination,
@@ -295,13 +296,13 @@ export async function listSubscriptionDeliveryAttempts(
   take = 50,
 ): Promise<DigestDeliveryAttempt[]> {
   return apiGet<DigestDeliveryAttempt[]>(
-    `/v1/digest-subscriptions/${encodeURIComponent(subscriptionId)}/attempts?take=${take}`,
+    `/${ApiV1Routes.digestSubscriptions}/${encodeURIComponent(subscriptionId)}/attempts?take=${take}`,
   );
 }
 
 export async function listDigestDeliveryAttempts(digestId: string): Promise<DigestDeliveryAttempt[]> {
   return apiGet<DigestDeliveryAttempt[]>(
-    `/api/digest-subscriptions/digests/${encodeURIComponent(digestId)}/attempts`,
+    `/${ApiV1Routes.digestSubscriptions}/digests/${encodeURIComponent(digestId)}/attempts`,
   );
 }
 
@@ -312,7 +313,7 @@ export async function getArchitectureDigest(digestId: string): Promise<Architect
 }
 
 export async function listAlertRules(): Promise<AlertRule[]> {
-  return apiGet<AlertRule[]>("/v1/alert-rules");
+  return apiGet<AlertRule[]>(`/${ApiV1Routes.alertRules}`);
 }
 
 export async function createAlertRule(body: {
@@ -324,7 +325,7 @@ export async function createAlertRule(body: {
   targetChannelType?: string;
   metadataJson?: string;
 }): Promise<AlertRule> {
-  return apiPostJson<AlertRule>("/v1/alert-rules", {
+  return apiPostJson<AlertRule>(`/${ApiV1Routes.alertRules}`, {
     name: body.name,
     ruleType: body.ruleType,
     severity: body.severity,
@@ -348,7 +349,7 @@ export async function applyAlertAction(
   action: "Acknowledge" | "Resolve" | "Suppress",
   comment?: string,
 ): Promise<AlertRecord> {
-  return apiPostJson<AlertRecord>(`/v1/alerts/${encodeURIComponent(alertId)}/action`, {
+  return apiPostJson<AlertRecord>(`/${ApiV1Routes.alerts}/${encodeURIComponent(alertId)}/action`, {
     action,
     comment: comment ?? "",
   });
@@ -366,7 +367,7 @@ export async function createAlertRoutingSubscription(body: {
   isEnabled?: boolean;
   metadataJson?: string;
 }): Promise<AlertRoutingSubscription> {
-  return apiPostJson<AlertRoutingSubscription>("/v1/alert-routing-subscriptions", {
+  return apiPostJson<AlertRoutingSubscription>(`/${ApiV1Routes.alertRoutingSubscriptions}`, {
     name: body.name,
     channelType: body.channelType,
     destination: body.destination,
@@ -390,12 +391,12 @@ export async function listAlertRoutingDeliveryAttempts(
   take = 30,
 ): Promise<AlertRoutingDeliveryAttempt[]> {
   return apiGet<AlertRoutingDeliveryAttempt[]>(
-    `/v1/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
+    `/${ApiV1Routes.alertRoutingSubscriptions}/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
   );
 }
 
 export async function listCompositeAlertRules(): Promise<CompositeAlertRule[]> {
-  return apiGet<CompositeAlertRule[]>("/api/composite-alert-rules");
+  return apiGet<CompositeAlertRule[]>(`/${ApiV1Routes.compositeAlertRules}`);
 }
 
 export async function simulateAlertRule(body: {
@@ -412,21 +413,21 @@ export async function simulateAlertRule(body: {
 }
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
-  return apiGet<PolicyPack[]>("/v1/policy-packs");
+  return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
 }
 
 export async function listPolicyPackVersions(policyPackId: string): Promise<PolicyPackVersion[]> {
   return apiGet<PolicyPackVersion[]>(
-    `/v1/policy-packs/${encodeURIComponent(policyPackId)}/versions`,
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/versions`,
   );
 }
 
 export async function getEffectivePolicyPacks(): Promise<EffectivePolicyPackSet> {
-  return apiGet<EffectivePolicyPackSet>("/v1/policy-packs/effective");
+  return apiGet<EffectivePolicyPackSet>(`/${ApiV1Routes.policyPacks}/effective`);
 }
 
 export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocument> {
-  return apiGet<PolicyPackContentDocument>("/v1/policy-packs/effective-content");
+  return apiGet<PolicyPackContentDocument>(`/${ApiV1Routes.policyPacks}/effective-content`);
 }
 
 export async function createPolicyPack(body: {
@@ -435,7 +436,7 @@ export async function createPolicyPack(body: {
   packType: string;
   initialContentJson?: string;
 }): Promise<PolicyPack> {
-  return apiPostJson<PolicyPack>("/api/policy-packs", body);
+  return apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, body);
 }
 
 export async function publishPolicyPackVersion(
@@ -443,7 +444,7 @@ export async function publishPolicyPackVersion(
   body: { version: string; contentJson?: string },
 ): Promise<PolicyPackVersion> {
   return apiPostJson<PolicyPackVersion>(
-    `/v1/policy-packs/${encodeURIComponent(policyPackId)}/publish`,
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/publish`,
     body,
   );
 }
@@ -453,7 +454,7 @@ export async function assignPolicyPack(
   body: { version: string },
 ): Promise<PolicyPackAssignment> {
   return apiPostJson<PolicyPackAssignment>(
-    `/v1/policy-packs/${encodeURIComponent(policyPackId)}/assign`,
+    `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/assign`,
     body,
   );
 }
@@ -482,7 +483,7 @@ export async function compareAlertRuleCandidates(body: {
   runProjectSlug?: string;
 }): Promise<RuleCandidateComparisonResult> {
   return apiPostJson<RuleCandidateComparisonResult>(
-    "/v1/alert-simulation/compare-candidates",
+    `/${ApiV1Routes.alertSimulation}/compare-candidates`,
     body,
   );
 }
@@ -499,7 +500,7 @@ export async function createCompositeAlertRule(body: {
   targetChannelType?: string;
   conditions: { metricType: string; operator: string; thresholdValue: number }[];
 }): Promise<CompositeAlertRule> {
-  return apiPostJson<CompositeAlertRule>("/v1/composite-alert-rules", {
+  return apiPostJson<CompositeAlertRule>(`/${ApiV1Routes.compositeAlertRules}`, {
     name: body.name,
     severity: body.severity,
     operator: body.operator,

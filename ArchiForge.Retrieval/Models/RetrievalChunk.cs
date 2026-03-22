@@ -19,7 +19,7 @@ public class RetrievalChunk
     public string Text { get; set; } = null!;
     public int ChunkOrdinal { get; set; }
 
-    public float[] Embedding { get; set; } = Array.Empty<float>();
+    public float[] Embedding { get; set; } = [];
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

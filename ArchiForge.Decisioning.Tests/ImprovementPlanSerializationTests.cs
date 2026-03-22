@@ -26,7 +26,7 @@ public sealed class ImprovementPlanSerializationTests
         var back = JsonSerializer.Deserialize<ImprovementPlan>(json, Options);
 
         back.Should().NotBeNull();
-        back!.PolicyPackAdvisoryDefaults.Should().ContainKey("scanDepth");
+        back.PolicyPackAdvisoryDefaults.Should().ContainKey("scanDepth");
         back.PolicyPackAdvisoryDefaults["scanDepth"].Should().Be("deep");
         back.PolicyPackAdvisoryDefaults["channel"].Should().Be("email");
     }

@@ -14,5 +14,5 @@ public class GraphNode
 
     public string? SourceId { get; set; }
 
-    public Dictionary<string, string> Properties { get; set; } = new();
+    public Dictionary<string, string> Properties { get; set; } = [];
 }

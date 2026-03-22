@@ -12,5 +12,5 @@ public class GraphEdge
 
     public string? Label { get; set; }
 
-    public Dictionary<string, string> Properties { get; set; } = new();
+    public Dictionary<string, string> Properties { get; set; } = [];
 }

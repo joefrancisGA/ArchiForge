@@ -21,10 +21,9 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
                 PropertyNameCaseInsensitive = true
             });
 
-        if (doc is null)
-            throw new InvalidOperationException("Failed to deserialize compliance rule pack.");
-
-        return new ComplianceRulePack
+        return doc is null
+            ? throw new InvalidOperationException("Failed to deserialize compliance rule pack.")
+            : new ComplianceRulePack
         {
             RulePackId = doc.RulePackId,
             Name = doc.Name,
@@ -47,8 +46,7 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
 
     private static string ComputeHash(string content)
     {
-        using var sha = SHA256.Create();
         var bytes = Encoding.UTF8.GetBytes(content);
-        return Convert.ToHexString(sha.ComputeHash(bytes));
+        return Convert.ToHexString(SHA256.HashData(bytes));
     }
 }

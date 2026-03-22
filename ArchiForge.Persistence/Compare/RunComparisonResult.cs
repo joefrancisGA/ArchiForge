@@ -12,5 +12,5 @@ public class RunComparisonResult
 
     public ManifestComparisonResult? ManifestComparison { get; set; }
 
-    public List<DiffItem> RunLevelDiffs { get; set; } = new();
+    public List<DiffItem> RunLevelDiffs { get; set; } = [];
 }

@@ -60,7 +60,7 @@ public sealed class RuleSimulationService(
                 request.SimpleRule is not null)
             {
                 var rule = CloneSimpleForSimulation(request.SimpleRule);
-                var generated = alertEvaluator.Evaluate(new[] { rule }, context);
+                var generated = alertEvaluator.Evaluate([rule], context);
 
                 if (generated.Count > 0)
                 {

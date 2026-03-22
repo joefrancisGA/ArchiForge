@@ -112,7 +112,7 @@ public sealed class AskService(
         var context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
         var contextJson = JsonSerializer.Serialize(context, JsonWrite);
 
-        IReadOnlyList<RetrievalHit> retrievalHits = Array.Empty<RetrievalHit>();
+        IReadOnlyList<RetrievalHit> retrievalHits = [];
         try
         {
             retrievalHits = await retrievalQuery.SearchAsync(

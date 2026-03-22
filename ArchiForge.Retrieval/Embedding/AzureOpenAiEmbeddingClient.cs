@@ -18,7 +18,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     public Task<float[]> EmbedAsync(string text, CancellationToken ct)
     {
         _ = ct;
-        var result = _embeddingClient.GenerateEmbedding(text);
+        var result = _embeddingClient.GenerateEmbedding(text, cancellationToken: ct);
         return Task.FromResult(result.Value.ToFloats().ToArray());
     }
 
@@ -26,9 +26,9 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     {
         _ = ct;
         if (texts.Count == 0)
-            return Task.FromResult<IReadOnlyList<float[]>>(Array.Empty<float[]>());
+            return Task.FromResult<IReadOnlyList<float[]>>([]);
 
-        var response = _embeddingClient.GenerateEmbeddings(texts.ToList());
+        var response = _embeddingClient.GenerateEmbeddings(texts.ToList(), cancellationToken: ct);
         var vectors = response.Value.Select(e => e.ToFloats().ToArray()).ToList();
         return Task.FromResult<IReadOnlyList<float[]>>(vectors);
     }

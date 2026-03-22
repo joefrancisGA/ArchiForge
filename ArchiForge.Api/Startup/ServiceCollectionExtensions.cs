@@ -67,6 +67,7 @@ using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Queries;
 using ArchiForge.Api.Configuration;
+using ArchiForge.Api.Services;
 
 namespace ArchiForge.Api.Startup;
 
@@ -137,6 +138,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPackResolver, PolicyPackResolver>();
         services.AddScoped<IPolicyPackManagementService, PolicyPackManagementService>();
         services.AddScoped<IEffectiveGovernanceLoader, EffectiveGovernanceLoader>();
+        services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)
@@ -226,16 +228,16 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<InfrastructureDeclarationConnector>();
 
         // Fixed pipeline order (affects concatenated delta summaries and mental model). See docs/CONTEXT_INGESTION.md.
-        services.AddSingleton<IEnumerable<ContextConnector>>(sp => new ContextConnector[]
-        {
+        services.AddSingleton<IEnumerable<ContextConnector>>(sp =>
+        [
             sp.GetRequiredService<StaticRequestContextConnector>(),
             sp.GetRequiredService<InlineRequirementsConnector>(),
             sp.GetRequiredService<DocumentConnector>(),
             sp.GetRequiredService<PolicyReferenceConnector>(),
             sp.GetRequiredService<TopologyHintsConnector>(),
             sp.GetRequiredService<SecurityBaselineHintsConnector>(),
-            sp.GetRequiredService<InfrastructureDeclarationConnector>(),
-        });
+            sp.GetRequiredService<InfrastructureDeclarationConnector>()
+        ]);
 
         services.AddSingleton<ICanonicalEnricher, CanonicalInfrastructureEnricher>();
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();

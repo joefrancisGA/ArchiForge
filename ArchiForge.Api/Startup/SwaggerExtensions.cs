@@ -38,6 +38,7 @@ internal static class SwaggerExtensions
             c.OperationFilter<Swagger.ProblemDetailsResponsesOperationFilter>();
             c.OperationFilter<Swagger.PolicyPackExamplesOperationFilter>();
             c.OperationFilter<Swagger.AlertExamplesOperationFilter>();
+            c.SchemaFilter<Swagger.PolicyPackContentDocumentSchemaFilter>();
         });
         return services;
     }

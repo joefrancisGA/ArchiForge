@@ -54,7 +54,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
             }
         }
 
-        var alerts = evaluatedAlerts ?? Array.Empty<AlertRecord>();
+        var alerts = evaluatedAlerts ?? [];
         var highCritical = alerts
             .Count(a =>
                 string.Equals(a.Severity, AlertSeverity.High, StringComparison.OrdinalIgnoreCase) ||

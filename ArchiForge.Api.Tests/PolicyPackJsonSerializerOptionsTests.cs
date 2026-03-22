@@ -24,7 +24,7 @@ public sealed class PolicyPackJsonSerializerOptionsTests
 
         var back = JsonSerializer.Deserialize<PolicyPackContentDocument>(json, PolicyPackJsonSerializerOptions.Default);
         back.Should().NotBeNull();
-        back!.AlertRuleIds.Should().ContainSingle().Which.Should().Be(Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
+        back.AlertRuleIds.Should().ContainSingle().Which.Should().Be(Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"));
         back.AdvisoryDefaults["key"].Should().Be("value");
     }
 }

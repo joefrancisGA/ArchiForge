@@ -7,7 +7,7 @@ namespace ArchiForge.ArtifactSynthesis.Repositories;
 
 public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
 {
-    private readonly List<ArtifactBundle> _store = new();
+    private readonly List<ArtifactBundle> _store = [];
 
     public Task SaveAsync(
         ArtifactBundle bundle,

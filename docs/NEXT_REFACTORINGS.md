@@ -911,3 +911,16 @@ The following were implemented together for safer operator APIs, tests, and back
 | Structured logs on policy publish/assign | `ILogger<PolicyPacksController>` |
 | Tests: `PolicyPackGovernanceFilter`, `ImprovementPlan` JSON, alert list smoke, two-assignment merge, assign 404 `type` | `Decisioning.Tests`, `Api.Tests` |
 | Docs: multi-assignment merge, ambient scope, rate limit pointer | `API_CONTRACTS.md` |
+
+---
+
+## Batch (post–§67 — “next five” integrated)
+
+| # | Item | Notes |
+|---|------|--------|
+| 1 | OpenAPI schema enrichment for `PolicyPackContentDocument` | `PolicyPackContentDocumentSchemaFilter` (description + pointer to POST examples). |
+| 2 | UI route constants | `archiforge-ui/src/lib/api-v1-routes.ts` + `api.ts` uses `ApiV1Routes`; fixed stray `/api/...` for policy packs & digest toggle. |
+| 3 | SemVer 2 validation | `PolicyPackRequestValidationRules.BePolicyPackSemVerVersion` on publish + assign; `API_CONTRACTS.md` updated. |
+| 4 | `IPolicyPacksAppService` / `PolicyPacksAppService` | Create, publish, assign + audit orchestration; thin `PolicyPacksController`. |
+| 5 | Integration tests | `PublishPolicyPack_InvalidSemVerVersion_Returns400`; `EffectiveContent_MergesAlertRuleIds_FromAssignedPack`; repaired `ResolvedPackResponse` DTO. |
+| — | `ApiV1Routes` (C#) | Extended to mirror UI segments (composite alerts, simulation, tuning, routing, digest). |
