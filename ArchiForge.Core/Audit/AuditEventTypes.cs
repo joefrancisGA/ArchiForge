@@ -22,4 +22,9 @@ public static class AuditEventTypes
     public const string AdvisoryScanScheduled = "AdvisoryScanScheduled";
     public const string AdvisoryScanExecuted = "AdvisoryScanExecuted";
     public const string ArchitectureDigestGenerated = "ArchitectureDigestGenerated";
+
+    public const string DigestSubscriptionCreated = "DigestSubscriptionCreated";
+    public const string DigestSubscriptionToggled = "DigestSubscriptionToggled";
+    public const string DigestDeliverySucceeded = "DigestDeliverySucceeded";
+    public const string DigestDeliveryFailed = "DigestDeliveryFailed";
 }

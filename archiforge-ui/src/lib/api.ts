@@ -23,6 +23,7 @@ import type {
   AdvisoryScanSchedule,
   ArchitectureDigest,
 } from "@/types/advisory-scheduling";
+import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -245,6 +246,48 @@ export async function listScheduleExecutions(
 
 export async function listArchitectureDigests(take = 20): Promise<ArchitectureDigest[]> {
   return apiGet<ArchitectureDigest[]>(`/api/advisory-scheduling/digests?take=${take}`);
+}
+
+export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
+  return apiGet<DigestSubscription[]>("/api/digest-subscriptions");
+}
+
+export async function createDigestSubscription(body: {
+  name: string;
+  channelType: string;
+  destination: string;
+  isEnabled?: boolean;
+  metadataJson?: string;
+}): Promise<DigestSubscription> {
+  return apiPostJson<DigestSubscription>("/api/digest-subscriptions", {
+    name: body.name,
+    channelType: body.channelType,
+    destination: body.destination,
+    isEnabled: body.isEnabled ?? true,
+    metadataJson: body.metadataJson ?? "{}",
+  });
+}
+
+export async function toggleDigestSubscription(subscriptionId: string): Promise<DigestSubscription> {
+  return apiPostJson<DigestSubscription>(
+    `/api/digest-subscriptions/${encodeURIComponent(subscriptionId)}/toggle`,
+    {},
+  );
+}
+
+export async function listSubscriptionDeliveryAttempts(
+  subscriptionId: string,
+  take = 50,
+): Promise<DigestDeliveryAttempt[]> {
+  return apiGet<DigestDeliveryAttempt[]>(
+    `/api/digest-subscriptions/${encodeURIComponent(subscriptionId)}/attempts?take=${take}`,
+  );
+}
+
+export async function listDigestDeliveryAttempts(digestId: string): Promise<DigestDeliveryAttempt[]> {
+  return apiGet<DigestDeliveryAttempt[]>(
+    `/api/digest-subscriptions/digests/${encodeURIComponent(digestId)}/attempts`,
+  );
 }
 
 export async function getArchitectureDigest(digestId: string): Promise<ArchitectureDigest> {

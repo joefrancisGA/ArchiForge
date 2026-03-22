@@ -3,6 +3,7 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Repositories;
+using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
@@ -64,6 +65,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IAdvisoryScanScheduleRepository, InMemoryAdvisoryScanScheduleRepository>();
             services.AddSingleton<IAdvisoryScanExecutionRepository, InMemoryAdvisoryScanExecutionRepository>();
             services.AddSingleton<IArchitectureDigestRepository, InMemoryArchitectureDigestRepository>();
+            services.AddSingleton<IDigestSubscriptionRepository, InMemoryDigestSubscriptionRepository>();
+            services.AddSingleton<IDigestDeliveryAttemptRepository, InMemoryDigestDeliveryAttemptRepository>();
             return services;
         }
 
@@ -108,6 +111,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAdvisoryScanScheduleRepository, DapperAdvisoryScanScheduleRepository>();
         services.AddScoped<IAdvisoryScanExecutionRepository, DapperAdvisoryScanExecutionRepository>();
         services.AddScoped<IArchitectureDigestRepository, DapperArchitectureDigestRepository>();
+        services.AddScoped<IDigestSubscriptionRepository, DapperDigestSubscriptionRepository>();
+        services.AddScoped<IDigestDeliveryAttemptRepository, DapperDigestDeliveryAttemptRepository>();
 
         return services;
     }

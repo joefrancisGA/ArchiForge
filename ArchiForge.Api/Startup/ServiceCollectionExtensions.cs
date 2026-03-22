@@ -25,8 +25,10 @@ using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Ask;
 using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Services.Ask;
+using ArchiForge.Api.Services.Delivery;
 using ArchiForge.Core.Ask;
 using ArchiForge.Decisioning.Advisory.Analysis;
+using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -67,6 +69,7 @@ internal static partial class ServiceCollectionExtensions
     {
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services);
+        RegisterDigestDelivery(services);
         RegisterDataInfrastructure(services);
         RegisterBackgroundJobs(services);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
@@ -88,6 +91,16 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddHostedService<AdvisoryScanHostedService>();
+    }
+
+    private static void RegisterDigestDelivery(IServiceCollection services)
+    {
+        services.AddSingleton<IEmailSender, FakeEmailSender>();
+        services.AddSingleton<IWebhookPoster, FakeWebhookPoster>();
+        services.AddScoped<IDigestDeliveryChannel, DigestEmailDeliveryChannel>();
+        services.AddScoped<IDigestDeliveryChannel, DigestTeamsWebhookDeliveryChannel>();
+        services.AddScoped<IDigestDeliveryChannel, DigestSlackWebhookDeliveryChannel>();
+        services.AddScoped<IDigestDeliveryDispatcher, DigestDeliveryDispatcher>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)

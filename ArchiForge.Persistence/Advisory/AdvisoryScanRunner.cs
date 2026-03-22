@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -16,6 +17,7 @@ public sealed class AdvisoryScanRunner(
     IComparisonService comparisonService,
     IArchitectureDigestBuilder digestBuilder,
     IArchitectureDigestRepository digestRepository,
+    IDigestDeliveryDispatcher deliveryDispatcher,
     IAdvisoryScanExecutionRepository executionRepository,
     IAdvisoryScanScheduleRepository scheduleRepository,
     IScanScheduleCalculator scheduleCalculator,
@@ -116,6 +118,8 @@ public sealed class AdvisoryScanRunner(
                 plan);
 
             await digestRepository.CreateAsync(digest, ct).ConfigureAwait(false);
+
+            await deliveryDispatcher.DeliverAsync(digest, ct).ConfigureAwait(false);
 
             execution.Status = "Completed";
             execution.CompletedUtc = DateTime.UtcNow;

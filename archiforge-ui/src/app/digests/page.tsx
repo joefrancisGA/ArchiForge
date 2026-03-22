@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getArchitectureDigest, listArchitectureDigests } from "@/lib/api";
+import {
+  getArchitectureDigest,
+  listArchitectureDigests,
+  listDigestDeliveryAttempts,
+} from "@/lib/api";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
+import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
 
 export default function DigestsPage() {
   const [digests, setDigests] = useState<ArchitectureDigest[]>([]);
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
+  const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -105,6 +111,27 @@ export default function DigestsPage() {
               >
                 {selected.contentMarkdown}
               </pre>
+
+              <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #eee" }}>
+                <h4 style={{ marginTop: 0, fontSize: 15 }}>Delivery attempts</h4>
+                {deliveryAttempts.length === 0 ? (
+                  <p style={{ color: "#666", fontSize: 14, margin: 0 }}>
+                    No attempts recorded (add subscriptions under <strong>Subscriptions</strong>).
+                  </p>
+                ) : (
+                  <ul style={{ fontSize: 13, paddingLeft: 20, margin: 0 }}>
+                    {deliveryAttempts.map((a) => (
+                      <li key={a.attemptId} style={{ marginBottom: 6 }}>
+                        <strong>{a.status}</strong> · {a.channelType} ·{" "}
+                        {new Date(a.attemptedUtc).toLocaleString()}
+                        {a.errorMessage ? (
+                          <span style={{ color: "crimson" }}> — {a.errorMessage}</span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </>
           ) : null}
         </section>
