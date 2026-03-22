@@ -300,3 +300,41 @@ BEGIN
         ON dbo.ProvenanceSnapshots (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC);
 END;
 GO
+
+IF OBJECT_ID('dbo.ConversationThreads', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ConversationThreads
+    (
+        ThreadId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        TenantId UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+        ProjectId UNIQUEIDENTIFIER NOT NULL,
+        RunId UNIQUEIDENTIFIER NULL,
+        BaseRunId UNIQUEIDENTIFIER NULL,
+        TargetRunId UNIQUEIDENTIFIER NULL,
+        Title NVARCHAR(300) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        LastUpdatedUtc DATETIME2 NOT NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ConversationThreads_Scope
+        ON dbo.ConversationThreads (TenantId, WorkspaceId, ProjectId, LastUpdatedUtc DESC);
+END;
+GO
+
+IF OBJECT_ID('dbo.ConversationMessages', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ConversationMessages
+    (
+        MessageId UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+        ThreadId UNIQUEIDENTIFIER NOT NULL,
+        Role NVARCHAR(50) NOT NULL,
+        Content NVARCHAR(MAX) NOT NULL,
+        CreatedUtc DATETIME2 NOT NULL,
+        MetadataJson NVARCHAR(MAX) NOT NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_ConversationMessages_ThreadId_CreatedUtc
+        ON dbo.ConversationMessages (ThreadId, CreatedUtc ASC);
+END;
+GO

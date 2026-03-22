@@ -13,6 +13,7 @@ using ArchiForge.Persistence.Provenance;
 using ArchiForge.Provenance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Compare;
+using ArchiForge.Persistence.Conversation;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Persistence.Replay;
@@ -86,6 +87,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
+        services.AddScoped<IConversationThreadRepository, DapperConversationThreadRepository>();
+        services.AddScoped<IConversationMessageRepository, DapperConversationMessageRepository>();
 
         return services;
     }

@@ -31,11 +31,16 @@ public sealed class AskController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Ask([FromBody] AskRequest request, CancellationToken ct = default)
     {
-        if (request.RunId is null)
-            return BadRequest(new { error = "RunId is required." });
-
         if (string.IsNullOrWhiteSpace(request.Question))
             return BadRequest(new { error = "Question is required." });
+
+        if (request.RunId is null && request.ThreadId is null)
+        {
+            return BadRequest(new
+            {
+                error = "Provide runId (new conversation) or threadId (continue an existing conversation)."
+            });
+        }
 
         var hasBase = request.BaseRunId.HasValue;
         var hasTarget = request.TargetRunId.HasValue;

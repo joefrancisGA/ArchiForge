@@ -22,6 +22,7 @@ using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.AgentRuntime.Explanation;
+using ArchiForge.Api.Ask;
 using ArchiForge.Api.Services.Ask;
 using ArchiForge.Core.Ask;
 using ArchiForge.Decisioning.Comparison;
@@ -189,6 +190,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IDecisionEngineV2, DecisionEngineV2>();
         services.AddSingleton<IComparisonService, ComparisonService>();
         services.AddScoped<IExplanationService, ExplanationService>();
+        services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<Application.Decisions.IAgentEvaluationService, Application.Decisions.DefaultAgentEvaluationService>();
         services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();

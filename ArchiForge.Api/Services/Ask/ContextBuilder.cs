@@ -11,12 +11,32 @@ public static class ContextBuilder
     private const int MaxGraphEdges = 200;
 
     public static object BuildContext(
-        GoldenManifest manifest,
+        GoldenManifest? manifest,
         GraphViewModel? provenance,
         ComparisonResult? comparison)
     {
+        if (manifest is null)
+        {
+            return new
+            {
+                ManifestAvailable = false,
+                Note =
+                    "No GoldenManifest is anchored for this turn. Rely on conversation history; " +
+                    "if the user asks for specifics not in history, say the manifest context is unavailable.",
+                ComparisonSummary = BuildComparisonSummary(comparison),
+                Changes = comparison?.DecisionChanges.Select(c => new
+                {
+                    c.DecisionKey,
+                    c.ChangeType,
+                    c.BaseValue,
+                    c.TargetValue
+                })
+            };
+        }
+
         return new
         {
+            ManifestAvailable = true,
             RunId = manifest.RunId,
             ManifestId = manifest.ManifestId,
             Summary = manifest.Metadata.Summary,
@@ -51,22 +71,7 @@ public static class ContextBuilder
                 c.BaseValue,
                 c.TargetValue
             }),
-            ComparisonSummary = comparison is null
-                ? null
-                : new
-                {
-                    comparison.BaseRunId,
-                    comparison.TargetRunId,
-                    comparison.SummaryHighlights,
-                    RequirementChangeCount = comparison.RequirementChanges.Count,
-                    SecurityChangeCount = comparison.SecurityChanges.Count,
-                    TopologyChangeCount = comparison.TopologyChanges.Count,
-                    CostChangeCount = comparison.CostChanges.Count,
-                    SampleRequirementChanges = comparison.RequirementChanges.Take(20)
-                        .Select(r => new { r.RequirementName, r.ChangeType }),
-                    SampleCostChanges = comparison.CostChanges.Take(10)
-                        .Select(x => new { x.BaseCost, x.TargetCost })
-                },
+            ComparisonSummary = BuildComparisonSummary(comparison),
             ProvenanceGraph = provenance is null
                 ? null
                 : new
@@ -80,4 +85,22 @@ public static class ContextBuilder
                 }
         };
     }
+
+    private static object? BuildComparisonSummary(ComparisonResult? comparison) =>
+        comparison is null
+            ? null
+            : new
+            {
+                comparison.BaseRunId,
+                comparison.TargetRunId,
+                comparison.SummaryHighlights,
+                RequirementChangeCount = comparison.RequirementChanges.Count,
+                SecurityChangeCount = comparison.SecurityChanges.Count,
+                TopologyChangeCount = comparison.TopologyChanges.Count,
+                CostChangeCount = comparison.CostChanges.Count,
+                SampleRequirementChanges = comparison.RequirementChanges.Take(20)
+                    .Select(r => new { r.RequirementName, r.ChangeType }),
+                SampleCostChanges = comparison.CostChanges.Take(10)
+                    .Select(x => new { x.BaseCost, x.TargetCost })
+            };
 }

@@ -11,7 +11,11 @@ import type {
   RunDetail,
   RunSummary,
 } from "@/types/authority";
-import type { AskResponse } from "@/types/ask";
+import type {
+  AskResponse,
+  ConversationMessage,
+  ConversationThread,
+} from "@/types/conversation";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -54,7 +58,7 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   return { url, headers };
 }
 
-async function apiGet<T>(path: string): Promise<T> {
+export async function apiGet<T>(path: string): Promise<T> {
   const { url, headers } = resolveRequest(path);
   const response = await fetch(url, {
     cache: "no-store",
@@ -68,7 +72,7 @@ async function apiGet<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
+export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   const { url, headers } = resolveRequest(path);
   const h = new Headers(headers);
   h.set("Content-Type", "application/json");
@@ -149,19 +153,29 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 }
 
 export async function askArchiForge(payload: {
-  runId: string;
+  threadId?: string;
+  runId?: string;
   question: string;
   baseRunId?: string;
   targetRunId?: string;
 }): Promise<AskResponse> {
   const body: Record<string, unknown> = {
-    runId: payload.runId,
     question: payload.question,
   };
+  if (payload.threadId?.trim()) body.threadId = payload.threadId.trim();
+  if (payload.runId?.trim()) body.runId = payload.runId.trim();
   if (payload.baseRunId?.trim()) body.baseRunId = payload.baseRunId.trim();
   if (payload.targetRunId?.trim()) body.targetRunId = payload.targetRunId.trim();
 
   return apiPostJson<AskResponse>("/api/ask", body);
+}
+
+export async function listConversationThreads(take = 50): Promise<ConversationThread[]> {
+  return apiGet(`/api/conversations?take=${take}`);
+}
+
+export async function getConversationMessages(threadId: string, take = 200): Promise<ConversationMessage[]> {
+  return apiGet(`/api/conversations/${encodeURIComponent(threadId)}/messages?take=${take}`);
 }
 
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {

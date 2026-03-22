@@ -1,9 +1,12 @@
 using System.Text.Json;
 using ArchiForge.AgentRuntime;
+using ArchiForge.Api.Ask;
 using ArchiForge.Core.Ask;
 using ArchiForge.Core.Comparison;
+using ArchiForge.Core.Conversation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
+using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Provenance;
 
@@ -13,8 +16,11 @@ public sealed class AskService(
     IAuthorityQueryService query,
     IProvenanceQueryService provenanceQuery,
     IComparisonService comparison,
-    IAgentCompletionClient llm) : IAskService
+    IAgentCompletionClient llm,
+    IConversationService conversationService) : IAskService
 {
+    private const int HistoryTake = 40;
+
     private static readonly JsonSerializerOptions JsonWrite = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -28,45 +34,81 @@ public sealed class AskService(
         AllowTrailingCommas = true
     };
 
+    private static readonly JsonSerializerOptions MetadataWrite = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     private const string ArchitectSystemPrompt =
-        "You are a senior enterprise architect. Answer the user's question using ONLY the provided context JSON. " +
+        "You are a senior enterprise architect. " +
+        "Use ONLY the provided architecture context JSON and conversation history. " +
         "Be precise and technical. Reference decisions by Title and SelectedOption (and DecisionId when helpful). " +
-        "Do not invent services, findings, artifacts, or costs not present in the context. " +
-        "If the context does not contain enough information, say what is unknown. " +
+        "Do not invent services, findings, artifacts, or costs not present in the context or prior turns. " +
+        "If something is unknown from the supplied data, say so. " +
+        "Use prior conversation only when it helps interpret follow-up questions (e.g. \"that decision\", \"the storage choice\"). " +
         "Respond with a single JSON object only (no markdown fences), keys: " +
         "answer (string), referencedDecisions (array of strings), referencedFindings (array of strings), " +
         "referencedArtifacts (array of strings — use provenance graph node labels where Type suggests an artifact, or empty array).";
 
     public async Task<AskResponse> AskAsync(AskRequest request, ScopeContext scope, CancellationToken ct)
     {
-        if (!request.RunId.HasValue)
-            throw new ArgumentException("RunId is required.", nameof(request));
-
         if (string.IsNullOrWhiteSpace(request.Question))
             throw new ArgumentException("Question is required.", nameof(request));
 
-        var detail = await query.GetRunDetailAsync(scope, request.RunId.Value, ct);
-        if (detail?.GoldenManifest is null)
-            throw new InvalidOperationException("Run not found or has no GoldenManifest for the current scope.");
+        var thread = await conversationService.GetOrCreateThreadAsync(
+            request.ThreadId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            request.RunId,
+            request.BaseRunId,
+            request.TargetRunId,
+            ct);
 
-        var graph = await provenanceQuery.GetFullGraphAsync(scope, request.RunId.Value, ct);
+        var effectiveRunId = request.RunId ?? thread.RunId;
+        var effectiveBaseRunId = request.BaseRunId ?? thread.BaseRunId;
+        var effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
+
+        if (!effectiveRunId.HasValue)
+        {
+            throw new InvalidOperationException(
+                "No run is anchored. Provide runId on the first message, or use a thread that already has a run.");
+        }
+
+        await conversationService.AppendUserMessageAsync(thread.ThreadId, request.Question.Trim(), ct);
+
+        var historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
+        var priorMessages = TrimCurrentUserTurn(historyWindow, request.Question.Trim());
+        var historyText = BuildConversationHistory(priorMessages);
+
+        var detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
+        if (detail?.GoldenManifest is null)
+        {
+            throw new InvalidOperationException(
+                "Run not found or has no GoldenManifest for the current scope.");
+        }
+
+        var manifest = detail.GoldenManifest;
+        var graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
 
         ComparisonResult? comparisonResult = null;
-        if (request.BaseRunId.HasValue && request.TargetRunId.HasValue)
+        if (effectiveBaseRunId.HasValue && effectiveTargetRunId.HasValue)
         {
-            var baseRun = await query.GetRunDetailAsync(scope, request.BaseRunId.Value, ct);
-            var targetRun = await query.GetRunDetailAsync(scope, request.TargetRunId.Value, ct);
+            var baseRun = await query.GetRunDetailAsync(scope, effectiveBaseRunId.Value, ct);
+            var targetRun = await query.GetRunDetailAsync(scope, effectiveTargetRunId.Value, ct);
             if (baseRun?.GoldenManifest is not null && targetRun?.GoldenManifest is not null)
                 comparisonResult = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         }
 
-        var context = ContextBuilder.BuildContext(detail.GoldenManifest, graph, comparisonResult);
+        var context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
         var contextJson = JsonSerializer.Serialize(context, JsonWrite);
 
         var userPrompt =
-            "Context:\n" +
+            "Conversation History:\n" +
+            (string.IsNullOrWhiteSpace(historyText) ? "(none)\n" : historyText + "\n") +
+            "\nArchitecture Context:\n" +
             contextJson +
-            "\n\nQuestion:\n" +
+            "\n\nUser Question:\n" +
             request.Question.Trim();
 
         string? raw;
@@ -78,19 +120,24 @@ public sealed class AskService(
         {
             return new AskResponse
             {
+                ThreadId = thread.ThreadId,
                 Answer =
                     "The assistant could not be reached. Summarize from context manually or retry. " +
-                    "Context included " + detail.GoldenManifest.Decisions.Count + " decision(s)."
+                    (manifest is not null
+                        ? "Context included " + manifest.Decisions.Count + " decision(s)."
+                        : "No manifest was loaded for this run.")
             };
         }
 
         raw = UnwrapJsonFence(raw);
         var parsed = TryDeserialize(raw);
 
+        AskResponse response;
         if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
         {
-            return new AskResponse
+            response = new AskResponse
             {
+                ThreadId = thread.ThreadId,
                 Answer = string.IsNullOrWhiteSpace(raw)
                     ? "No answer produced."
                     : raw.Trim(),
@@ -99,14 +146,60 @@ public sealed class AskService(
                 ReferencedArtifacts = []
             };
         }
-
-        return new AskResponse
+        else
         {
-            Answer = parsed.Answer.Trim(),
-            ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
-            ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
-            ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
-        };
+            response = new AskResponse
+            {
+                ThreadId = thread.ThreadId,
+                Answer = parsed.Answer.Trim(),
+                ReferencedDecisions = NormalizeList(parsed.ReferencedDecisions),
+                ReferencedFindings = NormalizeList(parsed.ReferencedFindings),
+                ReferencedArtifacts = NormalizeList(parsed.ReferencedArtifacts)
+            };
+        }
+
+        var metadataJson = JsonSerializer.Serialize(
+            new
+            {
+                response.ReferencedDecisions,
+                response.ReferencedFindings,
+                response.ReferencedArtifacts
+            },
+            MetadataWrite);
+
+        await conversationService.AppendAssistantMessageAsync(
+            thread.ThreadId,
+            response.Answer,
+            metadataJson,
+            ct);
+
+        return response;
+    }
+
+    /// <summary>Exclude the just-appended user message from the history block (it is repeated as User Question).</summary>
+    private static IReadOnlyList<ConversationMessage> TrimCurrentUserTurn(
+        IReadOnlyList<ConversationMessage> messages,
+        string question)
+    {
+        if (messages.Count == 0)
+            return messages;
+
+        var last = messages[messages.Count - 1];
+        if (last.Role == ConversationMessageRole.User &&
+            string.Equals(last.Content.Trim(), question, StringComparison.Ordinal))
+            return messages.Take(messages.Count - 1).ToList();
+
+        return messages;
+    }
+
+    private static string BuildConversationHistory(IReadOnlyList<ConversationMessage> messages)
+    {
+        if (messages.Count == 0)
+            return string.Empty;
+
+        return string.Join(
+            Environment.NewLine,
+            messages.Select(m => $"{m.Role}: {m.Content}"));
     }
 
     private static List<string> NormalizeList(IEnumerable<string>? items) =>
