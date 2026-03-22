@@ -1,4 +1,5 @@
 using ArchiForge.Core.Comparison;
+using ArchiForge.Core.Explanation;
 
 namespace ArchiForge.ArtifactSynthesis.Docx.Models;
 
@@ -20,4 +21,10 @@ public class DocxExportRequest
 
     /// <summary>When set, appends an architecture comparison section (base = this export run).</summary>
     public ComparisonResult? ManifestComparison { get; set; }
+
+    /// <summary>AI narrative when a manifest comparison is included.</summary>
+    public ComparisonExplanationResult? ComparisonExplanation { get; set; }
+
+    /// <summary>Optional AI narrative for the primary run (executive / stakeholder wording).</summary>
+    public ExplanationResult? RunExplanation { get; set; }
 }

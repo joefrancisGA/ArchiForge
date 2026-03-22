@@ -2,6 +2,7 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
+import type { ComparisonExplanation, RunExplanation } from "@/types/explanation";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -99,6 +100,28 @@ export async function compareRuns(leftRunId: string, rightRunId: string): Promis
   );
 }
 
+export async function compareGoldenManifestRuns(
+  baseRunId: string,
+  targetRunId: string,
+): Promise<GoldenManifestComparison> {
+  return apiGet<GoldenManifestComparison>(
+    `/api/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+  );
+}
+
+export async function explainComparisonRuns(
+  baseRunId: string,
+  targetRunId: string,
+): Promise<ComparisonExplanation> {
+  return apiGet<ComparisonExplanation>(
+    `/api/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+  );
+}
+
+export async function explainRun(runId: string): Promise<RunExplanation> {
+  return apiGet<RunExplanation>(`/api/explain/runs/${encodeURIComponent(runId)}/explain`);
+}
+
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
   const { url, headers } = resolveRequest("/api/authority/replay");
   const h = new Headers(headers);
@@ -130,11 +153,18 @@ export function getRunExportDownloadUrl(runId: string): string {
   return `/api/proxy/api/artifacts/runs/${runId}/export`;
 }
 
-/** DOCX package; optional second run appends comparison section. */
-export function getArchitecturePackageDocxUrl(runId: string, compareWithRunId?: string): string {
-  const q =
-    compareWithRunId && compareWithRunId.trim().length > 0
-      ? `?compareWithRunId=${encodeURIComponent(compareWithRunId.trim())}`
-      : "";
-  return `/api/proxy/api/docx/runs/${runId}/architecture-package${q}`;
+/** DOCX package; optional compare + AI narrative flags. */
+export function getArchitecturePackageDocxUrl(
+  runId: string,
+  compareWithRunId?: string,
+  opts?: { explainRun?: boolean; includeComparisonExplanation?: boolean },
+): string {
+  const params = new URLSearchParams();
+  if (compareWithRunId?.trim())
+    params.set("compareWithRunId", compareWithRunId.trim());
+  if (opts?.explainRun) params.set("explainRun", "true");
+  if (opts?.includeComparisonExplanation === false)
+    params.set("includeComparisonExplanation", "false");
+  const q = params.toString();
+  return `/api/proxy/api/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
 }

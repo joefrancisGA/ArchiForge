@@ -3,6 +3,7 @@ using ArchiForge.ArtifactSynthesis.Docx.Helpers;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Comparison;
+using ArchiForge.Core.Explanation;
 using ArchiForge.Decisioning.Models;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -76,6 +77,9 @@ public sealed class DocxExportService : IDocxExportService
             WordDocumentBuilder.AddMultilineBodyText(body, manifest.Metadata.Summary);
 
         WordDocumentBuilder.AddSpacer(body);
+
+        if (request.RunExplanation is not null)
+            AppendRunExplanation(body, request.RunExplanation);
 
         if (request.IncludeArchitectureDiagram)
         {
@@ -214,6 +218,12 @@ public sealed class DocxExportService : IDocxExportService
 
         WordDocumentBuilder.AddSpacer(body);
 
+        if (request.ManifestComparison is not null)
+            AppendManifestComparison(body, request.ManifestComparison);
+
+        if (request.ComparisonExplanation is not null)
+            AppendComparisonExplanation(body, request.ComparisonExplanation);
+
         if (request.IncludeArtifactsAppendix)
         {
             WordDocumentBuilder.AddHeading(body, "Appendix A — Artifacts", DocxStyleIds.Heading1);
@@ -322,6 +332,38 @@ public sealed class DocxExportService : IDocxExportService
         }
 
         WordDocumentBuilder.AddSpacer(body);
+    }
+
+    private static void AppendRunExplanation(Body body, ExplanationResult e)
+    {
+        WordDocumentBuilder.AddHeading(body, "Executive Narrative (AI)", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddBodyText(body, e.Summary);
+        WordDocumentBuilder.AddSpacer(body);
+        WordDocumentBuilder.AddHeading(body, "Key Drivers", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(body, e.KeyDrivers.Count > 0 ? e.KeyDrivers : ["(none)"]);
+        WordDocumentBuilder.AddHeading(body, "Risk Implications", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(body, e.RiskImplications.Count > 0 ? e.RiskImplications : ["(none)"]);
+        WordDocumentBuilder.AddHeading(body, "Cost Implications", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(body, e.CostImplications.Count > 0 ? e.CostImplications : ["(none)"]);
+        WordDocumentBuilder.AddHeading(body, "Compliance Implications", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(body, e.ComplianceImplications.Count > 0 ? e.ComplianceImplications : ["(none)"]);
+        WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddMultilineBodyText(body, e.DetailedNarrative);
+        WordDocumentBuilder.AddSpacer(body, 2);
+    }
+
+    private static void AppendComparisonExplanation(Body body, ComparisonExplanationResult e)
+    {
+        WordDocumentBuilder.AddHeading(body, "Executive Change Narrative (AI)", DocxStyleIds.Heading1);
+        WordDocumentBuilder.AddBodyText(body, e.HighLevelSummary);
+        WordDocumentBuilder.AddSpacer(body);
+        WordDocumentBuilder.AddHeading(body, "Major Changes (structured)", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(body, e.MajorChanges.Count > 0 ? e.MajorChanges : ["(none)"]);
+        WordDocumentBuilder.AddHeading(body, "Key Tradeoffs (AI)", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddBulletList(body, e.KeyTradeoffs.Count > 0 ? e.KeyTradeoffs : ["(none)"]);
+        WordDocumentBuilder.AddHeading(body, "Detailed Explanation", DocxStyleIds.Heading2);
+        WordDocumentBuilder.AddMultilineBodyText(body, e.Narrative);
+        WordDocumentBuilder.AddSpacer(body, 2);
     }
 
     private static string FormatOptional(string? v) => string.IsNullOrEmpty(v) ? "—" : v;

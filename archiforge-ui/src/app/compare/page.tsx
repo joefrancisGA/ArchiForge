@@ -5,9 +5,11 @@ import { useSearchParams } from "next/navigation";
 import {
   compareGoldenManifestRuns,
   compareRuns,
+  explainComparisonRuns,
   getArchitecturePackageDocxUrl,
 } from "@/lib/api";
 import type { GoldenManifestComparison } from "@/types/comparison";
+import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
 
 function CompareForm() {
@@ -33,6 +35,8 @@ function CompareForm() {
     setGoldenError(null);
     setResult(null);
     setGolden(null);
+    setAiExplanation(null);
+    setAiError(null);
 
     try {
       const legacy = await compareRuns(leftRunId, rightRunId);
@@ -50,6 +54,21 @@ function CompareForm() {
       );
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadAiExplanation() {
+    if (!leftRunId || !rightRunId) return;
+    setAiLoading(true);
+    setAiError(null);
+    setAiExplanation(null);
+    try {
+      const ex = await explainComparisonRuns(leftRunId, rightRunId);
+      setAiExplanation(ex);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "AI explanation failed.");
+    } finally {
+      setAiLoading(false);
     }
   }
 
@@ -75,18 +94,29 @@ function CompareForm() {
           placeholder="Target run ID (right)"
           style={{ padding: 8 }}
         />
-        <button
-          type="button"
-          onClick={() => void onCompare()}
-          disabled={loading || !leftRunId || !rightRunId}
-          style={{ padding: "10px 16px", width: "fit-content" }}
-        >
-          {loading ? "Comparing…" : "Compare"}
-        </button>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+          <button
+            type="button"
+            onClick={() => void onCompare()}
+            disabled={loading || !leftRunId || !rightRunId}
+            style={{ padding: "10px 16px" }}
+          >
+            {loading ? "Comparing…" : "Compare"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void loadAiExplanation()}
+            disabled={aiLoading || !leftRunId || !rightRunId}
+            style={{ padding: "10px 16px" }}
+          >
+            {aiLoading ? "Explaining…" : "Explain changes (AI)"}
+          </button>
+        </div>
       </div>
 
       {error && <p style={{ color: "crimson" }}>{error}</p>}
       {goldenError && <p style={{ color: "darkorange" }}>{goldenError}</p>}
+      {aiError && <p style={{ color: "darkorange" }}>{aiError}</p>}
 
       {golden && (
         <section style={{ marginTop: 28 }}>
@@ -95,8 +125,13 @@ function CompareForm() {
             Base: {golden.baseRunId} → Target: {golden.targetRunId}
           </p>
           <p>
-            <a href={getArchitecturePackageDocxUrl(leftRunId, rightRunId)} rel="noreferrer">
-              Download architecture package DOCX (includes comparison section)
+            <a
+              href={getArchitecturePackageDocxUrl(leftRunId, rightRunId, {
+                includeComparisonExplanation: true,
+              })}
+              rel="noreferrer"
+            >
+              Download architecture package DOCX (comparison + AI narrative when LLM is configured)
             </a>
           </p>
 
@@ -171,6 +206,29 @@ function CompareForm() {
               ))}
             </ul>
           )}
+        </section>
+      )}
+
+      {aiExplanation && (
+        <section style={{ marginTop: 28 }}>
+          <h3>AI explanation</h3>
+          <p style={{ fontWeight: 600 }}>{aiExplanation.highLevelSummary}</p>
+          <h4>Major changes (from structured delta)</h4>
+          <ul>
+            {aiExplanation.majorChanges.map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+          <h4>Key tradeoffs</h4>
+          <ul>
+            {aiExplanation.keyTradeoffs.length === 0 ? (
+              <li>—</li>
+            ) : (
+              aiExplanation.keyTradeoffs.map((line, i) => <li key={i}>{line}</li>)
+            )}
+          </ul>
+          <h4>Narrative</h4>
+          <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{aiExplanation.narrative}</p>
         </section>
       )}
 
