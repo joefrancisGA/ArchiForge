@@ -11,6 +11,7 @@ import type {
   RunDetail,
   RunSummary,
 } from "@/types/authority";
+import type { AskResponse } from "@/types/ask";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -62,6 +63,31 @@ async function apiGet<T>(path: string): Promise<T> {
 
   if (!response.ok) {
     throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
+  const { url, headers } = resolveRequest(path);
+  const h = new Headers(headers);
+  h.set("Content-Type", "application/json");
+  const response = await fetch(url, {
+    method: "POST",
+    headers: h,
+    cache: "no-store",
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    let detail = "";
+    try {
+      const err = (await response.json()) as { error?: string };
+      if (err?.error) detail = `: ${err.error}`;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(`Request failed: ${response.status} ${response.statusText}${detail}`);
   }
 
   return response.json() as Promise<T>;
@@ -120,6 +146,22 @@ export async function explainComparisonRuns(
 
 export async function explainRun(runId: string): Promise<RunExplanation> {
   return apiGet<RunExplanation>(`/api/explain/runs/${encodeURIComponent(runId)}/explain`);
+}
+
+export async function askArchiForge(payload: {
+  runId: string;
+  question: string;
+  baseRunId?: string;
+  targetRunId?: string;
+}): Promise<AskResponse> {
+  const body: Record<string, unknown> = {
+    runId: payload.runId,
+    question: payload.question,
+  };
+  if (payload.baseRunId?.trim()) body.baseRunId = payload.baseRunId.trim();
+  if (payload.targetRunId?.trim()) body.targetRunId = payload.targetRunId.trim();
+
+  return apiPostJson<AskResponse>("/api/ask", body);
 }
 
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
