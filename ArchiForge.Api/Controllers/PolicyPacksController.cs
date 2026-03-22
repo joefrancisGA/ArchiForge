@@ -8,6 +8,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -20,15 +21,13 @@ public sealed class PolicyPacksController(
     IScopeContextProvider scopeProvider,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
-    IPolicyPackAssignmentRepository assignmentRepository,
     IPolicyPackManagementService managementService,
     IPolicyPackResolver resolver,
     IEffectiveGovernanceLoader governanceLoader,
-    IAuditService auditService)
+    IAuditService auditService,
+    ILogger<PolicyPacksController> logger)
     : ControllerBase
 {
-    private readonly IPolicyPackAssignmentRepository _assignmentRepository = assignmentRepository;
-
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -120,6 +119,14 @@ public sealed class PolicyPacksController(
                     new { assignment.AssignmentId, policyPackId, version = assignment.PolicyPackVersion }),
             },
             ct);
+
+        logger.LogInformation(
+            "Policy pack assigned. TenantId={TenantId}, WorkspaceId={WorkspaceId}, ProjectId={ProjectId}, PolicyPackId={PolicyPackId}, Version={Version}",
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            policyPackId,
+            versionKey);
 
         return Ok(assignment);
     }

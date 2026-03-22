@@ -6,6 +6,10 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
 {
     public ScopeContext GetCurrentScope()
     {
+        var ambient = AmbientScopeContext.CurrentOverride;
+        if (ambient is not null)
+            return ambient;
+
         var http = httpContextAccessor.HttpContext;
         var user = http?.User;
         var headers = http?.Request.Headers;

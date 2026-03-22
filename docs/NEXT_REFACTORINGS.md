@@ -893,3 +893,21 @@ Candidates for the next round of refactors, in rough priority order.
 - [x] 65. Decisioning.Tests: `ComplianceRulePackGovernanceFilter` unit tests
 - [x] 66. Api.Tests: integration test for merged `complianceRuleKeys` on `effective-content`
 - [x] 67. Api: Swagger top-level description mentions `v1` policy packs + alert-related routes
+
+---
+
+## Batch (suggested §68–87 — integrated subset, non-breaking)
+
+The following were implemented together for safer operator APIs, tests, and background scope (no SemVer breaking change on publish, no assign behavior change).
+
+| Item | Done |
+|------|------|
+| Ambient scope for advisory scan + `HttpScopeContextProvider` fallback | `AmbientScopeContext`, advisory `RunScheduleAsync` |
+| Swagger: alert POST examples | `AlertExamplesOperationFilter` |
+| Swagger: tag grouping (Governance / Alerts & routing / Digest) | `SwaggerExtensions.TagActionsBy` |
+| Route constants for tests | `ApiV1Routes` |
+| FluentValidation: simulation, compare-candidates, tuning, alert/composite rule bodies | `*Validator` types in `ArchiForge.Api/Validators` |
+| `AlertEvaluationContextFactory` | `ForAdvisoryScan` + `AdvisoryScanRunner` |
+| Structured logs on policy publish/assign | `ILogger<PolicyPacksController>` |
+| Tests: `PolicyPackGovernanceFilter`, `ImprovementPlan` JSON, alert list smoke, two-assignment merge, assign 404 `type` | `Decisioning.Tests`, `Api.Tests` |
+| Docs: multi-assignment merge, ambient scope, rate limit pointer | `API_CONTRACTS.md` |

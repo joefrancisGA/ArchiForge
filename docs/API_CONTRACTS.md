@@ -78,6 +78,10 @@ Governance is packaged as **versioned, assignable** bundles. Pack **content** is
 
 **Alerts / digest / tuning / simulation** routes use the same URL versioning pattern, e.g. **`/v1/alerts`**, **`/v1/alert-rules`**, **`/v1/composite-alert-rules`**, **`/v1/alert-simulation/...`**, **`/v1/alert-tuning/...`**, **`/v1/alert-routing-subscriptions`**, **`/v1/digest-subscriptions`**.
 
-Compliance filtering in API requests follows **`IScopeContextProvider`**; background workers without HTTP scope should align tenant/project context with the run being evaluated when relying on policy-filtered compliance.
+Compliance filtering in API requests follows **`IScopeContextProvider`**. For **advisory scheduled scans**, the runner pushes an **ambient `ScopeContext`** (see **`AmbientScopeContext`**) for the duration of the scan so scoped services (including filtered compliance) see the schedule’s tenant/workspace/project even without an HTTP request.
+
+**Multiple assignments:** Enabled assignments for the same scope are returned in **`AssignedUtc` descending** order. **`GET .../effective`** lists each resolved pack separately; **`GET .../effective-content`** merges all of them (union of ID lists, **`complianceRuleKeys`** / **`complianceRuleIds`** distinct, **`advisoryDefaults`** / **`metadata`** last-wins per key).
+
+**Rate limiting:** Governance and alert **`/v1/...`** controllers use the **`fixed`** window unless noted elsewhere (e.g. **expensive** / **replay** on architecture flows). See **README.md** (Rate limiting table) and **`RateLimiting:*`** configuration keys.
 
 Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-id`**, **`x-project-id`** optional).

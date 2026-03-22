@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc.Controllers;
+
 namespace ArchiForge.Api.Startup;
 
 internal static class SwaggerExtensions
@@ -6,6 +8,24 @@ internal static class SwaggerExtensions
     {
         services.AddSwaggerGen(c =>
         {
+            c.TagActionsBy(api =>
+            {
+                if (api.ActionDescriptor is ControllerActionDescriptor cad)
+                {
+                    var tag = cad.ControllerName switch
+                    {
+                        "PolicyPacks" => "Governance",
+                        "AlertRules" or "Alerts" or "AlertSimulation" or "AlertTuning" or "CompositeAlertRules"
+                            or "AlertRoutingSubscriptions" => "Alerts & routing",
+                        "DigestSubscriptions" => "Digest subscriptions",
+                        _ => cad.ControllerName,
+                    };
+                    return [tag];
+                }
+
+                return [api.GroupName ?? "API"];
+            });
+
             c.SwaggerDoc("v1", new()
             {
                 Title = "ArchiForge API",
@@ -17,6 +37,7 @@ internal static class SwaggerExtensions
             c.OperationFilter<Swagger.ComparisonHistoryQueryOperationFilter>();
             c.OperationFilter<Swagger.ProblemDetailsResponsesOperationFilter>();
             c.OperationFilter<Swagger.PolicyPackExamplesOperationFilter>();
+            c.OperationFilter<Swagger.AlertExamplesOperationFilter>();
         });
         return services;
     }

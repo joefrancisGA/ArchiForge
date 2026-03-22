@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -182,7 +183,66 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
 
         assign.StatusCode.Should().Be(HttpStatusCode.NotFound);
         var text = await assign.Content.ReadAsStringAsync();
-        text.Should().ContainEquivalentOf("policy-pack-version-not-found");
+        using var problem = JsonDocument.Parse(text);
+        var root = problem.RootElement;
+        var typeString = root.TryGetProperty("type", out var camel)
+            ? camel.GetString()
+            : root.GetProperty("Type").GetString();
+        typeString.Should().Contain("policy-pack-version-not-found");
+    }
+
+    [Fact]
+    public async Task EffectiveContent_UnionsComplianceRuleKeys_FromTwoAssignments()
+    {
+        async Task<Guid> CreatePackAsync(string name, string complianceKey)
+        {
+            var contentJson = $$"""
+                {
+                  "complianceRuleIds": [],
+                  "complianceRuleKeys": [ "{{complianceKey}}" ],
+                  "alertRuleIds": [],
+                  "compositeAlertRuleIds": [],
+                  "advisoryDefaults": {},
+                  "metadata": {}
+                }
+                """;
+
+            var createResponse = await Client.PostAsync(
+                "/v1/policy-packs",
+                JsonContent(
+                    new
+                    {
+                        name,
+                        description = "",
+                        packType = "ProjectCustom",
+                        initialContentJson = contentJson,
+                    }));
+            createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var created = await createResponse.Content.ReadFromJsonAsync<PolicyPackResponse>(JsonOptions);
+            return created!.PolicyPackId;
+        }
+
+        var packA = await CreatePackAsync("merge-pack-a", "merge-key-a");
+        var packB = await CreatePackAsync("merge-pack-b", "merge-key-b");
+
+        (await Client.PostAsync(
+                $"/v1/policy-packs/{packA}/assign",
+                JsonContent(new { version = "1.0.0" })))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+        (await Client.PostAsync(
+                $"/v1/policy-packs/{packB}/assign",
+                JsonContent(new { version = "1.0.0" })))
+            .StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var effectiveResponse = await Client.GetAsync("/v1/policy-packs/effective");
+        effectiveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var effectiveSet = await effectiveResponse.Content.ReadFromJsonAsync<EffectivePolicyPackSetResponse>(JsonOptions);
+        effectiveSet!.Packs.Should().HaveCount(2);
+
+        var mergedResponse = await Client.GetAsync("/v1/policy-packs/effective-content");
+        mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
+        merged!.ComplianceRuleKeys.Should().BeEquivalentTo(["merge-key-a", "merge-key-b"]);
     }
 
     private sealed class PolicyPackResponse
