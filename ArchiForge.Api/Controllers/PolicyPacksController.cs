@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
@@ -13,7 +14,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/policy-packs")]
+[Route("v{version:apiVersion}/policy-packs")]
 [EnableRateLimiting("fixed")]
 public sealed class PolicyPacksController(
     IScopeContextProvider scopeProvider,
@@ -86,19 +87,29 @@ public sealed class PolicyPacksController(
     [HttpPost("{policyPackId:guid}/assign")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PolicyPackAssignment>> Assign(
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Assign(
         Guid policyPackId,
         [FromBody] AssignPolicyPackRequest request,
         CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
 
+        var versionKey = request.Version.Trim();
+        var packVersion = await versionRepository.GetByPackAndVersionAsync(policyPackId, versionKey, ct);
+        if (packVersion is null)
+        {
+            return this.NotFoundProblem(
+                $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
+                ProblemTypes.PolicyPackVersionNotFound);
+        }
+
         var assignment = await managementService.AssignAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             policyPackId,
-            request.Version.Trim(),
+            versionKey,
             ct);
 
         await auditService.LogAsync(

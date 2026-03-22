@@ -17,7 +17,7 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
             initialContentJson = "{ not valid json",
         };
 
-        var response = await Client.PostAsync("/api/policy-packs", JsonContent(body));
+        var response = await Client.PostAsync("/v1/policy-packs", JsonContent(body));
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var text = await response.Content.ReadAsStringAsync();

@@ -80,12 +80,12 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
 
     private sealed class GraphSnapshotRow
     {
-        public Guid GraphSnapshotId { get; set; }
-        public Guid ContextSnapshotId { get; set; }
-        public Guid RunId { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public string NodesJson { get; set; } = null!;
-        public string EdgesJson { get; set; } = null!;
-        public string WarningsJson { get; set; } = null!;
+        public Guid GraphSnapshotId { get; init; }
+        public Guid ContextSnapshotId { get; init; }
+        public Guid RunId { get; init; }
+        public DateTime CreatedUtc { get; init; }
+        public string NodesJson { get; init; } = null!;
+        public string EdgesJson { get; init; } = null!;
+        public string WarningsJson { get; init; } = null!;
     }
 }

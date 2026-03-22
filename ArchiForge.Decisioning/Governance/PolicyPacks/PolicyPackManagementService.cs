@@ -54,17 +54,34 @@ public sealed class PolicyPackManagementService(
         string contentJson,
         CancellationToken ct)
     {
-        var packVersion = new PolicyPackVersion
-        {
-            PolicyPackVersionId = Guid.NewGuid(),
-            PolicyPackId = policyPackId,
-            Version = version,
-            ContentJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson,
-            CreatedUtc = DateTime.UtcNow,
-            IsPublished = true,
-        };
+        var normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
 
-        await versionRepository.CreateAsync(packVersion, ct).ConfigureAwait(false);
+        var existing = await versionRepository
+            .GetByPackAndVersionAsync(policyPackId, version, ct)
+            .ConfigureAwait(false);
+
+        PolicyPackVersion packVersion;
+        if (existing is not null)
+        {
+            existing.ContentJson = normalizedJson;
+            existing.IsPublished = true;
+            await versionRepository.UpdateAsync(existing, ct).ConfigureAwait(false);
+            packVersion = existing;
+        }
+        else
+        {
+            packVersion = new PolicyPackVersion
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
+                Version = version,
+                ContentJson = normalizedJson,
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            };
+
+            await versionRepository.CreateAsync(packVersion, ct).ConfigureAwait(false);
+        }
 
         var pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
         if (pack is not null)

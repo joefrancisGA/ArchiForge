@@ -32,6 +32,7 @@ public sealed class EffectiveGovernanceLoader(IPolicyPackResolver resolver) : IE
                 continue;
 
             merged.ComplianceRuleIds.AddRange(doc.ComplianceRuleIds);
+            merged.ComplianceRuleKeys.AddRange(doc.ComplianceRuleKeys);
             merged.AlertRuleIds.AddRange(doc.AlertRuleIds);
             merged.CompositeAlertRuleIds.AddRange(doc.CompositeAlertRuleIds);
 
@@ -43,6 +44,7 @@ public sealed class EffectiveGovernanceLoader(IPolicyPackResolver resolver) : IE
         }
 
         merged.ComplianceRuleIds = merged.ComplianceRuleIds.Distinct().ToList();
+        merged.ComplianceRuleKeys = merged.ComplianceRuleKeys.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         merged.AlertRuleIds = merged.AlertRuleIds.Distinct().ToList();
         merged.CompositeAlertRuleIds = merged.CompositeAlertRuleIds.Distinct().ToList();
 

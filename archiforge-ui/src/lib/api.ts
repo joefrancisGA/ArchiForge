@@ -264,7 +264,7 @@ export async function listArchitectureDigests(take = 20): Promise<ArchitectureDi
 }
 
 export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
-  return apiGet<DigestSubscription[]>("/api/digest-subscriptions");
+  return apiGet<DigestSubscription[]>("/v1/digest-subscriptions");
 }
 
 export async function createDigestSubscription(body: {
@@ -274,7 +274,7 @@ export async function createDigestSubscription(body: {
   isEnabled?: boolean;
   metadataJson?: string;
 }): Promise<DigestSubscription> {
-  return apiPostJson<DigestSubscription>("/api/digest-subscriptions", {
+  return apiPostJson<DigestSubscription>("/v1/digest-subscriptions", {
     name: body.name,
     channelType: body.channelType,
     destination: body.destination,
@@ -295,7 +295,7 @@ export async function listSubscriptionDeliveryAttempts(
   take = 50,
 ): Promise<DigestDeliveryAttempt[]> {
   return apiGet<DigestDeliveryAttempt[]>(
-    `/api/digest-subscriptions/${encodeURIComponent(subscriptionId)}/attempts?take=${take}`,
+    `/v1/digest-subscriptions/${encodeURIComponent(subscriptionId)}/attempts?take=${take}`,
   );
 }
 
@@ -312,7 +312,7 @@ export async function getArchitectureDigest(digestId: string): Promise<Architect
 }
 
 export async function listAlertRules(): Promise<AlertRule[]> {
-  return apiGet<AlertRule[]>("/api/alert-rules");
+  return apiGet<AlertRule[]>("/v1/alert-rules");
 }
 
 export async function createAlertRule(body: {
@@ -324,7 +324,7 @@ export async function createAlertRule(body: {
   targetChannelType?: string;
   metadataJson?: string;
 }): Promise<AlertRule> {
-  return apiPostJson<AlertRule>("/api/alert-rules", {
+  return apiPostJson<AlertRule>("/v1/alert-rules", {
     name: body.name,
     ruleType: body.ruleType,
     severity: body.severity,
@@ -340,7 +340,7 @@ export async function listAlerts(status: string | null, take = 100): Promise<Ale
   if (status) q.set("status", status);
   q.set("take", String(take));
   const suffix = q.toString();
-  return apiGet<AlertRecord[]>(`/api/alerts${suffix ? `?${suffix}` : ""}`);
+  return apiGet<AlertRecord[]>(`/v1/alerts${suffix ? `?${suffix}` : ""}`);
 }
 
 export async function applyAlertAction(
@@ -348,14 +348,14 @@ export async function applyAlertAction(
   action: "Acknowledge" | "Resolve" | "Suppress",
   comment?: string,
 ): Promise<AlertRecord> {
-  return apiPostJson<AlertRecord>(`/api/alerts/${encodeURIComponent(alertId)}/action`, {
+  return apiPostJson<AlertRecord>(`/v1/alerts/${encodeURIComponent(alertId)}/action`, {
     action,
     comment: comment ?? "",
   });
 }
 
 export async function listAlertRoutingSubscriptions(): Promise<AlertRoutingSubscription[]> {
-  return apiGet<AlertRoutingSubscription[]>("/api/alert-routing-subscriptions");
+  return apiGet<AlertRoutingSubscription[]>("/v1/alert-routing-subscriptions");
 }
 
 export async function createAlertRoutingSubscription(body: {
@@ -366,7 +366,7 @@ export async function createAlertRoutingSubscription(body: {
   isEnabled?: boolean;
   metadataJson?: string;
 }): Promise<AlertRoutingSubscription> {
-  return apiPostJson<AlertRoutingSubscription>("/api/alert-routing-subscriptions", {
+  return apiPostJson<AlertRoutingSubscription>("/v1/alert-routing-subscriptions", {
     name: body.name,
     channelType: body.channelType,
     destination: body.destination,
@@ -380,7 +380,7 @@ export async function toggleAlertRoutingSubscription(
   routingSubscriptionId: string,
 ): Promise<AlertRoutingSubscription> {
   return apiPostJson<AlertRoutingSubscription>(
-    `/api/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/toggle`,
+    `/v1/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/toggle`,
     {},
   );
 }
@@ -390,7 +390,7 @@ export async function listAlertRoutingDeliveryAttempts(
   take = 30,
 ): Promise<AlertRoutingDeliveryAttempt[]> {
   return apiGet<AlertRoutingDeliveryAttempt[]>(
-    `/api/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
+    `/v1/alert-routing-subscriptions/${encodeURIComponent(routingSubscriptionId)}/attempts?take=${take}`,
   );
 }
 
@@ -408,25 +408,25 @@ export async function simulateAlertRule(body: {
   useHistoricalWindow?: boolean;
   runProjectSlug?: string;
 }): Promise<RuleSimulationResult> {
-  return apiPostJson<RuleSimulationResult>("/api/alert-simulation/simulate", body);
+  return apiPostJson<RuleSimulationResult>("/v1/alert-simulation/simulate", body);
 }
 
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
-  return apiGet<PolicyPack[]>("/api/policy-packs");
+  return apiGet<PolicyPack[]>("/v1/policy-packs");
 }
 
 export async function listPolicyPackVersions(policyPackId: string): Promise<PolicyPackVersion[]> {
   return apiGet<PolicyPackVersion[]>(
-    `/api/policy-packs/${encodeURIComponent(policyPackId)}/versions`,
+    `/v1/policy-packs/${encodeURIComponent(policyPackId)}/versions`,
   );
 }
 
 export async function getEffectivePolicyPacks(): Promise<EffectivePolicyPackSet> {
-  return apiGet<EffectivePolicyPackSet>("/api/policy-packs/effective");
+  return apiGet<EffectivePolicyPackSet>("/v1/policy-packs/effective");
 }
 
 export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocument> {
-  return apiGet<PolicyPackContentDocument>("/api/policy-packs/effective-content");
+  return apiGet<PolicyPackContentDocument>("/v1/policy-packs/effective-content");
 }
 
 export async function createPolicyPack(body: {
@@ -443,7 +443,7 @@ export async function publishPolicyPackVersion(
   body: { version: string; contentJson?: string },
 ): Promise<PolicyPackVersion> {
   return apiPostJson<PolicyPackVersion>(
-    `/api/policy-packs/${encodeURIComponent(policyPackId)}/publish`,
+    `/v1/policy-packs/${encodeURIComponent(policyPackId)}/publish`,
     body,
   );
 }
@@ -453,7 +453,7 @@ export async function assignPolicyPack(
   body: { version: string },
 ): Promise<PolicyPackAssignment> {
   return apiPostJson<PolicyPackAssignment>(
-    `/api/policy-packs/${encodeURIComponent(policyPackId)}/assign`,
+    `/v1/policy-packs/${encodeURIComponent(policyPackId)}/assign`,
     body,
   );
 }
@@ -469,7 +469,7 @@ export async function recommendAlertThreshold(body: {
   baseSimpleRule?: Record<string, unknown> | null;
   baseCompositeRule?: Record<string, unknown> | null;
 }): Promise<ThresholdRecommendationResult> {
-  return apiPostJson<ThresholdRecommendationResult>("/api/alert-tuning/recommend-threshold", body);
+  return apiPostJson<ThresholdRecommendationResult>("/v1/alert-tuning/recommend-threshold", body);
 }
 
 export async function compareAlertRuleCandidates(body: {
@@ -482,7 +482,7 @@ export async function compareAlertRuleCandidates(body: {
   runProjectSlug?: string;
 }): Promise<RuleCandidateComparisonResult> {
   return apiPostJson<RuleCandidateComparisonResult>(
-    "/api/alert-simulation/compare-candidates",
+    "/v1/alert-simulation/compare-candidates",
     body,
   );
 }
@@ -499,7 +499,7 @@ export async function createCompositeAlertRule(body: {
   targetChannelType?: string;
   conditions: { metricType: string; operator: string; thresholdValue: number }[];
 }): Promise<CompositeAlertRule> {
-  return apiPostJson<CompositeAlertRule>("/api/composite-alert-rules", {
+  return apiPostJson<CompositeAlertRule>("/v1/composite-alert-rules", {
     name: body.name,
     severity: body.severity,
     operator: body.operator,

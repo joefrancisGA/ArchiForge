@@ -37,9 +37,9 @@ public static class ContextBuilder
         return new
         {
             ManifestAvailable = true,
-            RunId = manifest.RunId,
-            ManifestId = manifest.ManifestId,
-            Summary = manifest.Metadata.Summary,
+            manifest.RunId,
+            manifest.ManifestId,
+            manifest.Metadata.Summary,
             Decisions = manifest.Decisions.Select(d => new
             {
                 d.DecisionId,
@@ -50,13 +50,12 @@ public static class ContextBuilder
                 d.SupportingFindingIds
             }),
             Findings = manifest.Provenance.SourceFindingIds,
-            SourceGraphNodeIds = manifest.Provenance.SourceGraphNodeIds,
-            AppliedRuleIds = manifest.Provenance.AppliedRuleIds,
+            manifest.Provenance.SourceGraphNodeIds,
+            manifest.Provenance.AppliedRuleIds,
             ComplianceGaps = manifest.Compliance.Gaps,
             Cost = new
             {
-                manifest.Cost.MaxMonthlyCost,
-                CostRisks = manifest.Cost.CostRisks
+                manifest.Cost.MaxMonthlyCost, manifest.Cost.CostRisks
             },
             UnresolvedIssues = manifest.UnresolvedIssues.Items.Take(25).Select(i => new
             {

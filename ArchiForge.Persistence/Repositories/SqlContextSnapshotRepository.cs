@@ -118,14 +118,14 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
     private sealed class ContextSnapshotRow
     {
-        public Guid SnapshotId { get; set; }
-        public Guid RunId { get; set; }
-        public string ProjectId { get; set; } = null!;
-        public DateTime CreatedUtc { get; set; }
-        public string CanonicalObjectsJson { get; set; } = null!;
-        public string? DeltaSummary { get; set; }
-        public string WarningsJson { get; set; } = null!;
-        public string ErrorsJson { get; set; } = null!;
-        public string SourceHashesJson { get; set; } = null!;
+        public Guid SnapshotId { get; init; }
+        public Guid RunId { get; init; }
+        public string ProjectId { get; init; } = null!;
+        public DateTime CreatedUtc { get; init; }
+        public string CanonicalObjectsJson { get; init; } = null!;
+        public string? DeltaSummary { get; init; }
+        public string WarningsJson { get; init; } = null!;
+        public string ErrorsJson { get; init; } = null!;
+        public string SourceHashesJson { get; init; } = null!;
     }
 }

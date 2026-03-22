@@ -103,7 +103,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                 {
                     scope.TenantId,
                     scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
+                    scope.ProjectId,
                     ManifestId = manifestId
                 },
                 cancellationToken: ct));
@@ -151,31 +151,31 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
 
     private sealed class GoldenManifestRow
     {
-        public Guid TenantId { get; set; }
-        public Guid WorkspaceId { get; set; }
-        public Guid ProjectId { get; set; }
-        public Guid ManifestId { get; set; }
-        public Guid RunId { get; set; }
-        public Guid ContextSnapshotId { get; set; }
-        public Guid GraphSnapshotId { get; set; }
-        public Guid FindingsSnapshotId { get; set; }
-        public Guid DecisionTraceId { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public string ManifestHash { get; set; } = null!;
-        public string RuleSetId { get; set; } = null!;
-        public string RuleSetVersion { get; set; } = null!;
-        public string RuleSetHash { get; set; } = null!;
-        public string MetadataJson { get; set; } = null!;
-        public string RequirementsJson { get; set; } = null!;
-        public string TopologyJson { get; set; } = null!;
-        public string SecurityJson { get; set; } = null!;
-        public string? ComplianceJson { get; set; }
-        public string CostJson { get; set; } = null!;
-        public string ConstraintsJson { get; set; } = null!;
-        public string UnresolvedIssuesJson { get; set; } = null!;
-        public string DecisionsJson { get; set; } = null!;
-        public string AssumptionsJson { get; set; } = null!;
-        public string WarningsJson { get; set; } = null!;
-        public string ProvenanceJson { get; set; } = null!;
+        public Guid TenantId { get; init; }
+        public Guid WorkspaceId { get; init; }
+        public Guid ProjectId { get; init; }
+        public Guid ManifestId { get; init; }
+        public Guid RunId { get; init; }
+        public Guid ContextSnapshotId { get; init; }
+        public Guid GraphSnapshotId { get; init; }
+        public Guid FindingsSnapshotId { get; init; }
+        public Guid DecisionTraceId { get; init; }
+        public DateTime CreatedUtc { get; init; }
+        public string ManifestHash { get; init; } = null!;
+        public string RuleSetId { get; init; } = null!;
+        public string RuleSetVersion { get; init; } = null!;
+        public string RuleSetHash { get; init; } = null!;
+        public string MetadataJson { get; init; } = null!;
+        public string RequirementsJson { get; init; } = null!;
+        public string TopologyJson { get; init; } = null!;
+        public string SecurityJson { get; init; } = null!;
+        public string? ComplianceJson { get; init; }
+        public string CostJson { get; init; } = null!;
+        public string ConstraintsJson { get; init; } = null!;
+        public string UnresolvedIssuesJson { get; init; } = null!;
+        public string DecisionsJson { get; init; } = null!;
+        public string AssumptionsJson { get; init; } = null!;
+        public string WarningsJson { get; init; } = null!;
+        public string ProvenanceJson { get; init; } = null!;
     }
 }

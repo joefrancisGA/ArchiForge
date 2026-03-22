@@ -48,7 +48,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         new
                         {
                             c.ConditionId,
-                            CompositeRuleId = rule.CompositeRuleId,
+                            rule.CompositeRuleId,
                             c.MetricType,
                             c.Operator,
                             c.ThresholdValue,
@@ -115,7 +115,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                         new
                         {
                             c.ConditionId,
-                            CompositeRuleId = rule.CompositeRuleId,
+                            rule.CompositeRuleId,
                             c.MetricType,
                             c.Operator,
                             c.ThresholdValue,
@@ -272,10 +272,10 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
 
     private sealed class ConditionRow
     {
-        public Guid ConditionId { get; set; }
-        public Guid CompositeRuleId { get; set; }
-        public string MetricType { get; set; } = null!;
-        public string Operator { get; set; } = null!;
-        public decimal ThresholdValue { get; set; }
+        public Guid ConditionId { get; init; }
+        public Guid CompositeRuleId { get; init; }
+        public string MetricType { get; init; } = null!;
+        public string Operator { get; init; } = null!;
+        public decimal ThresholdValue { get; init; }
     }
 }

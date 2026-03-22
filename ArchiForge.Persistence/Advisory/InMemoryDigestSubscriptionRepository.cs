@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRepository
 {
     private readonly List<DigestSubscription> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(DigestSubscription subscription, CancellationToken ct)
     {

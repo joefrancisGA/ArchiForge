@@ -15,6 +15,19 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         return Task.CompletedTask;
     }
 
+    public Task UpdateAsync(PolicyPackVersion version, CancellationToken ct)
+    {
+        _ = ct;
+        lock (_gate)
+        {
+            var idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
+            if (idx >= 0)
+                _items[idx] = version;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task<PolicyPackVersion?> GetByPackAndVersionAsync(
         Guid policyPackId,
         string version,

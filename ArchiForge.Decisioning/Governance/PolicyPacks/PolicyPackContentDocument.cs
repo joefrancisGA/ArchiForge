@@ -10,6 +10,10 @@ public class PolicyPackContentDocument
     [JsonPropertyName("complianceRuleIds")]
     public List<Guid> ComplianceRuleIds { get; set; } = [];
 
+    /// <summary>String rule IDs matching <see cref="Compliance.Models.ComplianceRule.RuleId"/> in file-based rule packs (e.g. <c>network-must-have-security-baseline</c>).</summary>
+    [JsonPropertyName("complianceRuleKeys")]
+    public List<string> ComplianceRuleKeys { get; set; } = [];
+
     [JsonPropertyName("alertRuleIds")]
     public List<Guid> AlertRuleIds { get; set; } = [];
 

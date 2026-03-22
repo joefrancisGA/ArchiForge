@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanScheduleRepository
 {
     private readonly List<AdvisoryScanSchedule> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
@@ -38,8 +38,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         {
             var result = _items
                 .Where(s =>
-                    s.IsEnabled &&
-                    s.NextRunUtc.HasValue &&
+                    s is { IsEnabled: true, NextRunUtc: not null } &&
                     s.NextRunUtc <= utcNow)
                 .OrderBy(s => s.NextRunUtc)
                 .Take(take)

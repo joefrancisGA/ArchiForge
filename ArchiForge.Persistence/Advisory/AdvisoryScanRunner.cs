@@ -133,6 +133,9 @@ public sealed class AdvisoryScanRunner(
                 .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
                 .ConfigureAwait(false);
 
+            foreach (var kvp in effectiveGovernance.AdvisoryDefaults)
+                plan.PolicyPackAdvisoryDefaults[kvp.Key] = kvp.Value;
+
             var alertContext = new AlertEvaluationContext
             {
                 TenantId = schedule.TenantId,

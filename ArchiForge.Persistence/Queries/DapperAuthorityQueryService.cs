@@ -67,7 +67,7 @@ public sealed class DapperAuthorityQueryService(
             result.GoldenManifest = await goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct);
         }
 
-        if (run.ArtifactBundleId.HasValue && run.GoldenManifestId.HasValue)
+        if (run is { ArtifactBundleId: not null, GoldenManifestId: not null })
         {
             result.ArtifactBundle = await artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct);
         }

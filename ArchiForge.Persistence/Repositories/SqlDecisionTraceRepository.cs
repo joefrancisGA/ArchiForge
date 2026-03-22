@@ -112,18 +112,18 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
 
     private sealed class DecisionTraceRow
     {
-        public Guid TenantId { get; set; }
-        public Guid WorkspaceId { get; set; }
-        public Guid ProjectId { get; set; }
-        public Guid DecisionTraceId { get; set; }
-        public Guid RunId { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public string RuleSetId { get; set; } = null!;
-        public string RuleSetVersion { get; set; } = null!;
-        public string RuleSetHash { get; set; } = null!;
-        public string AppliedRuleIdsJson { get; set; } = null!;
-        public string AcceptedFindingIdsJson { get; set; } = null!;
-        public string RejectedFindingIdsJson { get; set; } = null!;
-        public string NotesJson { get; set; } = null!;
+        public Guid TenantId { get; init; }
+        public Guid WorkspaceId { get; init; }
+        public Guid ProjectId { get; init; }
+        public Guid DecisionTraceId { get; init; }
+        public Guid RunId { get; init; }
+        public DateTime CreatedUtc { get; init; }
+        public string RuleSetId { get; init; } = null!;
+        public string RuleSetVersion { get; init; } = null!;
+        public string RuleSetHash { get; init; } = null!;
+        public string AppliedRuleIdsJson { get; init; } = null!;
+        public string AcceptedFindingIdsJson { get; init; } = null!;
+        public string RejectedFindingIdsJson { get; init; } = null!;
+        public string NotesJson { get; init; } = null!;
     }
 }

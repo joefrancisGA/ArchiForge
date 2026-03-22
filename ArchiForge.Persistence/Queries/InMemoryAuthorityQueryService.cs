@@ -58,7 +58,7 @@ public sealed class InMemoryAuthorityQueryService(
             GoldenManifest = run.GoldenManifestId.HasValue
                 ? await goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
                 : null,
-            ArtifactBundle = run.ArtifactBundleId.HasValue && run.GoldenManifestId.HasValue
+            ArtifactBundle = run is { ArtifactBundleId: not null, GoldenManifestId: not null }
                 ? await artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
                 : null
         };

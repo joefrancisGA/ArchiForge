@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecutionRepository
 {
     private readonly List<AdvisoryScanExecution> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {

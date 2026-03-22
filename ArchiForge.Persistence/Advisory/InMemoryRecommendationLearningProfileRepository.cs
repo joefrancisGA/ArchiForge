@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class InMemoryRecommendationLearningProfileRepository : IRecommendationLearningProfileRepository
 {
     private readonly List<RecommendationLearningProfile> _profiles = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task SaveAsync(RecommendationLearningProfile profile, CancellationToken ct)
     {

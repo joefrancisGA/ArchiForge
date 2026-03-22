@@ -14,7 +14,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/digest-subscriptions")]
+[Route("v{version:apiVersion}/digest-subscriptions")]
 [EnableRateLimiting("fixed")]
 public sealed class DigestSubscriptionsController(
     IScopeContextProvider scopeProvider,

@@ -782,11 +782,9 @@ Candidates for the next round of refactors, in rough priority order.
 
 ## 59. Api.Tests: integration coverage for policy pack lifecycle
 
-**Problem:** Policy pack endpoints (`/api/policy-packs`, publish, assign, effective, effective-content) are not covered by `ArchiForge.Api.Tests`. Regressions in scope stamping, resolver, or storage would go unnoticed.
+**Status:** Implemented under `/v1/policy-packs` in `PolicyPacksIntegrationTests` / `PolicyPackRequestValidationTests` (lifecycle, publish idempotency, list versions, assign unknown version → 404, invalid JSON → 400).
 
-**Change:**
-- Add an integration test class (extends `IntegrationTestBase`, `Trait("Category", "Integration")`) that: creates a pack, publishes a version with JSON containing `alertRuleIds`, assigns it, then GETs `effective` and `effective-content` and asserts merged shape / pack count.
-- Use `JsonOptions` / `JsonContent` from the test base.
+**Original problem:** Policy pack endpoints were not covered by `ArchiForge.Api.Tests`.
 
 **Outcome:** Regression protection for governance packaging and API wiring.
 

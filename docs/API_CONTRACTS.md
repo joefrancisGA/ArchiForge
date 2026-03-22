@@ -58,22 +58,26 @@ If a document’s content type is not supported by any registered parser, ingest
 
 Full pipeline behavior: **`docs/CONTEXT_INGESTION.md`**.
 
-## Policy packs (`/api/policy-packs`)
+## Policy packs (`/v1/policy-packs`)
 
-Governance is packaged as **versioned, assignable** bundles. Pack **content** is JSON matching **`PolicyPackContentDocument`**: `complianceRuleIds`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` (see **`ArchiForge.Decisioning.Governance.PolicyPacks`**).
+Governance is packaged as **versioned, assignable** bundles. Pack **content** is JSON matching **`PolicyPackContentDocument`**: `complianceRuleIds`, `complianceRuleKeys` (string rule IDs matching file-based compliance rules), `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata` (see **`ArchiForge.Decisioning.Governance.PolicyPacks`**).
 
 | Method | Path | Notes |
 |--------|------|--------|
-| `POST` | `/api/policy-packs` | Create pack + initial **unpublished** version **1.0.0**. Requires **ExecuteAuthority**. |
-| `POST` | `/api/policy-packs/{policyPackId}/publish` | Adds a **published** version row; updates pack **Active** and **CurrentVersion**. |
-| `POST` | `/api/policy-packs/{policyPackId}/assign` | Assigns a **version string** to the **current scope** (tenant/workspace/project from headers/claims). |
-| `GET` | `/api/policy-packs` | List packs for scope. |
-| `GET` | `/api/policy-packs/{policyPackId}/versions` | List versions for a pack. |
-| `GET` | `/api/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
-| `GET` | `/api/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
+| `POST` | `/v1/policy-packs` | Create pack + initial **unpublished** version **1.0.0**. Requires **ExecuteAuthority**. |
+| `POST` | `/v1/policy-packs/{policyPackId}/publish` | **Upserts** a **published** version row for `(pack, version)`; updates pack **Active** and **CurrentVersion**. Re-publishing the same version updates **ContentJson** in place (no duplicate rows). |
+| `POST` | `/v1/policy-packs/{policyPackId}/assign` | Assigns a **version string** to the **current scope** (tenant/workspace/project from headers/claims). **404** `#policy-pack-version-not-found` if that version does not exist for the pack. |
+| `GET` | `/v1/policy-packs` | List packs for scope. |
+| `GET` | `/v1/policy-packs/{policyPackId}/versions` | List versions for a pack. |
+| `GET` | `/v1/policy-packs/effective` | Resolved **enabled** assignments → pack metadata + **ContentJson** per entry. |
+| `GET` | `/v1/policy-packs/effective-content` | **Merged** document: union of IDs (distinct), **advisoryDefaults** / **metadata** last-wins per key. |
 
 **Validation:** Create / publish / assign bodies are validated with **FluentValidation**. Invalid JSON in `initialContentJson` or `contentJson`, unknown `packType`, or empty `version` returns **400** with problem details (same style as other validated endpoints).
 
-**Effective governance and alerts:** When merged **`alertRuleIds`** or **`compositeAlertRuleIds`** is **non-empty**, simple and composite **alert evaluation** restricts rules to those IDs. **Empty lists** mean *no pack filter* (all enabled rules in scope still run). Advisory scans load merged content **once** per run and pass it on **`AlertEvaluationContext.EffectiveGovernanceContent`** so simple and composite evaluation do not each reload it.
+**Effective governance, compliance, and alerts:** When merged **`alertRuleIds`** or **`compositeAlertRuleIds`** is **non-empty**, simple and composite **alert evaluation** restricts rules to those IDs. When **`complianceRuleIds`** and **`complianceRuleKeys`** are both **empty**, compliance uses the full file-based rule pack; otherwise evaluation uses only rules matching those keys or GUID **RuleId** values. **Empty alert lists** mean *no pack filter* for alerts (all enabled rules in scope still run). Advisory scans load merged content **once** per run, copy **`advisoryDefaults`** onto **`ImprovementPlan.PolicyPackAdvisoryDefaults`**, and pass merged content on **`AlertEvaluationContext.EffectiveGovernanceContent`** so simple and composite evaluation do not each reload it.
+
+**Alerts / digest / tuning / simulation** routes use the same URL versioning pattern, e.g. **`/v1/alerts`**, **`/v1/alert-rules`**, **`/v1/composite-alert-rules`**, **`/v1/alert-simulation/...`**, **`/v1/alert-tuning/...`**, **`/v1/alert-routing-subscriptions`**, **`/v1/digest-subscriptions`**.
+
+Compliance filtering in API requests follows **`IScopeContextProvider`**; background workers without HTTP scope should align tenant/project context with the run being evaluated when relying on policy-filtered compliance.
 
 Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-id`**, **`x-project-id`** optional).

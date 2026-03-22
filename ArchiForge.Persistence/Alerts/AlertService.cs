@@ -22,13 +22,9 @@ public sealed class AlertService(
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var effective = context.EffectiveGovernanceContent;
-        if (effective is null)
-        {
-            effective = await effectiveGovernanceLoader
-                .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
-                .ConfigureAwait(false);
-        }
+        var effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
+            .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
+            .ConfigureAwait(false);
 
         rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
@@ -90,7 +86,7 @@ public sealed class AlertService(
             AlertActionType.Acknowledge => AlertStatus.Acknowledged,
             AlertActionType.Resolve => AlertStatus.Resolved,
             AlertActionType.Suppress => AlertStatus.Suppressed,
-            _ => (string?)null,
+            _ => null,
         };
 
         if (newStatus is null || string.Equals(alert.Status, newStatus, StringComparison.Ordinal))

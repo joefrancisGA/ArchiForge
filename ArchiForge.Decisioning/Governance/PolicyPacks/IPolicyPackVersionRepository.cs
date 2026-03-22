@@ -4,6 +4,8 @@ public interface IPolicyPackVersionRepository
 {
     Task CreateAsync(PolicyPackVersion version, CancellationToken ct);
 
+    Task UpdateAsync(PolicyPackVersion version, CancellationToken ct);
+
     Task<PolicyPackVersion?> GetByPackAndVersionAsync(
         Guid policyPackId,
         string version,

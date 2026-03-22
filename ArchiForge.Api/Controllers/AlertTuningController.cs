@@ -15,7 +15,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/alert-tuning")]
+[Route("v{version:apiVersion}/alert-tuning")]
 [EnableRateLimiting("fixed")]
 public sealed class AlertTuningController(
     IScopeContextProvider scopeProvider,

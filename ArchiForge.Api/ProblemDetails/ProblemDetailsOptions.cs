@@ -27,4 +27,6 @@ public static class ProblemTypes
 
     /// <summary>Request cannot be applied due to a resource state conflict.</summary>
     public const string Conflict = Base + "#conflict";
+
+    public const string PolicyPackVersionNotFound = Base + "#policy-pack-version-not-found";
 }

@@ -12,7 +12,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/alerts")]
+[Route("v{version:apiVersion}/alerts")]
 [EnableRateLimiting("fixed")]
 public sealed class AlertsController(
     IScopeContextProvider scopeProvider,

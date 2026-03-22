@@ -93,14 +93,14 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
 
     private sealed class ArtifactBundleRow
     {
-        public Guid TenantId { get; set; }
-        public Guid WorkspaceId { get; set; }
-        public Guid ProjectId { get; set; }
-        public Guid BundleId { get; set; }
-        public Guid RunId { get; set; }
-        public Guid ManifestId { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public string ArtifactsJson { get; set; } = null!;
-        public string TraceJson { get; set; } = null!;
+        public Guid TenantId { get; init; }
+        public Guid WorkspaceId { get; init; }
+        public Guid ProjectId { get; init; }
+        public Guid BundleId { get; init; }
+        public Guid RunId { get; init; }
+        public Guid ManifestId { get; init; }
+        public DateTime CreatedUtc { get; init; }
+        public string ArtifactsJson { get; init; } = null!;
+        public string TraceJson { get; init; } = null!;
     }
 }

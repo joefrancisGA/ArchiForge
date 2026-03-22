@@ -18,7 +18,7 @@ public sealed class RuleSimulationService(
         RuleSimulationRequest request,
         CancellationToken ct)
     {
-        if (!request.UseHistoricalWindow && !request.RunId.HasValue)
+        if (request is { UseHistoricalWindow: false, RunId: null })
         {
             return new RuleSimulationResult
             {

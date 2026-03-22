@@ -15,6 +15,8 @@ export type ImprovementPlan = {
   generatedUtc: string;
   summaryNotes: string[];
   recommendations: ImprovementRecommendation[];
+  /** Merged advisoryDefaults from effective policy packs (optional). */
+  policyPackAdvisoryDefaults?: Record<string, string>;
 };
 
 /** Persisted recommendation with governance workflow state (Change 36). */

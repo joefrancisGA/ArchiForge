@@ -14,7 +14,7 @@ public sealed class AuthDebugController : ControllerBase
     {
         return Ok(new
         {
-            Name = User.Identity?.Name,
+            User.Identity?.Name,
             Claims = User.Claims.Select(x => new
             {
                 x.Type,

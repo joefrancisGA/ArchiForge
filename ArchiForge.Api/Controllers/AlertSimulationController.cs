@@ -15,7 +15,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/alert-simulation")]
+[Route("v{version:apiVersion}/alert-simulation")]
 [EnableRateLimiting("fixed")]
 public sealed class AlertSimulationController(
     IScopeContextProvider scopeProvider,

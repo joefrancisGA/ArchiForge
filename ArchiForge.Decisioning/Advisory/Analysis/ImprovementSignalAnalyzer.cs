@@ -142,7 +142,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
         foreach (var delta in comparison.CostChanges)
         {
-            if (delta.BaseCost.HasValue && delta.TargetCost.HasValue && delta.TargetCost > delta.BaseCost)
+            if (delta is { BaseCost: not null, TargetCost: not null } && delta.TargetCost > delta.BaseCost)
             {
                 signals.Add(new ImprovementSignal
                 {

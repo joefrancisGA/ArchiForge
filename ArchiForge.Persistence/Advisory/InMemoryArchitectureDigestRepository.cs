@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRepository
 {
     private readonly List<ArchitectureDigest> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(ArchitectureDigest digest, CancellationToken ct)
     {

@@ -5,7 +5,7 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class InMemoryRecommendationRepository : IRecommendationRepository
 {
     private readonly List<RecommendationRecord> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
     {

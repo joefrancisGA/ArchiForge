@@ -20,6 +20,18 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
         await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct));
     }
 
+    public async Task UpdateAsync(PolicyPackVersion version, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.PolicyPackVersions
+            SET ContentJson = @ContentJson, IsPublished = @IsPublished
+            WHERE PolicyPackVersionId = @PolicyPackVersionId;
+            """;
+
+        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct));
+    }
+
     public async Task<PolicyPackVersion?> GetByPackAndVersionAsync(
         Guid policyPackId,
         string version,

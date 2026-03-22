@@ -2,6 +2,7 @@ using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Provenance;
 using ArchiForge.Decisioning.Compliance.Evaluators;
 using ArchiForge.Decisioning.Compliance.Loaders;
+using ArchiForge.Persistence.Compliance;
 using Di = ArchiForge.Decisioning.Interfaces;
 using Dm = ArchiForge.Decisioning.Manifest.Builders;
 using Dr = ArchiForge.Decisioning.Rules;
@@ -21,7 +22,7 @@ internal static partial class ServiceCollectionExtensions
             "RulePacks",
             "default-compliance.rules.json");
         services.AddSingleton<IComplianceRulePackLoader>(_ => new FileComplianceRulePackLoader(complianceRulePackPath));
-        services.AddSingleton<IComplianceRulePackProvider, FileComplianceRulePackProvider>();
+        services.AddScoped<IComplianceRulePackProvider, PolicyFilteredComplianceRulePackProvider>();
         services.AddSingleton<IComplianceRulePackValidator, ComplianceRulePackValidator>();
         services.AddSingleton<IComplianceEvaluator, GraphComplianceEvaluator>();
 
