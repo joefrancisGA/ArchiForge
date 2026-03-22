@@ -42,4 +42,7 @@ public static class AuditEventTypes
     public const string CompositeAlertRuleCreated = "CompositeAlertRuleCreated";
     public const string CompositeAlertTriggered = "CompositeAlertTriggered";
     public const string AlertSuppressedByPolicy = "AlertSuppressedByPolicy";
+
+    public const string AlertRuleSimulationExecuted = "AlertRuleSimulationExecuted";
+    public const string AlertRuleCandidateComparisonExecuted = "AlertRuleCandidateComparisonExecuted";
 }

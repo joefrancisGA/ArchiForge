@@ -32,6 +32,7 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
+using ArchiForge.Decisioning.Alerts.Simulation;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -61,6 +62,7 @@ using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
+using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Queries;
 
 namespace ArchiForge.Api.Startup;
@@ -122,6 +124,9 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<ICompositeAlertRuleEvaluator, CompositeAlertRuleEvaluator>();
         services.AddScoped<IAlertSuppressionPolicy, AlertSuppressionPolicy>();
         services.AddScoped<ICompositeAlertService, CompositeAlertService>();
+
+        services.AddScoped<IAlertSimulationContextProvider, AlertSimulationContextProvider>();
+        services.AddScoped<IRuleSimulationService, RuleSimulationService>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)

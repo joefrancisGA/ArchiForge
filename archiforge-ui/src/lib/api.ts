@@ -27,6 +27,10 @@ import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-s
 import type { AlertRecord, AlertRule } from "@/types/alerts";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
+import type {
+  RuleCandidateComparisonResult,
+  RuleSimulationResult,
+} from "@/types/alert-simulation";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -384,6 +388,34 @@ export async function listAlertRoutingDeliveryAttempts(
 
 export async function listCompositeAlertRules(): Promise<CompositeAlertRule[]> {
   return apiGet<CompositeAlertRule[]>("/api/composite-alert-rules");
+}
+
+export async function simulateAlertRule(body: {
+  ruleKind: string;
+  simpleRule?: Record<string, unknown> | null;
+  compositeRule?: Record<string, unknown> | null;
+  runId?: string | null;
+  comparedToRunId?: string | null;
+  recentRunCount?: number;
+  useHistoricalWindow?: boolean;
+  runProjectSlug?: string;
+}): Promise<RuleSimulationResult> {
+  return apiPostJson<RuleSimulationResult>("/api/alert-simulation/simulate", body);
+}
+
+export async function compareAlertRuleCandidates(body: {
+  ruleKind: string;
+  candidateA_SimpleRule?: Record<string, unknown> | null;
+  candidateB_SimpleRule?: Record<string, unknown> | null;
+  candidateA_CompositeRule?: Record<string, unknown> | null;
+  candidateB_CompositeRule?: Record<string, unknown> | null;
+  recentRunCount?: number;
+  runProjectSlug?: string;
+}): Promise<RuleCandidateComparisonResult> {
+  return apiPostJson<RuleCandidateComparisonResult>(
+    "/api/alert-simulation/compare-candidates",
+    body,
+  );
 }
 
 export async function createCompositeAlertRule(body: {
