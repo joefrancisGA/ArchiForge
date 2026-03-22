@@ -46,6 +46,10 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Services;
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
 using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
+using ArchiForge.Retrieval.Chunking;
+using ArchiForge.Retrieval.Embedding;
+using ArchiForge.Retrieval.Indexing;
+using ArchiForge.Retrieval.Queries;
 
 namespace ArchiForge.Api.Startup;
 
@@ -66,6 +70,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);
         RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);
+        RegisterRetrieval(services, configuration);
         services.AddScoped<ArchitectureRunOrchestrator>();
         return services;
     }
@@ -291,6 +296,44 @@ internal static partial class ServiceCollectionExtensions
                         return JsonSerializer.Serialize(result, jsonOptions);
                     }));
             }
+        }
+    }
+
+    private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<ITextChunker, SimpleTextChunker>();
+        services.AddScoped<IRetrievalDocumentBuilder, RetrievalDocumentBuilder>();
+        services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
+        services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
+        services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
+
+        var vectorMode = configuration["Retrieval:VectorIndex"] ?? "InMemory";
+        if (string.Equals(vectorMode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IAzureSearchClient, NotConfiguredAzureSearchClient>();
+            services.AddSingleton<IVectorIndex, AzureAiSearchVectorIndex>();
+        }
+        else
+        {
+            services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
+        }
+
+        var embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
+        var endpoint = configuration["AzureOpenAI:Endpoint"];
+        var apiKey = configuration["AzureOpenAI:ApiKey"];
+        var useAzureEmbeddings = !string.IsNullOrWhiteSpace(embedDeployment)
+            && !string.IsNullOrWhiteSpace(endpoint)
+            && !string.IsNullOrWhiteSpace(apiKey);
+
+        if (useAzureEmbeddings)
+        {
+            services.AddSingleton<IOpenAiEmbeddingClient>(_ =>
+                new AzureOpenAiEmbeddingClient(endpoint!, apiKey!, embedDeployment!));
+            services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
+        }
+        else
+        {
+            services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
         }
     }
 }

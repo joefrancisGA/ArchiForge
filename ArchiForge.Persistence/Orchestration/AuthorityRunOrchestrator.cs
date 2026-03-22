@@ -14,6 +14,8 @@ using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
+using ArchiForge.Retrieval.Indexing;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Persistence.Orchestration;
 
@@ -43,6 +45,8 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
     private readonly IArtifactBundleRepository _artifactBundleRepository;
     private readonly IProvenanceBuilder _provenanceBuilder;
     private readonly IProvenanceSnapshotRepository _provenanceSnapshotRepository;
+    private readonly IRetrievalRunCompletionIndexer _retrievalRunCompletionIndexer;
+    private readonly ILogger<AuthorityRunOrchestrator> _logger;
 
     public AuthorityRunOrchestrator(
         IArchiForgeUnitOfWorkFactory unitOfWorkFactory,
@@ -62,7 +66,9 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         IArtifactSynthesisService artifactSynthesisService,
         IArtifactBundleRepository artifactBundleRepository,
         IProvenanceBuilder provenanceBuilder,
-        IProvenanceSnapshotRepository provenanceSnapshotRepository)
+        IProvenanceSnapshotRepository provenanceSnapshotRepository,
+        IRetrievalRunCompletionIndexer retrievalRunCompletionIndexer,
+        ILogger<AuthorityRunOrchestrator> logger)
     {
         _unitOfWorkFactory = unitOfWorkFactory;
         _scopeContextProvider = scopeContextProvider;
@@ -82,6 +88,8 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
         _artifactBundleRepository = artifactBundleRepository;
         _provenanceBuilder = provenanceBuilder;
         _provenanceSnapshotRepository = provenanceSnapshotRepository;
+        _retrievalRunCompletionIndexer = retrievalRunCompletionIndexer;
+        _logger = logger;
     }
 
     public async Task<RunRecord> ExecuteAsync(
@@ -176,6 +184,14 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, ct, uow);
 
+            var provenanceGraph = _provenanceBuilder.Build(
+                run.RunId,
+                findingsSnapshot,
+                graphSnapshot,
+                decisionResult.Manifest,
+                decisionResult.Trace,
+                artifactBundle.Artifacts);
+
             await uow.CommitAsync(ct);
 
             await _auditService.LogAsync(
@@ -194,6 +210,22 @@ public sealed class AuthorityRunOrchestrator : IAuthorityRunOrchestrator
                         AuditJsonOptions)
                 },
                 ct);
+
+            try
+            {
+                await _retrievalRunCompletionIndexer.IndexAuthorityRunAsync(
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    decisionResult.Manifest,
+                    artifactBundle.Artifacts,
+                    provenanceGraph,
+                    ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Retrieval indexing failed for run {RunId}", run.RunId);
+            }
 
             return run;
         }
