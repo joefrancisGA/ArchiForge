@@ -3,7 +3,7 @@ namespace ArchiForge.Api.HttpContracts;
 public class RunSummaryResponse
 {
     public Guid RunId { get; set; }
-    public string ProjectId { get; set; } = default!;
+    public string ProjectId { get; set; } = null!;
     public string? Description { get; set; }
     public DateTime CreatedUtc { get; set; }
 

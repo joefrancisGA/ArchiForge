@@ -9,7 +9,7 @@ public class PolicyPackAssignment
     public Guid ProjectId { get; set; }
 
     public Guid PolicyPackId { get; set; }
-    public string PolicyPackVersion { get; set; } = default!;
+    public string PolicyPackVersion { get; set; } = null!;
 
     public bool IsEnabled { get; set; } = true;
 

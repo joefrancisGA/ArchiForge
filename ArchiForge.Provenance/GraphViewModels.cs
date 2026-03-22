@@ -9,9 +9,9 @@ public class GraphViewModel
 
 public class GraphNodeVm
 {
-    public string Id { get; set; } = default!;
-    public string Label { get; set; } = default!;
-    public string Type { get; set; } = default!;
+    public string Id { get; set; } = null!;
+    public string Label { get; set; } = null!;
+    public string Type { get; set; } = null!;
 
     /// <summary>Optional key/value pairs for UI detail panel (provenance metadata, graph properties).</summary>
     public Dictionary<string, string>? Metadata { get; set; }
@@ -19,7 +19,7 @@ public class GraphNodeVm
 
 public class GraphEdgeVm
 {
-    public string Source { get; set; } = default!;
-    public string Target { get; set; } = default!;
-    public string Type { get; set; } = default!;
+    public string Source { get; set; } = null!;
+    public string Target { get; set; } = null!;
+    public string Type { get; set; } = null!;
 }

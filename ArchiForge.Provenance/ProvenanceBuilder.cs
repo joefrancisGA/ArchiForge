@@ -22,30 +22,6 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         var nodeMap = new Dictionary<string, Guid>(StringComparer.Ordinal);
 
-        Guid AddNode(string key, ProvenanceNode node)
-        {
-            if (!nodeMap.TryGetValue(key, out var existing))
-            {
-                node.Id = Guid.NewGuid();
-                result.Nodes.Add(node);
-                nodeMap[key] = node.Id;
-                return node.Id;
-            }
-
-            return existing;
-        }
-
-        void AddEdge(Guid from, Guid to, ProvenanceEdgeType type)
-        {
-            result.Edges.Add(new ProvenanceEdge
-            {
-                Id = Guid.NewGuid(),
-                FromNodeId = from,
-                ToNodeId = to,
-                Type = type
-            });
-        }
-
         var graphNodeIds = new HashSet<string>(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
 
         foreach (var n in graph.Nodes)
@@ -220,5 +196,29 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         return result;
+
+        Guid AddNode(string key, ProvenanceNode node)
+        {
+            if (!nodeMap.TryGetValue(key, out var existing))
+            {
+                node.Id = Guid.NewGuid();
+                result.Nodes.Add(node);
+                nodeMap[key] = node.Id;
+                return node.Id;
+            }
+
+            return existing;
+        }
+
+        void AddEdge(Guid from, Guid to, ProvenanceEdgeType type)
+        {
+            result.Edges.Add(new ProvenanceEdge
+            {
+                Id = Guid.NewGuid(),
+                FromNodeId = from,
+                ToNodeId = to,
+                Type = type
+            });
+        }
     }
 }

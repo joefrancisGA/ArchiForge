@@ -16,26 +16,26 @@ public class ComparisonResult
 
 public class DecisionDelta
 {
-    public string DecisionKey { get; set; } = default!;
+    public string DecisionKey { get; set; } = null!;
 
     public string? BaseValue { get; set; }
     public string? TargetValue { get; set; }
 
     /// <summary>Added, Removed, or Modified.</summary>
-    public string ChangeType { get; set; } = default!;
+    public string ChangeType { get; set; } = null!;
 }
 
 public class RequirementDelta
 {
-    public string RequirementName { get; set; } = default!;
+    public string RequirementName { get; set; } = null!;
 
     /// <summary>Covered, Uncovered, or Changed.</summary>
-    public string ChangeType { get; set; } = default!;
+    public string ChangeType { get; set; } = null!;
 }
 
 public class SecurityDelta
 {
-    public string ControlName { get; set; } = default!;
+    public string ControlName { get; set; } = null!;
 
     public string? BaseStatus { get; set; }
     public string? TargetStatus { get; set; }
@@ -43,10 +43,10 @@ public class SecurityDelta
 
 public class TopologyDelta
 {
-    public string Resource { get; set; } = default!;
+    public string Resource { get; set; } = null!;
 
     /// <summary>Added or Removed.</summary>
-    public string ChangeType { get; set; } = default!;
+    public string ChangeType { get; set; } = null!;
 }
 
 public class CostDelta

@@ -7,10 +7,10 @@ namespace ArchiForge.Persistence.Replay;
 public class ReplayResult
 {
     public Guid RunId { get; set; }
-    public string Mode { get; set; } = default!;
+    public string Mode { get; set; } = null!;
     public DateTime ReplayedUtc { get; set; }
 
-    public RunDetailDto Original { get; set; } = default!;
+    public RunDetailDto Original { get; set; } = null!;
 
     public GoldenManifest? RebuiltManifest { get; set; }
     public ArtifactBundle? RebuiltArtifactBundle { get; set; }

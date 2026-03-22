@@ -4,8 +4,8 @@ public class ThresholdRecommendationResult
 {
     public DateTime EvaluatedUtc { get; set; } = DateTime.UtcNow;
 
-    public string RuleKind { get; set; } = default!;
-    public string TunedMetricType { get; set; } = default!;
+    public string RuleKind { get; set; } = null!;
+    public string TunedMetricType { get; set; } = null!;
 
     public ThresholdCandidateEvaluation? RecommendedCandidate { get; set; }
 

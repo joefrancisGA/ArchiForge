@@ -5,12 +5,12 @@ namespace ArchiForge.Decisioning.Alerts.Tuning;
 
 public class ThresholdRecommendationRequest
 {
-    public string RuleKind { get; set; } = default!;
+    public string RuleKind { get; set; } = null!;
 
     public AlertRule? BaseSimpleRule { get; set; }
     public CompositeAlertRule? BaseCompositeRule { get; set; }
 
-    public string TunedMetricType { get; set; } = default!;
+    public string TunedMetricType { get; set; } = null!;
     public List<decimal> CandidateThresholds { get; set; } = [];
 
     public int RecentRunCount { get; set; } = 10;

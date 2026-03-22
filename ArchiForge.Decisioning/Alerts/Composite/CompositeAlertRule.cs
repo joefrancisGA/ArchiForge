@@ -10,7 +10,7 @@ public class CompositeAlertRule
     public Guid WorkspaceId { get; set; }
     public Guid ProjectId { get; set; }
 
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = null!;
     public string Severity { get; set; } = AlertSeverity.Warning;
 
     /// <summary>AND/OR across conditions (<see cref="CompositeOperator"/>).</summary>

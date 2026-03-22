@@ -6,7 +6,7 @@ namespace ArchiForge.Decisioning.Alerts.Simulation;
 public class RuleSimulationRequest
 {
     /// <summary>Simple or Composite</summary>
-    public string RuleKind { get; set; } = default!;
+    public string RuleKind { get; set; } = null!;
 
     public AlertRule? SimpleRule { get; set; }
     public CompositeAlertRule? CompositeRule { get; set; }

@@ -21,21 +21,6 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         var nodeIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var usedNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        string GetOrCreateNodeId(string kind, string rawId, string fallbackName)
-        {
-            var key = $"{kind}:{rawId}";
-            if (!string.IsNullOrWhiteSpace(rawId) && nodeIds.TryGetValue(key, out var existing))
-                return existing;
-
-            var baseId = SanitizeId(string.IsNullOrWhiteSpace(rawId) ? fallbackName : rawId);
-            var unique = EnsureUnique(baseId, usedNodeIds);
-
-            if (!string.IsNullOrWhiteSpace(rawId))
-                nodeIds[key] = unique;
-
-            return unique;
-        }
-
         // Optional grouping (subgraphs) for services only.
         if (manifest.Services.Count > 0)
         {
@@ -102,6 +87,21 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         }
 
         return sb.ToString().TrimEnd();
+
+        string GetOrCreateNodeId(string kind, string rawId, string fallbackName)
+        {
+            var key = $"{kind}:{rawId}";
+            if (!string.IsNullOrWhiteSpace(rawId) && nodeIds.TryGetValue(key, out var existing))
+                return existing;
+
+            var baseId = SanitizeId(string.IsNullOrWhiteSpace(rawId) ? fallbackName : rawId);
+            var unique = EnsureUnique(baseId, usedNodeIds);
+
+            if (!string.IsNullOrWhiteSpace(rawId))
+                nodeIds[key] = unique;
+
+            return unique;
+        }
     }
 
     private static string? ResolveExistingNodeId(

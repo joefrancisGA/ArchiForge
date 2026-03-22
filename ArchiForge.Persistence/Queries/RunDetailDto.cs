@@ -8,7 +8,7 @@ namespace ArchiForge.Persistence.Queries;
 
 public class RunDetailDto
 {
-    public RunRecord Run { get; set; } = default!;
+    public RunRecord Run { get; set; } = null!;
     public ContextSnapshot? ContextSnapshot { get; set; }
     public GraphSnapshot? GraphSnapshot { get; set; }
     public FindingsSnapshot? FindingsSnapshot { get; set; }

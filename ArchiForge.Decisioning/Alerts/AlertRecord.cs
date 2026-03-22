@@ -13,13 +13,13 @@ public class AlertRecord
     public Guid? ComparedToRunId { get; set; }
     public Guid? RecommendationId { get; set; }
 
-    public string Title { get; set; } = default!;
-    public string Category { get; set; } = default!;
-    public string Severity { get; set; } = default!;
+    public string Title { get; set; } = null!;
+    public string Category { get; set; } = null!;
+    public string Severity { get; set; } = null!;
     public string Status { get; set; } = AlertStatus.Open;
 
-    public string TriggerValue { get; set; } = default!;
-    public string Description { get; set; } = default!;
+    public string TriggerValue { get; set; } = null!;
+    public string Description { get; set; } = null!;
 
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
     public DateTime? LastUpdatedUtc { get; set; }
@@ -28,5 +28,5 @@ public class AlertRecord
     public string? AcknowledgedByUserName { get; set; }
     public string? ResolutionComment { get; set; }
 
-    public string DeduplicationKey { get; set; } = default!;
+    public string DeduplicationKey { get; set; } = null!;
 }

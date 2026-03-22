@@ -9,13 +9,13 @@ public class SimulatedAlertOutcome
     public bool WouldCreateAlert { get; set; }
     public bool WouldBeSuppressed { get; set; }
 
-    public string Title { get; set; } = default!;
-    public string Severity { get; set; } = default!;
-    public string Description { get; set; } = default!;
+    public string Title { get; set; } = null!;
+    public string Severity { get; set; } = null!;
+    public string Description { get; set; } = null!;
 
-    public string DeduplicationKey { get; set; } = default!;
-    public string SuppressionReason { get; set; } = default!;
+    public string DeduplicationKey { get; set; } = null!;
+    public string SuppressionReason { get; set; } = null!;
 
-    public string EvaluationMode { get; set; } = default!;
+    public string EvaluationMode { get; set; } = null!;
     public List<string> Notes { get; set; } = [];
 }

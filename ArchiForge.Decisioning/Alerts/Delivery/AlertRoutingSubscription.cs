@@ -11,8 +11,8 @@ public class AlertRoutingSubscription
     public Guid ProjectId { get; set; }
 
     public string Name { get; set; } = "Alert Routing Subscription";
-    public string ChannelType { get; set; } = default!;
-    public string Destination { get; set; } = default!;
+    public string ChannelType { get; set; } = null!;
+    public string Destination { get; set; } = null!;
 
     public string MinimumSeverity { get; set; } = AlertSeverity.Warning;
     public bool IsEnabled { get; set; } = true;

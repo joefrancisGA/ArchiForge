@@ -84,8 +84,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         public Guid ContextSnapshotId { get; set; }
         public Guid RunId { get; set; }
         public DateTime CreatedUtc { get; set; }
-        public string NodesJson { get; set; } = default!;
-        public string EdgesJson { get; set; } = default!;
-        public string WarningsJson { get; set; } = default!;
+        public string NodesJson { get; set; } = null!;
+        public string EdgesJson { get; set; } = null!;
+        public string WarningsJson { get; set; } = null!;
     }
 }

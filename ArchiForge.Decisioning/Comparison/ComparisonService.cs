@@ -143,9 +143,6 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareSecurity(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        string Key(SecurityPostureItem c) =>
-            string.IsNullOrWhiteSpace(c.ControlId) ? c.ControlName : $"{c.ControlId}|{c.ControlName}";
-
         var baseMap = baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
         var targetMap = targetM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
 
@@ -189,6 +186,11 @@ public sealed class ComparisonService : IComparisonService
                 });
             }
         }
+
+        return;
+
+        string Key(SecurityPostureItem c) =>
+            string.IsNullOrWhiteSpace(c.ControlId) ? c.ControlName : $"{c.ControlId}|{c.ControlName}";
     }
 
     private static void CompareTopology(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)

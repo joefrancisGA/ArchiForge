@@ -2,19 +2,19 @@ namespace ArchiForge.Decisioning.Compliance.Models;
 
 public class ComplianceRule
 {
-    public string RuleId { get; set; } = default!;
+    public string RuleId { get; set; } = null!;
 
-    public string ControlId { get; set; } = default!;
+    public string ControlId { get; set; } = null!;
 
-    public string ControlName { get; set; } = default!;
+    public string ControlName { get; set; } = null!;
 
-    public string AppliesToCategory { get; set; } = default!;
+    public string AppliesToCategory { get; set; } = null!;
 
-    public string RequiredNodeType { get; set; } = default!;
+    public string RequiredNodeType { get; set; } = null!;
 
-    public string RequiredEdgeType { get; set; } = default!;
+    public string RequiredEdgeType { get; set; } = null!;
 
     public string Severity { get; set; } = "Warning";
 
-    public string Description { get; set; } = default!;
+    public string Description { get; set; } = null!;
 }

@@ -2,15 +2,15 @@ namespace ArchiForge.Decisioning.Compliance.Models;
 
 public class ComplianceRulePack
 {
-    public string RulePackId { get; set; } = default!;
+    public string RulePackId { get; set; } = null!;
 
-    public string Name { get; set; } = default!;
+    public string Name { get; set; } = null!;
 
-    public string Version { get; set; } = default!;
+    public string Version { get; set; } = null!;
 
-    public string RulePackHash { get; set; } = default!;
+    public string RulePackHash { get; set; } = null!;
 
-    public string SourcePath { get; set; } = default!;
+    public string SourcePath { get; set; } = null!;
 
     public List<ComplianceRule> Rules { get; set; } = [];
 }

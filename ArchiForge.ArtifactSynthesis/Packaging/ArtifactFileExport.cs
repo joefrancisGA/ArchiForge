@@ -2,7 +2,7 @@ namespace ArchiForge.ArtifactSynthesis.Packaging;
 
 public class ArtifactFileExport
 {
-    public string FileName { get; set; } = default!;
-    public string ContentType { get; set; } = default!;
+    public string FileName { get; set; } = null!;
+    public string ContentType { get; set; } = null!;
     public byte[] Content { get; set; } = Array.Empty<byte>();
 }

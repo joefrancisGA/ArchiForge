@@ -2,8 +2,8 @@ namespace ArchiForge.ArtifactSynthesis.Models;
 
 public class UnresolvedIssueArtifactItem
 {
-    public string IssueType { get; set; } = default!;
-    public string Title { get; set; } = default!;
-    public string Description { get; set; } = default!;
-    public string Severity { get; set; } = default!;
+    public string IssueType { get; set; } = null!;
+    public string Title { get; set; } = null!;
+    public string Description { get; set; } = null!;
+    public string Severity { get; set; } = null!;
 }

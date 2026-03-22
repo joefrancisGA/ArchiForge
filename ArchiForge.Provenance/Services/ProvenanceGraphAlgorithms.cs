@@ -8,7 +8,7 @@ public static class ProvenanceGraphAlgorithms
     /// </summary>
     public static bool TryResolveDecisionNodeId(DecisionProvenanceGraph graph, string decisionKey, out Guid decisionInternalNodeId)
     {
-        decisionInternalNodeId = default;
+        decisionInternalNodeId = Guid.Empty;
         var key = decisionKey?.Trim() ?? string.Empty;
         if (key.Length == 0)
             return false;

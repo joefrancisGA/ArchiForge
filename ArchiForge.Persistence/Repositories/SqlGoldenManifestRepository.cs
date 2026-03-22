@@ -161,21 +161,21 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         public Guid FindingsSnapshotId { get; set; }
         public Guid DecisionTraceId { get; set; }
         public DateTime CreatedUtc { get; set; }
-        public string ManifestHash { get; set; } = default!;
-        public string RuleSetId { get; set; } = default!;
-        public string RuleSetVersion { get; set; } = default!;
-        public string RuleSetHash { get; set; } = default!;
-        public string MetadataJson { get; set; } = default!;
-        public string RequirementsJson { get; set; } = default!;
-        public string TopologyJson { get; set; } = default!;
-        public string SecurityJson { get; set; } = default!;
+        public string ManifestHash { get; set; } = null!;
+        public string RuleSetId { get; set; } = null!;
+        public string RuleSetVersion { get; set; } = null!;
+        public string RuleSetHash { get; set; } = null!;
+        public string MetadataJson { get; set; } = null!;
+        public string RequirementsJson { get; set; } = null!;
+        public string TopologyJson { get; set; } = null!;
+        public string SecurityJson { get; set; } = null!;
         public string? ComplianceJson { get; set; }
-        public string CostJson { get; set; } = default!;
-        public string ConstraintsJson { get; set; } = default!;
-        public string UnresolvedIssuesJson { get; set; } = default!;
-        public string DecisionsJson { get; set; } = default!;
-        public string AssumptionsJson { get; set; } = default!;
-        public string WarningsJson { get; set; } = default!;
-        public string ProvenanceJson { get; set; } = default!;
+        public string CostJson { get; set; } = null!;
+        public string ConstraintsJson { get; set; } = null!;
+        public string UnresolvedIssuesJson { get; set; } = null!;
+        public string DecisionsJson { get; set; } = null!;
+        public string AssumptionsJson { get; set; } = null!;
+        public string WarningsJson { get; set; } = null!;
+        public string ProvenanceJson { get; set; } = null!;
     }
 }

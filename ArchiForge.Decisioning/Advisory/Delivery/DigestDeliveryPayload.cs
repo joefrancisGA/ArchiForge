@@ -4,6 +4,6 @@ namespace ArchiForge.Decisioning.Advisory.Delivery;
 
 public class DigestDeliveryPayload
 {
-    public ArchitectureDigest Digest { get; set; } = default!;
-    public DigestSubscription Subscription { get; set; } = default!;
+    public ArchitectureDigest Digest { get; set; } = null!;
+    public DigestSubscription Subscription { get; set; } = null!;
 }

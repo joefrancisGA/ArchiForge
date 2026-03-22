@@ -7,11 +7,11 @@ public class SynthesizedArtifact
     public Guid ManifestId { get; set; }
     public DateTime CreatedUtc { get; set; }
 
-    public string ArtifactType { get; set; } = default!;
-    public string Name { get; set; } = default!;
-    public string Format { get; set; } = default!;
-    public string Content { get; set; } = default!;
-    public string ContentHash { get; set; } = default!;
+    public string ArtifactType { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    public string Format { get; set; } = null!;
+    public string Content { get; set; } = null!;
+    public string ContentHash { get; set; } = null!;
 
     public Dictionary<string, string> Metadata { get; set; } = new();
 

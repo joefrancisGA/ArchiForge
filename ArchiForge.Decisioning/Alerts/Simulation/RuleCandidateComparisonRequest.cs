@@ -5,7 +5,7 @@ namespace ArchiForge.Decisioning.Alerts.Simulation;
 
 public class RuleCandidateComparisonRequest
 {
-    public string RuleKind { get; set; } = default!;
+    public string RuleKind { get; set; } = null!;
 
     public AlertRule? CandidateA_SimpleRule { get; set; }
     public AlertRule? CandidateB_SimpleRule { get; set; }

@@ -134,15 +134,17 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         if (string.IsNullOrWhiteSpace(raw))
             return raw;
         var s = raw.Trim();
-        if (s.StartsWith("```", StringComparison.Ordinal))
-        {
-            var firstNl = s.IndexOf('\n');
-            if (firstNl > 0)
-                s = s[(firstNl + 1)..].Trim();
-            var end = s.LastIndexOf("```", StringComparison.Ordinal);
-            if (end > 0)
-                s = s[..end].Trim();
-        }
+
+        if (!s.StartsWith("```", StringComparison.Ordinal)) return s;
+
+        var firstNl = s.IndexOf('\n');
+        if (firstNl > 0)
+            s = s[(firstNl + 1)..].Trim();
+
+        var end = s.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (end > 0)
+            s = s[..end].Trim();
 
         return s;
     }
@@ -181,8 +183,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
             }
         }
 
-        foreach (var r in c.RequirementChanges.Take(30))
-            list.Add($"Requirement '{r.RequirementName}': {r.ChangeType}.");
+        list.AddRange(c.RequirementChanges.Take(30).Select(r => $"Requirement '{r.RequirementName}': {r.ChangeType}."));
 
         return list;
     }
@@ -242,9 +243,7 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
 
     private static List<string> ExtractRunKeyDrivers(GoldenManifest m, DecisionProvenanceGraph? g)
     {
-        var list = new List<string>();
-        foreach (var d in m.Decisions.Take(25))
-            list.Add($"{d.Category}: {d.Title} → {d.SelectedOption}");
+        var list = m.Decisions.Take(25).Select(d => $"{d.Category}: {d.Title} → {d.SelectedOption}").ToList();
 
         if (m.Topology.Resources.Count > 0)
             list.Add($"{m.Topology.Resources.Count} topology resource(s) recorded.");
@@ -252,26 +251,24 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
         if (m.Compliance.Gaps.Count > 0)
             list.Add($"{m.Compliance.Gaps.Count} compliance gap(s).");
 
-        if (g is not null)
-        {
-            var byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
-            list.Add(
-                $"Provenance graph: {g.Nodes.Count} node(s), {g.Edges.Count} edge(s); " +
-                string.Join(", ", byType.Select(kv => $"{kv.Key}={kv.Value}")));
-        }
+        if (g is null) return list;
+
+        var byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
+        list.Add(
+            $"Provenance graph: {g.Nodes.Count} node(s), {g.Edges.Count} edge(s); " +
+            string.Join(", ", byType.Select(kv => $"{kv.Key}={kv.Value}")));
 
         return list;
     }
 
     private static List<string> ExtractRiskImplications(GoldenManifest m)
     {
-        var list = new List<string>();
-        foreach (var i in m.UnresolvedIssues.Items.Take(20))
-            list.Add($"[{i.Severity}] {i.Title}: {i.Description}");
-        foreach (var w in m.Warnings.Take(10))
-            list.Add($"Warning: {w}");
+        var list = m.UnresolvedIssues.Items.Take(20).Select(i => $"[{i.Severity}] {i.Title}: {i.Description}").ToList();
+        list.AddRange(m.Warnings.Take(10).Select(w => $"Warning: {w}"));
+
         if (list.Count == 0)
             list.Add("No unresolved issues recorded.");
+
         return list;
     }
 
@@ -283,18 +280,22 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
                 ? $"Max monthly cost: {m.Cost.MaxMonthlyCost.Value:0.00}"
                 : "Max monthly cost not specified."
         };
-        foreach (var r in m.Cost.CostRisks.Take(10))
-            list.Add($"Cost risk: {r}");
+
+        list.AddRange(m.Cost.CostRisks.Take(10).Select(r => $"Cost risk: {r}"));
+
         return list;
     }
 
     private static List<string> ExtractComplianceImplications(GoldenManifest m)
     {
         var list = m.Compliance.Gaps.Take(15).Select(g => $"Compliance gap: {g}").ToList();
+
         if (m.Compliance.Controls.Count > 0)
             list.Insert(0, $"{m.Compliance.Controls.Count} compliance control(s) evaluated.");
+        
         if (list.Count == 0)
             list.Add("No compliance gaps listed.");
+
         return list;
     }
 
@@ -322,14 +323,14 @@ public sealed class ExplanationService(IAgentCompletionClient completionClient) 
 
     private sealed class LlmComparisonJson
     {
-        public string? HighLevelSummary { get; set; }
-        public List<string>? KeyTradeoffs { get; set; }
-        public string? Narrative { get; set; }
+        public string? HighLevelSummary { get; }
+        public List<string>? KeyTradeoffs { get; }
+        public string? Narrative { get; }
     }
 
     private sealed class LlmRunJson
     {
-        public string? Summary { get; set; }
-        public string? DetailedNarrative { get; set; }
+        public string? Summary { get; }
+        public string? DetailedNarrative { get; }
     }
 }

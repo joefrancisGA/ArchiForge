@@ -2,7 +2,7 @@ namespace ArchiForge.Decisioning.Advisory.Learning;
 
 public class RecommendationOutcomeStats
 {
-    public string Key { get; set; } = default!;
+    public string Key { get; set; } = null!;
 
     public int ProposedCount { get; set; }
     public int AcceptedCount { get; set; }

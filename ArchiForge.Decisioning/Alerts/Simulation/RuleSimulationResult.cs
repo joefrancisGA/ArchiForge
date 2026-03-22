@@ -2,7 +2,7 @@ namespace ArchiForge.Decisioning.Alerts.Simulation;
 
 public class RuleSimulationResult
 {
-    public string RuleKind { get; set; } = default!;
+    public string RuleKind { get; set; } = null!;
     public DateTime SimulatedUtc { get; set; } = DateTime.UtcNow;
 
     public int EvaluatedRunCount { get; set; }

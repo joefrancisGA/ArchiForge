@@ -9,6 +9,6 @@ public class RetrievalQuery
     public Guid? RunId { get; set; }
     public Guid? ManifestId { get; set; }
 
-    public string QueryText { get; set; } = default!;
+    public string QueryText { get; set; } = null!;
     public int TopK { get; set; } = 8;
 }

@@ -108,6 +108,12 @@ public sealed class AlertSimulationController(
 
     private static void StampComparisonScope(ScopeContext scope, RuleCandidateComparisonRequest request)
     {
+        stampSimple(request.CandidateA_SimpleRule);
+        stampSimple(request.CandidateB_SimpleRule);
+        stampComposite(request.CandidateA_CompositeRule);
+        stampComposite(request.CandidateB_CompositeRule);
+        return;
+
         void stampSimple(AlertRule? r)
         {
             if (r is null) return;
@@ -123,10 +129,5 @@ public sealed class AlertSimulationController(
             r.WorkspaceId = scope.WorkspaceId;
             r.ProjectId = scope.ProjectId;
         }
-
-        stampSimple(request.CandidateA_SimpleRule);
-        stampSimple(request.CandidateB_SimpleRule);
-        stampComposite(request.CandidateA_CompositeRule);
-        stampComposite(request.CandidateB_CompositeRule);
     }
 }

@@ -9,8 +9,8 @@ public class DigestSubscription
     public Guid ProjectId { get; set; }
 
     public string Name { get; set; } = "Digest Subscription";
-    public string ChannelType { get; set; } = default!;
-    public string Destination { get; set; } = default!;
+    public string ChannelType { get; set; } = null!;
+    public string Destination { get; set; } = null!;
 
     public bool IsEnabled { get; set; } = true;
 

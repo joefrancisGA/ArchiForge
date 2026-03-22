@@ -6,10 +6,10 @@ public class AuditEvent
 
     public DateTime OccurredUtc { get; set; } = DateTime.UtcNow;
 
-    public string EventType { get; set; } = default!;
+    public string EventType { get; set; } = null!;
 
-    public string ActorUserId { get; set; } = default!;
-    public string ActorUserName { get; set; } = default!;
+    public string ActorUserId { get; set; } = null!;
+    public string ActorUserName { get; set; } = null!;
 
     public Guid TenantId { get; set; }
     public Guid WorkspaceId { get; set; }

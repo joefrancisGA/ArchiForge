@@ -120,12 +120,12 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
     {
         public Guid SnapshotId { get; set; }
         public Guid RunId { get; set; }
-        public string ProjectId { get; set; } = default!;
+        public string ProjectId { get; set; } = null!;
         public DateTime CreatedUtc { get; set; }
-        public string CanonicalObjectsJson { get; set; } = default!;
+        public string CanonicalObjectsJson { get; set; } = null!;
         public string? DeltaSummary { get; set; }
-        public string WarningsJson { get; set; } = default!;
-        public string ErrorsJson { get; set; } = default!;
-        public string SourceHashesJson { get; set; } = default!;
+        public string WarningsJson { get; set; } = null!;
+        public string ErrorsJson { get; set; } = null!;
+        public string SourceHashesJson { get; set; } = null!;
     }
 }

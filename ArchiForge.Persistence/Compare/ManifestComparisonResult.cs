@@ -5,8 +5,8 @@ public class ManifestComparisonResult
     public Guid LeftManifestId { get; set; }
     public Guid RightManifestId { get; set; }
 
-    public string LeftManifestHash { get; set; } = default!;
-    public string RightManifestHash { get; set; } = default!;
+    public string LeftManifestHash { get; set; } = null!;
+    public string RightManifestHash { get; set; } = null!;
 
     public List<DiffItem> Diffs { get; set; } = new();
 

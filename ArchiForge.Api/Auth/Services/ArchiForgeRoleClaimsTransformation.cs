@@ -44,12 +44,6 @@ public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
         foreach (var c in clone.FindAll("roles"))
             roles.Add(c.Value);
 
-        void AddPermission(string value)
-        {
-            if (!id.HasClaim("permission", value))
-                id.AddClaim(new Claim("permission", value));
-        }
-
         if (roles.Contains(ArchiForgeRoles.Admin))
         {
             foreach (var p in AdminPermissions)
@@ -66,5 +60,11 @@ public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
         }
 
         return Task.FromResult(clone);
+
+        void AddPermission(string value)
+        {
+            if (!id.HasClaim("permission", value))
+                id.AddClaim(new Claim("permission", value));
+        }
     }
 }

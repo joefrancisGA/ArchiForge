@@ -14,6 +14,6 @@ public class DigestDeliveryAttempt
     public string Status { get; set; } = "Started";
     public string? ErrorMessage { get; set; }
 
-    public string ChannelType { get; set; } = default!;
-    public string Destination { get; set; } = default!;
+    public string ChannelType { get; set; } = null!;
+    public string Destination { get; set; } = null!;
 }

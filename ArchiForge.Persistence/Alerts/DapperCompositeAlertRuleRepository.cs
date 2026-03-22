@@ -274,8 +274,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
     {
         public Guid ConditionId { get; set; }
         public Guid CompositeRuleId { get; set; }
-        public string MetricType { get; set; } = default!;
-        public string Operator { get; set; } = default!;
+        public string MetricType { get; set; } = null!;
+        public string Operator { get; set; } = null!;
         public decimal ThresholdValue { get; set; }
     }
 }

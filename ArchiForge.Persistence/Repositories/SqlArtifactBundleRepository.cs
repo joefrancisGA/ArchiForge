@@ -100,7 +100,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         public Guid RunId { get; set; }
         public Guid ManifestId { get; set; }
         public DateTime CreatedUtc { get; set; }
-        public string ArtifactsJson { get; set; } = default!;
-        public string TraceJson { get; set; } = default!;
+        public string ArtifactsJson { get; set; } = null!;
+        public string TraceJson { get; set; } = null!;
     }
 }

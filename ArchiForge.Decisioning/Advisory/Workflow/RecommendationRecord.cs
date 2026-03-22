@@ -11,12 +11,12 @@ public class RecommendationRecord
     public Guid RunId { get; set; }
     public Guid? ComparedToRunId { get; set; }
 
-    public string Title { get; set; } = default!;
-    public string Category { get; set; } = default!;
-    public string Rationale { get; set; } = default!;
-    public string SuggestedAction { get; set; } = default!;
-    public string Urgency { get; set; } = default!;
-    public string ExpectedImpact { get; set; } = default!;
+    public string Title { get; set; } = null!;
+    public string Category { get; set; } = null!;
+    public string Rationale { get; set; } = null!;
+    public string SuggestedAction { get; set; } = null!;
+    public string Urgency { get; set; } = null!;
+    public string ExpectedImpact { get; set; } = null!;
     public int PriorityScore { get; set; }
 
     public string Status { get; set; } = RecommendationStatus.Proposed;

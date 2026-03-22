@@ -4,7 +4,7 @@ namespace ArchiForge.Decisioning.Alerts.Tuning;
 
 public class ThresholdCandidateEvaluation
 {
-    public ThresholdCandidate Candidate { get; set; } = default!;
-    public RuleSimulationResult SimulationResult { get; set; } = default!;
-    public NoiseScoreBreakdown ScoreBreakdown { get; set; } = default!;
+    public ThresholdCandidate Candidate { get; set; } = null!;
+    public RuleSimulationResult SimulationResult { get; set; } = null!;
+    public NoiseScoreBreakdown ScoreBreakdown { get; set; } = null!;
 }

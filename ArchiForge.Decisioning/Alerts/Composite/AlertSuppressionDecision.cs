@@ -6,6 +6,6 @@ public class AlertSuppressionDecision
     public bool WasSuppressed { get; set; }
     public bool WasReopened { get; set; }
 
-    public string Reason { get; set; } = default!;
-    public string DeduplicationKey { get; set; } = default!;
+    public string Reason { get; set; } = null!;
+    public string DeduplicationKey { get; set; } = null!;
 }

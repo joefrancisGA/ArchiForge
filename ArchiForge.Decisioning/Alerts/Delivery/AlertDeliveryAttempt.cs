@@ -14,8 +14,8 @@ public class AlertDeliveryAttempt
     public string Status { get; set; } = AlertDeliveryAttemptStatus.Started;
     public string? ErrorMessage { get; set; }
 
-    public string ChannelType { get; set; } = default!;
-    public string Destination { get; set; } = default!;
+    public string ChannelType { get; set; } = null!;
+    public string Destination { get; set; } = null!;
 
     public int RetryCount { get; set; }
 }

@@ -13,9 +13,9 @@ public class ArchitectureDigest
 
     public DateTime GeneratedUtc { get; set; } = DateTime.UtcNow;
 
-    public string Title { get; set; } = default!;
-    public string Summary { get; set; } = default!;
-    public string ContentMarkdown { get; set; } = default!;
+    public string Title { get; set; } = null!;
+    public string Summary { get; set; } = null!;
+    public string ContentMarkdown { get; set; } = null!;
 
     public string MetadataJson { get; set; } = "{}";
 }
