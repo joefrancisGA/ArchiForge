@@ -3,10 +3,12 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Repositories;
+using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Repositories;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Repositories;
+using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Provenance;
@@ -89,6 +91,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IProvenanceQueryService, ProvenanceQueryService>();
         services.AddScoped<IConversationThreadRepository, DapperConversationThreadRepository>();
         services.AddScoped<IConversationMessageRepository, DapperConversationMessageRepository>();
+        services.AddScoped<IRecommendationRepository, DapperRecommendationRepository>();
+        services.AddScoped<IRecommendationWorkflowService, RecommendationWorkflowService>();
+        services.AddScoped<IRecommendationFeedbackAnalyzer, RecommendationFeedbackAnalyzer>();
 
         return services;
     }

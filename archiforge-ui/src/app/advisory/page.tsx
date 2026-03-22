@@ -2,14 +2,33 @@
 
 import { useState } from "react";
 import { getImprovementPlan } from "@/lib/api";
-import type { ImprovementPlan } from "@/types/advisory";
+import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
+import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
 
 export default function AdvisoryPage() {
   const [runId, setRunId] = useState("");
   const [compareToRunId, setCompareToRunId] = useState("");
-  const [result, setResult] = useState<ImprovementPlan | null>(null);
+  const [planSummary, setPlanSummary] = useState<ImprovementPlan | null>(null);
+  const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  async function takeAction(recommendationId: string, action: string) {
+    const comment = window.prompt(`Optional comment for ${action}:`) ?? "";
+    const rationale = window.prompt(`Optional rationale for ${action}:`) ?? "";
+
+    setError(null);
+    try {
+      await applyRecommendationAction(recommendationId, action, comment, rationale);
+      const rid = runId.trim();
+      if (rid) {
+        const refreshed = await listRecommendations(rid);
+        setRecommendations(refreshed);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Action failed");
+    }
+  }
 
   async function loadAdvice() {
     const rid = runId.trim();
@@ -19,10 +38,28 @@ export default function AdvisoryPage() {
     setError(null);
     try {
       const data = await getImprovementPlan(rid, compareToRunId.trim() || undefined);
-      setResult(data);
+      setPlanSummary(data);
+      const persisted = await listRecommendations(rid);
+      setRecommendations(persisted);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
-      setResult(null);
+      setPlanSummary(null);
+      setRecommendations([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function refreshPersistedOnly() {
+    const rid = runId.trim();
+    if (!rid) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const persisted = await listRecommendations(rid);
+      setRecommendations(persisted);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Request failed");
     } finally {
       setLoading(false);
     }
@@ -33,6 +70,7 @@ export default function AdvisoryPage() {
       <h2 style={{ marginTop: 0 }}>Improvement Advisor</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
         Ranked recommendations from manifest gaps, issues, cost risks, and optional comparison to a prior run.
+        Generated plans are persisted; accept, reject, defer, or mark implemented to feed the governance workflow.
       </p>
 
       <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
@@ -48,9 +86,14 @@ export default function AdvisoryPage() {
           placeholder="Optional compare-to run ID (base run for delta signals)"
           style={{ padding: 8, fontFamily: "monospace" }}
         />
-        <button type="button" onClick={() => void loadAdvice()} disabled={loading || !runId.trim()}>
-          {loading ? "Analyzing…" : "Generate recommendations"}
-        </button>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button type="button" onClick={() => void loadAdvice()} disabled={loading || !runId.trim()}>
+            {loading ? "Working…" : "Generate recommendations"}
+          </button>
+          <button type="button" onClick={() => void refreshPersistedOnly()} disabled={loading || !runId.trim()}>
+            Refresh saved list
+          </button>
+        </div>
       </div>
 
       {error ? (
@@ -59,18 +102,25 @@ export default function AdvisoryPage() {
         </p>
       ) : null}
 
-      {result ? (
+      {planSummary ? (
         <>
           <h3>Summary</h3>
           <ul>
-            {result.summaryNotes.map((note, index) => (
+            {planSummary.summaryNotes.map((note, index) => (
               <li key={index}>{note}</li>
             ))}
           </ul>
+        </>
+      ) : null}
 
-          <h3>Recommendations</h3>
+      {recommendations.length > 0 ? (
+        <>
+          <h3>Persisted recommendations</h3>
+          <p style={{ color: "#555", fontSize: 13 }}>
+            Status and reviewer fields are loaded from storage. Use actions below (requires execute authority on the API).
+          </p>
           <div style={{ display: "grid", gap: 16 }}>
-            {result.recommendations.map((rec) => (
+            {recommendations.map((rec) => (
               <div
                 key={rec.recommendationId}
                 style={{
@@ -81,6 +131,9 @@ export default function AdvisoryPage() {
                 }}
               >
                 <h4 style={{ marginTop: 0 }}>{rec.title}</h4>
+                <p>
+                  <strong>Status:</strong> {rec.status}
+                </p>
                 <p>
                   <strong>Category:</strong> {rec.category}
                 </p>
@@ -96,13 +149,44 @@ export default function AdvisoryPage() {
                 <p>
                   <strong>Suggested action:</strong> {rec.suggestedAction}
                 </p>
-                <p style={{ marginBottom: 0 }}>
+                <p>
                   <strong>Expected impact:</strong> {rec.expectedImpact}
                 </p>
+                {rec.reviewedByUserName ? (
+                  <p>
+                    <strong>Last reviewed by:</strong> {rec.reviewedByUserName}
+                  </p>
+                ) : null}
+                {rec.reviewComment ? (
+                  <p>
+                    <strong>Review comment:</strong> {rec.reviewComment}
+                  </p>
+                ) : null}
+                {rec.resolutionRationale ? (
+                  <p>
+                    <strong>Resolution rationale:</strong> {rec.resolutionRationale}
+                  </p>
+                ) : null}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "Accept")}>
+                    Accept
+                  </button>
+                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "Reject")}>
+                    Reject
+                  </button>
+                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "Defer")}>
+                    Defer
+                  </button>
+                  <button type="button" onClick={() => void takeAction(rec.recommendationId, "MarkImplemented")}>
+                    Implemented
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </>
+      ) : planSummary && recommendations.length === 0 ? (
+        <p style={{ color: "#666" }}>No persisted recommendations returned for this run.</p>
       ) : null}
     </main>
   );
