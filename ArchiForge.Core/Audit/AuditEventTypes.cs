@@ -27,4 +27,10 @@ public static class AuditEventTypes
     public const string DigestSubscriptionToggled = "DigestSubscriptionToggled";
     public const string DigestDeliverySucceeded = "DigestDeliverySucceeded";
     public const string DigestDeliveryFailed = "DigestDeliveryFailed";
+
+    public const string AlertRuleCreated = "AlertRuleCreated";
+    public const string AlertTriggered = "AlertTriggered";
+    public const string AlertAcknowledged = "AlertAcknowledged";
+    public const string AlertResolved = "AlertResolved";
+    public const string AlertSuppressed = "AlertSuppressed";
 }

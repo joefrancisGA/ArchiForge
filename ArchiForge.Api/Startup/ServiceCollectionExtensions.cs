@@ -30,6 +30,7 @@ using ArchiForge.Core.Ask;
 using ArchiForge.Decisioning.Advisory.Analysis;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
+using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Comparison;
@@ -57,6 +58,7 @@ using ArchiForge.Retrieval.Chunking;
 using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Persistence.Advisory;
+using ArchiForge.Persistence.Alerts;
 using ArchiForge.Retrieval.Queries;
 
 namespace ArchiForge.Api.Startup;
@@ -70,6 +72,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services);
         RegisterDigestDelivery(services);
+        RegisterAlerts(services);
         RegisterDataInfrastructure(services);
         RegisterBackgroundJobs(services);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
@@ -101,6 +104,12 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IDigestDeliveryChannel, DigestTeamsWebhookDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestSlackWebhookDeliveryChannel>();
         services.AddScoped<IDigestDeliveryDispatcher, DigestDeliveryDispatcher>();
+    }
+
+    private static void RegisterAlerts(IServiceCollection services)
+    {
+        services.AddScoped<IAlertEvaluator, AlertEvaluator>();
+        services.AddScoped<IAlertService, AlertService>();
     }
 
     private static void RegisterDataInfrastructure(IServiceCollection services)

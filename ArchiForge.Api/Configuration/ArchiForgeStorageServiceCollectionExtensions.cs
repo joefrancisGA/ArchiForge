@@ -5,12 +5,14 @@ using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Repositories;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
+using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Repositories;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Repositories;
 using ArchiForge.Persistence.Advisory;
+using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Provenance;
@@ -67,6 +69,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IArchitectureDigestRepository, InMemoryArchitectureDigestRepository>();
             services.AddSingleton<IDigestSubscriptionRepository, InMemoryDigestSubscriptionRepository>();
             services.AddSingleton<IDigestDeliveryAttemptRepository, InMemoryDigestDeliveryAttemptRepository>();
+            services.AddSingleton<IAlertRuleRepository, InMemoryAlertRuleRepository>();
+            services.AddSingleton<IAlertRecordRepository, InMemoryAlertRecordRepository>();
             return services;
         }
 
@@ -113,6 +117,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IArchitectureDigestRepository, DapperArchitectureDigestRepository>();
         services.AddScoped<IDigestSubscriptionRepository, DapperDigestSubscriptionRepository>();
         services.AddScoped<IDigestDeliveryAttemptRepository, DapperDigestDeliveryAttemptRepository>();
+        services.AddScoped<IAlertRuleRepository, DapperAlertRuleRepository>();
+        services.AddScoped<IAlertRecordRepository, DapperAlertRecordRepository>();
 
         return services;
     }

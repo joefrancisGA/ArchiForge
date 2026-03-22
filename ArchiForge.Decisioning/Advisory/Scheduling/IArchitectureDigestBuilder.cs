@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Advisory.Models;
+using ArchiForge.Decisioning.Alerts;
 
 namespace ArchiForge.Decisioning.Advisory.Scheduling;
 
@@ -10,5 +11,6 @@ public interface IArchitectureDigestBuilder
         Guid projectId,
         Guid? runId,
         Guid? comparedToRunId,
-        ImprovementPlan plan);
+        ImprovementPlan plan,
+        IReadOnlyList<AlertRecord>? evaluatedAlerts = null);
 }

@@ -24,6 +24,7 @@ import type {
   ArchitectureDigest,
 } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
+import type { AlertRecord, AlertRule } from "@/types/alerts";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -294,6 +295,49 @@ export async function getArchitectureDigest(digestId: string): Promise<Architect
   return apiGet<ArchitectureDigest>(
     `/api/advisory-scheduling/digests/${encodeURIComponent(digestId)}`,
   );
+}
+
+export async function listAlertRules(): Promise<AlertRule[]> {
+  return apiGet<AlertRule[]>("/api/alert-rules");
+}
+
+export async function createAlertRule(body: {
+  name: string;
+  ruleType: string;
+  severity: string;
+  thresholdValue: number;
+  isEnabled?: boolean;
+  targetChannelType?: string;
+  metadataJson?: string;
+}): Promise<AlertRule> {
+  return apiPostJson<AlertRule>("/api/alert-rules", {
+    name: body.name,
+    ruleType: body.ruleType,
+    severity: body.severity,
+    thresholdValue: body.thresholdValue,
+    isEnabled: body.isEnabled ?? true,
+    targetChannelType: body.targetChannelType ?? "DigestOnly",
+    metadataJson: body.metadataJson ?? "{}",
+  });
+}
+
+export async function listAlerts(status: string | null, take = 100): Promise<AlertRecord[]> {
+  const q = new URLSearchParams();
+  if (status) q.set("status", status);
+  q.set("take", String(take));
+  const suffix = q.toString();
+  return apiGet<AlertRecord[]>(`/api/alerts${suffix ? `?${suffix}` : ""}`);
+}
+
+export async function applyAlertAction(
+  alertId: string,
+  action: "Acknowledge" | "Resolve" | "Suppress",
+  comment?: string,
+): Promise<AlertRecord> {
+  return apiPostJson<AlertRecord>(`/api/alerts/${encodeURIComponent(alertId)}/action`, {
+    action,
+    comment: comment ?? "",
+  });
 }
 
 export async function rebuildLearningProfile(): Promise<LearningProfile> {

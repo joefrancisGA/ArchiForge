@@ -28,6 +28,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <Link href="/advisory-scheduling">Schedules</Link>
               <Link href="/digests">Digests</Link>
               <Link href="/digest-subscriptions">Subscriptions</Link>
+              <Link href="/alerts">Alerts</Link>
+              <Link href="/alert-rules">Alert Rules</Link>
             </nav>
           </header>
           <AuthStatus />

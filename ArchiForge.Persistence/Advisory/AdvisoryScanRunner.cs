@@ -1,10 +1,14 @@
 using System.Text.Json;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Decisioning.Advisory.Services;
+using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
@@ -18,6 +22,9 @@ public sealed class AdvisoryScanRunner(
     IArchitectureDigestBuilder digestBuilder,
     IArchitectureDigestRepository digestRepository,
     IDigestDeliveryDispatcher deliveryDispatcher,
+    IAlertService alertService,
+    IRecommendationRepository recommendationRepository,
+    IRecommendationLearningService recommendationLearningService,
     IAdvisoryScanExecutionRepository executionRepository,
     IAdvisoryScanScheduleRepository scheduleRepository,
     IScanScheduleCalculator scheduleCalculator,
@@ -80,6 +87,7 @@ public sealed class AdvisoryScanRunner(
 
             ImprovementPlan plan;
             Guid? comparedToRunId = null;
+            ComparisonResult? comparisonResult = null;
 
             if (compareTo is not null)
             {
@@ -89,10 +97,10 @@ public sealed class AdvisoryScanRunner(
 
                 if (previousDetail?.GoldenManifest is not null)
                 {
-                    var comparison = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
+                    comparisonResult = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
                     comparedToRunId = compareTo.RunId;
                     plan = await improvementAdvisorService
-                        .GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparison, ct)
+                        .GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct)
                         .ConfigureAwait(false);
                 }
                 else
@@ -109,13 +117,37 @@ public sealed class AdvisoryScanRunner(
                     .ConfigureAwait(false);
             }
 
+            var recommendationRecords = await recommendationRepository
+                .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)
+                .ConfigureAwait(false);
+
+            var learningProfile = await recommendationLearningService
+                .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
+                .ConfigureAwait(false);
+
+            var alertContext = new AlertEvaluationContext
+            {
+                TenantId = schedule.TenantId,
+                WorkspaceId = schedule.WorkspaceId,
+                ProjectId = schedule.ProjectId,
+                RunId = latest.RunId,
+                ComparedToRunId = comparedToRunId,
+                ImprovementPlan = plan,
+                ComparisonResult = comparisonResult,
+                RecommendationRecords = recommendationRecords,
+                LearningProfile = learningProfile,
+            };
+
+            var alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct).ConfigureAwait(false);
+
             var digest = digestBuilder.Build(
                 schedule.TenantId,
                 schedule.WorkspaceId,
                 schedule.ProjectId,
                 latest.RunId,
                 comparedToRunId,
-                plan);
+                plan,
+                alertOutcome.Evaluated);
 
             await digestRepository.CreateAsync(digest, ct).ConfigureAwait(false);
 
@@ -128,7 +160,9 @@ public sealed class AdvisoryScanRunner(
                 runId = latest.RunId,
                 comparedToRunId,
                 recommendationCount = plan.Recommendations.Count,
-                digestId = digest.DigestId
+                digestId = digest.DigestId,
+                alertsEvaluated = alertOutcome.Evaluated.Count,
+                alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
             });
 
             await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
