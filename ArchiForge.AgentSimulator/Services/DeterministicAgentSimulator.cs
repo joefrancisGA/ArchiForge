@@ -12,6 +12,7 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
         IReadOnlyCollection<AgentTask> tasks,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
@@ -20,6 +21,8 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
 
         foreach (var task in tasks.OrderBy(t => t.AgentType))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var result = task.AgentType switch
             {
                 Contracts.Common.AgentType.Topology => CreateTopologyResult(runId, task.TaskId, request),

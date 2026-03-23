@@ -12,6 +12,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
 
         var package = new AgentEvidencePackage

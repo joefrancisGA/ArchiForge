@@ -69,8 +69,10 @@ public static class ApplicationProblemMapper
     }
 
     /// <summary>
-    /// Maps <see cref="InvalidOperationException"/> for controller catch blocks (custom bad-request problem type).
-    /// Does not handle <see cref="ConflictException"/> — callers should map conflict before calling this.
+    /// Maps <see cref="InvalidOperationException"/> to a 400 Bad Request response.
+    /// "Not found" scenarios must use typed exceptions (<see cref="RunNotFoundException"/>,
+    /// <see cref="ConflictException"/>, etc.) so they are handled by
+    /// <see cref="TryMapUnhandledException"/> before reaching this method.
     /// </summary>
     public static ObjectResult MapInvalidOperation(
         InvalidOperationException ex,
@@ -78,40 +80,12 @@ public static class ApplicationProblemMapper
         string badRequestProblemType,
         string? notFoundTypeOverride)
     {
-        if (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-        {
-            var type = notFoundTypeOverride ?? InferNotFoundProblemType(ex.Message);
-            return CreateProblemResult(
-                StatusCodes.Status404NotFound,
-                "Not Found",
-                ex.Message,
-                type,
-                instance);
-        }
-
         return CreateProblemResult(
             StatusCodes.Status400BadRequest,
             "Bad Request",
             ex.Message,
             badRequestProblemType,
             instance);
-    }
-
-    /// <summary>
-    /// When no explicit problem type is passed, treat messages that reference a run as <see cref="ProblemTypes.RunNotFound"/>;
-    /// otherwise use <see cref="ProblemTypes.ResourceNotFound"/>.
-    /// </summary>
-    public static string InferNotFoundProblemType(string message)
-    {
-        if (!message.Contains("not found", StringComparison.OrdinalIgnoreCase))
-            return ProblemTypes.ResourceNotFound;
-
-        if (message.Contains("Run '", StringComparison.OrdinalIgnoreCase)
-            || message.Contains(" for run '", StringComparison.OrdinalIgnoreCase)
-            || message.Contains(" run '", StringComparison.OrdinalIgnoreCase))
-            return ProblemTypes.RunNotFound;
-
-        return ProblemTypes.ResourceNotFound;
     }
 
     private static ObjectResult MapComparisonVerificationFailed(

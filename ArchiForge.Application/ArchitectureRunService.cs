@@ -92,10 +92,10 @@ public sealed class ArchitectureRunService(
             runId);
 
         var run = await runRepository.GetByIdAsync(runId, cancellationToken)
-            ?? throw new InvalidOperationException($"Run '{runId}' not found.");
+            ?? throw new RunNotFoundException(runId);
 
-        // Idempotency: if the run has already been executed and is ready for commit or committed,
-        // return the existing results instead of re-executing agents.
+        // Idempotency: ReadyForCommit and Committed are terminal for execution.
+        // Always short-circuit; never re-run agents against a finished run.
         if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
         {
             var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
@@ -113,6 +113,12 @@ public sealed class ArchitectureRunService(
                     Results = existingResults.ToList()
                 };
             }
+
+            // Status says done but results are missing — inconsistent state. Refuse to re-execute
+            // rather than producing duplicate inserts or overwriting committed data.
+            throw new ConflictException(
+                $"Run '{runId}' is in status '{run.Status}' but has no stored agent results. " +
+                "The run is in an inconsistent state and cannot be safely re-executed.");
         }
 
         var request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
@@ -175,7 +181,7 @@ public sealed class ArchitectureRunService(
             runId);
 
         var run = await runRepository.GetByIdAsync(runId, cancellationToken)
-            ?? throw new InvalidOperationException($"Run '{runId}' not found.");
+            ?? throw new RunNotFoundException(runId);
 
         // Idempotency: if the run is already committed and has a manifest version,
         // return the existing manifest and decision traces instead of creating a new manifest version.
@@ -300,7 +306,9 @@ public sealed class ArchitectureRunService(
     }
 
     /// <summary>
-    /// Parses a <c>vN</c> manifest version string and returns <c>v(N+1)</c>; otherwise returns <c>v1</c>.
+    /// Parses a <c>vN</c> manifest version string and returns <c>v(N+1)</c>.
+    /// Throws when <paramref name="currentVersion"/> is not in the expected <c>vN</c> format,
+    /// preventing collisions from unrelated legacy or corrupted version strings all resolving to <c>v1</c>.
     /// </summary>
     private static string IncrementManifestVersion(string currentVersion)
     {
@@ -313,6 +321,8 @@ public sealed class ArchitectureRunService(
             return $"v{versionNumber + 1}";
         }
 
-        return "v1";
+        throw new InvalidOperationException(
+            $"Cannot increment manifest version '{currentVersion}': expected 'vN' format (e.g. 'v1', 'v2'). " +
+            "Verify the CurrentManifestVersion stored in the database has not been corrupted.");
     }
 }

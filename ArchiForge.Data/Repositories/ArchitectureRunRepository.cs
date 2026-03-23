@@ -110,6 +110,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             CurrentManifestVersion = row.CurrentManifestVersion,
             ContextSnapshotId = row.ContextSnapshotId,
             GraphSnapshotId = row.GraphSnapshotId,
+            ArtifactBundleId = row.ArtifactBundleId,
             TaskIds = [.. taskIds]
         };
     }
