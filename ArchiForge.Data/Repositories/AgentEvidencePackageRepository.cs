@@ -15,7 +15,13 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         AgentEvidencePackage evidencePackage,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        // Delete any existing package for this run before inserting so that a retry
+        // (e.g. after a partial failure in ExecuteRunAsync) does not accumulate stale rows.
+        const string deleteSql = """
+            DELETE FROM AgentEvidencePackages WHERE RunId = @RunId;
+            """;
+
+        const string insertSql = """
             INSERT INTO AgentEvidencePackages
             (
                 EvidencePackageId,
@@ -44,19 +50,26 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
         using var connection = connectionFactory.CreateConnection();
 
+        var parameters = new
+        {
+            evidencePackage.EvidencePackageId,
+            evidencePackage.RunId,
+            evidencePackage.RequestId,
+            evidencePackage.SystemName,
+            evidencePackage.Environment,
+            evidencePackage.CloudProvider,
+            EvidenceJson = json,
+            evidencePackage.CreatedUtc
+        };
+
         await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                evidencePackage.EvidencePackageId,
-                evidencePackage.RunId,
-                evidencePackage.RequestId,
-                evidencePackage.SystemName,
-                evidencePackage.Environment,
-                evidencePackage.CloudProvider,
-                EvidenceJson = json,
-                evidencePackage.CreatedUtc
-            },
+            deleteSql,
+            new { evidencePackage.RunId },
+            cancellationToken: cancellationToken));
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            insertSql,
+            parameters,
             cancellationToken: cancellationToken));
     }
 

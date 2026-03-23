@@ -122,21 +122,24 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
         if (RequestConstraintClassifier.HasManagedIdentityConstraint(request))
             refs.Add("policy:managed-identity-required");
 
+        if (RequestConstraintClassifier.HasEncryptionConstraint(request))
+            refs.Add("policy:encryption-at-rest-required");
+
         return refs.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     private static List<string> BuildServiceCatalogRefs(ArchitectureRequest request)
     {
+        // catalog:azure-sql is always included because DefaultEvidenceBuilder always
+        // provides SQL catalog evidence as a baseline service, keeping both in sync.
         var refs = new List<string>
         {
-            "catalog:azure-core-services"
+            "catalog:azure-core-services",
+            "catalog:azure-sql"
         };
 
         if (RequestConstraintClassifier.RequiresSearchCapability(request))
             refs.Add("catalog:azure-ai-search");
-
-        if (RequestConstraintClassifier.RequiresSqlCapability(request))
-            refs.Add("catalog:azure-sql");
 
         if (RequestConstraintClassifier.RequiresAiCapability(request))
             refs.Add("catalog:azure-ai-services");

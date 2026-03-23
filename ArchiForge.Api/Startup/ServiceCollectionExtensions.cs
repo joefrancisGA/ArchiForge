@@ -95,7 +95,6 @@ internal static partial class ServiceCollectionExtensions
         RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
-        services.AddScoped<ArchitectureRunOrchestrator>();
         return services;
     }
 

@@ -248,8 +248,6 @@ public sealed class ArchitectureRunService(
             evaluations,
             cancellationToken);
 
-        await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
-
         var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
             ? "v1"
             : IncrementManifestVersion(run.CurrentManifestVersion);
@@ -276,10 +274,13 @@ public sealed class ArchitectureRunService(
                 $"CommitRun failed: {string.Join("; ", merge.Errors)}");
         }
 
+        // Persist decision nodes, manifest, traces, and status atomically so a retry
+        // cannot produce duplicate node rows from a previous partially-committed attempt.
         using (var scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
+            await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
             await manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
             await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
             await runRepository.UpdateStatusAsync(
