@@ -3,6 +3,8 @@
 
   Idempotency:
     - CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS → safe to run repeatedly.
+    - Each table’s indexes follow immediately after that table’s CREATE (SQLite has no inline
+      INDEX … syntax for arbitrary non-unique indexes, unlike SQL Server’s CREATE TABLE).
     - All columns are defined on CREATE (same principle as ArchiForge.sql). Older DB files
       that predate a column are not upgraded by this script — use a migration path or a new
       database for tests.

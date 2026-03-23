@@ -1,10 +1,12 @@
 /*
   ArchiForge — SQL Server consolidated schema (idempotent)
 
-  Safe to run multiple times: skips existing tables/indexes/FKs. Additive ALTER batches
-  for columns live only in DbUp migrations where needed; this consolidated script assumes
-  greenfield CREATE or that migrations have already been applied. Optional batches below
-  may ADD CONSTRAINT (FK) when a legacy table exists but is missing a foreign key.
+  Safe to run multiple times: skips existing tables/indexes/FKs. Nonclustered indexes are
+  declared inline on each CREATE TABLE (INDEX … NONCLUSTERED), not as separate CREATE INDEX
+  statements. Additive ALTER batches for columns live only in DbUp migrations where needed;
+  this consolidated script assumes greenfield CREATE or that migrations have already been
+  applied. Optional batches below may ADD CONSTRAINT (FK) when a legacy table exists but is
+  missing a foreign key.
 
   Upgrading existing databases: use DbUp migrations in ArchiForge.Data/Migrations/.
 
@@ -55,7 +57,13 @@ BEGIN
         GraphSnapshotId        UNIQUEIDENTIFIER NULL,
         ArtifactBundleId       UNIQUEIDENTIFIER NULL,
         CONSTRAINT FK_ArchitectureRuns_Request FOREIGN KEY (RequestId)
-            REFERENCES dbo.ArchitectureRequests (RequestId)
+            REFERENCES dbo.ArchitectureRequests (RequestId),
+        INDEX IX_ArchitectureRuns_RequestId NONCLUSTERED (RequestId),
+        INDEX IX_ArchitectureRuns_CreatedUtc NONCLUSTERED (CreatedUtc DESC),
+        INDEX IX_ArchitectureRuns_ContextSnapshotId NONCLUSTERED (ContextSnapshotId)
+            WHERE (ContextSnapshotId IS NOT NULL),
+        INDEX IX_ArchitectureRuns_GraphSnapshotId NONCLUSTERED (GraphSnapshotId)
+            WHERE (GraphSnapshotId IS NOT NULL)
     );
 END
 GO
@@ -84,7 +92,9 @@ BEGIN
         CompletedUtc       DATETIME2     NULL,
         EvidenceBundleRef  NVARCHAR(64)  NULL,
         CONSTRAINT FK_AgentTasks_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId),
+        INDEX IX_AgentTasks_RunId NONCLUSTERED (RunId),
+        INDEX IX_AgentTasks_RunId_AgentType NONCLUSTERED (RunId, AgentType)
     );
 END
 GO
@@ -109,7 +119,10 @@ BEGIN
         ResultJson NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2     NOT NULL,
         CONSTRAINT FK_AgentResults_Task FOREIGN KEY (TaskId) REFERENCES dbo.AgentTasks (TaskId),
-        CONSTRAINT FK_AgentResults_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+        CONSTRAINT FK_AgentResults_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
+        INDEX IX_AgentResults_RunId NONCLUSTERED (RunId),
+        INDEX IX_AgentResults_TaskId NONCLUSTERED (TaskId),
+        INDEX IX_AgentResults_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
 END
 GO
@@ -140,7 +153,8 @@ BEGIN
         CONSTRAINT FK_GoldenManifestVersions_Run FOREIGN KEY (RunId)
             REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_GoldenManifestVersions_Parent FOREIGN KEY (ParentManifestVersion)
-            REFERENCES dbo.GoldenManifestVersions (ManifestVersion)
+            REFERENCES dbo.GoldenManifestVersions (ManifestVersion),
+        INDEX IX_GoldenManifestVersions_RunId NONCLUSTERED (RunId)
     );
 END
 GO
@@ -178,7 +192,9 @@ BEGIN
         EventDescription NVARCHAR(MAX) NOT NULL,
         EventJson        NVARCHAR(MAX) NOT NULL,
         CreatedUtc       DATETIME2     NOT NULL,
-        CONSTRAINT FK_DecisionTraces_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+        CONSTRAINT FK_DecisionTraces_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
+        INDEX IX_DecisionTraces_RunId NONCLUSTERED (RunId),
+        INDEX IX_DecisionTraces_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
 END
 GO
@@ -206,7 +222,8 @@ BEGIN
         CONSTRAINT FK_AgentEvidencePackages_Run FOREIGN KEY (RunId)
             REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_AgentEvidencePackages_Request FOREIGN KEY (RequestId)
-            REFERENCES dbo.ArchitectureRequests (RequestId)
+            REFERENCES dbo.ArchitectureRequests (RequestId),
+        INDEX IX_AgentEvidencePackages_RunId NONCLUSTERED (RunId)
     );
 END
 GO
@@ -237,7 +254,9 @@ BEGIN
         CONSTRAINT FK_AgentExecutionTraces_Run FOREIGN KEY (RunId)
             REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_AgentExecutionTraces_Task FOREIGN KEY (TaskId)
-            REFERENCES dbo.AgentTasks (TaskId)
+            REFERENCES dbo.AgentTasks (TaskId),
+        INDEX IX_AgentExecutionTraces_RunId NONCLUSTERED (RunId),
+        INDEX IX_AgentExecutionTraces_TaskId NONCLUSTERED (TaskId)
     );
 END
 GO
@@ -284,7 +303,9 @@ BEGIN
         CompareRunId                 NVARCHAR(64)  NULL,
         RecordJson                   NVARCHAR(MAX) NOT NULL,
         CreatedUtc                   DATETIME2     NOT NULL,
-        CONSTRAINT FK_RunExportRecords_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+        CONSTRAINT FK_RunExportRecords_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
+        INDEX IX_RunExportRecords_RunId NONCLUSTERED (RunId),
+        INDEX IX_RunExportRecords_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
 END
 GO
@@ -323,7 +344,13 @@ BEGIN
         CONSTRAINT FK_ComparisonRecords_LeftRun FOREIGN KEY (LeftRunId)
             REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_ComparisonRecords_RightRun FOREIGN KEY (RightRunId)
-            REFERENCES dbo.ArchitectureRuns (RunId)
+            REFERENCES dbo.ArchitectureRuns (RunId),
+        INDEX IX_ComparisonRecords_LeftRunId NONCLUSTERED (LeftRunId),
+        INDEX IX_ComparisonRecords_RightRunId NONCLUSTERED (RightRunId),
+        INDEX IX_ComparisonRecords_LeftExportRecordId NONCLUSTERED (LeftExportRecordId),
+        INDEX IX_ComparisonRecords_RightExportRecordId NONCLUSTERED (RightExportRecordId),
+        INDEX IX_ComparisonRecords_ComparisonType_CreatedUtc NONCLUSTERED (ComparisonType, CreatedUtc DESC),
+        INDEX IX_ComparisonRecords_Label NONCLUSTERED (Label) WHERE (Label IS NOT NULL)
     );
 END
 GO
@@ -353,7 +380,9 @@ BEGIN
         Rationale        NVARCHAR(MAX) NOT NULL,
         DecisionJson     NVARCHAR(MAX) NOT NULL,
         CreatedUtc       DATETIME2     NOT NULL,
-        CONSTRAINT FK_DecisionNodes_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+        CONSTRAINT FK_DecisionNodes_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
+        INDEX IX_DecisionNodes_RunId NONCLUSTERED (RunId),
+        INDEX IX_DecisionNodes_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
 END
 GO
@@ -381,7 +410,9 @@ BEGIN
         CONSTRAINT FK_AgentEvaluations_Run FOREIGN KEY (RunId)
             REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_AgentEvaluations_Task FOREIGN KEY (TargetAgentTaskId)
-            REFERENCES dbo.AgentTasks (TaskId)
+            REFERENCES dbo.AgentTasks (TaskId),
+        INDEX IX_AgentEvaluations_RunId NONCLUSTERED (RunId),
+        INDEX IX_AgentEvaluations_TargetAgentTaskId NONCLUSTERED (TargetAgentTaskId)
     );
 END
 GO
@@ -395,130 +426,6 @@ BEGIN
         ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Task FOREIGN KEY (TargetAgentTaskId)
             REFERENCES dbo.AgentTasks (TaskId);
 END
-GO
-
-/* ---- Indexes (idempotent) ---- */
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND i.name = N'IX_ArchitectureRuns_RequestId')
-    CREATE NONCLUSTERED INDEX IX_ArchitectureRuns_RequestId ON dbo.ArchitectureRuns (RequestId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND i.name = N'IX_ArchitectureRuns_CreatedUtc')
-    CREATE NONCLUSTERED INDEX IX_ArchitectureRuns_CreatedUtc ON dbo.ArchitectureRuns (CreatedUtc DESC);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND i.name = N'IX_ArchitectureRuns_ContextSnapshotId')
-    CREATE NONCLUSTERED INDEX IX_ArchitectureRuns_ContextSnapshotId ON dbo.ArchitectureRuns (ContextSnapshotId)
-        WHERE ContextSnapshotId IS NOT NULL;
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ArchitectureRuns') AND i.name = N'IX_ArchitectureRuns_GraphSnapshotId')
-    CREATE NONCLUSTERED INDEX IX_ArchitectureRuns_GraphSnapshotId ON dbo.ArchitectureRuns (GraphSnapshotId)
-        WHERE GraphSnapshotId IS NOT NULL;
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentTasks') AND i.name = N'IX_AgentTasks_RunId')
-    CREATE NONCLUSTERED INDEX IX_AgentTasks_RunId ON dbo.AgentTasks (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentTasks') AND i.name = N'IX_AgentTasks_RunId_AgentType')
-    CREATE NONCLUSTERED INDEX IX_AgentTasks_RunId_AgentType ON dbo.AgentTasks (RunId, AgentType);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentResults') AND i.name = N'IX_AgentResults_RunId')
-    CREATE NONCLUSTERED INDEX IX_AgentResults_RunId ON dbo.AgentResults (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentResults') AND i.name = N'IX_AgentResults_TaskId')
-    CREATE NONCLUSTERED INDEX IX_AgentResults_TaskId ON dbo.AgentResults (TaskId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentResults') AND i.name = N'IX_AgentResults_CreatedUtc')
-    CREATE NONCLUSTERED INDEX IX_AgentResults_CreatedUtc ON dbo.AgentResults (CreatedUtc DESC);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.GoldenManifestVersions') AND i.name = N'IX_GoldenManifestVersions_RunId')
-    CREATE NONCLUSTERED INDEX IX_GoldenManifestVersions_RunId ON dbo.GoldenManifestVersions (RunId);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.DecisionTraces') AND i.name = N'IX_DecisionTraces_RunId')
-    CREATE NONCLUSTERED INDEX IX_DecisionTraces_RunId ON dbo.DecisionTraces (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.DecisionTraces') AND i.name = N'IX_DecisionTraces_CreatedUtc')
-    CREATE NONCLUSTERED INDEX IX_DecisionTraces_CreatedUtc ON dbo.DecisionTraces (CreatedUtc DESC);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentEvidencePackages') AND i.name = N'IX_AgentEvidencePackages_RunId')
-    CREATE NONCLUSTERED INDEX IX_AgentEvidencePackages_RunId ON dbo.AgentEvidencePackages (RunId);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND i.name = N'IX_AgentExecutionTraces_RunId')
-    CREATE NONCLUSTERED INDEX IX_AgentExecutionTraces_RunId ON dbo.AgentExecutionTraces (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentExecutionTraces') AND i.name = N'IX_AgentExecutionTraces_TaskId')
-    CREATE NONCLUSTERED INDEX IX_AgentExecutionTraces_TaskId ON dbo.AgentExecutionTraces (TaskId);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.RunExportRecords') AND i.name = N'IX_RunExportRecords_RunId')
-    CREATE NONCLUSTERED INDEX IX_RunExportRecords_RunId ON dbo.RunExportRecords (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.RunExportRecords') AND i.name = N'IX_RunExportRecords_CreatedUtc')
-    CREATE NONCLUSTERED INDEX IX_RunExportRecords_CreatedUtc ON dbo.RunExportRecords (CreatedUtc DESC);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND i.name = N'IX_ComparisonRecords_LeftRunId')
-    CREATE NONCLUSTERED INDEX IX_ComparisonRecords_LeftRunId ON dbo.ComparisonRecords (LeftRunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND i.name = N'IX_ComparisonRecords_RightRunId')
-    CREATE NONCLUSTERED INDEX IX_ComparisonRecords_RightRunId ON dbo.ComparisonRecords (RightRunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND i.name = N'IX_ComparisonRecords_LeftExportRecordId')
-    CREATE NONCLUSTERED INDEX IX_ComparisonRecords_LeftExportRecordId ON dbo.ComparisonRecords (LeftExportRecordId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND i.name = N'IX_ComparisonRecords_RightExportRecordId')
-    CREATE NONCLUSTERED INDEX IX_ComparisonRecords_RightExportRecordId ON dbo.ComparisonRecords (RightExportRecordId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND i.name = N'IX_ComparisonRecords_ComparisonType_CreatedUtc')
-    CREATE NONCLUSTERED INDEX IX_ComparisonRecords_ComparisonType_CreatedUtc
-        ON dbo.ComparisonRecords (ComparisonType, CreatedUtc DESC);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.ComparisonRecords') AND i.name = N'IX_ComparisonRecords_Label')
-    CREATE NONCLUSTERED INDEX IX_ComparisonRecords_Label ON dbo.ComparisonRecords (Label) WHERE Label IS NOT NULL;
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.DecisionNodes') AND i.name = N'IX_DecisionNodes_RunId')
-    CREATE NONCLUSTERED INDEX IX_DecisionNodes_RunId ON dbo.DecisionNodes (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.DecisionNodes') AND i.name = N'IX_DecisionNodes_CreatedUtc')
-    CREATE NONCLUSTERED INDEX IX_DecisionNodes_CreatedUtc ON dbo.DecisionNodes (CreatedUtc DESC);
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentEvaluations') AND i.name = N'IX_AgentEvaluations_RunId')
-    CREATE NONCLUSTERED INDEX IX_AgentEvaluations_RunId ON dbo.AgentEvaluations (RunId);
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes i INNER JOIN sys.tables t ON i.object_id = t.object_id
-               WHERE t.object_id = OBJECT_ID(N'dbo.AgentEvaluations') AND i.name = N'IX_AgentEvaluations_TargetAgentTaskId')
-    CREATE NONCLUSTERED INDEX IX_AgentEvaluations_TargetAgentTaskId ON dbo.AgentEvaluations (TargetAgentTaskId);
 GO
 
 /* ---- Authority / Dapper persistence + Decisioning (GUID Runs; not ArchitectureRuns) ---- */
@@ -546,11 +453,9 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT DF_Runs_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
         ScopeProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_Runs_ScopeProjectId DEFAULT ('33333333-3333-3333-3333-333333333333')
+            CONSTRAINT DF_Runs_ScopeProjectId DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
-
-    CREATE INDEX IX_Runs_ProjectId_CreatedUtc
-        ON dbo.Runs(ProjectId, CreatedUtc DESC);
 END;
 GO
 
@@ -566,14 +471,10 @@ BEGIN
         DeltaSummary NVARCHAR(MAX) NULL,
         WarningsJson NVARCHAR(MAX) NOT NULL,
         ErrorsJson NVARCHAR(MAX) NOT NULL,
-        SourceHashesJson NVARCHAR(MAX) NOT NULL
+        SourceHashesJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_ContextSnapshots_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC),
+        INDEX IX_ContextSnapshots_RunId NONCLUSTERED (RunId)
     );
-
-    CREATE INDEX IX_ContextSnapshots_ProjectId_CreatedUtc
-        ON dbo.ContextSnapshots(ProjectId, CreatedUtc DESC);
-
-    CREATE INDEX IX_ContextSnapshots_RunId
-        ON dbo.ContextSnapshots(RunId);
 END;
 GO
 
@@ -587,14 +488,10 @@ BEGIN
         CreatedUtc DATETIME2 NOT NULL,
         NodesJson NVARCHAR(MAX) NOT NULL,
         EdgesJson NVARCHAR(MAX) NOT NULL,
-        WarningsJson NVARCHAR(MAX) NOT NULL
+        WarningsJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_GraphSnapshots_RunId NONCLUSTERED (RunId),
+        INDEX IX_GraphSnapshots_ContextSnapshotId NONCLUSTERED (ContextSnapshotId)
     );
-
-    CREATE INDEX IX_GraphSnapshots_RunId
-        ON dbo.GraphSnapshots(RunId);
-
-    CREATE INDEX IX_GraphSnapshots_ContextSnapshotId
-        ON dbo.GraphSnapshots(ContextSnapshotId);
 END;
 GO
 
@@ -607,17 +504,11 @@ BEGIN
         ContextSnapshotId UNIQUEIDENTIFIER NOT NULL,
         GraphSnapshotId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        FindingsJson NVARCHAR(MAX) NOT NULL
+        FindingsJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_FindingsSnapshots_RunId NONCLUSTERED (RunId),
+        INDEX IX_FindingsSnapshots_ContextSnapshotId NONCLUSTERED (ContextSnapshotId),
+        INDEX IX_FindingsSnapshots_GraphSnapshotId NONCLUSTERED (GraphSnapshotId)
     );
-
-    CREATE INDEX IX_FindingsSnapshots_RunId
-        ON dbo.FindingsSnapshots(RunId);
-
-    CREATE INDEX IX_FindingsSnapshots_ContextSnapshotId
-        ON dbo.FindingsSnapshots(ContextSnapshotId);
-
-    CREATE INDEX IX_FindingsSnapshots_GraphSnapshotId
-        ON dbo.FindingsSnapshots(GraphSnapshotId);
 END;
 GO
 
@@ -640,11 +531,9 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT DF_DecisioningTraces_WorkspaceId_Create DEFAULT ('22222222-2222-2222-2222-222222222222'),
         ProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_DecisioningTraces_ProjectId_Create DEFAULT ('33333333-3333-3333-3333-333333333333')
+            CONSTRAINT DF_DecisioningTraces_ProjectId_Create DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        INDEX IX_DecisioningTraces_RunId NONCLUSTERED (RunId)
     );
-
-    CREATE INDEX IX_DecisioningTraces_RunId
-        ON dbo.DecisioningTraces(RunId);
 END;
 GO
 
@@ -680,11 +569,9 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT DF_GoldenManifests_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
         ProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_GoldenManifests_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333')
+            CONSTRAINT DF_GoldenManifests_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        INDEX IX_GoldenManifests_RunId NONCLUSTERED (RunId)
     );
-
-    CREATE INDEX IX_GoldenManifests_RunId
-        ON dbo.GoldenManifests(RunId);
 END;
 GO
 
@@ -703,14 +590,10 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL
             CONSTRAINT DF_ArtifactBundles_WorkspaceId DEFAULT ('22222222-2222-2222-2222-222222222222'),
         ProjectId UNIQUEIDENTIFIER NOT NULL
-            CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333')
+            CONSTRAINT DF_ArtifactBundles_ProjectId DEFAULT ('33333333-3333-3333-3333-333333333333'),
+        INDEX IX_ArtifactBundles_RunId NONCLUSTERED (RunId),
+        INDEX IX_ArtifactBundles_ManifestId NONCLUSTERED (ManifestId)
     );
-
-    CREATE INDEX IX_ArtifactBundles_RunId
-        ON dbo.ArtifactBundles(RunId);
-
-    CREATE INDEX IX_ArtifactBundles_ManifestId
-        ON dbo.ArtifactBundles(ManifestId);
 END;
 GO
 
@@ -731,11 +614,9 @@ BEGIN
         ManifestId UNIQUEIDENTIFIER NULL,
         ArtifactId UNIQUEIDENTIFIER NULL,
         DataJson NVARCHAR(MAX) NOT NULL,
-        CorrelationId NVARCHAR(200) NULL
+        CorrelationId NVARCHAR(200) NULL,
+        INDEX IX_AuditEvents_Scope_OccurredUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, OccurredUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AuditEvents_Scope_OccurredUtc
-        ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, OccurredUtc DESC);
 END;
 GO
 
@@ -749,11 +630,9 @@ BEGIN
         ProjectId UNIQUEIDENTIFIER NOT NULL,
         RunId UNIQUEIDENTIFIER NOT NULL,
         GraphJson NVARCHAR(MAX) NOT NULL,
-        CreatedUtc DATETIME2 NOT NULL
+        CreatedUtc DATETIME2 NOT NULL,
+        INDEX IX_ProvenanceSnapshots_Scope_Run NONCLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_ProvenanceSnapshots_Scope_Run
-        ON dbo.ProvenanceSnapshots (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC);
 END;
 GO
 
@@ -770,11 +649,9 @@ BEGIN
         TargetRunId UNIQUEIDENTIFIER NULL,
         Title NVARCHAR(300) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        LastUpdatedUtc DATETIME2 NOT NULL
+        LastUpdatedUtc DATETIME2 NOT NULL,
+        INDEX IX_ConversationThreads_Scope NONCLUSTERED (TenantId, WorkspaceId, ProjectId, LastUpdatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_ConversationThreads_Scope
-        ON dbo.ConversationThreads (TenantId, WorkspaceId, ProjectId, LastUpdatedUtc DESC);
 END;
 GO
 
@@ -787,11 +664,9 @@ BEGIN
         Role NVARCHAR(50) NOT NULL,
         Content NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        MetadataJson NVARCHAR(MAX) NOT NULL
+        MetadataJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_ConversationMessages_ThreadId_CreatedUtc NONCLUSTERED (ThreadId, CreatedUtc ASC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_ConversationMessages_ThreadId_CreatedUtc
-        ON dbo.ConversationMessages (ThreadId, CreatedUtc ASC);
 END;
 GO
 
@@ -828,14 +703,10 @@ BEGIN
 
         SupportingFindingIdsJson NVARCHAR(MAX) NOT NULL,
         SupportingDecisionIdsJson NVARCHAR(MAX) NOT NULL,
-        SupportingArtifactIdsJson NVARCHAR(MAX) NOT NULL
+        SupportingArtifactIdsJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_RecommendationRecords_Scope_Run NONCLUSTERED (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC),
+        INDEX IX_RecommendationRecords_Scope_Status NONCLUSTERED (TenantId, WorkspaceId, ProjectId, Status, LastUpdatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_RecommendationRecords_Scope_Run
-        ON dbo.RecommendationRecords (TenantId, WorkspaceId, ProjectId, RunId, CreatedUtc DESC);
-
-    CREATE NONCLUSTERED INDEX IX_RecommendationRecords_Scope_Status
-        ON dbo.RecommendationRecords (TenantId, WorkspaceId, ProjectId, Status, LastUpdatedUtc DESC);
 END;
 GO
 
@@ -848,11 +719,9 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
         GeneratedUtc DATETIME2 NOT NULL,
-        ProfileJson NVARCHAR(MAX) NOT NULL
+        ProfileJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_RecommendationLearningProfiles_Scope_GeneratedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, GeneratedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_RecommendationLearningProfiles_Scope_GeneratedUtc
-        ON dbo.RecommendationLearningProfiles (TenantId, WorkspaceId, ProjectId, GeneratedUtc DESC);
 END;
 GO
 
@@ -870,11 +739,9 @@ BEGIN
         IsEnabled BIT NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         LastRunUtc DATETIME2 NULL,
-        NextRunUtc DATETIME2 NULL
+        NextRunUtc DATETIME2 NULL,
+        INDEX IX_AdvisoryScanSchedules_Scope_Enabled_NextRun NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, NextRunUtc)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AdvisoryScanSchedules_Scope_Enabled_NextRun
-        ON dbo.AdvisoryScanSchedules (TenantId, WorkspaceId, ProjectId, IsEnabled, NextRunUtc);
 END;
 GO
 
@@ -891,11 +758,9 @@ BEGIN
         CompletedUtc DATETIME2 NULL,
         Status NVARCHAR(50) NOT NULL,
         ResultJson NVARCHAR(MAX) NOT NULL,
-        ErrorMessage NVARCHAR(MAX) NULL
+        ErrorMessage NVARCHAR(MAX) NULL,
+        INDEX IX_AdvisoryScanExecutions_Schedule_StartedUtc NONCLUSTERED (ScheduleId, StartedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AdvisoryScanExecutions_Schedule_StartedUtc
-        ON dbo.AdvisoryScanExecutions (ScheduleId, StartedUtc DESC);
 END;
 GO
 
@@ -913,11 +778,9 @@ BEGIN
         Title NVARCHAR(300) NOT NULL,
         Summary NVARCHAR(MAX) NOT NULL,
         ContentMarkdown NVARCHAR(MAX) NOT NULL,
-        MetadataJson NVARCHAR(MAX) NOT NULL
+        MetadataJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_ArchitectureDigests_Scope_GeneratedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, GeneratedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_ArchitectureDigests_Scope_GeneratedUtc
-        ON dbo.ArchitectureDigests (TenantId, WorkspaceId, ProjectId, GeneratedUtc DESC);
 END;
 GO
 
@@ -935,11 +798,9 @@ BEGIN
         IsEnabled BIT NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         LastDeliveredUtc DATETIME2 NULL,
-        MetadataJson NVARCHAR(MAX) NOT NULL
+        MetadataJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_DigestSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_DigestSubscriptions_Scope_Enabled
-        ON dbo.DigestSubscriptions (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC);
 END;
 GO
 
@@ -957,14 +818,10 @@ BEGIN
         Status NVARCHAR(50) NOT NULL,
         ErrorMessage NVARCHAR(MAX) NULL,
         ChannelType NVARCHAR(100) NOT NULL,
-        Destination NVARCHAR(1000) NOT NULL
+        Destination NVARCHAR(1000) NOT NULL,
+        INDEX IX_DigestDeliveryAttempts_DigestId_AttemptedUtc NONCLUSTERED (DigestId, AttemptedUtc DESC),
+        INDEX IX_DigestDeliveryAttempts_SubscriptionId_AttemptedUtc NONCLUSTERED (SubscriptionId, AttemptedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_DigestDeliveryAttempts_DigestId_AttemptedUtc
-        ON dbo.DigestDeliveryAttempts (DigestId, AttemptedUtc DESC);
-
-    CREATE NONCLUSTERED INDEX IX_DigestDeliveryAttempts_SubscriptionId_AttemptedUtc
-        ON dbo.DigestDeliveryAttempts (SubscriptionId, AttemptedUtc DESC);
 END;
 GO
 
@@ -983,11 +840,9 @@ BEGIN
         IsEnabled BIT NOT NULL,
         TargetChannelType NVARCHAR(100) NOT NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
-        CreatedUtc DATETIME2 NOT NULL
+        CreatedUtc DATETIME2 NOT NULL,
+        INDEX IX_AlertRules_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AlertRules_Scope_Enabled
-        ON dbo.AlertRules (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC);
 END;
 GO
 
@@ -1014,14 +869,10 @@ BEGIN
         AcknowledgedByUserId NVARCHAR(200) NULL,
         AcknowledgedByUserName NVARCHAR(200) NULL,
         ResolutionComment NVARCHAR(MAX) NULL,
-        DeduplicationKey NVARCHAR(500) NOT NULL
+        DeduplicationKey NVARCHAR(500) NOT NULL,
+        INDEX IX_AlertRecords_Scope_Status_CreatedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, Status, CreatedUtc DESC),
+        INDEX IX_AlertRecords_DeduplicationKey NONCLUSTERED (DeduplicationKey)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AlertRecords_Scope_Status_CreatedUtc
-        ON dbo.AlertRecords (TenantId, WorkspaceId, ProjectId, Status, CreatedUtc DESC);
-
-    CREATE NONCLUSTERED INDEX IX_AlertRecords_DeduplicationKey
-        ON dbo.AlertRecords (DeduplicationKey);
 END;
 GO
 
@@ -1040,11 +891,9 @@ BEGIN
         IsEnabled BIT NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         LastDeliveredUtc DATETIME2 NULL,
-        MetadataJson NVARCHAR(MAX) NOT NULL
+        MetadataJson NVARCHAR(MAX) NOT NULL,
+        INDEX IX_AlertRoutingSubscriptions_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AlertRoutingSubscriptions_Scope_Enabled
-        ON dbo.AlertRoutingSubscriptions (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC);
 END;
 GO
 
@@ -1063,14 +912,10 @@ BEGIN
         ErrorMessage NVARCHAR(MAX) NULL,
         ChannelType NVARCHAR(100) NOT NULL,
         Destination NVARCHAR(1000) NOT NULL,
-        RetryCount INT NOT NULL
+        RetryCount INT NOT NULL,
+        INDEX IX_AlertDeliveryAttempts_AlertId_AttemptedUtc NONCLUSTERED (AlertId, AttemptedUtc DESC),
+        INDEX IX_AlertDeliveryAttempts_RoutingSubscriptionId_AttemptedUtc NONCLUSTERED (RoutingSubscriptionId, AttemptedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_AlertDeliveryAttempts_AlertId_AttemptedUtc
-        ON dbo.AlertDeliveryAttempts (AlertId, AttemptedUtc DESC);
-
-    CREATE NONCLUSTERED INDEX IX_AlertDeliveryAttempts_RoutingSubscriptionId_AttemptedUtc
-        ON dbo.AlertDeliveryAttempts (RoutingSubscriptionId, AttemptedUtc DESC);
 END;
 GO
 
@@ -1091,11 +936,9 @@ BEGIN
         ReopenDeltaThreshold DECIMAL(18, 4) NOT NULL,
         DedupeScope NVARCHAR(100) NOT NULL,
         TargetChannelType NVARCHAR(100) NOT NULL,
-        CreatedUtc DATETIME2 NOT NULL
+        CreatedUtc DATETIME2 NOT NULL,
+        INDEX IX_CompositeAlertRules_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_CompositeAlertRules_Scope_Enabled
-        ON dbo.CompositeAlertRules (TenantId, WorkspaceId, ProjectId, IsEnabled, CreatedUtc DESC);
 END;
 GO
 
@@ -1107,11 +950,9 @@ BEGIN
         CompositeRuleId UNIQUEIDENTIFIER NOT NULL,
         MetricType NVARCHAR(100) NOT NULL,
         [Operator] NVARCHAR(50) NOT NULL,
-        ThresholdValue DECIMAL(18, 4) NOT NULL
+        ThresholdValue DECIMAL(18, 4) NOT NULL,
+        INDEX IX_CompositeAlertRuleConditions_CompositeRuleId NONCLUSTERED (CompositeRuleId)
     );
-
-    CREATE NONCLUSTERED INDEX IX_CompositeAlertRuleConditions_CompositeRuleId
-        ON dbo.CompositeAlertRuleConditions (CompositeRuleId);
 END;
 GO
 
@@ -1129,11 +970,9 @@ BEGIN
         Status NVARCHAR(50) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         ActivatedUtc DATETIME2 NULL,
-        CurrentVersion NVARCHAR(50) NOT NULL
+        CurrentVersion NVARCHAR(50) NOT NULL,
+        INDEX IX_PolicyPacks_Scope_Status NONCLUSTERED (TenantId, WorkspaceId, ProjectId, Status, CreatedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_PolicyPacks_Scope_Status
-        ON dbo.PolicyPacks (TenantId, WorkspaceId, ProjectId, Status, CreatedUtc DESC);
 END;
 GO
 
@@ -1146,11 +985,9 @@ BEGIN
         [Version] NVARCHAR(50) NOT NULL,
         ContentJson NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        IsPublished BIT NOT NULL
+        IsPublished BIT NOT NULL,
+        INDEX IX_PolicyPackVersions_PolicyPackId_Version NONCLUSTERED (PolicyPackId, [Version])
     );
-
-    CREATE NONCLUSTERED INDEX IX_PolicyPackVersions_PolicyPackId_Version
-        ON dbo.PolicyPackVersions (PolicyPackId, [Version]);
 END;
 GO
 
@@ -1167,21 +1004,9 @@ BEGIN
         IsEnabled BIT NOT NULL,
         ScopeLevel NVARCHAR(50) NOT NULL CONSTRAINT DF_PolicyPackAssignments_ScopeLevel_Create DEFAULT (N'Project'),
         IsPinned BIT NOT NULL CONSTRAINT DF_PolicyPackAssignments_IsPinned_Create DEFAULT (0),
-        AssignedUtc DATETIME2 NOT NULL
+        AssignedUtc DATETIME2 NOT NULL,
+        INDEX IX_PolicyPackAssignments_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, AssignedUtc DESC),
+        INDEX IX_PolicyPackAssignments_ScopeLevel_AssignedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, ScopeLevel, AssignedUtc DESC)
     );
-
-    CREATE NONCLUSTERED INDEX IX_PolicyPackAssignments_Scope_Enabled
-        ON dbo.PolicyPackAssignments (TenantId, WorkspaceId, ProjectId, IsEnabled, AssignedUtc DESC);
-END;
-GO
-
-IF NOT EXISTS (
-    SELECT 1
-    FROM sys.indexes
-    WHERE name = N'IX_PolicyPackAssignments_ScopeLevel_AssignedUtc'
-      AND object_id = OBJECT_ID(N'dbo.PolicyPackAssignments'))
-BEGIN
-    CREATE NONCLUSTERED INDEX IX_PolicyPackAssignments_ScopeLevel_AssignedUtc
-        ON dbo.PolicyPackAssignments (TenantId, WorkspaceId, ProjectId, ScopeLevel, AssignedUtc DESC);
 END;
 GO
