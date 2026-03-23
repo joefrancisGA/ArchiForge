@@ -5,9 +5,12 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>Dapper implementation of <see cref="IAlertRoutingSubscriptionRepository"/> over <c>dbo.AlertRoutingSubscriptions</c>.</summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFactory connectionFactory)
     : IAlertRoutingSubscriptionRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {
         const string sql = """
@@ -29,6 +32,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
     {
         const string sql = """
@@ -48,6 +52,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct)
     {
         const string sql = """
@@ -93,6 +98,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         return rows.ToList();
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertRoutingSubscription>> ListEnabledByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

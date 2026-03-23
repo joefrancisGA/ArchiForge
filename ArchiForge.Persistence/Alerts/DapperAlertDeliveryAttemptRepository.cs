@@ -5,9 +5,12 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>Dapper implementation of <see cref="IAlertDeliveryAttemptRepository"/> over <c>dbo.AlertDeliveryAttempts</c>.</summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory connectionFactory)
     : IAlertDeliveryAttemptRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(AlertDeliveryAttempt attempt, CancellationToken ct)
     {
         const string sql = """
@@ -46,6 +49,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
         await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListByAlertAsync(
         Guid alertId,
         CancellationToken ct)
@@ -66,6 +70,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
         return result.ToList();
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertDeliveryAttempt>> ListBySubscriptionAsync(
         Guid routingSubscriptionId,
         int take,

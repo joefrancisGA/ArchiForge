@@ -2,6 +2,7 @@ using ArchiForge.Decisioning.Alerts.Delivery;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>In-memory <see cref="IAlertDeliveryAttemptRepository"/> for tests; thread-safe via lock.</summary>
 public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttemptRepository
 {
     private readonly List<AlertDeliveryAttempt> _items = [];

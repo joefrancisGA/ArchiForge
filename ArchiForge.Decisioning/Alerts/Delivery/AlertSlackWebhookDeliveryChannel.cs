@@ -2,10 +2,16 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 
 namespace ArchiForge.Decisioning.Alerts.Delivery;
 
+/// <summary>
+/// Posts a simple <c>text</c> payload to a Slack incoming webhook (<see cref="AlertRoutingChannelType.SlackWebhook"/>).
+/// </summary>
+/// <param name="webhookPoster">HTTP JSON POST helper shared with advisory delivery.</param>
 public sealed class AlertSlackWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IAlertDeliveryChannel
 {
+    /// <inheritdoc />
     public string ChannelType => AlertRoutingChannelType.SlackWebhook;
 
+    /// <inheritdoc />
     public Task SendAsync(AlertDeliveryPayload payload, CancellationToken ct)
     {
         var body = new

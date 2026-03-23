@@ -2,10 +2,16 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 
 namespace ArchiForge.Decisioning.Alerts.Delivery;
 
+/// <summary>
+/// Posts JSON with <c>title</c> and <c>text</c> to a Microsoft Teams incoming webhook (<see cref="AlertRoutingChannelType.TeamsWebhook"/>).
+/// </summary>
+/// <param name="webhookPoster">HTTP JSON POST helper.</param>
 public sealed class AlertTeamsWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IAlertDeliveryChannel
 {
+    /// <inheritdoc />
     public string ChannelType => AlertRoutingChannelType.TeamsWebhook;
 
+    /// <inheritdoc />
     public Task SendAsync(AlertDeliveryPayload payload, CancellationToken ct)
     {
         var body = new

@@ -2,6 +2,7 @@ using ArchiForge.Decisioning.Alerts.Delivery;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>In-memory <see cref="IAlertRoutingSubscriptionRepository"/> for tests and storage-off hosts.</summary>
 public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSubscriptionRepository
 {
     private readonly List<AlertRoutingSubscription> _items = [];

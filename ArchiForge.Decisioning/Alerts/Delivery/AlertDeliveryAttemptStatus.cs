@@ -1,5 +1,6 @@
 namespace ArchiForge.Decisioning.Alerts.Delivery;
 
+/// <summary>String status values stored on <see cref="AlertDeliveryAttempt.Status"/> and in SQL.</summary>
 public static class AlertDeliveryAttemptStatus
 {
     public const string Started = "Started";

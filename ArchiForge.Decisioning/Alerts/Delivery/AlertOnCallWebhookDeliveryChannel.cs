@@ -2,10 +2,16 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 
 namespace ArchiForge.Decisioning.Alerts.Delivery;
 
+/// <summary>
+/// Posts a structured JSON payload suitable for generic on-call or paging endpoints (<see cref="AlertRoutingChannelType.OnCallWebhook"/>).
+/// </summary>
+/// <param name="webhookPoster">HTTP JSON POST helper.</param>
 public sealed class AlertOnCallWebhookDeliveryChannel(IWebhookPoster webhookPoster) : IAlertDeliveryChannel
 {
+    /// <inheritdoc />
     public string ChannelType => AlertRoutingChannelType.OnCallWebhook;
 
+    /// <inheritdoc />
     public Task SendAsync(AlertDeliveryPayload payload, CancellationToken ct)
     {
         var body = new
