@@ -45,6 +45,11 @@ public sealed class AdvisoryController(
     /// <summary>
     /// Builds an <see cref="ImprovementPlan"/> from the run’s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
     /// </summary>
+    /// <param name="runId">Authority run whose golden manifest and findings drive the plan.</param>
+    /// <param name="compareToRunId">When set, manifests are compared and diff-based signals are included.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ImprovementPlanResponse"/> after persisting rows via <see cref="IRecommendationWorkflowService.PersistPlanAsync"/>.</returns>
+    /// <remarks>Audits <see cref="AuditEventTypes.RecommendationGenerated"/>. Returns 404 when the run or optional baseline lacks a golden manifest.</remarks>
     [HttpGet("runs/{runId:guid}/improvements")]
     [ProducesResponseType(typeof(ImprovementPlanResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -103,6 +108,9 @@ public sealed class AdvisoryController(
     }
 
     /// <summary>Lists recommendation rows previously stored for the given run in the current scope.</summary>
+    /// <param name="runId">Authority run id; must match persisted <see cref="RecommendationRecord.RunId"/>.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Rows ordered per <see cref="IRecommendationRepository.ListByRunAsync"/>.</returns>
     [HttpGet("runs/{runId:guid}/recommendations")]
     [ProducesResponseType(typeof(IReadOnlyList<RecommendationRecordResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RecommendationRecordResponse>>> ListRecommendations(
@@ -124,6 +132,11 @@ public sealed class AdvisoryController(
     /// <summary>
     /// Applies accept/reject/defer/implemented to a recommendation; requires execute authority and audits the outcome.
     /// </summary>
+    /// <param name="recommendationId">Primary key of the recommendation row.</param>
+    /// <param name="request">Must use a <see cref="RecommendationActionRequest.Action"/> value matching <see cref="RecommendationActionType"/> constants.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Updated <see cref="RecommendationRecordResponse"/>.</returns>
+    /// <remarks>400 when action is unknown; 404 when the id does not exist. Audit event type follows the action.</remarks>
     [HttpPost("recommendations/{recommendationId:guid}/action")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(RecommendationRecordResponse), StatusCodes.Status200OK)]

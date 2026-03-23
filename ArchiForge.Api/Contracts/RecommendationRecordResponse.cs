@@ -1,5 +1,11 @@
 namespace ArchiForge.Api.Contracts;
 
+/// <summary>
+/// API projection of a persisted <c>RecommendationRecord</c> for <c>GET</c> / <c>POST …/action</c> advisory endpoints (excludes supporting-id JSON blobs).
+/// </summary>
+/// <remarks>
+/// Mapped from <see cref="ArchiForge.Decisioning.Advisory.Workflow.RecommendationRecord"/> in <see cref="ArchiForge.Api.Controllers.AdvisoryController"/>.
+/// </remarks>
 public sealed class RecommendationRecordResponse
 {
     public Guid RecommendationId

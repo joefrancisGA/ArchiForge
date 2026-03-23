@@ -37,6 +37,9 @@ public sealed class AdvisorySchedulingController(
     : ControllerBase
 {
     /// <summary>Creates a schedule with scope ids, normalizes slug, and computes initial <see cref="AdvisoryScanSchedule.NextRunUtc"/>.</summary>
+    /// <param name="request">Client payload; <see cref="AdvisoryScanSchedule.ScheduleId"/> and scope ids are overwritten from the authenticated scope.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The persisted schedule including assigned id and computed <see cref="AdvisoryScanSchedule.NextRunUtc"/>.</returns>
     [HttpPost("schedules")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AdvisoryScanSchedule), StatusCodes.Status200OK)]
@@ -85,6 +88,10 @@ public sealed class AdvisorySchedulingController(
     }
 
     /// <summary>Returns recent execution rows for a schedule in scope.</summary>
+    /// <param name="scheduleId">Schedule to load history for.</param>
+    /// <param name="take">Maximum rows (newest <see cref="AdvisoryScanExecution.StartedUtc"/> first).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Execution history, or 404 when the schedule is missing or not in the caller’s scope.</returns>
     [HttpGet("schedules/{scheduleId:guid}/executions")]
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanExecution>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -106,6 +113,10 @@ public sealed class AdvisorySchedulingController(
     }
 
     /// <summary>Runs the advisory pipeline immediately for the schedule (same path as the background worker).</summary>
+    /// <param name="scheduleId">Schedule to run.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>200 when the runner was invoked; 404 when the schedule is unknown or out of scope.</returns>
+    /// <remarks>Advances <see cref="AdvisoryScanSchedule.LastRunUtc"/> / <see cref="AdvisoryScanSchedule.NextRunUtc"/> like a scheduled tick.</remarks>
     [HttpPost("schedules/{scheduleId:guid}/run")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -125,6 +136,10 @@ public sealed class AdvisorySchedulingController(
     }
 
     /// <summary>Lists recent architecture digests for the scope (newest first, capped by <paramref name="take"/>).</summary>
+    /// <param name="take">Maximum digests to return (default 20).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Persisted <see cref="ArchitectureDigest"/> rows from <see cref="IArchitectureDigestRepository.ListByScopeAsync"/>.</returns>
+    /// <remarks>Populated by scheduled/on-demand scans via <c>AdvisoryScanRunner</c> after <see cref="IArchitectureDigestBuilder.Build"/>.</remarks>
     [HttpGet("digests")]
     [ProducesResponseType(typeof(IReadOnlyList<ArchitectureDigest>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<ArchitectureDigest>>> ListDigests(
@@ -144,6 +159,10 @@ public sealed class AdvisorySchedulingController(
     }
 
     /// <summary>Gets a single digest by id when it belongs to the current scope.</summary>
+    /// <param name="digestId">Primary key of the digest.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>The digest body when found and scope matches.</returns>
+    /// <remarks>Returns 404 when the id is unknown or tenant/workspace/project do not match the caller’s scope.</remarks>
     [HttpGet("digests/{digestId:guid}")]
     [ProducesResponseType(typeof(ArchitectureDigest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

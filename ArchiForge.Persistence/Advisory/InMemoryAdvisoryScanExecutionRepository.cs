@@ -2,11 +2,15 @@ using ArchiForge.Decisioning.Advisory.Scheduling;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// Thread-safe in-memory <see cref="IAdvisoryScanExecutionRepository"/> for tests and storage-off mode.
+/// </summary>
 public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecutionRepository
 {
     private readonly List<AdvisoryScanExecution> _items = [];
     private readonly Lock _gate = new();
 
+    /// <inheritdoc />
     public Task CreateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
         _ = ct;
@@ -15,6 +19,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task UpdateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
         _ = ct;
@@ -28,6 +33,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         Guid scheduleId,
         int take,

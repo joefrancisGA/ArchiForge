@@ -6,8 +6,14 @@ using ArchiForge.Decisioning.Alerts;
 
 namespace ArchiForge.Decisioning.Advisory.Scheduling;
 
+/// <inheritdoc cref="IArchitectureDigestBuilder" />
 public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Includes up to five highest-priority recommendations, all summary notes, and every alert as a bullet line.
+    /// <see cref="ArchitectureDigest.MetadataJson"/> stores counts: recommendation totals, top slice size, evaluated alerts, and high/critical alert count.
+    /// </remarks>
     public ArchitectureDigest Build(
         Guid tenantId,
         Guid workspaceId,

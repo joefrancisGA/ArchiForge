@@ -40,6 +40,7 @@ namespace ArchiForge.Persistence.Advisory;
 /// Pushes <see cref="AmbientScopeContext"/> for the schedule’s tenant/workspace/project so downstream providers (compliance, governance) resolve the correct scope.
 /// Loads <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync"/> once per successful scan and passes it into <see cref="AlertEvaluationContextFactory.ForAdvisoryScan"/> so alert services avoid a second governance load.
 /// </remarks>
+/// <seealso cref="IAdvisoryScanRunner"/>
 public sealed class AdvisoryScanRunner(
     IAuthorityQueryService authorityQueryService,
     IImprovementAdvisorService improvementAdvisorService,

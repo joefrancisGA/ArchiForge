@@ -4,8 +4,15 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Advisory.Analysis;
 
+/// <summary>
+/// Default <see cref="IImprovementSignalAnalyzer"/> implementation driven by manifest gaps and <see cref="ComparisonResult"/> deltas.
+/// </summary>
 public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Currently does not read individual findings from <paramref name="findingsSnapshot"/>; extension points use manifest and comparison only.
+    /// </remarks>
     public IReadOnlyList<ImprovementSignal> Analyze(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,

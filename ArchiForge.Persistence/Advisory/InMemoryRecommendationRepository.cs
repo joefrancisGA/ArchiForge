@@ -2,11 +2,13 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <inheritdoc cref="IRecommendationRepository" />
 public sealed class InMemoryRecommendationRepository : IRecommendationRepository
 {
     private readonly List<RecommendationRecord> _items = [];
     private readonly Lock _gate = new();
 
+    /// <inheritdoc />
     public Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
     {
         _ = ct;
@@ -19,6 +21,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
     {
         _ = ct;
@@ -28,6 +31,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         }
     }
 
+    /// <inheritdoc />
     public Task<IReadOnlyList<RecommendationRecord>> ListByRunAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -52,6 +56,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         }
     }
 
+    /// <inheritdoc />
     public Task<IReadOnlyList<RecommendationRecord>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

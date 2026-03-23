@@ -2,8 +2,10 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <inheritdoc cref="IRecommendationFeedbackAnalyzer" />
 public sealed class RecommendationFeedbackAnalyzer(IRecommendationRepository repository) : IRecommendationFeedbackAnalyzer
 {
+    /// <inheritdoc />
     public async Task<IReadOnlyDictionary<string, int>> GetStatusCountsByCategoryAsync(
         Guid tenantId,
         Guid workspaceId,

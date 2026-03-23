@@ -2,11 +2,13 @@ using ArchiForge.Decisioning.Advisory.Scheduling;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <inheritdoc cref="IArchitectureDigestRepository" />
 public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRepository
 {
     private readonly List<ArchitectureDigest> _items = [];
     private readonly Lock _gate = new();
 
+    /// <inheritdoc />
     public Task CreateAsync(ArchitectureDigest digest, CancellationToken ct)
     {
         _ = ct;
@@ -38,6 +40,7 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
         }
     }
 
+    /// <inheritdoc />
     public Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
     {
         _ = ct;

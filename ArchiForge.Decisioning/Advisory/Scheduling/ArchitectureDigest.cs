@@ -1,5 +1,12 @@
 namespace ArchiForge.Decisioning.Advisory.Scheduling;
 
+/// <summary>
+/// Persisted “daily” (or scheduled) architecture summary for a scope: markdown body, short summary, optional run linkage, and opaque <see cref="MetadataJson"/> for counts and diagnostics.
+/// </summary>
+/// <remarks>
+/// Produced by <see cref="IArchitectureDigestBuilder"/> inside <c>AdvisoryScanRunner</c>, stored via <c>IArchitectureDigestRepository</c>, and optionally delivered by <see cref="ArchiForge.Decisioning.Advisory.Delivery.IDigestDeliveryDispatcher"/>.
+/// HTTP list/get: <c>ArchiForge.Api.Controllers.AdvisorySchedulingController</c>.
+/// </remarks>
 public class ArchitectureDigest
 {
     public Guid DigestId { get; set; } = Guid.NewGuid();

@@ -5,9 +5,14 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// SQL Server implementation of <see cref="IAdvisoryScanExecutionRepository"/> against <c>dbo.AdvisoryScanExecutions</c>.
+/// </summary>
+/// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
 public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory connectionFactory)
     : IAdvisoryScanExecutionRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
         const string sql = """
@@ -27,6 +32,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
         await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(AdvisoryScanExecution execution, CancellationToken ct)
     {
         const string sql = """
@@ -43,6 +49,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
         await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AdvisoryScanExecution>> ListByScheduleAsync(
         Guid scheduleId,
         int take,

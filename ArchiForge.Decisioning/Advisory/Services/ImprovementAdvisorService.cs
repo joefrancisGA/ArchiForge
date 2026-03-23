@@ -6,11 +6,13 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Advisory.Services;
 
+/// <inheritdoc cref="IImprovementAdvisorService" />
 public sealed class ImprovementAdvisorService(
     IImprovementSignalAnalyzer signalAnalyzer,
     IRecommendationGenerator recommendationGenerator,
     IRecommendationLearningService learningService) : IImprovementAdvisorService
 {
+    /// <inheritdoc />
     public async Task<ImprovementPlan> GeneratePlanAsync(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
@@ -31,6 +33,7 @@ public sealed class ImprovementAdvisorService(
         };
     }
 
+    /// <inheritdoc />
     public async Task<ImprovementPlan> GeneratePlanAsync(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,

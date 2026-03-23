@@ -5,9 +5,11 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <inheritdoc cref="IArchitectureDigestRepository" />
 public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory connectionFactory)
     : IArchitectureDigestRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(ArchitectureDigest digest, CancellationToken ct)
     {
         const string sql = """
@@ -64,6 +66,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
         return result.ToList();
     }
 
+    /// <inheritdoc />
     public async Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct)
     {
         const string sql = """

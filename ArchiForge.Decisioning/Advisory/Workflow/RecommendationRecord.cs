@@ -1,5 +1,12 @@
 namespace ArchiForge.Decisioning.Advisory.Workflow;
 
+/// <summary>
+/// Durable advisory recommendation row: scope, run linkage, workflow status, reviewer fields, and JSON arrays of supporting entity ids.
+/// </summary>
+/// <remarks>
+/// Maps to <c>dbo.RecommendationRecords</c>. Status values are defined on <see cref="RecommendationStatus"/>.
+/// <see cref="SupportingFindingIdsJson"/>, <see cref="SupportingDecisionIdsJson"/>, and <see cref="SupportingArtifactIdsJson"/> are stored as JSON text (camelCase object arrays in typical writes).
+/// </remarks>
 public class RecommendationRecord
 {
     public Guid RecommendationId

@@ -5,8 +5,11 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <inheritdoc cref="IRecommendationRepository" />
+/// <remarks>Uses a single <c>MERGE</c> statement keyed on <see cref="RecommendationRecord.RecommendationId"/>.</remarks>
 public sealed class DapperRecommendationRepository(ISqlConnectionFactory connectionFactory) : IRecommendationRepository
 {
+    /// <inheritdoc />
     public async Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
     {
         const string sql = """
@@ -85,6 +88,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             }, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RecommendationRecord>> ListByRunAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -124,6 +128,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
         return result.ToList();
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RecommendationRecord>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

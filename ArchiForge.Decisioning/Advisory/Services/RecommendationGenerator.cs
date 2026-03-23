@@ -3,8 +3,16 @@ using ArchiForge.Decisioning.Advisory.Models;
 
 namespace ArchiForge.Decisioning.Advisory.Services;
 
+/// <summary>
+/// Default <see cref="IRecommendationGenerator"/>: maps each <see cref="ImprovementSignal"/> to an <see cref="ImprovementRecommendation"/> using rule-based title/action text, category/scoring heuristics, and optional adaptive scoring.
+/// </summary>
 public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adaptiveScorer) : IRecommendationGenerator
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Urgency is derived from signal severity; base priority from category and severity; <paramref name="profile"/> is passed to <see cref="IAdaptiveRecommendationScorer"/>.
+    /// Supporting ids on recommendations come from <see cref="ImprovementSignal.FindingIds"/> and <see cref="ImprovementSignal.DecisionIds"/> (artifacts list is left empty at this stage).
+    /// </remarks>
     public IReadOnlyList<ImprovementRecommendation> Generate(
         IReadOnlyList<ImprovementSignal> signals,
         RecommendationLearningProfile? profile = null)

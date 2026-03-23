@@ -5,10 +5,12 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <inheritdoc cref="IRecommendationWorkflowService" />
 public sealed class RecommendationWorkflowService(IRecommendationRepository repository) : IRecommendationWorkflowService
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
+    /// <inheritdoc />
     public async Task PersistPlanAsync(
         ImprovementPlan plan,
         Guid tenantId,
@@ -58,6 +60,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         }
     }
 
+    /// <inheritdoc />
     public async Task<RecommendationRecord?> ApplyActionAsync(
         Guid recommendationId,
         string userId,
