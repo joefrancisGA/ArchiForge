@@ -1,5 +1,8 @@
 namespace ArchiForge.Persistence.Compare;
 
+/// <summary>
+/// String labels stored in <see cref="DiffItem.DiffKind"/> for comparison results and API responses.
+/// </summary>
 public static class DiffKind
 {
     public const string Added = "Added";

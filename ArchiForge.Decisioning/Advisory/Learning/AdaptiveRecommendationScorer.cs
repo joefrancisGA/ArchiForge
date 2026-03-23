@@ -1,7 +1,14 @@
 namespace ArchiForge.Decisioning.Advisory.Learning;
 
+/// <summary>
+/// Default <see cref="IAdaptiveRecommendationScorer"/> using multiplicative weights from <see cref="RecommendationLearningProfile"/> dictionaries (case-sensitive keys as stored).
+/// </summary>
+/// <remarks>
+/// Missing keys default to weight <c>1.0</c>. Final score is the product of weights times the base score, rounded to <see cref="int"/> with <see cref="MidpointRounding.AwayFromZero"/>.
+/// </remarks>
 public sealed class AdaptiveRecommendationScorer : IAdaptiveRecommendationScorer
 {
+    /// <inheritdoc />
     public AdaptiveScoringResult Score(
         AdaptiveScoringInput input,
         RecommendationLearningProfile? profile)

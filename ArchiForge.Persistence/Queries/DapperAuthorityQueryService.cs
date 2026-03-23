@@ -8,6 +8,10 @@ using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Queries;
 
+/// <summary>
+/// <see cref="IAuthorityQueryService"/> implementation that composes existing repositories (same graph as in-memory; storage is repository-dependent).
+/// </summary>
+/// <remarks>Registered scoped in DI when SQL-backed persistence is enabled.</remarks>
 public sealed class DapperAuthorityQueryService(
     IRunRepository runRepository,
     IContextSnapshotRepository contextSnapshotRepository,
@@ -18,6 +22,7 @@ public sealed class DapperAuthorityQueryService(
     IArtifactBundleRepository artifactBundleRepository)
     : IAuthorityQueryService
 {
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunSummaryDto>> ListRunsByProjectAsync(
         ScopeContext scope,
         string projectId,
@@ -28,6 +33,7 @@ public sealed class DapperAuthorityQueryService(
         return runs.Select(MapSummary).ToList();
     }
 
+    /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         var run = await runRepository.GetByIdAsync(scope, runId, ct);
@@ -75,6 +81,7 @@ public sealed class DapperAuthorityQueryService(
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         var manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);

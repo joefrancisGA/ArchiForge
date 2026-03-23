@@ -11,6 +11,10 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for comparing golden manifests or two authority runs within the caller’s scope.
+/// </summary>
+/// <remarks>Routes under <c>api/authority/compare</c>; delegates to <see cref="IAuthorityCompareService"/>.</remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -20,6 +24,11 @@ public sealed class AuthorityCompareController(
     IAuthorityCompareService compareService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    /// <summary>Compares two manifests by id in the current scope.</summary>
+    /// <param name="leftManifestId">First manifest.</param>
+    /// <param name="rightManifestId">Second manifest.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ManifestComparisonResponse"/>, or 404 when either id is missing or manifests are not in the same scope.</returns>
     [HttpGet("manifests")]
     [ProducesResponseType(typeof(ManifestComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -36,6 +45,11 @@ public sealed class AuthorityCompareController(
         return Ok(MapManifest(result));
     }
 
+    /// <summary>Compares two runs (summary fields and nested manifests when both have golden manifest ids).</summary>
+    /// <param name="leftRunId">First run.</param>
+    /// <param name="rightRunId">Second run.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="RunComparisonResponse"/>, or 404 when either run is missing from the current scope.</returns>
     [HttpGet("runs")]
     [ProducesResponseType(typeof(RunComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

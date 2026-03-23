@@ -8,6 +8,9 @@ using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Queries;
 
+/// <summary>
+/// <see cref="IAuthorityQueryService"/> backed by the same repository abstractions as <see cref="DapperAuthorityQueryService"/> (in-memory stores in test / storage-off mode).
+/// </summary>
 public sealed class InMemoryAuthorityQueryService(
     IRunRepository runRepository,
     IContextSnapshotRepository contextSnapshotRepository,
@@ -18,6 +21,7 @@ public sealed class InMemoryAuthorityQueryService(
     IArtifactBundleRepository artifactBundleRepository)
     : IAuthorityQueryService
 {
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunSummaryDto>> ListRunsByProjectAsync(
         ScopeContext scope,
         string projectId,
@@ -34,6 +38,7 @@ public sealed class InMemoryAuthorityQueryService(
         return run is null ? null : MapSummary(run);
     }
 
+    /// <inheritdoc />
     public async Task<RunDetailDto?> GetRunDetailAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         var run = await runRepository.GetByIdAsync(scope, runId, ct);
@@ -64,6 +69,7 @@ public sealed class InMemoryAuthorityQueryService(
         };
     }
 
+    /// <inheritdoc />
     public async Task<ManifestSummaryDto?> GetManifestSummaryAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         var manifest = await goldenManifestRepository.GetByIdAsync(scope, manifestId, ct);

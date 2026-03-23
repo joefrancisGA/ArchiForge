@@ -11,6 +11,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Read-only HTTP surface for authority runs and golden-manifest summaries scoped to the caller’s tenant/workspace/project.
+/// </summary>
+/// <remarks>
+/// Delegates to <see cref="IAuthorityQueryService"/>; routes under <c>api/authority</c>. Run detail returns <see cref="RunDetailDto"/> directly (embedded domain models).
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -20,6 +26,11 @@ public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
     IScopeContextProvider scopeProvider) : ControllerBase
 {
+    /// <summary>Lists recent runs for an authority project slug (e.g. <c>default</c>).</summary>
+    /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
+    /// <param name="take">Maximum runs (default 20).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="RunSummaryResponse"/> items newest-first.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RunSummaryResponse>>> ListRunsByProject(
@@ -72,6 +83,10 @@ public sealed class AuthorityQueryController(
         });
     }
 
+    /// <summary>Loads full run detail including hydrated snapshots and golden manifest when available.</summary>
+    /// <param name="runId">Run to load.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="RunDetailDto"/> JSON, or 404 when missing or out of scope.</returns>
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(RunDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,6 +102,10 @@ public sealed class AuthorityQueryController(
         return Ok(result);
     }
 
+    /// <summary>Gets compact counts/metadata for a golden manifest in the current scope.</summary>
+    /// <param name="manifestId">Manifest primary key.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ManifestSummaryResponse"/>, or 404 when unknown or out of scope.</returns>
     [HttpGet("manifests/{manifestId:guid}/summary")]
     [ProducesResponseType(typeof(ManifestSummaryResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

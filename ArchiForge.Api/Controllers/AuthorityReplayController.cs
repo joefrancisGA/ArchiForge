@@ -13,6 +13,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Executes authority run replay (validate, optionally rebuild manifest/trace and artifacts) for the authenticated scope.
+/// </summary>
+/// <remarks>
+/// POST <c>api/authority/replay</c>; uses <see cref="ReplayMode"/> strings from the request body. Emits <see cref="AuditEventTypes.ReplayExecuted"/> on success.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
@@ -22,6 +28,10 @@ public sealed class AuthorityReplayController(
     IAuthorityReplayService replayService,
     IAuditService auditService) : ControllerBase
 {
+    /// <summary>Runs replay for the run and mode in <paramref name="request"/>.</summary>
+    /// <param name="request">Run id and optional mode (defaults to <see cref="ReplayMode.ReconstructOnly"/>).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ReplayResponse"/> with validation and rebuilt entity ids when applicable, or 404 when the run is unknown.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ReplayResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

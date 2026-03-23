@@ -7,6 +7,12 @@ using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Replay;
 
+/// <summary>
+/// <see cref="IAuthorityReplayService"/> implementation: validate stored run, optionally rebuild manifest/trace and artifacts under scope derived from the run row.
+/// </summary>
+/// <remarks>
+/// Read path uses <see cref="IScopeContextProvider.GetCurrentScope"/>; writes use <see cref="RunRecord"/> tenant/workspace/<c>ScopeProjectId</c> when set, else default scope ids.
+/// </remarks>
 public sealed class AuthorityReplayService(
     IAuthorityQueryService queryService,
     IScopeContextProvider scopeContextProvider,
@@ -18,6 +24,7 @@ public sealed class AuthorityReplayService(
     IArtifactBundleRepository artifactBundleRepository)
     : IAuthorityReplayService
 {
+    /// <inheritdoc />
     public async Task<ReplayResult?> ReplayAsync(
         ReplayRequest request,
         CancellationToken ct)

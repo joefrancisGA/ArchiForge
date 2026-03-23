@@ -5,11 +5,19 @@ using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Compare;
 
+/// <summary>
+/// <see cref="IAuthorityCompareService"/> implementation: manifest diff across requirements, topology, security, cost, issues, assumptions, warnings, and decisions.
+/// </summary>
+/// <remarks>
+/// Run comparison uses <see cref="IAuthorityQueryService.GetRunSummaryAsync"/>; manifest comparison uses <see cref="IGoldenManifestRepository.GetByIdAsync"/>.
+/// String-set diffs use case-insensitive equality; run-level <see cref="AddRunDiff"/> uses ordinal comparison.
+/// </remarks>
 public sealed class AuthorityCompareService(
     IGoldenManifestRepository manifestRepository,
     IAuthorityQueryService queryService)
     : IAuthorityCompareService
 {
+    /// <inheritdoc />
     public async Task<ManifestComparisonResult?> CompareManifestsAsync(
         ScopeContext scope,
         Guid leftManifestId,
@@ -323,6 +331,7 @@ public sealed class AuthorityCompareService(
         }
     }
 
+    /// <inheritdoc />
     public void AddRunDiff(
         IList<DiffItem> diffs,
         string section,

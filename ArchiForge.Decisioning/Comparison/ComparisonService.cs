@@ -4,8 +4,16 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Comparison;
 
+/// <summary>
+/// <see cref="IComparisonService"/> implementation: keyed merges over decisions, requirement coverage, security controls, topology resources, and optional max monthly cost.
+/// </summary>
+/// <remarks>
+/// Decision keys prefer <see cref="ResolvedArchitectureDecision.DecisionId"/> when set, else <c>Category::Title</c>. Security controls key on <c>ControlId|ControlName</c> when <c>ControlId</c> is non-empty.
+/// Requirement names are matched case-insensitively; several string comparisons for options/status use ordinal rules as implemented per section.
+/// </remarks>
 public sealed class ComparisonService : IComparisonService
 {
+    /// <inheritdoc />
     public ComparisonResult Compare(GoldenManifest baseM, GoldenManifest targetM)
     {
         var result = new ComparisonResult
