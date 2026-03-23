@@ -1,3 +1,5 @@
+using System.Transactions;
+
 using ArchiForge.Api.Diagnostics;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
@@ -184,17 +186,24 @@ public sealed class ArchitectureApplicationService(
         }
 
         var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
-        await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
 
         var newStatus = HasAllRequiredAgentTypes(fakeResults)
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
-        await runRepository.UpdateStatusAsync(
-            runId,
-            newStatus,
-            currentManifestVersion: run.CurrentManifestVersion,
-            completedUtc: null,
-            cancellationToken: cancellationToken);
+
+        using (var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
+            await runRepository.UpdateStatusAsync(
+                runId,
+                newStatus,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken);
+            scope.Complete();
+        }
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);

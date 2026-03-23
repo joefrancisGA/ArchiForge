@@ -28,7 +28,8 @@ public sealed class ArchitectureAnalysisService(
             throw new InvalidOperationException("RunId is required.");
         }
 
-        var run = await runRepository.GetByIdAsync(request.RunId, cancellationToken)
+        var run = request.PreloadedRun
+            ?? await runRepository.GetByIdAsync(request.RunId, cancellationToken)
             ?? throw new InvalidOperationException($"Run '{request.RunId}' not found.");
 
         var report = new ArchitectureAnalysisReport

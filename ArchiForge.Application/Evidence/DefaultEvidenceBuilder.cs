@@ -14,6 +14,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
+        cancellationToken.ThrowIfCancellationRequested();
 
         var package = new AgentEvidencePackage
         {

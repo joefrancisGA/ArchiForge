@@ -272,6 +272,60 @@ public static class FakeAgentResultFactory
         };
     }
 
+    public static AgentResult CreateCriticResult(
+        string runId,
+        string taskId,
+        ArchitectureRequest request)
+    {
+        return new AgentResult
+        {
+            ResultId = Guid.NewGuid().ToString("N"),
+            TaskId = taskId,
+            RunId = runId,
+            AgentType = AgentType.Critic,
+            Claims =
+            [
+                $"The proposed topology for '{request.SystemName}' uses well-understood Azure services with no obvious architectural anti-patterns.",
+                "Cost estimate assumptions are reasonable for an MVP scope; revisit as load increases.",
+                "Compliance controls are aligned with the stated policy baseline."
+            ],
+            EvidenceRefs =
+            [
+                "request",
+                "policy-pack:enterprise-default",
+                "policy-pack:azure-security-baseline",
+                "service-catalog:azure-core-services"
+            ],
+            Confidence = 0.85,
+            Findings =
+            [
+                new ArchitectureFinding
+                {
+                    FindingId = Guid.NewGuid().ToString("N"),
+                    SourceAgent = AgentType.Critic,
+                    Severity = "Info",
+                    Category = "Review",
+                    Message = "No critical omissions or contradictions detected in the proposed architecture.",
+                    EvidenceRefs = ["request", "policy-pack:enterprise-default"]
+                }
+            ],
+            ProposedChanges = new ManifestDeltaProposal
+            {
+                ProposalId = Guid.NewGuid().ToString("N"),
+                SourceAgent = AgentType.Critic,
+                AddedServices = [],
+                AddedDatastores = [],
+                AddedRelationships = [],
+                RequiredControls = [],
+                Warnings =
+                [
+                    "Ensure observability stack (Application Insights or equivalent) is included before production."
+                ]
+            },
+            CreatedUtc = DateTime.UtcNow
+        };
+    }
+
     public static IReadOnlyList<AgentResult> CreateStarterResults(
         string runId,
         IReadOnlyCollection<AgentTask> tasks,
@@ -286,11 +340,15 @@ public static class FakeAgentResultFactory
         var complianceTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Compliance)
             ?? throw new InvalidOperationException("Compliance task was not found.");
 
+        var criticTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Critic)
+            ?? throw new InvalidOperationException("Critic task was not found.");
+
         return
         [
             CreateTopologyResult(runId, topologyTask.TaskId, request),
             CreateCostResult(runId, costTask.TaskId, request),
-            CreateComplianceResult(runId, complianceTask.TaskId, request)
+            CreateComplianceResult(runId, complianceTask.TaskId, request),
+            CreateCriticResult(runId, criticTask.TaskId, request)
         ];
     }
 }

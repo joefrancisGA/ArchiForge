@@ -184,7 +184,6 @@ public sealed partial class RunsController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [Authorize(Policy = "CanCommitRuns")]
     public async Task<IActionResult> CommitRun(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
@@ -284,6 +283,13 @@ public sealed partial class RunsController(
         }
 
         var decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        if (decisions.Count == 0)
+        {
+            return this.NotFoundProblem(
+                $"No decisions found for run '{runId}'. Decisions are available after the run has been committed.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         return Ok(new DecisionNodeResponse
         {

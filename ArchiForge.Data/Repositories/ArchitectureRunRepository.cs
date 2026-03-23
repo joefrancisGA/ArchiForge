@@ -120,29 +120,51 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         ArchitectureRunStatus status,
         string? currentManifestVersion = null,
         DateTime? completedUtc = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        ArchitectureRunStatus? expectedStatus = null)
     {
-        const string sql = """
-            UPDATE ArchitectureRuns
-            SET
-                Status = @Status,
-                CurrentManifestVersion = @CurrentManifestVersion,
-                CompletedUtc = @CompletedUtc
-            WHERE RunId = @RunId;
-            """;
+        // COALESCE preserves the existing manifest version when the caller passes null,
+        // preventing a stale null snapshot from overwriting a version already written
+        // by a concurrent flow.
+        var sql = expectedStatus.HasValue
+            ? """
+              UPDATE ArchitectureRuns
+              SET
+                  Status = @Status,
+                  CurrentManifestVersion = COALESCE(@CurrentManifestVersion, CurrentManifestVersion),
+                  CompletedUtc = @CompletedUtc
+              WHERE RunId = @RunId
+                AND Status = @ExpectedStatus;
+              """
+            : """
+              UPDATE ArchitectureRuns
+              SET
+                  Status = @Status,
+                  CurrentManifestVersion = COALESCE(@CurrentManifestVersion, CurrentManifestVersion),
+                  CompletedUtc = @CompletedUtc
+              WHERE RunId = @RunId;
+              """;
 
         using var connection = connectionFactory.CreateConnection();
 
-        await connection.ExecuteAsync(new CommandDefinition(
+        var rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
             sql,
             new
             {
                 RunId = runId,
                 Status = status.ToString(),
                 CurrentManifestVersion = currentManifestVersion,
-                CompletedUtc = completedUtc
+                CompletedUtc = completedUtc,
+                ExpectedStatus = expectedStatus?.ToString()
             },
             cancellationToken: cancellationToken));
+
+        if (expectedStatus.HasValue && rowsAffected == 0)
+        {
+            throw new InvalidOperationException(
+                $"Run '{runId}' could not be transitioned to '{status}': " +
+                $"expected status '{expectedStatus}' but the run has already been moved by a concurrent operation.");
+        }
     }
 
     private sealed class ArchitectureRunRow

@@ -162,7 +162,8 @@ public sealed class ArchitectureRunService(
                 ArchitectureRunStatus.ReadyForCommit,
                 currentManifestVersion: run.CurrentManifestVersion,
                 completedUtc: null,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken,
+                expectedStatus: run.Status);
             scope.Complete();
         }
 
@@ -294,7 +295,8 @@ public sealed class ArchitectureRunService(
                 ArchitectureRunStatus.Committed,
                 merge.Manifest.Metadata.ManifestVersion,
                 DateTime.UtcNow,
-                cancellationToken);
+                cancellationToken,
+                expectedStatus: ArchitectureRunStatus.ReadyForCommit);
             scope.Complete();
         }
 
