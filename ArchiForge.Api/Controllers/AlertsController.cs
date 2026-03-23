@@ -12,6 +12,13 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Lists alerts and applies lifecycle actions (acknowledge / resolve / suppress) for the caller’s tenant/workspace/project scope.
+/// </summary>
+/// <remarks>
+/// Scope comes from <see cref="IScopeContextProvider"/>; alert <strong>evaluation</strong> is performed by orchestration paths
+/// (<c>AlertService</c> / composite service), not from this controller.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -23,6 +30,10 @@ public sealed class AlertsController(
     IAlertService alertService)
     : ControllerBase
 {
+    /// <summary>Lists recent alerts for the current scope, optionally filtered by status.</summary>
+    /// <param name="status">When set, restricts to alerts with this status string (repository-defined).</param>
+    /// <param name="take">Max rows (capped by repository).</param>
+    /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AlertRecord>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRecord>>> List(
@@ -43,6 +54,11 @@ public sealed class AlertsController(
         return Ok(alerts);
     }
 
+    /// <summary>Applies an operator action to an alert if it belongs to the current scope.</summary>
+    /// <param name="alertId">Target alert id.</param>
+    /// <param name="request">Action type and optional comment.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Updated alert, or 404 when missing or out of scope.</returns>
     [HttpPost("{alertId:guid}/action")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRecord), StatusCodes.Status200OK)]

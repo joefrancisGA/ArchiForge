@@ -4,8 +4,15 @@ using FluentValidation;
 
 namespace ArchiForge.Api.Validators;
 
+/// <summary>
+/// FluentValidation rules for <see cref="PublishPolicyPackVersionRequest"/> (<c>POST …/policy-packs/{id}/publish</c>).
+/// </summary>
+/// <remarks>
+/// Ensures version label matches the same SemVer-style rules as assign, and <c>ContentJson</c> is parseable JSON before persistence.
+/// </remarks>
 public sealed class PublishPolicyPackVersionRequestValidator : AbstractValidator<PublishPolicyPackVersionRequest>
 {
+    /// <summary>Registers SemVer and JSON rules.</summary>
     public PublishPolicyPackVersionRequestValidator()
     {
         RuleFor(x => x.Version)

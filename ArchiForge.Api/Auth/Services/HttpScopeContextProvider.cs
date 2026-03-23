@@ -1,9 +1,24 @@
 using ArchiForge.Core.Scoping;
 
+using Microsoft.AspNetCore.Http;
+
 namespace ArchiForge.Api.Auth.Services;
 
+/// <summary>
+/// Resolves <see cref="ScopeContext"/> from optional ambient override, then JWT claims, then <c>x-*-id</c> headers, with dev fallbacks.
+/// </summary>
+/// <param name="httpContextAccessor">Current HTTP context when the call is on the request thread.</param>
+/// <remarks>
+/// Registered scoped in the API host. Consumers such as <c>PolicyFilteredComplianceRulePackProvider</c> and authority controllers
+/// depend on consistent scope for governance and row-level filtering.
+/// </remarks>
 public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAccessor) : IScopeContextProvider
 {
+    /// <inheritdoc />
+    /// <remarks>
+    /// Order: <see cref="AmbientScopeContext.CurrentOverride"/> (background jobs), then headers <c>x-tenant-id</c> / <c>x-workspace-id</c> / <c>x-project-id</c>,
+    /// then claims <c>tenant_id</c>, <c>workspace_id</c>, <c>project_id</c>, else <see cref="ScopeIds"/> defaults.
+    /// </remarks>
     public ScopeContext GetCurrentScope()
     {
         var ambient = AmbientScopeContext.CurrentOverride;

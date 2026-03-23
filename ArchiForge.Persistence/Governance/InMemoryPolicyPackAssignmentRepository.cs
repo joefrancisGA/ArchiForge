@@ -3,11 +3,24 @@ using ArchiForge.Decisioning.Governance.Resolution;
 
 namespace ArchiForge.Persistence.Governance;
 
+/// <summary>
+/// Thread-safe in-memory store for <see cref="PolicyPackAssignment"/> used when <c>StorageProvider=InMemory</c> or in unit tests.
+/// </summary>
+/// <remarks>
+/// <para>
+/// <strong>List semantics:</strong> Must mirror <see cref="DapperPolicyPackAssignmentRepository.ListByScopeAsync"/> so Decisioning behavior is identical
+/// between SQL and in-memory hosts.
+/// </para>
+/// <para>
+/// Registered as singleton in in-memory storage bootstrap (see <c>ArchiForgeStorageServiceCollectionExtensions</c>).
+/// </para>
+/// </remarks>
 public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignmentRepository
 {
     private readonly List<PolicyPackAssignment> _items = [];
     private readonly object _gate = new();
 
+    /// <inheritdoc />
     public Task CreateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
         _ = ct;
@@ -16,6 +29,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task UpdateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
         _ = ct;
@@ -29,6 +43,8 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    /// <remarks>Excludes non-matching scope tiers; does not filter <see cref="PolicyPackAssignment.IsEnabled"/> here.</remarks>
     public Task<IReadOnlyList<PolicyPackAssignment>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

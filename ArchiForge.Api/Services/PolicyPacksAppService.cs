@@ -5,11 +5,23 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Api.Services;
 
+/// <summary>
+/// Default <see cref="IPolicyPacksAppService"/>: mutates packs through <see cref="IPolicyPackManagementService"/> and writes audit trails.
+/// </summary>
+/// <remarks>
+/// Registered scoped in <c>ServiceCollectionExtensions</c>. Uses <see cref="IPolicyPackVersionRepository"/> only for assign preflight
+/// (version existence) before delegating persistence to the management service.
+/// </remarks>
+/// <param name="managementService">Domain mutations (create / publish / assign row).</param>
+/// <param name="versionRepository">Read path for assign 404 semantics.</param>
+/// <param name="auditService">Structured audit log.</param>
 public sealed class PolicyPacksAppService(
     IPolicyPackManagementService managementService,
     IPolicyPackVersionRepository versionRepository,
     IAuditService auditService) : IPolicyPacksAppService
 {
+    /// <inheritdoc />
+    /// <remarks>Audit payload: pack id, name, pack type (minimal PII).</remarks>
     public async Task<PolicyPack> CreatePackAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -35,6 +47,8 @@ public sealed class PolicyPacksAppService(
         return pack;
     }
 
+    /// <inheritdoc />
+    /// <remarks>Audit payload: policy pack id and published version label.</remarks>
     public async Task<PolicyPackVersion> PublishVersionAsync(
         Guid policyPackId,
         string version,
@@ -56,6 +70,11 @@ public sealed class PolicyPacksAppService(
         return packVersion;
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// Early return <c>null</c> avoids creating orphan assignment rows when the client references a non-existent version.
+    /// Audit includes assignment id, scope level, and pin flag for SIEM correlation.
+    /// </remarks>
     public async Task<PolicyPackAssignment?> TryAssignAsync(
         Guid tenantId,
         Guid workspaceId,

@@ -1,9 +1,19 @@
 using ArchiForge.Decisioning.Advisory.Workflow;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Decisioning.Alerts;
 
+/// <summary>
+/// Stateless evaluator: maps each enabled <see cref="AlertRule"/> to zero or one <see cref="AlertRecord"/> using metrics from <see cref="AlertEvaluationContext"/>.
+/// </summary>
+/// <remarks>
+/// Invoked from <c>ArchiForge.Persistence.Alerts.AlertService</c> after rules are filtered by <see cref="PolicyPackGovernanceFilter"/>.
+/// Does not persist or deduplicate; callers own repository and delivery.
+/// </remarks>
 public sealed class AlertEvaluator : IAlertEvaluator
 {
+    /// <inheritdoc />
+    /// <remarks>Only rules with <see cref="AlertRule.IsEnabled"/> are considered. Unknown <see cref="AlertRuleType"/> values are skipped.</remarks>
     public IReadOnlyList<AlertRecord> Evaluate(
         IReadOnlyList<AlertRule> rules,
         AlertEvaluationContext context)

@@ -18,6 +18,28 @@ using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// Executes a scheduled advisory scan: compares runs, builds an improvement plan, merges effective policy defaults, evaluates alerts, and delivers a digest.
+/// </summary>
+/// <param name="authorityQueryService">Loads latest runs and golden manifests for the project slug.</param>
+/// <param name="improvementAdvisorService">Generates <see cref="ImprovementPlan"/> from findings.</param>
+/// <param name="comparisonService">Optional run-to-run comparison when a previous run exists.</param>
+/// <param name="digestBuilder">Builds the architecture digest payload from plan + alerts.</param>
+/// <param name="digestRepository">Persists digest rows.</param>
+/// <param name="deliveryDispatcher">Sends digest to configured channels.</param>
+/// <param name="alertService">Simple alert evaluation for the scan context.</param>
+/// <param name="compositeAlertService">Composite alert evaluation for the same context.</param>
+/// <param name="effectiveGovernanceLoader">Supplies merged policy content for advisory defaults and alert/compliance filtering.</param>
+/// <param name="recommendationRepository">Historical recommendations for the run.</param>
+/// <param name="recommendationLearningService">Learning profile for advisory context.</param>
+/// <param name="executionRepository">Tracks scan execution lifecycle.</param>
+/// <param name="scheduleRepository">Schedule metadata (advance after success/failure).</param>
+/// <param name="scheduleCalculator">Next-run scheduling.</param>
+/// <param name="auditService">Audit events for scan, digest, and related actions.</param>
+/// <remarks>
+/// Pushes <see cref="AmbientScopeContext"/> for the schedule’s tenant/workspace/project so downstream providers (compliance, governance) resolve the correct scope.
+/// Loads <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync"/> once per successful scan and passes it into <see cref="AlertEvaluationContextFactory.ForAdvisoryScan"/> so alert services avoid a second governance load.
+/// </remarks>
 public sealed class AdvisoryScanRunner(
     IAuthorityQueryService authorityQueryService,
     IImprovementAdvisorService improvementAdvisorService,
@@ -35,6 +57,11 @@ public sealed class AdvisoryScanRunner(
     IScanScheduleCalculator scheduleCalculator,
     IAuditService auditService) : IAdvisoryScanRunner
 {
+    /// <summary>
+    /// Creates an execution record, runs the scan under ambient scope, and advances the schedule; failures are recorded and the schedule still advances.
+    /// </summary>
+    /// <param name="schedule">Tenant/workspace/project and cadence metadata.</param>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RunScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
         var scope = new ScopeContext
@@ -90,6 +117,16 @@ public sealed class AdvisoryScanRunner(
         }
     }
 
+    /// <summary>
+    /// Core scan path after ambient scope is pushed: plan generation, governance merge into the plan, alert evaluation, digest persistence and delivery.
+    /// </summary>
+    /// <param name="schedule">Active schedule row.</param>
+    /// <param name="scope">Same ids as the schedule; used for queries.</param>
+    /// <param name="execution">Execution row updated to completed/failed states by this method and helpers.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <remarks>
+    /// Copies merged <see cref="PolicyPackContentDocument.AdvisoryDefaults"/> into <see cref="ImprovementPlan.PolicyPackAdvisoryDefaults"/> before building <see cref="AlertEvaluationContext"/>.
+    /// </remarks>
     private async Task RunScheduleCoreAsync(
         AdvisoryScanSchedule schedule,
         ScopeContext scope,

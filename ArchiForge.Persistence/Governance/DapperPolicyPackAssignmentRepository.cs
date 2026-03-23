@@ -1,13 +1,30 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchiForge.Decisioning.Governance.Resolution;
 using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
 namespace ArchiForge.Persistence.Governance;
 
+/// <summary>
+/// SQL Server implementation of <see cref="IPolicyPackAssignmentRepository"/> using Dapper against <c>dbo.PolicyPackAssignments</c>.
+/// </summary>
+/// <remarks>
+/// <para>
+/// <strong>List semantics:</strong> Returns tenant-wide rows, workspace rows matching <paramref name="workspaceId"/>, and project rows matching
+/// both workspace and <paramref name="projectId"/>. Aligns with <see cref="InMemoryPolicyPackAssignmentRepository"/> and
+/// <see cref="EffectiveGovernanceResolver"/> filtering.
+/// </para>
+/// <para>
+/// <strong>Callers:</strong> <see cref="PolicyPackResolver"/> and <see cref="EffectiveGovernanceResolver"/> via DI;
+/// assignment writes from <c>PolicyPackManagementService</c>.
+/// </para>
+/// </remarks>
 public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory connectionFactory)
     : IPolicyPackAssignmentRepository
 {
+    /// <inheritdoc />
+    /// <remarks>Inserts all columns including <c>ScopeLevel</c> and <c>IsPinned</c> (Change 46 schema).</remarks>
     public async Task CreateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
         const string sql = """
@@ -27,6 +44,8 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
         await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
+    /// <remarks>Currently only toggles <c>IsEnabled</c>; other columns require future migration if editable.</remarks>
     public async Task UpdateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
         const string sql = """
@@ -39,6 +58,11 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
         await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// Does not filter <c>IsEnabled</c> in SQL—callers filter so disabled rows can be listed by future admin APIs if needed.
+    /// Ordered by <c>AssignedUtc DESC</c> for stable “newest first” UX.
+    /// </remarks>
     public async Task<IReadOnlyList<PolicyPackAssignment>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

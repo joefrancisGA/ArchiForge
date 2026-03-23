@@ -4,8 +4,15 @@ using FluentValidation;
 
 namespace ArchiForge.Api.Validators;
 
+/// <summary>
+/// FluentValidation rules for <see cref="CreatePolicyPackRequest"/> (<c>POST …/policy-packs</c>).
+/// </summary>
+/// <remarks>
+/// Wired in API startup with the other policy pack validators. Failures surface as HTTP 400 with validation problem details.
+/// </remarks>
 public sealed class CreatePolicyPackRequestValidator : AbstractValidator<CreatePolicyPackRequest>
 {
+    /// <summary>Registers name/description limits, pack type whitelist, and JSON syntax for initial content.</summary>
     public CreatePolicyPackRequestValidator()
     {
         RuleFor(x => x.Name)

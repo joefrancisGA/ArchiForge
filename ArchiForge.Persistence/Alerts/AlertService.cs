@@ -7,6 +7,19 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Loads alert rules for a scope, applies policy-pack governance filtering, evaluates, persists new open alerts, delivers, and audits.
+/// </summary>
+/// <param name="ruleRepository">Enabled rules for tenant/workspace/project.</param>
+/// <param name="alertRepository">Persistence for alert rows and deduplication lookups.</param>
+/// <param name="alertEvaluator">Pure evaluation of rules against <see cref="AlertEvaluationContext"/>.</param>
+/// <param name="alertDeliveryDispatcher">Outbound notification path for newly created alerts.</param>
+/// <param name="auditService">Audit trail for trigger and lifecycle events.</param>
+/// <param name="effectiveGovernanceLoader">Used when <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/> is not pre-filled.</param>
+/// <remarks>
+/// Implements <see cref="IAlertService"/>. Primary callers: authority run completion, advisory scan (<see cref="ArchiForge.Persistence.Advisory.AdvisoryScanRunner"/>), and tests.
+/// When the context already carries <c>EffectiveGovernanceContent</c> (e.g. advisory scan), the loader is skipped to avoid duplicate governance I/O.
+/// </remarks>
 public sealed class AlertService(
     IAlertRuleRepository ruleRepository,
     IAlertRecordRepository alertRepository,
@@ -15,6 +28,12 @@ public sealed class AlertService(
     IAuditService auditService,
     IEffectiveGovernanceLoader effectiveGovernanceLoader) : IAlertService
 {
+    /// <summary>
+    /// Lists enabled rules, filters them with <see cref="PolicyPackGovernanceFilter.FilterAlertRules"/>, evaluates, and inserts only new dedup keys.
+    /// </summary>
+    /// <param name="context">Run/scan context; may include precomputed <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/>.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>All generated alerts plus the subset that were newly persisted.</returns>
     public async Task<AlertEvaluationOutcome> EvaluateAndPersistAsync(
         AlertEvaluationContext context,
         CancellationToken ct)
@@ -71,6 +90,16 @@ public sealed class AlertService(
         return new AlertEvaluationOutcome(generated, persisted);
     }
 
+    /// <summary>
+    /// Applies acknowledge / resolve / suppress to an alert and records audit when the status changes.
+    /// </summary>
+    /// <param name="alertId">Alert primary key.</param>
+    /// <param name="userId">Acting user id (stored on the alert).</param>
+    /// <param name="userName">Display name for the acting user.</param>
+    /// <param name="request">Desired action and optional comment.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Updated alert, or <c>null</c> if <paramref name="alertId"/> was not found.</returns>
+    /// <remarks>No-op (returns existing row) when action is unknown or status is unchanged.</remarks>
     public async Task<AlertRecord?> ApplyActionAsync(
         Guid alertId,
         string userId,

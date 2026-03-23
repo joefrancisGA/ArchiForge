@@ -11,6 +11,17 @@ using ArchiForge.Persistence.Queries;
 
 namespace ArchiForge.Persistence.Alerts.Simulation;
 
+/// <summary>
+/// Replays advisory-style plan generation for historical runs to produce <see cref="AlertEvaluationContext"/> for simulation APIs or tooling.
+/// </summary>
+/// <param name="authorityQueryService">Loads run detail and golden manifests.</param>
+/// <param name="improvementAdvisorService">Builds <see cref="ImprovementPlan"/> from manifest and findings.</param>
+/// <param name="comparisonService">Optional baseline-vs-latest comparison.</param>
+/// <param name="recommendationRepository">Recommendations per run.</param>
+/// <param name="recommendationLearningService">Learning profile for the scope.</param>
+/// <remarks>
+/// Does not set <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/>; downstream evaluation loads merged policy when needed.
+/// </remarks>
 public sealed class AlertSimulationContextProvider(
     IAuthorityQueryService authorityQueryService,
     IImprovementAdvisorService improvementAdvisorService,
@@ -18,6 +29,7 @@ public sealed class AlertSimulationContextProvider(
     IRecommendationRepository recommendationRepository,
     IRecommendationLearningService recommendationLearningService) : IAlertSimulationContextProvider
 {
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertEvaluationContext>> GetContextsAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -67,6 +79,10 @@ public sealed class AlertSimulationContextProvider(
         return results;
     }
 
+    /// <summary>
+    /// Loads run detail, builds plan (with optional comparison), attaches recommendations and learning profile.
+    /// </summary>
+    /// <returns><c>null</c> when the run has no golden manifest.</returns>
     private async Task<AlertEvaluationContext?> BuildContextAsync(
         ScopeContext scope,
         Guid runId,
@@ -130,6 +146,6 @@ public sealed class AlertSimulationContextProvider(
             ContextSnapshotId = manifest.ContextSnapshotId,
             GraphSnapshotId = manifest.GraphSnapshotId,
             CreatedUtc = manifest.CreatedUtc,
-            Findings = [],
+            Findings = []
         };
 }

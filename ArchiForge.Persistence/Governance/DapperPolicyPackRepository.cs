@@ -5,8 +5,16 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Governance;
 
+/// <summary>
+/// SQL Server persistence for <see cref="PolicyPack"/> rows (<c>dbo.PolicyPacks</c>).
+/// </summary>
+/// <remarks>
+/// <strong>ListByScopeAsync</strong> filters by exact tenant/workspace/project triple—these are <em>pack authoring</em> coordinates, not assignment tiers.
+/// Called from <c>PolicyPacksController.List</c> and from management flows when updating pack metadata after publish.
+/// </remarks>
 public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionFactory) : IPolicyPackRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(PolicyPack pack, CancellationToken ct)
     {
         const string sql = """
@@ -28,6 +36,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
         await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(PolicyPack pack, CancellationToken ct)
     {
         const string sql = """
@@ -46,6 +55,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
         await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<PolicyPack?> GetByIdAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """
@@ -62,6 +72,8 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             }, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
+    /// <remarks>Authoring-scope list for the operator UI; not the same query as hierarchical assignment listing.</remarks>
     public async Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

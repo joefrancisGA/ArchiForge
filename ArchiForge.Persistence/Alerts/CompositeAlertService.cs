@@ -8,6 +8,20 @@ using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Evaluates composite (multi-metric) alert rules after policy governance filtering, applies suppression policy, then persists and delivers.
+/// </summary>
+/// <param name="ruleRepository">Enabled composite rules for the scope.</param>
+/// <param name="snapshotBuilder">Builds <see cref="AlertMetricSnapshot"/> from the evaluation context.</param>
+/// <param name="ruleEvaluator">Whether a single composite rule’s predicate matches the snapshot.</param>
+/// <param name="suppressionPolicy">Decides whether a match should create an alert or be suppressed.</param>
+/// <param name="alertRepository">Creates <see cref="AlertRecord"/> rows for accepted matches.</param>
+/// <param name="alertDeliveryDispatcher">Sends notifications for new composite alerts.</param>
+/// <param name="auditService">Audits suppressions and successful triggers.</param>
+/// <param name="effectiveGovernanceLoader">Fallback when <see cref="AlertEvaluationContext.EffectiveGovernanceContent"/> is not set.</param>
+/// <remarks>
+/// Implements <see cref="ICompositeAlertService"/>. Called alongside <see cref="AlertService"/> from advisory scan and similar orchestration paths.
+/// </remarks>
 public sealed class CompositeAlertService(
     ICompositeAlertRuleRepository ruleRepository,
     IAlertMetricSnapshotBuilder snapshotBuilder,
@@ -18,6 +32,12 @@ public sealed class CompositeAlertService(
     IAuditService auditService,
     IEffectiveGovernanceLoader effectiveGovernanceLoader) : ICompositeAlertService
 {
+    /// <summary>
+    /// Loads composite rules, filters with <see cref="PolicyPackGovernanceFilter.FilterCompositeRules"/>, evaluates each rule, and persists non-suppressed matches.
+    /// </summary>
+    /// <param name="context">Same context as simple alerts; may carry preloaded effective governance.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Created alerts and a count of matches suppressed by policy.</returns>
     public async Task<CompositeAlertEvaluationResult> EvaluateAndPersistAsync(
         AlertEvaluationContext context,
         CancellationToken ct)
@@ -114,6 +134,7 @@ public sealed class CompositeAlertService(
         return new CompositeAlertEvaluationResult(created, suppressedMatches);
     }
 
+    /// <summary>Compact string stored on <see cref="AlertRecord.TriggerValue"/> for operator triage.</summary>
     private static string BuildTriggerSummary(AlertMetricSnapshot s) =>
         $"CompositeRuleMatched|gaps={s.NewComplianceGapCount}|cost%={s.CostIncreasePercent:0.##}|recCH={s.CriticalRecommendationCount}";
 }

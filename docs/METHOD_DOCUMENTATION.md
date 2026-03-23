@@ -44,6 +44,8 @@ Keep this **curated** (main orchestration paths only) so it does not go stale on
 | Piece | Area | Status |
 |-------|------|--------|
 | 1 | `ArchiForge.Decisioning/Governance/**` (`PolicyPacks/*`, `Resolution/*`, governance filters) | Documented: interfaces, services, DTOs, static filters, JSON options |
-| 2 | (next) e.g. `ArchiForge.Api/Services`, alerts persistence | TBD |
+| 2 | Policy pack HTTP + app service + SQL/in-memory assignment & pack repos | `PolicyPacksController`, `GovernanceResolutionController`, `PolicyPacksAppService`, `PolicyPackRequests`, `DapperPolicyPack*`, `InMemoryPolicyPackAssignmentRepository` |
+| 3 | Policy pack FluentValidation, compliance/alert consumers, advisory scan | `PolicyPackRequestValidationRules`, `*PolicyPack*Validator`, `PolicyFilteredComplianceRulePackProvider`, `AlertService`, `CompositeAlertService`, `IAlertService`, `ICompositeAlertService`, `AdvisoryScanRunner` |
+| 4 | Alert evaluation context + scope resolution (governance-related call chain) | `AlertEvaluationContext`, `AlertEvaluationContextFactory`, `ScopeContext`, `IScopeContextProvider`, `HttpScopeContextProvider`, `AlertsController`, `IAlertEvaluator`, `AlertEvaluator`, `IAlertSimulationContextProvider`, `AlertSimulationContextProvider` |
 
 After each piece, run `dotnet build` and fix any CS1573/CS1591 warnings if the project enforces documentation.

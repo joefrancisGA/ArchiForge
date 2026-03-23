@@ -3,6 +3,7 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchiForge.Decisioning.Governance.Resolution;
 
 using Asp.Versioning;
 
@@ -12,6 +13,18 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Versioned policy pack CRUD, publish, assign, and effective-governance reads for the ambient tenant/workspace/project.
+/// </summary>
+/// <remarks>
+/// <para>
+/// <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require <see cref="ArchiForgePolicies.ExecuteAuthority"/>; reads require
+/// <see cref="ArchiForgePolicies.ReadAuthority"/>. Request bodies are validated with FluentValidation (see validators for <see cref="CreatePolicyPackRequest"/>, etc.).
+/// </para>
+/// <para>
+/// <strong>Scope:</strong> All operations use <see cref="IScopeContextProvider.GetCurrentScope"/> for tenant/workspace/project ids (headers or JWT claims).
+/// </para>
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -26,6 +39,8 @@ public sealed class PolicyPacksController(
     IPolicyPacksAppService policyPacksApp)
     : ControllerBase
 {
+    /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
+    /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService"/>.</remarks>
     [HttpPost]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
@@ -48,6 +63,8 @@ public sealed class PolicyPacksController(
         return Ok(pack);
     }
 
+    /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
+    /// <remarks>Audit: <c>PolicyPackVersionPublished</c>.</remarks>
     [HttpPost("{policyPackId:guid}/publish")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
@@ -65,6 +82,11 @@ public sealed class PolicyPacksController(
         return Ok(version);
     }
 
+    /// <summary>
+    /// Assigns an existing published version to a governance tier (<see cref="AssignPolicyPackRequest.ScopeLevel"/>) for the current scope.
+    /// </summary>
+    /// <returns>404 with <c>policy-pack-version-not-found</c> when the version row does not exist.</returns>
+    /// <remarks>Audit: <c>PolicyPackAssignmentCreated</c>. Default scope level is Project when omitted or blank in JSON.</remarks>
     [HttpPost("{policyPackId:guid}/assign")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
@@ -98,6 +120,7 @@ public sealed class PolicyPacksController(
         return Ok(assignment);
     }
 
+    /// <summary>Lists packs whose <em>authoring</em> scope matches the current tenant/workspace/project.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPack>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PolicyPack>>> List(CancellationToken ct = default)
@@ -113,6 +136,7 @@ public sealed class PolicyPacksController(
         return Ok(packs);
     }
 
+    /// <summary>Lists all version rows for a pack (newest first by repository ordering).</summary>
     [HttpGet("{policyPackId:guid}/versions")]
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPackVersion>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PolicyPackVersion>>> ListVersions(
@@ -123,6 +147,10 @@ public sealed class PolicyPacksController(
         return Ok(versions);
     }
 
+    /// <summary>
+    /// Returns each applicable enabled assignment as a separate <see cref="ResolvedPolicyPack"/> (raw <c>ContentJson</c> per pack)—no merge.
+    /// </summary>
+    /// <remarks>For merged effective document and precedence, use <c>GET …/effective-content</c> or <c>GET …/governance-resolution</c>.</remarks>
     [HttpGet("effective")]
     [ProducesResponseType(typeof(EffectivePolicyPackSet), StatusCodes.Status200OK)]
     public async Task<ActionResult<EffectivePolicyPackSet>> GetEffective(CancellationToken ct = default)
@@ -138,7 +166,13 @@ public sealed class PolicyPacksController(
         return Ok(effective);
     }
 
-    /// <summary>Merged declarative content from all enabled assignments (union + distinct IDs, advisory defaults last-wins).</summary>
+    /// <summary>
+    /// Returns the single merged <see cref="PolicyPackContentDocument"/> after hierarchical resolution (project &gt; workspace &gt; tenant, pin, recency).
+    /// </summary>
+    /// <remarks>
+    /// Implemented via <see cref="IEffectiveGovernanceLoader"/> → <see cref="IEffectiveGovernanceResolver"/> (decisions/conflicts omitted here).
+    /// Used by alert/compliance/advisory code paths indirectly through the same loader in persistence services.
+    /// </remarks>
     [HttpGet("effective-content")]
     [ProducesResponseType(typeof(PolicyPackContentDocument), StatusCodes.Status200OK)]
     public async Task<ActionResult<PolicyPackContentDocument>> GetEffectiveContent(CancellationToken ct = default)
