@@ -3,10 +3,16 @@ using ArchiForge.Decisioning.Alerts.Simulation;
 
 namespace ArchiForge.Decisioning.Alerts.Tuning;
 
+/// <summary>
+/// Sweeps <see cref="ThresholdRecommendationRequest.CandidateThresholds"/> via <see cref="IRuleSimulationService"/> and ranks results with <see cref="IAlertNoiseScorer"/>.
+/// </summary>
+/// <param name="simulationService">Dry-run evaluator over historical contexts.</param>
+/// <param name="noiseScorer">Heuristic ranking of each simulation.</param>
 public sealed class ThresholdRecommendationService(
     IRuleSimulationService simulationService,
     IAlertNoiseScorer noiseScorer) : IThresholdRecommendationService
 {
+    /// <inheritdoc />
     public async Task<ThresholdRecommendationResult> RecommendAsync(
         Guid tenantId,
         Guid workspaceId,

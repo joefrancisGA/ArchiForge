@@ -15,6 +15,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for alert rule what-if simulation and A/B comparison over the caller’s scope (read authority).
+/// </summary>
+/// <remarks>
+/// Stamps tenant/workspace/project on embedded rule DTOs from <see cref="IScopeContextProvider"/> before invoking <see cref="IRuleSimulationService"/>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -26,6 +32,7 @@ public sealed class AlertSimulationController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Runs <see cref="IRuleSimulationService.SimulateAsync"/> and audits aggregate counts.</summary>
     [HttpPost("simulate")]
     [ProducesResponseType(typeof(RuleSimulationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<RuleSimulationResult>> Simulate(
@@ -60,6 +67,7 @@ public sealed class AlertSimulationController(
         return Ok(result);
     }
 
+    /// <summary>Runs <see cref="IRuleSimulationService.CompareCandidatesAsync"/> and audits would-create counts per candidate.</summary>
     [HttpPost("compare-candidates")]
     [ProducesResponseType(typeof(RuleCandidateComparisonResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<RuleCandidateComparisonResult>> CompareCandidates(

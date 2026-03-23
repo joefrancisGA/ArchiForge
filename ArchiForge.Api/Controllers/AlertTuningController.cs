@@ -13,6 +13,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for threshold recommendation (simulation + noise scoring) scoped to the caller’s tenant/workspace/project.
+/// </summary>
+/// <remarks>
+/// Stamps scope ids onto <see cref="ThresholdRecommendationRequest.BaseSimpleRule"/> / <see cref="ThresholdRecommendationRequest.BaseCompositeRule"/> before tuning.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -24,6 +30,7 @@ public sealed class AlertTuningController(
     IAuditService auditService)
     : ControllerBase
 {
+    /// <summary>Invokes <see cref="IThresholdRecommendationService.RecommendAsync"/> and audits candidate/recommended threshold metadata.</summary>
     [HttpPost("recommend-threshold")]
     [ProducesResponseType(typeof(ThresholdRecommendationResult), StatusCodes.Status200OK)]
     public async Task<ActionResult<ThresholdRecommendationResult>> RecommendThreshold(

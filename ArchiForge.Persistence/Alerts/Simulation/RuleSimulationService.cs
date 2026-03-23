@@ -4,6 +4,14 @@ using ArchiForge.Decisioning.Alerts.Simulation;
 
 namespace ArchiForge.Persistence.Alerts.Simulation;
 
+/// <summary>
+/// Default <see cref="IRuleSimulationService"/>: replays rules against contexts from <see cref="IAlertSimulationContextProvider"/> without persisting simple-rule alerts; composite path uses live suppression reads.
+/// </summary>
+/// <param name="alertEvaluator">Production simple rule evaluation.</param>
+/// <param name="metricSnapshotBuilder">Builds metrics for composite predicates.</param>
+/// <param name="compositeEvaluator">Composite AND/OR evaluation.</param>
+/// <param name="suppressionPolicy">Same policy as production (queries open alerts for dedupe).</param>
+/// <param name="contextProvider">Builds <see cref="AlertEvaluationContext"/> per run.</param>
 public sealed class RuleSimulationService(
     IAlertEvaluator alertEvaluator,
     IAlertMetricSnapshotBuilder metricSnapshotBuilder,
@@ -11,6 +19,7 @@ public sealed class RuleSimulationService(
     IAlertSuppressionPolicy suppressionPolicy,
     IAlertSimulationContextProvider contextProvider) : IRuleSimulationService
 {
+    /// <inheritdoc />
     public async Task<RuleSimulationResult> SimulateAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -170,6 +179,7 @@ public sealed class RuleSimulationService(
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<RuleCandidateComparisonResult> CompareCandidatesAsync(
         Guid tenantId,
         Guid workspaceId,

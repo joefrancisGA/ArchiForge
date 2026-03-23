@@ -1,5 +1,8 @@
 namespace ArchiForge.Decisioning.Alerts.Composite;
 
+/// <summary>
+/// String ids for <see cref="AlertRuleCondition.MetricType"/>; must align with <see cref="CompositeAlertRuleEvaluator"/> / <see cref="AlertMetricSnapshotBuilder"/> resolution.
+/// </summary>
 public static class AlertMetricType
 {
     public const string CriticalRecommendationCount = "CriticalRecommendationCount";

@@ -2,8 +2,10 @@ using ArchiForge.Decisioning.Alerts.Simulation;
 
 namespace ArchiForge.Decisioning.Alerts.Tuning;
 
+/// <summary>Default <see cref="IAlertNoiseScorer"/> using coverage, target-band, suppression ratio, and alert density heuristics.</summary>
 public sealed class AlertNoiseScorer : IAlertNoiseScorer
 {
+    /// <inheritdoc />
     public NoiseScoreBreakdown Score(
         RuleSimulationResult simulationResult,
         int targetCreatedAlertCountMin,
