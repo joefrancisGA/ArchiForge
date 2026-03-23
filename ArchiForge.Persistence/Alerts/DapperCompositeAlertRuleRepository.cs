@@ -7,6 +7,13 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Dapper implementation of <see cref="ICompositeAlertRuleRepository"/>; writes <c>dbo.CompositeAlertRules</c> and child condition rows in a transaction.
+/// </summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
+/// <remarks>
+/// List methods hydrate <see cref="CompositeAlertRule.Conditions"/> from <c>dbo.CompositeAlertRuleConditions</c>.
+/// </remarks>
 public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory connectionFactory)
     : ICompositeAlertRuleRepository
 {

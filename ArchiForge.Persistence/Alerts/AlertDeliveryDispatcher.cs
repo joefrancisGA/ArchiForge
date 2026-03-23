@@ -6,12 +6,23 @@ using ArchiForge.Decisioning.Alerts.Delivery;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Default <see cref="IAlertDeliveryDispatcher"/>: loads routing subscriptions, matches severity, sends through registered <see cref="IAlertDeliveryChannel"/>s, and tracks <see cref="AlertDeliveryAttempt"/> rows.
+/// </summary>
+/// <param name="channels">All registered delivery channels (e.g. email, Slack).</param>
+/// <param name="subscriptionRepository">Per-scope routing configuration.</param>
+/// <param name="attemptRepository">Persists per-try delivery state.</param>
+/// <param name="auditService">Logs delivery success and failure.</param>
+/// <remarks>
+/// Skips silently when no subscriptions match; each matching subscription yields one attempt row and one channel send.
+/// </remarks>
 public sealed class AlertDeliveryDispatcher(
     IEnumerable<IAlertDeliveryChannel> channels,
     IAlertRoutingSubscriptionRepository subscriptionRepository,
     IAlertDeliveryAttemptRepository attemptRepository,
     IAuditService auditService) : IAlertDeliveryDispatcher
 {
+    /// <inheritdoc />
     public async Task DeliverAsync(AlertRecord alert, CancellationToken ct)
     {
         var subscriptions = await subscriptionRepository

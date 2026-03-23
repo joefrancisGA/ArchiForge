@@ -2,6 +2,10 @@ using ArchiForge.Decisioning.Alerts;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Thread-safe in-memory store implementing <see cref="IAlertRecordRepository"/> for tests and local scenarios.
+/// </summary>
+/// <remarks>Semantics mirror <see cref="DapperAlertRecordRepository"/> for open dedup (Open + Acknowledged only).</remarks>
 public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 {
     private readonly List<AlertRecord> _items = [];

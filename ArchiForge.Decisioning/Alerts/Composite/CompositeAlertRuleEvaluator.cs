@@ -1,7 +1,14 @@
 namespace ArchiForge.Decisioning.Alerts.Composite;
 
+/// <summary>
+/// Stateless evaluator: maps each <see cref="AlertRuleCondition"/> to a boolean via <see cref="AlertConditionOperator"/>, then reduces with <see cref="CompositeOperator"/>.
+/// </summary>
+/// <remarks>
+/// Unknown <see cref="AlertMetricType"/> values resolve to metric <c>0</c> in <see cref="ResolveMetric"/>.
+/// </remarks>
 public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
 {
+    /// <inheritdoc />
     public bool Evaluate(CompositeAlertRule rule, AlertMetricSnapshot snapshot)
     {
         if (rule.Conditions.Count == 0)
@@ -18,6 +25,7 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
         };
     }
 
+    /// <summary>Compares resolved metric to <see cref="AlertRuleCondition.ThresholdValue"/> using the condition’s operator.</summary>
     private static bool EvaluateCondition(AlertRuleCondition condition, AlertMetricSnapshot snapshot)
     {
         var actual = ResolveMetric(condition.MetricType, snapshot);
@@ -35,6 +43,7 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
         };
     }
 
+    /// <summary>Maps string metric type constants (<see cref="AlertMetricType"/>) to snapshot fields.</summary>
     private static decimal ResolveMetric(string metricType, AlertMetricSnapshot snapshot)
     {
         return metricType switch

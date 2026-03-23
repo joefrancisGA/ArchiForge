@@ -2,8 +2,15 @@ using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Decisioning.Alerts.Composite;
 
+/// <summary>
+/// Default <see cref="IAlertMetricSnapshotBuilder"/>: derives six metrics from plan, comparison, recommendations, and learning profile.
+/// </summary>
+/// <remarks>
+/// Registered in DI for <c>ArchiForge.Persistence.Alerts.CompositeAlertService</c> (via interface). Threshold semantics for each metric are defined on stored <see cref="CompositeAlertRule"/> conditions.
+/// </remarks>
 public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
 {
+    /// <inheritdoc />
     public AlertMetricSnapshot Build(AlertEvaluationContext context)
     {
         var snapshot = new AlertMetricSnapshot
@@ -33,6 +40,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
         return snapshot;
     }
 
+    /// <summary>First cost delta on the comparison result; 0 when baseline cost is missing or zero.</summary>
     private static decimal BuildCostIncreasePercent(AlertEvaluationContext context)
     {
         var delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
@@ -42,6 +50,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
         return ((delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value) * 100m;
     }
 
+    /// <summary>Sum of accepted ÷ sum of proposed across learning categories.</summary>
     private static decimal BuildAcceptanceRatePercent(AlertEvaluationContext context)
     {
         var profile = context.LearningProfile;

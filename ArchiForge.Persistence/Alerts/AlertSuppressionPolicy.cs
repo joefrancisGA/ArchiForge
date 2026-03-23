@@ -3,8 +3,16 @@ using ArchiForge.Decisioning.Alerts.Composite;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Default <see cref="IAlertSuppressionPolicy"/>: deduplicates composite fires using <see cref="IAlertRecordRepository.GetOpenByDeduplicationKeyAsync"/> and rule time windows.
+/// </summary>
+/// <param name="alertRepository">Looks up prior open/acknowledged alerts for the same dedupe key.</param>
+/// <remarks>
+/// Invoked from <see cref="CompositeAlertService"/> for each rule that evaluates to <c>true</c>.
+/// </remarks>
 public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepository) : IAlertSuppressionPolicy
 {
+    /// <inheritdoc />
     public async Task<AlertSuppressionDecision> DecideAsync(
         CompositeAlertRule rule,
         AlertEvaluationContext context,
@@ -73,6 +81,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
         };
     }
 
+    /// <summary>Materializes the dedupe string from <see cref="CompositeAlertRule.DedupeScope"/> and context run ids.</summary>
     private static string BuildDeduplicationKey(
         CompositeAlertRule rule,
         AlertEvaluationContext context)

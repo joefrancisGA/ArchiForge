@@ -5,8 +5,16 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>
+/// Dapper-backed <see cref="IAlertRecordRepository"/> against <c>dbo.AlertRecords</c>.
+/// </summary>
+/// <param name="connectionFactory">Opened per call; callers rely on scoped factory in DI.</param>
+/// <remarks>
+/// <see cref="GetOpenByDeduplicationKeyAsync"/> matches SQL status filter <c>Open</c>/<c>Acknowledged</c> (see <see cref="AlertStatus"/> constants).
+/// </remarks>
 public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connectionFactory) : IAlertRecordRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {
         const string sql = """
@@ -34,6 +42,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(AlertRecord alert, CancellationToken ct)
     {
         const string sql = """
@@ -67,6 +76,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             }, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<AlertRecord?> GetOpenByDeduplicationKeyAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -99,6 +109,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                 cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertRecord>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,

@@ -5,8 +5,11 @@ using Dapper;
 
 namespace ArchiForge.Persistence.Alerts;
 
+/// <summary>Dapper implementation of <see cref="IAlertRuleRepository"/> over <c>dbo.AlertRules</c>.</summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFactory) : IAlertRuleRepository
 {
+    /// <inheritdoc />
     public async Task CreateAsync(AlertRule rule, CancellationToken ct)
     {
         const string sql = """
@@ -28,6 +31,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
         await connection.ExecuteAsync(new CommandDefinition(sql, rule, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task UpdateAsync(AlertRule rule, CancellationToken ct)
     {
         const string sql = """
@@ -63,6 +67,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
             }, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertRule>> ListByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
@@ -89,6 +94,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
         return rows.ToList();
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AlertRule>> ListEnabledByScopeAsync(
         Guid tenantId,
         Guid workspaceId,
