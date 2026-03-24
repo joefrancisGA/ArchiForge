@@ -5,8 +5,6 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
-using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Repositories;
 
@@ -27,11 +25,8 @@ public sealed partial class RunsController(
     IArchitectureRunService architectureRunService,
     IReplayRunService replayRunService,
     IArchitectureApplicationService architectureApplicationService,
+    IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
-    IAgentTaskRepository taskRepository,
-    IAgentResultRepository resultRepository,
-    IGoldenManifestRepository manifestRepository,
-    IDecisionTraceRepository decisionTraceRepository,
     IDeterminismCheckService determinismCheckService,
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
@@ -237,14 +232,23 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        var response = await BuildRunDetailsResponseAsync(run, runId, cancellationToken);
-        return response is null
-            ? this.NotFoundProblem($"Manifest referenced by run '{runId}' could not be found.", ProblemTypes.ResourceNotFound)
-            : Ok(response);
+        // A committed run that lost its manifest is a storage-integrity issue, not a simple 404.
+        if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
+            return this.NotFoundProblem($"Manifest referenced by run '{runId}' could not be found.", ProblemTypes.ResourceNotFound);
+
+        var response = RunResponseMapper.ToRunDetailsResponse(
+            detail.Run,
+            detail.Tasks,
+            detail.Results,
+            detail.Manifest,
+            detail.DecisionTraces);
+
+        return Ok(response);
     }
 
     [HttpPost("run/{runId}/result")]
@@ -385,9 +389,9 @@ public sealed partial class RunsController(
     [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)
     {
-        var items = await runRepository.ListAsync(cancellationToken);
+        var summaries = await runDetailQueryService.ListRunSummariesAsync(cancellationToken);
 
-        var response = items
+        var response = summaries
             .Select(r => new RunListItemResponse
             {
                 RunId = r.RunId,
@@ -401,45 +405,6 @@ public sealed partial class RunsController(
             .ToList();
 
         return Ok(response);
-    }
-
-    private async Task<RunDetailsResponse?> BuildRunDetailsResponseAsync(
-        ArchitectureRun run,
-        string runId,
-        CancellationToken cancellationToken)
-    {
-        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-
-        GoldenManifest? manifest = null;
-        List<DecisionTrace> decisionTraces = [];
-
-        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            return RunResponseMapper.ToRunDetailsResponse(
-                run,
-                tasks.ToList(),
-                results.ToList(),
-                manifest,
-                decisionTraces);
-
-        manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
-
-        if (manifest is null)
-        {
-            // The run references a manifest version that no longer exists (deleted, replication
-            // lag, or version string corruption). Return null so the caller surfaces a 404
-            // rather than a 200 response with a silently missing manifest field.
-            return null;
-        }
-
-        decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
-
-        return RunResponseMapper.ToRunDetailsResponse(
-            run,
-            tasks.ToList(),
-            results.ToList(),
-            manifest,
-            decisionTraces);
     }
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind, string defaultBadRequestDetail)

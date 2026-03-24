@@ -143,7 +143,7 @@ public static class FakeAgentResultFactory
     public static AgentResult CreateCostResult(
         string runId,
         string taskId,
-        ArchitectureRequest request)
+        ArchitectureRequest _)
     {
         return new AgentResult
         {

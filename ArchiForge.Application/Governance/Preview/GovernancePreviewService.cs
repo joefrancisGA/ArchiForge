@@ -7,12 +7,12 @@ namespace ArchiForge.Application.Governance.Preview;
 
 /// <summary>
 /// Read-only governance preview: compares manifest governance without persisting activations or workflow state.
-/// Current repo resolves governance from stored <see cref="GoldenManifest"/>; <see cref="GovernancePreviewRequest.ManifestVersion"/>
-/// is validated against <see cref="IGoldenManifestRepository"/> and must belong to the requested run.
+/// Run and manifest access is routed through <see cref="IRunDetailQueryService"/> so governance preview
+/// shares the same canonical run detail path as export and compare features.
 /// </summary>
 public sealed class GovernancePreviewService(
     IGovernanceEnvironmentActivationRepository activationRepository,
-    IArchitectureRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IGoldenManifestRepository manifestRepository)
     : IGovernancePreviewService
 {
@@ -29,12 +29,18 @@ public sealed class GovernancePreviewService(
 
         var environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
 
-        _ = await runRepository.GetByIdAsync(request.RunId, cancellationToken)
+        // Use the canonical run detail path to validate run existence and load its manifest.
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
             ?? throw new RunNotFoundException(request.RunId);
 
-        var candidateManifest = await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken)
-            ?? throw new InvalidOperationException(
-                $"Golden manifest version '{request.ManifestVersion}' was not found.");
+        // The candidate manifest is the specific version being previewed — it may differ from
+        // the run's current committed manifest (e.g. an older committed version is being evaluated).
+        var candidateManifest = runDetail.Manifest is not null
+            && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
+                ? runDetail.Manifest
+                : await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken)
+                    ?? throw new InvalidOperationException(
+                        $"Golden manifest version '{request.ManifestVersion}' was not found.");
 
         if (!string.Equals(candidateManifest.RunId, request.RunId, StringComparison.Ordinal))
         {

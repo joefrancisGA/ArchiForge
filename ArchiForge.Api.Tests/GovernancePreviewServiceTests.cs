@@ -1,5 +1,6 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Governance.Preview;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Governance.Preview;
@@ -17,7 +18,7 @@ namespace ArchiForge.Api.Tests;
 public sealed class GovernancePreviewServiceTests
 {
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo = new();
-    private readonly Mock<IArchitectureRunRepository> _runRepo = new();
+    private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
     private readonly Mock<IGoldenManifestRepository> _manifestRepo = new();
     private readonly GovernancePreviewService _sut;
 
@@ -25,7 +26,7 @@ public sealed class GovernancePreviewServiceTests
     {
         _sut = new GovernancePreviewService(
             _activationRepo.Object,
-            _runRepo.Object,
+            _runDetailQueryService.Object,
             _manifestRepo.Object);
     }
 
@@ -53,11 +54,21 @@ public sealed class GovernancePreviewServiceTests
         CreatedUtc = DateTime.UtcNow
     };
 
+    /// <summary>
+    /// Returns a run detail whose manifest is null (pre-commit), so the service falls back to
+    /// <see cref="IGoldenManifestRepository.GetByVersionAsync"/> for the candidate manifest lookup.
+    /// </summary>
+    private static ArchitectureRunDetail RunDetail(string runId) => new()
+    {
+        Run = Run(runId),
+        Manifest = null
+    };
+
     [Fact]
     public async Task PreviewActivationAsync_WhenNoCurrentActiveRowExists_ReturnsPreviewAgainstEmptyCurrent()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("run-a", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Run("run-a"));
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-a"));
         _manifestRepo.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-a", "v1", g => g.RequiredControls.Add("PEP")));
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
@@ -80,8 +91,8 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task PreviewActivationAsync_WhenCurrentActiveRowExists_ReturnsDifferences()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("run-b", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Run("run-b"));
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-b", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-b"));
         _manifestRepo.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-b", "v2", g =>
             {
@@ -186,8 +197,8 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task PreviewActivationAsync_DoesNotMutateActivationRows()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("run-x", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Run("run-x"));
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-x", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RunDetail("run-x"));
         _manifestRepo.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-x", "v1"));
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
@@ -207,8 +218,8 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task PreviewActivationAsync_WhenRunMissing_ThrowsRunNotFoundException()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("missing", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ArchitectureRun?)null);
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
 
         var act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {

@@ -194,6 +194,7 @@ internal static partial class ServiceCollectionExtensions
     private static void RegisterRunReplayManifestAndDiffs(IServiceCollection services)
     {
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
+        services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();

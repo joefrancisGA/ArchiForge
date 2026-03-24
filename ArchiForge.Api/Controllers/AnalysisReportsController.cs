@@ -3,6 +3,7 @@ using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Data.Repositories;
 
@@ -28,7 +29,7 @@ namespace ArchiForge.Api.Controllers;
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
 public sealed class AnalysisReportsController(
-    IArchitectureRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IArchitectureAnalysisService architectureAnalysisService,
     IArchitectureAnalysisExportService architectureAnalysisExportService,
     IArchitectureAnalysisDocxExportService docxExportService,
@@ -51,13 +52,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = run;
+        request.PreloadedRun = runDetail.Run;
 
         try
         {
@@ -83,13 +84,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = run;
+        request.PreloadedRun = runDetail.Run;
 
         try
         {
@@ -122,13 +123,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = run;
+        request.PreloadedRun = runDetail.Run;
 
         try
         {
@@ -155,13 +156,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = run;
+        request.PreloadedRun = runDetail.Run;
 
         try
         {
@@ -193,13 +194,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = run;
+        request.PreloadedRun = runDetail.Run;
 
         var jobId = jobs.Enqueue(
             fileNameHint: $"analysis-report-{runId}.docx",
@@ -255,8 +256,8 @@ public sealed class AnalysisReportsController(
     {
         request ??= new ConsultingDocxExportRequest();
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
@@ -266,7 +267,7 @@ public sealed class AnalysisReportsController(
             var analysisRequest = new ArchitectureAnalysisRequest
             {
                 RunId = runId,
-                PreloadedRun = run,
+                PreloadedRun = runDetail.Run,
                 IncludeEvidence = request.IncludeEvidence,
                 IncludeExecutionTraces = request.IncludeExecutionTraces,
                 IncludeManifest = request.IncludeManifest,
@@ -314,8 +315,8 @@ public sealed class AnalysisReportsController(
     {
         request ??= new ConsultingDocxExportRequest();
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (runDetail is null)
         {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
@@ -326,7 +327,7 @@ public sealed class AnalysisReportsController(
             work: async ct =>
             {
                 var analysisRequest = ConsultingDocxAnalysisRequestFactory.Create(runId, request);
-                analysisRequest.PreloadedRun = run;
+                analysisRequest.PreloadedRun = runDetail.Run;
 
                 var report = await architectureAnalysisService.BuildAsync(
                     analysisRequest,
