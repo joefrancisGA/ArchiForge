@@ -3,8 +3,16 @@ using ArchiForge.Contracts.Common;
 
 namespace ArchiForge.Application.Diffs;
 
+/// <summary>
+/// Compares two sets of <see cref="AgentResult"/> objects (one per run) and produces a per-agent-type diff
+/// covering claims, findings, evidence references, required controls, and warnings.
+/// </summary>
 public sealed class AgentResultDiffService : IAgentResultDiffService
 {
+    /// <summary>
+    /// Produces an <see cref="AgentResultDiffResult"/> describing the differences between the latest
+    /// result for each agent type across the two runs.
+    /// </summary>
     public AgentResultDiffResult Compare(
         string leftRunId,
         IReadOnlyCollection<AgentResult> leftResults,
@@ -43,7 +51,7 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
             result.AgentDeltas.Add(BuildDelta(agentType, left, right));
         }
 
-        if (!result.AgentDeltas.Any())
+        if (result.AgentDeltas.Count == 0)
         {
             result.Warnings.Add("No agent results were available to compare.");
         }
@@ -51,6 +59,9 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         return result;
     }
 
+    /// <summary>
+    /// Builds the per-agent-type delta by diffing claims, evidence refs, findings, required controls, and warnings.
+    /// </summary>
     private static AgentResultDelta BuildDelta(
         AgentType agentType,
         AgentResult? left,

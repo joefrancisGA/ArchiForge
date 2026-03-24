@@ -2,8 +2,16 @@ using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Diffs;
 
+/// <summary>
+/// Produces a structural diff between two <see cref="GoldenManifest"/> instances, reporting added/removed
+/// services, datastores, required controls, and relationships.
+/// </summary>
 public sealed class ManifestDiffService : IManifestDiffService
 {
+    /// <summary>
+    /// Compares <paramref name="left"/> (baseline) against <paramref name="right"/> (candidate) and returns
+    /// a <see cref="ManifestDiffResult"/> describing all structural changes.
+    /// </summary>
     public ManifestDiffResult Compare(
         GoldenManifest left,
         GoldenManifest right)

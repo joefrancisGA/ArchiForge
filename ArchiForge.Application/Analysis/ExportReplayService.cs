@@ -3,6 +3,10 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Replays a persisted <see cref="RunExportRecord"/> by rehydrating the original analysis request and
+/// regenerating the export artifact (e.g. consulting DOCX), optionally recording the replay as a new export record.
+/// </summary>
 public sealed class ExportReplayService(
     IRunExportRecordRepository runExportRecordRepository,
     IArchitectureAnalysisService architectureAnalysisService,
@@ -10,16 +14,19 @@ public sealed class ExportReplayService(
     IRunExportAuditService runExportAuditService)
     : IExportReplayService
 {
+    /// <summary>
+    /// Replays the export identified by <see cref="ReplayExportRequest.ExportRecordId"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the export record does not exist, its persisted request cannot be rehydrated,
+    /// or the export type is not supported for replay.
+    /// </exception>
     public async Task<ReplayExportResult> ReplayAsync(
         ReplayExportRequest request,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
-
-        if (string.IsNullOrWhiteSpace(request.ExportRecordId))
-        {
-            throw new InvalidOperationException("ExportRecordId is required.");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.ExportRecordId);
 
         var record = await runExportRecordRepository.GetByIdAsync(
             request.ExportRecordId,
@@ -114,6 +121,10 @@ public sealed class ExportReplayService(
         };
     }
 
+    /// <summary>
+    /// Appends <c>_replay</c> to the base file name while preserving the original extension.
+    /// Returns <c>replayed_export.docx</c> when the original name is blank.
+    /// </summary>
     private static string BuildReplayFileName(string originalFileName)
     {
         if (string.IsNullOrWhiteSpace(originalFileName))

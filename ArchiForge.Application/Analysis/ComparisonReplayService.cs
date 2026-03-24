@@ -36,10 +36,8 @@ public sealed class ComparisonReplayService(
         ReplayComparisonRequest request,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(request.ComparisonRecordId))
-        {
-            throw new InvalidOperationException("ComparisonRecordId is required.");
-        }
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.ComparisonRecordId);
 
         var record = await comparisonRecordRepository.GetByIdAsync(
             request.ComparisonRecordId,
@@ -51,8 +49,8 @@ public sealed class ComparisonReplayService(
 
         var result = record.ComparisonType switch
         {
-            "end-to-end-replay" => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
-            "export-record-diff" => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
+            ComparisonTypes.EndToEndReplay => await ReplayEndToEndAsync(record, format, profile, mode, cancellationToken),
+            ComparisonTypes.ExportRecordDiff => await ReplayExportDiffAsync(record, format, mode, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Replay is not supported for comparison type '{record.ComparisonType}'.")
         };
@@ -74,17 +72,14 @@ public sealed class ComparisonReplayService(
         string comparisonRecordId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(comparisonRecordId))
-        {
-            throw new InvalidOperationException("ComparisonRecordId is required.");
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
 
         var record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken) ?? throw new InvalidOperationException(
                 $"Comparison record '{comparisonRecordId}' was not found.");
         return record.ComparisonType switch
         {
-            "end-to-end-replay" => await AnalyzeDriftEndToEndAsync(record, cancellationToken),
-            "export-record-diff" => await AnalyzeDriftExportDiffAsync(record, cancellationToken),
+            ComparisonTypes.EndToEndReplay => await AnalyzeDriftEndToEndAsync(record, cancellationToken),
+            ComparisonTypes.ExportRecordDiff => await AnalyzeDriftExportDiffAsync(record, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Drift analysis is not supported for comparison type '{record.ComparisonType}'.")
         };
@@ -185,72 +180,67 @@ public sealed class ComparisonReplayService(
     {
         if (string.Equals(format, "markdown", StringComparison.OrdinalIgnoreCase))
         {
-            var markdown = endToEndExportService.GenerateMarkdown(report, profile);
-            var r = new ReplayComparisonResult
-            {
-                ComparisonRecordId = record.ComparisonRecordId,
-                ComparisonType = record.ComparisonType,
-                Format = "markdown",
-                FileName = $"comparison_{record.ComparisonRecordId}.md",
-                Content = markdown
-            };
-            SetRecordMetadata(r, record, profile);
-            return r;
+            var content = endToEndExportService.GenerateMarkdown(report, profile);
+            return BuildTextResult(record, "markdown", $"comparison_{record.ComparisonRecordId}.md", content, profile);
         }
 
         if (string.Equals(format, "html", StringComparison.OrdinalIgnoreCase))
         {
-            var html = endToEndExportService.GenerateHtml(report, profile);
-            var r = new ReplayComparisonResult
-            {
-                ComparisonRecordId = record.ComparisonRecordId,
-                ComparisonType = record.ComparisonType,
-                Format = "html",
-                FileName = $"comparison_{record.ComparisonRecordId}.html",
-                Content = html
-            };
-            SetRecordMetadata(r, record, profile);
-            return r;
+            var content = endToEndExportService.GenerateHtml(report, profile);
+            return BuildTextResult(record, "html", $"comparison_{record.ComparisonRecordId}.html", content, profile);
         }
 
         if (string.Equals(format, "docx", StringComparison.OrdinalIgnoreCase))
         {
-            var bytes = await endToEndExportService.GenerateDocxAsync(
-                report,
-                cancellationToken,
-                profile);
-            var r = new ReplayComparisonResult
-            {
-                ComparisonRecordId = record.ComparisonRecordId,
-                ComparisonType = record.ComparisonType,
-                Format = "docx",
-                FileName = $"comparison_{record.ComparisonRecordId}.docx",
-                BinaryContent = bytes
-            };
-            SetRecordMetadata(r, record, profile);
-            return r;
+            var bytes = await endToEndExportService.GenerateDocxAsync(report, cancellationToken, profile);
+            return BuildBinaryResult(record, "docx", $"comparison_{record.ComparisonRecordId}.docx", bytes, profile);
         }
 
-        if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException($"Unsupported replay format '{format}'.");
-
+        if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
         {
-            var bytes = await endToEndExportService.GeneratePdfAsync(
-                report,
-                cancellationToken,
-                profile);
-            var r = new ReplayComparisonResult
-            {
-                ComparisonRecordId = record.ComparisonRecordId,
-                ComparisonType = record.ComparisonType,
-                Format = "pdf",
-                FileName = $"comparison_{record.ComparisonRecordId}.pdf",
-                BinaryContent = bytes
-            };
-            SetRecordMetadata(r, record, profile);
-            return r;
+            var bytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
+            return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", bytes, profile);
         }
 
+        throw new InvalidOperationException($"Unsupported replay format '{format}'.");
+    }
+
+    private ReplayComparisonResult BuildTextResult(
+        ComparisonRecord record,
+        string format,
+        string fileName,
+        string content,
+        string? profile)
+    {
+        var r = new ReplayComparisonResult
+        {
+            ComparisonRecordId = record.ComparisonRecordId,
+            ComparisonType = record.ComparisonType,
+            Format = format,
+            FileName = fileName,
+            Content = content
+        };
+        SetRecordMetadata(r, record, profile);
+        return r;
+    }
+
+    private ReplayComparisonResult BuildBinaryResult(
+        ComparisonRecord record,
+        string format,
+        string fileName,
+        byte[] bytes,
+        string? profile)
+    {
+        var r = new ReplayComparisonResult
+        {
+            ComparisonRecordId = record.ComparisonRecordId,
+            ComparisonType = record.ComparisonType,
+            Format = format,
+            FileName = fileName,
+            BinaryContent = bytes
+        };
+        SetRecordMetadata(r, record, profile);
+        return r;
     }
 
     private async Task<ReplayComparisonResult> ReplayExportDiffAsync(
@@ -323,13 +313,12 @@ public sealed class ComparisonReplayService(
             Content = markdown,
             ReplayMode = FormatReplayMode(mode)
         };
-        SetRecordMetadata(result, record, null);
+        SetRecordMetadata(result, record, formatProfile: null);
         if (mode == ComparisonReplayMode.Verify)
         {
             result.VerificationPassed = true;
             result.VerificationMessage = "Regenerated comparison matches stored payload.";
         }
-        SetRecordMetadata(result, record, formatProfile: null);
         return result;
     }
 

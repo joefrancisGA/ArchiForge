@@ -5,6 +5,9 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Persists comparison results as immutable <see cref="ComparisonRecord"/> entries for audit and replay.
+/// </summary>
 public sealed class ComparisonAuditService(IComparisonRecordRepository repository) : IComparisonAuditService
 {
     private readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web)
@@ -12,6 +15,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         WriteIndented = true
     };
 
+    /// <inheritdoc />
     public async Task<string> RecordEndToEndAsync(
         EndToEndReplayComparisonReport report,
         string summaryMarkdown,
@@ -20,10 +24,10 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         var record = new ComparisonRecord
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
-            ComparisonType = "end-to-end-replay",
+            ComparisonType = ComparisonTypes.EndToEndReplay,
             LeftRunId = report.LeftRunId,
             RightRunId = report.RightRunId,
-            Format = "json+markdown",
+            Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(report, _jsonOptions),
             Notes = "Persisted end-to-end replay comparison.",
@@ -34,6 +38,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         return record.ComparisonRecordId;
     }
 
+    /// <inheritdoc />
     public async Task<string> RecordExportDiffAsync(
         ExportRecordDiffResult diff,
         string summaryMarkdown,
@@ -42,12 +47,12 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         var record = new ComparisonRecord
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
-            ComparisonType = "export-record-diff",
+            ComparisonType = ComparisonTypes.ExportRecordDiff,
             LeftRunId = diff.LeftRunId,
             RightRunId = diff.RightRunId,
             LeftExportRecordId = diff.LeftExportRecordId,
             RightExportRecordId = diff.RightExportRecordId,
-            Format = "json+markdown",
+            Format = ComparisonTypes.FormatJsonMarkdown,
             SummaryMarkdown = summaryMarkdown,
             PayloadJson = JsonSerializer.Serialize(diff, _jsonOptions),
             Notes = "Persisted export record diff.",
@@ -58,6 +63,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         return record.ComparisonRecordId;
     }
 
+    /// <inheritdoc />
     public async Task<string> RecordReplayOfAsync(
         ComparisonRecord sourceRecord,
         string? notes = null,

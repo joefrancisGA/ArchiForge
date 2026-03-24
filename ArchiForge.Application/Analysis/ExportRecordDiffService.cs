@@ -2,8 +2,16 @@ using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Compares two <see cref="RunExportRecord"/> instances and produces an <see cref="ExportRecordDiffResult"/>
+/// describing changes to top-level export fields and the embedded analysis request options.
+/// </summary>
 public sealed class ExportRecordDiffService : IExportRecordDiffService
 {
+    /// <summary>
+    /// Compares <paramref name="left"/> (baseline) against <paramref name="right"/> (candidate) and returns
+    /// a diff of top-level export metadata and any changes to the analysis request options.
+    /// </summary>
     public ExportRecordDiffResult Compare(
         RunExportRecord left,
         RunExportRecord right)

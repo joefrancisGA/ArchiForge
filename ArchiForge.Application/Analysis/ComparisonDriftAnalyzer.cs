@@ -2,6 +2,10 @@ using System.Text.Json;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Compares two object graphs by serializing them to JSON and performing a recursive field-level diff,
+/// returning a <see cref="DriftAnalysisResult"/> that describes any detected changes.
+/// </summary>
 public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
@@ -9,6 +13,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
         WriteIndented = false
     };
 
+    /// <inheritdoc />
     public DriftAnalysisResult Analyze(object stored, object regenerated)
     {
         var storedJson = JsonSerializer.SerializeToElement(stored, JsonOptions);
@@ -27,7 +32,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
         return result;
     }
 
-    private void CompareElement(
+    private static void CompareElement(
         string path,
         JsonElement left,
         JsonElement right,
