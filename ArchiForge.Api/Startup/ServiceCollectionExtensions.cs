@@ -15,6 +15,7 @@ using ArchiForge.Api.Startup.Validation;
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Application.Governance;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
@@ -95,6 +96,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
+        RegisterGovernance(services);
         return services;
     }
 
@@ -371,6 +373,14 @@ internal static partial class ServiceCollectionExtensions
                     }));
             }
         }
+    }
+
+    private static void RegisterGovernance(IServiceCollection services)
+    {
+        services.AddScoped<IGovernanceApprovalRequestRepository, GovernanceApprovalRequestRepository>();
+        services.AddScoped<IGovernancePromotionRecordRepository, GovernancePromotionRecordRepository>();
+        services.AddScoped<IGovernanceEnvironmentActivationRepository, GovernanceEnvironmentActivationRepository>();
+        services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
     }
 
     private static void RegisterRetrieval(IServiceCollection services, IConfiguration configuration)

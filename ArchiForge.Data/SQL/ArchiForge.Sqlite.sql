@@ -753,3 +753,48 @@ CREATE TABLE IF NOT EXISTS PolicyPackAssignments
 
 CREATE INDEX IF NOT EXISTS IX_PolicyPackAssignments_Scope_Enabled ON PolicyPackAssignments (TenantId, WorkspaceId, ProjectId, IsEnabled, AssignedUtc DESC);
 CREATE INDEX IF NOT EXISTS IX_PolicyPackAssignments_ScopeLevel_AssignedUtc ON PolicyPackAssignments (TenantId, WorkspaceId, ProjectId, ScopeLevel, AssignedUtc DESC);
+
+CREATE TABLE IF NOT EXISTS GovernanceApprovalRequests
+(
+    ApprovalRequestId TEXT NOT NULL PRIMARY KEY,
+    RunId TEXT NOT NULL,
+    ManifestVersion TEXT NOT NULL,
+    SourceEnvironment TEXT NOT NULL,
+    TargetEnvironment TEXT NOT NULL,
+    Status TEXT NOT NULL,
+    RequestedBy TEXT NOT NULL,
+    ReviewedBy TEXT NULL,
+    RequestComment TEXT NULL,
+    ReviewComment TEXT NULL,
+    RequestedUtc TEXT NOT NULL,
+    ReviewedUtc TEXT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_GovernanceApprovalRequests_RunId ON GovernanceApprovalRequests (RunId);
+
+CREATE TABLE IF NOT EXISTS GovernancePromotionRecords
+(
+    PromotionRecordId TEXT NOT NULL PRIMARY KEY,
+    RunId TEXT NOT NULL,
+    ManifestVersion TEXT NOT NULL,
+    SourceEnvironment TEXT NOT NULL,
+    TargetEnvironment TEXT NOT NULL,
+    PromotedBy TEXT NOT NULL,
+    PromotedUtc TEXT NOT NULL,
+    ApprovalRequestId TEXT NULL,
+    Notes TEXT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_GovernancePromotionRecords_RunId ON GovernancePromotionRecords (RunId);
+
+CREATE TABLE IF NOT EXISTS GovernanceEnvironmentActivations
+(
+    ActivationId TEXT NOT NULL PRIMARY KEY,
+    RunId TEXT NOT NULL,
+    ManifestVersion TEXT NOT NULL,
+    Environment TEXT NOT NULL,
+    IsActive INTEGER NOT NULL,
+    ActivatedUtc TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_GovernanceEnvironmentActivations_Environment_IsActive ON GovernanceEnvironmentActivations (Environment, IsActive);
