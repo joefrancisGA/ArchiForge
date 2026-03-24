@@ -54,7 +54,7 @@ public sealed class TypedFindingsGoldenPathTests
                     NodeType = "TopologyResource",
                     Label = "vpc",
                     Category = "network",
-                    Properties = new()
+                    Properties = []
                 },
                 new GraphNode
                 {
@@ -62,7 +62,7 @@ public sealed class TypedFindingsGoldenPathTests
                     NodeType = "TopologyResource",
                     Label = "vm",
                     Category = "compute",
-                    Properties = new()
+                    Properties = []
                 },
                 new GraphNode
                 {
@@ -70,7 +70,7 @@ public sealed class TypedFindingsGoldenPathTests
                     NodeType = "TopologyResource",
                     Label = "blob",
                     Category = "storage",
-                    Properties = new()
+                    Properties = []
                 },
                 new GraphNode
                 {
@@ -78,7 +78,7 @@ public sealed class TypedFindingsGoldenPathTests
                     NodeType = "TopologyResource",
                     Label = "db",
                     Category = "data",
-                    Properties = new()
+                    Properties = []
                 },
                 new GraphNode
                 {

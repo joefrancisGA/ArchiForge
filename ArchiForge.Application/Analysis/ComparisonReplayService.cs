@@ -196,13 +196,14 @@ public sealed class ComparisonReplayService(
             return BuildBinaryResult(record, "docx", $"comparison_{record.ComparisonRecordId}.docx", bytes, profile);
         }
 
-        if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException($"Unsupported replay format '{format}'.");
+        
         {
             var bytes = await endToEndExportService.GeneratePdfAsync(report, cancellationToken, profile);
             return BuildBinaryResult(record, "pdf", $"comparison_{record.ComparisonRecordId}.pdf", bytes, profile);
         }
 
-        throw new InvalidOperationException($"Unsupported replay format '{format}'.");
     }
 
     private ReplayComparisonResult BuildTextResult(
@@ -314,11 +315,11 @@ public sealed class ComparisonReplayService(
             ReplayMode = FormatReplayMode(mode)
         };
         SetRecordMetadata(result, record, formatProfile: null);
-        if (mode == ComparisonReplayMode.Verify)
-        {
-            result.VerificationPassed = true;
-            result.VerificationMessage = "Regenerated comparison matches stored payload.";
-        }
+        
+        if (mode != ComparisonReplayMode.Verify) return result;
+        
+        result.VerificationPassed = true;
+        result.VerificationMessage = "Regenerated comparison matches stored payload.";
         return result;
     }
 
@@ -379,12 +380,7 @@ public sealed class ComparisonReplayService(
 
     private static string NormalizeFormat(string? format)
     {
-        if (string.IsNullOrWhiteSpace(format))
-        {
-            return "markdown";
-        }
-
-        return format.Trim().ToLowerInvariant();
+        return string.IsNullOrWhiteSpace(format) ? "markdown" : format.Trim().ToLowerInvariant();
     }
 }
 

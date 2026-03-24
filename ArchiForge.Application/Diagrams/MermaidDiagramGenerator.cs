@@ -21,12 +21,12 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
 
         sb.AppendLine("flowchart LR");
 
-        foreach (var service in (manifest.Services ?? []).OrderBy(s => s.ServiceName))
+        foreach (var service in manifest.Services.OrderBy(s => s.ServiceName))
         {
             sb.AppendLine($"    {SanitizeId(service.ServiceId)}[{EscapeLabel(BuildServiceLabel(service))}]");
         }
 
-        foreach (var datastore in (manifest.Datastores ?? []).OrderBy(d => d.DatastoreName))
+        foreach (var datastore in manifest.Datastores.OrderBy(d => d.DatastoreName))
         {
             sb.AppendLine($"    {SanitizeId(datastore.DatastoreId)}[(\"{EscapeLabel(BuildDatastoreLabel(datastore))}\")]");
         }

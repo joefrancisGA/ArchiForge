@@ -20,7 +20,7 @@ public sealed class GovernancePreviewControllerTests(ArchiForgeApiFactory factor
 
         var payload = await response.Content.ReadFromJsonAsync<GovernanceEnvironmentComparisonResultDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.SourceEnvironment.Should().Be("dev");
+        payload.SourceEnvironment.Should().Be("dev");
         payload.TargetEnvironment.Should().Be("test");
         payload.Notes.Should().NotBeNull();
     }
@@ -63,7 +63,7 @@ public sealed class GovernancePreviewControllerTests(ArchiForgeApiFactory factor
         previewResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var preview = await previewResponse.Content.ReadFromJsonAsync<GovernancePreviewResultDto>(JsonOptions);
         preview.Should().NotBeNull();
-        preview!.PreviewRunId.Should().Be(runId);
+        preview.PreviewRunId.Should().Be(runId);
         preview.PreviewManifestVersion.Should().Be(manifestVersion);
         preview.Environment.Should().Be("dev");
     }

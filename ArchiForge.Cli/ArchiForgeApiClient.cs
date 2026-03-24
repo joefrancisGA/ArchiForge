@@ -596,7 +596,7 @@ namespace ArchiForge.Cli
                 var result = new DriftAnalysis
                 {
                     DriftDetected = root.TryGetProperty("driftDetected", out var dd) && dd.ValueKind == JsonValueKind.True,
-                    Summary = root.TryGetProperty("summary", out var s) ? (s.GetString() ?? "") : ""
+                    Summary = root.TryGetProperty("summary", out var s) ? s.GetString() ?? "" : ""
                 };
 
                 if (root.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
@@ -605,8 +605,8 @@ namespace ArchiForge.Cli
                     {
                         result.Items.Add(new DriftItem
                         {
-                            Category = it.TryGetProperty("category", out var c) ? (c.GetString() ?? "") : "",
-                            Path = it.TryGetProperty("path", out var p) ? (p.GetString() ?? "") : "",
+                            Category = it.TryGetProperty("category", out var c) ? c.GetString() ?? "" : "",
+                            Path = it.TryGetProperty("path", out var p) ? p.GetString() ?? "" : "",
                             Description = it.TryGetProperty("description", out var d) ? d.GetString() : null
                         });
                     }
@@ -677,10 +677,10 @@ namespace ArchiForge.Cli
                         result.RecentReplays.Add(new ReplayDiagnosticsEntry
                         {
                             TimestampUtc = it.TryGetProperty("timestampUtc", out var t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
-                            ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out var id) ? (id.GetString() ?? "") : "",
-                            ComparisonType = it.TryGetProperty("comparisonType", out var ctEl) ? (ctEl.GetString() ?? "") : "",
-                            Format = it.TryGetProperty("format", out var f) ? (f.GetString() ?? "") : "",
-                            ReplayMode = it.TryGetProperty("replayMode", out var rm) ? (rm.GetString() ?? "") : "",
+                            ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out var id) ? id.GetString() ?? "" : "",
+                            ComparisonType = it.TryGetProperty("comparisonType", out var ctEl) ? ctEl.GetString() ?? "" : "",
+                            Format = it.TryGetProperty("format", out var f) ? f.GetString() ?? "" : "",
+                            ReplayMode = it.TryGetProperty("replayMode", out var rm) ? rm.GetString() ?? "" : "",
                             DurationMs = it.TryGetProperty("durationMs", out var dm) && dm.TryGetInt64(out var l) ? l : 0,
                             Success = it.TryGetProperty("success", out var ok) && ok.ValueKind == JsonValueKind.True,
                             MetadataOnly = it.TryGetProperty("metadataOnly", out var mo) && mo.ValueKind == JsonValueKind.True,

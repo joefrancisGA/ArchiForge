@@ -132,10 +132,13 @@ public sealed class GovernanceWorkflowService(
 
         await approvalRepo.UpdateAsync(request, cancellationToken);
 
-        logger.LogInformation(
-            "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
-            request.ApprovalRequestId,
-            reviewedBy);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
+                request.ApprovalRequestId,
+                reviewedBy);
+        }
 
         return request;
     }
@@ -215,12 +218,15 @@ public sealed class GovernanceWorkflowService(
 
         await promotionRepo.CreateAsync(record, cancellationToken);
 
-        logger.LogInformation(
-            "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
-            record.PromotionRecordId,
-            record.RunId,
-            record.ManifestVersion,
-            record.TargetEnvironment);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
+                record.PromotionRecordId,
+                record.RunId,
+                record.ManifestVersion,
+                record.TargetEnvironment);
+        }
 
         return record;
     }
@@ -264,12 +270,15 @@ public sealed class GovernanceWorkflowService(
             scope.Complete();
         }
 
-        logger.LogInformation(
-            "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
-            activation.ActivationId,
-            activation.RunId,
-            activation.ManifestVersion,
-            activation.Environment);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
+                activation.ActivationId,
+                activation.RunId,
+                activation.ManifestVersion,
+                activation.Environment);
+        }
 
         return activation;
     }

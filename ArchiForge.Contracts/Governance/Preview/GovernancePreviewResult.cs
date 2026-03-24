@@ -10,6 +10,6 @@ public sealed class GovernancePreviewResult
     public string PreviewRunId { get; set; } = string.Empty;
     public string PreviewManifestVersion { get; set; } = string.Empty;
 
-    public List<GovernanceDiffItem> Differences { get; set; } = new();
-    public List<string> Notes { get; set; } = new();
+    public List<GovernanceDiffItem> Differences { get; set; } = [];
+    public List<string> Notes { get; set; } = [];
 }

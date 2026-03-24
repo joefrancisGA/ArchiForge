@@ -182,8 +182,8 @@ public sealed class GovernancePreviewServiceTests
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);
-        _manifestRepo.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r1", "v1"));
-        _manifestRepo.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r2", "v2"));
+        _manifestRepo.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r1", "v1"));
+        _manifestRepo.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r2", "v2"));
 
         var result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
         {

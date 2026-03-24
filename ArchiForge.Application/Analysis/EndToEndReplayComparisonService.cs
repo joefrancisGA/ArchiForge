@@ -132,7 +132,7 @@ public sealed class EndToEndReplayComparisonService(
             StringComparison.OrdinalIgnoreCase);
 
         result.StatusDiffers = !Equals(leftRun.Status, rightRun.Status);
-        result.CompletionStateDiffers = (leftRun.CompletedUtc is null) != (rightRun.CompletedUtc is null);
+        result.CompletionStateDiffers = leftRun.CompletedUtc is null != rightRun.CompletedUtc is null;
 
         return result;
     }

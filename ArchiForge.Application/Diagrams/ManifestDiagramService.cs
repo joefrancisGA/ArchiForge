@@ -28,9 +28,9 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         var nodeIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var usedNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        var services = manifest.Services ?? [];
-        var datastores = manifest.Datastores ?? [];
-        var manifestRelationships = manifest.Relationships ?? [];
+        var services = manifest.Services;
+        var datastores = manifest.Datastores;
+        var manifestRelationships = manifest.Relationships;
 
         // Optional grouping (subgraphs) for services only.
         if (services.Count > 0)
@@ -48,8 +48,8 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             {
                 var groups = services
                     .GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform
-                        ? (s.RuntimePlatform.ToString())
-                        : (s.ServiceType.ToString()), StringComparer.OrdinalIgnoreCase)
+                        ? s.RuntimePlatform.ToString()
+                        : s.ServiceType.ToString(), StringComparer.OrdinalIgnoreCase)
                     .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
 
                 foreach (var g in groups)
@@ -123,7 +123,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (string.IsNullOrWhiteSpace(sourceOrTargetId))
             return null;
 
-        var svc = (manifest.Services ?? []).FirstOrDefault(s =>
+        var svc = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
         if (svc is not null)
@@ -134,7 +134,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             return SanitizeId(string.IsNullOrWhiteSpace(svc.ServiceId) ? svc.ServiceName : svc.ServiceId);
         }
 
-        var ds = (manifest.Datastores ?? []).FirstOrDefault(d =>
+        var ds = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
         if (ds is null)
@@ -186,7 +186,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string SanitizeId(string value) => DiagramIdSanitizer.Sanitize(value);
 
-    private static string EscapeLabel(string value) => (value).Replace("\"", "\\\"");
+    private static string EscapeLabel(string value) => value.Replace("\"", "\\\"");
 
     private static string NormalizeLayout(string? value)
     {

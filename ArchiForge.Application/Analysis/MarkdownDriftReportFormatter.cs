@@ -25,6 +25,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             sb.AppendLine($"**Comparison record:** `{comparisonRecordId}`");
             sb.AppendLine();
         }
+        
         sb.AppendLine($"**Drift detected:** {(drift.DriftDetected ? "Yes" : "No")}");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(drift.Summary))
@@ -32,19 +33,20 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
             sb.AppendLine(drift.Summary);
             sb.AppendLine();
         }
-        if (drift.Items.Count > 0)
+
+        if (drift.Items.Count <= 0) return sb.ToString();
+        
+        sb.AppendLine("## Differences");
+        sb.AppendLine();
+        sb.AppendLine("| Category | Path | Stored | Regenerated | Description |");
+        sb.AppendLine("|----------|------|--------|-------------|-------------|");
+        
+        foreach (var item in drift.Items)
         {
-            sb.AppendLine("## Differences");
-            sb.AppendLine();
-            sb.AppendLine("| Category | Path | Stored | Regenerated | Description |");
-            sb.AppendLine("|----------|------|--------|-------------|-------------|");
-            foreach (var item in drift.Items)
-            {
-                var stored = EscapeTableCell(item.StoredValue);
-                var regen = EscapeTableCell(item.RegeneratedValue);
-                var desc = EscapeTableCell(item.Description);
-                sb.AppendLine($"| {item.Category} | {item.Path} | {stored} | {regen} | {desc} |");
-            }
+            var stored = EscapeTableCell(item.StoredValue);
+            var regen = EscapeTableCell(item.RegeneratedValue);
+            var desc = EscapeTableCell(item.Description);
+            sb.AppendLine($"| {item.Category} | {item.Path} | {stored} | {regen} | {desc} |");
         }
         return sb.ToString();
     }

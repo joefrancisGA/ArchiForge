@@ -47,7 +47,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
         if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
             return 0;
 
-        return ((delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value) * 100m;
+        return (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
     }
 
     /// <summary>Sum of accepted ÷ sum of proposed across learning categories.</summary>

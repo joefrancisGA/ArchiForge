@@ -10,7 +10,7 @@ public sealed class InMemoryAlertRecordRepository : IAlertRecordRepository
 {
     private const int MaxEntries = 500;
     private readonly List<AlertRecord> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(AlertRecord alert, CancellationToken ct)
     {

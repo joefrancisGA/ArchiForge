@@ -108,7 +108,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
             return;
 
-        var increasePct = ((delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value) * 100m;
+        var increasePct = (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
 
         if (increasePct >= rule.ThresholdValue)
         {

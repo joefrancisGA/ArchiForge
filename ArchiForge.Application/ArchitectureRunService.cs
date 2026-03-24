@@ -246,7 +246,7 @@ public sealed class ArchitectureRunService(
         var request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
+        _ = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
 
         var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);

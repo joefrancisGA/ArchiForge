@@ -113,9 +113,9 @@ public sealed class ExplanationService(
         {
             Summary = !string.IsNullOrWhiteSpace(parsed?.Summary)
                 ? parsed.Summary.Trim()
-                : (string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
+                : string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
                     ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
-                    : manifest.Metadata.Summary.Trim()),
+                    : manifest.Metadata.Summary.Trim(),
             KeyDrivers = keyDrivers,
             RiskImplications = risks,
             CostImplications = costs,

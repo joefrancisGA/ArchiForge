@@ -40,7 +40,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 
         var payload = await response.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
-        payload!.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
+        payload.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
         payload.Status.Should().Be("Submitted");
         payload.RunId.Should().Be(runId);
     }
@@ -176,7 +176,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             SourceEnvironment = "test",
             TargetEnvironment = "prod",
             PromotedBy = "alice",
-            ApprovalRequestId = submitted.ApprovalRequestId
+            submitted.ApprovalRequestId
         };
 
         var response = await Client.PostAsync("/v1/governance/promotions", JsonContent(promoteBody));
@@ -185,7 +185,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 
         var result = await response.Content.ReadFromJsonAsync<GovernancePromotionResponseDto>(JsonOptions);
         result.Should().NotBeNull();
-        result!.TargetEnvironment.Should().Be("prod");
+        result.TargetEnvironment.Should().Be("prod");
         result.PromotedBy.Should().Be("alice");
     }
 
@@ -209,7 +209,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 
         var result = await response.Content.ReadFromJsonAsync<GovernanceActivationResponseDto>(JsonOptions);
         result.Should().NotBeNull();
-        result!.IsActive.Should().BeTrue();
+        result.IsActive.Should().BeTrue();
         result.RunId.Should().Be(runId);
         result.Environment.Should().Be("dev");
     }
@@ -236,7 +236,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 
         var items = await listResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
-        items!.Should().Contain(x => x.RunId == runId);
+        items.Should().Contain(x => x.RunId == runId);
     }
 
     [Fact]
@@ -260,7 +260,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 
         var items = await listResponse.Content.ReadFromJsonAsync<GovernancePromotionResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
-        items!.Should().Contain(x => x.RunId == runId);
+        items.Should().Contain(x => x.RunId == runId);
     }
 
     [Fact]
@@ -282,7 +282,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 
         var items = await listResponse.Content.ReadFromJsonAsync<GovernanceActivationResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
-        items!.Should().Contain(x => x.RunId == runId);
+        items.Should().Contain(x => x.RunId == runId);
     }
 }
 

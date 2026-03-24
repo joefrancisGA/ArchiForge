@@ -106,7 +106,7 @@ public sealed class RunDetailQueryServiceTests
         var result = await _sut.GetRunDetailAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Run.RunId.Should().Be("run-1");
+        result.Run.RunId.Should().Be("run-1");
         result.Tasks.Should().HaveCount(1);
         result.Results.Should().HaveCount(1);
         result.Manifest.Should().NotBeNull();
@@ -130,7 +130,7 @@ public sealed class RunDetailQueryServiceTests
         var result = await _sut.GetRunDetailAsync("run-2");
 
         result.Should().NotBeNull();
-        result!.Manifest.Should().BeNull();
+        result.Manifest.Should().BeNull();
         result.DecisionTraces.Should().BeEmpty();
         result.IsCommitted.Should().BeFalse();
 
@@ -157,7 +157,7 @@ public sealed class RunDetailQueryServiceTests
         var result = await _sut.GetRunDetailAsync("run-1");
 
         result.Should().NotBeNull();
-        result!.Run.RunId.Should().Be("run-1");
+        result.Run.RunId.Should().Be("run-1");
         result.Manifest.Should().BeNull();
         // Decision traces must NOT be queried when manifest is unavailable.
         _traceRepo.Verify(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -176,9 +176,9 @@ public sealed class RunDetailQueryServiceTests
     public async Task ListRunSummariesAsync_ReturnsMappedSummaries()
     {
         _runRepo.Setup(r => r.ListAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ArchitectureRunListItem>
-            {
-                new()
+            .ReturnsAsync(
+            [
+                new ArchitectureRunListItem
                 {
                     RunId = "run-1",
                     RequestId = "req-1",
@@ -187,7 +187,7 @@ public sealed class RunDetailQueryServiceTests
                     CurrentManifestVersion = "v1",
                     SystemName = "Sys"
                 },
-                new()
+                new ArchitectureRunListItem
                 {
                     RunId = "run-2",
                     RequestId = "req-2",
@@ -195,7 +195,7 @@ public sealed class RunDetailQueryServiceTests
                     CreatedUtc = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc),
                     SystemName = "Sys2"
                 }
-            });
+            ]);
 
         var result = await _sut.ListRunSummariesAsync();
 
@@ -217,7 +217,7 @@ public sealed class RunDetailQueryServiceTests
     public async Task ListRunSummariesAsync_EmptyRepository_ReturnsEmptyList()
     {
         _runRepo.Setup(r => r.ListAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ArchitectureRunListItem>());
+            .ReturnsAsync([]);
 
         var result = await _sut.ListRunSummariesAsync();
 

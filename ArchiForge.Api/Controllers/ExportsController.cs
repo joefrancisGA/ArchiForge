@@ -44,12 +44,10 @@ public sealed class ExportsController(
 
         var records = await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
 
-#pragma warning disable IDE0305 // Simplify collection initialization
         return Ok(new RunExportHistoryResponse
         {
             Exports = records.ToList()
         });
-#pragma warning restore IDE0305 // Simplify collection initialization
     }
 
     [HttpGet("run/exports/{exportRecordId}")]
@@ -190,6 +188,7 @@ public sealed class ExportsController(
     {
         if (string.IsNullOrWhiteSpace(leftExportRecordId))
             return new LoadedExportRecordPair { Error = this.BadRequestProblem("leftExportRecordId is required.", ProblemTypes.ValidationFailed) };
+
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
             return new LoadedExportRecordPair { Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed) };
 
@@ -198,10 +197,8 @@ public sealed class ExportsController(
             return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
 
         var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
-        if (right is null)
-            return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
-
-        return new LoadedExportRecordPair { Left = left, Right = right };
+        
+        return right is null ? new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) } : new LoadedExportRecordPair { Left = left, Right = right };
     }
 
     private sealed class LoadedExportRecordPair

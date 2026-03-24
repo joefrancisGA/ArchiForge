@@ -194,7 +194,8 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             builder.AddSpacer();
         }
 
-        if (report.AgentResultDiff is not null)
+        if (report.AgentResultDiff is null) return builder.Build();
+        
         {
             builder.AddHeading("Agent Result Diff", 2);
 

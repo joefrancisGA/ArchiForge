@@ -6,6 +6,8 @@ using ArchiForge.Api.Routing;
 
 using FluentAssertions;
 
+using JetBrains.Annotations;
+
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
@@ -152,7 +154,7 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         mergedResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var merged = await mergedResponse.Content.ReadFromJsonAsync<PolicyPackContentResponse>(JsonOptions);
         merged.Should().NotBeNull();
-        merged!.AlertRuleIds.Should().BeEquivalentTo([idA, idB]);
+        merged.AlertRuleIds.Should().BeEquivalentTo([idA, idB]);
     }
 
     [Fact]
@@ -390,8 +392,10 @@ public sealed class PolicyPacksIntegrationTests(ArchiForgeApiFactory factory) : 
         public List<ResolvedPackResponse> Packs { get; init; } = [];
     }
 
+    [UsedImplicitly]
     private sealed class ResolvedPackResponse
     {
+        [UsedImplicitly]
         public Guid PolicyPackId
         {
             get;

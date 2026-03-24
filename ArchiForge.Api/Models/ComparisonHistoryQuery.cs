@@ -77,7 +77,7 @@ public sealed class ComparisonHistoryQuery
     public static List<string> NormalizeTagList(string? tag, string[]? tags)
     {
         var normalizedTags = (tags ?? [])
-            .SelectMany(t => (t).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .SelectMany(t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Where(t => !string.IsNullOrWhiteSpace(t))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();

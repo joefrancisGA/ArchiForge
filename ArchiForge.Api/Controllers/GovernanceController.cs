@@ -77,7 +77,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
-            ? (User.Identity?.Name ?? "anonymous")
+            ? User.Identity?.Name ?? "anonymous"
             : request.ReviewedBy;
 
         try
@@ -110,7 +110,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
-            ? (User.Identity?.Name ?? "anonymous")
+            ? User.Identity?.Name ?? "anonymous"
             : request.ReviewedBy;
 
         try
@@ -142,7 +142,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var promotedBy = string.IsNullOrWhiteSpace(request.PromotedBy)
-            ? (User.Identity?.Name ?? "anonymous")
+            ? User.Identity?.Name ?? "anonymous"
             : request.PromotedBy;
 
         try

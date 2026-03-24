@@ -6,7 +6,7 @@ namespace ArchiForge.Persistence.Alerts;
 public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttemptRepository
 {
     private readonly List<AlertDeliveryAttempt> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(AlertDeliveryAttempt attempt, CancellationToken ct)
     {

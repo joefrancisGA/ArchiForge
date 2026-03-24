@@ -74,7 +74,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("right", It.IsAny<CancellationToken>())).ReturnsAsync(right);
         _exportRepo.Setup(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<RunExportRecord>());
-        _manifestDiff.Setup(m => m.Compare(left.Manifest!, right.Manifest!)).Returns(new ManifestDiffResult());
+        _manifestDiff.Setup(m => m.Compare(left.Manifest, right.Manifest)).Returns(new ManifestDiffResult());
         _agentDiff.Setup(a => a.Compare("left", left.Results, "right", right.Results))
             .Returns(new AgentResultDiffResult());
 
@@ -84,7 +84,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         report.RightRunId.Should().Be("right");
         _runDetailQueryService.Verify(s => s.GetRunDetailAsync("left", It.IsAny<CancellationToken>()), Times.Once);
         _runDetailQueryService.Verify(s => s.GetRunDetailAsync("right", It.IsAny<CancellationToken>()), Times.Once);
-        _manifestDiff.Verify(m => m.Compare(left.Manifest!, right.Manifest!), Times.Once);
+        _manifestDiff.Verify(m => m.Compare(left.Manifest, right.Manifest), Times.Once);
     }
 
     [Fact]

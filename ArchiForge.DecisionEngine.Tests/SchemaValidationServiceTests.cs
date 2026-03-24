@@ -153,15 +153,17 @@ public sealed class SchemaValidationServiceTests
 
         var result = service.ValidateAgentResultJson(invalidJson);
 
-        if (!result.IsValid)
+        if (result.IsValid)
         {
-            result.DetailedErrors.Should().NotBeEmpty();
-            result.DetailedErrors.Should().AllSatisfy(error =>
-            {
-                error.Message.Should().NotBeNullOrEmpty();
-                error.Location.Should().NotBeNullOrEmpty();
-            });
+            return;
         }
+        
+        result.DetailedErrors.Should().NotBeEmpty();
+        result.DetailedErrors.Should().AllSatisfy(error =>
+        {
+            error.Message.Should().NotBeNullOrEmpty();
+            error.Location.Should().NotBeNullOrEmpty();
+        });
     }
 
     [Fact]
