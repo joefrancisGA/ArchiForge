@@ -4,6 +4,11 @@ using FluentValidation;
 
 namespace ArchiForge.Api.Validators;
 
+/// <summary>
+/// FluentValidation rules for <see cref="ArchitectureRequest"/>.
+/// Validates required fields, character limits, and collection cardinality before the
+/// request is passed to the run-creation pipeline.
+/// </summary>
 public sealed class ArchitectureRequestValidator : AbstractValidator<ArchitectureRequest>
 {
     public ArchitectureRequestValidator()

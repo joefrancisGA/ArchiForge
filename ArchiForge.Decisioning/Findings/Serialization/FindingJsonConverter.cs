@@ -30,8 +30,9 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             RecommendedActions = ReadStringList(root, "recommendedActions"),
             Properties = ReadStringDict(root, "properties"),
             PayloadType = root.TryGetProperty("payloadType", out var pt) ? pt.GetString() : null,
-            Trace = ReadTrace(root, options)
         };
+
+        finding.Trace = ReadTrace(root, options, finding);
 
         if (!root.TryGetProperty("payload", out var payloadEl) || payloadEl.ValueKind == JsonValueKind.Null)
             return finding;
@@ -84,7 +85,13 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         writer.WriteEndObject();
     }
 
-    private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options)
+    /// <summary>
+    /// Deserializes the <c>trace</c> property from <paramref name="root"/>.
+    /// When deserialization fails the corrupt JSON is noted in <paramref name="finding"/>
+    /// <c>Properties["_traceDeserializationWarning"]</c> so downstream consumers
+    /// can detect data loss without silently discarding the error.
+    /// </summary>
+    private static ExplainabilityTrace ReadTrace(JsonElement root, JsonSerializerOptions options, Finding finding)
     {
         if (!root.TryGetProperty("trace", out var tr))
             return new ExplainabilityTrace();
@@ -92,8 +99,10 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         {
             return JsonSerializer.Deserialize<ExplainabilityTrace>(tr.GetRawText(), options) ?? new ExplainabilityTrace();
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            finding.Properties["_traceDeserializationWarning"] =
+                $"Trace JSON could not be deserialized and was replaced with an empty trace. Error: {ex.Message}";
             return new ExplainabilityTrace();
         }
     }

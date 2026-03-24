@@ -1,5 +1,6 @@
 using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Explanation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
@@ -38,14 +39,16 @@ public sealed class ExplanationController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="ExplanationResult"/> JSON, or 404 when the run or manifest is missing in scope.</returns>
     [HttpGet("runs/{runId:guid}/explain")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ExplanationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainRun(Guid runId, CancellationToken ct = default)
     {
         var scope = scopeProvider.GetCurrentScope();
         var detail = await query.GetRunDetailAsync(scope, runId, ct);
         if (detail?.GoldenManifest is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
 
         DecisionProvenanceGraph? graph = null;
         var snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
@@ -71,8 +74,8 @@ public sealed class ExplanationController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="ComparisonExplanationResult"/> JSON, or 404 when either run lacks a golden manifest in scope.</returns>
     [HttpGet("compare/explain")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ComparisonExplanationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainComparison(
         [FromQuery] Guid baseRunId,
         [FromQuery] Guid targetRunId,
@@ -82,7 +85,9 @@ public sealed class ExplanationController(
         var baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
         var targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
         if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                "One or both runs were not found or have no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
 
         var comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         var result = await explanation.ExplainComparisonAsync(comparison1, ct);

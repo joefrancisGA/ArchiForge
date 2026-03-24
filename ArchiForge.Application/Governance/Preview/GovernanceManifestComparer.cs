@@ -10,8 +10,13 @@ namespace ArchiForge.Application.Governance.Preview;
 public static class GovernanceManifestComparer
 {
     /// <summary>
-    /// Compares governance snapshots. Accepts <see cref="ManifestGovernance"/>, <see cref="GoldenManifest"/> (uses <c>.Governance</c>), or null.
+    /// Compares governance snapshots. Accepts <see cref="ManifestGovernance"/>,
+    /// <see cref="GoldenManifest"/> (uses <c>.Governance</c>), or <see langword="null"/>.
     /// </summary>
+    /// <exception cref="ArgumentException">
+    /// Thrown when either argument is a type other than <see cref="ManifestGovernance"/>,
+    /// <see cref="GoldenManifest"/>, or <see langword="null"/>.
+    /// </exception>
     public static List<GovernanceDiffItem> Compare(object? currentGovernance, object? previewGovernance)
     {
         var current = ExtractGovernanceFields(ToManifestGovernance(currentGovernance));
@@ -24,7 +29,10 @@ public static class GovernanceManifestComparer
         null => null,
         ManifestGovernance mg => mg,
         GoldenManifest gm => gm.Governance,
-        _ => null
+        _ => throw new ArgumentException(
+            $"Unsupported governance type '{o.GetType().FullName}'. " +
+            $"Pass a {nameof(ManifestGovernance)}, a {nameof(GoldenManifest)}, or null.",
+            nameof(o))
     };
 
     /// <summary>

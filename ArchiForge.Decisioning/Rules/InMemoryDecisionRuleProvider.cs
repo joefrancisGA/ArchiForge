@@ -3,15 +3,48 @@ using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Rules;
 
+/// <summary>
+/// A hard-coded, in-memory <see cref="IDecisionRuleProvider"/> used for local development,
+/// integration tests, and demo environments.
+/// </summary>
+/// <remarks>
+/// This provider always returns the same static rule set and is not suitable for production
+/// environments that require dynamic or tenant-specific rule configuration.
+/// Replace it with a database-backed provider via DI when persistent rule management is needed.
+/// </remarks>
 public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
 {
+    // ── Rule-set identity ───────────────────────────────────────────────────
+
+    private const string RuleSetId = "in-memory";
+    private const string RuleSetVersion = "1";
+
+    // ── Finding types ───────────────────────────────────────────────────────
+
+    private const string FindingTypeRequirement = "RequirementFinding";
+    private const string FindingTypeTopologyGap = "TopologyGap";
+    private const string FindingTypeTopologyCoverage = "TopologyCoverageFinding";
+    private const string FindingTypeSecurityControl = "SecurityControlFinding";
+    private const string FindingTypePolicyApplicability = "PolicyApplicabilityFinding";
+    private const string FindingTypeSecurityCoverage = "SecurityCoverageFinding";
+    private const string FindingTypePolicyCoverage = "PolicyCoverageFinding";
+    private const string FindingTypeRequirementCoverage = "RequirementCoverageFinding";
+    private const string FindingTypeCompliance = "ComplianceFinding";
+    private const string FindingTypeCostConstraint = "CostConstraintFinding";
+
+    // ── Rule actions ────────────────────────────────────────────────────────
+
+    private const string ActionRequire = "require";
+    private const string ActionAllow = "allow";
+    private const string ActionPrefer = "prefer";
+
     public Task<DecisionRuleSet> GetRuleSetAsync(CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         var ruleSet = new DecisionRuleSet
         {
-            RuleSetId = "in-memory",
-            Version = "1",
+            RuleSetId = RuleSetId,
+            Version = RuleSetVersion,
             Rules =
             [
                 new DecisionRule
@@ -19,8 +52,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Promote requirement findings",
                     Priority = 100,
                     IsMandatory = true,
-                    AppliesToFindingType = "RequirementFinding",
-                    Action = "require"
+                    AppliesToFindingType = FindingTypeRequirement,
+                    Action = ActionRequire
                 },
 
                 new DecisionRule
@@ -28,8 +61,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Warn on topology gaps",
                     Priority = 90,
                     IsMandatory = false,
-                    AppliesToFindingType = "TopologyGap",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypeTopologyGap,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -37,8 +70,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Topology category coverage",
                     Priority = 89,
                     IsMandatory = false,
-                    AppliesToFindingType = "TopologyCoverageFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypeTopologyCoverage,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -46,8 +79,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Track security control findings",
                     Priority = 88,
                     IsMandatory = false,
-                    AppliesToFindingType = "SecurityControlFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypeSecurityControl,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -55,8 +88,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Record policy applicability findings",
                     Priority = 87,
                     IsMandatory = false,
-                    AppliesToFindingType = "PolicyApplicabilityFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypePolicyApplicability,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -64,8 +97,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Security graph coverage",
                     Priority = 86,
                     IsMandatory = false,
-                    AppliesToFindingType = "SecurityCoverageFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypeSecurityCoverage,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -73,8 +106,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Policy graph coverage",
                     Priority = 85,
                     IsMandatory = false,
-                    AppliesToFindingType = "PolicyCoverageFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypePolicyCoverage,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -82,8 +115,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Requirement graph coverage",
                     Priority = 84,
                     IsMandatory = false,
-                    AppliesToFindingType = "RequirementCoverageFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypeRequirementCoverage,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -91,8 +124,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Record compliance rule pack findings",
                     Priority = 81,
                     IsMandatory = false,
-                    AppliesToFindingType = "ComplianceFinding",
-                    Action = "allow"
+                    AppliesToFindingType = FindingTypeCompliance,
+                    Action = ActionAllow
                 },
 
                 new DecisionRule
@@ -100,8 +133,8 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
                     Name = "Prefer cost constraint findings",
                     Priority = 82,
                     IsMandatory = false,
-                    AppliesToFindingType = "CostConstraintFinding",
-                    Action = "prefer"
+                    AppliesToFindingType = FindingTypeCostConstraint,
+                    Action = ActionPrefer
                 }
             ]
         };
@@ -110,4 +143,3 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
         return Task.FromResult(ruleSet);
     }
 }
-

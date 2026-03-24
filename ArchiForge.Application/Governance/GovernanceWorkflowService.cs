@@ -7,6 +7,12 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Application.Governance;
 
+/// <summary>
+/// Default implementation of <see cref="IGovernanceWorkflowService"/> backed by
+/// <see cref="IGovernanceApprovalRequestRepository"/>,
+/// <see cref="IGovernancePromotionRecordRepository"/>, and
+/// <see cref="IGovernanceEnvironmentActivationRepository"/>.
+/// </summary>
 public sealed class GovernanceWorkflowService(
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
@@ -15,6 +21,7 @@ public sealed class GovernanceWorkflowService(
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
 {
+    /// <inheritdoc />
     public async Task<GovernanceApprovalRequest> SubmitApprovalRequestAsync(
         string runId,
         string manifestVersion,
@@ -24,6 +31,12 @@ public sealed class GovernanceWorkflowService(
         string? requestComment,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceEnvironment);
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
+        ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
+
         var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
         var run = runDetail.Run;
@@ -54,12 +67,16 @@ public sealed class GovernanceWorkflowService(
         return request;
     }
 
+    /// <inheritdoc />
     public async Task<GovernanceApprovalRequest> ApproveAsync(
         string approvalRequestId,
         string reviewedBy,
         string? reviewComment,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+
         var request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
@@ -85,12 +102,16 @@ public sealed class GovernanceWorkflowService(
         return request;
     }
 
+    /// <inheritdoc />
     public async Task<GovernanceApprovalRequest> RejectAsync(
         string approvalRequestId,
         string reviewedBy,
         string? reviewComment,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
+
         var request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
@@ -116,6 +137,7 @@ public sealed class GovernanceWorkflowService(
         return request;
     }
 
+    /// <inheritdoc />
     public async Task<GovernancePromotionRecord> PromoteAsync(
         string runId,
         string manifestVersion,
@@ -126,6 +148,12 @@ public sealed class GovernanceWorkflowService(
         string? notes,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sourceEnvironment);
+        ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
+        ArgumentException.ThrowIfNullOrWhiteSpace(promotedBy);
+
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 
@@ -194,12 +222,17 @@ public sealed class GovernanceWorkflowService(
         return record;
     }
 
+    /// <inheritdoc />
     public async Task<GovernanceEnvironmentActivation> ActivateAsync(
         string runId,
         string manifestVersion,
         string environment,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(manifestVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(environment);
+
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 

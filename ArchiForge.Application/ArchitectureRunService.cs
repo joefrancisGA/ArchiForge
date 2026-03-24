@@ -43,6 +43,8 @@ public sealed class ArchitectureRunService(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var coordination = await coordinator.CreateRunAsync(request, cancellationToken);
 
         if (!coordination.Success)
@@ -87,6 +89,8 @@ public sealed class ArchitectureRunService(
         string runId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         logger.LogInformation(
             "Executing architecture run: RunId={RunId}",
             runId);
@@ -183,6 +187,8 @@ public sealed class ArchitectureRunService(
         string runId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
         logger.LogInformation(
             "Committing architecture run: RunId={RunId}",
             runId);

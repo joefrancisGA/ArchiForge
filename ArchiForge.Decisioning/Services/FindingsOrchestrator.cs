@@ -15,11 +15,30 @@ public partial class FindingsOrchestrator(
     ILogger<FindingsOrchestrator> logger)
     : IFindingsOrchestrator
 {
+    /// <summary>
+    /// Initialises the orchestrator without a payload validator or logger.
+    /// </summary>
+    /// <remarks>
+    /// No payload validation is performed when using this overload.
+    /// Prefer the primary constructor with an explicit <see cref="IFindingPayloadValidator"/>
+    /// injected from the DI container.
+    /// </remarks>
+    [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator and ILogger<FindingsOrchestrator>. " +
+              "This overload silently skips payload validation.")]
     public FindingsOrchestrator(IEnumerable<IFindingEngine> engines)
         : this(engines, new NoOpFindingPayloadValidator(), SilentLogger.Instance)
     {
     }
 
+    /// <summary>
+    /// Initialises the orchestrator with a validator but without a logger.
+    /// </summary>
+    /// <remarks>
+    /// No structured logging is emitted when using this overload.
+    /// Prefer the primary constructor that also accepts <see cref="ILogger{TCategoryName}"/>.
+    /// </remarks>
+    [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator>. " +
+              "This overload discards all log output.")]
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator)

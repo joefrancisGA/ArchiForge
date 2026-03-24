@@ -42,6 +42,9 @@ public sealed class ReplayRunService(
         string? manifestVersionOverride = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+
         var sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
             ?? throw new RunNotFoundException(originalRunId);
 

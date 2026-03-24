@@ -35,7 +35,7 @@ public sealed class DeterminismCheckService(
             request.RunId,
             request.ExecutionMode,
             commitReplay: request.CommitReplays,
-            manifestVersionOverride: request.CommitReplays ? "determinism-baseline" : null,
+            manifestVersionOverride: request.CommitReplays ? DeterminismVersionConstants.BaselineVersion : null,
             cancellationToken: cancellationToken);
 
         output.BaselineReplayRunId = baseline.ReplayRunId;
@@ -46,7 +46,7 @@ public sealed class DeterminismCheckService(
                 request.RunId,
                 request.ExecutionMode,
                 commitReplay: request.CommitReplays,
-                manifestVersionOverride: request.CommitReplays ? $"determinism-{i}" : null,
+                manifestVersionOverride: request.CommitReplays ? DeterminismVersionConstants.IterationVersion(i) : null,
                 cancellationToken: cancellationToken);
 
             var agentDiff = agentResultDiffService.Compare(

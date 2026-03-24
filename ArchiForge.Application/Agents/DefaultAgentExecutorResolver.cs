@@ -19,6 +19,8 @@ public sealed class DefaultAgentExecutorResolver(IAgentExecutor currentExecutor)
     /// <inheritdoc />
     public IAgentExecutor Resolve(string executionMode)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+
         if (!KnownModes.Contains(executionMode))
         {
             throw new ArgumentException(

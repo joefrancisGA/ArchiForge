@@ -5,6 +5,11 @@ using FluentValidation;
 
 namespace ArchiForge.Api.Validators;
 
+/// <summary>
+/// FluentValidation rules for <see cref="ContextDocumentRequest"/> items embedded in an
+/// <see cref="ArchiForge.Contracts.Requests.ArchitectureRequest.Documents"/> collection.
+/// Validates the document name, supported content type, and content size.
+/// </summary>
 public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextDocumentRequest>
 {
     public ContextDocumentRequestValidator()

@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Retrieval.Models;
 using ArchiForge.Retrieval.Queries;
@@ -43,10 +44,9 @@ public sealed class RetrievalController(
         CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(q))
-            return BadRequest(new
-            {
-                error = "Query parameter 'q' is required."
-            });
+            return this.BadRequestProblem(
+                "Query parameter 'q' is required.",
+                ProblemTypes.ValidationFailed);
 
         var scope = scopeProvider.GetCurrentScope();
 
