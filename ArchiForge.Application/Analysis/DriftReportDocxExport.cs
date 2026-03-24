@@ -1,9 +1,19 @@
 namespace ArchiForge.Application.Analysis;
 
-public sealed class DriftReportDocxExport
+/// <summary>
+/// Generates a Docx-format comparison drift report from a <see cref="DriftAnalysisResult"/>.
+/// </summary>
+/// <remarks>
+/// Uses <see cref="OpenXmlDocxDocumentBuilder"/> to produce a structured document with a
+/// header, drift summary, and a differences table where applicable.
+/// </remarks>
+public sealed class DriftReportDocxExport : IDriftReportDocxExport
 {
+    /// <inheritdoc />
     public byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
+        ArgumentNullException.ThrowIfNull(drift);
+
         using var builder = new OpenXmlDocxDocumentBuilder();
         builder.AddHeading("ArchiForge Comparison Drift Report", 1);
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
@@ -23,11 +33,11 @@ public sealed class DriftReportDocxExport
                 builder.AddParagraph($"{item.Category} — {item.Path}", bold: true);
                 if (!string.IsNullOrEmpty(item.Description))
                     builder.AddParagraph(item.Description);
-                if (item.StoredValue != null || item.RegeneratedValue != null)
+                if (item.StoredValue is not null || item.RegeneratedValue is not null)
                 {
-                    if (item.StoredValue != null)
+                    if (item.StoredValue is not null)
                         builder.AddBullet($"Stored: {item.StoredValue}");
-                    if (item.RegeneratedValue != null)
+                    if (item.RegeneratedValue is not null)
                         builder.AddBullet($"Regenerated: {item.RegeneratedValue}");
                 }
             }

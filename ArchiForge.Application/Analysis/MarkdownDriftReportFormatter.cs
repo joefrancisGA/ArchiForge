@@ -2,10 +2,21 @@ using System.Text;
 
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Formats a <see cref="DriftAnalysisResult"/> as either a GitHub-flavoured Markdown
+/// document or an HTML page.
+/// </summary>
+/// <remarks>
+/// Implements <see cref="IDriftReportFormatter"/> and is the default formatter registered
+/// in the DI container for drift-report exports.
+/// </remarks>
 public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
 {
+    /// <inheritdoc />
     public string FormatMarkdown(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
+        ArgumentNullException.ThrowIfNull(drift);
+
         var sb = new StringBuilder();
         sb.AppendLine("# ArchiForge Comparison Drift Report");
         sb.AppendLine();
@@ -38,8 +49,11 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         return sb.ToString();
     }
 
+    /// <inheritdoc />
     public string FormatHtml(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
+        ArgumentNullException.ThrowIfNull(drift);
+
         var sb = new StringBuilder();
         sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>ArchiForge Drift Report</title>");
         sb.AppendLine("<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
@@ -68,9 +82,13 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Escapes a Markdown table cell value to prevent pipe characters and newlines
+    /// from breaking the table layout.
+    /// </summary>
     private static string EscapeTableCell(string? value)
     {
-        if (value == null)
+        if (value is null)
             return "";
         return value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
     }

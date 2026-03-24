@@ -1,14 +1,30 @@
 namespace ArchiForge.Application.Analysis;
 
+/// <summary>
+/// Selects the most appropriate consulting Docx template profile based on delivery
+/// context signals present in a <see cref="ConsultingDocxProfileRecommendationRequest"/>.
+/// </summary>
+/// <remarks>
+/// Profile resolution follows a priority order: regulated &gt; executive &gt; external delivery &gt;
+/// technical depth &gt; audience keyword inference &gt; safe default. The default is
+/// <see cref="ConsultingDocxProfiles.Client"/> when no strong signal is detected.
+/// </remarks>
 public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxTemplateProfileResolver profileResolver)
     : IConsultingDocxTemplateRecommendationService
 {
+    /// <inheritdoc />
     public ConsultingDocxProfileRecommendation Recommend(
         ConsultingDocxProfileRecommendationRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
         var catalog = profileResolver.GetCatalog();
+
+        if (catalog.Profiles.Count == 0)
+            throw new InvalidOperationException(
+                "No consulting Docx template profiles are registered. " +
+                "Ensure the profile resolver returns at least one profile.");
+
         var available = catalog.Profiles
             .Select(p => p.ProfileName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
@@ -18,28 +34,28 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
 
         if (request.RegulatedEnvironment)
         {
-            profile = available.Contains("regulated") ? "regulated" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Regulated, available);
             reason = "A regulated review was indicated, so a control-heavy report with stronger governance and appendix coverage is the best fit.";
         }
         else if (request.ExecutiveFriendly)
         {
-            profile = available.Contains("executive") ? "executive" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Executive, available);
             reason = "An executive-friendly output was requested, so a shorter stakeholder-oriented brief is the best fit.";
         }
         else if (request.ExternalDelivery)
         {
-            profile = available.Contains("client") ? "client" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Client, available);
             reason = "External delivery was indicated, so the balanced client-facing report is the best fit.";
         }
         else if (request.NeedDetailedEvidence || request.NeedExecutionTraces || request.NeedDeterminismOrCompareAppendices)
         {
-            profile = available.Contains("internal") ? "internal" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Internal, available);
             reason = "Detailed evidence, traceability, or replay/comparison depth was requested, so the internal technical review profile is the best fit.";
         }
         else if (!string.IsNullOrWhiteSpace(request.Audience) &&
                  request.Audience.Contains("executive", StringComparison.OrdinalIgnoreCase))
         {
-            profile = available.Contains("executive") ? "executive" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Executive, available);
             reason = "The audience indicates executives or sponsors, so the executive brief is the best fit.";
         }
         else if (!string.IsNullOrWhiteSpace(request.Audience) &&
@@ -47,19 +63,19 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
                   request.Audience.Contains("compliance", StringComparison.OrdinalIgnoreCase) ||
                   request.Audience.Contains("regulator", StringComparison.OrdinalIgnoreCase)))
         {
-            profile = available.Contains("regulated") ? "regulated" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Regulated, available);
             reason = "The audience indicates compliance, audit, or regulated review, so the regulated profile is the best fit.";
         }
         else if (!string.IsNullOrWhiteSpace(request.Audience) &&
                  (request.Audience.Contains("client", StringComparison.OrdinalIgnoreCase) ||
                   request.Audience.Contains("external", StringComparison.OrdinalIgnoreCase)))
         {
-            profile = available.Contains("client") ? "client" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Client, available);
             reason = "The audience indicates an external or client-facing reader, so the client delivery profile is the best fit.";
         }
         else
         {
-            profile = available.Contains("client") ? "client" : Fallback(available);
+            profile = Prefer(ConsultingDocxProfiles.Client, available);
             reason = "No strong specialized signal was provided, so the balanced client delivery profile is the safest default.";
         }
 
@@ -82,11 +98,15 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
         };
     }
 
-    private static string Fallback(HashSet<string> available)
+    /// <summary>
+    /// Returns <paramref name="preferred"/> if it exists in <paramref name="available"/>;
+    /// otherwise falls back to the first available profile name.
+    /// </summary>
+    private static string Prefer(string preferred, HashSet<string> available)
     {
-        if (available.Contains("client"))
-            return "client";
-        return available.FirstOrDefault() ?? "client";
+        if (available.Contains(preferred))
+            return preferred;
+
+        return available.First();
     }
 }
-
