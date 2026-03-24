@@ -3,6 +3,7 @@ using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Contracts.Architecture;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
@@ -35,9 +36,25 @@ public sealed class ArchitectureAnalysisService(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
-        ArchitectureRunDetail? primaryDetail = null;
-        var run = request.PreloadedRun;
-        if (run is null)
+        ArchitectureRunDetail? primaryDetail = request.PreloadedRunDetail;
+        ArchitectureRun run;
+
+        if (primaryDetail is not null)
+        {
+            if (!string.Equals(primaryDetail.Run.RunId, request.RunId, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "PreloadedRunDetail.Run.RunId must match RunId.",
+                    nameof(request));
+            }
+
+            run = primaryDetail.Run;
+        }
+        else if (request.PreloadedRun is not null)
+        {
+            run = request.PreloadedRun;
+        }
+        else
         {
             primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
                 ?? throw new RunNotFoundException(request.RunId);
@@ -69,7 +86,8 @@ public sealed class ArchitectureAnalysisService(
 
         if (request.IncludeManifest && !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
         {
-            report.Manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken);
+            report.Manifest = primaryDetail?.Manifest
+                ?? await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken);
             if (report.Manifest is null)
             {
                 report.Warnings.Add($"Manifest '{run.CurrentManifestVersion}' was not found.");

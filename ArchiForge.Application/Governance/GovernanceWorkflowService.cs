@@ -42,11 +42,14 @@ public sealed class GovernanceWorkflowService(
 
         await approvalRepo.CreateAsync(request, cancellationToken);
 
-        logger.LogInformation(
-            "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
-            request.ApprovalRequestId,
-            request.RunId,
-            request.ManifestVersion);
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
+                request.ApprovalRequestId,
+                request.RunId,
+                request.ManifestVersion);
+        }
 
         return request;
     }

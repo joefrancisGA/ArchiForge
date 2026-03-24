@@ -56,7 +56,7 @@ public sealed class AnalysisReportsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = runDetail.Run;
+        request.PreloadedRunDetail = runDetail;
 
         try
         {
@@ -88,7 +88,7 @@ public sealed class AnalysisReportsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = runDetail.Run;
+        request.PreloadedRunDetail = runDetail;
 
         try
         {
@@ -127,7 +127,7 @@ public sealed class AnalysisReportsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = runDetail.Run;
+        request.PreloadedRunDetail = runDetail;
 
         try
         {
@@ -160,7 +160,7 @@ public sealed class AnalysisReportsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = runDetail.Run;
+        request.PreloadedRunDetail = runDetail;
 
         try
         {
@@ -198,7 +198,7 @@ public sealed class AnalysisReportsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        request.PreloadedRun = runDetail.Run;
+        request.PreloadedRunDetail = runDetail;
 
         var jobId = jobs.Enqueue(
             fileNameHint: $"analysis-report-{runId}.docx",
@@ -265,7 +265,7 @@ public sealed class AnalysisReportsController(
             var analysisRequest = new ArchitectureAnalysisRequest
             {
                 RunId = runId,
-                PreloadedRun = runDetail.Run,
+                PreloadedRunDetail = runDetail,
                 IncludeEvidence = request.IncludeEvidence,
                 IncludeExecutionTraces = request.IncludeExecutionTraces,
                 IncludeManifest = request.IncludeManifest,
@@ -325,7 +325,7 @@ public sealed class AnalysisReportsController(
             work: async ct =>
             {
                 var analysisRequest = ConsultingDocxAnalysisRequestFactory.Create(runId, request);
-                analysisRequest.PreloadedRun = runDetail.Run;
+                analysisRequest.PreloadedRunDetail = runDetail;
 
                 var report = await architectureAnalysisService.BuildAsync(
                     analysisRequest,

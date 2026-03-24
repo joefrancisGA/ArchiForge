@@ -20,8 +20,8 @@ public sealed class ReplayRunService(
     IAgentExecutorResolver agentExecutorResolver,
     IDecisionEngineService decisionEngineService,
     IArchitectureRequestRepository requestRepository,
+    IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
-    IAgentTaskRepository taskRepository,
     IGoldenManifestRepository manifestRepository,
     IDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository)
@@ -37,20 +37,22 @@ public sealed class ReplayRunService(
     /// </exception>
     public async Task<ReplayRunResult> ReplayAsync(
         string originalRunId,
-        string executionMode = "Current",
+        string executionMode = ExecutionModes.Current,
         bool commitReplay = false,
         string? manifestVersionOverride = null,
         CancellationToken cancellationToken = default)
     {
-        var originalRun = await runRepository.GetByIdAsync(originalRunId, cancellationToken)
+        var sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
             ?? throw new RunNotFoundException(originalRunId);
+
+        var originalRun = sourceDetail.Run;
+        var tasks = sourceDetail.Tasks;
 
         var request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var tasks = await taskRepository.GetByRunIdAsync(originalRunId, cancellationToken);
         if (tasks.Count == 0)
         {
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");

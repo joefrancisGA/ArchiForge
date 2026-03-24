@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
+using ArchiForge.Api.Controllers;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Api.Validators;
@@ -15,9 +16,15 @@ namespace ArchiForge.Api.Validators;
 public static class PolicyPackRequestValidationRules
 {
     /// <summary>SemVer 2-style <c>MAJOR.MINOR.PATCH</c> with optional pre-release / build; optional leading <c>v</c>.</summary>
+    /// <remarks>
+    /// Uses compiled <see cref="Regex"/> instead of source-generated regex so the project compiles when the
+    /// <c>GeneratedRegex</c> analyzer output is not merged before partial-method validation (CS8795).
+    /// </remarks>
+#pragma warning disable SYSLIB1045 // Prefer GeneratedRegex — suppressed: partial implementation not emitted in all build/IDE paths
     private static readonly Regex PolicyPackVersionSemVer = new(
         @"^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$",
         RegexOptions.CultureInvariant | RegexOptions.Compiled);
+#pragma warning restore SYSLIB1045
 
     /// <summary>
     /// Returns whether <paramref name="value"/> matches the policy pack version pattern (trimmed).
@@ -29,9 +36,7 @@ public static class PolicyPackRequestValidationRules
     /// </remarks>
     public static bool BePolicyPackSemVerVersion(string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-        return PolicyPackVersionSemVer.IsMatch(value.Trim());
+        return !string.IsNullOrWhiteSpace(value) && PolicyPackVersionSemVer.IsMatch(value.Trim());
     }
 
     /// <summary>
@@ -56,7 +61,9 @@ public static class PolicyPackRequestValidationRules
     }
 
     /// <summary>Allowed <see cref="CreatePolicyPackRequest.PackType"/> values (case-insensitive set).</summary>
+#pragma warning disable IDE0028 // Simplify collection initialization
     public static readonly HashSet<string> ValidPackTypes = new(StringComparer.OrdinalIgnoreCase)
+#pragma warning restore IDE0028 // Simplify collection initialization
     {
         PolicyPackType.BuiltIn,
         PolicyPackType.TenantCustom,

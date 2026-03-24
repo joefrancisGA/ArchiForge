@@ -95,13 +95,13 @@ public sealed class RunDetailQueryServiceTests
         _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(run);
         _taskRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentTask> { task });
+            .ReturnsAsync([task]);
         _resultRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentResult> { agentResult });
+            .ReturnsAsync([agentResult]);
         _manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(manifest);
         _traceRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<DecisionTrace> { trace });
+            .ReturnsAsync([trace]);
 
         var result = await _sut.GetRunDetailAsync("run-1");
 
@@ -123,9 +123,9 @@ public sealed class RunDetailQueryServiceTests
         _runRepo.Setup(r => r.GetByIdAsync("run-2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(run);
         _taskRepo.Setup(r => r.GetByRunIdAsync("run-2", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentTask>());
+            .ReturnsAsync([]);
         _resultRepo.Setup(r => r.GetByRunIdAsync("run-2", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentResult>());
+            .ReturnsAsync([]);
 
         var result = await _sut.GetRunDetailAsync("run-2");
 
@@ -148,9 +148,9 @@ public sealed class RunDetailQueryServiceTests
         _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(run);
         _taskRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentTask>());
+            .ReturnsAsync([]);
         _resultRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<AgentResult>());
+            .ReturnsAsync([]);
         _manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 

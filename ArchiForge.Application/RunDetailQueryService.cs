@@ -8,8 +8,8 @@ namespace ArchiForge.Application;
 /// <summary>
 /// Assembles the canonical <see cref="ArchitectureRunDetail"/> from individual repositories.
 /// This is the single, authoritative query path for run state — controllers, API application
-/// services, analysis/export/compare, and governance should use this instead of assembling
-/// run metadata, tasks, results, manifest, and traces from repositories separately.
+/// services, analysis/export/compare, governance, and <see cref="ReplayRunService"/> should use this
+/// instead of assembling run metadata, tasks, results, manifest, and traces from repositories separately.
 /// </summary>
 public sealed class RunDetailQueryService(
     IArchitectureRunRepository runRepository,
