@@ -1,5 +1,6 @@
 using System.Transactions;
 
+using ArchiForge.Application;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Repositories;
 
@@ -11,7 +12,7 @@ public sealed class GovernanceWorkflowService(
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
     IGovernanceEnvironmentActivationRepository activationRepo,
-    IArchitectureRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
 {
@@ -24,8 +25,9 @@ public sealed class GovernanceWorkflowService(
         string? requestComment,
         CancellationToken cancellationToken = default)
     {
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken)
+        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
+        var run = runDetail.Run;
 
         var request = new GovernanceApprovalRequest
         {
@@ -122,6 +124,9 @@ public sealed class GovernanceWorkflowService(
         string? notes,
         CancellationToken cancellationToken = default)
     {
+        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+            ?? throw new RunNotFoundException(runId);
+
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrWhiteSpace(approvalRequestId))
@@ -193,7 +198,7 @@ public sealed class GovernanceWorkflowService(
         string environment,
         CancellationToken cancellationToken = default)
     {
-        _ = await runRepository.GetByIdAsync(runId, cancellationToken)
+        _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 
         var existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);

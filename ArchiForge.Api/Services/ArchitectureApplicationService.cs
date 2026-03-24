@@ -1,6 +1,7 @@
 using System.Transactions;
 
 using ArchiForge.Api.Diagnostics;
+using ArchiForge.Application;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
@@ -9,8 +10,8 @@ using ArchiForge.Data.Repositories;
 namespace ArchiForge.Api.Services;
 
 public sealed class ArchitectureApplicationService(
+    IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
-    IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
     IGoldenManifestRepository manifestRepository,
     IArchitectureRequestRepository requestRepository,
@@ -29,16 +30,11 @@ public sealed class ArchitectureApplicationService(
         if (string.IsNullOrWhiteSpace(runId))
             return null;
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (detail is null)
             return null;
 
-        var tasksTask = taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var resultsTask = resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        await Task.WhenAll(tasksTask, resultsTask);
-        var tasks = await tasksTask;
-        var results = await resultsTask;
-        return new GetRunResult(run, tasks, results);
+        return new GetRunResult(detail.Run, detail.Tasks, detail.Results);
     }
 
     public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
@@ -49,11 +45,15 @@ public sealed class ArchitectureApplicationService(
         if (string.IsNullOrWhiteSpace(runId))
             return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (detail is null)
         {
             return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         }
+
+        var run = detail.Run;
+        var tasks = detail.Tasks;
+        var existingResults = detail.Results;
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
@@ -69,12 +69,6 @@ public sealed class ArchitectureApplicationService(
                 $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
                 ApplicationServiceFailureKind.BadRequest);
         }
-
-        var tasksTask = taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var existingResultsTask = resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        await Task.WhenAll(tasksTask, existingResultsTask);
-        var tasks = await tasksTask;
-        var existingResults = await existingResultsTask;
 
         var task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
         if (task is null)
@@ -155,11 +149,13 @@ public sealed class ArchitectureApplicationService(
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        if (detail is null)
         {
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         }
+
+        var run = detail.Run;
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
@@ -177,14 +173,14 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.ResourceNotFound);
         }
 
-        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        var tasks = detail.Tasks;
 
         if (tasks.Count == 0)
         {
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
         }
 
-        var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        var existingResults = detail.Results;
 
         if (existingResults.Count > 0)
         {

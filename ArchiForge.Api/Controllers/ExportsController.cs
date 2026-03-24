@@ -2,6 +2,7 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
+using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Data.Repositories;
 
@@ -22,7 +23,7 @@ namespace ArchiForge.Api.Controllers;
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
 public sealed class ExportsController(
-    IArchitectureRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,
     IComparisonAuditService comparisonAuditService,
     IExportReplayService exportReplayService,
@@ -36,8 +37,7 @@ public sealed class ExportsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         var records = await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);

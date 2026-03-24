@@ -2,9 +2,10 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Application.Diffs;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Contracts.Architecture;
 
 using Asp.Versioning;
 
@@ -21,8 +22,7 @@ namespace ArchiForge.Api.Controllers;
 [Route("v{version:apiVersion}/architecture")]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 public sealed class RunComparisonController(
-    IArchitectureRunRepository runRepository,
-    IAgentResultRepository resultRepository,
+    IRunDetailQueryService runDetailQueryService,
     IAgentResultDiffService agentResultDiffService,
     IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
     IEndToEndReplayComparisonService endToEndReplayComparisonService,
@@ -40,13 +40,15 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var (error, leftDetail, rightDetail) = await LoadValidatedRunPairAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
 
-        var leftResults = await resultRepository.GetByRunIdAsync(query.LeftRunId, cancellationToken);
-        var rightResults = await resultRepository.GetByRunIdAsync(query.RightRunId, cancellationToken);
-        var diff = agentResultDiffService.Compare(query.LeftRunId, leftResults, query.RightRunId, rightResults);
+        var diff = agentResultDiffService.Compare(
+            query.LeftRunId,
+            leftDetail!.Results,
+            query.RightRunId,
+            rightDetail!.Results);
         return Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff));
     }
 
@@ -58,13 +60,15 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var (error, leftDetail, rightDetail) = await LoadValidatedRunPairAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
 
-        var leftResults = await resultRepository.GetByRunIdAsync(query.LeftRunId, cancellationToken);
-        var rightResults = await resultRepository.GetByRunIdAsync(query.RightRunId, cancellationToken);
-        var diff = agentResultDiffService.Compare(query.LeftRunId, leftResults, query.RightRunId, rightResults);
+        var diff = agentResultDiffService.Compare(
+            query.LeftRunId,
+            leftDetail!.Results,
+            query.RightRunId,
+            rightDetail!.Results);
         var summary = agentResultDiffSummaryFormatter.FormatMarkdown(diff);
         return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff));
     }
@@ -77,9 +81,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var error = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
 
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         return Ok(ComparisonResponseMapper.ToEndToEndResponse(report));
@@ -95,9 +99,9 @@ public sealed class RunComparisonController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (queryError is not null)
+            return queryError;
 
         request ??= new PersistComparisonRequest();
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
@@ -120,9 +124,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (queryError is not null)
+            return queryError;
 
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         var markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report);
@@ -138,9 +142,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (queryError is not null)
+            return queryError;
 
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         var markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report);
@@ -156,9 +160,9 @@ public sealed class RunComparisonController(
         [FromQuery] RunPairQuery query,
         CancellationToken cancellationToken)
     {
-        var validation = await ValidateAndResolveRunPairAsync(query, cancellationToken);
-        if (validation is not null)
-            return validation;
+        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (queryError is not null)
+            return queryError;
 
         var report = await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
         var bytes = await endToEndReplayComparisonExportService.GenerateDocxAsync(report, cancellationToken);
@@ -170,7 +174,7 @@ public sealed class RunComparisonController(
             fileName);
     }
 
-    private async Task<IActionResult?> ValidateAndResolveRunPairAsync(RunPairQuery query, CancellationToken cancellationToken)
+    private async Task<IActionResult?> ValidateRunPairQueryAsync(RunPairQuery query, CancellationToken cancellationToken)
     {
         var validation = await runPairQueryValidator.ValidateAsync(query, cancellationToken);
         if (!validation.IsValid)
@@ -180,12 +184,28 @@ public sealed class RunComparisonController(
                 ProblemTypes.ValidationFailed);
         }
 
-        var leftRun = await runRepository.GetByIdAsync(query.LeftRunId, cancellationToken);
-        if (leftRun is null)
-            return this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound);
+        return null;
+    }
 
-        var rightRun = await runRepository.GetByIdAsync(query.RightRunId, cancellationToken);
+    /// <summary>
+    /// Validates the query, loads both runs through <see cref="IRunDetailQueryService"/>, and returns 404 when either run is missing.
+    /// </summary>
+    private async Task<(IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right)> LoadValidatedRunPairAsync(
+        RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        var queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (queryError is not null)
+            return (queryError, null, null);
 
-        return rightRun is null ? this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound) : null;
+        var left = await runDetailQueryService.GetRunDetailAsync(query.LeftRunId, cancellationToken);
+        if (left is null)
+            return (this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound), null, null);
+
+        var right = await runDetailQueryService.GetRunDetailAsync(query.RightRunId, cancellationToken);
+        if (right is null)
+            return (this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound), null, null);
+
+        return (null, left, right);
     }
 }

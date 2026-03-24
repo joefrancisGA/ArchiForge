@@ -1,7 +1,9 @@
+using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Summaries;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
@@ -11,7 +13,7 @@ namespace ArchiForge.Application.Analysis;
 /// diagram, summary, determinism, and diff sub-services for a given run.
 /// </summary>
 public sealed class ArchitectureAnalysisService(
-    IArchitectureRunRepository runRepository,
+    IRunDetailQueryService runDetailQueryService,
     IGoldenManifestRepository manifestRepository,
     IAgentEvidencePackageRepository evidenceRepository,
     IAgentExecutionTraceRepository traceRepository,
@@ -34,9 +36,14 @@ public sealed class ArchitectureAnalysisService(
 
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RunId);
 
-        var run = request.PreloadedRun
-            ?? await runRepository.GetByIdAsync(request.RunId, cancellationToken)
-            ?? throw new RunNotFoundException(request.RunId);
+        ArchitectureRunDetail? primaryDetail = null;
+        var run = request.PreloadedRun;
+        if (run is null)
+        {
+            primaryDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
+                ?? throw new RunNotFoundException(request.RunId);
+            run = primaryDetail.Run;
+        }
 
         var report = new ArchitectureAnalysisReport
         {
@@ -143,16 +150,17 @@ public sealed class ArchitectureAnalysisService(
         }
         else
         {
-            var compareRun = await runRepository.GetByIdAsync(request.CompareRunId, cancellationToken);
+            var compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
 
-            if (compareRun is null)
+            if (compareDetail is null)
             {
                 report.Warnings.Add($"Compare run '{request.CompareRunId}' was not found.");
             }
             else
             {
-                var leftResults = await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
-                var rightResults = await resultRepository.GetByRunIdAsync(request.CompareRunId, cancellationToken);
+                var leftResults = primaryDetail?.Results
+                    ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+                var rightResults = compareDetail.Results;
 
                 report.AgentResultDiff = agentResultDiffService.Compare(
                     request.RunId,

@@ -1,5 +1,6 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Governance;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Metadata;
@@ -19,7 +20,7 @@ public sealed class GovernanceWorkflowServiceTests
     private readonly Mock<IGovernanceApprovalRequestRepository> _approvalRepo;
     private readonly Mock<IGovernancePromotionRecordRepository> _promotionRepo;
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo;
-    private readonly Mock<IArchitectureRunRepository> _runRepo;
+    private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly GovernanceWorkflowService _sut;
 
     public GovernanceWorkflowServiceTests()
@@ -27,7 +28,7 @@ public sealed class GovernanceWorkflowServiceTests
         _approvalRepo = new Mock<IGovernanceApprovalRequestRepository>();
         _promotionRepo = new Mock<IGovernancePromotionRecordRepository>();
         _activationRepo = new Mock<IGovernanceEnvironmentActivationRepository>();
-        _runRepo = new Mock<IArchitectureRunRepository>();
+        _runDetailQueryService = new Mock<IRunDetailQueryService>();
 
         var logger = new Mock<ILogger<GovernanceWorkflowService>>();
 
@@ -35,7 +36,7 @@ public sealed class GovernanceWorkflowServiceTests
             _approvalRepo.Object,
             _promotionRepo.Object,
             _activationRepo.Object,
-            _runRepo.Object,
+            _runDetailQueryService.Object,
             logger.Object);
     }
 
@@ -47,13 +48,15 @@ public sealed class GovernanceWorkflowServiceTests
         CreatedUtc = DateTime.UtcNow
     };
 
+    private static ArchitectureRunDetail DetailForRun(string runId) => new() { Run = ValidRun(runId) };
+
     // ── Submit ───────────────────────────────────────────────────────────────
 
     [Fact]
     public async Task SubmitApprovalRequest_RunExists_CreatesSubmittedRequest()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidRun("run-1"));
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
         _approvalRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -73,8 +76,8 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task SubmitApprovalRequest_RunNotFound_ThrowsRunNotFoundException()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("missing-run", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ArchitectureRun?)null);
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing-run", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
 
         var act = () => _sut.SubmitApprovalRequestAsync(
             "missing-run", "v1", "dev", "test", "alice", null);
@@ -196,6 +199,9 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Promote_ToProd_WithoutApproval_ThrowsInvalidOperationException()
     {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+
         var act = () => _sut.PromoteAsync(
             "run-1", "v1", "test", GovernanceEnvironment.Prod,
             "alice", null, null);
@@ -230,9 +236,14 @@ public sealed class GovernanceWorkflowServiceTests
         var approvedRequest = new GovernanceApprovalRequest
         {
             ApprovalRequestId = "apr-approved",
-            Status = GovernanceApprovalStatus.Approved
+            Status = GovernanceApprovalStatus.Approved,
+            RunId = "run-1",
+            ManifestVersion = "v1",
+            TargetEnvironment = GovernanceEnvironment.Prod
         };
 
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approvedRequest);
         _approvalRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()))
@@ -283,8 +294,8 @@ public sealed class GovernanceWorkflowServiceTests
             IsActive = true
         };
 
-        _runRepo.Setup(r => r.GetByIdAsync("run-2", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidRun("run-2"));
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-2", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-2"));
         _activationRepo.Setup(r => r.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GovernanceEnvironmentActivation> { previous });
         _activationRepo.Setup(r => r.UpdateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
@@ -310,8 +321,8 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Activate_NoExistingActivations_CreatesNewActive()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(ValidRun("run-1"));
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
         _activationRepo.Setup(r => r.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
         _activationRepo.Setup(r => r.CreateAsync(It.IsAny<GovernanceEnvironmentActivation>(), It.IsAny<CancellationToken>()))
@@ -329,8 +340,8 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Activate_RunNotFound_ThrowsRunNotFoundException()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("no-such-run", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ArchitectureRun?)null);
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("no-such-run", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
 
         var act = () => _sut.ActivateAsync("no-such-run", "v1", "dev");
 

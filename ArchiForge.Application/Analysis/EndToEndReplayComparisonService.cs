@@ -1,12 +1,12 @@
+using ArchiForge.Application;
 using ArchiForge.Application.Diffs;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 
 public sealed class EndToEndReplayComparisonService(
-    IArchitectureRunRepository runRepository,
-    IAgentResultRepository agentResultRepository,
-    IGoldenManifestRepository manifestRepository,
+    IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,
     IAgentResultDiffService agentResultDiffService,
     IManifestDiffService manifestDiffService,
@@ -18,11 +18,14 @@ public sealed class EndToEndReplayComparisonService(
         string rightRunId,
         CancellationToken cancellationToken = default)
     {
-        var leftRun = await runRepository.GetByIdAsync(leftRunId, cancellationToken)
+        var leftDetail = await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken)
             ?? throw new RunNotFoundException(leftRunId);
 
-        var rightRun = await runRepository.GetByIdAsync(rightRunId, cancellationToken)
+        var rightDetail = await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken)
             ?? throw new RunNotFoundException(rightRunId);
+
+        var leftRun = leftDetail.Run;
+        var rightRun = rightDetail.Run;
 
         var report = new EndToEndReplayComparisonReport
         {
@@ -31,8 +34,8 @@ public sealed class EndToEndReplayComparisonService(
             RunDiff = BuildRunDiff(leftRun, rightRun)
         };
 
-        var leftResults = await agentResultRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        var rightResults = await agentResultRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        var leftResults = leftDetail.Results;
+        var rightResults = rightDetail.Results;
 
         if (leftResults.Count > 0 || rightResults.Count > 0)
         {
@@ -50,17 +53,9 @@ public sealed class EndToEndReplayComparisonService(
         if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) &&
             !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
         {
-            var leftManifest = await manifestRepository.GetByVersionAsync(
-                leftRun.CurrentManifestVersion,
-                cancellationToken);
-
-            var rightManifest = await manifestRepository.GetByVersionAsync(
-                rightRun.CurrentManifestVersion,
-                cancellationToken);
-
-            if (leftManifest is not null && rightManifest is not null)
+            if (leftDetail.Manifest is not null && rightDetail.Manifest is not null)
             {
-                report.ManifestDiff = manifestDiffService.Compare(leftManifest, rightManifest);
+                report.ManifestDiff = manifestDiffService.Compare(leftDetail.Manifest, rightDetail.Manifest);
             }
             else
             {
@@ -105,7 +100,7 @@ public sealed class EndToEndReplayComparisonService(
         return report;
     }
 
-    private static RunMetadataDiffResult BuildRunDiff(dynamic leftRun, dynamic rightRun)
+    private static RunMetadataDiffResult BuildRunDiff(ArchitectureRun leftRun, ArchitectureRun rightRun)
     {
         var result = new RunMetadataDiffResult();
 
@@ -199,4 +194,3 @@ public sealed class EndToEndReplayComparisonService(
         }
     }
 }
-
