@@ -73,6 +73,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
     public async Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(results);
+
         if (results.Count == 0)
             return;
 

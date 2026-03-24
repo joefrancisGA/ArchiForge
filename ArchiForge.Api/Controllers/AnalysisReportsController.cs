@@ -11,6 +11,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 using ApiConsultingDocxProfileRecommendationRequest =
     ArchiForge.Api.Models.ConsultingDocxProfileRecommendationRequest;
@@ -34,7 +35,8 @@ public sealed class AnalysisReportsController(
     IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
     IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
     AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
-    IBackgroundJobQueue jobs)
+    IBackgroundJobQueue jobs,
+    ILogger<AnalysisReportsController> logger)
     : ControllerBase
 {
     [HttpPost("run/{runId}/analysis-report")]
@@ -64,6 +66,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Analysis failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
@@ -102,6 +105,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Analysis export failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -134,6 +138,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Analysis export file failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -171,6 +176,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "DOCX export failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -291,6 +297,7 @@ public sealed class AnalysisReportsController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Consulting DOCX export failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }

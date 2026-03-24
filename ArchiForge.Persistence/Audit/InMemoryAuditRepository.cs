@@ -4,14 +4,21 @@ namespace ArchiForge.Persistence.Audit;
 
 public sealed class InMemoryAuditRepository : IAuditRepository
 {
+    private const int MaxEvents = 5_000;
+    private const int EvictCount = 1_000;
+
     private readonly Lock _gate = new();
     private readonly List<AuditEvent> _events = [];
 
     public Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(auditEvent);
         lock (_gate)
         {
+            if (_events.Count >= MaxEvents)
+                _events.RemoveRange(0, EvictCount);
+
             _events.Add(auditEvent);
         }
 
@@ -25,8 +32,8 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         int take,
         CancellationToken ct)
     {
-        _ = ct;
-        var n = take <= 0 ? 100 : take;
+        ct.ThrowIfCancellationRequested();
+        var n = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
         List<AuditEvent> result;
         lock (_gate)
         {

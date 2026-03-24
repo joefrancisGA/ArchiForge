@@ -9,6 +9,8 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 {
     public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(auditEvent);
+
         const string sql = """
             INSERT INTO dbo.AuditEvents (
                 EventId, OccurredUtc, EventType,

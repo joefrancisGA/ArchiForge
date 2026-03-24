@@ -17,6 +17,8 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(snapshot);
+
         const string sql = """
             INSERT INTO dbo.ProvenanceSnapshots (
                 Id, TenantId, WorkspaceId, ProjectId, RunId, GraphJson, CreatedUtc

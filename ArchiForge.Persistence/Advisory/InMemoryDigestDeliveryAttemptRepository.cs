@@ -32,12 +32,13 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         Guid digestId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items
                 .Where(x => x.DigestId == digestId)
                 .OrderByDescending(x => x.AttemptedUtc)
+                .Take(500)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);

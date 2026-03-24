@@ -45,8 +45,8 @@ public sealed class DocxExportController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>DOCX file download, or 404 when primary (or compare) run/manifest is missing.</returns>
     [HttpGet("runs/{runId:guid}/architecture-package")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExportRunDocx(
         Guid runId,
         [FromQuery] Guid? compareWithRunId,

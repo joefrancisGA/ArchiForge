@@ -250,6 +250,10 @@ public sealed class ManifestsController(
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
 
+        var clampedMaxRelationships = maxRelationships.HasValue
+            ? Math.Clamp(maxRelationships.Value, 1, 1000)
+            : (int?)null;
+
         if (string.Equals(format, "json", StringComparison.OrdinalIgnoreCase))
         {
             return Ok(new ManifestSummaryJsonResponse
@@ -291,7 +295,7 @@ public sealed class ManifestsController(
                     })
                     .ToList(),
                 Relationships = includeRelationships
-                    ? manifest.Relationships.Take(maxRelationships ?? int.MaxValue).Select(r => new ManifestSummaryRelationshipItem
+                    ? manifest.Relationships.Take(clampedMaxRelationships ?? int.MaxValue).Select(r => new ManifestSummaryRelationshipItem
                     {
                         SourceId = r.SourceId,
                         TargetId = r.TargetId,
@@ -315,7 +319,7 @@ public sealed class ManifestsController(
             IncludeRequiredControls = includeRequiredControls,
             IncludeTags = includeTags,
             IncludeComponentControls = includeComponentControls,
-            MaxRelationships = maxRelationships
+            MaxRelationships = clampedMaxRelationships
         };
 
         var content = manifestSummaryService.GenerateMarkdown(manifest, options);

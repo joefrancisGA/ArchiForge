@@ -1,9 +1,12 @@
 using System.Diagnostics;
 using System.Text;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.Application.Diagrams;
 
-public sealed class MermaidCliDiagramImageRenderer : IDiagramImageRenderer
+public sealed class MermaidCliDiagramImageRenderer(
+    ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {
     public async Task<byte[]?> RenderMermaidPngAsync(
         string mermaidDiagram,
@@ -65,9 +68,9 @@ public sealed class MermaidCliDiagramImageRenderer : IDiagramImageRenderer
                     Directory.Delete(tempDir, recursive: true);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Ignore cleanup failures
+                logger.LogWarning(ex, "Failed to delete temporary Mermaid work directory '{TempDir}'.", tempDir);
             }
         }
     }

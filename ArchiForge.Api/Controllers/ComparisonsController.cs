@@ -230,7 +230,8 @@ public sealed class ComparisonsController(
         [FromBody] UpdateComparisonRecordRequest? request,
         CancellationToken cancellationToken = default)
     {
-        request ??= new UpdateComparisonRecordRequest();
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         var exists = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         if (exists is null)
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -384,7 +385,8 @@ public sealed class ComparisonsController(
         [FromBody] BatchReplayComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new BatchReplayComparisonRequest();
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         if (request.ComparisonRecordIds.Count == 0)
         {

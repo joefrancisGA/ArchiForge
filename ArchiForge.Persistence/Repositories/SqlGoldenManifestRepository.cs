@@ -19,6 +19,8 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(manifest);
+
         const string sql = """
             INSERT INTO dbo.GoldenManifests
             (

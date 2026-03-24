@@ -17,6 +17,8 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(run);
+
         const string sql = """
             INSERT INTO dbo.Runs
             (
@@ -112,6 +114,8 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(run);
+
         const string sql = """
             UPDATE dbo.Runs
             SET

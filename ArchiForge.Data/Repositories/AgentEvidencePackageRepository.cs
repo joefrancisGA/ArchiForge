@@ -15,6 +15,8 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         AgentEvidencePackage evidencePackage,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(evidencePackage);
+
         // Delete any existing package for this run before inserting so that a retry
         // (e.g. after a partial failure in ExecuteRunAsync) does not accumulate stale rows.
         const string deleteSql = """

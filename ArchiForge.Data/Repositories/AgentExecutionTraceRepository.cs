@@ -15,6 +15,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         AgentExecutionTrace trace,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(trace);
+
         const string sql = """
             INSERT INTO AgentExecutionTraces
             (
@@ -68,7 +70,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             SELECT TraceJson
             FROM AgentExecutionTraces
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 500;
             """;
 
         using var connection = connectionFactory.CreateConnection();
@@ -99,11 +102,14 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
             """;
 
+        var clampedOffset = Math.Max(0, offset);
+        var clampedLimit = Math.Clamp(limit, 1, 500);
+
         using var connection = connectionFactory.CreateConnection();
 
         var rows = await connection.QueryAsync(new CommandDefinition(
             sql,
-            new { RunId = runId, Offset = offset, Limit = limit },
+            new { RunId = runId, Offset = clampedOffset, Limit = clampedLimit },
             cancellationToken: cancellationToken));
 
         var list = rows.ToList();
@@ -122,7 +128,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             SELECT TraceJson
             FROM AgentExecutionTraces
             WHERE TaskId = @TaskId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 500;
             """;
 
         using var connection = connectionFactory.CreateConnection();

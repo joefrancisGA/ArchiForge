@@ -14,6 +14,8 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         IReadOnlyCollection<AgentEvaluation> evaluations,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(evaluations);
+
         if (evaluations.Count == 0)
         {
             return;
@@ -99,7 +101,8 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             SELECT EvaluationJson
             FROM AgentEvaluations
             WHERE RunId = @RunId
-            ORDER BY CreatedUtc;
+            ORDER BY CreatedUtc
+            LIMIT 500;
             """;
 
         using var connection = connectionFactory.CreateConnection();

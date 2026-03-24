@@ -19,6 +19,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(trace);
+
         const string sql = """
             INSERT INTO dbo.DecisioningTraces
             (
