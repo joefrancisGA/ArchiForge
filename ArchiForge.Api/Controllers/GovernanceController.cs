@@ -10,6 +10,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -25,7 +26,8 @@ public sealed class GovernanceController(
     IGovernanceWorkflowService workflowService,
     IGovernanceApprovalRequestRepository approvalRepo,
     IGovernancePromotionRecordRepository promotionRepo,
-    IGovernanceEnvironmentActivationRepository activationRepo)
+    IGovernanceEnvironmentActivationRepository activationRepo,
+    ILogger<GovernanceController> logger)
     : ControllerBase
 {
     [HttpPost("approval-requests")]
@@ -57,6 +59,7 @@ public sealed class GovernanceController(
         }
         catch (RunNotFoundException ex)
         {
+            logger.LogWarning(ex, "SubmitApprovalRequest failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
     }
@@ -65,7 +68,6 @@ public sealed class GovernanceController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Approve(
         [FromRoute] string approvalRequestId,
         [FromBody] ApproveGovernanceRequest? request,
@@ -90,6 +92,7 @@ public sealed class GovernanceController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Approve failed for approval request '{ApprovalRequestId}'.", approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
@@ -98,7 +101,6 @@ public sealed class GovernanceController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Reject(
         [FromRoute] string approvalRequestId,
         [FromBody] RejectGovernanceRequest? request,
@@ -123,6 +125,7 @@ public sealed class GovernanceController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Reject failed for approval request '{ApprovalRequestId}'.", approvalRequestId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
@@ -158,6 +161,7 @@ public sealed class GovernanceController(
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Promote failed for run '{RunId}'.", request.RunId);
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
@@ -186,6 +190,7 @@ public sealed class GovernanceController(
         }
         catch (RunNotFoundException ex)
         {
+            logger.LogWarning(ex, "Activate failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
     }

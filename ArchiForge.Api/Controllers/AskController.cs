@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Ask;
 using ArchiForge.Core.Scoping;
 
@@ -7,6 +8,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -19,7 +21,10 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("api/ask")]
 [EnableRateLimiting("fixed")]
-public sealed class AskController(IAskService ask, IScopeContextProvider scopeProvider) : ControllerBase
+public sealed class AskController(
+    IAskService ask,
+    IScopeContextProvider scopeProvider,
+    ILogger<AskController> logger) : ControllerBase
 {
     /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, optional run comparison, and retrieval hits.</summary>
     /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
@@ -32,7 +37,7 @@ public sealed class AskController(IAskService ask, IScopeContextProvider scopePr
     public async Task<IActionResult> Ask([FromBody] AskRequest? request, CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         if (string.IsNullOrWhiteSpace(request.Question))
             return BadRequest(new
@@ -64,17 +69,13 @@ public sealed class AskController(IAskService ask, IScopeContextProvider scopePr
         }
         catch (InvalidOperationException ex)
         {
-            return NotFound(new
-            {
-                error = ex.Message
-            });
+            logger.LogWarning(ex, "Ask failed: resource not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new
-            {
-                error = ex.Message
-            });
+            logger.LogWarning(ex, "Ask failed: invalid argument.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }
 }

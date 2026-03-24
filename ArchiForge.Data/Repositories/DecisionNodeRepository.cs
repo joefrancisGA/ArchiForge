@@ -14,6 +14,8 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         IReadOnlyCollection<DecisionNode> decisions,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(decisions);
+
         if (decisions.Count == 0)
         {
             return;

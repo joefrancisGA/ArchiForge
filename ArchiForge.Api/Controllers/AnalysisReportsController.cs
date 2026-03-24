@@ -224,7 +224,8 @@ public sealed class AnalysisReportsController(
     public IActionResult ResolveConsultingDocxProfile(
         [FromBody] ConsultingDocxResolveProfileRequest? request)
     {
-        request ??= new ConsultingDocxResolveProfileRequest();
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         // TemplateName is currently advisory only; the selector resolves based on the
         // requested profile key and recommendation inputs.
@@ -349,7 +350,8 @@ public sealed class AnalysisReportsController(
     public IActionResult RecommendConsultingProfiles(
         [FromBody] ApiConsultingDocxProfileRecommendationRequest? request)
     {
-        request ??= new ApiConsultingDocxProfileRecommendationRequest();
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var recommendation = consultingDocxTemplateRecommendationService.Recommend(
             new AppConsultingDocxProfileRecommendationRequest

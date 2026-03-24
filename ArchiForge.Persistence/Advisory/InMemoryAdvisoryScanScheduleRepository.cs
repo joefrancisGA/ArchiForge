@@ -7,21 +7,31 @@ namespace ArchiForge.Persistence.Advisory;
 /// </summary>
 public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanScheduleRepository
 {
+    private const int MaxEntries = 2_000;
+
     private readonly List<AdvisoryScanSchedule> _items = [];
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
     public Task CreateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(schedule);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Count >= MaxEntries)
+                _items.RemoveAt(0);
+
             _items.Add(schedule);
+        }
+
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(schedule);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId);
@@ -38,7 +48,8 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         int take,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
+        var n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         lock (_gate)
         {
             var result = _items
@@ -46,7 +57,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
                     s is { IsEnabled: true, NextRunUtc: not null } &&
                     s.NextRunUtc <= utcNow)
                 .OrderBy(s => s.NextRunUtc)
-                .Take(take)
+                .Take(n)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<AdvisoryScanSchedule>>(result);
@@ -60,7 +71,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items
@@ -78,7 +89,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
     /// <inheritdoc />
     public Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             return Task.FromResult(_items.FirstOrDefault(x => x.ScheduleId == scheduleId));
     }

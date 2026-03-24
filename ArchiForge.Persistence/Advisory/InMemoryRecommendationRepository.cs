@@ -5,16 +5,22 @@ namespace ArchiForge.Persistence.Advisory;
 /// <inheritdoc cref="IRecommendationRepository" />
 public sealed class InMemoryRecommendationRepository : IRecommendationRepository
 {
+    private const int MaxEntries = 5_000;
+
     private readonly List<RecommendationRecord> _items = [];
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
     public Task UpsertAsync(RecommendationRecord recommendation, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(recommendation);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             _items.RemoveAll(x => x.RecommendationId == recommendation.RecommendationId);
+            if (_items.Count >= MaxEntries)
+                _items.RemoveAt(0);
+
             _items.Add(recommendation);
         }
 
@@ -24,7 +30,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
     /// <inheritdoc />
     public Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             return Task.FromResult(_items.FirstOrDefault(x => x.RecommendationId == recommendationId));

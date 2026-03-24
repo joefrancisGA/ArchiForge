@@ -266,7 +266,8 @@ public sealed class ComparisonsController(
         [FromBody] ApiReplayComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new ApiReplayComparisonRequest();
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         var result = await comparisonReplayApiService.ReplayAsync(
             ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint(comparisonRecordId, request, format),
             metadataOnly: false,
@@ -381,6 +382,7 @@ public sealed class ComparisonsController(
     [Authorize(Policy = "CanReplayComparisons")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReplayComparisonsBatch(
         [FromBody] BatchReplayComparisonRequest? request,
         CancellationToken cancellationToken)

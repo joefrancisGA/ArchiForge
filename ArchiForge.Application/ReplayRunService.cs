@@ -29,7 +29,7 @@ public sealed class ReplayRunService(
         CancellationToken cancellationToken = default)
     {
         var originalRun = await runRepository.GetByIdAsync(originalRunId, cancellationToken)
-            ?? throw new InvalidOperationException($"Original run '{originalRunId}' not found.");
+            ?? throw new RunNotFoundException(originalRunId);
 
         var request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
             ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");

@@ -10,6 +10,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
 
     public Task CreateAsync(DigestSubscription subscription, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(subscription);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
@@ -22,6 +23,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
 
     public Task UpdateAsync(DigestSubscription subscription, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(subscription);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {

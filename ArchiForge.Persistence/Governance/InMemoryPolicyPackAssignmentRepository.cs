@@ -17,22 +17,32 @@ namespace ArchiForge.Persistence.Governance;
 /// </remarks>
 public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignmentRepository
 {
+    private const int MaxEntries = 2_000;
+
     private readonly List<PolicyPackAssignment> _items = [];
     private readonly object _gate = new();
 
     /// <inheritdoc />
     public Task CreateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(assignment);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Count >= MaxEntries)
+                _items.RemoveAt(0);
+
             _items.Add(assignment);
+        }
+
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
     public Task UpdateAsync(PolicyPackAssignment assignment, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(assignment);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var i = _items.FindIndex(x => x.AssignmentId == assignment.AssignmentId);
@@ -51,7 +61,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items

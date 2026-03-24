@@ -10,6 +10,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
 
     public Task CreateAsync(PolicyPackVersion version, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(version);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
@@ -22,6 +23,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
 
     public Task UpdateAsync(PolicyPackVersion version, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(version);
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {

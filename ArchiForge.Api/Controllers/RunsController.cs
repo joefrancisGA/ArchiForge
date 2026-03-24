@@ -149,6 +149,10 @@ public sealed partial class RunsController(
 
             return Ok(response);
         }
+        catch (RunNotFoundException ex)
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
         catch (InvalidOperationException ex)
         {
             _logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", runId);
@@ -167,7 +171,9 @@ public sealed partial class RunsController(
         [FromBody] DeterminismCheckRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new DeterminismCheckRequest();
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
         request.RunId = runId;
 
         try

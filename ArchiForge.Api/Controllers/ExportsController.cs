@@ -154,7 +154,7 @@ public sealed class ExportsController(
         [FromBody] ApiReplayExportRequest? request,
         CancellationToken cancellationToken)
     {
-        request ??= new ApiReplayExportRequest();
+        request ??= new ApiReplayExportRequest(); // body is optional; defaults apply when omitted
 
         var result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest

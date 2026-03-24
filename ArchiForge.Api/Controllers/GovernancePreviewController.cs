@@ -10,6 +10,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -21,7 +22,9 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance-preview")]
 [EnableRateLimiting("fixed")]
-public sealed class GovernancePreviewController(IGovernancePreviewService previewService) : ControllerBase
+public sealed class GovernancePreviewController(
+    IGovernancePreviewService previewService,
+    ILogger<GovernancePreviewController> logger) : ControllerBase
 {
     /// <summary>Preview governance diff if the given run/manifest were activated into an environment (no persistence).</summary>
     [HttpPost("preview")]
@@ -48,14 +51,17 @@ public sealed class GovernancePreviewController(IGovernancePreviewService previe
         }
         catch (RunNotFoundException ex)
         {
+            logger.LogWarning(ex, "Preview failed: run not found.");
             return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
         }
         catch (ArgumentException ex)
         {
+            logger.LogWarning(ex, "Preview failed: validation error.");
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (InvalidOperationException ex)
         {
+            logger.LogWarning(ex, "Preview failed: invalid operation.");
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }
@@ -83,6 +89,7 @@ public sealed class GovernancePreviewController(IGovernancePreviewService previe
         }
         catch (ArgumentException ex)
         {
+            logger.LogWarning(ex, "CompareEnvironments failed: validation error.");
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }

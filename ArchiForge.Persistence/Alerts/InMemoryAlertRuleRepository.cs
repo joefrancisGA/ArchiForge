@@ -5,20 +5,30 @@ namespace ArchiForge.Persistence.Alerts;
 /// <summary>In-memory <see cref="IAlertRuleRepository"/> for tests; uses a lock for thread safety.</summary>
 public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
 {
+    private const int MaxEntries = 2_000;
+
     private readonly List<AlertRule> _items = [];
     private readonly Lock _gate = new();
 
     public Task CreateAsync(AlertRule rule, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(rule);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
+        {
+            if (_items.Count >= MaxEntries)
+                _items.RemoveAt(0);
+
             _items.Add(rule);
+        }
+
         return Task.CompletedTask;
     }
 
     public Task UpdateAsync(AlertRule rule, CancellationToken ct)
     {
-        _ = ct;
+        ArgumentNullException.ThrowIfNull(rule);
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var i = _items.FindIndex(x => x.RuleId == rule.RuleId);
@@ -31,7 +41,7 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
 
     public Task<AlertRule?> GetByIdAsync(Guid ruleId, CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
             return Task.FromResult(_items.FirstOrDefault(x => x.RuleId == ruleId));
     }
@@ -42,7 +52,7 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items
@@ -59,7 +69,7 @@ public sealed class InMemoryAlertRuleRepository : IAlertRuleRepository
         Guid projectId,
         CancellationToken ct)
     {
-        _ = ct;
+        ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
             var result = _items
