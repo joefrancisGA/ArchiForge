@@ -11,7 +11,7 @@ public sealed class SubmitAgentResultRequestValidator : AbstractValidator<Submit
         RuleFor(x => x.Result)
             .NotNull().WithMessage("Agent result is required.");
 
-        When(x => x.Result is not null, () =>
+        When(_ => true, () =>
         {
             RuleFor(x => x.Result.ResultId)
                 .NotEmpty().WithMessage("AgentResult.ResultId is required.");

@@ -48,20 +48,14 @@ public sealed class ConfigurationValidator(
             }
         }
 
-        if (errors.Count > 0)
+        if (errors.Count <= 0) return Task.CompletedTask;
+        
+        foreach (var error in errors)
         {
-            foreach (var error in errors)
-            {
-                logger.LogError("Configuration validation error: {Error}", error);
-            }
-
-            if (environment.IsProduction())
-            {
-                throw new InvalidOperationException("Configuration validation failed. See logs for details.");
-            }
+            logger.LogError("Configuration validation error: {Error}", error);
         }
 
-        return Task.CompletedTask;
+        return environment.IsProduction() ? throw new InvalidOperationException("Configuration validation failed. See logs for details.") : Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

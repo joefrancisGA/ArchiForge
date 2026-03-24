@@ -34,7 +34,6 @@ public sealed partial class RunsController(
     : ControllerBase
 {
     // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
-    private readonly ILogger<RunsController> _logger = logger;
 
     [HttpPost("request")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
@@ -70,7 +69,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
+            logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }
@@ -100,7 +99,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "ExecuteRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.DeterminismFailed);
         }
     }
@@ -149,7 +148,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "ReplayRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -181,7 +180,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "DeterminismCheck failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "DeterminismCheck failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }
@@ -219,7 +218,7 @@ public sealed partial class RunsController(
         }
         catch (InvalidOperationException ex)
         {
-            _logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", runId);
+            logger.LogWarning(ex, "CommitRun failed for run '{RunId}'.", runId);
             return this.InvalidOperationProblem(ex, ProblemTypes.ExportFailed);
         }
     }

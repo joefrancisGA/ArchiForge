@@ -49,7 +49,6 @@ public sealed class CompositeAlertRulesController(
         rule.WorkspaceId = scope.WorkspaceId;
         rule.ProjectId = scope.ProjectId;
         rule.CreatedUtc = DateTime.UtcNow;
-        rule.Conditions ??= [];
 
         foreach (var c in rule.Conditions)
         {

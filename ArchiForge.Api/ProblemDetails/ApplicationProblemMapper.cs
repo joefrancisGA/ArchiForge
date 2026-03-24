@@ -54,18 +54,16 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (ex is ArgumentException or ArgumentNullException)
-        {
-            result = CreateProblemResult(
-                StatusCodes.Status400BadRequest,
-                "Bad Request",
-                ex.Message,
-                ProblemTypes.ValidationFailed,
-                instance);
-            return true;
-        }
+        if (ex is not (ArgumentException or ArgumentNullException)) return false;
+        
+        result = CreateProblemResult(
+            StatusCodes.Status400BadRequest,
+            "Bad Request",
+            ex.Message,
+            ProblemTypes.ValidationFailed,
+            instance);
+        return true;
 
-        return false;
     }
 
     /// <summary>
@@ -100,12 +98,12 @@ public static class ApplicationProblemMapper
             Instance = string.IsNullOrWhiteSpace(instance) ? null : instance
         };
 
-        if (cvf.Drift is { } drift)
-        {
-            problem.Extensions["driftDetected"] = drift.DriftDetected;
-            if (!string.IsNullOrWhiteSpace(drift.Summary))
-                problem.Extensions["driftSummary"] = drift.Summary;
-        }
+        if (cvf.Drift is not { } drift)
+            return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+        
+        problem.Extensions["driftDetected"] = drift.DriftDetected;
+        if (!string.IsNullOrWhiteSpace(drift.Summary))
+            problem.Extensions["driftSummary"] = drift.Summary;
 
         return new ObjectResult(problem)
         {

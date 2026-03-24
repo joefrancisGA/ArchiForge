@@ -5,14 +5,12 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
-using ArchiForge.Data.Repositories;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.Extensions.Logging;
 
 using ApiConsultingDocxProfileRecommendationRequest =
     ArchiForge.Api.Models.ConsultingDocxProfileRecommendationRequest;

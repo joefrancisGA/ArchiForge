@@ -286,7 +286,7 @@ public sealed class AskService(
         if (messages.Count == 0)
             return messages;
 
-        var last = messages[messages.Count - 1];
+        var last = messages[^1];
         if (last.Role == ConversationMessageRole.User &&
             string.Equals(last.Content.Trim(), question, StringComparison.Ordinal))
             return messages.Take(messages.Count - 1).ToList();

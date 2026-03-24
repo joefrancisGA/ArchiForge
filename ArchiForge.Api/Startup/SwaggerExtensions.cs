@@ -10,20 +10,18 @@ internal static class SwaggerExtensions
         {
             c.TagActionsBy(api =>
             {
-                if (api.ActionDescriptor is ControllerActionDescriptor cad)
+                if (api.ActionDescriptor is not ControllerActionDescriptor cad) return [api.GroupName ?? "API"];
+                
+                var tag = cad.ControllerName switch
                 {
-                    var tag = cad.ControllerName switch
-                    {
-                        "PolicyPacks" => "Governance",
-                        "AlertRules" or "Alerts" or "AlertSimulation" or "AlertTuning" or "CompositeAlertRules"
-                            or "AlertRoutingSubscriptions" => "Alerts & routing",
-                        "DigestSubscriptions" => "Digest subscriptions",
-                        _ => cad.ControllerName,
-                    };
-                    return [tag];
-                }
+                    "PolicyPacks" => "Governance",
+                    "AlertRules" or "Alerts" or "AlertSimulation" or "AlertTuning" or "CompositeAlertRules"
+                        or "AlertRoutingSubscriptions" => "Alerts & routing",
+                    "DigestSubscriptions" => "Digest subscriptions",
+                    _ => cad.ControllerName,
+                };
+                return [tag];
 
-                return [api.GroupName ?? "API"];
             });
 
             c.SwaggerDoc("v1", new()
