@@ -45,9 +45,9 @@ public sealed class AlertsController(
         CancellationToken ct = default)
     {
         take = Math.Clamp(take, 1, 500);
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var alerts = await alertRepository.ListByScopeAsync(
+        IReadOnlyList<AlertRecord> alerts = await alertRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -76,17 +76,17 @@ public sealed class AlertsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
-        var existing = await alertRepository.GetByIdAsync(alertId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
         if (existing is null || !MatchesScope(existing, scope))
             return this.NotFoundProblem(
                 $"Alert '{alertId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
-        var userName = User.Identity?.Name ?? "unknown";
+        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+        string userName = User.Identity?.Name ?? "unknown";
 
-        var updated = await alertService.ApplyActionAsync(
+        AlertRecord? updated = await alertService.ApplyActionAsync(
             alertId,
             userId,
             userName,

@@ -31,8 +31,8 @@ public sealed class CriticAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        var systemPrompt = BuildSystemPrompt();
-        var userPrompt = BuildUserPrompt(runId, request, evidence, task);
+        string systemPrompt = BuildSystemPrompt();
+        string userPrompt = BuildUserPrompt(runId, request, evidence, task);
 
         string rawJson = string.Empty;
 
@@ -43,13 +43,13 @@ public sealed class CriticAgentHandler(
                 userPrompt,
                 cancellationToken);
 
-            var parsed = resultParser.ParseAndValidate(
+            AgentResult parsed = resultParser.ParseAndValidate(
                 rawJson,
                 expectedRunId: runId,
                 expectedTaskId: task.TaskId,
                 expectedAgentType: AgentType.Critic);
 
-            var parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
+            string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
             await traceRecorder.RecordAsync(
                 runId,
@@ -165,7 +165,7 @@ Important review themes:
         AgentEvidencePackage evidence,
         AgentTask task)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine("Generate a critic AgentResult.");
         sb.AppendLine();
@@ -186,7 +186,7 @@ Important review themes:
         if (request.Constraints.Count > 0)
         {
             sb.AppendLine("Constraints:");
-            foreach (var constraint in request.Constraints)
+            foreach (string constraint in request.Constraints)
             {
                 sb.AppendLine($"- {constraint}");
             }
@@ -197,7 +197,7 @@ Important review themes:
         if (request.RequiredCapabilities.Count > 0)
         {
             sb.AppendLine("Required Capabilities:");
-            foreach (var capability in request.RequiredCapabilities)
+            foreach (string capability in request.RequiredCapabilities)
             {
                 sb.AppendLine($"- {capability}");
             }
@@ -208,7 +208,7 @@ Important review themes:
         if (request.Assumptions.Count > 0)
         {
             sb.AppendLine("Assumptions:");
-            foreach (var assumption in request.Assumptions)
+            foreach (string assumption in request.Assumptions)
             {
                 sb.AppendLine($"- {assumption}");
             }
@@ -223,7 +223,7 @@ Important review themes:
         if (evidence.Policies.Count > 0)
         {
             sb.AppendLine("Policies:");
-            foreach (var policy in evidence.Policies)
+            foreach (PolicyEvidence policy in evidence.Policies)
             {
                 sb.AppendLine($"- {policy.Title}: {policy.Summary}");
                 if (policy.RequiredControls.Count > 0)
@@ -238,7 +238,7 @@ Important review themes:
         if (evidence.ServiceCatalog.Count > 0)
         {
             sb.AppendLine("Service Catalog Hints:");
-            foreach (var service in evidence.ServiceCatalog)
+            foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog)
             {
                 sb.AppendLine($"- {service.ServiceName}: {service.Summary}");
                 if (service.RecommendedUseCases.Count > 0)
@@ -253,7 +253,7 @@ Important review themes:
         if (evidence.Patterns.Count > 0)
         {
             sb.AppendLine("Pattern Hints:");
-            foreach (var pattern in evidence.Patterns)
+            foreach (PatternEvidence pattern in evidence.Patterns)
             {
                 sb.AppendLine($"- {pattern.Name}: {pattern.Summary}");
                 sb.AppendLine($"  SuggestedServices: {string.Join(", ", pattern.SuggestedServices)}");
@@ -275,7 +275,7 @@ Important review themes:
         sb.AppendLine();
 
         sb.AppendLine("Allowed Tools:");
-        foreach (var tool in task.AllowedTools)
+        foreach (string tool in task.AllowedTools)
         {
             sb.AppendLine($"- {tool}");
         }
@@ -283,7 +283,7 @@ Important review themes:
         sb.AppendLine();
 
         sb.AppendLine("Allowed Sources:");
-        foreach (var source in task.AllowedSources)
+        foreach (string source in task.AllowedSources)
         {
             sb.AppendLine($"- {source}");
         }

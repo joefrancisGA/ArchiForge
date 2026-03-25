@@ -22,11 +22,11 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        var services = manifest.Services;
-        var datastores = manifest.Datastores;
-        var relationships = manifest.Relationships;
+        List<ManifestService> services = manifest.Services;
+        List<ManifestDatastore> datastores = manifest.Datastores;
+        List<ManifestRelationship> relationships = manifest.Relationships;
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         AppendOverview(sb, manifest, services, datastores, relationships);
         AppendServices(sb, services);
@@ -72,7 +72,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine("## Services");
         sb.AppendLine();
 
-        foreach (var service in services.OrderBy(s => s.ServiceName))
+        foreach (ManifestService service in services.OrderBy(s => s.ServiceName))
         {
             sb.AppendLine($"- **{service.ServiceName}**");
             sb.AppendLine($"  - Type: {service.ServiceType}");
@@ -81,11 +81,11 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
             if (!string.IsNullOrWhiteSpace(service.Purpose))
                 sb.AppendLine($"  - Purpose: {service.Purpose}");
 
-            var controls = service.RequiredControls;
+            List<string> controls = service.RequiredControls;
             if (controls.Count > 0)
                 sb.AppendLine($"  - Required Controls: {string.Join(", ", controls)}");
 
-            var tags = service.Tags;
+            List<string> tags = service.Tags;
             
             if (tags.Count > 0)
                 sb.AppendLine($"  - Tags: {string.Join(", ", tags)}");
@@ -102,7 +102,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine("## Datastores");
         sb.AppendLine();
 
-        foreach (var datastore in datastores.OrderBy(d => d.DatastoreName))
+        foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName))
         {
             sb.AppendLine($"- **{datastore.DatastoreName}**");
             sb.AppendLine($"  - Type: {datastore.DatastoreType}");
@@ -126,7 +126,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine("## Relationships");
         sb.AppendLine();
 
-        foreach (var r in relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
+        foreach (ManifestRelationship r in relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
         {
             sb.AppendLine($"- **{r.SourceId}** {FormatRelationshipType(r)} **{r.TargetId}**");
 
@@ -142,17 +142,17 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         sb.AppendLine("## Governance");
         sb.AppendLine();
 
-        var controls = governance?.RequiredControls ?? [];
+        List<string> controls = governance?.RequiredControls ?? [];
         sb.AppendLine(controls.Count > 0
             ? $"- Required Controls: {string.Join(", ", controls)}"
             : "- Required Controls: None recorded");
 
-        var tags = governance?.ComplianceTags ?? [];
+        List<string> tags = governance?.ComplianceTags ?? [];
         sb.AppendLine(tags.Count > 0
             ? $"- Compliance Tags: {string.Join(", ", tags)}"
             : "- Compliance Tags: None recorded");
 
-        var constraints = governance?.PolicyConstraints ?? [];
+        List<string> constraints = governance?.PolicyConstraints ?? [];
         sb.AppendLine(constraints.Count > 0
             ? $"- Policy Constraints: {string.Join(", ", constraints)}"
             : "- Policy Constraints: None recorded");
@@ -177,7 +177,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         if (metadata is not null)
             sb.AppendLine($"- Created UTC: {metadata.CreatedUtc:O}");
 
-        var traceIds = metadata?.DecisionTraceIds ?? [];
+        List<string> traceIds = metadata?.DecisionTraceIds ?? [];
         if (traceIds.Count > 0)
             sb.AppendLine($"- Decision Trace Count: {traceIds.Count}");
     }

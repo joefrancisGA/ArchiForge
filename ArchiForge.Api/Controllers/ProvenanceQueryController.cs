@@ -28,8 +28,8 @@ public sealed class ProvenanceQueryController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProvenance(Guid runId, CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is null)
             return this.NotFoundProblem($"Provenance snapshot for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -41,8 +41,8 @@ public sealed class ProvenanceQueryController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFullGraph(Guid runId, CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var vm = await graphQuery.GetFullGraphAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        GraphViewModel? vm = await graphQuery.GetFullGraphAsync(scope, runId, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -62,8 +62,8 @@ public sealed class ProvenanceQueryController(
         if (string.IsNullOrWhiteSpace(decisionKey))
             return this.BadRequestProblem("decisionKey is required.", ProblemTypes.BadRequest);
 
-        var scope = scopeProvider.GetCurrentScope();
-        var vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        GraphViewModel? vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -76,9 +76,9 @@ public sealed class ProvenanceQueryController(
         [FromQuery] int depth = 1,
         CancellationToken ct = default)
     {
-        var safeDepth = Math.Clamp(depth, 1, 10);
-        var scope = scopeProvider.GetCurrentScope();
-        var vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, safeDepth, ct);
+        int safeDepth = Math.Clamp(depth, 1, 10);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        GraphViewModel? vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, safeDepth, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 }

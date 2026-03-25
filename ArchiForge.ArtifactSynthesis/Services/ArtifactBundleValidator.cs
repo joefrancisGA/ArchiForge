@@ -16,7 +16,7 @@ public class ArtifactBundleValidator : IArtifactBundleValidator
         if (bundle.Artifacts.Count == 0)
             throw new InvalidOperationException("At least one artifact is required.");
 
-        var duplicateTypes = bundle.Artifacts
+        List<string> duplicateTypes = bundle.Artifacts
             .GroupBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase)
             .Where(x => x.Count() > 1)
             .Select(x => x.Key)
@@ -26,7 +26,7 @@ public class ArtifactBundleValidator : IArtifactBundleValidator
             throw new InvalidOperationException(
                 $"Duplicate artifact types found: {string.Join(", ", duplicateTypes)}");
 
-        foreach (var artifact in bundle.Artifacts)
+        foreach (SynthesizedArtifact artifact in bundle.Artifacts)
         {
             if (string.IsNullOrWhiteSpace(artifact.ArtifactType))
                 throw new InvalidOperationException("ArtifactType is required.");

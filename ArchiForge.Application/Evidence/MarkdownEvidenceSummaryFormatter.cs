@@ -16,9 +16,9 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
     {
         ArgumentNullException.ThrowIfNull(evidence);
 
-        var request = evidence.Request;
+        RequestEvidence request = evidence.Request;
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine("## Evidence Context");
         sb.AppendLine();
@@ -36,7 +36,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine("### Constraints");
             sb.AppendLine();
 
-            foreach (var constraint in request.Constraints)
+            foreach (string constraint in request.Constraints)
             {
                 sb.AppendLine($"- {constraint}");
             }
@@ -48,7 +48,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine("### Required Capabilities");
             sb.AppendLine();
 
-            foreach (var capability in request.RequiredCapabilities)
+            foreach (string capability in request.RequiredCapabilities)
             {
                 sb.AppendLine($"- {capability}");
             }
@@ -60,7 +60,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine("### Assumptions");
             sb.AppendLine();
 
-            foreach (var assumption in request.Assumptions)
+            foreach (string assumption in request.Assumptions)
             {
                 sb.AppendLine($"- {assumption}");
             }
@@ -72,7 +72,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine("### Policy Evidence");
             sb.AppendLine();
 
-            foreach (var policy in evidence.Policies.OrderBy(p => p.Title))
+            foreach (PolicyEvidence policy in evidence.Policies.OrderBy(p => p.Title))
             {
                 sb.AppendLine($"- **{policy.Title}**");
                 sb.AppendLine($"  - Policy ID: {policy.PolicyId}");
@@ -96,7 +96,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine("### Service Catalog Hints");
             sb.AppendLine();
 
-            foreach (var service in evidence.ServiceCatalog.OrderBy(s => s.ServiceName))
+            foreach (ServiceCatalogEvidence service in evidence.ServiceCatalog.OrderBy(s => s.ServiceName))
             {
                 sb.AppendLine($"- **{service.ServiceName}**");
                 sb.AppendLine($"  - Category: {service.Category}");
@@ -120,7 +120,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
             sb.AppendLine("### Pattern Hints");
             sb.AppendLine();
 
-            foreach (var pattern in evidence.Patterns.OrderBy(p => p.Name))
+            foreach (PatternEvidence pattern in evidence.Patterns.OrderBy(p => p.Name))
             {
                 sb.AppendLine($"- **{pattern.Name}**");
                 sb.AppendLine($"  - Pattern ID: {pattern.PatternId}");
@@ -168,7 +168,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
         sb.AppendLine("### Evidence Notes");
         sb.AppendLine();
 
-        foreach (var note in evidence.Notes)
+        foreach (EvidenceNote note in evidence.Notes)
         {
             sb.AppendLine($"- **{note.NoteType}**: {note.Message}");
         }

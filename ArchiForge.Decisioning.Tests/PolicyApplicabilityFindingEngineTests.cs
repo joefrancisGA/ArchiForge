@@ -11,8 +11,8 @@ public sealed class PolicyApplicabilityFindingEngineTests
     [Fact]
     public async Task Emits_info_when_APPLIES_TO_topology_targets_exist()
     {
-        var engine = new PolicyApplicabilityFindingEngine();
-        var graph = new GraphSnapshot
+        PolicyApplicabilityFindingEngine engine = new PolicyApplicabilityFindingEngine();
+        GraphSnapshot graph = new GraphSnapshot
         {
             Nodes =
             [
@@ -32,15 +32,15 @@ public sealed class PolicyApplicabilityFindingEngineTests
             ]
         };
 
-        var findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
 
-        var payloadValidator = new FindingPayloadValidator();
-        foreach (var finding in findings)
+        FindingPayloadValidator payloadValidator = new FindingPayloadValidator();
+        foreach (Finding finding in findings)
             payloadValidator.Validate(finding);
 
         findings.Should().ContainSingle(x =>
             x.FindingType == "PolicyApplicabilityFinding" && x.Severity == FindingSeverity.Info);
-        var infoFinding = findings.Single(x => x.Severity == FindingSeverity.Info);
+        Finding infoFinding = findings.Single(x => x.Severity == FindingSeverity.Info);
         infoFinding.RelatedNodeIds.Should().Contain("p1");
         infoFinding.RelatedNodeIds.Should().Contain("t1");
     }
@@ -48,8 +48,8 @@ public sealed class PolicyApplicabilityFindingEngineTests
     [Fact]
     public async Task Emits_warning_when_topology_exists_but_policy_has_no_APPLIES_TO()
     {
-        var engine = new PolicyApplicabilityFindingEngine();
-        var graph = new GraphSnapshot
+        PolicyApplicabilityFindingEngine engine = new PolicyApplicabilityFindingEngine();
+        GraphSnapshot graph = new GraphSnapshot
         {
             Nodes =
             [
@@ -59,10 +59,10 @@ public sealed class PolicyApplicabilityFindingEngineTests
             Edges = []
         };
 
-        var findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
 
-        var payloadValidator = new FindingPayloadValidator();
-        foreach (var finding in findings)
+        FindingPayloadValidator payloadValidator = new FindingPayloadValidator();
+        foreach (Finding finding in findings)
             payloadValidator.Validate(finding);
 
         findings.Should().ContainSingle(x =>

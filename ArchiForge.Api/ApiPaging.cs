@@ -17,8 +17,8 @@ public static class ApiPaging
             return true;
         }
 
-        var parts = cursor.Split(':', 2);
-        if (parts.Length != 2 || !long.TryParse(parts[0], out var ticks) || string.IsNullOrWhiteSpace(parts[1]))
+        string[] parts = cursor.Split(':', 2);
+        if (parts.Length != 2 || !long.TryParse(parts[0], out long ticks) || string.IsNullOrWhiteSpace(parts[1]))
         {
             error = "cursor must be formatted as '<utcTicks>:<comparisonRecordId>'.";
             return false;

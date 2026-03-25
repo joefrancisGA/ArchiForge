@@ -36,21 +36,21 @@ public sealed class GraphController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetArchitectureGraph(Guid runId, CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (detail.GraphSnapshot is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
 
-        var vm = MapArchitectureGraph(detail.GraphSnapshot);
+        GraphViewModel vm = MapArchitectureGraph(detail.GraphSnapshot);
         return Ok(vm);
     }
 
     private static GraphViewModel MapArchitectureGraph(GraphSnapshot snapshot)
     {
-        var nodes = snapshot.Nodes.Select(MapNode).ToList();
-        var edges = snapshot.Edges.Select(e => new GraphEdgeVm
+        List<GraphNodeVm> nodes = snapshot.Nodes.Select(MapNode).ToList();
+        List<GraphEdgeVm> edges = snapshot.Edges.Select(e => new GraphEdgeVm
         {
             Source = e.FromNodeId,
             Target = e.ToNodeId,
@@ -62,7 +62,7 @@ public sealed class GraphController(
 
     private static GraphNodeVm MapNode(GraphNode x)
     {
-        var meta = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> meta = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         // Known structured fields take priority over raw property bag entries.
         if (!string.IsNullOrEmpty(x.Category))
@@ -73,7 +73,7 @@ public sealed class GraphController(
             meta["sourceId"] = x.SourceId;
 
         // Additional properties are merged; duplicate keys from Properties are skipped.
-        foreach (var kv in x.Properties)
+        foreach (KeyValuePair<string, string> kv in x.Properties)
             meta.TryAdd(kv.Key, kv.Value);
 
         return new GraphNodeVm

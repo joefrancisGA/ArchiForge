@@ -58,13 +58,13 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     [Fact]
     public async Task BuildAsync_WithPreloadedRunDetail_DoesNotRecallRunDetailOrPrimaryManifestFromRepository()
     {
-        var manifest = new GoldenManifest
+        GoldenManifest manifest = new GoldenManifest
         {
             RunId = "run-1",
             SystemName = "Sys",
             Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
-        var detail = new ArchitectureRunDetail
+        ArchitectureRunDetail detail = new ArchitectureRunDetail
         {
             Run = new ArchitectureRun
             {
@@ -79,7 +79,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             Results = []
         };
 
-        var request = new ArchitectureAnalysisRequest
+        ArchitectureAnalysisRequest request = new ArchitectureAnalysisRequest
         {
             RunId = "run-1",
             PreloadedRunDetail = detail,
@@ -90,7 +90,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             IncludeSummary = false
         };
 
-        var report = await _sut.BuildAsync(request);
+        ArchitectureAnalysisReport report = await _sut.BuildAsync(request);
 
         report.Manifest.Should().BeSameAs(manifest);
         _runDetailQueryService.Verify(

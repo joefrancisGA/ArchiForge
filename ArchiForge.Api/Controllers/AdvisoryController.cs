@@ -5,6 +5,7 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Services;
@@ -59,25 +60,25 @@ public sealed class AdvisoryController(
         [FromQuery] Guid? compareToRunId = null,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var run = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? run = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (run is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (run.GoldenManifest is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
-        var findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
+        FindingsSnapshot findings = run.FindingsSnapshot ?? CreateEmptyFindings(run.GoldenManifest);
 
         ImprovementPlan plan;
         if (compareToRunId.HasValue)
         {
-            var baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
+            RunDetailDto? baseRun = await authorityQueryService.GetRunDetailAsync(scope, compareToRunId.Value, ct);
             if (baseRun is null)
                 return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' was not found.", ProblemTypes.RunNotFound);
             if (baseRun.GoldenManifest is null)
                 return this.NotFoundProblem($"Comparison run '{compareToRunId.Value}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
-            var comparison = comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
+            ComparisonResult comparison = comparisonService.Compare(baseRun.GoldenManifest, run.GoldenManifest);
 
             plan = await improvementAdvisorService.GeneratePlanAsync(
                 run.GoldenManifest,
@@ -123,9 +124,9 @@ public sealed class AdvisoryController(
         Guid runId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var items = await recommendationRepository.ListByRunAsync(
+        IReadOnlyList<RecommendationRecord> items = await recommendationRepository.ListByRunAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -159,10 +160,10 @@ public sealed class AdvisoryController(
         if (!IsKnownRecommendationAction(request.Action))
             return this.BadRequestProblem("Unknown or missing action.", ProblemTypes.ValidationFailed);
 
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
-        var userName = User.Identity?.Name ?? "unknown";
+        string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+        string userName = User.Identity?.Name ?? "unknown";
 
-        var updated = await recommendationWorkflowService.ApplyActionAsync(
+        RecommendationRecord? updated = await recommendationWorkflowService.ApplyActionAsync(
             recommendationId,
             userId,
             userName,
@@ -172,7 +173,7 @@ public sealed class AdvisoryController(
         if (updated is null)
             return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.", ProblemTypes.ResourceNotFound);
 
-        var eventType = request.Action switch
+        string eventType = request.Action switch
         {
             RecommendationActionType.Accept => AuditEventTypes.RecommendationAccepted,
             RecommendationActionType.Reject => AuditEventTypes.RecommendationRejected,

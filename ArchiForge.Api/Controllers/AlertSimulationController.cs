@@ -43,10 +43,10 @@ public sealed class AlertSimulationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         StampSimulationScope(scope, request);
 
-        var result = await simulationService.SimulateAsync(
+        RuleSimulationResult result = await simulationService.SimulateAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -81,10 +81,10 @@ public sealed class AlertSimulationController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         StampComparisonScope(scope, request);
 
-        var result = await simulationService.CompareCandidatesAsync(
+        RuleCandidateComparisonResult result = await simulationService.CompareCandidatesAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

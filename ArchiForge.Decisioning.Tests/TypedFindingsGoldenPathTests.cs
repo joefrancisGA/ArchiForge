@@ -3,6 +3,7 @@ using ArchiForge.Decisioning.Compliance.Evaluators;
 using ArchiForge.Decisioning.Compliance.Loaders;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Builders;
+using ArchiForge.Decisioning.Models;
 using ArchiForge.Decisioning.Rules;
 using ArchiForge.Decisioning.Services;
 using ArchiForge.KnowledgeGraph.Models;
@@ -18,9 +19,9 @@ public sealed class TypedFindingsGoldenPathTests
     [Fact]
     public async Task EndToEnd_SecurityCostAndComplianceFlowThroughFindingsAndManifest()
     {
-        var runId = Guid.NewGuid();
-        var ctxId = Guid.NewGuid();
-        var graph = new GraphSnapshot
+        Guid runId = Guid.NewGuid();
+        Guid ctxId = Guid.NewGuid();
+        GraphSnapshot graph = new GraphSnapshot
         {
             GraphSnapshotId = Guid.NewGuid(),
             RunId = runId,
@@ -106,16 +107,16 @@ public sealed class TypedFindingsGoldenPathTests
             }
         };
 
-        var analyzer = new GraphCoverageAnalyzer();
-        var complianceRulePackPath = Path.Combine(
+        GraphCoverageAnalyzer analyzer = new GraphCoverageAnalyzer();
+        string complianceRulePackPath = Path.Combine(
             AppContext.BaseDirectory,
             "Compliance",
             "RulePacks",
             "default-compliance.rules.json");
-        var complianceLoader = new FileComplianceRulePackLoader(complianceRulePackPath);
-        var complianceProvider = new FileComplianceRulePackProvider(complianceLoader);
-        var complianceValidator = new ComplianceRulePackValidator();
-        var complianceEvaluator = new GraphComplianceEvaluator();
+        FileComplianceRulePackLoader complianceLoader = new FileComplianceRulePackLoader(complianceRulePackPath);
+        FileComplianceRulePackProvider complianceProvider = new FileComplianceRulePackProvider(complianceLoader);
+        ComplianceRulePackValidator complianceValidator = new ComplianceRulePackValidator();
+        GraphComplianceEvaluator complianceEvaluator = new GraphComplianceEvaluator();
 
         IFindingEngine[] engines =
         [
@@ -127,9 +128,9 @@ public sealed class TypedFindingsGoldenPathTests
             new CostConstraintFindingEngine()
         ];
 
-        var orchestrator = new FindingsOrchestrator(engines, new FindingPayloadValidator(), NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator orchestrator = new FindingsOrchestrator(engines, new FindingPayloadValidator(), NullLogger<FindingsOrchestrator>.Instance);
 
-        var snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
+        FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 
         snapshot.Findings.Should().Contain(f =>
             f.FindingType == "RequirementFinding" && f.RelatedNodeIds.Contains("t1"));
@@ -138,13 +139,13 @@ public sealed class TypedFindingsGoldenPathTests
         snapshot.Findings.Should().Contain(f =>
             f.FindingType == "SecurityControlFinding" && f.RelatedNodeIds.Contains("t1"));
 
-        var decisionEngine = new RuleBasedDecisionEngine(
+        RuleBasedDecisionEngine decisionEngine = new RuleBasedDecisionEngine(
             new InMemoryDecisionRuleProvider(),
             new DefaultGoldenManifestBuilder(),
             new GoldenManifestValidator(),
             new ManifestHashService());
 
-        var (manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
+        (GoldenManifest manifest, _) = await decisionEngine.DecideAsync(runId, ctxId, graph, snapshot, CancellationToken.None);
 
         manifest.Cost.MaxMonthlyCost.Should().Be(5000m);
         manifest.Security.Controls.Should().Contain(c => c.ControlId == "AC-2" && c.Status == "missing");

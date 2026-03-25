@@ -30,7 +30,7 @@ public static class PolicyPackGovernanceFilter
         if (effective.AlertRuleIds.Count == 0)
             return rules.ToList();
 
-        var allow = effective.AlertRuleIds.ToHashSet();
+        HashSet<Guid> allow = effective.AlertRuleIds.ToHashSet();
         return rules.Where(r => allow.Contains(r.RuleId)).ToList();
     }
 
@@ -45,7 +45,7 @@ public static class PolicyPackGovernanceFilter
         if (effective.CompositeAlertRuleIds.Count == 0)
             return rules.ToList();
 
-        var allow = effective.CompositeAlertRuleIds.ToHashSet();
+        HashSet<Guid> allow = effective.CompositeAlertRuleIds.ToHashSet();
         return rules.Where(r => allow.Contains(r.CompositeRuleId)).ToList();
     }
 }

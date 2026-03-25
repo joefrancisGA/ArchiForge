@@ -9,22 +9,22 @@ public static class ProvenanceGraphAlgorithms
     public static bool TryResolveDecisionNodeId(DecisionProvenanceGraph graph, string? decisionKey, out Guid decisionInternalNodeId)
     {
         decisionInternalNodeId = Guid.Empty;
-        var key = decisionKey?.Trim() ?? string.Empty;
+        string key = decisionKey?.Trim() ?? string.Empty;
         if (key.Length == 0)
             return false;
 
-        if (Guid.TryParse(key, out var parsedGuid))
+        if (Guid.TryParse(key, out Guid parsedGuid))
         {
-            var byId = graph.Nodes.FirstOrDefault(n => n.Type == ProvenanceNodeType.Decision && n.Id == parsedGuid);
+            ProvenanceNode? byId = graph.Nodes.FirstOrDefault(n => n.Type == ProvenanceNodeType.Decision && n.Id == parsedGuid);
             if (byId is not null)
             {
                 decisionInternalNodeId = byId.Id;
                 return true;
             }
 
-            var nFormat = parsedGuid.ToString("N");
-            var dFormat = parsedGuid.ToString("D");
-            var byRefFromGuid = graph.Nodes.FirstOrDefault(n =>
+            string nFormat = parsedGuid.ToString("N");
+            string dFormat = parsedGuid.ToString("D");
+            ProvenanceNode? byRefFromGuid = graph.Nodes.FirstOrDefault(n =>
                 n.Type == ProvenanceNodeType.Decision &&
                 (string.Equals(n.ReferenceId, nFormat, StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(n.ReferenceId, dFormat, StringComparison.OrdinalIgnoreCase)));
@@ -37,7 +37,7 @@ public static class ProvenanceGraphAlgorithms
             return false;
         }
 
-        var byRef = graph.Nodes.FirstOrDefault(n =>
+        ProvenanceNode? byRef = graph.Nodes.FirstOrDefault(n =>
             n.Type == ProvenanceNodeType.Decision &&
             string.Equals(n.ReferenceId, key, StringComparison.OrdinalIgnoreCase));
         if (byRef is null)
@@ -60,9 +60,9 @@ public static class ProvenanceGraphAlgorithms
             };
         }
 
-        var includedNodes = new HashSet<Guid> { decisionInternalNodeId };
-        var includedEdges = new List<ProvenanceEdge>();
-        foreach (var edge in full.Edges)
+        HashSet<Guid> includedNodes = new HashSet<Guid> { decisionInternalNodeId };
+        List<ProvenanceEdge> includedEdges = new List<ProvenanceEdge>();
+        foreach (ProvenanceEdge edge in full.Edges)
         {
             if (edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId)
             {
@@ -99,13 +99,13 @@ public static class ProvenanceGraphAlgorithms
             };
         }
 
-        var visited = new HashSet<Guid> { startNodeId };
-        var frontier = new HashSet<Guid> { startNodeId };
+        HashSet<Guid> visited = new HashSet<Guid> { startNodeId };
+        HashSet<Guid> frontier = new HashSet<Guid> { startNodeId };
 
-        for (var i = 0; i < depth; i++)
+        for (int i = 0; i < depth; i++)
         {
-            var next = new HashSet<Guid>();
-            foreach (var edge in full.Edges)
+            HashSet<Guid> next = new HashSet<Guid>();
+            foreach (ProvenanceEdge edge in full.Edges)
             {
                 if (frontier.Contains(edge.FromNodeId))
                     next.Add(edge.ToNodeId);
@@ -114,7 +114,7 @@ public static class ProvenanceGraphAlgorithms
             }
 
             frontier = next;
-            foreach (var id in frontier)
+            foreach (Guid id in frontier)
                 visited.Add(id);
         }
 

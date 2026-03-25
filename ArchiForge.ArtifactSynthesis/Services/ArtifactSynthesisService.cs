@@ -23,7 +23,7 @@ public class ArtifactSynthesisService(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(manifest);
-        var bundle = new ArtifactBundle
+        ArtifactBundle bundle = new ArtifactBundle
         {
             TenantId = manifest.TenantId,
             WorkspaceId = manifest.WorkspaceId,
@@ -42,12 +42,12 @@ public class ArtifactSynthesisService(
             }
         };
 
-        var decisionIds = manifest.Decisions.Select(x => x.DecisionId).ToList();
+        List<string> decisionIds = manifest.Decisions.Select(x => x.DecisionId).ToList();
 
-        foreach (var generator in generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
+        foreach (IArtifactGenerator generator in generators.OrderBy(x => x.ArtifactType, StringComparer.OrdinalIgnoreCase))
         {
-            var artifact = await generator.GenerateAsync(manifest, ct);
-            foreach (var id in decisionIds)
+            SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, ct);
+            foreach (string id in decisionIds)
                 artifact.ContributingDecisionIds.Add(id);
             bundle.Artifacts.Add(artifact);
             bundle.Trace.GeneratorsUsed.Add(generator.GetType().Name);

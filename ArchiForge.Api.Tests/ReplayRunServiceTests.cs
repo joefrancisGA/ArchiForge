@@ -49,7 +49,7 @@ public sealed class ReplayRunServiceTests
             .Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        var act = async () => await _sut.ReplayAsync("missing");
+        Func<Task<ReplayRunResult>> act = async () => await _sut.ReplayAsync("missing");
 
         await act.Should().ThrowAsync<RunNotFoundException>();
         _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -67,7 +67,7 @@ public sealed class ReplayRunServiceTests
                 Results = []
             });
 
-        var act = async () => await _sut.ReplayAsync("run-1");
+        Func<Task<ReplayRunResult>> act = async () => await _sut.ReplayAsync("run-1");
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*No tasks*");

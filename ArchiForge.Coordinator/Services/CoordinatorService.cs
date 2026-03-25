@@ -47,24 +47,24 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var output = new CoordinationResult();
+        CoordinationResult output = new CoordinationResult();
 
-        var validationErrors = ValidateRequest(request);
+        List<string> validationErrors = ValidateRequest(request);
         if (validationErrors.Count > 0)
         {
             output.Errors.AddRange(validationErrors);
             return output;
         }
 
-        var authorityRun = await authorityRunOrchestrator.ExecuteAsync(
+        RunRecord authorityRun = await authorityRunOrchestrator.ExecuteAsync(
             ContextIngestionRequestMapper.FromArchitectureRequest(request),
             cancellationToken);
 
-        var runId = authorityRun.RunId.ToString("N");
-        var run = BuildRunFromAuthority(authorityRun, request);
+        string runId = authorityRun.RunId.ToString("N");
+        ArchitectureRun run = BuildRunFromAuthority(authorityRun, request);
 
-        var evidenceBundle = BuildEvidenceBundle(request);
-        var tasks = BuildStarterTasks(runId, evidenceBundle, request);
+        EvidenceBundle evidenceBundle = BuildEvidenceBundle(request);
+        List<AgentTask> tasks = BuildStarterTasks(runId, evidenceBundle, request);
         run.TaskIds = [.. tasks.Select(t => t.TaskId)];
 
         output.Run = run;
@@ -76,7 +76,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static List<string> ValidateRequest(ArchitectureRequest request)
     {
-        var errors = new List<string>();
+        List<string> errors = new List<string>();
 
         if (string.IsNullOrWhiteSpace(request.RequestId))
             errors.Add("RequestId is required.");
@@ -112,7 +112,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static EvidenceBundle BuildEvidenceBundle(ArchitectureRequest request)
     {
-        var metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        Dictionary<string, string> metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["systemName"] = request.SystemName,
             ["environment"] = request.Environment,
@@ -139,7 +139,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static List<string> BuildPolicyRefs(ArchitectureRequest request)
     {
-        var refs = new List<string>
+        List<string> refs = new List<string>
         {
             PolicyPackEnterpriseDefault,
             PolicyPackAzureSecurityBaseline
@@ -161,7 +161,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         // CatalogAzureSql is always included because DefaultEvidenceBuilder always
         // provides SQL catalog evidence as a baseline service, keeping both in sync.
-        var refs = new List<string>
+        List<string> refs = new List<string>
         {
             CatalogAzureCoreServices,
             CatalogAzureSql

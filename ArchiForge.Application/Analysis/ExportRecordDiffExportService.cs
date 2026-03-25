@@ -8,7 +8,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        using var builder = new OpenXmlDocxDocumentBuilder();
+        using OpenXmlDocxDocumentBuilder builder = new OpenXmlDocxDocumentBuilder();
 
         builder.AddHeading("ArchiForge Export Record Diff Comparison Export", 1);
 
@@ -22,7 +22,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         if (diff.ChangedTopLevelFields.Count > 0)
         {
             builder.AddHeading("Changed Top-Level Fields", 2);
-            foreach (var item in diff.ChangedTopLevelFields)
+            foreach (string item in diff.ChangedTopLevelFields)
             {
                 builder.AddBullet(item);
             }
@@ -36,7 +36,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
             if (diff.RequestDiff.ChangedFlags.Count > 0)
             {
                 builder.AddHeading("Changed Flags", 3);
-                foreach (var item in diff.RequestDiff.ChangedFlags)
+                foreach (string item in diff.RequestDiff.ChangedFlags)
                 {
                     builder.AddBullet(item);
                 }
@@ -45,7 +45,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
             if (diff.RequestDiff.ChangedValues.Count > 0)
             {
                 builder.AddHeading("Changed Values", 3);
-                foreach (var item in diff.RequestDiff.ChangedValues)
+                foreach (string item in diff.RequestDiff.ChangedValues)
                 {
                     builder.AddBullet(item);
                 }
@@ -58,7 +58,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
         
         {
             builder.AddHeading("Warnings", 2);
-            foreach (var item in diff.Warnings)
+            foreach (string item in diff.Warnings)
             {
                 builder.AddBullet(item);
             }

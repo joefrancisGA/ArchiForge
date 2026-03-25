@@ -9,8 +9,8 @@ public static class TemplateLoader
     /// <summary>Writable copy suitable for opening with the Open XML SDK (read/write).</summary>
     public static MemoryStream OpenWritableTemplate()
     {
-        var bytes = TryLoadFromDisk() ?? BrandedArchitectureTemplateGenerator.CreateTemplateBytes();
-        var ms = new MemoryStream();
+        byte[] bytes = TryLoadFromDisk() ?? BrandedArchitectureTemplateGenerator.CreateTemplateBytes();
+        MemoryStream ms = new MemoryStream();
         ms.Write(bytes, 0, bytes.Length);
         ms.Position = 0;
         return ms;
@@ -29,7 +29,7 @@ public static class TemplateLoader
         
         if (string.IsNullOrEmpty(loc)) yield break;
         
-        var bin = Path.GetDirectoryName(loc);
+        string? bin = Path.GetDirectoryName(loc);
         if (!string.IsNullOrEmpty(bin))
             yield return bin;
     }

@@ -16,8 +16,8 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("ConnectionStrings:ArchiForge", SqliteInMemoryConnectionString);
         builder.ConfigureServices(services =>
         {
-            var descriptors = services.Where(d => d.ServiceType == typeof(IDbConnectionFactory)).ToList();
-            foreach (var d in descriptors)
+            List<ServiceDescriptor> descriptors = services.Where(d => d.ServiceType == typeof(IDbConnectionFactory)).ToList();
+            foreach (ServiceDescriptor d in descriptors)
                 services.Remove(d);
             services.AddSingleton<IDbConnectionFactory>(
                 new SqliteConnectionFactory(SqliteInMemoryConnectionString));

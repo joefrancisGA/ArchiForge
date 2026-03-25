@@ -26,7 +26,7 @@ public sealed class PolicyPackManagementService(
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(packType);
 
-        var pack = new PolicyPack
+        PolicyPack pack = new PolicyPack
         {
             PolicyPackId = Guid.NewGuid(),
             TenantId = tenantId,
@@ -40,7 +40,7 @@ public sealed class PolicyPackManagementService(
             CurrentVersion = "1.0.0",
         };
 
-        using (var scope = new TransactionScope(
+        using (TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -75,9 +75,9 @@ public sealed class PolicyPackManagementService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(version);
 
-        var normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
+        string normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
 
-        var existing = await versionRepository
+        PolicyPackVersion? existing = await versionRepository
             .GetByPackAndVersionAsync(policyPackId, version, ct)
             .ConfigureAwait(false);
 
@@ -104,7 +104,7 @@ public sealed class PolicyPackManagementService(
             await versionRepository.CreateAsync(packVersion, ct).ConfigureAwait(false);
         }
 
-        var pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct).ConfigureAwait(false);
         if (pack is not null)
         {
             pack.CurrentVersion = version;
@@ -131,7 +131,7 @@ public sealed class PolicyPackManagementService(
         bool isPinned,
         CancellationToken ct)
     {
-        var normalized = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
+        string normalized = GovernanceScopeLevel.TryNormalize(scopeLevel) ?? GovernanceScopeLevel.Project;
 
         Guid ws = workspaceId;
         Guid proj = projectId;
@@ -145,7 +145,7 @@ public sealed class PolicyPackManagementService(
             proj = Guid.Empty;
         }
 
-        var assignment = new PolicyPackAssignment
+        PolicyPackAssignment assignment = new PolicyPackAssignment
         {
             AssignmentId = Guid.NewGuid(),
             TenantId = tenantId,

@@ -19,7 +19,7 @@ public sealed class ManifestDiffService : IManifestDiffService
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
-        var result = new ManifestDiffResult
+        ManifestDiffResult result = new ManifestDiffResult
         {
             LeftManifestVersion = left.Metadata.ManifestVersion,
             RightManifestVersion = right.Metadata.ManifestVersion,
@@ -39,7 +39,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetAddedServiceNames(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Services
+        HashSet<string> leftSet = left.Services
             .Select(s => s.ServiceName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -53,7 +53,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetRemovedServiceNames(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Services
+        HashSet<string> rightSet = right.Services
             .Select(s => s.ServiceName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -67,7 +67,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetAddedDatastoreNames(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Datastores
+        HashSet<string> leftSet = left.Datastores
             .Select(d => d.DatastoreName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -81,7 +81,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetRemovedDatastoreNames(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Datastores
+        HashSet<string> rightSet = right.Datastores
             .Select(d => d.DatastoreName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -95,7 +95,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetAddedRequiredControls(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Governance.RequiredControls
+        HashSet<string> leftSet = left.Governance.RequiredControls
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return right.Governance.RequiredControls
@@ -107,7 +107,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> GetRemovedRequiredControls(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Governance.RequiredControls
+        HashSet<string> rightSet = right.Governance.RequiredControls
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return left.Governance.RequiredControls
@@ -119,7 +119,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<RelationshipDiffItem> GetAddedRelationships(GoldenManifest left, GoldenManifest right)
     {
-        var leftSet = left.Relationships
+        HashSet<string> leftSet = left.Relationships
             .Select(ToRelationshipKey)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -134,7 +134,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<RelationshipDiffItem> GetRemovedRelationships(GoldenManifest left, GoldenManifest right)
     {
-        var rightSet = right.Relationships
+        HashSet<string> rightSet = right.Relationships
             .Select(ToRelationshipKey)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -165,7 +165,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> BuildWarnings(GoldenManifest left, GoldenManifest right)
     {
-        var warnings = new List<string>();
+        List<string> warnings = new List<string>();
 
         if (!string.Equals(left.SystemName, right.SystemName, StringComparison.OrdinalIgnoreCase))
         {

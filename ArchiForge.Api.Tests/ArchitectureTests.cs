@@ -26,13 +26,13 @@ public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBa
             cloudProvider = 1
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(request));
 
         response.EnsureSuccessStatusCode();
 
-        var body = await response.Content.ReadAsStringAsync();
+        string body = await response.Content.ReadAsStringAsync();
 
         body.Should().Contain("runId");
     }
@@ -49,33 +49,33 @@ public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBa
             cloudProvider = 1
         };
 
-        var create = await Client.PostAsync(
+        HttpResponseMessage create = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(request));
 
         create.EnsureSuccessStatusCode();
 
-        var body = await create.Content.ReadAsStringAsync();
+        string body = await create.Content.ReadAsStringAsync();
 
-        var runId = JsonDocument.Parse(body)
+        string? runId = JsonDocument.Parse(body)
             .RootElement
             .GetProperty("run")
             .GetProperty("runId")
             .GetString();
 
-        var seed = await Client.PostAsync(
+        HttpResponseMessage seed = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/seed-fake-results",
             null);
 
         seed.EnsureSuccessStatusCode();
 
-        var commit = await Client.PostAsync(
+        HttpResponseMessage commit = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/commit",
             null);
 
         commit.EnsureSuccessStatusCode();
 
-        var manifest = await Client.GetAsync(
+        HttpResponseMessage manifest = await Client.GetAsync(
             "/v1/architecture/manifest/v1");
 
         manifest.EnsureSuccessStatusCode();
@@ -84,27 +84,27 @@ public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBa
     [Fact]
     public void DecisionEngine_FixtureScenario_ProducesExpectedArchitecture()
     {
-        var request =
+        ArchitectureRequest request =
             FixtureLoader.Load<ArchitectureRequest>(
                 "requests/enterprise-rag-request.json");
 
-        var topology =
+        AgentResult topology =
             FixtureLoader.Load<AgentResult>(
                 "results/topology-result.json");
 
-        var cost =
+        AgentResult cost =
             FixtureLoader.Load<AgentResult>(
                 "results/cost-result.json");
 
-        var compliance =
+        AgentResult compliance =
             FixtureLoader.Load<AgentResult>(
                 "results/compliance-result.json");
 
-        var expected =
+        ExpectedManifestSummary expected =
             FixtureLoader.Load<ExpectedManifestSummary>(
                 "expected/expected-manifest-summary.json");
 
-        var result = Engine.MergeResults(
+        DecisionMergeResult result = Engine.MergeResults(
             "RUN-FIXTURE",
             request,
             "v1",

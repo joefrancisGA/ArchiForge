@@ -1,5 +1,10 @@
 using System.Text;
 
+using ArchiForge.Application.Determinism;
+using ArchiForge.Application.Diffs;
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Manifest;
+
 namespace ArchiForge.Application.Analysis;
 
 public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAnalysisExportService
@@ -8,7 +13,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine("# ArchiForge Analysis Report");
         sb.AppendLine();
@@ -34,7 +39,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine("## Report Warnings");
             sb.AppendLine();
 
-            foreach (var warning in report.Warnings)
+            foreach (string warning in report.Warnings)
             {
                 sb.AppendLine($"- {warning}");
             }
@@ -60,7 +65,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             if (report.Evidence.Request.Constraints.Count > 0)
             {
                 sb.AppendLine("- Constraints:");
-                foreach (var item in report.Evidence.Request.Constraints)
+                foreach (string item in report.Evidence.Request.Constraints)
                 {
                     sb.AppendLine($"  - {item}");
                 }
@@ -69,7 +74,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 sb.AppendLine("- Required Capabilities:");
-                foreach (var item in report.Evidence.Request.RequiredCapabilities)
+                foreach (string item in report.Evidence.Request.RequiredCapabilities)
                 {
                     sb.AppendLine($"  - {item}");
                 }
@@ -78,7 +83,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             if (report.Evidence.Request.Assumptions.Count > 0)
             {
                 sb.AppendLine("- Assumptions:");
-                foreach (var item in report.Evidence.Request.Assumptions)
+                foreach (string item in report.Evidence.Request.Assumptions)
                 {
                     sb.AppendLine($"  - {item}");
                 }
@@ -91,7 +96,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("### Policy Evidence");
                 sb.AppendLine();
 
-                foreach (var policy in report.Evidence.Policies.OrderBy(x => x.Title))
+                foreach (PolicyEvidence policy in report.Evidence.Policies.OrderBy(x => x.Title))
                 {
                     sb.AppendLine($"- **{policy.Title}**");
                     sb.AppendLine($"  - Policy ID: {policy.PolicyId}");
@@ -111,7 +116,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("### Service Catalog Hints");
                 sb.AppendLine();
 
-                foreach (var service in report.Evidence.ServiceCatalog.OrderBy(x => x.ServiceName))
+                foreach (ServiceCatalogEvidence service in report.Evidence.ServiceCatalog.OrderBy(x => x.ServiceName))
                 {
                     sb.AppendLine($"- **{service.ServiceName}**");
                     sb.AppendLine($"  - Category: {service.Category}");
@@ -131,7 +136,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("### Pattern Hints");
                 sb.AppendLine();
 
-                foreach (var pattern in report.Evidence.Patterns.OrderBy(x => x.Name))
+                foreach (PatternEvidence pattern in report.Evidence.Patterns.OrderBy(x => x.Name))
                 {
                     sb.AppendLine($"- **{pattern.Name}**");
                     sb.AppendLine($"  - Pattern ID: {pattern.PatternId}");
@@ -152,7 +157,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine("## Agent Execution Traces");
             sb.AppendLine();
 
-            foreach (var trace in report.ExecutionTraces
+            foreach (AgentExecutionTrace trace in report.ExecutionTraces
                          .OrderBy(x => x.AgentType)
                          .ThenBy(x => x.CreatedUtc))
             {
@@ -223,7 +228,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("### Services");
                 sb.AppendLine();
 
-                foreach (var service in report.Manifest.Services.OrderBy(x => x.ServiceName))
+                foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                 {
                     sb.AppendLine($"- **{service.ServiceName}**");
                     sb.AppendLine($"  - Type: {service.ServiceType}");
@@ -248,7 +253,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 sb.AppendLine("### Datastores");
                 sb.AppendLine();
 
-                foreach (var datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
+                foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                 {
                     sb.AppendLine($"- **{datastore.DatastoreName}**");
                     sb.AppendLine($"  - Type: {datastore.DatastoreType}");
@@ -304,7 +309,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine($"- Baseline Replay Run ID: {report.Determinism.BaselineReplayRunId}");
             sb.AppendLine();
 
-            foreach (var iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
+            foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
             {
                 sb.AppendLine($"### Iteration {iteration.IterationNumber}");
                 sb.AppendLine();
@@ -315,7 +320,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 if (iteration.AgentDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Agent Drift Warnings:");
-                    foreach (var warning in iteration.AgentDriftWarnings)
+                    foreach (string warning in iteration.AgentDriftWarnings)
                     {
                         sb.AppendLine($"  - {warning}");
                     }
@@ -324,7 +329,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
                 if (iteration.ManifestDriftWarnings.Count > 0)
                 {
                     sb.AppendLine("- Manifest Drift Warnings:");
-                    foreach (var warning in iteration.ManifestDriftWarnings)
+                    foreach (string warning in iteration.ManifestDriftWarnings)
                     {
                         sb.AppendLine($"  - {warning}");
                     }
@@ -357,7 +362,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             sb.AppendLine("## Agent Result Diff");
             sb.AppendLine();
 
-            foreach (var delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
+            foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
             {
                 sb.AppendLine($"### {delta.AgentType}");
                 sb.AppendLine();
@@ -395,7 +400,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
             return;
         }
 
-        foreach (var item in items)
+        foreach (string item in items)
         {
             sb.AppendLine($"- {item}");
         }

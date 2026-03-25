@@ -24,14 +24,14 @@ public sealed class DeterminismCheckService(
         if (request.Iterations < 2)
             throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
 
-        var output = new DeterminismCheckResult
+        DeterminismCheckResult output = new DeterminismCheckResult
         {
             SourceRunId = request.RunId,
             Iterations = request.Iterations,
             ExecutionMode = request.ExecutionMode
         };
 
-        var baseline = await replayRunService.ReplayAsync(
+        ReplayRunResult baseline = await replayRunService.ReplayAsync(
             request.RunId,
             request.ExecutionMode,
             commitReplay: request.CommitReplays,
@@ -40,24 +40,24 @@ public sealed class DeterminismCheckService(
 
         output.BaselineReplayRunId = baseline.ReplayRunId;
 
-        for (var i = 1; i <= request.Iterations; i++)
+        for (int i = 1; i <= request.Iterations; i++)
         {
-            var replay = await replayRunService.ReplayAsync(
+            ReplayRunResult replay = await replayRunService.ReplayAsync(
                 request.RunId,
                 request.ExecutionMode,
                 commitReplay: request.CommitReplays,
                 manifestVersionOverride: request.CommitReplays ? DeterminismVersionConstants.IterationVersion(i) : null,
                 cancellationToken: cancellationToken);
 
-            var agentDiff = agentResultDiffService.Compare(
+            AgentResultDiffResult agentDiff = agentResultDiffService.Compare(
                 baseline.ReplayRunId,
                 baseline.Results,
                 replay.ReplayRunId,
                 replay.Results);
 
-            var hasAgentDrift = HasAgentDrift(agentDiff);
+            bool hasAgentDrift = HasAgentDrift(agentDiff);
 
-            var iteration = new DeterminismIterationResult
+            DeterminismIterationResult iteration = new DeterminismIterationResult
             {
                 IterationNumber = i,
                 ReplayRunId = replay.ReplayRunId,
@@ -71,8 +71,8 @@ public sealed class DeterminismCheckService(
 
             if (baseline.Manifest is not null && replay.Manifest is not null)
             {
-                var manifestDiff = manifestDiffService.Compare(baseline.Manifest, replay.Manifest);
-                var hasManifestDrift = HasManifestDrift(manifestDiff);
+                ManifestDiffResult manifestDiff = manifestDiffService.Compare(baseline.Manifest, replay.Manifest);
+                bool hasManifestDrift = HasManifestDrift(manifestDiff);
                 iteration.MatchesBaselineManifest = !hasManifestDrift;
 
                 if (hasManifestDrift)

@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Audit;
 
 public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactory) : IAuditRepository
@@ -28,7 +30,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, auditEvent, cancellationToken: ct));
     }
 
@@ -53,8 +55,8 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             ORDER BY OccurredUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<AuditEvent>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AuditEvent> rows = await connection.QueryAsync<AuditEvent>(
             new CommandDefinition(
                 sql,
                 new

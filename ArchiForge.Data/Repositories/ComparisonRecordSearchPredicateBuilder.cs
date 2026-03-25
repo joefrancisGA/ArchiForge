@@ -77,12 +77,12 @@ internal static class ComparisonRecordSearchPredicateBuilder
 
         if (tags is { Count: > 0 })
         {
-            for (var i = 0; i < tags.Count; i++)
+            for (int i = 0; i < tags.Count; i++)
             {
-                var t = tags[i];
+                string t = tags[i];
                 if (string.IsNullOrWhiteSpace(t))
                     continue;
-                var paramName = $"@Tag{i}";
+                string paramName = $"@Tag{i}";
                 parameters.Add(paramName, t);
                 conditions.Add(isSqlite
                     ? $"EXISTS (SELECT 1 FROM json_each(COALESCE(Tags,'[]')) WHERE json_each.value = {paramName})"

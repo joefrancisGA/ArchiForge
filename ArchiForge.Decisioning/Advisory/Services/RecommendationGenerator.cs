@@ -17,14 +17,14 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
         IReadOnlyList<ImprovementSignal> signals,
         RecommendationLearningProfile? profile = null)
     {
-        var recommendations = new List<ImprovementRecommendation>();
+        List<ImprovementRecommendation> recommendations = new List<ImprovementRecommendation>();
 
-        foreach (var signal in signals)
+        foreach (ImprovementSignal signal in signals)
         {
-            var baseScore = ComputePriority(signal);
-            var urgency = MapUrgency(signal.Severity);
+            int baseScore = ComputePriority(signal);
+            string urgency = MapUrgency(signal.Severity);
 
-            var scoring = adaptiveScorer.Score(
+            AdaptiveScoringResult scoring = adaptiveScorer.Score(
                 new AdaptiveScoringInput
                 {
                     Category = signal.Category,
@@ -114,7 +114,7 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
 
     private static int ComputePriority(ImprovementSignal signal)
     {
-        var score = signal.Category switch
+        int score = signal.Category switch
         {
             "Security" => 90,
             "Compliance" => 85,

@@ -1,4 +1,7 @@
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.Manifest;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
@@ -59,16 +62,16 @@ internal static class ConsultingDocxOpenXmlComposer
         ArgumentNullException.ThrowIfNull(diagramImageRenderer);
         ArgumentNullException.ThrowIfNull(logoProvider);
 
-        using var stream = new MemoryStream();
+        using MemoryStream stream = new MemoryStream();
 
-        using (var document = WordprocessingDocument.Create(
+        using (WordprocessingDocument document = WordprocessingDocument.Create(
                    stream,
                    WordprocessingDocumentType.Document,
                    true))
         {
-            var mainPart = document.AddMainDocumentPart();
+            MainDocumentPart mainPart = document.AddMainDocumentPart();
             mainPart.Document = new Document(new Body());
-            var body = mainPart.Document.Body!;
+            Body body = mainPart.Document.Body!;
 
             AddStylesPart(mainPart, options);
 
@@ -140,7 +143,7 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         if (options.IncludeLogo)
         {
-            var logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken);
+            byte[]? logoBytes = await logoProvider.GetLogoBytesAsync(options, cancellationToken);
             if (logoBytes is not null && logoBytes.Length > 0)
             {
                 AddImageToBody(mainPart, body, logoBytes, "Document Logo", 2_200_000L, 700_000L);
@@ -150,11 +153,11 @@ internal static class ConsultingDocxOpenXmlComposer
 
         AddStyledParagraph(body, options.DocumentTitle, "Title");
 
-        var systemName = report.Evidence?.SystemName
-                         ?? report.Manifest?.SystemName
-                         ?? "Architecture Run";
+        string systemName = report.Evidence?.SystemName
+                            ?? report.Manifest?.SystemName
+                            ?? "Architecture Run";
 
-        var subtitle = options.SubtitleFormat
+        string subtitle = options.SubtitleFormat
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
             .Replace("{RunId}", report.Run.RunId, StringComparison.OrdinalIgnoreCase)
             .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase);
@@ -200,7 +203,7 @@ internal static class ConsultingDocxOpenXmlComposer
         AddStyledParagraph(body, "Update fields in Word to refresh the table of contents.", "Subtle");
         AddSpacer(body);
 
-        foreach (var item in new[]
+        foreach (string item in new[]
                  {
                      "1. Executive Summary",
                      "2. Architecture Overview",
@@ -225,15 +228,15 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         AddHeading(body, "Executive Summary", 1);
 
-        var systemName = report.Manifest?.SystemName
-                         ?? report.Evidence?.SystemName
-                         ?? "the requested system";
+        string systemName = report.Manifest?.SystemName
+                            ?? report.Evidence?.SystemName
+                            ?? "the requested system";
 
-        var serviceCount = report.Manifest?.Services.Count ?? 0;
-        var datastoreCount = report.Manifest?.Datastores.Count ?? 0;
-        var controlCount = report.Manifest?.Governance.RequiredControls.Count ?? 0;
+        int serviceCount = report.Manifest?.Services.Count ?? 0;
+        int datastoreCount = report.Manifest?.Datastores.Count ?? 0;
+        int controlCount = report.Manifest?.Governance.RequiredControls.Count ?? 0;
 
-        var text = options.ExecutiveSummaryTextTemplate
+        string text = options.ExecutiveSummaryTextTemplate
             .Replace("{SystemName}", systemName, StringComparison.OrdinalIgnoreCase)
             .Replace("{OrganizationName}", options.OrganizationName, StringComparison.OrdinalIgnoreCase)
             .Replace("{ServiceCount}", serviceCount.ToString(), StringComparison.OrdinalIgnoreCase)
@@ -268,7 +271,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         if (!string.IsNullOrWhiteSpace(report.Diagram))
         {
-            var imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
+            byte[]? imageBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
                 cancellationToken);
 
@@ -299,7 +302,7 @@ internal static class ConsultingDocxOpenXmlComposer
         if (report.Evidence.Request.Constraints.Count > 0)
         {
             AddHeading(body, "Constraints", 2);
-            foreach (var item in report.Evidence.Request.Constraints)
+            foreach (string item in report.Evidence.Request.Constraints)
             {
                 AddBullet(body, item);
             }
@@ -308,7 +311,7 @@ internal static class ConsultingDocxOpenXmlComposer
         if (report.Evidence.Request.RequiredCapabilities.Count > 0)
         {
             AddHeading(body, "Required Capabilities", 2);
-            foreach (var item in report.Evidence.Request.RequiredCapabilities)
+            foreach (string item in report.Evidence.Request.RequiredCapabilities)
             {
                 AddBullet(body, item);
             }
@@ -319,7 +322,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         AddHeading(body, "Policy Evidence", 2);
 
-        foreach (var policy in report.Evidence.Policies.OrderBy(x => x.Title))
+        foreach (PolicyEvidence policy in report.Evidence.Policies.OrderBy(x => x.Title))
         {
             AddStyledParagraph(body, policy.Title, "Strong");
             AddBullet(body, $"Policy ID: {policy.PolicyId}");
@@ -346,7 +349,7 @@ internal static class ConsultingDocxOpenXmlComposer
         {
             AddHeading(body, "Services", 2);
 
-            foreach (var service in report.Manifest.Services.OrderBy(x => x.ServiceName))
+            foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
             {
                 AddStyledParagraph(body, service.ServiceName, "Strong");
                 AddBullet(body, $"Type: {service.ServiceType}");
@@ -372,7 +375,7 @@ internal static class ConsultingDocxOpenXmlComposer
         {
             AddHeading(body, "Datastores", 2);
 
-            foreach (var datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
+            foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
             {
                 AddStyledParagraph(body, datastore.DatastoreName, "Strong");
                 AddBullet(body, $"Type: {datastore.DatastoreType}");
@@ -394,7 +397,7 @@ internal static class ConsultingDocxOpenXmlComposer
             return;
         }
 
-        var gov = report.Manifest.Governance;
+        ManifestGovernance gov = report.Manifest.Governance;
 
         AddKeyValueTable(body, [
             ("Risk Classification", gov.RiskClassification),
@@ -425,11 +428,11 @@ internal static class ConsultingDocxOpenXmlComposer
 
         AddBullet(body, $"Execution Trace Count: {report.ExecutionTraces.Count}");
 
-        var grouped = report.ExecutionTraces
+        IOrderedEnumerable<IGrouping<AgentType, AgentExecutionTrace>> grouped = report.ExecutionTraces
             .GroupBy(x => x.AgentType)
             .OrderBy(x => x.Key);
 
-        foreach (var group in grouped)
+        foreach (IGrouping<AgentType, AgentExecutionTrace> group in grouped)
         {
             AddStyledParagraph(body, group.Key.ToString(), "Strong");
             AddBullet(body, $"Trace Count: {group.Count()}");
@@ -494,7 +497,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
             if (report.ExecutionTraces.Count > 0)
             {
-                foreach (var trace in report.ExecutionTraces.OrderBy(x => x.AgentType).ThenBy(x => x.CreatedUtc))
+                foreach (AgentExecutionTrace trace in report.ExecutionTraces.OrderBy(x => x.AgentType).ThenBy(x => x.CreatedUtc))
                 {
                     AddBullet(body,
                         $"{trace.AgentType} | Task {trace.TaskId} | Parse {(trace.ParseSucceeded ? "Succeeded" : "Failed")} | {trace.CreatedUtc:O}");
@@ -542,7 +545,7 @@ internal static class ConsultingDocxOpenXmlComposer
         MainDocumentPart mainPart,
         ConsultingDocxTemplateOptions options)
     {
-        var stylePart = mainPart.StyleDefinitionsPart ?? mainPart.AddNewPart<StyleDefinitionsPart>();
+        StyleDefinitionsPart stylePart = mainPart.StyleDefinitionsPart ?? mainPart.AddNewPart<StyleDefinitionsPart>();
         stylePart.Styles = new Styles(
             BuildParagraphStyle("Title", "Title", options.PrimaryColorHex, "36"),
             BuildParagraphStyle("Subtitle", "Subtitle", options.SecondaryColorHex, "24"),
@@ -560,7 +563,7 @@ internal static class ConsultingDocxOpenXmlComposer
         string fontSizeHalfPoints,
         bool bold = false)
     {
-        var style = new Style
+        Style style = new Style
         {
             Type = StyleValues.Paragraph,
             StyleId = styleId,
@@ -572,7 +575,7 @@ internal static class ConsultingDocxOpenXmlComposer
         style.Append(new UIPriority { Val = 1 });
         style.Append(new PrimaryStyle());
 
-        var runProps = new StyleRunProperties(
+        StyleRunProperties runProps = new StyleRunProperties(
             new Color { Val = colorHex },
             new FontSize { Val = fontSizeHalfPoints });
 
@@ -621,7 +624,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static void AddSpacer(Body body, int count = 1)
     {
-        for (var i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
         }
@@ -635,7 +638,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static void AddCallout(Body body, string text, ConsultingDocxTemplateOptions options)
     {
-        var paragraph = new WpParagraph(
+        WpParagraph paragraph = new WpParagraph(
             new WpParagraphProperties(
                 new WpShading
                 {
@@ -660,9 +663,9 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         AddStyledParagraph(body, $"[{language}]", "Subtle");
 
-        foreach (var line in text.Replace("\r\n", "\n").Split('\n'))
+        foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
         {
-            var run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
+            WpRun run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
             {
                 RunProperties = new WpRunProperties(
                     new RunFonts { Ascii = "Consolas" },
@@ -682,9 +685,9 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static void AddKeyValueTable(Body body, IEnumerable<(string Key, string Value)> rows)
     {
-        var table = new WpTable();
+        WpTable table = new WpTable();
 
-        var props = new WpTableProperties(
+        WpTableProperties props = new WpTableProperties(
             new TableBorders(
                 new WpTopBorder { Val = BorderValues.Single, Size = 8 },
                 new WpBottomBorder { Val = BorderValues.Single, Size = 8 },
@@ -696,9 +699,9 @@ internal static class ConsultingDocxOpenXmlComposer
 
         table.AppendChild(props);
 
-        foreach (var (key, value) in rows)
+        foreach ((string key, string value) in rows)
         {
-            var tr = new WpTableRow();
+            WpTableRow tr = new WpTableRow();
 
             tr.Append(
                 BuildCell(key, bold: true, width: "2800"),
@@ -713,7 +716,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static WpTableCell BuildCell(string text, bool bold, string width)
     {
-        var run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        WpRun run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
         {
@@ -737,16 +740,16 @@ internal static class ConsultingDocxOpenXmlComposer
         long widthEmus,
         long heightEmus)
     {
-        var imagePart = mainPart.AddImagePart(ImagePartType.Png);
+        ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
 
-        using (var stream = new MemoryStream(imageBytes))
+        using (MemoryStream stream = new MemoryStream(imageBytes))
         {
             imagePart.FeedData(stream);
         }
 
-        var relationshipId = mainPart.GetIdOfPart(imagePart);
+        string relationshipId = mainPart.GetIdOfPart(imagePart);
 
-        var drawing = new Drawing(
+        Drawing drawing = new Drawing(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
                 new EffectExtent

@@ -11,14 +11,14 @@ public sealed class ArchitectureExportAuditTests(ArchiForgeApiFactory factory) :
     [Fact]
     public async Task ConsultingDocxExport_PersistsExportHistory()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-AUDIT-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
@@ -46,21 +46,21 @@ public sealed class ArchitectureExportAuditTests(ArchiForgeApiFactory factory) :
             compareRunId = (string?)null
         };
 
-        var exportResponse = await Client.PostAsJsonAsync(
+        HttpResponseMessage exportResponse = await Client.PostAsJsonAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
             request);
 
         exportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
 
         historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+        RunExportHistoryResponse? payload = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Exports.Should().NotBeEmpty();
 
-        var export = payload.Exports.First();
+        RunExportRecordDto export = payload.Exports.First();
         export.RunId.Should().Be(runId);
         export.ExportType.Should().Be("analysis-report-consulting-docx");
         export.Format.Should().Be("docx");

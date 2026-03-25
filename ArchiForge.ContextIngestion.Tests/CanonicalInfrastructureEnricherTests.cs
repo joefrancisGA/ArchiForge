@@ -12,7 +12,7 @@ public sealed class CanonicalInfrastructureEnricherTests
     [Fact]
     public void Enrich_AddsCategory_ForJsonResourceTypes()
     {
-        var items = new List<CanonicalObject>
+        List<CanonicalObject> items = new List<CanonicalObject>
         {
             new()
             {
@@ -28,7 +28,7 @@ public sealed class CanonicalInfrastructureEnricherTests
             }
         };
 
-        var enriched = _sut.Enrich(items);
+        IReadOnlyList<CanonicalObject> enriched = _sut.Enrich(items);
 
         enriched[0].Properties["category"].Should().Be("network");
     }
@@ -36,7 +36,7 @@ public sealed class CanonicalInfrastructureEnricherTests
     [Fact]
     public void Enrich_AddsCategory_AndStatus_ForTerraformAndSecurity()
     {
-        var items = new List<CanonicalObject>
+        List<CanonicalObject> items = new List<CanonicalObject>
         {
             new()
             {
@@ -62,7 +62,7 @@ public sealed class CanonicalInfrastructureEnricherTests
             }
         };
 
-        var enriched = _sut.Enrich(items);
+        IReadOnlyList<CanonicalObject> enriched = _sut.Enrich(items);
 
         enriched[0].Properties["category"].Should().Be("network");
         enriched[1].Properties["status"].Should().Be("declared");

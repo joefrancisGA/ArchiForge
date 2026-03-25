@@ -11,7 +11,7 @@ public sealed class FindingPayloadConverterTests
     [Fact]
     public void ToRequirementPayload_FromStronglyTypedObject()
     {
-        var f = new Finding
+        Finding f = new Finding
         {
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload
@@ -22,7 +22,7 @@ public sealed class FindingPayloadConverterTests
             }
         };
 
-        var p = FindingPayloadConverter.ToRequirementPayload(f);
+        RequirementFindingPayload? p = FindingPayloadConverter.ToRequirementPayload(f);
         p!.RequirementName.Should().Be("A");
         p.RequirementText.Should().Be("B");
     }

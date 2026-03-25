@@ -11,7 +11,7 @@ public sealed class SimpleScanScheduleCalculator : IScanScheduleCalculator
     /// <inheritdoc />
     public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc)
     {
-        var cron = cronExpression.Trim();
+        string cron = cronExpression.Trim();
         return cron switch
         {
             "@hourly" => fromUtc.AddHours(1),
@@ -24,7 +24,7 @@ public sealed class SimpleScanScheduleCalculator : IScanScheduleCalculator
 
     private static DateTime NextDailyAtSevenAmUtc(DateTime fromUtc)
     {
-        var todaySeven = fromUtc.Date.AddHours(7);
+        DateTime todaySeven = fromUtc.Date.AddHours(7);
         if (fromUtc < todaySeven)
             return todaySeven;
         return fromUtc.Date.AddDays(1).AddHours(7);

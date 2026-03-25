@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Conversation;
 
 /// <summary>
@@ -26,7 +28,7 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, message, cancellationToken: ct));
     }
 
@@ -49,8 +51,8 @@ public sealed class DapperConversationMessageRepository(ISqlConnectionFactory co
             ORDER BY CreatedUtc ASC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<ConversationMessage>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<ConversationMessage> rows = await connection.QueryAsync<ConversationMessage>(
             new CommandDefinition(sql, new
             {
                 ThreadId = threadId,

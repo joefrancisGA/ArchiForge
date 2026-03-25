@@ -4,6 +4,7 @@ using ArchiForge.Application;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArchiForge.Api.Tests;
 
@@ -16,7 +17,7 @@ public sealed class ApplicationProblemMapperTests
     [InlineData("No tasks found for run 'r'.")]
     public void MapInvalidOperation_always_returns_400_regardless_of_message(string message)
     {
-        var result = ApplicationProblemMapper.MapInvalidOperation(
+        ObjectResult result = ApplicationProblemMapper.MapInvalidOperation(
             new InvalidOperationException(message),
             instance: null,
             badRequestProblemType: ProblemTypes.BadRequest);
@@ -27,22 +28,22 @@ public sealed class ApplicationProblemMapperTests
     [Fact]
     public void TryMapUnhandledException_RunNotFoundException_returns_404_run_not_found()
     {
-        var ex = new RunNotFoundException("run-123");
+        RunNotFoundException ex = new RunNotFoundException("run-123");
 
-        var mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out var result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        var problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         problem!.Type.Should().Be(ProblemTypes.RunNotFound);
     }
 
     [Fact]
     public void TryMapUnhandledException_ConflictException_returns_409()
     {
-        var ex = new ConflictException("Run is already committed.");
+        ConflictException ex = new ConflictException("Run is already committed.");
 
-        var mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out var result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);

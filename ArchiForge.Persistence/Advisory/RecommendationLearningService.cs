@@ -27,11 +27,11 @@ public sealed class RecommendationLearningService(
         Guid projectId,
         CancellationToken ct)
     {
-        var items = await recommendationRepository
+        IReadOnlyList<RecommendationRecord> items = await recommendationRepository
             .ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct)
             .ConfigureAwait(false);
 
-        var profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);
+        RecommendationLearningProfile profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);
 
         await profileRepository.SaveAsync(profile, ct).ConfigureAwait(false);
         return profile;

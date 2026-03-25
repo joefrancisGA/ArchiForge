@@ -18,7 +18,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
     {
         lock (_sync)
         {
-            foreach (var chunk in chunks)
+            foreach (RetrievalChunk chunk in chunks)
             {
                 _chunks.RemoveAll(x => x.ChunkId == chunk.ChunkId);
                 _chunks.Add(chunk);
@@ -39,7 +39,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
     {
         lock (_sync)
         {
-            var hits = _chunks
+            List<RetrievalHit> hits = _chunks
                 .Where(x =>
                     x.TenantId == query.TenantId &&
                     x.WorkspaceId == query.WorkspaceId &&
@@ -73,7 +73,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
         double magA = 0;
         double magB = 0;
 
-        for (var i = 0; i < a.Length; i++)
+        for (int i = 0; i < a.Length; i++)
         {
             dot += a[i] * b[i];
             magA += a[i] * a[i];

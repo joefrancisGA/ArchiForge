@@ -10,25 +10,25 @@ public sealed class ArchitectureRunDetailsTests(ArchiForgeApiFactory factory) : 
     [Fact]
     public async Task GetRun_ReturnsTypedRunDetailsResponse()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-RUNDETAILS-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var runResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
+        HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/run/{runId}");
         runResponse.EnsureSuccessStatusCode();
 
-        var payload = await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
+        RunDetailsResponseDto? payload = await runResponse.Content.ReadFromJsonAsync<RunDetailsResponseDto>(JsonOptions);
 
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().Be(runId);

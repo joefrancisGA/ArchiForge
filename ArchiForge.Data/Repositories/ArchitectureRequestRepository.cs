@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -39,9 +40,9 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             );
             """;
 
-        var json = JsonSerializer.Serialize(request, ContractJson.Default);
+        string json = JsonSerializer.Serialize(request, ContractJson.Default);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -65,9 +66,9 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
             WHERE RequestId = @RequestId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
             new
             {

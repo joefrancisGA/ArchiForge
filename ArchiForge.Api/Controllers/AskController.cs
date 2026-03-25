@@ -46,8 +46,8 @@ public sealed class AskController(
                 "Provide runId (new conversation) or threadId (continue an existing conversation).",
                 ProblemTypes.ValidationFailed);
 
-        var hasBase = request.BaseRunId.HasValue;
-        var hasTarget = request.TargetRunId.HasValue;
+        bool hasBase = request.BaseRunId.HasValue;
+        bool hasTarget = request.TargetRunId.HasValue;
         if (hasBase != hasTarget)
             return this.BadRequestProblem(
                 "Provide both baseRunId and targetRunId for comparison, or omit both.",
@@ -55,8 +55,8 @@ public sealed class AskController(
 
         try
         {
-            var scope = scopeProvider.GetCurrentScope();
-            var result = await ask.AskAsync(request, scope, ct);
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            AskResponse result = await ask.AskAsync(request, scope, ct);
             return Ok(result);
         }
         catch (InvalidOperationException ex)

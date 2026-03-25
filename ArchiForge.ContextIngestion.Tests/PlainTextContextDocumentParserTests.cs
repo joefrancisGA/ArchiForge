@@ -12,7 +12,7 @@ public sealed class PlainTextContextDocumentParserTests
     [Fact]
     public async Task ParseAsync_ExtractsPrefixedLines()
     {
-        var doc = new ContextDocumentReference
+        ContextDocumentReference doc = new ContextDocumentReference
         {
             Name = "spec.md",
             ContentType = "text/markdown",
@@ -24,7 +24,7 @@ public sealed class PlainTextContextDocumentParserTests
                 """
         };
 
-        var result = await _sut.ParseAsync(doc, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
 
         result.Should().HaveCount(4);
         result.Select(o => o.ObjectType).Should().Equal(

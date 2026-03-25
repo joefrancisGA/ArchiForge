@@ -19,19 +19,19 @@ public sealed class DevelopmentBypassAuthenticationHandler(
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var opts = authOptions.Value;
-        var role = string.IsNullOrWhiteSpace(opts.DevRole) ? ArchiForgeRoles.Admin : opts.DevRole.Trim();
+        ArchiForgeAuthOptions opts = authOptions.Value;
+        string role = string.IsNullOrWhiteSpace(opts.DevRole) ? ArchiForgeRoles.Admin : opts.DevRole.Trim();
 
-        var claims = new List<Claim>
+        List<Claim> claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, opts.DevUserId),
             new(ClaimTypes.Name, opts.DevUserName),
             new(ClaimTypes.Role, role)
         };
 
-        var identity = new ClaimsIdentity(claims, SchemeName);
-        var principal = new ClaimsPrincipal(identity);
-        var ticket = new AuthenticationTicket(principal, SchemeName);
+        ClaimsIdentity identity = new ClaimsIdentity(claims, SchemeName);
+        ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+        AuthenticationTicket ticket = new AuthenticationTicket(principal, SchemeName);
 
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }

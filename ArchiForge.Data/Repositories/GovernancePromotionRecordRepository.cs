@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Infrastructure;
 
@@ -39,7 +41,7 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -79,9 +81,9 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             LIMIT 200;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(
+        IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));

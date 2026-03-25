@@ -1,3 +1,4 @@
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Governance.Preview;
 using ArchiForge.Contracts.Manifest;
@@ -30,16 +31,16 @@ public sealed class GovernancePreviewService(
         if (string.IsNullOrWhiteSpace(request.ManifestVersion))
             throw new ArgumentException("ManifestVersion is required.", nameof(request));
 
-        var environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
+        string environment = NormalizeAndValidateEnvironment(request.Environment, nameof(request.Environment));
 
         // Use the canonical run detail path to validate run existence and load its manifest.
-        var runDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
-            ?? throw new RunNotFoundException(request.RunId);
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(request.RunId, cancellationToken)
+                                          ?? throw new RunNotFoundException(request.RunId);
 
         // The candidate manifest is the specific version being previewed — it may differ from
         // the run's current committed manifest (e.g. an older committed version is being evaluated).
-        var candidateManifest = runDetail.Manifest is not null
-            && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
+        GoldenManifest? candidateManifest = runDetail.Manifest is not null
+                                            && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
                 ? runDetail.Manifest
                 : await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken)
                     ?? throw new RunNotFoundException(
@@ -51,14 +52,14 @@ public sealed class GovernancePreviewService(
                 $"Manifest version '{request.ManifestVersion}' belongs to run '{candidateManifest.RunId}', not '{request.RunId}'.");
         }
 
-        var activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
-        var active = activationRows.FirstOrDefault(a => a.IsActive);
+        IReadOnlyList<GovernanceEnvironmentActivation> activationRows = await activationRepository.GetByEnvironmentAsync(environment, cancellationToken);
+        GovernanceEnvironmentActivation? active = activationRows.FirstOrDefault(a => a.IsActive);
 
         GoldenManifest? currentManifest = null;
         if (active is not null)
             currentManifest = await manifestRepository.GetByVersionAsync(active.ManifestVersion, cancellationToken);
 
-        var notes = new List<string> { DiffOnlyNote };
+        List<string> notes = new List<string> { DiffOnlyNote };
 
         if (active is null)
         {
@@ -76,7 +77,7 @@ public sealed class GovernancePreviewService(
             }
         }
 
-        var differences = GovernanceManifestComparer.Compare(
+        List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(
             currentManifest?.Governance,
             candidateManifest.Governance);
 
@@ -98,8 +99,8 @@ public sealed class GovernancePreviewService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var source = NormalizeAndValidateEnvironment(request.SourceEnvironment, nameof(request.SourceEnvironment));
-        var target = NormalizeAndValidateEnvironment(request.TargetEnvironment, nameof(request.TargetEnvironment));
+        string source = NormalizeAndValidateEnvironment(request.SourceEnvironment, nameof(request.SourceEnvironment));
+        string target = NormalizeAndValidateEnvironment(request.TargetEnvironment, nameof(request.TargetEnvironment));
 
         if (string.Equals(source, target, StringComparison.Ordinal))
         {
@@ -108,12 +109,12 @@ public sealed class GovernancePreviewService(
                 nameof(request));
         }
 
-        var notes = new List<string> { DiffOnlyNote };
+        List<string> notes = new List<string> { DiffOnlyNote };
 
-        var sourceRows = await activationRepository.GetByEnvironmentAsync(source, cancellationToken);
-        var targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken);
-        var sourceActive = sourceRows.FirstOrDefault(a => a.IsActive);
-        var targetActive = targetRows.FirstOrDefault(a => a.IsActive);
+        IReadOnlyList<GovernanceEnvironmentActivation> sourceRows = await activationRepository.GetByEnvironmentAsync(source, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken);
+        GovernanceEnvironmentActivation? sourceActive = sourceRows.FirstOrDefault(a => a.IsActive);
+        GovernanceEnvironmentActivation? targetActive = targetRows.FirstOrDefault(a => a.IsActive);
 
         if (sourceActive is null)
             notes.Add($"No active governance activation exists for source environment '{source}'.");
@@ -142,7 +143,7 @@ public sealed class GovernancePreviewService(
         if (sourceActive is not null && targetActive is not null && sourceManifest is not null && targetManifest is not null)
             notes.Add($"Compared active governance states for environments '{source}' and '{target}'.");
 
-        var differences = GovernanceManifestComparer.Compare(
+        List<GovernanceDiffItem> differences = GovernanceManifestComparer.Compare(
             sourceManifest?.Governance,
             targetManifest?.Governance);
 

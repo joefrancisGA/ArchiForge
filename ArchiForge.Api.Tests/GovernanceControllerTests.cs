@@ -10,11 +10,11 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
 {
     private async Task<string> CreateRunAsync(string requestId)
     {
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest(requestId)));
         response.EnsureSuccessStatusCode();
-        var payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         return payload!.Run.RunId;
     }
 
@@ -23,7 +23,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task SubmitApprovalRequest_ValidRun_ReturnsOk()
     {
-        var runId = await CreateRunAsync("REQ-GOV-SUBMIT-01");
+        string runId = await CreateRunAsync("REQ-GOV-SUBMIT-01");
 
         var body = new
         {
@@ -34,11 +34,11 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             RequestComment = "Ready for test"
         };
 
-        var response = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(body));
+        HttpResponseMessage response = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(body));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await response.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        GovernanceApprovalResponseDto? payload = await response.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.ApprovalRequestId.Should().NotBeNullOrWhiteSpace();
         payload.Status.Should().Be("Submitted");
@@ -56,7 +56,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             TargetEnvironment = "test"
         };
 
-        var response = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(body));
+        HttpResponseMessage response = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(body));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -64,7 +64,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task SubmitApprovalRequest_MissingBody_Returns400()
     {
-        var response = await Client.PostAsync("/v1/governance/approval-requests", null);
+        HttpResponseMessage response = await Client.PostAsync("/v1/governance/approval-requests", null);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -74,7 +74,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task Approve_ValidRequest_ReturnsOkWithApprovedStatus()
     {
-        var runId = await CreateRunAsync("REQ-GOV-APPROVE-01");
+        string runId = await CreateRunAsync("REQ-GOV-APPROVE-01");
 
         var submitBody = new
         {
@@ -83,17 +83,17 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             SourceEnvironment = "dev",
             TargetEnvironment = "test"
         };
-        var submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
         submitResponse.EnsureSuccessStatusCode();
-        var submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        GovernanceApprovalResponseDto? submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         var approveBody = new { ReviewedBy = "reviewer1", ReviewComment = "Approved" };
-        var approveResponse = await Client.PostAsync(
+        HttpResponseMessage approveResponse = await Client.PostAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
             JsonContent(approveBody));
 
         approveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var result = await approveResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        GovernanceApprovalResponseDto? result = await approveResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
         result!.Status.Should().Be("Approved");
         result.ReviewedBy.Should().Be("reviewer1");
     }
@@ -103,7 +103,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task Reject_ValidRequest_ReturnsOkWithRejectedStatus()
     {
-        var runId = await CreateRunAsync("REQ-GOV-REJECT-01");
+        string runId = await CreateRunAsync("REQ-GOV-REJECT-01");
 
         var submitBody = new
         {
@@ -112,17 +112,17 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             SourceEnvironment = "dev",
             TargetEnvironment = "test"
         };
-        var submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
         submitResponse.EnsureSuccessStatusCode();
-        var submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        GovernanceApprovalResponseDto? submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         var rejectBody = new { ReviewedBy = "reviewer2", ReviewComment = "Not ready" };
-        var rejectResponse = await Client.PostAsync(
+        HttpResponseMessage rejectResponse = await Client.PostAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/reject",
             JsonContent(rejectBody));
 
         rejectResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var result = await rejectResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        GovernanceApprovalResponseDto? result = await rejectResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
         result!.Status.Should().Be("Rejected");
     }
 
@@ -131,7 +131,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task Promote_ToProd_WithoutApproval_Returns400()
     {
-        var runId = await CreateRunAsync("REQ-GOV-PROD-01");
+        string runId = await CreateRunAsync("REQ-GOV-PROD-01");
 
         var body = new
         {
@@ -142,7 +142,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             PromotedBy = "alice"
         };
 
-        var response = await Client.PostAsync("/v1/governance/promotions", JsonContent(body));
+        HttpResponseMessage response = await Client.PostAsync("/v1/governance/promotions", JsonContent(body));
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
@@ -150,7 +150,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task Promote_ToProd_WithApprovedRequest_ReturnsOk()
     {
-        var runId = await CreateRunAsync("REQ-GOV-PROD-02");
+        string runId = await CreateRunAsync("REQ-GOV-PROD-02");
 
         var submitBody = new
         {
@@ -159,12 +159,12 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             SourceEnvironment = "test",
             TargetEnvironment = "prod"
         };
-        var submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
         submitResponse.EnsureSuccessStatusCode();
-        var submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        GovernanceApprovalResponseDto? submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
 
         var approveBody = new { ReviewedBy = "approver", ReviewComment = "Approved for prod" };
-        var approveResponse = await Client.PostAsync(
+        HttpResponseMessage approveResponse = await Client.PostAsync(
             $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
             JsonContent(approveBody));
         approveResponse.EnsureSuccessStatusCode();
@@ -179,11 +179,11 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             submitted.ApprovalRequestId
         };
 
-        var response = await Client.PostAsync("/v1/governance/promotions", JsonContent(promoteBody));
+        HttpResponseMessage response = await Client.PostAsync("/v1/governance/promotions", JsonContent(promoteBody));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var result = await response.Content.ReadFromJsonAsync<GovernancePromotionResponseDto>(JsonOptions);
+        GovernancePromotionResponseDto? result = await response.Content.ReadFromJsonAsync<GovernancePromotionResponseDto>(JsonOptions);
         result.Should().NotBeNull();
         result.TargetEnvironment.Should().Be("prod");
         result.PromotedBy.Should().Be("alice");
@@ -194,7 +194,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task Activate_ValidRun_ReturnsOkAndIsActive()
     {
-        var runId = await CreateRunAsync("REQ-GOV-ACTIVATE-01");
+        string runId = await CreateRunAsync("REQ-GOV-ACTIVATE-01");
 
         var body = new
         {
@@ -203,11 +203,11 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             Environment = "dev"
         };
 
-        var response = await Client.PostAsync("/v1/governance/activations", JsonContent(body));
+        HttpResponseMessage response = await Client.PostAsync("/v1/governance/activations", JsonContent(body));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var result = await response.Content.ReadFromJsonAsync<GovernanceActivationResponseDto>(JsonOptions);
+        GovernanceActivationResponseDto? result = await response.Content.ReadFromJsonAsync<GovernanceActivationResponseDto>(JsonOptions);
         result.Should().NotBeNull();
         result.IsActive.Should().BeTrue();
         result.RunId.Should().Be(runId);
@@ -219,7 +219,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task GetApprovalRequests_ByRunId_ReturnsRows()
     {
-        var runId = await CreateRunAsync("REQ-GOV-LIST-01");
+        string runId = await CreateRunAsync("REQ-GOV-LIST-01");
 
         var body = new
         {
@@ -228,13 +228,13 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             SourceEnvironment = "dev",
             TargetEnvironment = "test"
         };
-        var submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(body));
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(body));
         submitResponse.EnsureSuccessStatusCode();
 
-        var listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
+        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/approval-requests");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var items = await listResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
+        GovernanceApprovalResponseDto[]? items = await listResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
         items.Should().Contain(x => x.RunId == runId);
     }
@@ -242,7 +242,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task GetPromotions_ByRunId_ReturnsRows()
     {
-        var runId = await CreateRunAsync("REQ-GOV-LIST-02");
+        string runId = await CreateRunAsync("REQ-GOV-LIST-02");
 
         var body = new
         {
@@ -252,13 +252,13 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             TargetEnvironment = "test",
             PromotedBy = "alice"
         };
-        var promoteResponse = await Client.PostAsync("/v1/governance/promotions", JsonContent(body));
+        HttpResponseMessage promoteResponse = await Client.PostAsync("/v1/governance/promotions", JsonContent(body));
         promoteResponse.EnsureSuccessStatusCode();
 
-        var listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/promotions");
+        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/promotions");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var items = await listResponse.Content.ReadFromJsonAsync<GovernancePromotionResponseDto[]>(JsonOptions);
+        GovernancePromotionResponseDto[]? items = await listResponse.Content.ReadFromJsonAsync<GovernancePromotionResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
         items.Should().Contain(x => x.RunId == runId);
     }
@@ -266,7 +266,7 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task GetActivations_ByRunId_ReturnsRows()
     {
-        var runId = await CreateRunAsync("REQ-GOV-LIST-03");
+        string runId = await CreateRunAsync("REQ-GOV-LIST-03");
 
         var body = new
         {
@@ -274,13 +274,13 @@ public sealed class GovernanceControllerTests(ArchiForgeApiFactory factory) : In
             ManifestVersion = "v1",
             Environment = "test"
         };
-        var activateResponse = await Client.PostAsync("/v1/governance/activations", JsonContent(body));
+        HttpResponseMessage activateResponse = await Client.PostAsync("/v1/governance/activations", JsonContent(body));
         activateResponse.EnsureSuccessStatusCode();
 
-        var listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/activations");
+        HttpResponseMessage listResponse = await Client.GetAsync($"/v1/governance/runs/{runId}/activations");
         listResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var items = await listResponse.Content.ReadFromJsonAsync<GovernanceActivationResponseDto[]>(JsonOptions);
+        GovernanceActivationResponseDto[]? items = await listResponse.Content.ReadFromJsonAsync<GovernanceActivationResponseDto[]>(JsonOptions);
         items.Should().NotBeNullOrEmpty();
         items.Should().Contain(x => x.RunId == runId);
     }

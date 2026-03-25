@@ -8,7 +8,7 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# Agent Result Comparison: {diff.LeftRunId} -> {diff.RightRunId}");
         sb.AppendLine();
@@ -17,7 +17,7 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
         sb.AppendLine($"Comparison between agent outputs for runs **{diff.LeftRunId}** and **{diff.RightRunId}**.");
         sb.AppendLine();
 
-        foreach (var delta in diff.AgentDeltas.OrderBy(d => d.AgentType))
+        foreach (AgentResultDelta delta in diff.AgentDeltas.OrderBy(d => d.AgentType))
         {
             sb.AppendLine($"## {delta.AgentType}");
             sb.AppendLine();
@@ -44,7 +44,7 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
         sb.AppendLine("## Warnings");
         sb.AppendLine();
 
-        foreach (var warning in diff.Warnings)
+        foreach (string warning in diff.Warnings)
         {
             sb.AppendLine($"- {warning}");
         }
@@ -69,7 +69,7 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
             return;
         }
 
-        foreach (var item in items.OrderBy(x => x))
+        foreach (string item in items.OrderBy(x => x))
         {
             sb.AppendLine($"- {item}");
         }

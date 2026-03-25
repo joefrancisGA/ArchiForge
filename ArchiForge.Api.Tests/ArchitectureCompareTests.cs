@@ -11,23 +11,23 @@ public sealed class ArchitectureCompareTests(ArchiForgeApiFactory factory) : Int
     [Fact]
     public async Task CompareManifests_ReturnsDiff()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-COMPARE-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        var leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        string leftVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
         var replayRequest = new
         {
@@ -36,18 +36,18 @@ public sealed class ArchitectureCompareTests(ArchiForgeApiFactory factory) : Int
             manifestVersionOverride = "v1-replay"
         };
 
-        var replayResponse = await Client.PostAsync(
+        HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(replayRequest));
 
         replayResponse.EnsureSuccessStatusCode();
 
-        var compareResponse = await Client.GetAsync(
+        HttpResponseMessage compareResponse = await Client.GetAsync(
             $"/v1/architecture/manifest/compare?leftVersion={leftVersion}&rightVersion=v1-replay");
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await compareResponse.Content.ReadFromJsonAsync<ManifestCompareResponse>(JsonOptions);
+        ManifestCompareResponse? payload = await compareResponse.Content.ReadFromJsonAsync<ManifestCompareResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.Should().NotBeNull();
         payload.Diff.LeftManifestVersion.Should().Be(leftVersion);

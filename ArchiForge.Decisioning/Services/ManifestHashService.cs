@@ -23,7 +23,7 @@ public sealed class ManifestHashService : IManifestHashService
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        var canonical = JsonSerializer.Serialize(new
+        string canonical = JsonSerializer.Serialize(new
         {
             manifest.TenantId,
             manifest.WorkspaceId,
@@ -62,9 +62,9 @@ public sealed class ManifestHashService : IManifestHashService
             manifest.Provenance
         });
 
-        using var sha = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(canonical);
-        var hash = sha.ComputeHash(bytes);
+        using SHA256 sha = SHA256.Create();
+        byte[] bytes = Encoding.UTF8.GetBytes(canonical);
+        byte[] hash = sha.ComputeHash(bytes);
         return Convert.ToHexString(hash);
     }
 }

@@ -6,8 +6,10 @@ using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
 using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Services;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
@@ -28,7 +30,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(artifacts);
-        var findings = request.FindingsSnapshot ?? CreateFallbackFindings(manifest);
+        FindingsSnapshot findings = request.FindingsSnapshot ?? CreateFallbackFindings(manifest);
         ImprovementPlan improvementPlan = request.ManifestComparison is not null
             ? await improvementAdvisorService
                 .GeneratePlanAsync(manifest, findings, request.ManifestComparison, ct)
@@ -37,17 +39,17 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
                 .GeneratePlanAsync(manifest, findings, ct)
                 .ConfigureAwait(false);
 
-        using var stream = TemplateLoader.OpenWritableTemplate();
+        using MemoryStream stream = TemplateLoader.OpenWritableTemplate();
 
-        using (var doc = WordprocessingDocument.Open(stream, true))
+        using (WordprocessingDocument doc = WordprocessingDocument.Open(stream, true))
         {
-            var main = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid template: missing main document part.");
-            var body = main.Document.Body ?? throw new InvalidOperationException("Invalid template: missing body.");
+            MainDocumentPart main = doc.MainDocumentPart ?? throw new InvalidOperationException("Invalid template: missing main document part.");
+            Body body = main.Document.Body ?? throw new InvalidOperationException("Invalid template: missing body.");
 
-            var sectPr = body.Elements<SectionProperties>().LastOrDefault();
+            SectionProperties? sectPr = body.Elements<SectionProperties>().LastOrDefault();
             sectPr?.Remove();
 
-            foreach (var child in body.ChildElements.ToList())
+            foreach (OpenXmlElement child in body.ChildElements.ToList())
                 child.Remove();
 
             BuildDocument(doc, body, request, manifest, artifacts, improvementPlan);
@@ -129,10 +131,10 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         if (request.IncludeCoverageSection)
         {
             WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
-            var reqRows = new List<(string Name, string Status, string Mandatory)>();
-            foreach (var item in manifest.Requirements.Covered)
+            List<(string Name, string Status, string Mandatory)> reqRows = new List<(string Name, string Status, string Mandatory)>();
+            foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
                 reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
-            foreach (var item in manifest.Requirements.Uncovered)
+            foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
                 reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
 
             if (reqRows.Count == 0)
@@ -148,7 +150,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         WordDocumentBuilder.AddHeading(body, "Topology Posture");
         if (manifest.Topology.Resources.Count > 0)
         {
-            foreach (var resource in manifest.Topology.Resources)
+            foreach (string resource in manifest.Topology.Resources)
                 WordDocumentBuilder.AddBodyText(body, $"Resource: {resource}");
         }
         else
@@ -160,7 +162,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBulletList(body, manifest.Topology.SelectedPatterns);
         }
 
-        foreach (var gap in manifest.Topology.Gaps)
+        foreach (string gap in manifest.Topology.Gaps)
             WordDocumentBuilder.AddBodyText(body, $"Gap: {gap}");
         WordDocumentBuilder.AddSpacer(body);
 
@@ -171,7 +173,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         }
         else
         {
-            var secRows = manifest.Security.Controls
+            List<(string ControlId, string ControlName, string Status, string Impact)> secRows = manifest.Security.Controls
                 .Select(c => (c.ControlId, c.ControlName, c.Status, c.Impact))
                 .ToList();
             WordDocumentBuilder.AddFourColumnTable(
@@ -180,7 +182,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
                 secRows);
         }
 
-        foreach (var gap in manifest.Security.Gaps)
+        foreach (string gap in manifest.Security.Gaps)
             WordDocumentBuilder.AddBodyText(body, $"Security gap: {gap}");
         WordDocumentBuilder.AddSpacer(body);
 
@@ -193,7 +195,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             }
             else
             {
-                var compRows = manifest.Compliance.Controls
+                List<(string ControlId, string ControlName, string AppliesToCategory, string Status)> compRows = manifest.Compliance.Controls
                     .Select(c => (c.ControlId, c.ControlName, c.AppliesToCategory, c.Status))
                     .ToList();
                 WordDocumentBuilder.AddFourColumnTable(
@@ -202,7 +204,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
                     compRows);
             }
 
-            foreach (var gap in manifest.Compliance.Gaps)
+            foreach (string gap in manifest.Compliance.Gaps)
                 WordDocumentBuilder.AddBodyText(body, $"Compliance gap: {gap}");
             WordDocumentBuilder.AddSpacer(body);
         }
@@ -212,10 +214,10 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             body,
             $"Max monthly cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
 
-        foreach (var risk in manifest.Cost.CostRisks)
+        foreach (string risk in manifest.Cost.CostRisks)
             WordDocumentBuilder.AddBodyText(body, $"Cost risk: {risk}");
 
-        foreach (var note in manifest.Cost.Notes)
+        foreach (string note in manifest.Cost.Notes)
             WordDocumentBuilder.AddBodyText(body, $"Cost note: {note}");
         WordDocumentBuilder.AddSpacer(body);
 
@@ -236,7 +238,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         }
         else
         {
-            foreach (var recommendation in improvementPlan.Recommendations.Take(10))
+            foreach (ImprovementRecommendation recommendation in improvementPlan.Recommendations.Take(10))
             {
                 WordDocumentBuilder.AddBodyText(body, $"{recommendation.Title} [{recommendation.Urgency}]");
                 WordDocumentBuilder.AddBodyText(body, $"Rationale: {recommendation.Rationale}");
@@ -255,7 +257,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         }
         else
         {
-            var decRows = manifest.Decisions
+            List<(string Category, string Title, string SelectedOption)> decRows = manifest.Decisions
                 .Select(d => (d.Category, d.Title, d.SelectedOption))
                 .ToList();
             WordDocumentBuilder.AddThreeColumnTable(
@@ -281,7 +283,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             }
             else
             {
-                var artRows = artifacts
+                List<(string Name, string ArtifactType, string Format)> artRows = artifacts
                     .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
                     .Select(a => (a.Name, a.ArtifactType, a.Format))
                     .ToList();
@@ -327,7 +329,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBodyText(body, "No decision changes.");
         else
         {
-            foreach (var d in c.DecisionChanges)
+            foreach (DecisionDelta d in c.DecisionChanges)
             {
                 WordDocumentBuilder.AddBodyText(
                     body,
@@ -340,7 +342,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBodyText(body, "No requirement changes.");
         else
         {
-            foreach (var r in c.RequirementChanges)
+            foreach (RequirementDelta r in c.RequirementChanges)
                 WordDocumentBuilder.AddBodyText(body, $"{r.RequirementName}: {r.ChangeType}");
         }
 
@@ -349,7 +351,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBodyText(body, "No security control changes.");
         else
         {
-            foreach (var s in c.SecurityChanges)
+            foreach (SecurityDelta s in c.SecurityChanges)
             {
                 WordDocumentBuilder.AddBodyText(
                     body,
@@ -362,7 +364,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBodyText(body, "No topology resource changes.");
         else
         {
-            foreach (var t in c.TopologyChanges)
+            foreach (TopologyDelta t in c.TopologyChanges)
                 WordDocumentBuilder.AddBodyText(body, $"{t.Resource} ({t.ChangeType})");
         }
 
@@ -371,7 +373,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             WordDocumentBuilder.AddBodyText(body, "Maximum monthly cost unchanged.");
         else
         {
-            foreach (var x in c.CostChanges)
+            foreach (CostDelta x in c.CostChanges)
             {
                 WordDocumentBuilder.AddBodyText(
                     body,

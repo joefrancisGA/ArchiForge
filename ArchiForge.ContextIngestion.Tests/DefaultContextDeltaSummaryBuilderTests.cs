@@ -12,7 +12,7 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
     [Fact]
     public void BuildSegment_IncludesBaseline_WhenFirstConnector()
     {
-        var previous = new ContextSnapshot
+        ContextSnapshot previous = new ContextSnapshot
         {
             CanonicalObjects =
             [
@@ -27,7 +27,7 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
             ]
         };
 
-        var batch = new NormalizedContextBatch
+        NormalizedContextBatch batch = new NormalizedContextBatch
         {
             CanonicalObjects =
             [
@@ -42,7 +42,7 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
             ]
         };
 
-        var line = _sut.BuildSegment("inline-requirements", "Initial inline", batch, previous, isFirstConnector: true);
+        string line = _sut.BuildSegment("inline-requirements", "Initial inline", batch, previous, isFirstConnector: true);
 
         line.Should().Contain("Initial inline");
         line.Should().Contain("prior snapshot had 1 canonical object");
@@ -52,12 +52,12 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
     [Fact]
     public void BuildSegment_OmitsBaselineClause_WhenNotFirstConnector()
     {
-        var batch = new NormalizedContextBatch
+        NormalizedContextBatch batch = new NormalizedContextBatch
         {
             CanonicalObjects = []
         };
 
-        var line = _sut.BuildSegment("policy-reference", "Updated policy", batch, null, isFirstConnector: false);
+        string line = _sut.BuildSegment("policy-reference", "Updated policy", batch, null, isFirstConnector: false);
 
         line.Should().NotContain("baseline");
         line.Should().Contain("0 produced");

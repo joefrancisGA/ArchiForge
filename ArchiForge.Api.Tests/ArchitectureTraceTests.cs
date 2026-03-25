@@ -13,23 +13,23 @@ public sealed class ArchitectureTraceTests(ArchiForgeApiFactory factory) : Integ
     [Fact]
     public async Task GetRunTraces_ReturnsPromptAndRawResponseAfterExecute()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-TRACE-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var tracesResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/traces");
+        HttpResponseMessage tracesResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/traces");
 
         tracesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
+        AgentExecutionTraceResponse? payload = await tracesResponse.Content.ReadFromJsonAsync<AgentExecutionTraceResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Traces.Should().NotBeEmpty();
         payload.Traces.Should().Contain(t => !string.IsNullOrWhiteSpace(t.SystemPrompt));

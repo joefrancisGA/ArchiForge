@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Governance;
 
 /// <summary>
@@ -32,7 +34,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
     }
 
@@ -51,7 +53,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             WHERE PolicyPackId = @PolicyPackId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
     }
 
@@ -64,7 +66,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             WHERE PolicyPackId = @PolicyPackId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<PolicyPack>(
             new CommandDefinition(sql, new
             {
@@ -89,8 +91,8 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<PolicyPack>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<PolicyPack> rows = await connection.QueryAsync<PolicyPack>(
             new CommandDefinition(
                 sql,
                 new

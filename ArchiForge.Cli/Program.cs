@@ -30,7 +30,7 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var command = args[0];
+            string command = args[0];
 
             switch (command)
             {
@@ -50,7 +50,7 @@ namespace ArchiForge.Cli
                     return 1;
 
                 case "run":
-                    var quick = args.Length > 1 && args[1] == "--quick";
+                    bool quick = args.Length > 1 && args[1] == "--quick";
                     return await ArchiForge_RunAsync(quick);
 
                 case "status":
@@ -91,7 +91,7 @@ namespace ArchiForge.Cli
                         Console.WriteLine("Usage: archiforge artifacts <runId> [--save]");
                         return 1;
                     }
-                    var saveArtifacts = args.Length > 2 && args[2] == "--save";
+                    bool saveArtifacts = args.Length > 2 && args[2] == "--save";
                     return await ArchiForge_ArtifactsAsync(args[1], saveArtifacts);
 
                 case "comparisons":
@@ -110,7 +110,7 @@ namespace ArchiForge.Cli
         private static void ArchiForge_New(string projectName)
         {
             Console.WriteLine("Creating ArchiForge project " + projectName);
-            var scaffoldOptions = new ArchiForgeProjectScaffolder.ScaffoldOptions
+            ArchiForgeProjectScaffolder.ScaffoldOptions scaffoldOptions = new ArchiForgeProjectScaffolder.ScaffoldOptions
             {
                 ProjectName = projectName,
                 BaseDirectory = null,
@@ -140,7 +140,7 @@ namespace ArchiForge.Cli
         /// </summary>
         private static async Task<bool> EnsureApiConnectedAsync(string baseUrl, CancellationToken ct = default)
         {
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
             if (await client.CheckHealthAsync(ct))
                 return true;
             Console.WriteLine($"Cannot connect to ArchiForge API at {baseUrl}");
@@ -151,8 +151,8 @@ namespace ArchiForge.Cli
 
         private static async Task<int> ArchiForge_HealthAsync()
         {
-            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
-            var client = new ArchiForgeApiClient(baseUrl);
+            string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
             if (await client.CheckHealthAsync())
             {
                 Console.WriteLine($"OK - ArchiForge API at {baseUrl} is reachable.");
@@ -177,13 +177,13 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var sub = args[0];
-            var config = TryLoadConfigFromCwd();
-            var baseUrl = GetBaseUrl(config);
+            string sub = args[0];
+            ArchiForgeProjectScaffolder.ArchiForgeConfig? config = TryLoadConfigFromCwd();
+            string baseUrl = GetBaseUrl(config);
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
 
             switch (sub)
             {
@@ -222,10 +222,10 @@ namespace ArchiForge.Cli
             string sortDir = "desc";
             int skip = 0;
             int limit = 20;
-            var asJson = false;
-            var asTable = false;
+            bool asJson = false;
+            bool asTable = false;
 
-            for (var i = 0; i < args.Length; i++)
+            for (int i = 0; i < args.Length; i++)
             {
                 switch (args[i])
                 {
@@ -262,11 +262,11 @@ namespace ArchiForge.Cli
                     case "--sort" when i + 1 < args.Length:
                         sortDir = args[++i];
                         break;
-                    case "--skip" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsedSkip):
+                    case "--skip" when i + 1 < args.Length && int.TryParse(args[i + 1], out int parsedSkip):
                         skip = parsedSkip;
                         i++;
                         break;
-                    case "--limit" when i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed):
+                    case "--limit" when i + 1 < args.Length && int.TryParse(args[i + 1], out int parsed):
                         limit = parsed;
                         i++;
                         break;
@@ -279,7 +279,7 @@ namespace ArchiForge.Cli
                 }
             }
 
-            var result = await client.SearchComparisonsAsync(
+            ArchiForgeApiClient.ComparisonHistoryResult? result = await client.SearchComparisonsAsync(
                 type, leftRun, rightRun,
                 leftExport, rightExport,
                 label,
@@ -302,7 +302,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = JsonSerializer.Serialize(result, SJsonWriteIndented);
+                string json = JsonSerializer.Serialize(result, SJsonWriteIndented);
                 Console.WriteLine(json);
                 if (!string.IsNullOrWhiteSpace(result.NextCursor))
                 {
@@ -319,10 +319,10 @@ namespace ArchiForge.Cli
                 return 0;
             }
 
-            foreach (var r in result.Records)
+            foreach (ArchiForgeApiClient.ComparisonRecordSummary r in result.Records)
             {
-                var labelPart = string.IsNullOrEmpty(r.Label) ? "" : $" Label={r.Label}";
-                var tagsPart = r.Tags.Count == 0 ? "" : " Tags=[" + string.Join(",", r.Tags) + "]";
+                string labelPart = string.IsNullOrEmpty(r.Label) ? "" : $" Label={r.Label}";
+                string tagsPart = r.Tags.Count == 0 ? "" : " Tags=[" + string.Join(",", r.Tags) + "]";
                 Console.WriteLine($"{r.CreatedUtc:O} | {r.ComparisonRecordId} | {r.ComparisonType} | LeftRun={r.LeftRunId} RightRun={r.RightRunId}{labelPart}{tagsPart}");
             }
 
@@ -331,7 +331,7 @@ namespace ArchiForge.Cli
 
         private static void PrintComparisonTable(IReadOnlyList<ArchiForgeApiClient.ComparisonRecordSummary> records)
         {
-            var rows = records.Select(r => new[]
+            List<string[]> rows = records.Select(r => new[]
             {
                 r.CreatedUtc.ToString("O"),
                 r.ComparisonRecordId,
@@ -342,16 +342,16 @@ namespace ArchiForge.Cli
                 r.Tags.Count == 0 ? "" : string.Join(",", r.Tags)
             }).ToList();
 
-            var headers = new[] { "CreatedUtc", "ComparisonRecordId", "Type", "LeftRunId", "RightRunId", "Label", "Tags" };
+            string[] headers = new[] { "CreatedUtc", "ComparisonRecordId", "Type", "LeftRunId", "RightRunId", "Label", "Tags" };
             rows.Insert(0, headers);
 
-            var widths = new int[headers.Length];
-            for (var c = 0; c < headers.Length; c++)
+            int[] widths = new int[headers.Length];
+            for (int c = 0; c < headers.Length; c++)
                 widths[c] = rows.Max(r => r[c].Length);
 
-            for (var i = 0; i < rows.Count; i++)
+            for (int i = 0; i < rows.Count; i++)
             {
-                var line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
+                string line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
                 Console.WriteLine(line);
                 if (i == 0)
                     Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
@@ -366,11 +366,11 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var comparisonRecordId = args[0];
+            string comparisonRecordId = args[0];
             string? label = null;
-            var tags = new List<string>();
+            List<string> tags = new List<string>();
 
-            for (var i = 1; i < args.Length; i++)
+            for (int i = 1; i < args.Length; i++)
             {
                 switch (args[i])
                 {
@@ -383,7 +383,7 @@ namespace ArchiForge.Cli
                 }
             }
 
-            var ok = await client.UpdateComparisonRecordAsync(comparisonRecordId, label, tags);
+            bool ok = await client.UpdateComparisonRecordAsync(comparisonRecordId, label, tags);
             if (!ok)
             {
                 Console.WriteLine("Update failed or comparison record not found.");
@@ -401,15 +401,15 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var comparisonRecordId = args[0];
-            var format = "markdown";
-            var mode = "artifact";
+            string comparisonRecordId = args[0];
+            string format = "markdown";
+            string mode = "artifact";
             string? profile = null;
-            var persist = false;
+            bool persist = false;
             string? outPath = null;
-            var force = false;
+            bool force = false;
 
-            for (var i = 1; i < args.Length; i++)
+            for (int i = 1; i < args.Length; i++)
             {
                 switch (args[i])
                 {
@@ -434,7 +434,7 @@ namespace ArchiForge.Cli
                 }
             }
 
-            var ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
+            bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
             return ok ? 0 : 1;
         }
 
@@ -446,20 +446,20 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var ids = args[0]
+            List<string> ids = args[0]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            var format = "markdown";
-            var mode = "artifact";
+            string format = "markdown";
+            string mode = "artifact";
             string? profile = null;
-            var persist = false;
+            bool persist = false;
             string? outPath = null;
-            var force = false;
+            bool force = false;
 
-            for (var i = 1; i < args.Length; i++)
+            for (int i = 1; i < args.Length; i++)
             {
                 switch (args[i])
                 {
@@ -484,7 +484,7 @@ namespace ArchiForge.Cli
                 }
             }
 
-            var ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
+            bool ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
             return ok ? 0 : 1;
         }
 
@@ -496,9 +496,9 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var comparisonRecordId = args[0];
-            var asJson = args.Any(a => a == "--json");
-            var summary = await client.GetComparisonSummaryAsync(comparisonRecordId);
+            string comparisonRecordId = args[0];
+            bool asJson = args.Any(a => a == "--json");
+            ArchiForgeApiClient.ComparisonSummary? summary = await client.GetComparisonSummaryAsync(comparisonRecordId);
             if (summary is null)
             {
                 Console.WriteLine("Failed to get comparison summary (unauthorized, not found, or request failed).");
@@ -507,7 +507,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = JsonSerializer.Serialize(summary, SJsonWriteIndented);
+                string json = JsonSerializer.Serialize(summary, SJsonWriteIndented);
                 Console.WriteLine(json);
                 return 0;
             }
@@ -524,9 +524,9 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var comparisonRecordId = args[0];
-            var asJson = args.Any(a => a == "--json");
-            var drift = await client.GetComparisonDriftAsync(comparisonRecordId);
+            string comparisonRecordId = args[0];
+            bool asJson = args.Any(a => a == "--json");
+            ArchiForgeApiClient.DriftAnalysis? drift = await client.GetComparisonDriftAsync(comparisonRecordId);
             if (drift is null)
             {
                 Console.WriteLine("Failed to get drift analysis (unauthorized, not found, or request failed).");
@@ -535,14 +535,14 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = JsonSerializer.Serialize(drift, SJsonWriteIndented);
+                string json = JsonSerializer.Serialize(drift, SJsonWriteIndented);
                 Console.WriteLine(json);
                 return 0;
             }
 
             Console.WriteLine($"DriftDetected={drift.DriftDetected}");
             Console.WriteLine(drift.Summary);
-            foreach (var item in drift.Items.Take(25))
+            foreach (ArchiForgeApiClient.DriftItem item in drift.Items.Take(25))
             {
                 Console.WriteLine($"- [{item.Category}] {item.Path}: {item.Description}");
             }
@@ -556,12 +556,12 @@ namespace ArchiForge.Cli
 
         private static async Task<int> ArchiForge_Comparisons_DiagnosticsAsync(ArchiForgeApiClient client, string[] args)
         {
-            var limit = 20;
-            var asJson = false;
-            var asTable = false;
-            for (var i = 0; i < args.Length; i++)
+            int limit = 20;
+            bool asJson = false;
+            bool asTable = false;
+            for (int i = 0; i < args.Length; i++)
             {
-                if (args[i] == "--limit" && i + 1 < args.Length && int.TryParse(args[i + 1], out var parsed))
+                if (args[i] == "--limit" && i + 1 < args.Length && int.TryParse(args[i + 1], out int parsed))
                 {
                     limit = parsed;
                     i++;
@@ -572,7 +572,7 @@ namespace ArchiForge.Cli
                     asTable = true;
             }
 
-            var diagnostics = await client.GetReplayDiagnosticsAsync(limit);
+            ArchiForgeApiClient.ReplayDiagnostics? diagnostics = await client.GetReplayDiagnosticsAsync(limit);
             if (diagnostics is null)
             {
                 Console.WriteLine("Failed to get replay diagnostics (unauthorized or request failed).");
@@ -581,7 +581,7 @@ namespace ArchiForge.Cli
 
             if (asJson)
             {
-                var json = JsonSerializer.Serialize(diagnostics, SJsonWriteIndented);
+                string json = JsonSerializer.Serialize(diagnostics, SJsonWriteIndented);
                 Console.WriteLine(json);
                 return 0;
             }
@@ -592,7 +592,7 @@ namespace ArchiForge.Cli
                 return 0;
             }
 
-            foreach (var e in diagnostics.RecentReplays)
+            foreach (ArchiForgeApiClient.ReplayDiagnosticsEntry e in diagnostics.RecentReplays)
             {
                 Console.WriteLine($"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
             }
@@ -602,7 +602,7 @@ namespace ArchiForge.Cli
 
         private static void PrintReplayDiagnosticsTable(IReadOnlyList<ArchiForgeApiClient.ReplayDiagnosticsEntry> entries)
         {
-            var rows = entries.Select(e => new[]
+            List<string[]> rows = entries.Select(e => new[]
             {
                 e.TimestampUtc.ToString("O"),
                 e.ComparisonRecordId,
@@ -616,16 +616,16 @@ namespace ArchiForge.Cli
                 e.ErrorMessage ?? ""
             }).ToList();
 
-            var headers = new[] { "TimestampUtc", "ComparisonRecordId", "Type", "Format", "Mode", "Success", "Ms", "MetaOnly", "PersistedReplayRecordId", "Error" };
+            string[] headers = new[] { "TimestampUtc", "ComparisonRecordId", "Type", "Format", "Mode", "Success", "Ms", "MetaOnly", "PersistedReplayRecordId", "Error" };
             rows.Insert(0, headers);
 
-            var widths = new int[headers.Length];
-            for (var c = 0; c < headers.Length; c++)
+            int[] widths = new int[headers.Length];
+            for (int c = 0; c < headers.Length; c++)
                 widths[c] = rows.Max(r => r[c].Length);
 
-            for (var i = 0; i < rows.Count; i++)
+            for (int i = 0; i < rows.Count; i++)
             {
-                var line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
+                string line = string.Join(" | ", rows[i].Select((cell, idx) => cell.PadRight(widths[idx])));
                 Console.WriteLine(line);
                 if (i == 0)
                     Console.WriteLine(string.Join("-+-", widths.Select(w => new string('-', w))));
@@ -634,19 +634,19 @@ namespace ArchiForge.Cli
 
         private static int ArchiForge_Dev_Up()
         {
-            var composeDir = FindDockerComposeDirectory();
+            string? composeDir = FindDockerComposeDirectory();
             if (composeDir is null)
             {
                 Console.WriteLine("Error: docker-compose.yml not found. Run from the ArchiForge repo root, or ensure docker-compose.yml exists in the current directory.");
                 return 1;
             }
 
-            var composePath = Path.Combine(composeDir, "docker-compose.yml");
+            string composePath = Path.Combine(composeDir, "docker-compose.yml");
             Console.WriteLine($"Starting ArchiForge dev services from {composeDir}...");
 
             try
             {
-                var (exitCode, output, error) = RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
+                (int exitCode, string output, string error) = RunProcess("docker", $"compose -f \"{composePath}\" up -d", composeDir);
                 if (exitCode != 0)
                 {
                     (exitCode, output, error) = RunProcess("docker-compose", $"-f \"{composePath}\" up -d", composeDir);
@@ -683,10 +683,10 @@ namespace ArchiForge.Cli
 
         private static string? FindDockerComposeDirectory()
         {
-            var current = Directory.GetCurrentDirectory();
-            for (var dir = current; !string.IsNullOrEmpty(dir); dir = Path.GetDirectoryName(dir))
+            string current = Directory.GetCurrentDirectory();
+            for (string? dir = current; !string.IsNullOrEmpty(dir); dir = Path.GetDirectoryName(dir))
             {
-                var composePath = Path.Combine(dir, "docker-compose.yml");
+                string composePath = Path.Combine(dir, "docker-compose.yml");
                 if (File.Exists(composePath))
                     return dir;
             }
@@ -695,7 +695,7 @@ namespace ArchiForge.Cli
 
         private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments, string workingDirectory)
         {
-            var psi = new ProcessStartInfo
+            ProcessStartInfo psi = new ProcessStartInfo
             {
                 FileName = fileName,
                 Arguments = arguments,
@@ -705,11 +705,11 @@ namespace ArchiForge.Cli
                 RedirectStandardError = true,
                 CreateNoWindow = true
             };
-            using var proc = Process.Start(psi);
+            using Process? proc = Process.Start(psi);
             if (proc is null)
                 return (-1, "", $"Failed to start {fileName}");
-            var stdout = proc.StandardOutput.ReadToEnd();
-            var stderr = proc.StandardError.ReadToEnd();
+            string stdout = proc.StandardOutput.ReadToEnd();
+            string stderr = proc.StandardError.ReadToEnd();
             proc.WaitForExit(TimeSpan.FromMinutes(2));
             return (proc.ExitCode, stdout, stderr);
         }
@@ -718,8 +718,8 @@ namespace ArchiForge.Cli
             ArchiForgeProjectScaffolder.ArchiForgeConfig config,
             string briefContent)
         {
-            var arch = config.Architecture;
-            var request = new ArchitectureRequest
+            ArchiForgeProjectScaffolder.ArchitectureSection? arch = config.Architecture;
+            ArchitectureRequest request = new ArchitectureRequest
             {
                 RequestId = Guid.NewGuid().ToString("N"),
                 SystemName = config.ProjectName,
@@ -758,31 +758,31 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
+            string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
             if (!File.Exists(briefPath))
             {
                 Console.WriteLine($"Error: Brief file not found at {config.Inputs.Brief}");
                 return 1;
             }
 
-            var briefContent = (await File.ReadAllTextAsync(briefPath)).Trim();
+            string briefContent = (await File.ReadAllTextAsync(briefPath)).Trim();
             if (briefContent.Length < 10)
             {
                 Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
                 return 1;
             }
 
-            var request = BuildArchitectureRequest(config, briefContent);
+            ArchitectureRequest request = BuildArchitectureRequest(config, briefContent);
 
-            var baseUrl = GetBaseUrl(config);
+            string baseUrl = GetBaseUrl(config);
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
 
             Console.WriteLine($"Submitting request to {baseUrl}...");
 
-            var result = await client.CreateRunAsync(request);
+            ArchiForgeApiClient.CreateRunResult result = await client.CreateRunAsync(request);
 
             if (!result.Success)
             {
@@ -790,11 +790,11 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var resp = result.Response!;
+            ArchiForgeApiClient.CreateRunResponse resp = result.Response!;
 
-            var outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
+            string outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
             Directory.CreateDirectory(outputsDir);
-            var summaryPath = Path.Combine(outputsDir, "run-summary.json");
+            string summaryPath = Path.Combine(outputsDir, "run-summary.json");
             WriteRunSummary(summaryPath, baseUrl, resp.Run.RunId, resp.Run.RequestId, resp.Run.Status, resp.Run.CreatedUtc, resp.Tasks, manifestVersion: null);
 
             Console.WriteLine();
@@ -803,16 +803,16 @@ namespace ArchiForge.Cli
             Console.WriteLine($"run-summary.json written to {summaryPath}");
             Console.WriteLine();
             Console.WriteLine("Tasks:");
-            foreach (var task in resp.Tasks)
+            foreach (ArchiForgeApiClient.AgentTaskInfo task in resp.Tasks)
             {
-                var agentType = (AgentType)task.AgentType;
+                AgentType agentType = (AgentType)task.AgentType;
                 Console.WriteLine($"  - {agentType}: {task.Objective}");
             }
             Console.WriteLine();
             if (quick)
             {
                 Console.WriteLine("Quick mode: seeding fake results and committing...");
-                var seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
+                ArchiForgeApiClient.SeedFakeResultsResult? seedResult = await client.SeedFakeResultsAsync(resp.Run.RunId);
                 if (seedResult is null || !seedResult.Success)
                 {
                     Console.WriteLine($"Warning: Seed failed. {seedResult?.Error ?? "Unknown"}");
@@ -821,13 +821,13 @@ namespace ArchiForge.Cli
                     return 0;
                 }
                 Console.WriteLine($"Seeded {seedResult.ResultCount} fake results.");
-                var commitResult = await client.CommitRunAsync(resp.Run.RunId);
+                ArchiForgeApiClient.CommitRunResult? commitResult = await client.CommitRunAsync(resp.Run.RunId);
                 if (commitResult is null || !commitResult.Success)
                 {
                     Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
                     return 1;
                 }
-                var version = commitResult.Response?.Manifest.Metadata.ManifestVersion ?? "unknown";
+                string version = commitResult.Response?.Manifest.Metadata.ManifestVersion ?? "unknown";
                 Console.WriteLine($"Committed. Manifest version: {version}");
                 WriteRunSummary(summaryPath, baseUrl, resp.Run.RunId, resp.Run.RequestId, resp.Run.Status, resp.Run.CreatedUtc, resp.Tasks, version);
                 Console.WriteLine($"Use 'archiforge artifacts {resp.Run.RunId}' to view the manifest.");
@@ -854,27 +854,27 @@ namespace ArchiForge.Cli
             };
 #pragma warning restore IDE0301 // Simplify collection initialization
 #pragma warning restore IDE0300 // Simplify collection initialization
-            var json = JsonSerializer.Serialize(summary, SJsonWriteIndented);
+            string json = JsonSerializer.Serialize(summary, SJsonWriteIndented);
             File.WriteAllText(path, json);
         }
 
         private static async Task<int> ArchiForge_StatusAsync(string runId)
         {
-            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
 
-            var run = await client.GetRunAsync(runId);
+            ArchiForgeApiClient.GetRunResult? run = await client.GetRunAsync(runId);
             if (run is null)
             {
                 Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
                 return 1;
             }
 
-            var r = run.Run;
-            var status = (ArchitectureRunStatus)r.Status;
+            ArchiForgeApiClient.RunInfo r = run.Run;
+            ArchitectureRunStatus status = (ArchitectureRunStatus)r.Status;
             Console.WriteLine($"Run: {r.RunId}");
             Console.WriteLine($"Status: {status}");
             Console.WriteLine($"Created: {r.CreatedUtc:O}");
@@ -884,10 +884,10 @@ namespace ArchiForge.Cli
                 Console.WriteLine($"Manifest version: {r.CurrentManifestVersion}");
             Console.WriteLine();
             Console.WriteLine("Tasks:");
-            foreach (var task in run.Tasks)
+            foreach (ArchiForgeApiClient.AgentTaskInfo task in run.Tasks)
             {
-                var agentType = (AgentType)task.AgentType;
-                var taskStatus = (AgentTaskStatus)task.Status;
+                AgentType agentType = (AgentType)task.AgentType;
+                AgentTaskStatus taskStatus = (AgentTaskStatus)task.Status;
                 Console.WriteLine($"  {agentType}: {taskStatus} - {task.Objective}");
             }
             Console.WriteLine($"Results: {run.Results.Count} submitted");
@@ -896,7 +896,7 @@ namespace ArchiForge.Cli
 
         private static async Task<int> ArchiForge_SubmitAsync(string runId, string resultFilePath)
         {
-            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
@@ -909,7 +909,7 @@ namespace ArchiForge.Cli
             AgentResult result;
             try
             {
-                var json = await File.ReadAllTextAsync(resultFilePath);
+                string json = await File.ReadAllTextAsync(resultFilePath);
                 result = JsonSerializer.Deserialize<AgentResult>(json, SJsonDeserializeAgentResult) ?? new AgentResult();
             }
             catch (Exception ex)
@@ -918,8 +918,8 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            var client = new ArchiForgeApiClient(baseUrl);
-            var submitResult = await client.SubmitAgentResultAsync(runId, result);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient.SubmitResultResult? submitResult = await client.SubmitAgentResultAsync(runId, result);
             if (submitResult is null || !submitResult.Success)
             {
                 Console.WriteLine($"Error: {submitResult?.Error ?? "Submit failed"}");
@@ -933,27 +933,27 @@ namespace ArchiForge.Cli
 
         private static async Task<int> ArchiForge_CommitAsync(string runId)
         {
-            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
 
-            var result = await client.CommitRunAsync(runId);
+            ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync(runId);
             if (result is null || !result.Success)
             {
                 Console.WriteLine($"Error: {result?.Error ?? "Commit failed"}");
                 return 1;
             }
 
-            var resp = result.Response!;
-            var version = resp.Manifest.Metadata.ManifestVersion;
+            ArchiForgeApiClient.CommitRunResponse resp = result.Response!;
+            string version = resp.Manifest.Metadata.ManifestVersion;
             Console.WriteLine($"Committed: {resp.Manifest.SystemName}");
             Console.WriteLine($"Manifest version: {version}");
             if (resp.Warnings.Count > 0)
             {
                 Console.WriteLine("Warnings:");
-                foreach (var w in resp.Warnings)
+                foreach (string w in resp.Warnings)
                     Console.WriteLine($"  - {w}");
             }
             Console.WriteLine();
@@ -963,13 +963,13 @@ namespace ArchiForge.Cli
 
         private static async Task<int> ArchiForge_SeedAsync(string runId)
         {
-            var baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
+            string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
 
-            var result = await client.SeedFakeResultsAsync(runId);
+            ArchiForgeApiClient.SeedFakeResultsResult? result = await client.SeedFakeResultsAsync(runId);
             if (result is null || !result.Success)
             {
                 Console.WriteLine($"Error: {result?.Error ?? "Seed failed"}");
@@ -984,35 +984,35 @@ namespace ArchiForge.Cli
 
         private static async Task<int> ArchiForge_ArtifactsAsync(string runId, bool save = false)
         {
-            var config = TryLoadConfigFromCwd();
-            var baseUrl = GetBaseUrl(config);
+            ArchiForgeProjectScaffolder.ArchiForgeConfig? config = TryLoadConfigFromCwd();
+            string baseUrl = GetBaseUrl(config);
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            var client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
 
-            var run = await client.GetRunAsync(runId);
+            ArchiForgeApiClient.GetRunResult? run = await client.GetRunAsync(runId);
             if (run is null)
             {
                 Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
                 return 1;
             }
 
-            var version = run.Run.CurrentManifestVersion;
+            string? version = run.Run.CurrentManifestVersion;
             if (string.IsNullOrEmpty(version))
             {
                 Console.WriteLine($"Run {runId} has not been committed. Submit all agent results and call commit first.");
                 return 1;
             }
 
-            var manifest = await client.GetManifestAsync(version);
+            object? manifest = await client.GetManifestAsync(version);
             if (manifest is null)
             {
                 Console.WriteLine($"Manifest '{version}' not found.");
                 return 1;
             }
 
-            var json = JsonSerializer.Serialize(manifest, SJsonWriteIndented);
+            string json = JsonSerializer.Serialize(manifest, SJsonWriteIndented);
             Console.WriteLine($"Manifest version: {version}");
             Console.WriteLine();
 
@@ -1020,11 +1020,11 @@ namespace ArchiForge.Cli
             {
                 try
                 {
-                    var projectRoot = Directory.GetCurrentDirectory();
-                    var outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
+                    string projectRoot = Directory.GetCurrentDirectory();
+                    string outputsDir = Path.Combine(projectRoot, config.Outputs.LocalCacheDir);
                     Directory.CreateDirectory(outputsDir);
-                    var fileName = $"manifest-{version}.json";
-                    var filePath = Path.Combine(outputsDir, fileName);
+                    string fileName = $"manifest-{version}.json";
+                    string filePath = Path.Combine(outputsDir, fileName);
                     await File.WriteAllTextAsync(filePath, json);
                     Console.WriteLine($"Saved to {filePath}");
                     Console.WriteLine($"URI: {baseUrl}/v1/architecture/manifest/{version}");

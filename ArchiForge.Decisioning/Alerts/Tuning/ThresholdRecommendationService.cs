@@ -25,24 +25,24 @@ public sealed class ThresholdRecommendationService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = new ThresholdRecommendationResult
+        ThresholdRecommendationResult result = new ThresholdRecommendationResult
         {
             EvaluatedUtc = DateTime.UtcNow,
             RuleKind = request.RuleKind,
             TunedMetricType = request.TunedMetricType,
         };
 
-        var slug = string.IsNullOrWhiteSpace(request.RunProjectSlug) ? "default" : request.RunProjectSlug.Trim();
+        string slug = string.IsNullOrWhiteSpace(request.RunProjectSlug) ? "default" : request.RunProjectSlug.Trim();
 
-        foreach (var threshold in request.CandidateThresholds.Distinct().OrderBy(x => x))
+        foreach (decimal threshold in request.CandidateThresholds.Distinct().OrderBy(x => x))
         {
             RuleSimulationResult? simulation = null;
 
             if (request.RuleKind.Equals(RuleKindSimple, StringComparison.OrdinalIgnoreCase) &&
                 request.BaseSimpleRule is not null)
             {
-                var baseRule = AlignSimpleRuleMetric(request.BaseSimpleRule, request.TunedMetricType);
-                var candidateRule = CloneSimpleRuleWithThreshold(baseRule, threshold);
+                AlertRule baseRule = AlignSimpleRuleMetric(request.BaseSimpleRule, request.TunedMetricType);
+                AlertRule candidateRule = CloneSimpleRuleWithThreshold(baseRule, threshold);
 
                 simulation = await simulationService
                     .SimulateAsync(
@@ -63,7 +63,7 @@ public sealed class ThresholdRecommendationService(
             else if (request.RuleKind.Equals(RuleKindComposite, StringComparison.OrdinalIgnoreCase) &&
                      request.BaseCompositeRule is not null)
             {
-                var candidateRule = CloneCompositeRuleWithThreshold(
+                CompositeAlertRule candidateRule = CloneCompositeRuleWithThreshold(
                     request.BaseCompositeRule,
                     request.TunedMetricType,
                     threshold);
@@ -92,7 +92,7 @@ public sealed class ThresholdRecommendationService(
             if (simulation is null)
                 continue;
 
-            var score = noiseScorer.Score(
+            NoiseScoreBreakdown score = noiseScorer.Score(
                 simulation,
                 request.TargetCreatedAlertCountMin,
                 request.TargetCreatedAlertCountMax);
@@ -138,7 +138,7 @@ public sealed class ThresholdRecommendationService(
 
     private static AlertRule AlignSimpleRuleMetric(AlertRule source, string tunedMetricType)
     {
-        var copy = CloneSimpleRuleWithThreshold(source, source.ThresholdValue);
+        AlertRule copy = CloneSimpleRuleWithThreshold(source, source.ThresholdValue);
         if (!string.IsNullOrWhiteSpace(tunedMetricType))
             copy.RuleType = tunedMetricType.Trim();
         return copy;

@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
@@ -29,7 +31,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, digest, cancellationToken: ct));
     }
 
@@ -52,8 +54,8 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             ORDER BY GeneratedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<ArchitectureDigest>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<ArchitectureDigest> result = await connection.QueryAsync<ArchitectureDigest>(
             new CommandDefinition(
                 sql,
                 new
@@ -80,7 +82,7 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             WHERE DigestId = @DigestId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ArchitectureDigest>(
             new CommandDefinition(sql, new
             {

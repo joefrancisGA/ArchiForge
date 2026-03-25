@@ -20,7 +20,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         _ = ct;
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId);
+            int i = _items.FindIndex(x => x.AttemptId == attempt.AttemptId);
             if (i >= 0)
                 _items[i] = attempt;
         }
@@ -35,7 +35,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.DigestId == digestId)
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(500)
@@ -53,7 +53,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.SubscriptionId == subscriptionId)
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(take)

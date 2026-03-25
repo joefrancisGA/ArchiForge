@@ -69,14 +69,14 @@ public sealed class AdvisoryScanRunner(
     /// <param name="ct">Cancellation token.</param>
     public async Task RunScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
-        var scope = new ScopeContext
+        ScopeContext scope = new ScopeContext
         {
             TenantId = schedule.TenantId,
             WorkspaceId = schedule.WorkspaceId,
             ProjectId = schedule.ProjectId
         };
 
-        var execution = new AdvisoryScanExecution
+        AdvisoryScanExecution execution = new AdvisoryScanExecution
         {
             ExecutionId = Guid.NewGuid(),
             ScheduleId = schedule.ScheduleId,
@@ -142,20 +142,20 @@ public sealed class AdvisoryScanRunner(
         AdvisoryScanExecution execution,
         CancellationToken ct)
     {
-        var slug = string.IsNullOrWhiteSpace(schedule.RunProjectSlug) ? "default" : schedule.RunProjectSlug.Trim();
-        var runs = await authorityQueryService
+        string slug = string.IsNullOrWhiteSpace(schedule.RunProjectSlug) ? "default" : schedule.RunProjectSlug.Trim();
+        IReadOnlyList<RunSummaryDto> runs = await authorityQueryService
             .ListRunsByProjectAsync(scope, slug, 2, ct)
             .ConfigureAwait(false);
 
-        var ordered = runs.OrderByDescending(x => x.CreatedUtc).ToList();
-        var latest = ordered.FirstOrDefault();
+        List<RunSummaryDto> ordered = runs.OrderByDescending(x => x.CreatedUtc).ToList();
+        RunSummaryDto? latest = ordered.FirstOrDefault();
         if (latest is null)
         {
             await CompleteNoRunsAsync(execution, schedule, ct).ConfigureAwait(false);
             return;
         }
 
-        var latestDetail = await authorityQueryService
+        RunDetailDto? latestDetail = await authorityQueryService
             .GetRunDetailAsync(scope, latest.RunId, ct)
             .ConfigureAwait(false);
 
@@ -169,8 +169,8 @@ public sealed class AdvisoryScanRunner(
             return;
         }
 
-        var findings = latestDetail.FindingsSnapshot ?? CreateEmptyFindings(latestDetail.GoldenManifest);
-        var compareTo = ordered.Skip(1).FirstOrDefault();
+        FindingsSnapshot findings = latestDetail.FindingsSnapshot ?? CreateEmptyFindings(latestDetail.GoldenManifest);
+        RunSummaryDto? compareTo = ordered.Skip(1).FirstOrDefault();
 
         ImprovementPlan plan;
         Guid? comparedToRunId = null;
@@ -178,7 +178,7 @@ public sealed class AdvisoryScanRunner(
 
         if (compareTo is not null)
         {
-            var previousDetail = await authorityQueryService
+            RunDetailDto? previousDetail = await authorityQueryService
                 .GetRunDetailAsync(scope, compareTo.RunId, ct)
                 .ConfigureAwait(false);
 
@@ -204,22 +204,22 @@ public sealed class AdvisoryScanRunner(
                 .ConfigureAwait(false);
         }
 
-        var recommendationRecords = await recommendationRepository
+        IReadOnlyList<RecommendationRecord> recommendationRecords = await recommendationRepository
             .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)
             .ConfigureAwait(false);
 
-        var learningProfile = await recommendationLearningService
+        RecommendationLearningProfile? learningProfile = await recommendationLearningService
             .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var effectiveGovernance = await effectiveGovernanceLoader
+        PolicyPackContentDocument effectiveGovernance = await effectiveGovernanceLoader
             .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
             .ConfigureAwait(false);
 
-        foreach (var kvp in effectiveGovernance.AdvisoryDefaults)
+        foreach (KeyValuePair<string, string> kvp in effectiveGovernance.AdvisoryDefaults)
             plan.PolicyPackAdvisoryDefaults[kvp.Key] = kvp.Value;
 
-        var alertContext = AlertEvaluationContextFactory.ForAdvisoryScan(
+        AlertEvaluationContext alertContext = AlertEvaluationContextFactory.ForAdvisoryScan(
             schedule.TenantId,
             schedule.WorkspaceId,
             schedule.ProjectId,
@@ -231,17 +231,17 @@ public sealed class AdvisoryScanRunner(
             learningProfile,
             effectiveGovernance);
 
-        var alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct).ConfigureAwait(false);
+        AlertEvaluationOutcome alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct).ConfigureAwait(false);
 
-        var compositeOutcome = await compositeAlertService
+        CompositeAlertEvaluationResult compositeOutcome = await compositeAlertService
             .EvaluateAndPersistAsync(alertContext, ct)
             .ConfigureAwait(false);
 
-        var digestAlerts = alertOutcome.Evaluated
+        List<AlertRecord> digestAlerts = alertOutcome.Evaluated
             .Concat(compositeOutcome.Created)
             .ToList();
 
-        var digest = digestBuilder.Build(
+        ArchitectureDigest digest = digestBuilder.Build(
             schedule.TenantId,
             schedule.WorkspaceId,
             schedule.ProjectId,
@@ -336,7 +336,7 @@ public sealed class AdvisoryScanRunner(
 
     private async Task AdvanceScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
-        var now = DateTime.UtcNow;
+        DateTime now = DateTime.UtcNow;
         schedule.LastRunUtc = now;
         schedule.NextRunUtc = scheduleCalculator.ComputeNextRunUtc(schedule.CronExpression, now);
         await scheduleRepository.UpdateAsync(schedule, ct).ConfigureAwait(false);

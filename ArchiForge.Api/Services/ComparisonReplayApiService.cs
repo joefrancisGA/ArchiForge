@@ -43,10 +43,10 @@ public sealed class ComparisonReplayApiService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var sw = Stopwatch.StartNew();
+        Stopwatch sw = Stopwatch.StartNew();
         try
         {
-            var result = await inner.ReplayAsync(request, cancellationToken);
+            ReplayComparisonResult result = await inner.ReplayAsync(request, cancellationToken);
             sw.Stop();
 
             replayDiagnosticsRecorder.Record(new ReplayDiagnosticsEntry
@@ -98,7 +98,7 @@ public sealed class ComparisonReplayApiService(
                 MetadataOnly = metadataOnly
             });
 
-            var notFound = ex is RunNotFoundException;
+            bool notFound = ex is RunNotFoundException;
             logger.LogWarning(
                 ex,
                 "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",

@@ -5,6 +5,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 public sealed class DapperRecommendationLearningProfileRepository(ISqlConnectionFactory connectionFactory)
@@ -42,10 +44,10 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             );
             """;
 
-        var profileId = Guid.NewGuid();
-        var json = JsonSerializer.Serialize(profile, JsonOptions);
+        Guid profileId = Guid.NewGuid();
+        string json = JsonSerializer.Serialize(profile, JsonOptions);
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -76,8 +78,8 @@ public sealed class DapperRecommendationLearningProfileRepository(ISqlConnection
             ORDER BY GeneratedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var json = await connection.QueryFirstOrDefaultAsync<string>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        string? json = await connection.QueryFirstOrDefaultAsync<string>(
             new CommandDefinition(
                 sql,
                 new

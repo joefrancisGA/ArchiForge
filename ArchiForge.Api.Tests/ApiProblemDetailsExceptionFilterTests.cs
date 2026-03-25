@@ -17,26 +17,26 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [Fact]
     public void ComparisonVerificationFailedException_Produces422WithDriftExtensions()
     {
-        var filter = new ApiProblemDetailsExceptionFilter();
-        var httpContext = new DefaultHttpContext
+        ApiProblemDetailsExceptionFilter filter = new ApiProblemDetailsExceptionFilter();
+        DefaultHttpContext httpContext = new DefaultHttpContext
         {
             Request =
             {
                 Path = "/v1/architecture/comparisons/r1/replay"
             }
         };
-        var actionContext = new ActionContext(
+        ActionContext actionContext = new ActionContext(
             httpContext,
             new RouteData(),
             new ControllerActionDescriptor());
-        var drift = new DriftAnalysisResult
+        DriftAnalysisResult drift = new DriftAnalysisResult
         {
             DriftDetected = true,
             Summary = "payload mismatch"
         };
-        var ex = new ComparisonVerificationFailedException("Verification failed.", drift);
+        ComparisonVerificationFailedException ex = new ComparisonVerificationFailedException("Verification failed.", drift);
 #pragma warning disable IDE0028 // Simplify collection initialization
-        var context = new ExceptionContext(actionContext, new List<IFilterMetadata>())
+        ExceptionContext context = new ExceptionContext(actionContext, new List<IFilterMetadata>())
         {
             Exception = ex
         };
@@ -45,9 +45,9 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         filter.OnException(context);
 
         context.ExceptionHandled.Should().BeTrue();
-        var result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        ObjectResult? result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         result.StatusCode.Should().Be(422);
-        var problem = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         problem.Extensions.Should().ContainKey("driftDetected");
         problem.Extensions["driftDetected"].Should().Be(true);
         problem.Extensions["driftSummary"].Should().Be("payload mismatch");

@@ -41,18 +41,18 @@ public sealed class AlertSimulationContextProvider(
         string runProjectSlug,
         CancellationToken ct)
     {
-        var scope = new ScopeContext
+        ScopeContext scope = new ScopeContext
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
         };
 
-        var results = new List<AlertEvaluationContext>();
+        List<AlertEvaluationContext> results = new List<AlertEvaluationContext>();
 
         if (runId.HasValue)
         {
-            var single = await BuildContextAsync(
+            AlertEvaluationContext? single = await BuildContextAsync(
                     scope,
                     runId.Value,
                     comparedToRunId,
@@ -65,14 +65,14 @@ public sealed class AlertSimulationContextProvider(
             return results;
         }
 
-        var take = Math.Clamp(recentRunCount, 1, 50);
-        var runs = await authorityQueryService
+        int take = Math.Clamp(recentRunCount, 1, 50);
+        IReadOnlyList<RunSummaryDto> runs = await authorityQueryService
             .ListRunsByProjectAsync(scope, string.IsNullOrWhiteSpace(runProjectSlug) ? "default" : runProjectSlug.Trim(), take, ct)
             .ConfigureAwait(false);
 
-        foreach (var run in runs.OrderByDescending(x => x.CreatedUtc))
+        foreach (RunSummaryDto run in runs.OrderByDescending(x => x.CreatedUtc))
         {
-            var context = await BuildContextAsync(scope, run.RunId, comparedToRunId: null, ct).ConfigureAwait(false);
+            AlertEvaluationContext? context = await BuildContextAsync(scope, run.RunId, comparedToRunId: null, ct).ConfigureAwait(false);
             if (context is not null)
                 results.Add(context);
         }
@@ -90,17 +90,17 @@ public sealed class AlertSimulationContextProvider(
         Guid? comparedToRunId,
         CancellationToken ct)
     {
-        var detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct).ConfigureAwait(false);
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct).ConfigureAwait(false);
         if (detail?.GoldenManifest is null)
             return null;
 
-        var findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
+        FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
 
         ComparisonResult? comparison = null;
 
         if (comparedToRunId.HasValue)
         {
-            var comparedDetail = await authorityQueryService
+            RunDetailDto? comparedDetail = await authorityQueryService
                 .GetRunDetailAsync(scope, comparedToRunId.Value, ct)
                 .ConfigureAwait(false);
 
@@ -108,7 +108,7 @@ public sealed class AlertSimulationContextProvider(
                 comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
         }
 
-        var plan = comparison is null
+        ImprovementPlan plan = comparison is null
             ? await improvementAdvisorService
                 .GeneratePlanAsync(detail.GoldenManifest, findings, ct)
                 .ConfigureAwait(false)
@@ -116,11 +116,11 @@ public sealed class AlertSimulationContextProvider(
                 .GeneratePlanAsync(detail.GoldenManifest, findings, comparison, ct)
                 .ConfigureAwait(false);
 
-        var recommendations = await recommendationRepository
+        IReadOnlyList<RecommendationRecord> recommendations = await recommendationRepository
             .ListByRunAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId, ct)
             .ConfigureAwait(false);
 
-        var learning = await recommendationLearningService
+        RecommendationLearningProfile? learning = await recommendationLearningService
             .GetLatestProfileAsync(scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
             .ConfigureAwait(false);
 

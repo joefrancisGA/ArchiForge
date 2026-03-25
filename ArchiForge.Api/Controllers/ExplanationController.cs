@@ -1,6 +1,7 @@
 using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
@@ -43,15 +44,15 @@ public sealed class ExplanationController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExplainRun(Guid runId, CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var detail = await query.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
         if (detail?.GoldenManifest is null)
             return this.NotFoundProblem(
                 $"Run '{runId}' was not found or has no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
 
         DecisionProvenanceGraph? graph = null;
-        var snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
+        DecisionProvenanceSnapshot? snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
         if (snapshot is not null)
         {
             try
@@ -64,7 +65,7 @@ public sealed class ExplanationController(
             }
         }
 
-        var result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
+        ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         return Ok(result);
     }
 
@@ -81,16 +82,16 @@ public sealed class ExplanationController(
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
-        var targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
+        RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
         if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
             return this.NotFoundProblem(
                 "One or both runs were not found or have no committed manifest in the current scope.",
                 ProblemTypes.RunNotFound);
 
-        var comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
-        var result = await explanation.ExplainComparisonAsync(comparison1, ct);
+        ComparisonResult comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        ComparisonExplanationResult result = await explanation.ExplainComparisonAsync(comparison1, ct);
         return Ok(result);
     }
 }

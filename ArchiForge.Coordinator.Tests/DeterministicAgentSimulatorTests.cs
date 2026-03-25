@@ -17,7 +17,7 @@ public sealed class DeterministicAgentSimulatorTests
     [Fact]
     public async Task Simulator_ShouldProduceDeterministicStarterResultsAsync()
     {
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -38,15 +38,15 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
-        var coordination = await coordinator.CreateRunAsync(request);
+        CoordinatorService coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         coordination.Success.Should().BeTrue();
 
         DeterministicAgentSimulator simulator = new();
-        var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
+        AgentEvidencePackage evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
 
-        var results = await simulator.ExecuteAsync(
+        IReadOnlyList<AgentResult> results = await simulator.ExecuteAsync(
             coordination.Run.RunId,
             request,
             evidence,
@@ -64,7 +64,7 @@ public sealed class DeterministicAgentSimulatorTests
     [Fact]
     public async Task Simulator_AndDecisionEngine_ShouldProduceManifestAsync()
     {
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -85,25 +85,25 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
-        var coordination = await coordinator.CreateRunAsync(request);
+        CoordinatorService coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         DeterministicAgentSimulator simulator = new();
-        var evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
+        AgentEvidencePackage evidence = CreateMinimalEvidence(coordination.Run.RunId, request);
 
-        var results = await simulator.ExecuteAsync(
+        IReadOnlyList<AgentResult> results = await simulator.ExecuteAsync(
             coordination.Run.RunId,
             request,
             evidence,
             coordination.Tasks);
 
-        var validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new SchemaValidationService(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        var engine = new DecisionEngineService(validationService);
+        DecisionEngineService engine = new DecisionEngineService(validationService);
 
-        var merge = engine.MergeResults(
+        DecisionMergeResult merge = engine.MergeResults(
             coordination.Run.RunId,
             request,
             "v1",

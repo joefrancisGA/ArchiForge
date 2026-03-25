@@ -61,7 +61,7 @@ public static class FindingPayloadConverter
 
         try
         {
-            var json = JsonSerializer.Serialize(finding.Payload);
+            string json = JsonSerializer.Serialize(finding.Payload);
             return JsonSerializer.Deserialize<T>(json, CaseInsensitiveOptions);
         }
         catch (JsonException ex)

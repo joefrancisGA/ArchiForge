@@ -10,7 +10,7 @@ public sealed class FindingsSnapshotMigratorTests
     [Fact]
     public void Apply_FillsCategoryAndPayloadType_ForLegacyFinding()
     {
-        var snapshot = new FindingsSnapshot
+        FindingsSnapshot snapshot = new FindingsSnapshot
         {
             Findings =
             {
@@ -30,7 +30,7 @@ public sealed class FindingsSnapshotMigratorTests
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
-        var f = snapshot.Findings[0];
+        Finding f = snapshot.Findings[0];
         f.FindingSchemaVersion.Should().Be(FindingsSchema.CurrentFindingVersion);
         f.Category.Should().Be("Requirement");
         f.PayloadType.Should().Contain("Requirement");

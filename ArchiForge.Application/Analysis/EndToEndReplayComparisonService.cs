@@ -1,4 +1,6 @@
 using ArchiForge.Application.Diffs;
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
@@ -30,24 +32,24 @@ public sealed class EndToEndReplayComparisonService(
         ArgumentException.ThrowIfNullOrWhiteSpace(leftRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(rightRunId);
 
-        var leftDetail = await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken)
-            ?? throw new RunNotFoundException(leftRunId);
+        ArchitectureRunDetail leftDetail = await runDetailQueryService.GetRunDetailAsync(leftRunId, cancellationToken)
+                                           ?? throw new RunNotFoundException(leftRunId);
 
-        var rightDetail = await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken)
-            ?? throw new RunNotFoundException(rightRunId);
+        ArchitectureRunDetail rightDetail = await runDetailQueryService.GetRunDetailAsync(rightRunId, cancellationToken)
+                                            ?? throw new RunNotFoundException(rightRunId);
 
-        var leftRun = leftDetail.Run;
-        var rightRun = rightDetail.Run;
+        ArchitectureRun leftRun = leftDetail.Run;
+        ArchitectureRun rightRun = rightDetail.Run;
 
-        var report = new EndToEndReplayComparisonReport
+        EndToEndReplayComparisonReport report = new EndToEndReplayComparisonReport
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
             RunDiff = BuildRunDiff(leftRun, rightRun)
         };
 
-        var leftResults = leftDetail.Results;
-        var rightResults = rightDetail.Results;
+        List<AgentResult> leftResults = leftDetail.Results;
+        List<AgentResult> rightResults = rightDetail.Results;
 
         if (leftResults.Count > 0 || rightResults.Count > 0)
         {
@@ -75,23 +77,23 @@ public sealed class EndToEndReplayComparisonService(
             }
         }
 
-        var leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
-        var rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
+        IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
 
         // Match by ExportType so that ordering differences between runs don't produce nonsensical diffs.
-        var leftByType = leftExports
+        Dictionary<string, RunExportRecord> leftByType = leftExports
             .GroupBy(e => e.ExportType, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-        var rightByType = rightExports
+        Dictionary<string, RunExportRecord> rightByType = rightExports
             .GroupBy(e => e.ExportType, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
 
-        foreach (var exportType in leftByType.Keys.Union(rightByType.Keys, StringComparer.OrdinalIgnoreCase)
+        foreach (string exportType in leftByType.Keys.Union(rightByType.Keys, StringComparer.OrdinalIgnoreCase)
                      .OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
         {
-            var hasLeft = leftByType.TryGetValue(exportType, out var leftRecord);
-            var hasRight = rightByType.TryGetValue(exportType, out var rightRecord);
+            bool hasLeft = leftByType.TryGetValue(exportType, out RunExportRecord? leftRecord);
+            bool hasRight = rightByType.TryGetValue(exportType, out RunExportRecord? rightRecord);
 
             if (hasLeft && hasRight)
             {
@@ -114,7 +116,7 @@ public sealed class EndToEndReplayComparisonService(
 
     private static RunMetadataDiffResult BuildRunDiff(ArchitectureRun leftRun, ArchitectureRun rightRun)
     {
-        var result = new RunMetadataDiffResult();
+        RunMetadataDiffResult result = new RunMetadataDiffResult();
 
         AddIfChanged(result.ChangedFields, "RequestId", leftRun.RequestId, rightRun.RequestId);
         AddIfChanged(result.ChangedFields, "Status", leftRun.Status, rightRun.Status);
@@ -142,7 +144,7 @@ public sealed class EndToEndReplayComparisonService(
         if (report.AgentResultDiff is not null &&
             report.ManifestDiff is not null)
         {
-            var agentChanged = report.AgentResultDiff.AgentDeltas.Any(d =>
+            bool agentChanged = report.AgentResultDiff.AgentDeltas.Any(d =>
                 d.AddedClaims.Count > 0 ||
                 d.RemovedClaims.Count > 0 ||
                 d.AddedFindings.Count > 0 ||
@@ -152,7 +154,7 @@ public sealed class EndToEndReplayComparisonService(
                 d.AddedWarnings.Count > 0 ||
                 d.RemovedWarnings.Count > 0);
 
-            var manifestChanged =
+            bool manifestChanged =
                 report.ManifestDiff.AddedServices.Count > 0 ||
                 report.ManifestDiff.RemovedServices.Count > 0 ||
                 report.ManifestDiff.AddedDatastores.Count > 0 ||

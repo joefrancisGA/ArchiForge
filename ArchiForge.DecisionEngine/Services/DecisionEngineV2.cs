@@ -27,10 +27,10 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         ArgumentNullException.ThrowIfNull(evaluations);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var decisions = new List<DecisionNode>();
+        List<DecisionNode> decisions = new List<DecisionNode>();
 
-        var topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology);
-        var topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
+        AgentTask? topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology);
+        AgentResult? topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
 
         if (topologyTask is null || topologyResult is null)
         {
@@ -50,22 +50,22 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         AgentResult topologyResult,
         IReadOnlyCollection<AgentEvaluation> evaluations)
     {
-        var relevant = evaluations
+        List<AgentEvaluation> relevant = evaluations
             .Where(e => e.TargetAgentTaskId == topologyTask.TaskId)
             .ToList();
 
-        var baseConfidence = topologyResult.Confidence;
-        var support = relevant
+        double baseConfidence = topologyResult.Confidence;
+        double support = relevant
             .Where(e => e.EvaluationType.Equals(EvalTypes.Support, StringComparison.OrdinalIgnoreCase) ||
                         e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
             .Sum(e => Math.Max(0, e.ConfidenceDelta));
 
-        var opposition = relevant
+        double opposition = relevant
             .Where(e => e.EvaluationType.Equals(EvalTypes.Oppose, StringComparison.OrdinalIgnoreCase) ||
                         e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase))
             .Sum(e => Math.Abs(e.ConfidenceDelta));
 
-        var accept = new DecisionOption
+        DecisionOption accept = new DecisionOption
         {
             Description = "Accept topology proposal",
             BaseConfidence = baseConfidence,
@@ -74,7 +74,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             EvidenceRefs = relevant.SelectMany(e => e.EvidenceRefs).Distinct(StringComparer.OrdinalIgnoreCase).ToList()
         };
 
-        var reject = new DecisionOption
+        DecisionOption reject = new DecisionOption
         {
             Description = "Reject topology proposal",
             BaseConfidence = 0.10,
@@ -82,7 +82,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             OppositionScore = support
         };
 
-        var selected = accept.FinalScore >= reject.FinalScore ? accept : reject;
+        DecisionOption selected = accept.FinalScore >= reject.FinalScore ? accept : reject;
 
         return new DecisionNode
         {
@@ -115,20 +115,20 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
     {
         // Include evaluations targeting any task, not just topology, so signals from
         // Compliance and Critic agents influence security control promotion.
-        var taskIds = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.Ordinal);
-        var relevant = evaluations
+        HashSet<string> taskIds = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.Ordinal);
+        List<AgentEvaluation> relevant = evaluations
             .Where(e => taskIds.Contains(e.TargetAgentTaskId))
             .ToList();
 
-        var promotePrivateEndpoints = relevant.Any(e =>
+        bool promotePrivateEndpoints = relevant.Any(e =>
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
             e.Rationale.Contains("private", StringComparison.OrdinalIgnoreCase));
 
-        var promoteManagedIdentity = relevant.Any(e =>
+        bool promoteManagedIdentity = relevant.Any(e =>
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
             e.Rationale.Contains("managed identity", StringComparison.OrdinalIgnoreCase));
 
-        var controls = new List<string>();
+        List<string> controls = new List<string>();
 
         if (promotePrivateEndpoints)
             controls.Add("Private Endpoints");
@@ -136,7 +136,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         if (promoteManagedIdentity)
             controls.Add("Managed Identity");
 
-        var promote = new DecisionOption
+        DecisionOption promote = new DecisionOption
         {
             Description = controls.Count == 0
                 ? "No control promotion"
@@ -169,17 +169,17 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         IReadOnlyCollection<AgentEvaluation> evaluations)
     {
         // Include evaluations targeting any task so Critic/Compliance cautions contribute.
-        var taskIds = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.Ordinal);
-        var relevant = evaluations
+        HashSet<string> taskIds = tasks.Select(t => t.TaskId).ToHashSet(StringComparer.Ordinal);
+        List<AgentEvaluation> relevant = evaluations
             .Where(e => taskIds.Contains(e.TargetAgentTaskId))
             .ToList();
 
-        var cautions = relevant
+        List<AgentEvaluation> cautions = relevant
             .Where(e => e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase) ||
                         e.EvaluationType.Equals(EvalTypes.Oppose, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        var keep = new DecisionOption
+        DecisionOption keep = new DecisionOption
         {
             Description = "Keep current solution complexity",
             BaseConfidence = 0.60,
@@ -188,7 +188,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             OppositionScore = cautions.Sum(e => Math.Abs(e.ConfidenceDelta))
         };
 
-        var reduce = new DecisionOption
+        DecisionOption reduce = new DecisionOption
         {
             Description = "Reduce complexity / consider MVP trimming",
             BaseConfidence = cautions.Count > 0 ? 0.65 : 0.20,
@@ -196,7 +196,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             OppositionScore = 0
         };
 
-        var selected = keep.FinalScore >= reduce.FinalScore ? keep : reduce;
+        DecisionOption selected = keep.FinalScore >= reduce.FinalScore ? keep : reduce;
 
         return new DecisionNode
         {

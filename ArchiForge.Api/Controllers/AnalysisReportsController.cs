@@ -51,13 +51,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (runDetail.Error is not null) return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
         {
-            var report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
             return Ok(new ArchitectureAnalysisReportResponse { Report = report });
         }
         catch (InvalidOperationException ex)
@@ -79,14 +79,14 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (runDetail.Error is not null) return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
         {
-            var report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
-            var markdown = architectureAnalysisExportService.GenerateMarkdown(report);
+            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            string markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return Ok(new ArchitectureAnalysisExportResponse
             {
                 RunId = runId,
@@ -114,14 +114,14 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (runDetail.Error is not null) return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
         {
-            var report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
-            var markdown = architectureAnalysisExportService.GenerateMarkdown(report);
+            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+            string markdown = architectureAnalysisExportService.GenerateMarkdown(report);
             return ApiFileResults.RangeText(Request, markdown, "text/markdown", $"analysis-report-{runId}.md");
         }
         catch (InvalidOperationException ex)
@@ -143,13 +143,13 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (runDetail.Error is not null) return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
         try
         {
-            var bytes = await docxExportService.GenerateDocxAsync(
+            byte[] bytes = await docxExportService.GenerateDocxAsync(
                 await architectureAnalysisService.BuildAsync(request, cancellationToken),
                 cancellationToken);
             return ApiFileResults.RangeBytes(
@@ -177,16 +177,16 @@ public sealed class AnalysisReportsController(
         request ??= new ArchitectureAnalysisRequest();
         request.RunId = runId;
 
-        var runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup runDetail = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (runDetail.Error is not null) return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
-        var jobId = jobs.Enqueue(
+        string jobId = jobs.Enqueue(
             fileNameHint: $"analysis-report-{runId}.docx",
             contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             work: async ct =>
             {
-                var bytes = await docxExportService.GenerateDocxAsync(
+                byte[] bytes = await docxExportService.GenerateDocxAsync(
                     await architectureAnalysisService.BuildAsync(request, ct),
                     ct);
                 return new BackgroundJobFile(
@@ -209,7 +209,7 @@ public sealed class AnalysisReportsController(
 
         // TemplateName is currently advisory only; the selector resolves based on the
         // requested profile key and recommendation inputs.
-        var resolved = consultingDocxExportProfileSelector.Resolve(
+        ResolvedConsultingDocxExportProfile resolved = consultingDocxExportProfileSelector.Resolve(
             request.Profile,
             new Application.Analysis.ConsultingDocxProfileRecommendationRequest());
 
@@ -235,12 +235,12 @@ public sealed class AnalysisReportsController(
     {
         request ??= new ConsultingDocxExportRequest();
 
-        var loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (loaded.Error is not null) return loaded.Error;
 
         try
         {
-            var analysisRequest = new ArchitectureAnalysisRequest
+            ArchitectureAnalysisRequest analysisRequest = new ArchitectureAnalysisRequest
             {
                 RunId = runId,
                 PreloadedRunDetail = loaded.Detail,
@@ -259,11 +259,11 @@ public sealed class AnalysisReportsController(
                 CompareRunId = request.CompareRunId
             };
 
-            var report = await architectureAnalysisService.BuildAsync(
+            ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(
                 analysisRequest,
                 cancellationToken);
 
-            var bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
+            byte[] bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
                 report,
                 cancellationToken);
 
@@ -291,22 +291,22 @@ public sealed class AnalysisReportsController(
     {
         request ??= new ConsultingDocxExportRequest();
 
-        var loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
+        RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (loaded.Error is not null) return loaded.Error;
 
-        var jobId = jobs.Enqueue(
+        string jobId = jobs.Enqueue(
             fileNameHint: $"analysis-report-consulting-{runId}.docx",
             contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             work: async ct =>
             {
-                var analysisRequest = ConsultingDocxAnalysisRequestFactory.Create(runId, request);
+                ArchitectureAnalysisRequest analysisRequest = ConsultingDocxAnalysisRequestFactory.Create(runId, request);
                 analysisRequest.PreloadedRunDetail = loaded.Detail;
 
-                var report = await architectureAnalysisService.BuildAsync(
+                ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(
                     analysisRequest,
                     ct);
 
-                var bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
+                byte[] bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
                     report,
                     ct);
                 return new BackgroundJobFile(
@@ -327,7 +327,7 @@ public sealed class AnalysisReportsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var recommendation = consultingDocxTemplateRecommendationService.Recommend(
+        ConsultingDocxProfileRecommendation recommendation = consultingDocxTemplateRecommendationService.Recommend(
             new AppConsultingDocxProfileRecommendationRequest
             {
                 Audience = request.Audience,
@@ -353,7 +353,7 @@ public sealed class AnalysisReportsController(
     /// </summary>
     private async Task<RunDetailLookup> LoadRunDetailOrNotFoundAsync(string runId, CancellationToken cancellationToken)
     {
-        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
             return new RunDetailLookup { Error = this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) };
         return new RunDetailLookup { Detail = detail };

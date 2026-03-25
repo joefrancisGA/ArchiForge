@@ -12,9 +12,9 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
     [Fact]
     public async Task Build_includes_topology_resource_labels_from_graph_snapshot()
     {
-        var runId = Guid.NewGuid();
-        var ctxId = Guid.NewGuid();
-        var graph = new GraphSnapshot
+        Guid runId = Guid.NewGuid();
+        Guid ctxId = Guid.NewGuid();
+        GraphSnapshot graph = new GraphSnapshot
         {
             GraphSnapshotId = Guid.NewGuid(),
             Nodes =
@@ -30,7 +30,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             ]
         };
 
-        var findings = new FindingsSnapshot
+        FindingsSnapshot findings = new FindingsSnapshot
         {
             FindingsSnapshotId = Guid.NewGuid(),
             RunId = runId,
@@ -39,10 +39,10 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             Findings = []
         };
 
-        var trace = new DecisionTrace { DecisionTraceId = Guid.NewGuid(), RunId = runId };
-        var ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
+        DecisionTrace trace = new DecisionTrace { DecisionTraceId = Guid.NewGuid(), RunId = runId };
+        DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
-        var manifest = new DefaultGoldenManifestBuilder().Build(
+        GoldenManifest manifest = new DefaultGoldenManifestBuilder().Build(
             runId,
             ctxId,
             graph,

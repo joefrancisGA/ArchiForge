@@ -32,15 +32,15 @@ public static class ImageHelper
         ArgumentNullException.ThrowIfNull(body);
         ArgumentNullException.ThrowIfNull(imageBytes);
 
-        var mainPart = doc.MainDocumentPart
-            ?? throw new InvalidOperationException("Main document part is missing.");
+        MainDocumentPart mainPart = doc.MainDocumentPart
+                                    ?? throw new InvalidOperationException("Main document part is missing.");
 
-        var imagePart = mainPart.AddImagePart(ImagePartType.Png);
-        using (var s = new MemoryStream(imageBytes))
+        ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
+        using (MemoryStream s = new MemoryStream(imageBytes))
             imagePart.FeedData(s);
 
-        var relationshipId = mainPart.GetIdOfPart(imagePart);
-        var drawing = CreateInlineDrawing(relationshipId, imageName, widthEmu, heightEmu);
+        string relationshipId = mainPart.GetIdOfPart(imagePart);
+        WpDrawing drawing = CreateInlineDrawing(relationshipId, imageName, widthEmu, heightEmu);
         body.AppendChild(new WpParagraph(new WpRun(drawing)));
     }
 
@@ -54,12 +54,12 @@ public static class ImageHelper
         ArgumentNullException.ThrowIfNull(headerPart);
         ArgumentNullException.ThrowIfNull(imageBytes);
 
-        var imagePart = headerPart.AddImagePart(ImagePartType.Png);
-        using (var s = new MemoryStream(imageBytes))
+        ImagePart imagePart = headerPart.AddImagePart(ImagePartType.Png);
+        using (MemoryStream s = new MemoryStream(imageBytes))
             imagePart.FeedData(s);
 
-        var relationshipId = headerPart.GetIdOfPart(imagePart);
-        var drawing = CreateInlineDrawing(relationshipId, imageName, widthEmu, heightEmu);
+        string relationshipId = headerPart.GetIdOfPart(imagePart);
+        WpDrawing drawing = CreateInlineDrawing(relationshipId, imageName, widthEmu, heightEmu);
         headerPart.Header.AppendChild(new WpParagraph(new WpRun(drawing)));
     }
 

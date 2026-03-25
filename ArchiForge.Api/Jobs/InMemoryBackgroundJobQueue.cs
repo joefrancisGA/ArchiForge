@@ -29,8 +29,8 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
     {
         ArgumentNullException.ThrowIfNull(work);
 
-        var id = Guid.NewGuid().ToString("n");
-        var now = DateTimeOffset.UtcNow;
+        string id = Guid.NewGuid().ToString("n");
+        DateTimeOffset now = DateTimeOffset.UtcNow;
 
         _info[id] = new BackgroundJobInfo(
             JobId: id,
@@ -50,21 +50,21 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
     {
         if (string.IsNullOrWhiteSpace(jobId))
             return null;
-        return _info.TryGetValue(jobId, out var info) ? info : null;
+        return _info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null;
     }
 
     public BackgroundJobFile? GetFile(string jobId)
     {
         if (string.IsNullOrWhiteSpace(jobId))
             return null;
-        return _files.TryGetValue(jobId, out var file) ? file : null;
+        return _files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (var item in _queue.Reader.ReadAllAsync(stoppingToken))
+        await foreach (WorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
         {
-            if (!_info.TryGetValue(item.JobId, out var current))
+            if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
                 continue;
 
             _info[item.JobId] = current with
@@ -75,10 +75,10 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
 
             try
             {
-                var file = await item.Work(stoppingToken);
+                BackgroundJobFile file = await item.Work(stoppingToken);
                 _files[item.JobId] = file;
 
-                var done = _info[item.JobId];
+                BackgroundJobInfo done = _info[item.JobId];
                 _info[item.JobId] = done with
                 {
                     State = BackgroundJobState.Succeeded,
@@ -90,7 +90,7 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
             }
             catch (Exception ex)
             {
-                var failed = _info[item.JobId];
+                BackgroundJobInfo failed = _info[item.JobId];
                 _info[item.JobId] = failed with
                 {
                     State = BackgroundJobState.Failed,
@@ -109,7 +109,7 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
     /// </summary>
     private void EvictOldTerminalJobs()
     {
-        var terminal = _info.Values
+        List<BackgroundJobInfo> terminal = _info.Values
             .Where(j => j.State is BackgroundJobState.Succeeded or BackgroundJobState.Failed)
             .OrderBy(j => j.CompletedUtc)
             .ToList();
@@ -117,7 +117,7 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
         if (terminal.Count <= MaxRetainedTerminalJobs)
             return;
 
-        foreach (var old in terminal.Take(terminal.Count - MaxRetainedTerminalJobs))
+        foreach (BackgroundJobInfo old in terminal.Take(terminal.Count - MaxRetainedTerminalJobs))
         {
             _info.TryRemove(old.JobId, out _);
             _files.TryRemove(old.JobId, out _);

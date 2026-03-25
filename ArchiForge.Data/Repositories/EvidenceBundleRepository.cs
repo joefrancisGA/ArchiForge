@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -30,9 +31,9 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             );
             """;
 
-        var json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
+        string json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -54,9 +55,9 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
             WHERE EvidenceBundleId = @EvidenceBundleId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
             new
             {

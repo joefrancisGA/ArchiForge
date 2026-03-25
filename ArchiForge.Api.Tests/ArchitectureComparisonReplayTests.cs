@@ -10,12 +10,12 @@ public sealed class ArchitectureComparisonReplayTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task ReplayComparison_RecreatesPersistedEndToEndComparisonAsMarkdown()
     {
-        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
             Client, JsonOptions, "REQ-COMP-REPLAY-001");
-        var comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
+        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
-        var replayComparisonResponse = await Client.PostAsync(
+        HttpResponseMessage replayComparisonResponse = await Client.PostAsync(
             $"/v1/architecture/comparisons/{comparisonRecordId}/replay",
             JsonContent(new
             {
@@ -26,7 +26,7 @@ public sealed class ArchitectureComparisonReplayTests(ArchiForgeApiFactory facto
         replayComparisonResponse.Content.Headers.ContentType!.MediaType
             .Should().Be("text/markdown");
 
-        var content = await replayComparisonResponse.Content.ReadAsStringAsync();
+        string content = await replayComparisonResponse.Content.ReadAsStringAsync();
         content.Should().Contain("# ArchiForge End-to-End Replay Comparison Export");
     }
 }

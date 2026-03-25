@@ -10,7 +10,7 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
         Guid projectId,
         IReadOnlyList<RecommendationRecord> recommendations)
     {
-        var profile = new RecommendationLearningProfile
+        RecommendationLearningProfile profile = new RecommendationLearningProfile
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
@@ -54,16 +54,16 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
 
     private static Dictionary<string, double> BuildWeights(IReadOnlyList<RecommendationOutcomeStats> stats)
     {
-        var weights = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, double> weights = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var stat in stats)
+        foreach (RecommendationOutcomeStats stat in stats)
         {
-            var acceptedScore = stat.AcceptanceRate * 1.5;
-            var implementedScore = stat.ImplementationRate * 2.0;
-            var deferredPenalty = stat.DeferredRate * 0.7;
-            var rejectedPenalty = stat.RejectionRate * 1.0;
+            double acceptedScore = stat.AcceptanceRate * 1.5;
+            double implementedScore = stat.ImplementationRate * 2.0;
+            double deferredPenalty = stat.DeferredRate * 0.7;
+            double rejectedPenalty = stat.RejectionRate * 1.0;
 
-            var weight = 1.0 + acceptedScore + implementedScore - deferredPenalty - rejectedPenalty;
+            double weight = 1.0 + acceptedScore + implementedScore - deferredPenalty - rejectedPenalty;
 
             weight = Math.Clamp(weight, 0.5, 2.0);
             weights[stat.Key] = weight;

@@ -13,7 +13,7 @@ public sealed class AgentResultDiffServiceTests
     [Fact]
     public void Compare_ShouldDetectClaimAndControlChanges()
     {
-        var left = new[]
+        AgentResult[] left = new[]
         {
             new AgentResult
             {
@@ -33,7 +33,7 @@ public sealed class AgentResultDiffServiceTests
             }
         };
 
-        var right = new[]
+        AgentResult[] right = new[]
         {
             new AgentResult
             {
@@ -53,12 +53,12 @@ public sealed class AgentResultDiffServiceTests
             }
         };
 
-        var service = new AgentResultDiffService();
+        AgentResultDiffService service = new AgentResultDiffService();
 
-        var diff = service.Compare("RUN-LEFT", left, "RUN-RIGHT", right);
+        AgentResultDiffResult diff = service.Compare("RUN-LEFT", left, "RUN-RIGHT", right);
 
         diff.AgentDeltas.Should().ContainSingle();
-        var delta = diff.AgentDeltas.Single();
+        AgentResultDelta delta = diff.AgentDeltas.Single();
 
         delta.AgentType.Should().Be(AgentType.Compliance);
         delta.AddedClaims.Should().Contain("Private endpoints required");

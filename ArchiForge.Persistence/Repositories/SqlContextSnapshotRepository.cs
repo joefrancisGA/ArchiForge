@@ -7,6 +7,8 @@ using ArchiForge.Persistence.Serialization;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Repositories;
 
 public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory) : IContextSnapshotRepository
@@ -29,8 +31,8 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 ProjectId = projectId
@@ -56,8 +58,8 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             WHERE SnapshotId = @SnapshotId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 SnapshotId = snapshotId
@@ -106,7 +108,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 

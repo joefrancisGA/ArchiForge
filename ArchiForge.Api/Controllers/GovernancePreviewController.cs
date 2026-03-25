@@ -39,13 +39,13 @@ public sealed class GovernancePreviewController(
 
         try
         {
-            var request = new GovernancePreviewRequest
+            GovernancePreviewRequest request = new GovernancePreviewRequest
             {
                 RunId = body.RunId,
                 ManifestVersion = body.ManifestVersion,
                 Environment = body.Environment
             };
-            var result = await previewService.PreviewActivationAsync(request, cancellationToken);
+            GovernancePreviewResult result = await previewService.PreviewActivationAsync(request, cancellationToken);
             return Ok(result);
         }
         catch (RunNotFoundException ex)
@@ -78,12 +78,12 @@ public sealed class GovernancePreviewController(
 
         try
         {
-            var request = new GovernanceEnvironmentComparisonRequest
+            GovernanceEnvironmentComparisonRequest request = new GovernanceEnvironmentComparisonRequest
             {
                 SourceEnvironment = body.SourceEnvironment,
                 TargetEnvironment = body.TargetEnvironment
             };
-            var result = await previewService.CompareEnvironmentsAsync(request, cancellationToken);
+            GovernanceEnvironmentComparisonResult result = await previewService.CompareEnvironmentsAsync(request, cancellationToken);
             return Ok(result);
         }
         catch (ArgumentException ex)

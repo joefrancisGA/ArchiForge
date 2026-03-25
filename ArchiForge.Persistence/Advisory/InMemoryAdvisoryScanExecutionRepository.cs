@@ -25,7 +25,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         _ = ct;
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId);
+            int i = _items.FindIndex(x => x.ExecutionId == execution.ExecutionId);
             if (i >= 0)
                 _items[i] = execution;
         }
@@ -42,7 +42,7 @@ public sealed class InMemoryAdvisoryScanExecutionRepository : IAdvisoryScanExecu
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<AdvisoryScanExecution> result = _items
                 .Where(x => x.ScheduleId == scheduleId)
                 .OrderByDescending(x => x.StartedUtc)
                 .Take(take)

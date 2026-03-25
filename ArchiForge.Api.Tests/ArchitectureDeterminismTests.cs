@@ -11,16 +11,16 @@ public sealed class ArchitectureDeterminismTests(ArchiForgeApiFactory factory) :
     [Fact]
     public async Task DeterminismCheck_ReturnsResult()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DETERMINISM-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
         var request = new
@@ -30,13 +30,13 @@ public sealed class ArchitectureDeterminismTests(ArchiForgeApiFactory factory) :
             commitReplays = false
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/determinism-check",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await response.Content.ReadFromJsonAsync<DeterminismCheckResponse>(JsonOptions);
+        DeterminismCheckResponse? payload = await response.Content.ReadFromJsonAsync<DeterminismCheckResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Result.SourceRunId.Should().Be(runId);
         payload.Result.Iterations.Should().Be(3);

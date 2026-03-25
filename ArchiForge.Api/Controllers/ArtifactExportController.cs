@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
+using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Packaging;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
@@ -48,8 +49,8 @@ public sealed class ArtifactExportController(
         Guid manifestId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var artifacts = await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IReadOnlyList<ArtifactDescriptor> artifacts = await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
         return Ok(artifacts.Select(x => new ArtifactDescriptorResponse
         {
@@ -70,12 +71,12 @@ public sealed class ArtifactExportController(
         Guid artifactId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
             return NotFound();
 
-        var file = artifactPackagingService.BuildSingleFileExport(artifact);
+        ArtifactFileExport file = artifactPackagingService.BuildSingleFileExport(artifact);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -96,12 +97,12 @@ public sealed class ArtifactExportController(
         Guid manifestId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
             return NotFound();
 
-        var package = artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
+        ArtifactPackage package = artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
 
         await auditService.LogAsync(
             new AuditEvent
@@ -121,23 +122,23 @@ public sealed class ArtifactExportController(
         Guid runId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (runDetail is null || runDetail.GoldenManifest is null)
             return NotFound();
 
-        var artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
+        IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
             runDetail.GoldenManifest.ManifestId,
             ct);
 
-        var manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
+        string manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
 
-        var traceJson = runDetail.DecisionTrace is null
+        string? traceJson = runDetail.DecisionTrace is null
             ? null
             : JsonSerializer.Serialize(runDetail.DecisionTrace, ExportJsonOptions);
 
-        var package = artifactPackagingService.BuildRunExportPackage(
+        ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(
             runId,
             runDetail.GoldenManifest.ManifestId,
             artifacts,

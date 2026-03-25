@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -35,7 +36,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         var rows = traces.Select(t => new
         {
@@ -65,9 +66,9 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             LIMIT 2000;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new
             {
@@ -75,8 +76,8 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             },
             cancellationToken: cancellationToken));
 
-        var traces = new List<DecisionTrace>();
-        foreach (var json in rows)
+        List<DecisionTrace> traces = new List<DecisionTrace>();
+        foreach (string json in rows)
         {
             DecisionTrace? trace;
             try

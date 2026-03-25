@@ -1,6 +1,8 @@
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
 
+using Microsoft.AspNetCore.Diagnostics;
+
 namespace ArchiForge.Api.Startup;
 
 internal static class PipelineExtensions
@@ -12,18 +14,18 @@ internal static class PipelineExtensions
         {
             exceptionHandlerApp.Run(async context =>
             {
-                var exceptionFeature = context.Features
+                IExceptionHandlerFeature? exceptionFeature = context.Features
                     .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
 
                 if (exceptionFeature?.Error is { } ex)
                 {
-                    var logger = context.RequestServices
+                    ILogger<WebApplication> logger = context.RequestServices
                         .GetRequiredService<ILogger<WebApplication>>();
                     logger.LogError(ex, "Unhandled exception for {Method} {Path}",
                         context.Request.Method, context.Request.Path);
                 }
 
-                var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+                Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
                 {
                     Type = ProblemTypes.InternalError,
                     Title = "An unexpected error occurred.",
@@ -55,7 +57,7 @@ internal static class PipelineExtensions
         app.UseAuthorization();
         app.MapHealthChecks("/health");
 
-        var prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
+        bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)
         {
             app.UseOpenTelemetryPrometheusScrapingEndpoint();

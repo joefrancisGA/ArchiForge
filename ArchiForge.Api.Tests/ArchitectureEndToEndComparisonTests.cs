@@ -13,15 +13,15 @@ public sealed class ArchitectureEndToEndComparisonTests(ArchiForgeApiFactory fac
     [Fact]
     public async Task CompareRunsEndToEndSummary_ReturnsUnifiedSummary()
     {
-        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
             Client, JsonOptions, "REQ-E2E-001");
 
-        var response = await Client.GetAsync(
+        HttpResponseMessage response = await Client.GetAsync(
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={runId}&rightRunId={replayRunId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
+        EndToEndReplayComparisonSummaryResponse? payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonSummaryResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Summary.Should().Contain("# End-to-End Replay Comparison:");
     }

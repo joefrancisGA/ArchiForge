@@ -19,8 +19,8 @@ public sealed class ArchiForgeApiClientHttpTests
 
     private static ArchiForgeApiClient CreateClient(HttpResponseMessage response)
     {
-        var handler = new MockHttpMessageHandler(response);
-        var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
+        MockHttpMessageHandler handler = new MockHttpMessageHandler(response);
+        HttpClient http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
         return new ArchiForgeApiClient(http);
     }
 
@@ -35,8 +35,8 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CreateRunAsync_On201_ReturnsSuccessAndRunId()
     {
-        var runId = "run-abc-123";
-        var json = JsonSerializer.Serialize(new
+        string runId = "run-abc-123";
+        string json = JsonSerializer.Serialize(new
         {
             run = new
             {
@@ -48,11 +48,11 @@ public sealed class ArchiForgeApiClientHttpTests
             },
             tasks = Array.Empty<object>()
         }, SJsonCamelCase);
-        var response = new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(json) };
+        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        var client = CreateClient(response);
-        var result = await client.CreateRunAsync(CreateValidRequest());
+        ArchiForgeApiClient client = CreateClient(response);
+        ArchiForgeApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
 
         result.Success.Should().BeTrue();
         result.Response.Should().NotBeNull();
@@ -63,15 +63,15 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CreateRunAsync_On400_ReturnsFailureWithParsedError()
     {
-        var json = JsonSerializer.Serialize(new
+        string json = JsonSerializer.Serialize(new
         {
             detail = "Validation failed"
         });
-        var response = new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
+        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        var client = CreateClient(response);
-        var result = await client.CreateRunAsync(CreateValidRequest());
+        ArchiForgeApiClient client = CreateClient(response);
+        ArchiForgeApiClient.CreateRunResult result = await client.CreateRunAsync(CreateValidRequest());
 
         result.Success.Should().BeFalse();
         result.Error.Should().Contain("Validation failed");
@@ -81,8 +81,8 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task GetRunAsync_On200_ReturnsGetRunResult()
     {
-        var runId = "run-x";
-        var json = JsonSerializer.Serialize(new
+        string runId = "run-x";
+        string json = JsonSerializer.Serialize(new
         {
             run = new
             {
@@ -95,11 +95,11 @@ public sealed class ArchiForgeApiClientHttpTests
             tasks = Array.Empty<object>(),
             results = Array.Empty<object>()
         }, SJsonCamelCase);
-        var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        var client = CreateClient(response);
-        var result = await client.GetRunAsync(runId);
+        ArchiForgeApiClient client = CreateClient(response);
+        ArchiForgeApiClient.GetRunResult? result = await client.GetRunAsync(runId);
 
         result.Should().NotBeNull();
         result.Run.RunId.Should().Be(runId);
@@ -110,10 +110,10 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task GetRunAsync_On404_ReturnsNull()
     {
-        var response = new HttpResponseMessage(HttpStatusCode.NotFound);
+        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.NotFound);
 
-        var client = CreateClient(response);
-        var result = await client.GetRunAsync("nonexistent");
+        ArchiForgeApiClient client = CreateClient(response);
+        ArchiForgeApiClient.GetRunResult? result = await client.GetRunAsync("nonexistent");
 
         result.Should().BeNull();
     }
@@ -121,8 +121,8 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CommitRunAsync_On200_ReturnsSuccessAndManifestVersion()
     {
-        var version = "v2";
-        var json = JsonSerializer.Serialize(new
+        string version = "v2";
+        string json = JsonSerializer.Serialize(new
         {
             manifest = new
             {
@@ -135,11 +135,11 @@ public sealed class ArchiForgeApiClientHttpTests
             },
             warnings = Array.Empty<string>()
         }, SJsonCamelCase);
-        var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-        var client = CreateClient(response);
-        var result = await client.CommitRunAsync("run-1");
+        ArchiForgeApiClient client = CreateClient(response);
+        ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
 
         result.Should().NotBeNull();
         result.Success.Should().BeTrue();
@@ -150,10 +150,10 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CheckHealthAsync_On200_ReturnsTrue()
     {
-        var response = new HttpResponseMessage(HttpStatusCode.OK);
+        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
 
-        var client = CreateClient(response);
-        var result = await client.CheckHealthAsync();
+        ArchiForgeApiClient client = CreateClient(response);
+        bool result = await client.CheckHealthAsync();
 
         result.Should().BeTrue();
     }
@@ -161,10 +161,10 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CheckHealthAsync_On503_ReturnsFalse()
     {
-        var response = new HttpResponseMessage((HttpStatusCode)503);
+        HttpResponseMessage response = new HttpResponseMessage((HttpStatusCode)503);
 
-        var client = CreateClient(response);
-        var result = await client.CheckHealthAsync();
+        ArchiForgeApiClient client = CreateClient(response);
+        bool result = await client.CheckHealthAsync();
 
         result.Should().BeFalse();
     }

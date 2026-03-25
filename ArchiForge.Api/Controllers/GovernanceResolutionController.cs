@@ -52,9 +52,9 @@ public sealed class GovernanceResolutionController(
     [ProducesResponseType(typeof(EffectiveGovernanceResolutionResult), StatusCodes.Status200OK)]
     public async Task<IActionResult> Resolve(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var result = await resolver.ResolveAsync(
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

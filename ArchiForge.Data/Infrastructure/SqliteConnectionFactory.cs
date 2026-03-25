@@ -28,16 +28,16 @@ public sealed class SqliteConnectionFactory(string connectionString) : IDbConnec
                 return;
         }
 
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "ArchiForge.Data.SQL.ArchiForge.Sqlite.sql";
-        using var stream = assembly.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
-        using var reader = new StreamReader(stream);
-        var schema = reader.ReadToEnd();
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        string resourceName = "ArchiForge.Data.SQL.ArchiForge.Sqlite.sql";
+        using Stream stream = assembly.GetManifestResourceStream(resourceName)
+                              ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
+        using StreamReader reader = new StreamReader(stream);
+        string schema = reader.ReadToEnd();
 
-        using var connection = new SqliteConnection(connectionString);
+        using SqliteConnection connection = new SqliteConnection(connectionString);
         connection.Open();
-        using var cmd = connection.CreateCommand();
+        using SqliteCommand cmd = connection.CreateCommand();
         cmd.CommandText = schema;
         cmd.ExecuteNonQuery();
     }

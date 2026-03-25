@@ -23,9 +23,9 @@ public class SecurityBaselineHintsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
-        foreach (var hint in payload.SecurityBaselineHints)
+        foreach (string hint in payload.SecurityBaselineHints)
         {
             batch.CanonicalObjects.Add(new CanonicalObject
             {

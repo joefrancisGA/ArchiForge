@@ -23,7 +23,7 @@ internal static class ReplayComparisonRequestMapper
         ReplayComparisonRequest request,
         string? formatFromQuery)
     {
-        var format = request.Format;
+        string format = request.Format;
         if (!string.IsNullOrWhiteSpace(formatFromQuery) && string.IsNullOrWhiteSpace(format))
             format = formatFromQuery;
 

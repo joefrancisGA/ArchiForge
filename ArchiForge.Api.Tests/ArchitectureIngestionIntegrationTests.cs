@@ -57,10 +57,10 @@ public sealed class ArchitectureIngestionIntegrationTests(ArchiForgeApiFactory f
             }
         };
 
-        var response = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
+        HttpResponseMessage response = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        var payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Run.RunId.Should().NotBeNullOrWhiteSpace();
         payload.Tasks.Should().NotBeEmpty();

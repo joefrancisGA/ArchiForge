@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -42,9 +43,9 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             );
             """;
 
-        var json = JsonSerializer.Serialize(trace, ContractJson.Default);
+        string json = JsonSerializer.Serialize(trace, ContractJson.Default);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -74,9 +75,9 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             LIMIT 500;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new
             {
@@ -102,20 +103,20 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             OFFSET @Offset ROWS FETCH NEXT @Limit ROWS ONLY;
             """;
 
-        var clampedOffset = Math.Max(0, offset);
-        var clampedLimit = Math.Clamp(limit, 1, 500);
+        int clampedOffset = Math.Max(0, offset);
+        int clampedLimit = Math.Clamp(limit, 1, 500);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync(new CommandDefinition(
+        IEnumerable<dynamic> rows = await connection.QueryAsync(new CommandDefinition(
             sql,
             new { RunId = runId, Offset = clampedOffset, Limit = clampedLimit },
             cancellationToken: cancellationToken));
 
-        var list = rows.ToList();
-        var totalCount = list.Count > 0 ? (int)list[0].TotalCount : 0;
+        List<dynamic> list = rows.ToList();
+        int totalCount = list.Count > 0 ? (int)list[0].TotalCount : 0;
 
-        var traces = DeserializeTraces(list.Select(row => (string)row.TraceJson), $"run '{runId}' (paged)");
+        IReadOnlyList<AgentExecutionTrace> traces = DeserializeTraces(list.Select(row => (string)row.TraceJson), $"run '{runId}' (paged)");
 
         return (traces, totalCount);
     }
@@ -132,9 +133,9 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
             LIMIT 500;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new
             {
@@ -149,8 +150,8 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         IEnumerable<string> jsonRows,
         string context)
     {
-        var traces = new List<AgentExecutionTrace>();
-        foreach (var json in jsonRows)
+        List<AgentExecutionTrace> traces = new List<AgentExecutionTrace>();
+        foreach (string json in jsonRows)
         {
             AgentExecutionTrace? trace;
             try

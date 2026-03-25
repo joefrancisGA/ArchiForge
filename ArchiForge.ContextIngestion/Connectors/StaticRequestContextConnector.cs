@@ -21,7 +21,7 @@ public class StaticRequestContextConnector : IContextConnector
         RawContextPayload payload,
         CancellationToken ct)
     {
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
         if (!string.IsNullOrWhiteSpace(payload.Description))
         {

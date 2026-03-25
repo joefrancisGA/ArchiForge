@@ -2,7 +2,9 @@ using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Summaries;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
+using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
@@ -61,7 +63,7 @@ public sealed class ArchitectureAnalysisService(
             run = primaryDetail.Run;
         }
 
-        var report = new ArchitectureAnalysisReport
+        ArchitectureAnalysisReport report = new ArchitectureAnalysisReport
         {
             Run = run
         };
@@ -143,7 +145,7 @@ public sealed class ArchitectureAnalysisService(
             }
             else
             {
-                var compareManifest = await manifestRepository.GetByVersionAsync(
+                GoldenManifest? compareManifest = await manifestRepository.GetByVersionAsync(
                     request.CompareManifestVersion,
                     cancellationToken);
 
@@ -167,7 +169,7 @@ public sealed class ArchitectureAnalysisService(
         }
         else
         {
-            var compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
+            ArchitectureRunDetail? compareDetail = await runDetailQueryService.GetRunDetailAsync(request.CompareRunId, cancellationToken);
 
             if (compareDetail is null)
             {
@@ -175,9 +177,9 @@ public sealed class ArchitectureAnalysisService(
             }
             else
             {
-                var leftResults = primaryDetail?.Results
-                    ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
-                var rightResults = compareDetail.Results;
+                IReadOnlyList<AgentResult> leftResults = primaryDetail?.Results
+                                                         ?? await resultRepository.GetByRunIdAsync(request.RunId, cancellationToken);
+                List<AgentResult> rightResults = compareDetail.Results;
 
                 report.AgentResultDiff = agentResultDiffService.Compare(
                     request.RunId,

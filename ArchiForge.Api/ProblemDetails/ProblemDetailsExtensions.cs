@@ -20,7 +20,7 @@ public static class ProblemDetailsExtensions
         string? type = null,
         string? instance = null)
     {
-        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Type = type ?? ProblemTypes.BadRequest,
             Title = "Bad Request",
@@ -44,7 +44,7 @@ public static class ProblemDetailsExtensions
         string? type = null,
         string? instance = null)
     {
-        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Type = type ?? ProblemTypes.ResourceNotFound,
             Title = "Not Found",
@@ -65,7 +65,7 @@ public static class ProblemDetailsExtensions
         string? type = null,
         string? instance = null)
     {
-        var problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
         {
             Type = type ?? ProblemTypes.Conflict,
             Title = "Conflict",
@@ -91,7 +91,7 @@ public static class ProblemDetailsExtensions
         if (exception is ConflictException)
             return controller.ConflictProblem(exception.Message, ProblemTypes.Conflict);
 
-        var instance = controller.Request.Path.Value;
+        string? instance = controller.Request.Path.Value;
         return ApplicationProblemMapper.MapInvalidOperation(
             exception,
             instance,

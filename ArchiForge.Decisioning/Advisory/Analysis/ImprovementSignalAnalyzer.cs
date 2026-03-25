@@ -1,5 +1,6 @@
 using ArchiForge.Core.Comparison;
 using ArchiForge.Decisioning.Advisory.Models;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.Decisioning.Advisory.Analysis;
@@ -20,7 +21,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
     {
         _ = findingsSnapshot;
 
-        var signals = new List<ImprovementSignal>();
+        List<ImprovementSignal> signals = new List<ImprovementSignal>();
 
         AnalyzeRequirementSignals(manifest, signals);
         AnalyzeSecuritySignals(manifest, signals);
@@ -37,7 +38,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeRequirementSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        foreach (var uncovered in manifest.Requirements.Uncovered)
+        foreach (RequirementCoverageItem uncovered in manifest.Requirements.Uncovered)
         {
             signals.Add(new ImprovementSignal
             {
@@ -55,7 +56,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeSecuritySignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        foreach (var gap in manifest.Security.Gaps)
+        foreach (string gap in manifest.Security.Gaps)
         {
             signals.Add(new ImprovementSignal
             {
@@ -70,7 +71,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeComplianceSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        foreach (var gap in manifest.Compliance.Gaps)
+        foreach (string gap in manifest.Compliance.Gaps)
         {
             signals.Add(new ImprovementSignal
             {
@@ -85,7 +86,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeTopologySignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        foreach (var gap in manifest.Topology.Gaps)
+        foreach (string gap in manifest.Topology.Gaps)
         {
             signals.Add(new ImprovementSignal
             {
@@ -100,7 +101,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeCostSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        foreach (var risk in manifest.Cost.CostRisks)
+        foreach (string risk in manifest.Cost.CostRisks)
         {
             signals.Add(new ImprovementSignal
             {
@@ -115,9 +116,9 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeUnresolvedIssueSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
     {
-        foreach (var issue in manifest.UnresolvedIssues.Items)
+        foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
-            var sev = string.IsNullOrWhiteSpace(issue.Severity) ? "Medium" : issue.Severity;
+            string sev = string.IsNullOrWhiteSpace(issue.Severity) ? "Medium" : issue.Severity;
             signals.Add(new ImprovementSignal
             {
                 SignalType = "UnresolvedIssue",
@@ -132,7 +133,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 
     private static void AnalyzeComparisonSignals(ComparisonResult comparison, List<ImprovementSignal> signals)
     {
-        foreach (var delta in comparison.SecurityChanges)
+        foreach (SecurityDelta delta in comparison.SecurityChanges)
         {
             if (!string.Equals(delta.BaseStatus, delta.TargetStatus, StringComparison.OrdinalIgnoreCase))
             {
@@ -147,7 +148,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             }
         }
 
-        foreach (var delta in comparison.CostChanges)
+        foreach (CostDelta delta in comparison.CostChanges)
         {
             if (delta is { BaseCost: not null, TargetCost: not null } && delta.TargetCost > delta.BaseCost)
             {
@@ -162,7 +163,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             }
         }
 
-        foreach (var d in comparison.DecisionChanges)
+        foreach (DecisionDelta d in comparison.DecisionChanges)
         {
             if (string.Equals(d.ChangeType, "Removed", StringComparison.OrdinalIgnoreCase))
             {

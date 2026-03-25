@@ -38,16 +38,16 @@ public class JsonInfrastructureDeclarationParser(ILogger<JsonInfrastructureDecla
         if (doc?.Resources is null || doc.Resources.Count == 0)
             return Task.FromResult<IReadOnlyList<CanonicalObject>>([]);
 
-        var results = new List<CanonicalObject>();
+        List<CanonicalObject> results = new List<CanonicalObject>();
 
-        foreach (var resource in doc.Resources)
+        foreach (ResourceDeclarationItem resource in doc.Resources)
         {
             if (string.IsNullOrWhiteSpace(resource.Type) || string.IsNullOrWhiteSpace(resource.Name))
                 continue;
 
-            var objectType = ResolveObjectType(resource.Type);
+            string objectType = ResolveObjectType(resource.Type);
 
-            var properties = new Dictionary<string, string>(
+            Dictionary<string, string> properties = new Dictionary<string, string>(
                 resource.Properties,
                 StringComparer.OrdinalIgnoreCase);
 

@@ -18,7 +18,7 @@ public sealed class RecommendationFeedbackAnalyzer(IRecommendationRepository rep
         Guid projectId,
         CancellationToken ct)
     {
-        var items = await repository
+        IReadOnlyList<RecommendationRecord> items = await repository
             .ListByScopeAsync(tenantId, workspaceId, projectId, null, AnalyticsBatchCap, ct)
             .ConfigureAwait(false);
 

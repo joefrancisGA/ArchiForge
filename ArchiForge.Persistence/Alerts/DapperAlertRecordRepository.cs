@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Alerts;
 
 /// <summary>
@@ -40,7 +42,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
     }
 
@@ -60,7 +62,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             WHERE AlertId = @AlertId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
     }
 
@@ -72,7 +74,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             WHERE AlertId = @AlertId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
             new CommandDefinition(sql, new
             {
@@ -99,7 +101,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
             new CommandDefinition(
                 sql,
@@ -132,8 +134,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<AlertRecord>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRecord> rows = await connection.QueryAsync<AlertRecord>(
             new CommandDefinition(
                 sql,
                 new

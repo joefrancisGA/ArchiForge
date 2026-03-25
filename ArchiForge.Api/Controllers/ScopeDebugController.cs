@@ -25,7 +25,7 @@ public sealed class ScopeDebugController(IScopeContextProvider scopeProvider) : 
     [ProducesResponseType(typeof(ScopeContext), StatusCodes.Status200OK)]
     public IActionResult GetScope()
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         return Ok(scope);
     }
 }

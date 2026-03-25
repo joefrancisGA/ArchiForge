@@ -17,9 +17,9 @@ public class DefaultGraphBuilder(
     {
         ArgumentNullException.ThrowIfNull(contextSnapshot);
 
-        var result = new GraphBuildResult();
+        GraphBuildResult result = new GraphBuildResult();
 
-        var contextNode = new GraphNode
+        GraphNode contextNode = new GraphNode
         {
             NodeId = $"context-{contextSnapshot.SnapshotId:N}",
             NodeType = GraphNodeTypes.ContextSnapshot,
@@ -36,12 +36,12 @@ public class DefaultGraphBuilder(
 
         result.Nodes.Add(contextNode);
 
-        foreach (var item in contextSnapshot.CanonicalObjects ?? [])
+        foreach (CanonicalObject item in contextSnapshot.CanonicalObjects ?? [])
         {
             result.Nodes.Add(nodeFactory.CreateNode(item));
         }
 
-        var inferredEdges = edgeInferer.InferEdges(
+        IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(
             contextSnapshot,
             result.Nodes);
 

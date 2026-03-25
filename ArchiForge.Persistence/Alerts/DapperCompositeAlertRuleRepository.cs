@@ -1,3 +1,5 @@
+using System.Data.Common;
+
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Persistence.Connections;
 
@@ -42,14 +44,14 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue);
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using var tx = await connection.BeginTransactionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using DbTransaction tx = await connection.BeginTransactionAsync(ct);
         try
         {
             await connection.ExecuteAsync(
                 new CommandDefinition(insertRule, rule, transaction: tx, cancellationToken: ct));
 
-            foreach (var c in rule.Conditions)
+            foreach (AlertRuleCondition c in rule.Conditions)
             {
                 await connection.ExecuteAsync(
                     new CommandDefinition(
@@ -103,8 +105,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             VALUES (@ConditionId, @CompositeRuleId, @MetricType, @Operator, @ThresholdValue);
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await using var tx = await connection.BeginTransactionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using DbTransaction tx = await connection.BeginTransactionAsync(ct);
         try
         {
             await connection.ExecuteAsync(
@@ -119,7 +121,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
                     transaction: tx,
                     cancellationToken: ct));
 
-            foreach (var c in rule.Conditions)
+            foreach (AlertRuleCondition c in rule.Conditions)
             {
                 await connection.ExecuteAsync(
                     new CommandDefinition(
@@ -157,8 +159,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             WHERE CompositeRuleId = @CompositeRuleId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rule = await connection.QueryFirstOrDefaultAsync<CompositeAlertRule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        CompositeAlertRule? rule = await connection.QueryFirstOrDefaultAsync<CompositeAlertRule>(
             new CommandDefinition(sqlRule, new
             {
                 CompositeRuleId = compositeRuleId
@@ -167,7 +169,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         if (rule is null)
             return null;
 
-        var singleRule = new List<CompositeAlertRule> { rule };
+        List<CompositeAlertRule> singleRule = new List<CompositeAlertRule> { rule };
         await HydrateConditionsAsync(connection, singleRule, ct).ConfigureAwait(false);
         return rule;
     }
@@ -191,8 +193,8 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rules = (await connection.QueryAsync<CompositeAlertRule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        List<CompositeAlertRule> rules = (await connection.QueryAsync<CompositeAlertRule>(
                 new CommandDefinition(
                     sql,
                     new
@@ -225,25 +227,25 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         bool enabledOnly,
         CancellationToken ct)
     {
-        var sql = """
-            SELECT TOP 200
-                CompositeRuleId, TenantId, WorkspaceId, ProjectId,
-                Name, Severity, [Operator] AS Operator, IsEnabled,
-                SuppressionWindowMinutes, CooldownMinutes, ReopenDeltaThreshold,
-                DedupeScope, TargetChannelType, CreatedUtc
-            FROM dbo.CompositeAlertRules
-            WHERE TenantId = @TenantId
-              AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId
-            """;
+        string sql = """
+                     SELECT TOP 200
+                         CompositeRuleId, TenantId, WorkspaceId, ProjectId,
+                         Name, Severity, [Operator] AS Operator, IsEnabled,
+                         SuppressionWindowMinutes, CooldownMinutes, ReopenDeltaThreshold,
+                         DedupeScope, TargetChannelType, CreatedUtc
+                     FROM dbo.CompositeAlertRules
+                     WHERE TenantId = @TenantId
+                       AND WorkspaceId = @WorkspaceId
+                       AND ProjectId = @ProjectId
+                     """;
 
         if (enabledOnly)
             sql += " AND IsEnabled = 1";
 
         sql += " ORDER BY CreatedUtc DESC;";
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rules = (await connection.QueryAsync<CompositeAlertRule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        List<CompositeAlertRule> rules = (await connection.QueryAsync<CompositeAlertRule>(
                 new CommandDefinition(
                     sql,
                     new
@@ -274,7 +276,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
             WHERE CompositeRuleId IN @Ids;
             """;
 
-        var ids = rules.Select(r => r.CompositeRuleId).ToArray();
+        Guid[] ids = rules.Select(r => r.CompositeRuleId).ToArray();
         List<ConditionRow> rows = (await connection
                 .QueryAsync<ConditionRow>(
                     new CommandDefinition(sql, new
@@ -287,13 +289,13 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         Dictionary<Guid, List<ConditionRow>> byRule = rows
             .GroupBy(x => x.CompositeRuleId)
             .ToDictionary(g => g.Key, g => g.ToList());
-        foreach (var rule in rules)
+        foreach (CompositeAlertRule rule in rules)
         {
             rule.Conditions.Clear();
-            if (!byRule.TryGetValue(rule.CompositeRuleId, out var list))
+            if (!byRule.TryGetValue(rule.CompositeRuleId, out List<ConditionRow>? list))
                 continue;
 
-            foreach (var row in list)
+            foreach (ConditionRow row in list)
             {
                 rule.Conditions.Add(
                     new AlertRuleCondition

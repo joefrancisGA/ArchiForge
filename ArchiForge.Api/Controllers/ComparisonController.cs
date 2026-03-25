@@ -44,9 +44,9 @@ public sealed class ComparisonController(
         [FromQuery] Guid targetRunId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
-        var targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
+        RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
 
         if (baseRun is null)
             return this.NotFoundProblem($"Run '{baseRunId}' was not found.", ProblemTypes.RunNotFound);
@@ -60,7 +60,7 @@ public sealed class ComparisonController(
         if (targetRun.GoldenManifest is null)
             return this.NotFoundProblem($"Run '{targetRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
-        var result = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        ComparisonResult result = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         return Ok(result);
     }
 }

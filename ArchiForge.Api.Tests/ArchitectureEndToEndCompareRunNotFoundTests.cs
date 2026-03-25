@@ -11,11 +11,11 @@ public sealed class ArchitectureEndToEndCompareRunNotFoundTests(ArchiForgeApiFac
     [Fact]
     public async Task CompareRunsEndToEnd_WhenRunMissing_Returns404RunNotFound()
     {
-        var response = await Client.GetAsync(
+        HttpResponseMessage response = await Client.GetAsync(
             "/v1/architecture/run/compare/end-to-end?leftRunId=missing-left&rightRunId=missing-right");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        var json = await response.Content.ReadAsStringAsync();
+        string json = await response.Content.ReadAsStringAsync();
         json.Should().Contain("run-not-found");
         json.Should().Contain("Run Not Found");
     }

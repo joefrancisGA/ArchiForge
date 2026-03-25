@@ -62,7 +62,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
     public void AddParagraph(string text, bool bold = false)
     {
-        var run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        WpRun run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
         {
@@ -80,7 +80,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
     public void AddSpacer(int lines = 1)
     {
-        for (var i = 0; i < lines; i++)
+        for (int i = 0; i < lines; i++)
         {
             Body.AppendChild(new WpParagraph(new WpRun(new WpText(string.Empty))));
         }
@@ -88,9 +88,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
     public void AddMultilineParagraphs(string text)
     {
-        var lines = text.Replace("\r\n", "\n").Split('\n');
+        string[] lines = text.Replace("\r\n", "\n").Split('\n');
 
-        foreach (var line in lines)
+        foreach (string line in lines)
         {
             AddParagraph(line);
         }
@@ -100,9 +100,9 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     {
         AddParagraph($"[{language}]");
 
-        foreach (var line in text.Replace("\r\n", "\n").Split('\n'))
+        foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
         {
-            var run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
+            WpRun run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
             {
                 RunProperties = new WpRunProperties(new RunFonts { Ascii = "Consolas" })
             };
@@ -121,7 +121,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
             return;
         }
 
-        foreach (var item in items)
+        foreach (string item in items)
         {
             AddBullet(item);
         }
@@ -129,16 +129,16 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
     public void AddImage(byte[] imageBytes, string imageName, long widthEmus, long heightEmus)
     {
-        var imagePart = MainPart.AddImagePart(ImagePartType.Png);
+        ImagePart imagePart = MainPart.AddImagePart(ImagePartType.Png);
 
-        using (var stream = new MemoryStream(imageBytes))
+        using (MemoryStream stream = new MemoryStream(imageBytes))
         {
             imagePart.FeedData(stream);
         }
 
-        var relationshipId = MainPart.GetIdOfPart(imagePart);
+        string relationshipId = MainPart.GetIdOfPart(imagePart);
 
-        var drawing = new Drawing(
+        Drawing drawing = new Drawing(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
                 new EffectExtent

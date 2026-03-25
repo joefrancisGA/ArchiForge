@@ -3,6 +3,7 @@ using System.Text.Encodings.Web;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 
 namespace ArchiForge.Api.Authentication;
 
@@ -15,13 +16,13 @@ public sealed class ApiKeyAuthenticationHandler(
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var enabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
+        bool enabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
 
         // If API key auth is disabled, treat all requests as authenticated so existing callers/tests keep working.
         if (!enabled)
         {
             // When disabled, include full permissions so policy-protected endpoints continue to work locally.
-            var identity = new ClaimsIdentity([
+            ClaimsIdentity identity = new ClaimsIdentity([
                 new Claim(ClaimTypes.Name, "DevUser"),
                 new Claim("permission", "commit:run"),
                 new Claim("permission", "seed:results"),
@@ -30,20 +31,20 @@ public sealed class ApiKeyAuthenticationHandler(
                 new Claim("permission", "replay:comparisons"),
                 new Claim("permission", "replay:diagnostics")
             ], Scheme.Name);
-            var principal = new ClaimsPrincipal(identity);
-            var ticket = new AuthenticationTicket(principal, Scheme.Name);
+            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+            AuthenticationTicket ticket = new AuthenticationTicket(principal, Scheme.Name);
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
 
-        if (!Request.Headers.TryGetValue("X-Api-Key", out var providedKey))
+        if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
         {
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
         }
 
-        var key = providedKey.ToString();
+        string key = providedKey.ToString();
 
-        var adminKey = configuration["Authentication:ApiKey:AdminKey"];
-        var readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+        string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
+        string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
 
         string? userName;
         Claim[] claims;
@@ -76,9 +77,9 @@ public sealed class ApiKeyAuthenticationHandler(
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
         }
 
-        var successIdentity = new ClaimsIdentity(claims, Scheme.Name);
-        var successPrincipal = new ClaimsPrincipal(successIdentity);
-        var successTicket = new AuthenticationTicket(successPrincipal, Scheme.Name);
+        ClaimsIdentity successIdentity = new ClaimsIdentity(claims, Scheme.Name);
+        ClaimsPrincipal successPrincipal = new ClaimsPrincipal(successIdentity);
+        AuthenticationTicket successTicket = new AuthenticationTicket(successPrincipal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(successTicket));
     }

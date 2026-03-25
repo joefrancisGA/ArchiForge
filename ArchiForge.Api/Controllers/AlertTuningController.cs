@@ -42,10 +42,10 @@ public sealed class AlertTuningController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         StampTuningScope(scope, request);
 
-        var result = await thresholdRecommendationService.RecommendAsync(
+        ThresholdRecommendationResult result = await thresholdRecommendationService.RecommendAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

@@ -14,7 +14,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# End-to-End Replay Comparison: {report.LeftRunId} -> {report.RightRunId}");
         sb.AppendLine();
@@ -23,7 +23,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
 
         if (report.AgentResultDiff is not null)
         {
-            var changedAgents = report.AgentResultDiff.AgentDeltas
+            List<string> changedAgents = report.AgentResultDiff.AgentDeltas
                 .Where(d =>
                     d.AddedClaims.Count > 0 ||
                     d.RemovedClaims.Count > 0 ||
@@ -49,7 +49,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
 
         if (report.ExportDiffs.Count > 0)
         {
-            var exportChangeSummaries = report.ExportDiffs
+            List<string> exportChangeSummaries = report.ExportDiffs
                 .Select(d => $"{d.LeftExportRecordId} -> {d.RightExportRecordId}: " +
                              $"{d.ChangedTopLevelFields.Count} top-level change(s), " +
                              $"{d.RequestDiff.ChangedFlags.Count} flag change(s), " +
@@ -80,7 +80,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
             return;
         }
 
-        foreach (var item in items)
+        foreach (string item in items)
         {
             sb.AppendLine($"- {item}");
         }

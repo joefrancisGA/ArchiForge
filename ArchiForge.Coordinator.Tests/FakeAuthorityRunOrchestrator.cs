@@ -10,7 +10,7 @@ internal sealed class FakeAuthorityRunOrchestrator : IAuthorityRunOrchestrator
     public Task<RunRecord> ExecuteAsync(ContextIngestionRequest request, CancellationToken ct)
     {
         _ = ct;
-        var runId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
         return Task.FromResult(new RunRecord
         {
             RunId = runId,

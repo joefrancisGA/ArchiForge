@@ -23,9 +23,9 @@ public class PolicyReferenceConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
-        foreach (var policy in payload.PolicyReferences)
+        foreach (string policy in payload.PolicyReferences)
         {
             batch.CanonicalObjects.Add(new CanonicalObject
             {

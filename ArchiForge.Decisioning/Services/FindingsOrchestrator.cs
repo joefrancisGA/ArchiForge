@@ -70,11 +70,11 @@ public partial class FindingsOrchestrator(
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var allFindings = new List<Finding>();
+        List<Finding> allFindings = new List<Finding>();
 
-        foreach (var engine in engines)
+        foreach (IFindingEngine engine in engines)
         {
-            var sw = Stopwatch.StartNew();
+            Stopwatch sw = Stopwatch.StartNew();
             IReadOnlyList<Finding> findings;
             try
             {
@@ -95,7 +95,7 @@ public partial class FindingsOrchestrator(
             sw.Stop();
             LogEngineCompleted(engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
 
-            foreach (var finding in findings)
+            foreach (Finding finding in findings)
             {
                 if (string.IsNullOrWhiteSpace(finding.Category))
                     finding.Category = engine.Category;
@@ -112,12 +112,12 @@ public partial class FindingsOrchestrator(
             }
         }
 
-        var dedupedFindings = allFindings
+        List<Finding> dedupedFindings = allFindings
             .GroupBy(x => $"{x.FindingType}|{x.Title}", StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
             .ToList();
 
-        var snapshot = new FindingsSnapshot
+        FindingsSnapshot snapshot = new FindingsSnapshot
         {
             FindingsSnapshotId = Guid.NewGuid(),
             RunId = runId,

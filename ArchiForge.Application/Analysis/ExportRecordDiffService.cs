@@ -19,7 +19,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
-        var result = new ExportRecordDiffResult
+        ExportRecordDiffResult result = new ExportRecordDiffResult
         {
             LeftExportRecordId = left.ExportRecordId,
             RightExportRecordId = right.ExportRecordId,
@@ -29,8 +29,8 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
 
         CompareTopLevel(left, right, result);
 
-        var leftRequest = AnalysisExportRequestRehydrator.Rehydrate(left);
-        var rightRequest = AnalysisExportRequestRehydrator.Rehydrate(right);
+        PersistedAnalysisExportRequest? leftRequest = AnalysisExportRequestRehydrator.Rehydrate(left);
+        PersistedAnalysisExportRequest? rightRequest = AnalysisExportRequestRehydrator.Rehydrate(right);
 
         result.RequestDiff = CompareRequests(leftRequest, rightRequest);
 
@@ -82,7 +82,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         PersistedAnalysisExportRequest? left,
         PersistedAnalysisExportRequest? right)
     {
-        var diff = new ExportRecordRequestDiff
+        ExportRecordRequestDiff diff = new ExportRecordRequestDiff
         {
             LeftRequest = left,
             RightRequest = right

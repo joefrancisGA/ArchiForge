@@ -16,7 +16,7 @@ public sealed class PagingParameters
         if (PageSize > MaxPageSize)
             PageSize = MaxPageSize;
 
-        var skip = (PageNumber - 1) * PageSize;
+        int skip = (PageNumber - 1) * PageSize;
         return (skip, PageSize);
     }
 }

@@ -20,13 +20,13 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         ArgumentNullException.ThrowIfNull(manifest);
         options ??= ManifestSummaryOptions.Default;
 
-        var governance = manifest.Governance;
-        var metadata = manifest.Metadata;
-        var services = manifest.Services;
-        var datastores = manifest.Datastores;
-        var relationships = manifest.Relationships;
+        ManifestGovernance governance = manifest.Governance;
+        ManifestMetadata metadata = manifest.Metadata;
+        List<ManifestService> services = manifest.Services;
+        List<ManifestDatastore> datastores = manifest.Datastores;
+        List<ManifestRelationship> relationships = manifest.Relationships;
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
         sb.AppendLine();
@@ -45,7 +45,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Required Controls");
             sb.AppendLine();
 
-            foreach (var control in governance.RequiredControls
+            foreach (string control in governance.RequiredControls
                          .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"- {control}");
@@ -59,7 +59,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Services");
             sb.AppendLine();
 
-            foreach (var service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
+            foreach (ManifestService service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"### {service.ServiceName}");
                 sb.AppendLine();
@@ -90,7 +90,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Datastores");
             sb.AppendLine();
 
-            foreach (var datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
+            foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"### {datastore.DatastoreName}");
                 sb.AppendLine();
@@ -113,7 +113,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Relationships");
             sb.AppendLine();
 
-            var max = options.MaxRelationships ?? int.MaxValue;
+            int max = options.MaxRelationships ?? int.MaxValue;
             foreach (var relationship in relationships
                          .Select(r => new
                          {
@@ -144,7 +144,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
             sb.AppendLine("## Compliance Tags");
             sb.AppendLine();
 
-            foreach (var tag in governance.ComplianceTags
+            foreach (string tag in governance.ComplianceTags
                          .OrderBy(x => x, StringComparer.OrdinalIgnoreCase))
             {
                 sb.AppendLine($"- {tag}");

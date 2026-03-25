@@ -23,7 +23,7 @@ public sealed class EffectiveGovernanceLoader(IEffectiveGovernanceResolver resol
         Guid projectId,
         CancellationToken ct)
     {
-        var result = await resolver
+        EffectiveGovernanceResolutionResult result = await resolver
             .ResolveAsync(tenantId, workspaceId, projectId, ct)
             .ConfigureAwait(false);
 

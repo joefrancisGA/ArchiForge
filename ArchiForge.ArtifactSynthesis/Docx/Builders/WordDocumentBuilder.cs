@@ -17,7 +17,7 @@ public static class WordDocumentBuilder
 
     public static void AddStyledParagraph(Body body, string text, string styleId)
     {
-        var p = new Paragraph(
+        Paragraph p = new Paragraph(
             new ParagraphProperties(new ParagraphStyleId { Val = styleId }),
             new Run(new Text(Sanitize(text))));
         body.AppendChild(p);
@@ -38,10 +38,10 @@ public static class WordDocumentBuilder
             return;
         }
 
-        var blocks = text.Split(["\r\n\r\n", "\n\n"], StringSplitOptions.None);
-        foreach (var block in blocks)
+        string[] blocks = text.Split(["\r\n\r\n", "\n\n"], StringSplitOptions.None);
+        foreach (string block in blocks)
         {
-            var line = block.Trim();
+            string line = block.Trim();
             if (line.Length > 0)
                 AddBodyText(body, line);
         }
@@ -49,27 +49,27 @@ public static class WordDocumentBuilder
 
     public static void AddSpacer(Body body, int lines = 1)
     {
-        for (var i = 0; i < lines; i++)
+        for (int i = 0; i < lines; i++)
             body.AppendChild(new Paragraph(new Run(new Text(string.Empty))));
     }
 
     /// <summary>Simple bullets (Unicode bullet + Normal).</summary>
     public static void AddBulletList(Body body, IEnumerable<string> items)
     {
-        foreach (var item in items)
+        foreach (string item in items)
             AddStyledParagraph(body, "\u2022 " + Sanitize(item), DocxStyleIds.BodyText);
     }
 
     public static void AddSimpleTable(Body body, IEnumerable<(string, string)> rows, bool headerRow = false)
     {
-        var list = rows.ToList();
+        List<(string, string)> list = rows.ToList();
         if (list.Count == 0)
             return;
 
-        var table = CreateTableGrid();
+        Table table = CreateTableGrid();
         if (headerRow)
         {
-            var headerCells = new[]
+            TableCell[] headerCells = new[]
             {
                 CreateHeaderCell(list[0].Item1),
                 CreateHeaderCell(list[0].Item2)
@@ -78,7 +78,7 @@ public static class WordDocumentBuilder
             list = list.Skip(1).ToList();
         }
 
-        foreach (var row in list)
+        foreach ((string, string) row in list)
         {
             table.AppendChild(
                 new TableRow(
@@ -94,14 +94,14 @@ public static class WordDocumentBuilder
         IReadOnlyList<(string C1, string C2, string C3)> rows,
         (string C1, string C2, string C3) header)
     {
-        var table = CreateTableGrid();
+        Table table = CreateTableGrid();
         table.AppendChild(
             new TableRow(
                 CreateHeaderCell(header.C1),
                 CreateHeaderCell(header.C2),
                 CreateHeaderCell(header.C3)));
 
-        foreach (var (c1, c2, c3) in rows)
+        foreach ((string c1, string c2, string c3) in rows)
         {
             table.AppendChild(
                 new TableRow(
@@ -115,16 +115,16 @@ public static class WordDocumentBuilder
 
     public static void AddIssuesTable(Body body, IEnumerable<ManifestIssue> issues)
     {
-        var table = CreateTableGrid();
+        Table table = CreateTableGrid();
         table.AppendChild(
             new TableRow(
                 CreateHeaderCell("Severity"),
                 CreateHeaderCell("Title"),
                 CreateHeaderCell("Description")));
 
-        foreach (var issue in issues)
+        foreach (ManifestIssue issue in issues)
         {
-            var severityRun = new Run(new Text(Sanitize(issue.Severity)));
+            Run severityRun = new Run(new Text(Sanitize(issue.Severity)));
             if (IsHighSeverity(issue.Severity))
                 severityRun.RunProperties = new RunProperties(new Bold(), new Color { Val = "C00000" });
 
@@ -143,7 +143,7 @@ public static class WordDocumentBuilder
         (string A, string B, string C, string D) header,
         IReadOnlyList<(string A, string B, string C, string D)> rows)
     {
-        var table = CreateTableGrid();
+        Table table = CreateTableGrid();
         table.AppendChild(
             new TableRow(
                 CreateHeaderCell(header.A),
@@ -166,7 +166,7 @@ public static class WordDocumentBuilder
 
     private static bool IsHighSeverity(string severity)
     {
-        var s = severity.ToUpperInvariant();
+        string s = severity.ToUpperInvariant();
         return s.Contains("CRITICAL", StringComparison.Ordinal) ||
                s.Contains("HIGH", StringComparison.Ordinal) ||
                s.Contains("BLOCK", StringComparison.Ordinal);
@@ -174,7 +174,7 @@ public static class WordDocumentBuilder
 
     private static Table CreateTableGrid()
     {
-        var table = new Table();
+        Table table = new Table();
         table.AppendChild(
             new TableProperties(
                 new TableBorders(

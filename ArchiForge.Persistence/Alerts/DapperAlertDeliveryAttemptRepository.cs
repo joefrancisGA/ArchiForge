@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Alerts;
 
 /// <summary>Dapper implementation of <see cref="IAlertDeliveryAttemptRepository"/> over <c>dbo.AlertDeliveryAttempts</c>.</summary>
@@ -30,7 +32,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
@@ -45,7 +47,7 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             WHERE AlertDeliveryAttemptId = @AlertDeliveryAttemptId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
@@ -61,8 +63,8 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<AlertDeliveryAttempt>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertDeliveryAttempt> result = await connection.QueryAsync<AlertDeliveryAttempt>(
             new CommandDefinition(sql, new
             {
                 AlertId = alertId
@@ -83,8 +85,8 @@ public sealed class DapperAlertDeliveryAttemptRepository(ISqlConnectionFactory c
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<AlertDeliveryAttempt>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertDeliveryAttempt> result = await connection.QueryAsync<AlertDeliveryAttempt>(
             new CommandDefinition(
                 sql,
                 new

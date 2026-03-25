@@ -9,7 +9,7 @@ public sealed class GraphSnapshotExtensionsTests
     [Fact]
     public void GetIncomingSources_returns_nodes_with_edges_to_target()
     {
-        var graph = new GraphSnapshot
+        GraphSnapshot graph = new GraphSnapshot
         {
             Nodes =
             [
@@ -29,7 +29,7 @@ public sealed class GraphSnapshotExtensionsTests
             ]
         };
 
-        var sources = graph.GetIncomingSources("t", "PROTECTS");
+        IReadOnlyList<GraphNode> sources = graph.GetIncomingSources("t", "PROTECTS");
 
         sources.Should().ContainSingle();
         sources[0].NodeId.Should().Be("a");

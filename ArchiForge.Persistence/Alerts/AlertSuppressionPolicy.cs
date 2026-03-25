@@ -20,9 +20,9 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
         CancellationToken ct)
     {
         _ = snapshot;
-        var dedupeKey = BuildDeduplicationKey(rule, context);
+        string dedupeKey = BuildDeduplicationKey(rule, context);
 
-        var existing = await alertRepository
+        AlertRecord? existing = await alertRepository
             .GetOpenByDeduplicationKeyAsync(
                 context.TenantId,
                 context.WorkspaceId,
@@ -43,7 +43,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
             };
         }
 
-        var ageMinutes = (DateTime.UtcNow - existing.CreatedUtc).TotalMinutes;
+        double ageMinutes = (DateTime.UtcNow - existing.CreatedUtc).TotalMinutes;
 
         if (ageMinutes < rule.CooldownMinutes)
         {

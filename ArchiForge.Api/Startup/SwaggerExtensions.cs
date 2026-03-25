@@ -12,7 +12,7 @@ internal static class SwaggerExtensions
             {
                 if (api.ActionDescriptor is not ControllerActionDescriptor cad) return [api.GroupName ?? "API"];
                 
-                var tag = cad.ControllerName switch
+                string tag = cad.ControllerName switch
                 {
                     "PolicyPacks" => "Governance",
                     "AlertRules" or "Alerts" or "AlertSimulation" or "AlertTuning" or "CompositeAlertRules"

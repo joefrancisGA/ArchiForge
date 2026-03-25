@@ -1,4 +1,5 @@
 using ArchiForge.ContextIngestion.Mapping;
+using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
 
@@ -11,7 +12,7 @@ public sealed class ContextIngestionRequestMapperTests
     [Fact]
     public void FromArchitectureRequest_MapsSystemNameToProjectId_AndDocuments()
     {
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             Description = "1234567890 minimum len",
             SystemName = "billing-api",
@@ -41,7 +42,7 @@ public sealed class ContextIngestionRequestMapperTests
             ]
         };
 
-        var mapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        ContextIngestionRequest mapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
 
         mapped.ProjectId.Should().Be("billing-api");
         mapped.Description.Should().Be(request.Description);

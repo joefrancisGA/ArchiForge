@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -75,9 +76,9 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        var json = JsonSerializer.Serialize(record, ContractJson.Default);
+        string json = JsonSerializer.Serialize(record, ContractJson.Default);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -124,9 +125,9 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             LIMIT 500;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new
             {
@@ -134,8 +135,8 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             },
             cancellationToken: cancellationToken));
 
-        var records = new List<RunExportRecord>();
-        foreach (var json in rows)
+        List<RunExportRecord> records = new List<RunExportRecord>();
+        foreach (string json in rows)
         {
             RunExportRecord? record;
             try
@@ -172,9 +173,9 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             WHERE ExportRecordId = @ExportRecordId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
             new
             {

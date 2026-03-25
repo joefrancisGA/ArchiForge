@@ -4,6 +4,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Governance;
 
 /// <summary>
@@ -40,7 +42,7 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
     }
 
@@ -54,7 +56,7 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             WHERE AssignmentId = @AssignmentId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, assignment, cancellationToken: ct));
     }
 
@@ -81,8 +83,8 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             ORDER BY AssignedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<PolicyPackAssignment>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<PolicyPackAssignment> rows = await connection.QueryAsync<PolicyPackAssignment>(
             new CommandDefinition(
                 sql,
                 new

@@ -12,7 +12,7 @@ public sealed class CanonicalDeduplicatorTests
     [Fact]
     public void Deduplicate_UsesReferenceFingerprint_WhenTextMissing()
     {
-        var items = new List<CanonicalObject>
+        List<CanonicalObject> items = new List<CanonicalObject>
         {
             new()
             {
@@ -40,7 +40,7 @@ public sealed class CanonicalDeduplicatorTests
             }
         };
 
-        var result = _sut.Deduplicate(items);
+        IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
 
         result.Should().HaveCount(1);
     }
@@ -48,7 +48,7 @@ public sealed class CanonicalDeduplicatorTests
     [Fact]
     public void Deduplicate_PrefersTextOverReference_ForFingerprint()
     {
-        var items = new List<CanonicalObject>
+        List<CanonicalObject> items = new List<CanonicalObject>
         {
             new()
             {
@@ -76,7 +76,7 @@ public sealed class CanonicalDeduplicatorTests
             }
         };
 
-        var result = _sut.Deduplicate(items);
+        IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
 
         result.Should().HaveCount(2);
     }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ArchiForge.Api.ProblemDetails;
@@ -13,9 +14,9 @@ public sealed class ApiProblemDetailsExceptionFilter : IExceptionFilter
         if (context.ExceptionHandled)
             return;
 
-        var instance = context.HttpContext.Request.Path.Value;
+        string? instance = context.HttpContext.Request.Path.Value;
 
-        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, instance, out var result)) return;
+        if (!ApplicationProblemMapper.TryMapUnhandledException(context.Exception, instance, out ObjectResult? result)) return;
         
         context.Result = result;
         context.ExceptionHandled = true;

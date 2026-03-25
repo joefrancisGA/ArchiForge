@@ -11,7 +11,7 @@ public sealed class ReplayComparisonRequestMapperTests
     [Fact]
     public void ToApplicationForReplayEndpoint_prefers_query_format_when_body_is_blank()
     {
-        var request = new ReplayComparisonRequest
+        ReplayComparisonRequest request = new ReplayComparisonRequest
         {
             Format = "",
             ReplayMode = "verify",
@@ -19,7 +19,7 @@ public sealed class ReplayComparisonRequestMapperTests
             PersistReplay = true
         };
 
-        var mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-1", request, "html");
+        Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-1", request, "html");
 
         mapped.ComparisonRecordId.Should().Be("cmp-1");
         mapped.Format.Should().Be("html");
@@ -31,9 +31,9 @@ public sealed class ReplayComparisonRequestMapperTests
     [Fact]
     public void ToApplicationForReplayEndpoint_keeps_body_format_when_present()
     {
-        var request = new ReplayComparisonRequest { Format = "docx" };
+        ReplayComparisonRequest request = new ReplayComparisonRequest { Format = "docx" };
 
-        var mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-2", request, "html");
+        Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForReplayEndpoint("cmp-2", request, "html");
 
         mapped.Format.Should().Be("docx");
     }
@@ -41,7 +41,7 @@ public sealed class ReplayComparisonRequestMapperTests
     [Fact]
     public void ForSummaryMarkdown_returns_expected_defaults()
     {
-        var mapped = ReplayComparisonRequestMapper.ForSummaryMarkdown("cmp-3");
+        Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ForSummaryMarkdown("cmp-3");
 
         mapped.ComparisonRecordId.Should().Be("cmp-3");
         mapped.Format.Should().Be("markdown");
@@ -52,7 +52,7 @@ public sealed class ReplayComparisonRequestMapperTests
     [Fact]
     public void ToApplicationForBatchEntry_maps_all_fields()
     {
-        var mapped = ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
+        Application.Analysis.ReplayComparisonRequest mapped = ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
             "cmp-4",
             "json",
             "regenerate",

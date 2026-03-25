@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using DbUp;
+using DbUp.Engine;
 
 namespace ArchiForge.Data.Infrastructure;
 
@@ -15,7 +16,7 @@ public static class DatabaseMigrator
         if (IsSqliteConnection(connectionString))
             return true;
 
-        var upgrader = DeployChanges.To
+        UpgradeEngine? upgrader = DeployChanges.To
             .SqlDatabase(connectionString)
             .WithScriptsEmbeddedInAssembly(
                 Assembly.GetExecutingAssembly(),
@@ -24,7 +25,7 @@ public static class DatabaseMigrator
             .LogToConsole()
             .Build();
 
-        var result = upgrader.PerformUpgrade();
+        DatabaseUpgradeResult? result = upgrader.PerformUpgrade();
         return result.Successful;
     }
 
@@ -33,7 +34,7 @@ public static class DatabaseMigrator
         if (string.IsNullOrWhiteSpace(connectionString))
             return false;
 
-        var cs = connectionString.AsSpan().Trim();
+        ReadOnlySpan<char> cs = connectionString.AsSpan().Trim();
         return cs.StartsWith("Data Source=file:", StringComparison.OrdinalIgnoreCase) ||
                cs.StartsWith("Data Source=:memory:", StringComparison.OrdinalIgnoreCase);
     }

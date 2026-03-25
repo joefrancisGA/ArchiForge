@@ -11,19 +11,19 @@ public sealed class ArchitectureAnalysisExportTests(ArchiForgeApiFactory factory
     [Fact]
     public async Task ExportAnalysisReport_ReturnsMarkdown()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ANALYSIS-EXPORT-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
         var request = new
@@ -41,19 +41,19 @@ public sealed class ArchitectureAnalysisExportTests(ArchiForgeApiFactory factory
             compareRunId = (string?)null
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
+        ArchitectureAnalysisExportResponse? payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.RunId.Should().Be(runId);
         payload.Format.Should().Be("markdown");
         payload.FileName.Should().Be($"analysis_{runId}.md");
         payload.Content.Should().NotBeNullOrWhiteSpace();
 
-        var lines = payload.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        string[] lines = payload.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
         lines[0].Trim().Should().Be("# ArchiForge Analysis Report");
 
         payload.Content.Should().Contain("## Evidence Package");

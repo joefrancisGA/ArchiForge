@@ -7,13 +7,13 @@ public sealed class CommandLineTests
     [Fact]
     public async Task NoArgs_Returns1_AndPrintsUsage()
     {
-        RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
         try
         {
-            var exitCode = await Program.RunAsync([]);
+            int exitCode = await Program.RunAsync([]);
 
             exitCode.Should().Be(1);
-            var output = outWriter + errWriter.ToString();
+            string output = outWriter + errWriter.ToString();
             output.Should().Contain("Please provide a command");
             output.Should().Contain("Available commands");
         }
@@ -26,13 +26,13 @@ public sealed class CommandLineTests
     [Fact]
     public async Task UnknownCommand_Returns1_AndPrintsUnknown()
     {
-        RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
         try
         {
-            var exitCode = await Program.RunAsync(["invalid"]);
+            int exitCode = await Program.RunAsync(["invalid"]);
 
             exitCode.Should().Be(1);
-            var output = outWriter + errWriter.ToString();
+            string output = outWriter + errWriter.ToString();
             output.Should().Contain("Unknown command");
             output.Should().Contain("invalid");
         }
@@ -45,13 +45,13 @@ public sealed class CommandLineTests
     [Fact]
     public async Task Health_WhenApiUnreachable_Returns1()
     {
-        RedirectConsole(out var outWriter, out var errWriter, out var prevOut, out var prevErr);
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
         try
         {
-            var exitCode = await Program.RunAsync(["health"]);
+            int exitCode = await Program.RunAsync(["health"]);
 
             exitCode.Should().Be(1);
-            var output = outWriter + errWriter.ToString();
+            string output = outWriter + errWriter.ToString();
             (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach"))
                 .Should().BeTrue("output should contain 'FAIL', 'Cannot connect', or 'Cannot reach'");
         }
@@ -64,21 +64,21 @@ public sealed class CommandLineTests
     [Fact]
     public async Task New_WithProjectName_Returns0_AndCreatesFiles()
     {
-        using var temp = new TempDirectory();
-        var prevCwd = Directory.GetCurrentDirectory();
+        using TempDirectory temp = new TempDirectory();
+        string prevCwd = Directory.GetCurrentDirectory();
         try
         {
             Directory.SetCurrentDirectory(temp.Path);
 
-            RedirectConsole(out _, out _, out var prevOut, out var prevErr);
+            RedirectConsole(out _, out _, out TextWriter prevOut, out TextWriter prevErr);
             try
             {
-                var exitCode = await Program.RunAsync(["new", "TestProject"]);
+                int exitCode = await Program.RunAsync(["new", "TestProject"]);
 
                 exitCode.Should().Be(0);
-                var projectDir = Path.Combine(temp.Path, "TestProject");
-                var archiforgeJson = Path.Combine(projectDir, "archiforge.json");
-                var briefMd = Path.Combine(projectDir, "inputs", "brief.md");
+                string projectDir = Path.Combine(temp.Path, "TestProject");
+                string archiforgeJson = Path.Combine(projectDir, "archiforge.json");
+                string briefMd = Path.Combine(projectDir, "inputs", "brief.md");
 
                 File.Exists(archiforgeJson).Should().BeTrue("archiforge.json should be created");
                 File.Exists(briefMd).Should().BeTrue("inputs/brief.md should be created");

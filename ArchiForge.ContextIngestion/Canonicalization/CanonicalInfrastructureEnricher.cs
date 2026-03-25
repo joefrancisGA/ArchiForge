@@ -6,9 +6,9 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
 {
     public IReadOnlyList<CanonicalObject> Enrich(IEnumerable<CanonicalObject> items)
     {
-        var results = new List<CanonicalObject>();
+        List<CanonicalObject> results = new List<CanonicalObject>();
 
-        foreach (var item in items)
+        foreach (CanonicalObject item in items)
         {
             if (string.Equals(item.ObjectType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
             {
@@ -30,9 +30,9 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
 
     private static string InferCategory(CanonicalObject item)
     {
-        if (item.Properties.TryGetValue("terraformType", out var terraformType))
+        if (item.Properties.TryGetValue("terraformType", out string? terraformType))
         {
-            var t = terraformType.ToLowerInvariant();
+            string t = terraformType.ToLowerInvariant();
 
             if (t.Contains("virtual_network", StringComparison.OrdinalIgnoreCase) ||
                 t.Contains("subnet", StringComparison.OrdinalIgnoreCase))
@@ -52,9 +52,9 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
                 return "data";
         }
 
-        if (item.Properties.TryGetValue("resourceType", out var resourceType))
+        if (item.Properties.TryGetValue("resourceType", out string? resourceType))
         {
-            var r = resourceType.ToLowerInvariant();
+            string r = resourceType.ToLowerInvariant();
 
             if (r.Contains("network", StringComparison.OrdinalIgnoreCase) ||
                 r.Contains("subnet", StringComparison.OrdinalIgnoreCase) ||

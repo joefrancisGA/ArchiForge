@@ -12,7 +12,7 @@ public static class AmbientScopeContext
     /// <summary>Pushes <paramref name="scope"/> until the returned handle is disposed (restore previous).</summary>
     public static IDisposable Push(ScopeContext scope)
     {
-        var previous = Override.Value;
+        ScopeContext? previous = Override.Value;
         Override.Value = scope;
         return new PopScope(previous);
     }

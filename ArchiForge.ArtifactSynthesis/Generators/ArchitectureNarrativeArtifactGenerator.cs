@@ -3,6 +3,7 @@ using System.Text;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Services;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Generators;
@@ -16,7 +17,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# {manifest.Metadata.Name}");
         sb.AppendLine();
@@ -31,12 +32,12 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         }
         else
         {
-            foreach (var item in manifest.Requirements.Covered)
+            foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
             {
                 sb.AppendLine($"- Covered: {item.RequirementName}");
             }
 
-            foreach (var item in manifest.Requirements.Uncovered)
+            foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
             {
                 sb.AppendLine($"- Uncovered: {item.RequirementName}");
             }
@@ -46,7 +47,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine("## Topology Posture");
         if (manifest.Topology.Resources.Count > 0)
         {
-            foreach (var resource in manifest.Topology.Resources)
+            foreach (string resource in manifest.Topology.Resources)
             {
                 sb.AppendLine($"- Resource: {resource}");
             }
@@ -56,7 +57,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
             sb.AppendLine("No concrete topology resources were recorded in the manifest.");
         }
 
-        foreach (var gap in manifest.Topology.Gaps)
+        foreach (string gap in manifest.Topology.Gaps)
         {
             sb.AppendLine($"- Gap: {gap}");
         }
@@ -69,13 +70,13 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         }
         else
         {
-            foreach (var control in manifest.Security.Controls)
+            foreach (SecurityPostureItem control in manifest.Security.Controls)
             {
                 sb.AppendLine($"- {control.ControlName}: {control.Status}");
             }
         }
 
-        foreach (var gap in manifest.Security.Gaps)
+        foreach (string gap in manifest.Security.Gaps)
         {
             sb.AppendLine($"- Security Gap: {gap}");
         }
@@ -88,13 +89,13 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         }
         else
         {
-            foreach (var control in manifest.Compliance.Controls)
+            foreach (CompliancePostureItem control in manifest.Compliance.Controls)
             {
                 sb.AppendLine($"- {control.ControlId} {control.ControlName}: {control.Status}");
             }
         }
 
-        foreach (var gap in manifest.Compliance.Gaps)
+        foreach (string gap in manifest.Compliance.Gaps)
         {
             sb.AppendLine($"- Compliance Gap: {gap}");
         }
@@ -102,18 +103,18 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
 
         sb.AppendLine("## Cost Posture");
         sb.AppendLine($"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
-        foreach (var risk in manifest.Cost.CostRisks)
+        foreach (string risk in manifest.Cost.CostRisks)
         {
             sb.AppendLine($"- Cost Risk: {risk}");
         }
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
-        foreach (var item in manifest.Constraints.MandatoryConstraints)
+        foreach (string item in manifest.Constraints.MandatoryConstraints)
         {
             sb.AppendLine($"- Mandatory: {item}");
         }
-        foreach (var item in manifest.Constraints.Preferences)
+        foreach (string item in manifest.Constraints.Preferences)
         {
             sb.AppendLine($"- Preference: {item}");
         }
@@ -130,7 +131,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         }
         else
         {
-            foreach (var issue in manifest.UnresolvedIssues.Items)
+            foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
             {
                 sb.AppendLine($"- [{issue.Severity}] {issue.Title}: {issue.Description}");
             }
@@ -143,7 +144,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         sb.AppendLine($"- Applied Rules: {manifest.Provenance.AppliedRuleIds.Count}");
         sb.AppendLine();
 
-        var content = sb.ToString();
+        string content = sb.ToString();
 
         return Task.FromResult(new SynthesizedArtifact
         {

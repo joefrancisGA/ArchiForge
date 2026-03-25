@@ -16,10 +16,10 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
     /// <inheritdoc />
     public DriftAnalysisResult Analyze(object stored, object regenerated)
     {
-        var storedJson = JsonSerializer.SerializeToElement(stored, JsonOptions);
-        var regeneratedJson = JsonSerializer.SerializeToElement(regenerated, JsonOptions);
+        JsonElement storedJson = JsonSerializer.SerializeToElement(stored, JsonOptions);
+        JsonElement regeneratedJson = JsonSerializer.SerializeToElement(regenerated, JsonOptions);
 
-        var result = new DriftAnalysisResult();
+        DriftAnalysisResult result = new DriftAnalysisResult();
 
         CompareElement("$", storedJson, regeneratedJson, result.Items);
 
@@ -57,17 +57,17 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
             case JsonValueKind.Object:
                 // GroupBy guards against malformed JSON with duplicate property names;
                 // first occurrence wins, matching System.Text.Json's own lenient behaviour.
-                var leftProps = left.EnumerateObject()
+                Dictionary<string, JsonProperty> leftProps = left.EnumerateObject()
                     .GroupBy(p => p.Name, StringComparer.Ordinal)
                     .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
-                var rightProps = right.EnumerateObject()
+                Dictionary<string, JsonProperty> rightProps = right.EnumerateObject()
                     .GroupBy(p => p.Name, StringComparer.Ordinal)
                     .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
 
-                foreach (var prop in leftProps.Keys.Union(rightProps.Keys))
+                foreach (string prop in leftProps.Keys.Union(rightProps.Keys))
                 {
-                    leftProps.TryGetValue(prop, out var leftProp);
-                    rightProps.TryGetValue(prop, out var rightProp);
+                    leftProps.TryGetValue(prop, out JsonProperty leftProp);
+                    rightProps.TryGetValue(prop, out JsonProperty rightProp);
 
                     if (!leftProps.ContainsKey(prop))
                     {
@@ -101,8 +101,8 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
                 break;
 
             case JsonValueKind.Array:
-                var leftArray = left.EnumerateArray().ToList();
-                var rightArray = right.EnumerateArray().ToList();
+                List<JsonElement> leftArray = left.EnumerateArray().ToList();
+                List<JsonElement> rightArray = right.EnumerateArray().ToList();
 
                 if (leftArray.Count != rightArray.Count)
                 {

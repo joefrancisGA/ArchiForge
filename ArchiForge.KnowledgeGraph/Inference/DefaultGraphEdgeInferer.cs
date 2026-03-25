@@ -12,15 +12,15 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         ArgumentNullException.ThrowIfNull(contextSnapshot);
         ArgumentNullException.ThrowIfNull(nodes);
 
-        var edges = new List<GraphEdge>();
+        List<GraphEdge> edges = new List<GraphEdge>();
 
-        var contextNodeId = $"context-{contextSnapshot.SnapshotId:N}";
-        var topologyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.TopologyResource).ToList();
-        var securityNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.SecurityBaseline).ToList();
-        var policyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.PolicyControl).ToList();
-        var requirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList();
+        string contextNodeId = $"context-{contextSnapshot.SnapshotId:N}";
+        List<GraphNode> topologyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.TopologyResource).ToList();
+        List<GraphNode> securityNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.SecurityBaseline).ToList();
+        List<GraphNode> policyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.PolicyControl).ToList();
+        List<GraphNode> requirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList();
 
-        foreach (var node in nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot))
+        foreach (GraphNode node in nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot))
         {
             edges.Add(CreateEdge(
                 contextNodeId,
@@ -41,17 +41,17 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphEdge> edges,
         List<GraphNode> topologyNodes)
     {
-        var networks = topologyNodes
+        List<GraphNode> networks = topologyNodes
             .Where(x => string.Equals(x.Category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        var subnets = topologyNodes
+        List<GraphNode> subnets = topologyNodes
             .Where(x => x.Label.Contains("subnet", StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        foreach (var network in networks)
+        foreach (GraphNode network in networks)
         {
-            foreach (var subnet in subnets)
+            foreach (GraphNode subnet in subnets)
             {
                 edges.Add(CreateEdge(
                     network.NodeId,
@@ -67,9 +67,9 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> securityNodes,
         List<GraphNode> topologyNodes)
     {
-        foreach (var security in securityNodes)
+        foreach (GraphNode security in securityNodes)
         {
-            foreach (var resource in topologyNodes)
+            foreach (GraphNode resource in topologyNodes)
             {
                 edges.Add(CreateEdge(
                     security.NodeId,
@@ -85,9 +85,9 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> policyNodes,
         List<GraphNode> topologyNodes)
     {
-        foreach (var policy in policyNodes)
+        foreach (GraphNode policy in policyNodes)
         {
-            foreach (var resource in topologyNodes)
+            foreach (GraphNode resource in topologyNodes)
             {
                 edges.Add(CreateEdge(
                     policy.NodeId,
@@ -103,13 +103,13 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> requirementNodes,
         List<GraphNode> topologyNodes)
     {
-        foreach (var requirement in requirementNodes)
+        foreach (GraphNode requirement in requirementNodes)
         {
-            var requirementText = requirement.Properties.TryGetValue("text", out var text)
+            string requirementText = requirement.Properties.TryGetValue("text", out string? text)
                 ? text
                 : requirement.Label;
 
-            foreach (var resource in topologyNodes)
+            foreach (GraphNode resource in topologyNodes)
             {
                 if (LooksRelevant(requirementText, resource))
                 {
@@ -125,9 +125,9 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 
     private static bool LooksRelevant(string requirementText, GraphNode resource)
     {
-        var text = requirementText.ToLowerInvariant();
-        var label = resource.Label.ToLowerInvariant();
-        var category = resource.Category?.ToLowerInvariant() ?? string.Empty;
+        string text = requirementText.ToLowerInvariant();
+        string label = resource.Label.ToLowerInvariant();
+        string category = resource.Category?.ToLowerInvariant() ?? string.Empty;
 
         if (text.Contains("network", StringComparison.Ordinal) && (label.Contains("vnet", StringComparison.Ordinal) || label.Contains("subnet", StringComparison.Ordinal) || string.Equals(category, GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)))
             return true;

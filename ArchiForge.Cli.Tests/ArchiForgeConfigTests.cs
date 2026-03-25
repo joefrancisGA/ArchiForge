@@ -7,24 +7,24 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_ValidJsonAndFilesExist_ReturnsConfig()
     {
-        using var temp = new TempDirectory();
-        var validJson = """
-            {
-              "schemaVersion": "1.0",
-              "projectName": "TestProject",
-              "inputs": { "brief": "inputs/brief.md" },
-              "outputs": { "localCacheDir": "outputs" },
-              "plugins": { "lockFile": "plugins/plugin-lock.json" },
-              "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
-            }
-            """;
+        using TempDirectory temp = new TempDirectory();
+        string validJson = """
+                           {
+                             "schemaVersion": "1.0",
+                             "projectName": "TestProject",
+                             "inputs": { "brief": "inputs/brief.md" },
+                             "outputs": { "localCacheDir": "outputs" },
+                             "plugins": { "lockFile": "plugins/plugin-lock.json" },
+                             "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
+                           }
+                           """;
         File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
         File.WriteAllText(Path.Combine(temp.Path, "inputs", "brief.md"), "# Brief");
         File.WriteAllText(Path.Combine(temp.Path, "plugins", "plugin-lock.json"), "{}");
 
-        var config = ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        ArchiForgeProjectScaffolder.ArchiForgeConfig config = ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
 
         config.Should().NotBeNull();
         config.ProjectName.Should().Be("TestProject");
@@ -39,9 +39,9 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_MissingManifestFile_ThrowsFileNotFoundException()
     {
-        using var temp = new TempDirectory();
+        using TempDirectory temp = new TempDirectory();
 
-        var act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<FileNotFoundException>()
             .WithMessage("*archiforge.json*");
@@ -50,10 +50,10 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_InvalidJson_ThrowsInvalidDataException()
     {
-        using var temp = new TempDirectory();
+        using TempDirectory temp = new TempDirectory();
         File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), "{ invalid json }");
 
-        var act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<InvalidDataException>();
     }
@@ -61,23 +61,23 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_MissingBriefFile_Throws()
     {
-        using var temp = new TempDirectory();
-        var validJson = """
-            {
-              "schemaVersion": "1.0",
-              "projectName": "TestProject",
-              "inputs": { "brief": "inputs/brief.md" },
-              "outputs": { "localCacheDir": "outputs" },
-              "plugins": { "lockFile": "plugins/plugin-lock.json" },
-              "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
-            }
-            """;
+        using TempDirectory temp = new TempDirectory();
+        string validJson = """
+                           {
+                             "schemaVersion": "1.0",
+                             "projectName": "TestProject",
+                             "inputs": { "brief": "inputs/brief.md" },
+                             "outputs": { "localCacheDir": "outputs" },
+                             "plugins": { "lockFile": "plugins/plugin-lock.json" },
+                             "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
+                           }
+                           """;
         File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
         File.WriteAllText(Path.Combine(temp.Path, "plugins", "plugin-lock.json"), "{}");
         // Do not create inputs/brief.md
 
-        var act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
+        Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<FileNotFoundException>()
             .WithMessage("*Brief*");

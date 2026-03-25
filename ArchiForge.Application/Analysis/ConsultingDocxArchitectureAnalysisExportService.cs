@@ -14,7 +14,7 @@ public sealed class ConsultingDocxArchitectureAnalysisExportService(
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        var options = optionsProvider.GetOptions();
+        ConsultingDocxTemplateOptions options = optionsProvider.GetOptions();
 
         return await ConsultingDocxOpenXmlComposer.GenerateAsync(
             report,

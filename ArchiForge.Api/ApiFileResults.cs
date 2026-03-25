@@ -12,7 +12,7 @@ public static class ApiFileResults
         string contentType,
         string fileName)
     {
-        var bytes = Encoding.UTF8.GetBytes(content ?? string.Empty);
+        byte[] bytes = Encoding.UTF8.GetBytes(content ?? string.Empty);
         return new FileWithRangeResult(request, bytes, contentType, fileName);
     }
 

@@ -10,7 +10,7 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.AppendLine("# ArchiForge Comparison Drift Report");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
@@ -31,7 +31,7 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
         sb.AppendLine("## Differences");
         sb.AppendLine();
 
-        foreach (var item in drift.Items)
+        foreach (DriftItem item in drift.Items)
         {
             sb.AppendLine($"- **{item.Category}** — `{item.Path}`");
             if (!string.IsNullOrWhiteSpace(item.Description))

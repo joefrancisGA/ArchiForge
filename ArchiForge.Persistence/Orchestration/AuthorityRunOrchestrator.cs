@@ -63,12 +63,12 @@ public sealed class AuthorityRunOrchestrator(
         ContextIngestionRequest request,
         CancellationToken ct)
     {
-        await using var uow = await unitOfWorkFactory.CreateAsync(ct);
+        await using IArchiForgeUnitOfWork uow = await unitOfWorkFactory.CreateAsync(ct);
 
         try
         {
-            var scope = scopeContextProvider.GetCurrentScope();
-            var run = new RunRecord
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+            RunRecord run = new RunRecord
             {
                 RunId = Guid.NewGuid(),
                 ProjectId = request.ProjectId,
@@ -80,19 +80,19 @@ public sealed class AuthorityRunOrchestrator(
             await SaveRunAsync(run, uow, ct);
 
             request.RunId = run.RunId;
-            var contextSnapshot = await contextIngestionService.IngestAsync(request, ct);
+            ContextSnapshot contextSnapshot = await contextIngestionService.IngestAsync(request, ct);
             await SaveContextAsync(contextSnapshot, uow, ct);
 
             run.ContextSnapshotId = contextSnapshot.SnapshotId;
             await UpdateRunAsync(run, uow, ct);
 
-            var graphSnapshot = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
+            GraphSnapshot graphSnapshot = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
             await SaveGraphAsync(graphSnapshot, uow, ct);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
             await UpdateRunAsync(run, uow, ct);
 
-            var findingsSnapshot = await findingsOrchestrator.GenerateFindingsSnapshotAsync(
+            FindingsSnapshot findingsSnapshot = await findingsOrchestrator.GenerateFindingsSnapshotAsync(
                 run.RunId,
                 contextSnapshot.SnapshotId,
                 graphSnapshot,
@@ -103,7 +103,7 @@ public sealed class AuthorityRunOrchestrator(
             run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
             await UpdateRunAsync(run, uow, ct);
 
-            var (manifest, trace) = await decisionEngine.DecideAsync(
+            (GoldenManifest manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
                 run.RunId,
                 contextSnapshot.SnapshotId,
                 graphSnapshot,
@@ -137,7 +137,7 @@ public sealed class AuthorityRunOrchestrator(
             run.GoldenManifestId = manifest.ManifestId;
             await UpdateRunAsync(run, uow, ct);
 
-            var artifactBundle = await artifactSynthesisService.SynthesizeAsync(manifest, ct);
+            ArtifactBundle artifactBundle = await artifactSynthesisService.SynthesizeAsync(manifest, ct);
             await SaveArtifactBundleAsync(artifactBundle, uow, ct);
 
             await auditService.LogAsync(
@@ -159,7 +159,7 @@ public sealed class AuthorityRunOrchestrator(
             run.ArtifactBundleId = artifactBundle.BundleId;
             await UpdateRunAsync(run, uow, ct);
 
-            var provenanceGraph = provenanceBuilder.Build(
+            DecisionProvenanceGraph provenanceGraph = provenanceBuilder.Build(
                 run.RunId,
                 findingsSnapshot,
                 graphSnapshot,

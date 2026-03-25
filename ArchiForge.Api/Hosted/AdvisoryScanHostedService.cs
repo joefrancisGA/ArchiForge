@@ -27,15 +27,15 @@ public sealed class AdvisoryScanHostedService(IServiceProvider serviceProvider, 
         {
             try
             {
-                using var scope = serviceProvider.CreateScope();
-                var scheduleRepository = scope.ServiceProvider.GetRequiredService<IAdvisoryScanScheduleRepository>();
-                var runner = scope.ServiceProvider.GetRequiredService<IAdvisoryScanRunner>();
+                using IServiceScope scope = serviceProvider.CreateScope();
+                IAdvisoryScanScheduleRepository scheduleRepository = scope.ServiceProvider.GetRequiredService<IAdvisoryScanScheduleRepository>();
+                IAdvisoryScanRunner runner = scope.ServiceProvider.GetRequiredService<IAdvisoryScanRunner>();
 
-                var due = await scheduleRepository
+                IReadOnlyList<AdvisoryScanSchedule> due = await scheduleRepository
                     .ListDueAsync(DateTime.UtcNow, 10, stoppingToken)
                     .ConfigureAwait(false);
 
-                foreach (var schedule in due)
+                foreach (AdvisoryScanSchedule schedule in due)
                 {
                     try
                     {

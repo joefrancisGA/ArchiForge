@@ -7,6 +7,7 @@ using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Conversation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
+using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Provenance;
 using ArchiForge.Retrieval.Indexing;
@@ -76,7 +77,7 @@ public sealed class AskService(
         if (string.IsNullOrWhiteSpace(request.Question))
             throw new ArgumentException("Question is required.", nameof(request));
 
-        var thread = await conversationService.GetOrCreateThreadAsync(
+        ConversationThread thread = await conversationService.GetOrCreateThreadAsync(
             request.ThreadId,
             scope.TenantId,
             scope.WorkspaceId,
@@ -86,9 +87,9 @@ public sealed class AskService(
             request.TargetRunId,
             ct);
 
-        var effectiveRunId = request.RunId ?? thread.RunId;
-        var effectiveBaseRunId = request.BaseRunId ?? thread.BaseRunId;
-        var effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
+        Guid? effectiveRunId = request.RunId ?? thread.RunId;
+        Guid? effectiveBaseRunId = request.BaseRunId ?? thread.BaseRunId;
+        Guid? effectiveTargetRunId = request.TargetRunId ?? thread.TargetRunId;
 
         if (!effectiveRunId.HasValue)
         {
@@ -98,31 +99,31 @@ public sealed class AskService(
 
         await conversationService.AppendUserMessageAsync(thread.ThreadId, request.Question.Trim(), ct);
 
-        var historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
-        var priorMessages = TrimCurrentUserTurn(historyWindow, request.Question.Trim());
-        var historyText = BuildConversationHistory(priorMessages);
+        IReadOnlyList<ConversationMessage> historyWindow = await conversationService.GetHistoryAsync(thread.ThreadId, HistoryTake, ct);
+        IReadOnlyList<ConversationMessage> priorMessages = TrimCurrentUserTurn(historyWindow, request.Question.Trim());
+        string historyText = BuildConversationHistory(priorMessages);
 
-        var detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, effectiveRunId.Value, ct);
         if (detail?.GoldenManifest is null)
         {
             throw new InvalidOperationException(
                 "Run not found or has no GoldenManifest for the current scope.");
         }
 
-        var manifest = detail.GoldenManifest;
-        var graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
+        GoldenManifest? manifest = detail.GoldenManifest;
+        GraphViewModel? graph = await provenanceQuery.GetFullGraphAsync(scope, effectiveRunId.Value, ct);
 
         ComparisonResult? comparisonResult = null;
         if (effectiveBaseRunId.HasValue && effectiveTargetRunId.HasValue)
         {
-            var baseRun = await query.GetRunDetailAsync(scope, effectiveBaseRunId.Value, ct);
-            var targetRun = await query.GetRunDetailAsync(scope, effectiveTargetRunId.Value, ct);
+            RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, effectiveBaseRunId.Value, ct);
+            RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, effectiveTargetRunId.Value, ct);
             if (baseRun?.GoldenManifest is not null && targetRun?.GoldenManifest is not null)
                 comparisonResult = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         }
 
-        var context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
-        var contextJson = JsonSerializer.Serialize(context, JsonWrite);
+        object context = ContextBuilder.BuildContext(manifest, graph, comparisonResult);
+        string contextJson = JsonSerializer.Serialize(context, JsonWrite);
 
         IReadOnlyList<RetrievalHit> retrievalHits = [];
         try
@@ -145,9 +146,9 @@ public sealed class AskService(
             logger.LogWarning(ex, "Retrieval search failed for Ask; continuing without retrieved evidence.");
         }
 
-        var retrievalContext = BuildRetrievalContext(retrievalHits);
+        string retrievalContext = BuildRetrievalContext(retrievalHits);
 
-        var userPrompt =
+        string userPrompt =
             "Conversation History:\n" +
             (string.IsNullOrWhiteSpace(historyText) ? "(none)\n" : historyText + "\n") +
             "\nStructured Context:\n" +
@@ -181,7 +182,7 @@ public sealed class AskService(
         }
 
         raw = UnwrapJsonFence(raw);
-        var parsed = TryDeserialize(raw);
+        LlmAskShape? parsed = TryDeserialize(raw);
 
         AskResponse response;
         if (parsed is null || string.IsNullOrWhiteSpace(parsed.Answer))
@@ -209,7 +210,7 @@ public sealed class AskService(
             };
         }
 
-        var metadataJson = JsonSerializer.Serialize(
+        string metadataJson = JsonSerializer.Serialize(
             new
             {
                 response.ReferencedDecisions,
@@ -226,8 +227,8 @@ public sealed class AskService(
 
         try
         {
-            var now = DateTime.UtcNow;
-            var conversationTurn =
+            DateTime now = DateTime.UtcNow;
+            List<ConversationMessage> conversationTurn =
                 new List<ConversationMessage>
                 {
                     new()
@@ -250,7 +251,7 @@ public sealed class AskService(
                     }
                 };
 
-            var convDocs = retrievalDocumentBuilder.BuildForConversation(
+            IReadOnlyList<RetrievalDocument> convDocs = retrievalDocumentBuilder.BuildForConversation(
                 scope.TenantId,
                 scope.WorkspaceId,
                 scope.ProjectId,
@@ -286,7 +287,7 @@ public sealed class AskService(
         if (messages.Count == 0)
             return messages;
 
-        var last = messages[^1];
+        ConversationMessage last = messages[^1];
         if (last.Role == ConversationMessageRole.User &&
             string.Equals(last.Content.Trim(), question, StringComparison.Ordinal))
             return messages.Take(messages.Count - 1).ToList();
@@ -315,13 +316,13 @@ public sealed class AskService(
     {
         if (string.IsNullOrWhiteSpace(raw))
             return raw;
-        var s = raw.Trim();
+        string s = raw.Trim();
         if (!s.StartsWith("```", StringComparison.Ordinal))
             return s;
-        var firstNl = s.IndexOf('\n');
+        int firstNl = s.IndexOf('\n');
         if (firstNl > 0)
             s = s[(firstNl + 1)..].Trim();
-        var end = s.LastIndexOf("```", StringComparison.Ordinal);
+        int end = s.LastIndexOf("```", StringComparison.Ordinal);
         if (end > 0)
             s = s[..end].Trim();
         return s;

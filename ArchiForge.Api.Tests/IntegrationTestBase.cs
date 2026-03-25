@@ -9,7 +9,7 @@ public class IntegrationTestBase(ArchiForgeApiFactory factory) : IClassFixture<A
 
     protected StringContent JsonContent(object value)
     {
-        var json = JsonSerializer.Serialize(value, JsonOptions);
+        string json = JsonSerializer.Serialize(value, JsonOptions);
         return new StringContent(json, Encoding.UTF8, "application/json");
     }
 

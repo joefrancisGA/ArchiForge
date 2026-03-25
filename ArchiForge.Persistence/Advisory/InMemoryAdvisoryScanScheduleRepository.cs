@@ -34,7 +34,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId);
+            int i = _items.FindIndex(x => x.ScheduleId == schedule.ScheduleId);
             if (i >= 0)
                 _items[i] = schedule;
         }
@@ -49,10 +49,10 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        int n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         lock (_gate)
         {
-            var result = _items
+            List<AdvisoryScanSchedule> result = _items
                 .Where(s =>
                     s is { IsEnabled: true, NextRunUtc: not null } &&
                     s.NextRunUtc <= utcNow)
@@ -74,7 +74,7 @@ public sealed class InMemoryAdvisoryScanScheduleRepository : IAdvisoryScanSchedu
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<AdvisoryScanSchedule> result = _items
                 .Where(s =>
                     s.TenantId == tenantId &&
                     s.WorkspaceId == workspaceId &&

@@ -40,22 +40,22 @@ public sealed class AlertService(
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var rules = await ruleRepository
+        IReadOnlyList<AlertRule> rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
+        PolicyPackContentDocument effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
             .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
         rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
-        var generated = alertEvaluator.Evaluate(rules, context);
-        var persisted = new List<AlertRecord>();
+        IReadOnlyList<AlertRecord> generated = alertEvaluator.Evaluate(rules, context);
+        List<AlertRecord> persisted = new List<AlertRecord>();
 
-        foreach (var alert in generated)
+        foreach (AlertRecord alert in generated)
         {
-            var existing = await alertRepository
+            AlertRecord? existing = await alertRepository
                 .GetOpenByDeduplicationKeyAsync(
                     context.TenantId,
                     context.WorkspaceId,
@@ -111,11 +111,11 @@ public sealed class AlertService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var alert = await alertRepository.GetByIdAsync(alertId, ct).ConfigureAwait(false);
+        AlertRecord? alert = await alertRepository.GetByIdAsync(alertId, ct).ConfigureAwait(false);
         if (alert is null)
             return null;
 
-        var newStatus = request.Action switch
+        string? newStatus = request.Action switch
         {
             AlertActionType.Acknowledge => AlertStatus.Acknowledged,
             AlertActionType.Resolve => AlertStatus.Resolved,
@@ -135,7 +135,7 @@ public sealed class AlertService(
 
         await alertRepository.UpdateAsync(alert, ct).ConfigureAwait(false);
 
-        var eventType = request.Action switch
+        string? eventType = request.Action switch
         {
             AlertActionType.Acknowledge => AuditEventTypes.AlertAcknowledged,
             AlertActionType.Resolve => AuditEventTypes.AlertResolved,

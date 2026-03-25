@@ -14,7 +14,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        using var builder = new OpenXmlDocxDocumentBuilder();
+        using OpenXmlDocxDocumentBuilder builder = new OpenXmlDocxDocumentBuilder();
         builder.AddHeading("ArchiForge Comparison Drift Report", 1);
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
         {
@@ -28,7 +28,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
         if (drift.Items.Count <= 0) return builder.Build();
         builder.AddHeading("Differences", 2);
         
-        foreach (var item in drift.Items)
+        foreach (DriftItem item in drift.Items)
         {
             builder.AddParagraph($"{item.Category} — {item.Path}", bold: true);
             if (!string.IsNullOrEmpty(item.Description))

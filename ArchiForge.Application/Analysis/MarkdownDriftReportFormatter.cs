@@ -17,7 +17,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.AppendLine("# ArchiForge Comparison Drift Report");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
@@ -41,11 +41,11 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         sb.AppendLine("| Category | Path | Stored | Regenerated | Description |");
         sb.AppendLine("|----------|------|--------|-------------|-------------|");
         
-        foreach (var item in drift.Items)
+        foreach (DriftItem item in drift.Items)
         {
-            var stored = EscapeTableCell(item.StoredValue);
-            var regen = EscapeTableCell(item.RegeneratedValue);
-            var desc = EscapeTableCell(item.Description);
+            string stored = EscapeTableCell(item.StoredValue);
+            string regen = EscapeTableCell(item.RegeneratedValue);
+            string desc = EscapeTableCell(item.Description);
             sb.AppendLine($"| {item.Category} | {item.Path} | {stored} | {regen} | {desc} |");
         }
         return sb.ToString();
@@ -56,7 +56,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>ArchiForge Drift Report</title>");
         sb.AppendLine("<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
         sb.AppendLine("</head><body>");
@@ -69,7 +69,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         if (drift.Items.Count > 0)
         {
             sb.AppendLine("<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
-            foreach (var item in drift.Items)
+            foreach (DriftItem item in drift.Items)
             {
                 sb.Append("<tr><td>").Append(System.Net.WebUtility.HtmlEncode(item.Category))
                     .Append("</td><td>").Append(System.Net.WebUtility.HtmlEncode(item.Path))

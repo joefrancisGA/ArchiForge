@@ -12,7 +12,7 @@ public sealed class ManifestDiffServiceTests
     [Fact]
     public void Compare_ShouldDetectAddedServiceAndControl()
     {
-        var left = new GoldenManifest
+        GoldenManifest left = new GoldenManifest
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -38,7 +38,7 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        var right = new GoldenManifest
+        GoldenManifest right = new GoldenManifest
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -71,9 +71,9 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        var service = new ManifestDiffService();
+        ManifestDiffService service = new ManifestDiffService();
 
-        var diff = service.Compare(left, right);
+        ManifestDiffResult diff = service.Compare(left, right);
 
         diff.AddedServices.Should().Contain("rag-search");
         diff.RemovedServices.Should().BeEmpty();
@@ -84,7 +84,7 @@ public sealed class ManifestDiffServiceTests
     [Fact]
     public void Compare_ShouldDetectRemovedDatastore()
     {
-        var left = new GoldenManifest
+        GoldenManifest left = new GoldenManifest
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -107,7 +107,7 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        var right = new GoldenManifest
+        GoldenManifest right = new GoldenManifest
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -121,9 +121,9 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        var service = new ManifestDiffService();
+        ManifestDiffService service = new ManifestDiffService();
 
-        var diff = service.Compare(left, right);
+        ManifestDiffResult diff = service.Compare(left, right);
 
         diff.RemovedDatastores.Should().Contain("rag-metadata");
         diff.AddedDatastores.Should().BeEmpty();

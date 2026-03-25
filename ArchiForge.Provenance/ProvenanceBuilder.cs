@@ -14,17 +14,17 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         DecisionTrace trace,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        var result = new DecisionProvenanceGraph
+        DecisionProvenanceGraph result = new DecisionProvenanceGraph
         {
             Id = Guid.NewGuid(),
             RunId = runId
         };
 
-        var nodeMap = new Dictionary<string, Guid>(StringComparer.Ordinal);
+        Dictionary<string, Guid> nodeMap = new Dictionary<string, Guid>(StringComparer.Ordinal);
 
-        var graphNodeIds = new HashSet<string>(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
+        HashSet<string> graphNodeIds = new HashSet<string>(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
 
-        foreach (var n in graph.Nodes)
+        foreach (GraphNode n in graph.Nodes)
         {
             AddNode(
                 $"graph:{n.NodeId}",
@@ -41,7 +41,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
         }
 
-        foreach (var f in findings.Findings)
+        foreach (Finding f in findings.Findings)
         {
             AddNode(
                 $"finding:{f.FindingId}",
@@ -58,7 +58,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
         }
 
-        foreach (var ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
         {
             AddNode(
                 $"rule:{ruleId}",
@@ -70,7 +70,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
         }
 
-        foreach (var d in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
         {
             AddNode(
                 $"decision:{d.DecisionId}",
@@ -86,7 +86,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
         }
 
-        foreach (var a in artifacts)
+        foreach (SynthesizedArtifact a in artifacts)
         {
             AddNode(
                 $"artifact:{a.ArtifactId:N}",
@@ -103,7 +103,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
                 });
         }
 
-        var manifestNodeId = AddNode(
+        Guid manifestNodeId = AddNode(
             $"manifest:{manifest.ManifestId:N}",
             new ProvenanceNode
             {
@@ -117,17 +117,17 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
             });
 
         // Findings → Decisions (decision supported by findings)
-        foreach (var d in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
         {
-            var decisionKey = $"decision:{d.DecisionId}";
+            string decisionKey = $"decision:{d.DecisionId}";
             if (!nodeMap.ContainsKey(decisionKey))
                 continue;
 
-            var to = nodeMap[decisionKey];
-            foreach (var fId in d.SupportingFindingIds)
+            Guid to = nodeMap[decisionKey];
+            foreach (string fId in d.SupportingFindingIds)
             {
-                var fk = $"finding:{fId}";
-                if (!nodeMap.TryGetValue(fk, out var from))
+                string fk = $"finding:{fId}";
+                if (!nodeMap.TryGetValue(fk, out Guid from))
                     continue;
 
                 AddEdge(from, to, ProvenanceEdgeType.SupportedBy);
@@ -135,16 +135,16 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Graph nodes → Findings (finding influenced by graph context)
-        foreach (var f in findings.Findings)
+        foreach (Finding f in findings.Findings)
         {
-            var fk = $"finding:{f.FindingId}";
-            if (!nodeMap.TryGetValue(fk, out var findingNodeId))
+            string fk = $"finding:{f.FindingId}";
+            if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
                 continue;
 
-            foreach (var relatedId in f.RelatedNodeIds)
+            foreach (string relatedId in f.RelatedNodeIds)
             {
-                var gk = $"graph:{relatedId}";
-                if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out var graphNid))
+                string gk = $"graph:{relatedId}";
+                if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))
                     continue;
 
                 AddEdge(graphNid, findingNodeId, ProvenanceEdgeType.InfluencedByGraphNode);
@@ -152,16 +152,16 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Rules → Decisions (rules that fired in this trace influenced decisions — v1: cross-product of applied rules × decisions)
-        foreach (var d in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
         {
-            var dk = $"decision:{d.DecisionId}";
-            if (!nodeMap.TryGetValue(dk, out var decisionNid))
+            string dk = $"decision:{d.DecisionId}";
+            if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
 
-            foreach (var ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                var rk = $"rule:{ruleId}";
-                if (!nodeMap.TryGetValue(rk, out var ruleNid))
+                string rk = $"rule:{ruleId}";
+                if (!nodeMap.TryGetValue(rk, out Guid ruleNid))
                     continue;
 
                 AddEdge(ruleNid, decisionNid, ProvenanceEdgeType.TriggeredByRule);
@@ -169,16 +169,16 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Decisions → Artifacts
-        foreach (var a in artifacts)
+        foreach (SynthesizedArtifact a in artifacts)
         {
-            var ak = $"artifact:{a.ArtifactId:N}";
-            if (!nodeMap.TryGetValue(ak, out var artifactNid))
+            string ak = $"artifact:{a.ArtifactId:N}";
+            if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
                 continue;
 
-            foreach (var dId in a.ContributingDecisionIds.Distinct(StringComparer.Ordinal))
+            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.Ordinal))
             {
-                var dk = $"decision:{dId}";
-                if (!nodeMap.TryGetValue(dk, out var decisionNid))
+                string dk = $"decision:{dId}";
+                if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                     continue;
 
                 AddEdge(decisionNid, artifactNid, ProvenanceEdgeType.ContributedToArtifact);
@@ -186,10 +186,10 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Decisions → Manifest
-        foreach (var d in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
         {
-            var dk = $"decision:{d.DecisionId}";
-            if (!nodeMap.TryGetValue(dk, out var decisionNid))
+            string dk = $"decision:{d.DecisionId}";
+            if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
 
             AddEdge(decisionNid, manifestNodeId, ProvenanceEdgeType.ContainedInManifest);
@@ -199,7 +199,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         Guid AddNode(string key, ProvenanceNode node)
         {
-            if (!nodeMap.TryGetValue(key, out var existing))
+            if (!nodeMap.TryGetValue(key, out Guid existing))
             {
                 node.Id = Guid.NewGuid();
                 result.Nodes.Add(node);

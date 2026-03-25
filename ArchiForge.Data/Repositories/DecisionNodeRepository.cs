@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -46,12 +47,12 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
-        using var transaction = connection.BeginTransaction();
+        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbTransaction transaction = connection.BeginTransaction();
 
-        foreach (var decision in decisions)
+        foreach (DecisionNode decision in decisions)
         {
-            var payload = JsonSerializer.Serialize(decision, ContractJson.Default);
+            string payload = JsonSerializer.Serialize(decision, ContractJson.Default);
             await connection.ExecuteAsync(new CommandDefinition(
                 sql,
                 new
@@ -84,15 +85,15 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             LIMIT 1000;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        var nodes = new List<DecisionNode>();
-        foreach (var json in rows)
+        List<DecisionNode> nodes = new List<DecisionNode>();
+        foreach (string json in rows)
         {
             DecisionNode? node;
             try

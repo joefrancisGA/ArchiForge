@@ -14,18 +14,18 @@ public class CostConstraintFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var findings = new List<Finding>();
+        List<Finding> findings = new List<Finding>();
 
-        var costNodes = graphSnapshot.GetNodesByType("CostConstraint");
+        IReadOnlyList<GraphNode> costNodes = graphSnapshot.GetNodesByType("CostConstraint");
 
-        foreach (var node in costNodes)
+        foreach (GraphNode node in costNodes)
         {
-            node.Properties.TryGetValue("budgetName", out var budgetName);
-            node.Properties.TryGetValue("maxMonthlyCost", out var maxCostStr);
-            node.Properties.TryGetValue("costRisk", out var costRisk);
+            node.Properties.TryGetValue("budgetName", out string? budgetName);
+            node.Properties.TryGetValue("maxMonthlyCost", out string? maxCostStr);
+            node.Properties.TryGetValue("costRisk", out string? costRisk);
 
             decimal? maxMonthly = null;
-            if (!string.IsNullOrWhiteSpace(maxCostStr) && decimal.TryParse(maxCostStr, out var mc))
+            if (!string.IsNullOrWhiteSpace(maxCostStr) && decimal.TryParse(maxCostStr, out decimal mc))
                 maxMonthly = mc;
 
             findings.Add(new Finding

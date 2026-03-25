@@ -13,7 +13,7 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# Export Record Comparison: {diff.LeftExportRecordId} -> {diff.RightExportRecordId}");
         sb.AppendLine();
@@ -48,7 +48,7 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
             return;
         }
 
-        foreach (var item in items.OrderBy(x => x))
+        foreach (string item in items.OrderBy(x => x))
         {
             sb.AppendLine($"- {item}");
         }

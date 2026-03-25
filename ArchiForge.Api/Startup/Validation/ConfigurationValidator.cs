@@ -8,26 +8,26 @@ public sealed class ConfigurationValidator(
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var errors = new List<string>();
+        List<string> errors = new List<string>();
 
-        var connectionString = configuration.GetConnectionString("ArchiForge");
+        string? connectionString = configuration.GetConnectionString("ArchiForge");
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             errors.Add("ConnectionStrings:ArchiForge is missing or empty.");
         }
 
-        var apiKeyEnabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
+        bool apiKeyEnabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
         if (apiKeyEnabled)
         {
-            var adminKey = configuration["Authentication:ApiKey:AdminKey"];
-            var readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+            string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
+            string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
             if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
             {
                 errors.Add("When Authentication:ApiKey:Enabled is true, at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey must be configured.");
             }
         }
 
-        var agentMode = configuration["AgentExecution:Mode"];
+        string? agentMode = configuration["AgentExecution:Mode"];
         if (!string.IsNullOrWhiteSpace(agentMode) &&
             !string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase) &&
             !string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
@@ -37,9 +37,9 @@ public sealed class ConfigurationValidator(
 
         if (string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase))
         {
-            var endpoint = configuration["AzureOpenAI:Endpoint"];
-            var apiKey = configuration["AzureOpenAI:ApiKey"];
-            var deployment = configuration["AzureOpenAI:DeploymentName"];
+            string? endpoint = configuration["AzureOpenAI:Endpoint"];
+            string? apiKey = configuration["AzureOpenAI:ApiKey"];
+            string? deployment = configuration["AzureOpenAI:DeploymentName"];
             if (string.IsNullOrWhiteSpace(endpoint) ||
                 string.IsNullOrWhiteSpace(apiKey) ||
                 string.IsNullOrWhiteSpace(deployment))
@@ -50,7 +50,7 @@ public sealed class ConfigurationValidator(
 
         if (errors.Count <= 0) return Task.CompletedTask;
         
-        foreach (var error in errors)
+        foreach (string error in errors)
         {
             logger.LogError("Configuration validation error: {Error}", error);
         }

@@ -16,14 +16,14 @@ public sealed class SchemaValidationTests
     [Fact]
     public void MergeResults_InvalidAgentResultSchema_FailsCommit()
     {
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             RequestId = "REQ-001",
             SystemName = "TestSystem",
             Description = "d"
         };
 
-        var invalid = new AgentResult
+        AgentResult invalid = new AgentResult
         {
             ResultId = "RES-INVALID-001",
             TaskId = "TASK-INVALID-001",
@@ -35,13 +35,13 @@ public sealed class SchemaValidationTests
             CreatedUtc = DateTime.UtcNow
         };
 
-        var validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new SchemaValidationService(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        var service = new DecisionEngineService(validationService);
+        DecisionEngineService service = new DecisionEngineService(validationService);
 
-        var result = service.MergeResults(
+        DecisionMergeResult result = service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",

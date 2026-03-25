@@ -33,12 +33,12 @@ public class RuleBasedDecisionEngine(
         FindingsSnapshot findingsSnapshot,
         CancellationToken ct)
     {
-        var ruleSet = await ruleProvider.GetRuleSetAsync(ct);
-        var rules = ruleSet.Rules
+        DecisionRuleSet ruleSet = await ruleProvider.GetRuleSetAsync(ct);
+        List<DecisionRule> rules = ruleSet.Rules
             .OrderByDescending(r => r.Priority)
             .ToList();
 
-        var trace = new DecisionTrace
+        DecisionTrace trace = new DecisionTrace
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,
@@ -48,9 +48,9 @@ public class RuleBasedDecisionEngine(
             RuleSetHash = ruleSet.RuleSetHash
         };
 
-        foreach (var finding in findingsSnapshot.Findings)
+        foreach (Finding finding in findingsSnapshot.Findings)
         {
-            var matchingRules = rules
+            List<DecisionRule> matchingRules = rules
                 .Where(r => string.Equals(
                     r.AppliesToFindingType,
                     finding.FindingType,
@@ -63,7 +63,7 @@ public class RuleBasedDecisionEngine(
                 continue;
             }
 
-            foreach (var rule in matchingRules)
+            foreach (DecisionRule rule in matchingRules)
             {
                 trace.AppliedRuleIds.Add(rule.RuleId);
 
@@ -87,7 +87,7 @@ public class RuleBasedDecisionEngine(
             }
         }
 
-        var manifest = manifestBuilder.Build(
+        GoldenManifest manifest = manifestBuilder.Build(
             runId,
             contextSnapshotId,
             graphSnapshot,

@@ -5,6 +5,9 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Determinism;
+using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Architecture;
+using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Repositories;
 
@@ -48,14 +51,14 @@ public sealed partial class RunsController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
         }
 
-        var user = User.Identity?.Name ?? "anonymous";
-        var correlationId = HttpContext.TraceIdentifier;
+        string user = User.Identity?.Name ?? "anonymous";
+        string correlationId = HttpContext.TraceIdentifier;
 
         try
         {
-            var result = await architectureRunService.CreateRunAsync(request, cancellationToken);
+            CreateRunResult result = await architectureRunService.CreateRunAsync(request, cancellationToken);
 
-            var response = RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
+            CreateArchitectureRunResponse response = RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
 
             LogRunCreated(result.Run.RunId, request.RequestId, user, correlationId);
 
@@ -84,14 +87,14 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var user = User.Identity?.Name ?? "anonymous";
-        var correlationId = HttpContext.TraceIdentifier;
+        string user = User.Identity?.Name ?? "anonymous";
+        string correlationId = HttpContext.TraceIdentifier;
 
         try
         {
-            var result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
+            ExecuteRunResult result = await architectureRunService.ExecuteRunAsync(runId, cancellationToken);
 
-            var response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
+            ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
             LogRunExecuted(runId, result.Results.Count, user, correlationId);
 
@@ -117,19 +120,19 @@ public sealed partial class RunsController(
     {
         request ??= new ReplayRunRequest();
 
-        var user = User.Identity?.Name ?? "anonymous";
-        var correlationId = HttpContext.TraceIdentifier;
+        string user = User.Identity?.Name ?? "anonymous";
+        string correlationId = HttpContext.TraceIdentifier;
 
         try
         {
-            var result = await replayRunService.ReplayAsync(
+            ReplayRunResult result = await replayRunService.ReplayAsync(
                 runId,
                 request.ExecutionMode,
                 request.CommitReplay,
                 request.ManifestVersionOverride,
                 cancellationToken);
 
-            var response = RunResponseMapper.ToReplayRunResponse(
+            ReplayRunResponse response = RunResponseMapper.ToReplayRunResponse(
                 result.OriginalRunId,
                 result.ReplayRunId,
                 result.ExecutionMode,
@@ -171,7 +174,7 @@ public sealed partial class RunsController(
 
         try
         {
-            var result = await determinismCheckService.RunAsync(request, cancellationToken);
+            DeterminismCheckResult result = await determinismCheckService.RunAsync(request, cancellationToken);
 
             return Ok(new DeterminismCheckResponse
             {
@@ -195,14 +198,14 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var user = User.Identity?.Name ?? "anonymous";
-        var correlationId = HttpContext.TraceIdentifier;
+        string user = User.Identity?.Name ?? "anonymous";
+        string correlationId = HttpContext.TraceIdentifier;
 
         try
         {
-            var result = await architectureRunService.CommitRunAsync(runId, cancellationToken);
+            CommitRunResult result = await architectureRunService.CommitRunAsync(runId, cancellationToken);
 
-            var response = RunResponseMapper.ToCommitRunResponse(
+            CommitRunResponse response = RunResponseMapper.ToCommitRunResponse(
                 result.Manifest,
                 result.DecisionTraces,
                 result.Warnings);
@@ -230,7 +233,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
 
         if (detail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
@@ -239,7 +242,7 @@ public sealed partial class RunsController(
         if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
             return this.NotFoundProblem($"Manifest referenced by run '{runId}' could not be found.", ProblemTypes.ResourceNotFound);
 
-        var response = RunResponseMapper.ToRunDetailsResponse(
+        RunDetailsResponse response = RunResponseMapper.ToRunDetailsResponse(
             detail.Run,
             detail.Tasks,
             detail.Results,
@@ -262,7 +265,7 @@ public sealed partial class RunsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
-        var result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
+        SubmitResultResult result = await architectureApplicationService.SubmitAgentResultAsync(runId, request.Result, cancellationToken);
 
         return result.Success ? Ok(new SubmitAgentResultResponse { ResultId = result.ResultId! }) : MapApplicationServiceFailure(result.Error, result.FailureKind, "Submission failed.");
     }
@@ -277,10 +280,10 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var user = User.Identity?.Name ?? "anonymous";
-        var correlationId = HttpContext.TraceIdentifier;
+        string user = User.Identity?.Name ?? "anonymous";
+        string correlationId = HttpContext.TraceIdentifier;
 
-        var result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
+        SeedFakeResultsResult result = await architectureApplicationService.SeedFakeResultsAsync(runId, cancellationToken);
         if (!result.Success)
             return MapApplicationServiceFailure(result.Error, result.FailureKind, "Seed failed.");
 
@@ -301,7 +304,7 @@ public sealed partial class RunsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<DecisionNode> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (decisions.Count == 0)
         {
@@ -328,7 +331,7 @@ public sealed partial class RunsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
         if (evidence is null)
         {
             return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -362,10 +365,10 @@ public sealed partial class RunsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        var paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
-        var (skip, take) = paging.Normalize();
+        PagingParameters paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
+        (int skip, int take) = paging.Normalize();
 
-        var (pagedTraces, totalCount) = await agentExecutionTraceRepository.GetPagedByRunIdAsync(
+        (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) = await agentExecutionTraceRepository.GetPagedByRunIdAsync(
             runId,
             offset: skip,
             limit: take,
@@ -384,9 +387,9 @@ public sealed partial class RunsController(
     [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)
     {
-        var summaries = await runDetailQueryService.ListRunSummariesAsync(cancellationToken);
+        IReadOnlyList<RunSummary> summaries = await runDetailQueryService.ListRunSummariesAsync(cancellationToken);
 
-        var response = summaries
+        List<RunListItemResponse> response = summaries
             .Select(r => new RunListItemResponse
             {
                 RunId = r.RunId,
@@ -404,7 +407,7 @@ public sealed partial class RunsController(
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind, string defaultBadRequestDetail)
     {
-        var detail = string.IsNullOrWhiteSpace(error) ? defaultBadRequestDetail : error;
+        string detail = string.IsNullOrWhiteSpace(error) ? defaultBadRequestDetail : error;
         return kind switch
         {
             ApplicationServiceFailureKind.RunNotFound => this.NotFoundProblem(detail, ProblemTypes.RunNotFound),

@@ -36,24 +36,24 @@ public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
         if (principal.Identity?.IsAuthenticated != true)
             return Task.FromResult(principal);
 
-        var clone = principal.Clone();
+        ClaimsPrincipal clone = principal.Clone();
         if (clone.Identity is not ClaimsIdentity id)
             return Task.FromResult(principal);
 
-        var roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var c in clone.FindAll(ClaimTypes.Role))
+        HashSet<string> roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (Claim c in clone.FindAll(ClaimTypes.Role))
             roles.Add(c.Value);
-        foreach (var c in clone.FindAll("roles"))
+        foreach (Claim c in clone.FindAll("roles"))
             roles.Add(c.Value);
 
         if (roles.Contains(ArchiForgeRoles.Admin))
         {
-            foreach (var p in AdminPermissions)
+            foreach (string p in AdminPermissions)
                 AddPermission(p);
         }
         else if (roles.Contains(ArchiForgeRoles.Operator))
         {
-            foreach (var p in OperatorPermissions)
+            foreach (string p in OperatorPermissions)
                 AddPermission(p);
         }
         else if (roles.Contains(ArchiForgeRoles.Reader))

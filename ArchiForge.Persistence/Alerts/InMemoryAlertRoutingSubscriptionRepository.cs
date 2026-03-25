@@ -21,7 +21,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         _ = ct;
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.RoutingSubscriptionId == subscription.RoutingSubscriptionId);
+            int i = _items.FindIndex(x => x.RoutingSubscriptionId == subscription.RoutingSubscriptionId);
             if (i >= 0)
                 _items[i] = subscription;
         }
@@ -45,7 +45,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<AlertRoutingSubscription> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
                 .ToList();
@@ -62,7 +62,7 @@ public sealed class InMemoryAlertRoutingSubscriptionRepository : IAlertRoutingSu
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<AlertRoutingSubscription> result = _items
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&

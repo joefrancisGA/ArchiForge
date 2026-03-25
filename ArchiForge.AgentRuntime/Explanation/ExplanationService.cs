@@ -35,13 +35,13 @@ public sealed class ExplanationService(
         ComparisonResult comparison,
         CancellationToken ct)
     {
-        var majorChanges = ExtractMajorChanges(comparison);
-        var securityBlock = FormatSecurityChanges(comparison);
-        var costBlock = FormatCostChanges(comparison);
-        var topologyBlock = FormatTopologyChanges(comparison);
-        var reqBlock = FormatRequirementChanges(comparison);
+        List<string> majorChanges = ExtractMajorChanges(comparison);
+        string securityBlock = FormatSecurityChanges(comparison);
+        string costBlock = FormatCostChanges(comparison);
+        string topologyBlock = FormatTopologyChanges(comparison);
+        string reqBlock = FormatRequirementChanges(comparison);
 
-        var userPrompt =
+        string userPrompt =
             "Explain the following architecture changes between a BASE run and a TARGET run.\n\n" +
             "## Summary counts\n" +
             $"- Decision deltas: {comparison.DecisionChanges.Count}\n" +
@@ -59,8 +59,8 @@ public sealed class ExplanationService(
             "Respond with a single JSON object only (no markdown fences), keys:\n" +
             "highLevelSummary (string), keyTradeoffs (array of strings), narrative (string, 2-4 short paragraphs).";
 
-        var json = await TryCompleteJsonAsync(userPrompt, ct);
-        var parsed = TryDeserialize<LlmComparisonJson>(json);
+        string? json = await TryCompleteJsonAsync(userPrompt, ct);
+        LlmComparisonJson? parsed = TryDeserialize<LlmComparisonJson>(json);
 
         return new ComparisonExplanationResult
         {
@@ -82,12 +82,12 @@ public sealed class ExplanationService(
         DecisionProvenanceGraph? provenance,
         CancellationToken ct)
     {
-        var keyDrivers = ExtractRunKeyDrivers(manifest, provenance);
-        var risks = ExtractRiskImplications(manifest);
-        var costs = ExtractCostImplications(manifest);
-        var compliance = ExtractComplianceImplications(manifest);
+        List<string> keyDrivers = ExtractRunKeyDrivers(manifest, provenance);
+        List<string> risks = ExtractRiskImplications(manifest);
+        List<string> costs = ExtractCostImplications(manifest);
+        List<string> compliance = ExtractComplianceImplications(manifest);
 
-        var userPrompt =
+        string userPrompt =
             "Explain this architecture run for stakeholders.\n\n" +
             "## Manifest summary (source of truth)\n" +
             (string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
@@ -106,8 +106,8 @@ public sealed class ExplanationService(
             "\n\nRespond with a single JSON object only (no markdown fences), keys:\n" +
             "summary (one paragraph), detailedNarrative (2-4 paragraphs referencing the bullets above).";
 
-        var json = await TryCompleteJsonAsync(userPrompt, ct);
-        var parsed = TryDeserialize<LlmRunJson>(json);
+        string? json = await TryCompleteJsonAsync(userPrompt, ct);
+        LlmRunJson? parsed = TryDeserialize<LlmRunJson>(json);
 
         return new ExplanationResult
         {
@@ -130,7 +130,7 @@ public sealed class ExplanationService(
     {
         try
         {
-            var raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
+            string raw = await completionClient.CompleteJsonAsync(ArchitectSystemPrompt, userPrompt, ct);
             return UnwrapJsonFence(raw);
         }
         catch (OperationCanceledException)
@@ -148,16 +148,16 @@ public sealed class ExplanationService(
     {
         if (string.IsNullOrWhiteSpace(raw))
             return raw;
-        var s = raw.Trim();
+        string s = raw.Trim();
 
         if (!s.StartsWith("```", StringComparison.Ordinal))
             return s;
 
-        var firstNl = s.IndexOf('\n');
+        int firstNl = s.IndexOf('\n');
         if (firstNl > 0)
             s = s[(firstNl + 1)..].Trim();
 
-        var end = s.LastIndexOf("```", StringComparison.Ordinal);
+        int end = s.LastIndexOf("```", StringComparison.Ordinal);
 
         if (end > 0)
             s = s[..end].Trim();
@@ -182,8 +182,8 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractMajorChanges(ComparisonResult c)
     {
-        var list = new List<string>();
-        foreach (var d in c.DecisionChanges)
+        List<string> list = new List<string>();
+        foreach (DecisionDelta d in c.DecisionChanges)
         {
             if (d.ChangeType == "Modified")
             {
@@ -231,7 +231,7 @@ public sealed class ExplanationService(
 
     private static string BuildComparisonHeuristicSummary(ComparisonResult c)
     {
-        var parts = new List<string>();
+        List<string> parts = new List<string>();
         if (c.DecisionChanges.Count > 0)
             parts.Add($"{c.DecisionChanges.Count} decision change(s)");
         if (c.RequirementChanges.Count > 0)
@@ -249,7 +249,7 @@ public sealed class ExplanationService(
 
     private static string BuildComparisonNarrativeFallback(ComparisonResult c, List<string> majorChanges)
     {
-        var lines = new List<string>
+        List<string> lines = new List<string>
         {
             "The target run differs from the base run in the areas summarized below.",
             string.Join(" ", c.SummaryHighlights)
@@ -260,7 +260,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractRunKeyDrivers(GoldenManifest m, DecisionProvenanceGraph? g)
     {
-        var list = m.Decisions.Take(25).Select(d => $"{d.Category}: {d.Title} → {d.SelectedOption}").ToList();
+        List<string> list = m.Decisions.Take(25).Select(d => $"{d.Category}: {d.Title} → {d.SelectedOption}").ToList();
 
         if (m.Topology.Resources.Count > 0)
             list.Add($"{m.Topology.Resources.Count} topology resource(s) recorded.");
@@ -271,7 +271,7 @@ public sealed class ExplanationService(
         if (g is null)
             return list;
 
-        var byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
+        Dictionary<ProvenanceNodeType, int> byType = g.Nodes.GroupBy(n => n.Type).ToDictionary(x => x.Key, x => x.Count());
         list.Add(
             $"Provenance graph: {g.Nodes.Count} node(s), {g.Edges.Count} edge(s); " +
             string.Join(", ", byType.Select(kv => $"{kv.Key}={kv.Value}")));
@@ -281,7 +281,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractRiskImplications(GoldenManifest m)
     {
-        var list = m.UnresolvedIssues.Items.Take(20).Select(i => $"[{i.Severity}] {i.Title}: {i.Description}").ToList();
+        List<string> list = m.UnresolvedIssues.Items.Take(20).Select(i => $"[{i.Severity}] {i.Title}: {i.Description}").ToList();
         list.AddRange(m.Warnings.Take(10).Select(w => $"Warning: {w}"));
 
         if (list.Count == 0)
@@ -292,7 +292,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractCostImplications(GoldenManifest m)
     {
-        var list = new List<string>
+        List<string> list = new List<string>
         {
             m.Cost.MaxMonthlyCost.HasValue
                 ? $"Max monthly cost: {m.Cost.MaxMonthlyCost.Value:0.00}"
@@ -306,7 +306,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractComplianceImplications(GoldenManifest m)
     {
-        var list = m.Compliance.Gaps.Take(15).Select(g => $"Compliance gap: {g}").ToList();
+        List<string> list = m.Compliance.Gaps.Take(15).Select(g => $"Compliance gap: {g}").ToList();
 
         if (m.Compliance.Controls.Count > 0)
             list.Insert(0, $"{m.Compliance.Controls.Count} compliance control(s) evaluated.");

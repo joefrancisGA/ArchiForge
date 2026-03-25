@@ -14,28 +14,28 @@ public class SecurityBaselineFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var findings = new List<Finding>();
+        List<Finding> findings = new List<Finding>();
 
-        var securityNodes = graphSnapshot.GetNodesByType("SecurityBaseline");
+        IReadOnlyList<GraphNode> securityNodes = graphSnapshot.GetNodesByType("SecurityBaseline");
 
-        foreach (var node in securityNodes)
+        foreach (GraphNode node in securityNodes)
         {
-            node.Properties.TryGetValue("controlId", out var controlId);
-            node.Properties.TryGetValue("status", out var status);
+            node.Properties.TryGetValue("controlId", out string? controlId);
+            node.Properties.TryGetValue("status", out string? status);
 
-            var protectedIds = graphSnapshot
+            List<string> protectedIds = graphSnapshot
                 .GetOutgoingTargets(node.NodeId, "PROTECTS")
                 .Select(n => n.NodeId)
                 .ToList();
 
-            var relatedNodeIds = new List<string> { node.NodeId };
-            foreach (var id in protectedIds)
+            List<string> relatedNodeIds = new List<string> { node.NodeId };
+            foreach (string id in protectedIds)
             {
                 if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))
                     relatedNodeIds.Add(id);
             }
 
-            var examined = new List<string>(relatedNodeIds);
+            List<string> examined = new List<string>(relatedNodeIds);
 
             findings.Add(new Finding
             {

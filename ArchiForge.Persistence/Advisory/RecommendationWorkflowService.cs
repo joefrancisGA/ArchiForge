@@ -20,11 +20,11 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
     {
         ArgumentNullException.ThrowIfNull(plan);
 
-        foreach (var recommendation in plan.Recommendations)
+        foreach (ImprovementRecommendation recommendation in plan.Recommendations)
         {
-            var existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct).ConfigureAwait(false);
+            RecommendationRecord? existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct).ConfigureAwait(false);
 
-            var record = new RecommendationRecord
+            RecommendationRecord record = new RecommendationRecord
             {
                 RecommendationId = recommendation.RecommendationId,
                 TenantId = tenantId,
@@ -74,7 +74,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         ArgumentException.ThrowIfNullOrWhiteSpace(userName);
         ArgumentNullException.ThrowIfNull(request);
 
-        var recommendation = await repository.GetByIdAsync(recommendationId, ct).ConfigureAwait(false);
+        RecommendationRecord? recommendation = await repository.GetByIdAsync(recommendationId, ct).ConfigureAwait(false);
         if (recommendation is null)
             return null;
 

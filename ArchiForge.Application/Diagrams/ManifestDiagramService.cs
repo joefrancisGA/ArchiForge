@@ -17,48 +17,48 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         ArgumentNullException.ThrowIfNull(manifest);
         options ??= new ManifestDiagramOptions();
 
-        var layout = NormalizeLayout(options.Layout);
-        var relationshipLabels = NormalizeRelationshipLabels(options.RelationshipLabels);
-        var groupBy = NormalizeGroupBy(options.GroupBy);
+        string layout = NormalizeLayout(options.Layout);
+        string relationshipLabels = NormalizeRelationshipLabels(options.RelationshipLabels);
+        string groupBy = NormalizeGroupBy(options.GroupBy);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.AppendLine($"flowchart {layout}");
 
         // Build stable, collision-safe node IDs for services and datastores.
-        var nodeIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var usedNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> nodeIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> usedNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        var services = manifest.Services;
-        var datastores = manifest.Datastores;
-        var manifestRelationships = manifest.Relationships;
+        List<ManifestService> services = manifest.Services;
+        List<ManifestDatastore> datastores = manifest.Datastores;
+        List<ManifestRelationship> manifestRelationships = manifest.Relationships;
 
         // Optional grouping (subgraphs) for services only.
         if (services.Count > 0)
         {
             if (groupBy == ManifestDiagramConstants.GroupByNone)
             {
-                foreach (var service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
+                foreach (ManifestService service in services.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
                 {
-                    var nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
-                    var label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
+                    string nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
+                    string label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
                     sb.AppendLine($"    {nodeId}[\"{EscapeLabel(label)}\"]");
                 }
             }
             else
             {
-                var groups = services
+                IOrderedEnumerable<IGrouping<string, ManifestService>> groups = services
                     .GroupBy(s => groupBy == ManifestDiagramConstants.GroupByRuntimePlatform
                         ? s.RuntimePlatform.ToString()
                         : s.ServiceType.ToString(), StringComparer.OrdinalIgnoreCase)
                     .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase);
 
-                foreach (var g in groups)
+                foreach (IGrouping<string, ManifestService> g in groups)
                 {
                     sb.AppendLine($"    subgraph {SanitizeId(g.Key)}[\"{EscapeLabel(g.Key)}\"]");
-                    foreach (var service in g.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
+                    foreach (ManifestService service in g.OrderBy(s => s.ServiceName, StringComparer.OrdinalIgnoreCase))
                     {
-                        var nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
-                        var label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
+                        string nodeId = GetOrCreateNodeId("svc", service.ServiceId, service.ServiceName);
+                        string label = BuildServiceLabel(service, options.IncludeRuntimePlatform);
                         sb.AppendLine($"        {nodeId}[\"{EscapeLabel(label)}\"]");
                     }
                     sb.AppendLine("    end");
@@ -66,22 +66,22 @@ public sealed class ManifestDiagramService : IManifestDiagramService
             }
         }
 
-        foreach (var datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
+        foreach (ManifestDatastore datastore in datastores.OrderBy(d => d.DatastoreName, StringComparer.OrdinalIgnoreCase))
         {
-            var nodeId = GetOrCreateNodeId("ds", datastore.DatastoreId, datastore.DatastoreName);
-            var label = BuildDatastoreLabel(datastore, options.IncludeRuntimePlatform);
+            string nodeId = GetOrCreateNodeId("ds", datastore.DatastoreId, datastore.DatastoreName);
+            string label = BuildDatastoreLabel(datastore, options.IncludeRuntimePlatform);
             sb.AppendLine($"    {nodeId}[(\"{EscapeLabel(label)}\")]");
         }
 
         if (services.Count > 0 || datastores.Count > 0)
             sb.AppendLine();
 
-        foreach (var relationship in manifestRelationships)
+        foreach (ManifestRelationship relationship in manifestRelationships)
         {
-            var source = ResolveExistingNodeId(relationship.SourceId, manifest, nodeIds)
-                         ?? SanitizeId(relationship.SourceId);
-            var target = ResolveExistingNodeId(relationship.TargetId, manifest, nodeIds)
-                         ?? SanitizeId(relationship.TargetId);
+            string source = ResolveExistingNodeId(relationship.SourceId, manifest, nodeIds)
+                            ?? SanitizeId(relationship.SourceId);
+            string target = ResolveExistingNodeId(relationship.TargetId, manifest, nodeIds)
+                            ?? SanitizeId(relationship.TargetId);
 
             // Skip edges with missing endpoints.
             if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(target))
@@ -93,7 +93,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
                 continue;
             }
 
-            var edgeLabel = EscapeLabel(relationship.RelationshipType.ToString());
+            string edgeLabel = EscapeLabel(relationship.RelationshipType.ToString());
             sb.AppendLine($"    {source} -->|{edgeLabel}| {target}");
         }
 
@@ -101,12 +101,12 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
         string GetOrCreateNodeId(string kind, string rawId, string fallbackName)
         {
-            var key = $"{kind}:{rawId}";
-            if (!string.IsNullOrWhiteSpace(rawId) && nodeIds.TryGetValue(key, out var existing))
+            string key = $"{kind}:{rawId}";
+            if (!string.IsNullOrWhiteSpace(rawId) && nodeIds.TryGetValue(key, out string? existing))
                 return existing;
 
-            var baseId = SanitizeId(string.IsNullOrWhiteSpace(rawId) ? fallbackName : rawId);
-            var unique = EnsureUnique(baseId, usedNodeIds);
+            string baseId = SanitizeId(string.IsNullOrWhiteSpace(rawId) ? fallbackName : rawId);
+            string unique = EnsureUnique(baseId, usedNodeIds);
 
             if (!string.IsNullOrWhiteSpace(rawId))
                 nodeIds[key] = unique;
@@ -123,26 +123,26 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (string.IsNullOrWhiteSpace(sourceOrTargetId))
             return null;
 
-        var svc = manifest.Services.FirstOrDefault(s =>
+        ManifestService? svc = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
         if (svc is not null)
         {
-            var key = $"svc:{svc.ServiceId}";
-            if (!string.IsNullOrWhiteSpace(svc.ServiceId) && nodeIds.TryGetValue(key, out var id))
+            string key = $"svc:{svc.ServiceId}";
+            if (!string.IsNullOrWhiteSpace(svc.ServiceId) && nodeIds.TryGetValue(key, out string? id))
                 return id;
             return SanitizeId(string.IsNullOrWhiteSpace(svc.ServiceId) ? svc.ServiceName : svc.ServiceId);
         }
 
-        var ds = manifest.Datastores.FirstOrDefault(d =>
+        ManifestDatastore? ds = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(sourceOrTargetId, StringComparison.OrdinalIgnoreCase));
 
         if (ds is null)
             return null;
 
         {
-            var key = $"ds:{ds.DatastoreId}";
-            if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(key, out var id))
+            string key = $"ds:{ds.DatastoreId}";
+            if (!string.IsNullOrWhiteSpace(ds.DatastoreId) && nodeIds.TryGetValue(key, out string? id))
                 return id;
             return SanitizeId(string.IsNullOrWhiteSpace(ds.DatastoreId) ? ds.DatastoreName : ds.DatastoreId);
         }
@@ -171,15 +171,15 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         if (used.Add(baseId))
             return baseId;
 
-        for (var i = 2; i < 10_000; i++)
+        for (int i = 2; i < 10_000; i++)
         {
-            var candidate = $"{baseId}_{i}";
+            string candidate = $"{baseId}_{i}";
             if (used.Add(candidate))
                 return candidate;
         }
 
         // Extremely unlikely; fall back to a GUID suffix.
-        var guidCandidate = $"{baseId}_{Guid.NewGuid():N}";
+        string guidCandidate = $"{baseId}_{Guid.NewGuid():N}";
         used.Add(guidCandidate);
         return guidCandidate;
     }
@@ -190,7 +190,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string NormalizeLayout(string? value)
     {
-        var v = (value ?? ManifestDiagramConstants.LayoutLr).Trim().ToUpperInvariant();
+        string v = (value ?? ManifestDiagramConstants.LayoutLr).Trim().ToUpperInvariant();
         return v switch
         {
             "TB" => ManifestDiagramConstants.LayoutTb,
@@ -200,7 +200,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string NormalizeRelationshipLabels(string? value)
     {
-        var v = (value ?? ManifestDiagramConstants.RelationshipLabelsType).Trim().ToLowerInvariant();
+        string v = (value ?? ManifestDiagramConstants.RelationshipLabelsType).Trim().ToLowerInvariant();
         return v switch
         {
             "none" => ManifestDiagramConstants.RelationshipLabelsNone,
@@ -210,7 +210,7 @@ public sealed class ManifestDiagramService : IManifestDiagramService
 
     private static string NormalizeGroupBy(string? value)
     {
-        var v = (value ?? ManifestDiagramConstants.GroupByNone).Trim().ToLowerInvariant();
+        string v = (value ?? ManifestDiagramConstants.GroupByNone).Trim().ToLowerInvariant();
         return v switch
         {
             "runtimeplatform" => ManifestDiagramConstants.GroupByRuntimePlatform,

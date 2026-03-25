@@ -13,8 +13,8 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 {
     public override GraphNode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        using var doc = JsonDocument.ParseValue(ref reader);
-        var root = doc.RootElement;
+        using JsonDocument doc = JsonDocument.ParseValue(ref reader);
+        JsonElement root = doc.RootElement;
         if (root.ValueKind != JsonValueKind.Object)
             throw new JsonException("Expected JSON object for GraphNode.");
 
@@ -55,7 +55,7 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
     private static Dictionary<string, string> ReadProperties(JsonElement root, JsonSerializerOptions options)
     {
-        if (!TryGetIgnoreCase(root, "properties", out var propsEl) || propsEl.ValueKind != JsonValueKind.Object)
+        if (!TryGetIgnoreCase(root, "properties", out JsonElement propsEl) || propsEl.ValueKind != JsonValueKind.Object)
 #pragma warning disable IDE0028 // Simplify collection initialization
             return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 #pragma warning restore IDE0028 // Simplify collection initialization
@@ -77,9 +77,9 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
     private static string? ReadFirstString(JsonElement root, params string[] names)
     {
-        foreach (var name in names)
+        foreach (string name in names)
         {
-            if (TryGetIgnoreCase(root, name, out var el) && el.ValueKind == JsonValueKind.String)
+            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
                 return el.GetString();
         }
 
@@ -88,7 +88,7 @@ internal sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
     private static bool TryGetIgnoreCase(JsonElement obj, string name, out JsonElement value)
     {
-        foreach (var p in obj.EnumerateObject().Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+        foreach (JsonProperty p in obj.EnumerateObject().Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
             value = p.Value;
             return true;

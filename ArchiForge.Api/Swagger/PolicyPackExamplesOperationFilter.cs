@@ -34,7 +34,7 @@ public sealed class PolicyPackExamplesOperationFilter : IOperationFilter
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        var name = context.MethodInfo?.Name;
+        string? name = context.MethodInfo?.Name;
         string? example = name switch
         {
             "Create" => CreateExample,
@@ -46,12 +46,12 @@ public sealed class PolicyPackExamplesOperationFilter : IOperationFilter
         if (example is null)
             return;
 
-        var controller = context.MethodInfo?.DeclaringType?.Name ?? "";
+        string controller = context.MethodInfo?.DeclaringType?.Name ?? "";
         if (!controller.Contains("PolicyPacksController", StringComparison.Ordinal))
             return;
 
-        var block = "\n\n### Example request body (JSON)\n\n```json\n" + example.Trim() + "\n```\n";
-        var intro =
+        string block = "\n\n### Example request body (JSON)\n\n```json\n" + example.Trim() + "\n```\n";
+        string intro =
             "**Policy pack content** (`initialContentJson` / `contentJson`) is JSON matching `PolicyPackContentDocument`: "
             + "`complianceRuleIds`, `complianceRuleKeys`, `alertRuleIds`, `compositeAlertRuleIds`, `advisoryDefaults`, `metadata`. "
             + "See `docs/API_CONTRACTS.md` § Policy packs.\n\n";

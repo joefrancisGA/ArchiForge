@@ -23,11 +23,11 @@ public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IC
         RawContextPayload payload,
         CancellationToken ct)
     {
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
-        foreach (var document in payload.Documents)
+        foreach (ContextDocumentReference document in payload.Documents)
         {
-            var parser = parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
+            IContextDocumentParser? parser = parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
             if (parser is null)
             {
                 batch.Warnings.Add(
@@ -36,7 +36,7 @@ public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IC
                 continue;
             }
 
-            var objects = await parser.ParseAsync(document, ct);
+            IReadOnlyList<CanonicalObject> objects = await parser.ParseAsync(document, ct);
             batch.CanonicalObjects.AddRange(objects);
         }
 

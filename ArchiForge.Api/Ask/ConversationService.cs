@@ -23,7 +23,7 @@ public sealed class ConversationService(
     {
         if (threadId.HasValue)
         {
-            var existing = await threadRepository.GetByIdAsync(threadId.Value, ct);
+            ConversationThread? existing = await threadRepository.GetByIdAsync(threadId.Value, ct);
             if (existing is not null)
             {
                 if (existing.TenantId != tenantId ||
@@ -37,7 +37,7 @@ public sealed class ConversationService(
             }
         }
 
-        var thread = new ConversationThread
+        ConversationThread thread = new ConversationThread
         {
             ThreadId = Guid.NewGuid(),
             TenantId = tenantId,

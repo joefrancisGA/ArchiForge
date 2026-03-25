@@ -17,11 +17,11 @@ public sealed class ArchitectureComparisonTaggingTests(ArchiForgeApiFactory fact
     [Fact]
     public async Task UpdateComparisonRecord_UpdatesLabelAndTags_ThenSearchFindsIt()
     {
-        var id = $"cmp_update_{Guid.NewGuid():N}";
+        string id = $"cmp_update_{Guid.NewGuid():N}";
 
-        using (var scope = _factory.Services.CreateScope())
+        using (IServiceScope scope = _factory.Services.CreateScope())
         {
-            var repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
+            IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
             await repo.CreateAsync(new ComparisonRecord
             {
                 ComparisonRecordId = id,
@@ -37,7 +37,7 @@ public sealed class ArchitectureComparisonTaggingTests(ArchiForgeApiFactory fact
             });
         }
 
-        var patch = await Client.PatchAsJsonAsync(
+        HttpResponseMessage patch = await Client.PatchAsJsonAsync(
             $"/v1/architecture/comparisons/{id}",
             new
             {
@@ -47,11 +47,11 @@ public sealed class ArchitectureComparisonTaggingTests(ArchiForgeApiFactory fact
 
         patch.EnsureSuccessStatusCode();
 
-        var updated = await patch.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+        ComparisonRecordResponseDto? updated = await patch.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         updated!.Record.Label.Should().Be("incident-99");
         updated.Record.Tags.Should().Contain(["incident", "urgent"]);
 
-        var byTag = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto? byTag = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?tags=incident,urgent&limit=50",
             JsonOptions);
 

@@ -12,7 +12,7 @@ public sealed class GraphCoverageAnalyzerTests
     [Fact]
     public void AnalyzeRequirements_marks_requirement_with_RELATES_TO_as_covered()
     {
-        var graph = new GraphSnapshot
+        GraphSnapshot graph = new GraphSnapshot
         {
             Nodes =
             [
@@ -32,7 +32,7 @@ public sealed class GraphCoverageAnalyzerTests
             ]
         };
 
-        var result = _analyzer.AnalyzeRequirements(graph);
+        RequirementCoverageResult result = _analyzer.AnalyzeRequirements(graph);
 
         result.RelatedRequirementCount.Should().Be(1);
         result.UnrelatedRequirementCount.Should().Be(0);

@@ -2,6 +2,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Sql;
 
 public sealed class SqlSchemaBootstrapper(
@@ -14,12 +16,12 @@ public sealed class SqlSchemaBootstrapper(
         if (!File.Exists(scriptPath))
             throw new FileNotFoundException($"Schema script not found: {scriptPath}");
 
-        var script = await File.ReadAllTextAsync(scriptPath, ct);
-        var batches = SplitGoBatches(script);
+        string script = await File.ReadAllTextAsync(scriptPath, ct);
+        IReadOnlyList<string> batches = SplitGoBatches(script);
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
-        foreach (var batch in batches)
+        foreach (string batch in batches)
         {
             if (!string.IsNullOrWhiteSpace(batch))
             {
@@ -30,11 +32,11 @@ public sealed class SqlSchemaBootstrapper(
 
     public IReadOnlyList<string> SplitGoBatches(string script)
     {
-        var lines = script.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-        var batches = new List<string>();
-        var current = new List<string>();
+        string[] lines = script.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
+        List<string> batches = new List<string>();
+        List<string> current = new List<string>();
 
-        foreach (var line in lines)
+        foreach (string line in lines)
         {
             if (line.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase))
             {

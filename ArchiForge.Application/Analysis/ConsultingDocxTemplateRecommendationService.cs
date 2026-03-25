@@ -18,14 +18,14 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var catalog = profileResolver.GetCatalog();
+        ConsultingDocxTemplateProfileCatalog catalog = profileResolver.GetCatalog();
 
         if (catalog.Profiles.Count == 0)
             throw new InvalidOperationException(
                 "No consulting Docx template profiles are registered. " +
                 "Ensure the profile resolver returns at least one profile.");
 
-        var available = catalog.Profiles
+        HashSet<string> available = catalog.Profiles
             .Select(p => p.ProfileName)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -79,10 +79,10 @@ public sealed class ConsultingDocxTemplateRecommendationService(IConsultingDocxT
             reason = "No strong specialized signal was provided, so the balanced client delivery profile is the safest default.";
         }
 
-        var selected = catalog.Profiles.First(x =>
+        ConsultingDocxTemplateProfileInfo selected = catalog.Profiles.First(x =>
             string.Equals(x.ProfileName, profile, StringComparison.OrdinalIgnoreCase));
 
-        var alternatives = catalog.Profiles
+        List<string> alternatives = catalog.Profiles
             .Where(x => !string.Equals(x.ProfileName, profile, StringComparison.OrdinalIgnoreCase))
             .OrderBy(x => x.DisplayOrder)
             .Select(x => x.ProfileName)

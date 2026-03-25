@@ -76,7 +76,7 @@ public sealed class ComparisonHistoryQuery
     /// <summary>Merges <see cref="Tag"/> and <see cref="Tags"/> into a distinct list.</summary>
     public static List<string> NormalizeTagList(string? tag, string[]? tags)
     {
-        var normalizedTags = (tags ?? [])
+        List<string> normalizedTags = (tags ?? [])
             .SelectMany(t => t.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .Where(t => !string.IsNullOrWhiteSpace(t))
             .Distinct(StringComparer.OrdinalIgnoreCase)

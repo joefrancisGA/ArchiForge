@@ -29,17 +29,17 @@ public sealed class AlertDeliveryDispatcher(
     /// <inheritdoc />
     public async Task DeliverAsync(AlertRecord alert, CancellationToken ct)
     {
-        var subscriptions = await subscriptionRepository
+        IReadOnlyList<AlertRoutingSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(alert.TenantId, alert.WorkspaceId, alert.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var matching = subscriptions
+        List<AlertRoutingSubscription> matching = subscriptions
             .Where(x => AlertSeverityComparer.MeetsMinimum(alert.Severity, x.MinimumSeverity))
             .ToList();
 
-        foreach (var subscription in matching)
+        foreach (AlertRoutingSubscription subscription in matching)
         {
-            var attempt = new AlertDeliveryAttempt
+            AlertDeliveryAttempt attempt = new AlertDeliveryAttempt
             {
                 AlertDeliveryAttemptId = Guid.NewGuid(),
                 AlertId = alert.AlertId,
@@ -58,7 +58,7 @@ public sealed class AlertDeliveryDispatcher(
 
             try
             {
-                var channel = ResolveChannel(channels, subscription.ChannelType);
+                IAlertDeliveryChannel channel = ResolveChannel(channels, subscription.ChannelType);
 
                 await channel
                     .SendAsync(

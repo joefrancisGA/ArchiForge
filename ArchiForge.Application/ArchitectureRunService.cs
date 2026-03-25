@@ -3,7 +3,11 @@ using System.Transactions;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.Decisions;
+using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Data.Repositories;
@@ -45,7 +49,7 @@ public sealed class ArchitectureRunService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var coordination = await coordinator.CreateRunAsync(request, cancellationToken);
+        CoordinationResult coordination = await coordinator.CreateRunAsync(request, cancellationToken);
 
         if (!coordination.Success)
         {
@@ -60,7 +64,7 @@ public sealed class ArchitectureRunService(
             request.SystemName,
             request.Environment);
 
-        using (var scope = new TransactionScope(
+        using (TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -95,14 +99,14 @@ public sealed class ArchitectureRunService(
             "Executing architecture run: RunId={RunId}",
             runId);
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken)
-            ?? throw new RunNotFoundException(runId);
+        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken)
+                              ?? throw new RunNotFoundException(runId);
 
         // Idempotency: ReadyForCommit and Committed are terminal for execution.
         // Always short-circuit; never re-run agents against a finished run.
         if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
         {
-            var existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
             if (existingResults.Count > 0)
             {
                 logger.LogInformation(
@@ -125,25 +129,25 @@ public sealed class ArchitectureRunService(
                 "The run is in an inconsistent state and cannot be safely re-executed.");
         }
 
-        var request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
-            ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
+                                      ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
         if (tasks.Count == 0)
         {
             throw new InvalidOperationException($"No tasks found for run '{runId}'.");
         }
 
-        var evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+        AgentEvidencePackage evidence = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
 
-        var results = await agentExecutor.ExecuteAsync(
+        IReadOnlyList<AgentResult> results = await agentExecutor.ExecuteAsync(
             runId,
             request,
             evidence,
             tasks,
             cancellationToken);
 
-        var evaluations = await agentEvaluationService.EvaluateAsync(
+        IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationService.EvaluateAsync(
             runId,
             request,
             evidence,
@@ -154,7 +158,7 @@ public sealed class ArchitectureRunService(
         // Persist all four writes atomically: a partial failure followed by a retry would
         // otherwise append duplicate result/evaluation rows because the repos are now
         // idempotent (delete-by-RunId + bulk insert) but only within a single transaction.
-        using (var scope = new TransactionScope(
+        using (TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -193,8 +197,8 @@ public sealed class ArchitectureRunService(
             "Committing architecture run: RunId={RunId}",
             runId);
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken)
-            ?? throw new RunNotFoundException(runId);
+        ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken)
+                              ?? throw new RunNotFoundException(runId);
 
         // Idempotency: if the run is already committed and has a manifest version,
         // return the existing manifest and decision traces instead of creating a new manifest version.
@@ -207,7 +211,7 @@ public sealed class ArchitectureRunService(
                     "The run record may be corrupt; check storage integrity.");
             }
 
-            var existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+            GoldenManifest? existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
             if (existingManifest is null)
             {
                 throw new ConflictException(
@@ -216,7 +220,7 @@ public sealed class ArchitectureRunService(
                     "It may have been deleted or there is a replication lag.");
             }
 
-            var existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+            IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
             logger.LogInformation(
                 "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
@@ -243,21 +247,21 @@ public sealed class ArchitectureRunService(
                 $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
         }
 
-        var request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
-            ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
+                                      ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
         _ = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken)
             ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
 
-        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
         if (results.Count == 0)
         {
             throw new InvalidOperationException($"No agent results found for run '{runId}'.");
         }
 
-        var evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
-        var decisionNodes = await decisionEngineV2.ResolveAsync(
+        IReadOnlyList<AgentEvaluation> evaluations = await agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<DecisionNode> decisionNodes = await decisionEngineV2.ResolveAsync(
             runId,
             request,
             tasks,
@@ -265,11 +269,11 @@ public sealed class ArchitectureRunService(
             evaluations,
             cancellationToken);
 
-        var manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+        string manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
             ? "v1"
             : IncrementManifestVersion(run.CurrentManifestVersion);
 
-        var merge = decisionEngine.MergeResults(
+        DecisionMergeResult merge = decisionEngine.MergeResults(
             runId,
             request,
             manifestVersion,
@@ -293,7 +297,7 @@ public sealed class ArchitectureRunService(
 
         // Persist decision nodes, manifest, traces, and status atomically so a retry
         // cannot produce duplicate node rows from a previous partially-committed attempt.
-        using (var scope = new TransactionScope(
+        using (TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -335,7 +339,7 @@ public sealed class ArchitectureRunService(
             return "v1";
 
         if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
-            int.TryParse(currentVersion[1..], out var versionNumber))
+            int.TryParse(currentVersion[1..], out int versionNumber))
         {
             return $"v{versionNumber + 1}";
         }

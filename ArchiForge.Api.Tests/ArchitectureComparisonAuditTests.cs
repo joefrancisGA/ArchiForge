@@ -16,21 +16,21 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
     [Fact]
     public async Task EndToEndComparisonSummary_PersistsComparisonRecord()
     {
-        var request = TestRequestFactory.CreateArchitectureRequest("REQ-COMP-AUDIT-001");
+        object request = TestRequestFactory.CreateArchitectureRequest("REQ-COMP-AUDIT-001");
 
-        var createResponse = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
+        HttpResponseMessage createResponse = await Client.PostAsync("/v1/architecture/request", JsonContent(request));
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", content: null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", content: null);
         executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", content: null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", content: null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var replayResponse = await Client.PostAsync(
+        HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(new
             {
@@ -40,11 +40,11 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
             }));
         replayResponse.EnsureSuccessStatusCode();
 
-        var replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
-        var replayRunId = replayPayload!.ReplayRunId;
+        ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        string replayRunId = replayPayload!.ReplayRunId;
         replayRunId.Should().NotBeNullOrWhiteSpace();
 
-        var compareResponse = await Client.PostAsync(
+        HttpResponseMessage compareResponse = await Client.PostAsync(
             $"/v1/architecture/run/compare/end-to-end/summary?leftRunId={runId}&rightRunId={replayRunId}",
             JsonContent(new
             {
@@ -52,15 +52,15 @@ public sealed class ArchitectureComparisonAuditTests(ArchiForgeApiFactory factor
             }));
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        compareResponse.Headers.TryGetValues("X-ArchiForge-ComparisonRecordId", out var ids).Should().BeTrue();
+        compareResponse.Headers.TryGetValues("X-ArchiForge-ComparisonRecordId", out IEnumerable<string>? ids).Should().BeTrue();
 
-        var comparisonRecordId = ids!.Single();
+        string comparisonRecordId = ids!.Single();
         comparisonRecordId.Should().NotBeNullOrWhiteSpace();
 
-        var recordResponse = await Client.GetAsync($"/v1/architecture/comparisons/{comparisonRecordId}");
+        HttpResponseMessage recordResponse = await Client.GetAsync($"/v1/architecture/comparisons/{comparisonRecordId}");
         recordResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await recordResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
+        ComparisonRecordResponseDto? payload = await recordResponse.Content.ReadFromJsonAsync<ComparisonRecordResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Record.ComparisonType.Should().Be("end-to-end-replay");
         payload.Record.LeftRunId.Should().Be(runId);

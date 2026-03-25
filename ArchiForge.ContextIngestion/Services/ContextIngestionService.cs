@@ -27,7 +27,7 @@ public class ContextIngestionService(
             throw new ArgumentException("RunId must be a non-empty GUID.", nameof(request));
         ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId, nameof(request));
 
-        var snapshot = new ContextSnapshot
+        ContextSnapshot snapshot = new ContextSnapshot
         {
             SnapshotId = Guid.NewGuid(),
             RunId = request.RunId,
@@ -36,22 +36,22 @@ public class ContextIngestionService(
         };
 
         // Latest persisted snapshot for this project (any prior run), used for connector delta messaging.
-        var previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct);
+        ContextSnapshot? previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct);
 
-        var allObjects = new List<CanonicalObject>();
-        var deltaSummaries = new List<string>();
-        var connectorIndex = 0;
+        List<CanonicalObject> allObjects = new List<CanonicalObject>();
+        List<string> deltaSummaries = new List<string>();
+        int connectorIndex = 0;
 
-        foreach (var connector in connectors)
+        foreach (IContextConnector connector in connectors)
         {
-            var raw = await connector.FetchAsync(request, ct);
-            var normalized = await connector.NormalizeAsync(raw, ct);
-            var delta = await connector.DeltaAsync(normalized, previous, ct);
+            RawContextPayload raw = await connector.FetchAsync(request, ct);
+            NormalizedContextBatch normalized = await connector.NormalizeAsync(raw, ct);
+            ContextDelta delta = await connector.DeltaAsync(normalized, previous, ct);
 
             allObjects.AddRange(normalized.CanonicalObjects);
             snapshot.Warnings.AddRange(normalized.Warnings);
 
-            var segment = deltaSummaryBuilder.BuildSegment(
+            string segment = deltaSummaryBuilder.BuildSegment(
                 connector.ConnectorType,
                 delta.Summary,
                 normalized,
@@ -61,7 +61,7 @@ public class ContextIngestionService(
             connectorIndex++;
         }
 
-        var enriched = enricher.Enrich(allObjects);
+        IReadOnlyList<CanonicalObject> enriched = enricher.Enrich(allObjects);
         snapshot.CanonicalObjects = deduplicator.Deduplicate(enriched).ToList();
         snapshot.DeltaSummary = string.Join("; ", deltaSummaries);
 

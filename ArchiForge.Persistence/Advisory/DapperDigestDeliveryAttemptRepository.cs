@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 /// <summary>Dapper implementation of <see cref="IDigestDeliveryAttemptRepository"/> over <c>dbo.DigestDeliveryAttempts</c>.</summary>
@@ -30,7 +32,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
@@ -45,7 +47,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             WHERE AttemptId = @AttemptId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
@@ -64,8 +66,8 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<DigestDeliveryAttempt>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<DigestDeliveryAttempt> result = await connection.QueryAsync<DigestDeliveryAttempt>(
             new CommandDefinition(sql, new
             {
                 DigestId = digestId
@@ -92,8 +94,8 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
             ORDER BY AttemptedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<DigestDeliveryAttempt>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<DigestDeliveryAttempt> result = await connection.QueryAsync<DigestDeliveryAttempt>(
             new CommandDefinition(
                 sql,
                 new

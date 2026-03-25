@@ -11,18 +11,18 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
     public string Render(DiagramAst ast)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.AppendLine("flowchart TD");
 
-        foreach (var node in ast.Nodes)
+        foreach (DiagramNode node in ast.Nodes)
         {
-            var safeLabel = node.Label.Replace("\"", "'", StringComparison.Ordinal);
+            string safeLabel = node.Label.Replace("\"", "'", StringComparison.Ordinal);
             sb.AppendLine($"    {node.NodeId}[\"{safeLabel}\"]");
         }
 
-        foreach (var edge in ast.Edges)
+        foreach (DiagramEdge edge in ast.Edges)
         {
-            var safeLabel = edge.Label.Replace("\"", "'", StringComparison.Ordinal);
+            string safeLabel = edge.Label.Replace("\"", "'", StringComparison.Ordinal);
             sb.AppendLine($"    {edge.FromNodeId} -->|\"{safeLabel}\"| {edge.ToNodeId}");
         }
 

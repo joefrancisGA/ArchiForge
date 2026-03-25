@@ -21,16 +21,16 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
     /// </summary>
     internal static string GetDedupeFingerprint(CanonicalObject item)
     {
-        if (item.Properties.TryGetValue("text", out var text) && !string.IsNullOrEmpty(text))
+        if (item.Properties.TryGetValue("text", out string? text) && !string.IsNullOrEmpty(text))
             return text;
 
-        if (item.Properties.TryGetValue("reference", out var reference) && !string.IsNullOrEmpty(reference))
+        if (item.Properties.TryGetValue("reference", out string? reference) && !string.IsNullOrEmpty(reference))
             return reference;
 
-        if (item.Properties.TryGetValue("terraformType", out var terraformType) && !string.IsNullOrEmpty(terraformType))
+        if (item.Properties.TryGetValue("terraformType", out string? terraformType) && !string.IsNullOrEmpty(terraformType))
             return terraformType;
 
-        if (item.Properties.TryGetValue("resourceType", out var resourceType) && !string.IsNullOrEmpty(resourceType))
+        if (item.Properties.TryGetValue("resourceType", out string? resourceType) && !string.IsNullOrEmpty(resourceType))
             return resourceType;
 
         return string.Empty;

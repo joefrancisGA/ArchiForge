@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 /// <summary>
@@ -32,7 +34,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct));
     }
 
@@ -52,7 +54,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             WHERE ScheduleId = @ScheduleId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct));
     }
 
@@ -74,8 +76,8 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             ORDER BY NextRunUtc ASC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<AdvisoryScanSchedule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AdvisoryScanSchedule> result = await connection.QueryAsync<AdvisoryScanSchedule>(
             new CommandDefinition(sql, new
             {
                 UtcNow = utcNow,
@@ -104,8 +106,8 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<AdvisoryScanSchedule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AdvisoryScanSchedule> result = await connection.QueryAsync<AdvisoryScanSchedule>(
             new CommandDefinition(
                 sql,
                 new
@@ -131,7 +133,7 @@ public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory c
             WHERE ScheduleId = @ScheduleId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AdvisoryScanSchedule>(
             new CommandDefinition(sql, new
             {

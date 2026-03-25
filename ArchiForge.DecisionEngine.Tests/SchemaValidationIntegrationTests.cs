@@ -11,7 +11,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void ServiceRegistration_WithConfiguration_RegistersSuccessfully()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new ServiceCollection();
         services.AddLogging();
 
         services.AddSchemaValidation(options =>
@@ -21,9 +21,9 @@ public sealed class SchemaValidationIntegrationTests
             options.EnableDetailedErrors = true;
         });
 
-        var serviceProvider = services.BuildServiceProvider();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        var service = serviceProvider.GetService<ISchemaValidationService>();
+        ISchemaValidationService? service = serviceProvider.GetService<ISchemaValidationService>();
 
         service.Should().NotBeNull();
         service.Should().BeOfType<SchemaValidationService>();
@@ -32,7 +32,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void ServiceRegistration_IsSingleton()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new ServiceCollection();
         services.AddLogging();
 
         services.AddSchemaValidation(options =>
@@ -41,10 +41,10 @@ public sealed class SchemaValidationIntegrationTests
             options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
         });
 
-        var serviceProvider = services.BuildServiceProvider();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        var service1 = serviceProvider.GetService<ISchemaValidationService>();
-        var service2 = serviceProvider.GetService<ISchemaValidationService>();
+        ISchemaValidationService? service1 = serviceProvider.GetService<ISchemaValidationService>();
+        ISchemaValidationService? service2 = serviceProvider.GetService<ISchemaValidationService>();
 
         service1.Should().BeSameAs(service2);
     }
@@ -52,7 +52,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void MultipleValidations_UseSameSchemasInstances()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new ServiceCollection();
         services.AddLogging();
 
         services.AddSchemaValidation(options =>
@@ -61,11 +61,11 @@ public sealed class SchemaValidationIntegrationTests
             options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
         });
 
-        var serviceProvider = services.BuildServiceProvider();
-        var service = serviceProvider.GetRequiredService<ISchemaValidationService>();
+        ServiceProvider serviceProvider = services.BuildServiceProvider();
+        ISchemaValidationService service = serviceProvider.GetRequiredService<ISchemaValidationService>();
 
-        var result1 = service.ValidateAgentResultJson("{}");
-        var result2 = service.ValidateAgentResultJson("{}");
+        SchemaValidationResult result1 = service.ValidateAgentResultJson("{}");
+        SchemaValidationResult result2 = service.ValidateAgentResultJson("{}");
 
         result1.Should().NotBeNull();
         result2.Should().NotBeNull();
@@ -75,29 +75,29 @@ public sealed class SchemaValidationIntegrationTests
     [Trait("Category", "Integration")]
     public void ValidateAgentResult_WithRealSchema_ValidPayload_ReturnsSuccess()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new ServiceCollection();
         services.AddLogging();
         services.AddSchemaValidation(options =>
         {
             options.AgentResultSchemaPath = "schemas/agentresult.schema.json";
             options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
         });
-        var service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
+        ISchemaValidationService service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
 
-        var validJson = """
-            {
-                "resultId": "res-1",
-                "taskId": "task-1",
-                "runId": "run-1",
-                "agentType": "Topology",
-                "claims": ["claim1"],
-                "evidenceRefs": ["ev-1"],
-                "confidence": 0.9,
-                "createdUtc": "2025-01-01T00:00:00Z"
-            }
-            """;
+        string validJson = """
+                           {
+                               "resultId": "res-1",
+                               "taskId": "task-1",
+                               "runId": "run-1",
+                               "agentType": "Topology",
+                               "claims": ["claim1"],
+                               "evidenceRefs": ["ev-1"],
+                               "confidence": 0.9,
+                               "createdUtc": "2025-01-01T00:00:00Z"
+                           }
+                           """;
 
-        var result = service.ValidateAgentResultJson(validJson);
+        SchemaValidationResult result = service.ValidateAgentResultJson(validJson);
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeTrue();
@@ -108,18 +108,18 @@ public sealed class SchemaValidationIntegrationTests
     [Trait("Category", "Integration")]
     public void ValidateAgentResult_WithRealSchema_InvalidPayload_ReturnsErrors()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new ServiceCollection();
         services.AddLogging();
         services.AddSchemaValidation(options =>
         {
             options.AgentResultSchemaPath = "schemas/agentresult.schema.json";
             options.GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json";
         });
-        var service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
+        ISchemaValidationService service = services.BuildServiceProvider().GetRequiredService<ISchemaValidationService>();
 
-        var invalidJson = """{"agentType":"Unknown","confidence":2}""";
+        string invalidJson = """{"agentType":"Unknown","confidence":2}""";
 
-        var result = service.ValidateAgentResultJson(invalidJson);
+        SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();

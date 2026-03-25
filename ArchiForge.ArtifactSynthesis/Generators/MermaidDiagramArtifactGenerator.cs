@@ -14,7 +14,7 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
         CancellationToken ct)
     {
         _ = ct;
-        var ast = new DiagramAst
+        DiagramAst ast = new DiagramAst
         {
             Title = manifest.Metadata.Name
         };
@@ -26,9 +26,9 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
             NodeType = "Manifest"
         });
 
-        foreach (var decision in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
-            var nodeId = $"decision_{decision.DecisionId}";
+            string nodeId = $"decision_{decision.DecisionId}";
             ast.Nodes.Add(new DiagramNode
             {
                 NodeId = nodeId,
@@ -44,7 +44,7 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
             });
         }
 
-        var content = renderer.Render(ast);
+        string content = renderer.Render(ast);
 
         return Task.FromResult(new SynthesizedArtifact
         {

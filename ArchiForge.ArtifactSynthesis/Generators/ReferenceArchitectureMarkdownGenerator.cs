@@ -3,6 +3,7 @@ using System.Text;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Services;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Generators;
@@ -16,7 +17,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# Reference Architecture - {manifest.Metadata.Name}");
         sb.AppendLine();
@@ -30,11 +31,11 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Requirements");
-        foreach (var item in manifest.Requirements.Covered)
+        foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
         {
             sb.AppendLine($"- Covered: {item.RequirementName}");
         }
-        foreach (var item in manifest.Requirements.Uncovered)
+        foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)
         {
             sb.AppendLine($"- Uncovered: {item.RequirementName}");
         }
@@ -45,15 +46,15 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Topology");
-        foreach (var pattern in manifest.Topology.SelectedPatterns)
+        foreach (string pattern in manifest.Topology.SelectedPatterns)
         {
             sb.AppendLine($"- Pattern: {pattern}");
         }
-        foreach (var resource in manifest.Topology.Resources)
+        foreach (string resource in manifest.Topology.Resources)
         {
             sb.AppendLine($"- Resource: {resource}");
         }
-        foreach (var gap in manifest.Topology.Gaps)
+        foreach (string gap in manifest.Topology.Gaps)
         {
             sb.AppendLine($"- Gap: {gap}");
         }
@@ -66,11 +67,11 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Security");
-        foreach (var control in manifest.Security.Controls)
+        foreach (SecurityPostureItem control in manifest.Security.Controls)
         {
             sb.AppendLine($"- {control.ControlName}: {control.Status}");
         }
-        foreach (var gap in manifest.Security.Gaps)
+        foreach (string gap in manifest.Security.Gaps)
         {
             sb.AppendLine($"- Gap: {gap}");
         }
@@ -81,11 +82,11 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Compliance");
-        foreach (var control in manifest.Compliance.Controls)
+        foreach (CompliancePostureItem control in manifest.Compliance.Controls)
         {
             sb.AppendLine($"- {control.ControlId} {control.ControlName}: {control.Status}");
         }
-        foreach (var gap in manifest.Compliance.Gaps)
+        foreach (string gap in manifest.Compliance.Gaps)
         {
             sb.AppendLine($"- Gap: {gap}");
         }
@@ -97,14 +98,14 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
 
         sb.AppendLine("## Cost");
         sb.AppendLine($"- Max Monthly Cost: {(manifest.Cost.MaxMonthlyCost.HasValue ? manifest.Cost.MaxMonthlyCost.Value.ToString("0.00") : "Not specified")}");
-        foreach (var risk in manifest.Cost.CostRisks)
+        foreach (string risk in manifest.Cost.CostRisks)
         {
             sb.AppendLine($"- Risk: {risk}");
         }
         sb.AppendLine();
 
         sb.AppendLine("## Decisions");
-        foreach (var decision in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
             sb.AppendLine($"- {decision.Category}: {decision.Title} -> {decision.SelectedOption}");
         }
@@ -115,7 +116,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Unresolved Issues");
-        foreach (var issue in manifest.UnresolvedIssues.Items)
+        foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
             sb.AppendLine($"- [{issue.Severity}] {issue.Title}: {issue.Description}");
         }
@@ -124,7 +125,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
             sb.AppendLine("- No unresolved issues.");
         }
 
-        var content = sb.ToString();
+        string content = sb.ToString();
 
         return Task.FromResult(new SynthesizedArtifact
         {

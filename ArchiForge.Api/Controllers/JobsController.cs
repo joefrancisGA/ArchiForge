@@ -31,7 +31,7 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
         if (string.IsNullOrWhiteSpace(jobId))
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
-        var info = jobs.GetInfo(jobId);
+        BackgroundJobInfo? info = jobs.GetInfo(jobId);
         if (info is null)
             return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -55,14 +55,14 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
         if (string.IsNullOrWhiteSpace(jobId))
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
-        var info = jobs.GetInfo(jobId);
+        BackgroundJobInfo? info = jobs.GetInfo(jobId);
         if (info is null)
             return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
         if (info.State != BackgroundJobState.Succeeded)
             return Conflict(info);
 
-        var file = jobs.GetFile(jobId);
+        BackgroundJobFile? file = jobs.GetFile(jobId);
         if (file is null)
             return Conflict(info);
 

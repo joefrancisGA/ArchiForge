@@ -17,7 +17,7 @@ internal static partial class ServiceCollectionExtensions
     {
         services.AddSingleton<IGraphCoverageAnalyzer, GraphCoverageAnalyzer>();
 
-        var complianceRulePackPath = Path.Combine(
+        string complianceRulePackPath = Path.Combine(
             AppContext.BaseDirectory,
             "Compliance",
             "RulePacks",

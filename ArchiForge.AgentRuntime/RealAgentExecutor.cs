@@ -25,17 +25,17 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
-        var results = new List<AgentResult>();
+        List<AgentResult> results = new List<AgentResult>();
 
-        foreach (var task in tasks.OrderBy(t => t.AgentType))
+        foreach (AgentTask task in tasks.OrderBy(t => t.AgentType))
         {
-            if (!_handlers.TryGetValue(task.AgentType, out var handler))
+            if (!_handlers.TryGetValue(task.AgentType, out IAgentHandler? handler))
             {
                 throw new InvalidOperationException(
                     $"No handler is registered for agent type '{task.AgentType}'.");
             }
 
-            var result = await handler.ExecuteAsync(
+            AgentResult result = await handler.ExecuteAsync(
                 runId,
                 request,
                 evidence,

@@ -40,7 +40,7 @@ public sealed class RuleSimulationService(
             };
         }
 
-        var contexts = await contextProvider
+        IReadOnlyList<AlertEvaluationContext> contexts = await contextProvider
             .GetContextsAsync(
                 tenantId,
                 workspaceId,
@@ -52,7 +52,7 @@ public sealed class RuleSimulationService(
                 ct)
             .ConfigureAwait(false);
 
-        var result = new RuleSimulationResult
+        RuleSimulationResult result = new RuleSimulationResult
         {
             RuleKind = request.RuleKind,
             SimulatedUtc = DateTime.UtcNow,
@@ -65,17 +65,17 @@ public sealed class RuleSimulationService(
             return result;
         }
 
-        foreach (var context in contexts)
+        foreach (AlertEvaluationContext context in contexts)
         {
             if (request.RuleKind.Equals("Simple", StringComparison.OrdinalIgnoreCase) &&
                 request.SimpleRule is not null)
             {
-                var rule = CloneSimpleForSimulation(request.SimpleRule);
-                var generated = alertEvaluator.Evaluate([rule], context);
+                AlertRule rule = CloneSimpleForSimulation(request.SimpleRule);
+                IReadOnlyList<AlertRecord> generated = alertEvaluator.Evaluate([rule], context);
 
                 if (generated.Count > 0)
                 {
-                    foreach (var alert in generated)
+                    foreach (AlertRecord alert in generated)
                     {
                         result.Outcomes.Add(
                             new SimulatedAlertOutcome
@@ -118,9 +118,9 @@ public sealed class RuleSimulationService(
             else if (request.RuleKind.Equals("Composite", StringComparison.OrdinalIgnoreCase) &&
                      request.CompositeRule is not null)
             {
-                var compositeRule = CloneCompositeForSimulation(request.CompositeRule);
-                var snapshot = metricSnapshotBuilder.Build(context);
-                var matched = compositeEvaluator.Evaluate(compositeRule, snapshot);
+                CompositeAlertRule compositeRule = CloneCompositeForSimulation(request.CompositeRule);
+                AlertMetricSnapshot snapshot = metricSnapshotBuilder.Build(context);
+                bool matched = compositeEvaluator.Evaluate(compositeRule, snapshot);
 
                 if (!matched)
                 {
@@ -143,7 +143,7 @@ public sealed class RuleSimulationService(
                     continue;
                 }
 
-                var suppression = await suppressionPolicy
+                AlertSuppressionDecision suppression = await suppressionPolicy
                     .DecideAsync(compositeRule, context, snapshot, ct)
                     .ConfigureAwait(false);
 
@@ -253,7 +253,7 @@ public sealed class RuleSimulationService(
                 .ConfigureAwait(false);
         }
 
-        var result = new RuleCandidateComparisonResult
+        RuleCandidateComparisonResult result = new RuleCandidateComparisonResult
         {
             CandidateA = candidateA,
             CandidateB = candidateB,
@@ -286,7 +286,7 @@ public sealed class RuleSimulationService(
 
     private static CompositeAlertRule CloneCompositeForSimulation(CompositeAlertRule r)
     {
-        var id = r.CompositeRuleId == Guid.Empty ? Guid.NewGuid() : r.CompositeRuleId;
+        Guid id = r.CompositeRuleId == Guid.Empty ? Guid.NewGuid() : r.CompositeRuleId;
         return new CompositeAlertRule
         {
             CompositeRuleId = id,

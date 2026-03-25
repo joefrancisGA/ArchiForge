@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Alerts;
 
 /// <summary>Dapper implementation of <see cref="IAlertRuleRepository"/> over <c>dbo.AlertRules</c>.</summary>
@@ -28,7 +30,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, rule, cancellationToken: ct));
     }
 
@@ -49,7 +51,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
             WHERE RuleId = @RuleId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, rule, cancellationToken: ct));
     }
 
@@ -61,7 +63,7 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
             WHERE RuleId = @RuleId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRule>(
             new CommandDefinition(sql, new
             {
@@ -85,8 +87,8 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<AlertRule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRule> rows = await connection.QueryAsync<AlertRule>(
             new CommandDefinition(sql, new
             {
                 TenantId = tenantId,
@@ -113,8 +115,8 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<AlertRule>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRule> rows = await connection.QueryAsync<AlertRule>(
             new CommandDefinition(sql, new
             {
                 TenantId = tenantId,

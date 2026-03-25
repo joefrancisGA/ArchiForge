@@ -11,10 +11,10 @@ internal static class ObservabilityExtensions
         IConfiguration configuration,
         IHostEnvironment environment)
     {
-        var prometheusEnabled = configuration.GetValue("Observability:Prometheus:Enabled", false);
-        var consoleExporterEnabled = configuration.GetValue("Observability:ConsoleExporter:Enabled", environment.IsDevelopment());
+        bool prometheusEnabled = configuration.GetValue("Observability:Prometheus:Enabled", false);
+        bool consoleExporterEnabled = configuration.GetValue("Observability:ConsoleExporter:Enabled", environment.IsDevelopment());
 
-        var version = typeof(ObservabilityExtensions).Assembly.GetName().Version?.ToString() ?? "unknown";
+        string version = typeof(ObservabilityExtensions).Assembly.GetName().Version?.ToString() ?? "unknown";
 
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource

@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 /// <summary>
@@ -29,7 +31,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct));
     }
 
@@ -47,7 +49,7 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             WHERE ExecutionId = @ExecutionId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, execution, cancellationToken: ct));
     }
 
@@ -66,8 +68,8 @@ public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory 
             ORDER BY StartedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<AdvisoryScanExecution>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AdvisoryScanExecution> result = await connection.QueryAsync<AdvisoryScanExecution>(
             new CommandDefinition(sql, new
             {
                 ScheduleId = scheduleId,

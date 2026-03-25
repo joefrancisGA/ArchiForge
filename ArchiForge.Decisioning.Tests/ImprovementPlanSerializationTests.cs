@@ -13,7 +13,7 @@ public sealed class ImprovementPlanSerializationTests
     [Fact]
     public void PolicyPackAdvisoryDefaults_RoundTrips_Json()
     {
-        var plan = new ImprovementPlan
+        ImprovementPlan plan = new ImprovementPlan
         {
             RunId = Guid.NewGuid(),
             GeneratedUtc = DateTime.UtcNow,
@@ -24,8 +24,8 @@ public sealed class ImprovementPlanSerializationTests
             },
         };
 
-        var json = JsonSerializer.Serialize(plan, Options);
-        var back = JsonSerializer.Deserialize<ImprovementPlan>(json, Options);
+        string json = JsonSerializer.Serialize(plan, Options);
+        ImprovementPlan? back = JsonSerializer.Deserialize<ImprovementPlan>(json, Options);
 
         back.Should().NotBeNull();
         back.PolicyPackAdvisoryDefaults.Should().ContainKey("scanDepth");

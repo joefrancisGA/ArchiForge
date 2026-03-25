@@ -18,9 +18,9 @@ public sealed class AuditService(
 {
     public async Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
     {
-        var http = httpContextAccessor.HttpContext;
-        var user = http?.User;
-        var scope = scopeProvider.GetCurrentScope();
+        HttpContext? http = httpContextAccessor.HttpContext;
+        ClaimsPrincipal? user = http?.User;
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
         auditEvent.ActorUserId =
             user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";

@@ -6,8 +6,8 @@ public sealed class DigestEmailDeliveryChannel(IEmailSender emailSender) : IDige
 
     public Task SendAsync(DigestDeliveryPayload payload, CancellationToken ct)
     {
-        var subject = payload.Digest.Title;
-        var body = $"{payload.Digest.Summary}{Environment.NewLine}{Environment.NewLine}{payload.Digest.ContentMarkdown}";
+        string subject = payload.Digest.Title;
+        string body = $"{payload.Digest.Summary}{Environment.NewLine}{Environment.NewLine}{payload.Digest.ContentMarkdown}";
 
         return emailSender.SendAsync(
             payload.Subscription.Destination,

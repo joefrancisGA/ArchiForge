@@ -27,7 +27,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId);
+            int i = _items.FindIndex(x => x.SubscriptionId == subscription.SubscriptionId);
             if (i >= 0)
                 _items[i] = subscription;
         }
@@ -51,7 +51,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<DigestSubscription> result = _items
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&
@@ -72,7 +72,7 @@ public sealed class InMemoryDigestSubscriptionRepository : IDigestSubscriptionRe
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<DigestSubscription> result = _items
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&

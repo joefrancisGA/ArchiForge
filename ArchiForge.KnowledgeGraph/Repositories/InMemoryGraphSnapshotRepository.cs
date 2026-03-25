@@ -25,7 +25,7 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
             _store[snapshot.GraphSnapshotId] = snapshot;
             if (_store.Count > MaxEntries)
             {
-                var oldest = _store.Keys.First();
+                Guid oldest = _store.Keys.First();
                 _store.Remove(oldest);
             }
         }
@@ -38,7 +38,7 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            _store.TryGetValue(graphSnapshotId, out var result);
+            _store.TryGetValue(graphSnapshotId, out GraphSnapshot? result);
             return Task.FromResult(result);
         }
     }

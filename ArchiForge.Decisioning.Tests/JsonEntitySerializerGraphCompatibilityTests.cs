@@ -25,7 +25,7 @@ public sealed class JsonEntitySerializerGraphCompatibilityTests
             ]
             """;
 
-        var nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(json);
+        List<GraphNode> nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(json);
 
         nodes.Should().ContainSingle();
         nodes[0].NodeId.Should().Be("n1");
@@ -48,7 +48,7 @@ public sealed class JsonEntitySerializerGraphCompatibilityTests
             ]
             """;
 
-        var edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(json);
+        List<GraphEdge> edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(json);
 
         edges.Should().ContainSingle();
         edges[0].EdgeId.Should().Be("e1");

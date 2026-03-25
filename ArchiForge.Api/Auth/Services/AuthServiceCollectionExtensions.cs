@@ -17,10 +17,10 @@ public static class AuthServiceCollectionExtensions
         services.Configure<ArchiForgeAuthOptions>(
             configuration.GetSection(ArchiForgeAuthOptions.SectionName));
 
-        var authOptions = configuration
-                .GetSection(ArchiForgeAuthOptions.SectionName)
-                .Get<ArchiForgeAuthOptions>()
-            ?? new ArchiForgeAuthOptions();
+        ArchiForgeAuthOptions authOptions = configuration
+                                                .GetSection(ArchiForgeAuthOptions.SectionName)
+                                                .Get<ArchiForgeAuthOptions>()
+                                            ?? new ArchiForgeAuthOptions();
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
         {

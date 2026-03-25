@@ -35,7 +35,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
     {
         lock (_lock)
         {
-            var result = _store.FirstOrDefault(x =>
+            GoldenManifest? result = _store.FirstOrDefault(x =>
                 x.ManifestId == manifestId &&
                 x.TenantId == scope.TenantId &&
                 x.WorkspaceId == scope.WorkspaceId &&

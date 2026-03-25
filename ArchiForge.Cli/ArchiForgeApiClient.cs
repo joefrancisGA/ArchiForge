@@ -1,3 +1,4 @@
+using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -37,7 +38,7 @@ namespace ArchiForge.Cli
             };
             _http.DefaultRequestHeaders.Add("Accept", "application/json");
 
-            var apiKey = Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
+            string? apiKey = Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
             if (!string.IsNullOrWhiteSpace(apiKey))
             {
                 _http.DefaultRequestHeaders.Remove("X-Api-Key");
@@ -86,7 +87,7 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var response = await _http.GetAsync("/health", ct);
+                HttpResponseMessage response = await _http.GetAsync("/health", ct);
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -102,16 +103,16 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync("/v1/architecture/request", request, _jsonOptions, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync("/v1/architecture/request", request, _jsonOptions, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var created = JsonSerializer.Deserialize<CreateRunResponse>(content, _jsonOptions);
+                    CreateRunResponse? created = JsonSerializer.Deserialize<CreateRunResponse>(content, _jsonOptions);
                     return CreateRunResult.Ok(created);
                 }
 
-                var error = TryParseError(content);
+                string? error = TryParseError(content);
                 return CreateRunResult.Fail((int)response.StatusCode, error ?? content);
             }
             catch (HttpRequestException ex)
@@ -132,18 +133,18 @@ namespace ArchiForge.Cli
             try
             {
                 result.RunId = runId;
-                var request = new SubmitAgentResultRequest { Result = result };
-                var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/result";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, request, _jsonOptions, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                SubmitAgentResultRequest request = new SubmitAgentResultRequest { Result = result };
+                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/result";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, request, _jsonOptions, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = TryParseError(content);
+                    string? error = TryParseError(content);
                     return new SubmitResultResult(false, null, error ?? content);
                 }
 
-                var parsed = JsonSerializer.Deserialize<SubmitResultResponse>(content, _jsonOptions);
+                SubmitResultResponse? parsed = JsonSerializer.Deserialize<SubmitResultResponse>(content, _jsonOptions);
                 return new SubmitResultResult(true, parsed?.ResultId, null);
             }
             catch (HttpRequestException ex)
@@ -163,9 +164,9 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (!response.IsSuccessStatusCode)
                     return null;
@@ -185,17 +186,17 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/commit";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/commit";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = TryParseError(content);
+                    string? error = TryParseError(content);
                     return new CommitRunResult(false, null, error ?? content);
                 }
 
-                var result = JsonSerializer.Deserialize<CommitRunResponse>(content, _jsonOptions);
+                CommitRunResponse? result = JsonSerializer.Deserialize<CommitRunResponse>(content, _jsonOptions);
                 return new CommitRunResult(true, result, null);
             }
             catch (HttpRequestException ex)
@@ -215,17 +216,17 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/seed-fake-results";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/seed-fake-results";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = TryParseError(content);
+                    string? error = TryParseError(content);
                     return new SeedFakeResultsResult(false, 0, error ?? content);
                 }
 
-                var result = JsonSerializer.Deserialize<SeedFakeResultsResponse>(content, _jsonOptions);
+                SeedFakeResultsResponse? result = JsonSerializer.Deserialize<SeedFakeResultsResponse>(content, _jsonOptions);
                 return new SeedFakeResultsResult(true, result?.ResultCount ?? 0, null);
             }
             catch (HttpRequestException ex)
@@ -245,9 +246,9 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/manifest/{Uri.EscapeDataString(version)}";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/manifest/{Uri.EscapeDataString(version)}";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (!response.IsSuccessStatusCode)
                     return null;
@@ -278,7 +279,7 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                NameValueCollection query = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 if (!string.IsNullOrWhiteSpace(comparisonType))
                     query["comparisonType"] = comparisonType;
                 if (!string.IsNullOrWhiteSpace(leftRunId))
@@ -304,27 +305,27 @@ namespace ArchiForge.Cli
                 query["skip"] = skip.ToString();
                 query["limit"] = limit.ToString();
 
-                var uri = "/v1/architecture/comparisons";
-                var qs = query.ToString();
+                string uri = "/v1/architecture/comparisons";
+                string? qs = query.ToString();
                 if (!string.IsNullOrEmpty(qs))
                     uri += "?" + qs;
 
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
 
                 if (!response.IsSuccessStatusCode)
                     return null;
 
-                using var doc = JsonDocument.Parse(content);
-                var root = doc.RootElement;
-                var recordsProp = root.GetProperty("records");
-                var list = new List<ComparisonRecordSummary>();
-                foreach (var item in recordsProp.EnumerateArray())
+                using JsonDocument doc = JsonDocument.Parse(content);
+                JsonElement root = doc.RootElement;
+                JsonElement recordsProp = root.GetProperty("records");
+                List<ComparisonRecordSummary> list = new List<ComparisonRecordSummary>();
+                foreach (JsonElement item in recordsProp.EnumerateArray())
                 {
-                    var tagsList = new List<string>();
-                    if (item.TryGetProperty("tags", out var tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
+                    List<string> tagsList = new List<string>();
+                    if (item.TryGetProperty("tags", out JsonElement tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
                     {
-                        foreach (var t in tagsEl.EnumerateArray())
+                        foreach (JsonElement t in tagsEl.EnumerateArray())
                             if (t.ValueKind == JsonValueKind.String)
                                 tagsList.Add(t.GetString() ?? "");
                     }
@@ -332,19 +333,19 @@ namespace ArchiForge.Cli
                     {
                         ComparisonRecordId = item.GetProperty("comparisonRecordId").GetString() ?? string.Empty,
                         ComparisonType = item.GetProperty("comparisonType").GetString() ?? string.Empty,
-                        LeftRunId = item.TryGetProperty("leftRunId", out var lr) && lr.ValueKind != JsonValueKind.Null ? lr.GetString() : null,
-                        RightRunId = item.TryGetProperty("rightRunId", out var rr) && rr.ValueKind != JsonValueKind.Null ? rr.GetString() : null,
-                        LeftExportRecordId = item.TryGetProperty("leftExportRecordId", out var le) && le.ValueKind != JsonValueKind.Null ? le.GetString() : null,
-                        RightExportRecordId = item.TryGetProperty("rightExportRecordId", out var re) && re.ValueKind != JsonValueKind.Null ? re.GetString() : null,
-                        CreatedUtc = item.TryGetProperty("createdUtc", out var cu) && cu.ValueKind == JsonValueKind.String
+                        LeftRunId = item.TryGetProperty("leftRunId", out JsonElement lr) && lr.ValueKind != JsonValueKind.Null ? lr.GetString() : null,
+                        RightRunId = item.TryGetProperty("rightRunId", out JsonElement rr) && rr.ValueKind != JsonValueKind.Null ? rr.GetString() : null,
+                        LeftExportRecordId = item.TryGetProperty("leftExportRecordId", out JsonElement le) && le.ValueKind != JsonValueKind.Null ? le.GetString() : null,
+                        RightExportRecordId = item.TryGetProperty("rightExportRecordId", out JsonElement re) && re.ValueKind != JsonValueKind.Null ? re.GetString() : null,
+                        CreatedUtc = item.TryGetProperty("createdUtc", out JsonElement cu) && cu.ValueKind == JsonValueKind.String
                             ? DateTime.Parse(cu.GetString()!)
                             : default,
-                        Label = item.TryGetProperty("label", out var lbl) && lbl.ValueKind != JsonValueKind.Null ? lbl.GetString() : null,
+                        Label = item.TryGetProperty("label", out JsonElement lbl) && lbl.ValueKind != JsonValueKind.Null ? lbl.GetString() : null,
                         Tags = tagsList
                     });
                 }
 
-                var nextCursor = root.TryGetProperty("nextCursor", out var nc) && nc.ValueKind == JsonValueKind.String
+                string? nextCursor = root.TryGetProperty("nextCursor", out JsonElement nc) && nc.ValueKind == JsonValueKind.String
                     ? nc.GetString()
                     : null;
                 return new ComparisonHistoryResult { Records = list, NextCursor = nextCursor };
@@ -368,7 +369,7 @@ namespace ArchiForge.Cli
             try
             {
                 // Include format in querystring so the API rate limiter can apply heavy vs light policies.
-                var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay?format={Uri.EscapeDataString(format)}";
+                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay?format={Uri.EscapeDataString(format)}";
                 var body = new
                 {
                     format,
@@ -377,29 +378,29 @@ namespace ArchiForge.Cli
                     persistReplay
                 };
 
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var contentError = await response.Content.ReadAsStringAsync(ct);
+                    string contentError = await response.Content.ReadAsStringAsync(ct);
                     Console.WriteLine($"Replay failed ({(int)response.StatusCode}): {contentError}");
                     return false;
                 }
 
-                if (response.Headers.TryGetValues("X-ArchiForge-PersistedReplayRecordId", out var persistedValues))
+                if (response.Headers.TryGetValues("X-ArchiForge-PersistedReplayRecordId", out IEnumerable<string>? persistedValues))
                 {
-                    var persistedId = persistedValues.FirstOrDefault();
+                    string? persistedId = persistedValues.FirstOrDefault();
                     if (!string.IsNullOrWhiteSpace(persistedId))
                     {
                         Console.WriteLine($"PersistedReplayRecordId: {persistedId}");
                     }
                 }
 
-                var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
-                               ?? response.Content.Headers.ContentDisposition?.FileName
-                               ?? $"comparison_{comparisonRecordId}.{format}";
+                string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                                  ?? response.Content.Headers.ContentDisposition?.FileName
+                                  ?? $"comparison_{comparisonRecordId}.{format}";
                 fileName = fileName.Trim('"');
 
-                var targetPath = fileName;
+                string targetPath = fileName;
                 if (!string.IsNullOrWhiteSpace(outPath))
                 {
                     if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
@@ -409,7 +410,7 @@ namespace ArchiForge.Cli
                     }
                     else
                     {
-                        var dir = Path.GetDirectoryName(outPath);
+                        string? dir = Path.GetDirectoryName(outPath);
                         if (!string.IsNullOrWhiteSpace(dir))
                             Directory.CreateDirectory(dir);
                         targetPath = outPath;
@@ -423,7 +424,7 @@ namespace ArchiForge.Cli
                     return false;
                 }
 
-                var bytes = await response.Content.ReadAsByteArrayAsync(ct);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(ct);
                 await File.WriteAllBytesAsync(targetPath, bytes, ct);
                 Console.WriteLine($"Replay exported to {targetPath}");
                 return true;
@@ -439,8 +440,8 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
+                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
                 return await response.Content.ReadAsStringAsync(ct);
             }
             catch
@@ -453,9 +454,9 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var safe = Math.Clamp(maxCount, 1, 100);
-                var uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={safe}";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+                int safe = Math.Clamp(maxCount, 1, 100);
+                string uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={safe}";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
                 return await response.Content.ReadAsStringAsync(ct);
             }
             catch
@@ -476,9 +477,9 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/summary";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/summary";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
                 if (!response.IsSuccessStatusCode)
                     return null;
 
@@ -502,7 +503,7 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = "/v1/architecture/comparisons/replay/batch";
+                string uri = "/v1/architecture/comparisons/replay/batch";
                 var body = new
                 {
                     comparisonRecordIds,
@@ -512,20 +513,20 @@ namespace ArchiForge.Cli
                     persistReplay
                 };
 
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, body, _jsonOptions, cancellationToken)), ct);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var contentError = await response.Content.ReadAsStringAsync(ct);
+                    string contentError = await response.Content.ReadAsStringAsync(ct);
                     Console.WriteLine($"Batch replay failed ({(int)response.StatusCode}): {contentError}");
                     return false;
                 }
 
-                var fileName = response.Content.Headers.ContentDisposition?.FileNameStar
-                               ?? response.Content.Headers.ContentDisposition?.FileName
-                               ?? "comparison_replays.zip";
+                string fileName = response.Content.Headers.ContentDisposition?.FileNameStar
+                                  ?? response.Content.Headers.ContentDisposition?.FileName
+                                  ?? "comparison_replays.zip";
                 fileName = fileName.Trim('"');
 
-                var targetPath = fileName;
+                string targetPath = fileName;
                 if (!string.IsNullOrWhiteSpace(outPath))
                 {
                     if (Directory.Exists(outPath) || outPath.EndsWith(Path.DirectorySeparatorChar) || outPath.EndsWith(Path.AltDirectorySeparatorChar))
@@ -535,7 +536,7 @@ namespace ArchiForge.Cli
                     }
                     else
                     {
-                        var dir = Path.GetDirectoryName(outPath);
+                        string? dir = Path.GetDirectoryName(outPath);
                         if (!string.IsNullOrWhiteSpace(dir))
                             Directory.CreateDirectory(dir);
                         targetPath = outPath;
@@ -549,7 +550,7 @@ namespace ArchiForge.Cli
                     return false;
                 }
 
-                var bytes = await response.Content.ReadAsByteArrayAsync(ct);
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync(ct);
                 await File.WriteAllBytesAsync(targetPath, bytes, ct);
                 Console.WriteLine($"Batch replay exported to {targetPath}");
                 return true;
@@ -585,29 +586,29 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/drift";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsync(uri, null, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
                 if (!response.IsSuccessStatusCode)
                     return null;
 
-                using var doc = JsonDocument.Parse(content);
-                var root = doc.RootElement;
-                var result = new DriftAnalysis
+                using JsonDocument doc = JsonDocument.Parse(content);
+                JsonElement root = doc.RootElement;
+                DriftAnalysis result = new DriftAnalysis
                 {
-                    DriftDetected = root.TryGetProperty("driftDetected", out var dd) && dd.ValueKind == JsonValueKind.True,
-                    Summary = root.TryGetProperty("summary", out var s) ? s.GetString() ?? "" : ""
+                    DriftDetected = root.TryGetProperty("driftDetected", out JsonElement dd) && dd.ValueKind == JsonValueKind.True,
+                    Summary = root.TryGetProperty("summary", out JsonElement s) ? s.GetString() ?? "" : ""
                 };
 
-                if (root.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
+                if (root.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var it in items.EnumerateArray())
+                    foreach (JsonElement it in items.EnumerateArray())
                     {
                         result.Items.Add(new DriftItem
                         {
-                            Category = it.TryGetProperty("category", out var c) ? c.GetString() ?? "" : "",
-                            Path = it.TryGetProperty("path", out var p) ? p.GetString() ?? "" : "",
-                            Description = it.TryGetProperty("description", out var d) ? d.GetString() : null
+                            Category = it.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "" : "",
+                            Path = it.TryGetProperty("path", out JsonElement p) ? p.GetString() ?? "" : "",
+                            Description = it.TryGetProperty("description", out JsonElement d) ? d.GetString() : null
                         });
                     }
                 }
@@ -661,31 +662,31 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={maxCount}";
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                string uri = $"/v1/architecture/comparisons/diagnostics/replay?maxCount={maxCount}";
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
+                string content = await response.Content.ReadAsStringAsync(ct);
                 if (!response.IsSuccessStatusCode)
                     return null;
 
-                using var doc = JsonDocument.Parse(content);
-                var root = doc.RootElement;
-                var result = new ReplayDiagnostics();
-                if (root.TryGetProperty("recentReplays", out var arr) && arr.ValueKind == JsonValueKind.Array)
+                using JsonDocument doc = JsonDocument.Parse(content);
+                JsonElement root = doc.RootElement;
+                ReplayDiagnostics result = new ReplayDiagnostics();
+                if (root.TryGetProperty("recentReplays", out JsonElement arr) && arr.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var it in arr.EnumerateArray())
+                    foreach (JsonElement it in arr.EnumerateArray())
                     {
                         result.RecentReplays.Add(new ReplayDiagnosticsEntry
                         {
-                            TimestampUtc = it.TryGetProperty("timestampUtc", out var t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
-                            ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out var id) ? id.GetString() ?? "" : "",
-                            ComparisonType = it.TryGetProperty("comparisonType", out var ctEl) ? ctEl.GetString() ?? "" : "",
-                            Format = it.TryGetProperty("format", out var f) ? f.GetString() ?? "" : "",
-                            ReplayMode = it.TryGetProperty("replayMode", out var rm) ? rm.GetString() ?? "" : "",
-                            DurationMs = it.TryGetProperty("durationMs", out var dm) && dm.TryGetInt64(out var l) ? l : 0,
-                            Success = it.TryGetProperty("success", out var ok) && ok.ValueKind == JsonValueKind.True,
-                            MetadataOnly = it.TryGetProperty("metadataOnly", out var mo) && mo.ValueKind == JsonValueKind.True,
-                            PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out var pr) ? pr.GetString() : null,
-                            ErrorMessage = it.TryGetProperty("errorMessage", out var em) ? em.GetString() : null
+                            TimestampUtc = it.TryGetProperty("timestampUtc", out JsonElement t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
+                            ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out JsonElement id) ? id.GetString() ?? "" : "",
+                            ComparisonType = it.TryGetProperty("comparisonType", out JsonElement ctEl) ? ctEl.GetString() ?? "" : "",
+                            Format = it.TryGetProperty("format", out JsonElement f) ? f.GetString() ?? "" : "",
+                            ReplayMode = it.TryGetProperty("replayMode", out JsonElement rm) ? rm.GetString() ?? "" : "",
+                            DurationMs = it.TryGetProperty("durationMs", out JsonElement dm) && dm.TryGetInt64(out long l) ? l : 0,
+                            Success = it.TryGetProperty("success", out JsonElement ok) && ok.ValueKind == JsonValueKind.True,
+                            MetadataOnly = it.TryGetProperty("metadataOnly", out JsonElement mo) && mo.ValueKind == JsonValueKind.True,
+                            PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out JsonElement pr) ? pr.GetString() : null,
+                            ErrorMessage = it.TryGetProperty("errorMessage", out JsonElement em) ? em.GetString() : null
                         });
                     }
                 }
@@ -705,15 +706,15 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}";
+                string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}";
                 var body = new
                 {
                     label,
                     tags = tags ?? (object?)null
                 };
-                using var request = new HttpRequestMessage(HttpMethod.Patch, uri);
+                using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Patch, uri);
                 request.Content = JsonContent.Create(body, options: _jsonOptions);
-                var response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
+                HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -770,15 +771,15 @@ namespace ArchiForge.Cli
         {
             try
             {
-                var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                if (root.TryGetProperty("detail", out var detail))
+                JsonDocument doc = JsonDocument.Parse(json);
+                JsonElement root = doc.RootElement;
+                if (root.TryGetProperty("detail", out JsonElement detail))
                     return detail.GetString();
-                if (root.TryGetProperty("error", out var err))
+                if (root.TryGetProperty("error", out JsonElement err))
                     return err.GetString();
-                if (root.TryGetProperty("errors", out var errs) && errs.ValueKind == JsonValueKind.Array)
+                if (root.TryGetProperty("errors", out JsonElement errs) && errs.ValueKind == JsonValueKind.Array)
                     return string.Join("; ", errs.EnumerateArray().Select(e => e.GetString()).Where(s => !string.IsNullOrEmpty(s)));
-                if (root.TryGetProperty("title", out var title))
+                if (root.TryGetProperty("title", out JsonElement title))
                     return title.GetString();
             }
             catch

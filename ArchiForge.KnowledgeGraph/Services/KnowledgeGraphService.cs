@@ -19,9 +19,9 @@ public class KnowledgeGraphService(
     {
         ArgumentNullException.ThrowIfNull(contextSnapshot);
 
-        var buildResult = await graphBuilder.BuildAsync(contextSnapshot, ct);
+        GraphBuildResult buildResult = await graphBuilder.BuildAsync(contextSnapshot, ct);
 
-        var snapshot = new GraphSnapshot
+        GraphSnapshot snapshot = new GraphSnapshot
         {
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = contextSnapshot.SnapshotId,

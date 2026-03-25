@@ -32,7 +32,7 @@ public sealed class GovernancePreviewServiceTests
 
     private static GoldenManifest Manifest(string runId, string version, Action<ManifestGovernance>? tweak = null)
     {
-        var gov = new ManifestGovernance();
+        ManifestGovernance gov = new ManifestGovernance();
         tweak?.Invoke(gov);
         return new GoldenManifest
         {
@@ -74,7 +74,7 @@ public sealed class GovernancePreviewServiceTests
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
 
-        var result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
             RunId = "run-a",
             ManifestVersion = "v1",
@@ -100,7 +100,7 @@ public sealed class GovernancePreviewServiceTests
                 g.RiskClassification = "High";
             }));
 
-        var currentActivation = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation currentActivation = new GovernanceEnvironmentActivation
         {
             ActivationId = "act-1",
             RunId = "run-old",
@@ -118,7 +118,7 @@ public sealed class GovernancePreviewServiceTests
                 g.RiskClassification = "Low";
             }));
 
-        var result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        GovernancePreviewResult result = await _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
             RunId = "run-b",
             ManifestVersion = "v2",
@@ -133,14 +133,14 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task CompareEnvironmentsAsync_WhenBothHaveActiveRows_ReturnsDifferences()
     {
-        var srcAct = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation srcAct = new GovernanceEnvironmentActivation
         {
             RunId = "r1",
             ManifestVersion = "m1",
             Environment = "dev",
             IsActive = true
         };
-        var tgtAct = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation tgtAct = new GovernanceEnvironmentActivation
         {
             RunId = "r2",
             ManifestVersion = "m2",
@@ -158,7 +158,7 @@ public sealed class GovernancePreviewServiceTests
         _manifestRepo.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("r2", "m2", g => g.CostClassification = "High"));
 
-        var result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
         {
             SourceEnvironment = "dev",
             TargetEnvironment = "test"
@@ -173,19 +173,19 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task CompareEnvironmentsAsync_WhenStatesAreEquivalent_ReturnsNoMeaningfulDiffs()
     {
-        var gov = new ManifestGovernance { RiskClassification = "Moderate", CostClassification = "Moderate" };
-        var m = Manifest("r1", "v1", _ => { });
+        ManifestGovernance gov = new ManifestGovernance { RiskClassification = "Moderate", CostClassification = "Moderate" };
+        GoldenManifest m = Manifest("r1", "v1", _ => { });
         m.Governance = gov;
 
-        var act1 = new GovernanceEnvironmentActivation { RunId = "r1", ManifestVersion = "v1", Environment = "dev", IsActive = true };
-        var act2 = new GovernanceEnvironmentActivation { RunId = "r2", ManifestVersion = "v2", Environment = "prod", IsActive = true };
+        GovernanceEnvironmentActivation act1 = new GovernanceEnvironmentActivation { RunId = "r1", ManifestVersion = "v1", Environment = "dev", IsActive = true };
+        GovernanceEnvironmentActivation act2 = new GovernanceEnvironmentActivation { RunId = "r2", ManifestVersion = "v2", Environment = "prod", IsActive = true };
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);
         _manifestRepo.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r1", "v1"));
         _manifestRepo.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r2", "v2"));
 
-        var result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
+        GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
         {
             SourceEnvironment = "dev",
             TargetEnvironment = "prod"
@@ -221,7 +221,7 @@ public sealed class GovernancePreviewServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        var act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
+        Func<Task<GovernancePreviewResult>> act = () => _sut.PreviewActivationAsync(new GovernancePreviewRequest
         {
             RunId = "missing",
             ManifestVersion = "v1",

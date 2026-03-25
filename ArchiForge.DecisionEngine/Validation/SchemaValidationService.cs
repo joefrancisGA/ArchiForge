@@ -55,7 +55,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
     {
         try
         {
-            var fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
+            string fullPath = Path.Combine(AppContext.BaseDirectory, relativePath);
 
             if (!File.Exists(fullPath))
             {
@@ -70,8 +70,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
             {
                 _logger.LogInformation("Loading schema {SchemaName} from {FullPath}", schemaName, fullPath);
             }
-            var schemaText = File.ReadAllText(fullPath);
-            var schema = JsonSchema.FromText(schemaText);
+            string schemaText = File.ReadAllText(fullPath);
+            JsonSchema schema = JsonSchema.FromText(schemaText);
 
             if (_logger.IsEnabled(LogLevel.Information))
             {
@@ -94,11 +94,11 @@ public sealed class SchemaValidationService : ISchemaValidationService
         JsonSchema schema,
         string objectName)
     {
-        var result = new SchemaValidationResult();
+        SchemaValidationResult result = new SchemaValidationResult();
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            var error = $"{objectName} JSON payload is empty.";
+            string error = $"{objectName} JSON payload is empty.";
             result.Errors.Add(error);
             if (_logger.IsEnabled(LogLevel.Warning))
             {
@@ -114,7 +114,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         }
         catch (JsonException ex)
         {
-            var error = $"{objectName} JSON could not be parsed: {ex.Message}";
+            string error = $"{objectName} JSON could not be parsed: {ex.Message}";
             result.Errors.Add(error);
             if (_logger.IsEnabled(LogLevel.Warning))
             {
@@ -125,7 +125,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
         using (doc)
         {
-            var evaluation = schema.Evaluate(
+            EvaluationResults evaluation = schema.Evaluate(
                 doc.RootElement,
                 new EvaluationOptions
                 {
@@ -174,16 +174,16 @@ public sealed class SchemaValidationService : ISchemaValidationService
     {
         if (evaluation.Errors is not null && evaluation.Errors.Count > 0)
         {
-            foreach (var kvp in evaluation.Errors)
+            foreach (KeyValuePair<string, string> kvp in evaluation.Errors)
             {
-                var message = kvp.Value;
-                var location = evaluation.InstanceLocation.ToString();
+                string message = kvp.Value;
+                string location = evaluation.InstanceLocation.ToString();
                 if (string.IsNullOrEmpty(location))
                     location = "(root)";
-                var schemaPath = evaluation.SchemaLocation?.ToString();
-                var keyword = kvp.Key;
+                string? schemaPath = evaluation.SchemaLocation?.ToString();
+                string keyword = kvp.Key;
 
-                var errorMessage = $"{objectName} schema error at '{location}': {message}";
+                string errorMessage = $"{objectName} schema error at '{location}': {message}";
                 result.Errors.Add(errorMessage);
 
                 if (_options.EnableDetailedErrors)
@@ -204,7 +204,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
             return;
         }
 
-        foreach (var detail in evaluation.Details)
+        foreach (EvaluationResults detail in evaluation.Details)
         {
             CollectErrors(detail, result, objectName);
         }

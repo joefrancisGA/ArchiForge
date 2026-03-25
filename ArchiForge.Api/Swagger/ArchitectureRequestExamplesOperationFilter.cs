@@ -48,14 +48,14 @@ public sealed class ArchitectureRequestExamplesOperationFilter : IOperationFilte
         if (!string.Equals(context.MethodInfo?.Name, "CreateRun", StringComparison.Ordinal))
             return;
 
-        var extra =
+        string extra =
             "**Context ingestion (optional):** "
             + "`inlineRequirements`, `documents` (inline `name` + `contentType` + `content` — see supported types in `SupportedContextDocumentContentTypes`), "
             + "`policyReferences`, `topologyHints`, `securityBaselineHints`, `infrastructureDeclarations` (`format`: `json` | `simple-terraform`). "
             + "Plain-text/markdown documents may use line prefixes `REQ:`, `POL:`, `TOP:`, `SEC:` (see `docs/CONTEXT_INGESTION.md`). "
             + "Structured IaC snippets become canonical topology/security objects before graph build.";
 
-        var exampleBlock =
+        string exampleBlock =
             "\n\n### Example request body (JSON)\n\n```json\n"
             + ExampleRequestJson.Trim()
             + "\n```\n";

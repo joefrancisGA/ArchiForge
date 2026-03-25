@@ -7,6 +7,8 @@ using ArchiForge.Persistence.Models;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Repositories;
 
 public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : IRunRepository
@@ -40,7 +42,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 
@@ -58,7 +60,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
               AND ScopeProjectId = @ScopeProjectId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QuerySingleOrDefaultAsync<RunRecord>(
             new CommandDefinition(
                 sql,
@@ -91,8 +93,8 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<RunRecord>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
             new CommandDefinition(
                 sql,
                 new
@@ -139,7 +141,7 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
     }
 }

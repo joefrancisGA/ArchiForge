@@ -8,6 +8,8 @@ using ArchiForge.Persistence.Serialization;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Repositories;
 
 public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connectionFactory) : IArtifactBundleRepository
@@ -47,7 +49,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -65,8 +67,8 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleRow>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        ArtifactBundleRow? row = await connection.QuerySingleOrDefaultAsync<ArtifactBundleRow>(
             new CommandDefinition(
                 sql,
                 new

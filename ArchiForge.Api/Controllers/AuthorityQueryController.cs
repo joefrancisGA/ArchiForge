@@ -46,8 +46,8 @@ public sealed class AuthorityQueryController(
             return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
 
         take = Math.Clamp(take, 1, 200);
-        var scope = scopeProvider.GetCurrentScope();
-        var results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        IReadOnlyList<RunSummaryDto> results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
 
         return Ok(results.Select(x => new RunSummaryResponse
         {
@@ -73,8 +73,8 @@ public sealed class AuthorityQueryController(
         Guid runId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var result = await queryService.GetRunSummaryAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
         if (result is null)
             return this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -106,8 +106,8 @@ public sealed class AuthorityQueryController(
         Guid runId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var result = await queryService.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? result = await queryService.GetRunDetailAsync(scope, runId, ct);
         if (result is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -127,8 +127,8 @@ public sealed class AuthorityQueryController(
         Guid manifestId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ManifestSummaryDto? result = await queryService.GetManifestSummaryAsync(scope, manifestId, ct);
         if (result is null)
             return this.NotFoundProblem($"Manifest '{manifestId}' was not found.", ProblemTypes.ManifestNotFound);
 

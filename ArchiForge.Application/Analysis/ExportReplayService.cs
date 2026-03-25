@@ -28,7 +28,7 @@ public sealed class ExportReplayService(
         ArgumentNullException.ThrowIfNull(request);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.ExportRecordId);
 
-        var record = await runExportRecordRepository.GetByIdAsync(
+        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(
             request.ExportRecordId,
             cancellationToken);
 
@@ -38,11 +38,11 @@ public sealed class ExportReplayService(
                 $"Export record '{request.ExportRecordId}' was not found.");
         }
 
-        var persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record)
-            ?? throw new InvalidOperationException(
-                $"Export record '{request.ExportRecordId}' does not contain a persisted analysis request.");
+        PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record)
+                                                          ?? throw new InvalidOperationException(
+                                                              $"Export record '{request.ExportRecordId}' does not contain a persisted analysis request.");
 
-        var analysisRequest = new ArchitectureAnalysisRequest
+        ArchitectureAnalysisRequest analysisRequest = new ArchitectureAnalysisRequest
         {
             RunId = record.RunId,
             IncludeEvidence = persistedRequest.IncludeEvidence,
@@ -58,7 +58,7 @@ public sealed class ExportReplayService(
             CompareRunId = persistedRequest.CompareRunId
         };
 
-        var report = await architectureAnalysisService.BuildAsync(
+        ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(
             analysisRequest,
             cancellationToken);
 
@@ -83,11 +83,11 @@ public sealed class ExportReplayService(
         bool recordReplayExport,
         CancellationToken cancellationToken)
     {
-        var bytes = await consultingDocxExportService.GenerateDocxAsync(
+        byte[] bytes = await consultingDocxExportService.GenerateDocxAsync(
             report,
             cancellationToken);
 
-        var replayFileName = BuildReplayFileName(record.FileName);
+        string replayFileName = BuildReplayFileName(record.FileName);
 
         if (recordReplayExport)
         {
@@ -132,8 +132,8 @@ public sealed class ExportReplayService(
             return "replayed_export.docx";
         }
 
-        var extension = Path.GetExtension(originalFileName);
-        var baseName = Path.GetFileNameWithoutExtension(originalFileName);
+        string extension = Path.GetExtension(originalFileName);
+        string baseName = Path.GetFileNameWithoutExtension(originalFileName);
 
         return $"{baseName}_replay{extension}";
     }

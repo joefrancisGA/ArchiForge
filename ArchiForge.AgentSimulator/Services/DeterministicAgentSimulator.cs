@@ -17,9 +17,9 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
-        var results = new List<AgentResult>();
+        List<AgentResult> results = new List<AgentResult>();
 
-        foreach (var task in tasks.OrderBy(t => t.AgentType))
+        foreach (AgentTask task in tasks.OrderBy(t => t.AgentType))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -30,7 +30,7 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
                     "Tasks from a different run must not be executed together.");
             }
 
-            var result = task.AgentType switch
+            AgentResult result = task.AgentType switch
             {
                 Contracts.Common.AgentType.Topology => CreateTopologyResult(runId, task.TaskId, request),
                 Contracts.Common.AgentType.Cost => CreateCostResult(runId, task.TaskId, request),

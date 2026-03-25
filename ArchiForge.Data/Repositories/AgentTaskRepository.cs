@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Data.Infrastructure;
@@ -40,8 +42,8 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
-        using var transaction = connection.BeginTransaction();
+        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbTransaction transaction = connection.BeginTransaction();
 
         var rows = tasks.Select(t => new
         {
@@ -82,9 +84,9 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             LIMIT 500;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
+        IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));
@@ -93,11 +95,11 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
         {
             TaskId = r.TaskId,
             RunId = r.RunId,
-            AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out var agentType)
+            AgentType = Enum.TryParse<AgentType>(r.AgentType, true, out AgentType agentType)
                 ? agentType
                 : throw new InvalidOperationException($"Unknown AgentType '{r.AgentType}' for task '{r.TaskId}'."),
             Objective = r.Objective,
-            Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out var status)
+            Status = Enum.TryParse<AgentTaskStatus>(r.Status, true, out AgentTaskStatus status)
                 ? status
                 : throw new InvalidOperationException($"Unknown AgentTaskStatus '{r.Status}' for task '{r.TaskId}'."),
             CreatedUtc = r.CreatedUtc,

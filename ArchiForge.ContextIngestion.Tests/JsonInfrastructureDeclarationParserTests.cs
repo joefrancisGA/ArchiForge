@@ -15,7 +15,7 @@ public sealed class JsonInfrastructureDeclarationParserTests
     [Fact]
     public async Task ParseAsync_MapsVnetSubnetStorageApp_KeyVault()
     {
-        var declaration = new InfrastructureDeclarationReference
+        InfrastructureDeclarationReference declaration = new InfrastructureDeclarationReference
         {
             Name = "core.json",
             Format = "json",
@@ -32,7 +32,7 @@ public sealed class JsonInfrastructureDeclarationParserTests
             """
         };
 
-        var result = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         result.Should().HaveCount(5);
         result.Count(o => o.ObjectType == "TopologyResource").Should().Be(4);

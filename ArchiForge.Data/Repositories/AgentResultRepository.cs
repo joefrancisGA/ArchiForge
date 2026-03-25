@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -41,7 +42,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             );
             """;
 
-        var json = JsonSerializer.Serialize(result, ContractJson.Default);
+        string json = JsonSerializer.Serialize(result, ContractJson.Default);
         var parameters = new
         {
             result.ResultId,
@@ -53,10 +54,10 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         };
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
         connection.Open();
 
-        using var tx = connection.BeginTransaction();
+        using IDbTransaction tx = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
@@ -80,7 +81,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
         if (results.Count == 0)
             return;
 
-        var distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
+        List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
         {
             throw new ArgumentException(
@@ -127,10 +128,10 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         });
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
         connection.Open();
 
-        using var tx = connection.BeginTransaction();
+        using IDbTransaction tx = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
@@ -153,9 +154,9 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             LIMIT 1000;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new
             {
@@ -163,8 +164,8 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             },
             cancellationToken: cancellationToken));
 
-        var results = new List<AgentResult>();
-        foreach (var json in rows)
+        List<AgentResult> results = new List<AgentResult>();
+        foreach (string json in rows)
         {
             AgentResult? result;
             try

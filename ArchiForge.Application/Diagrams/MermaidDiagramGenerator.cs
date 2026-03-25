@@ -17,25 +17,25 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine("flowchart LR");
 
-        foreach (var service in manifest.Services.OrderBy(s => s.ServiceName))
+        foreach (ManifestService service in manifest.Services.OrderBy(s => s.ServiceName))
         {
             sb.AppendLine($"    {SanitizeId(service.ServiceId)}[{EscapeLabel(BuildServiceLabel(service))}]");
         }
 
-        foreach (var datastore in manifest.Datastores.OrderBy(d => d.DatastoreName))
+        foreach (ManifestDatastore datastore in manifest.Datastores.OrderBy(d => d.DatastoreName))
         {
             sb.AppendLine($"    {SanitizeId(datastore.DatastoreId)}[(\"{EscapeLabel(BuildDatastoreLabel(datastore))}\")]");
         }
 
-        foreach (var relationship in manifest.Relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
+        foreach (ManifestRelationship relationship in manifest.Relationships.OrderBy(r => r.SourceId).ThenBy(r => r.TargetId))
         {
-            var source = SanitizeId(relationship.SourceId);
-            var target = SanitizeId(relationship.TargetId);
-            var label = EscapeLabel(BuildRelationshipLabel(relationship));
+            string source = SanitizeId(relationship.SourceId);
+            string target = SanitizeId(relationship.TargetId);
+            string label = EscapeLabel(BuildRelationshipLabel(relationship));
 
             sb.AppendLine($"    {source} -->|{label}| {target}");
         }
@@ -52,7 +52,7 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
     /// <summary>Returns a multi-line label: datastore name + runtime platform + optional private-endpoint flag.</summary>
     private static string BuildDatastoreLabel(ManifestDatastore datastore)
     {
-        var suffix = datastore.PrivateEndpointRequired ? "\\nPrivate Endpoint" : string.Empty;
+        string suffix = datastore.PrivateEndpointRequired ? "\\nPrivate Endpoint" : string.Empty;
         return $"{datastore.DatastoreName}\\n{datastore.RuntimePlatform}{suffix}";
     }
 

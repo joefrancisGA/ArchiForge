@@ -1,5 +1,6 @@
 using ArchiForge.Decisioning.Compliance.Evaluators;
 using ArchiForge.Decisioning.Compliance.Loaders;
+using ArchiForge.Decisioning.Compliance.Models;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -20,13 +21,13 @@ public class ComplianceFindingEngine(
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var rulePack = await rulePackProvider.GetRulePackAsync(ct);
+        ComplianceRulePack rulePack = await rulePackProvider.GetRulePackAsync(ct);
         packValidator.Validate(rulePack);
 
-        var evaluation = evaluator.Evaluate(graphSnapshot, rulePack);
-        var findings = new List<Finding>();
+        ComplianceEvaluationResult evaluation = evaluator.Evaluate(graphSnapshot, rulePack);
+        List<Finding> findings = new List<Finding>();
 
-        foreach (var violation in evaluation.Violations)
+        foreach (ComplianceViolation violation in evaluation.Violations)
         {
             findings.Add(new Finding
             {

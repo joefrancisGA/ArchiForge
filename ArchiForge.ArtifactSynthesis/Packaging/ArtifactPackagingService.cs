@@ -55,16 +55,16 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
     {
         ArgumentNullException.ThrowIfNull(artifacts);
 
-        using var memoryStream = new MemoryStream();
+        using MemoryStream memoryStream = new MemoryStream();
 
-        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            var usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
-                var safe = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), BundleReservedEntryNames);
-                var entryName = AllocateUniqueEntryName(safe, usedEntryNames);
+                string safe = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), BundleReservedEntryNames);
+                string entryName = AllocateUniqueEntryName(safe, usedEntryNames);
                 WriteTextEntry(archive, entryName, artifact.Content);
             }
 
@@ -96,16 +96,16 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         ArgumentNullException.ThrowIfNull(artifacts);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestJson);
 
-        using var memoryStream = new MemoryStream();
+        using MemoryStream memoryStream = new MemoryStream();
 
-        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            var usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
+            foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
-                var safeName = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), RunExportReservedEntryNames);
-                var relative = $"artifacts/{AllocateUniqueEntryName(safeName, usedEntryNames)}";
+                string safeName = AvoidReservedEntryName(FileNameSanitizer.Sanitize(artifact.Name), RunExportReservedEntryNames);
+                string relative = $"artifacts/{AllocateUniqueEntryName(safeName, usedEntryNames)}";
                 WriteTextEntry(archive, relative, artifact.Content);
             }
 
@@ -116,7 +116,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
                 WriteTextEntry(archive, "decision-trace.json", traceJson);
             }
 
-            var readme = new StringBuilder()
+            StringBuilder readme = new StringBuilder()
                 .AppendLine("ArchiForge Export Package")
                 .AppendLine($"Run ID: {runId}")
                 .AppendLine($"Manifest ID: {manifestId}")
@@ -143,15 +143,15 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
     private static void WriteTextEntry(ZipArchive archive, string entryName, string content)
     {
-        var entry = archive.CreateEntry(entryName.Replace('\\', '/'), CompressionLevel.Fastest);
-        using var entryStream = entry.Open();
-        using var writer = new StreamWriter(entryStream, Encoding.UTF8);
+        ZipArchiveEntry entry = archive.CreateEntry(entryName.Replace('\\', '/'), CompressionLevel.Fastest);
+        using Stream entryStream = entry.Open();
+        using StreamWriter writer = new StreamWriter(entryStream, Encoding.UTF8);
         writer.Write(content);
     }
 
     private static void WriteBundleIndex(ZipArchive archive, IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        var indexJson = JsonSerializer.Serialize(
+        string indexJson = JsonSerializer.Serialize(
             artifacts.Select(x => new
             {
                 x.ArtifactId,
@@ -168,7 +168,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
     private static void WritePackageMetadata(ZipArchive archive, object payload)
     {
-        var metadataJson = JsonSerializer.Serialize(payload, JsonWriteIndented);
+        string metadataJson = JsonSerializer.Serialize(payload, JsonWriteIndented);
         WriteTextEntry(archive, "package-metadata.json", metadataJson);
     }
 
@@ -180,12 +180,12 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
     private static string AllocateUniqueEntryName(string sanitizedFileName, HashSet<string> usedEntryNames)
     {
-        var candidate = sanitizedFileName;
-        var n = 1;
+        string candidate = sanitizedFileName;
+        int n = 1;
         while (!usedEntryNames.Add(candidate))
         {
-            var stem = Path.GetFileNameWithoutExtension(sanitizedFileName);
-            var ext = Path.GetExtension(sanitizedFileName);
+            string stem = Path.GetFileNameWithoutExtension(sanitizedFileName);
+            string ext = Path.GetExtension(sanitizedFileName);
             candidate = $"{stem}_{n++}{ext}";
         }
 

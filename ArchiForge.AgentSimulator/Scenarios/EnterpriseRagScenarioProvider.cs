@@ -8,11 +8,11 @@ public sealed class EnterpriseRagScenarioProvider : IScenarioProvider
 
     public bool CanHandle(ArchitectureRequest request)
     {
-        var hasRagIndicators = request.Description.Contains("RAG", StringComparison.OrdinalIgnoreCase)
-                               || request.SystemName.Contains("Rag", StringComparison.OrdinalIgnoreCase)
-                               || request.RequiredCapabilities.Any(c =>
-                                   c.Contains("Azure AI Search", StringComparison.OrdinalIgnoreCase) ||
-                                   c.Contains("search", StringComparison.OrdinalIgnoreCase));
+        bool hasRagIndicators = request.Description.Contains("RAG", StringComparison.OrdinalIgnoreCase)
+                                || request.SystemName.Contains("Rag", StringComparison.OrdinalIgnoreCase)
+                                || request.RequiredCapabilities.Any(c =>
+                                    c.Contains("Azure AI Search", StringComparison.OrdinalIgnoreCase) ||
+                                    c.Contains("search", StringComparison.OrdinalIgnoreCase));
 
         return hasRagIndicators;
     }

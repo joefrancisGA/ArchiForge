@@ -1,3 +1,5 @@
+using ArchiForge.Core.Comparison;
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Workflow;
 
 namespace ArchiForge.Decisioning.Alerts.Composite;
@@ -13,7 +15,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     /// <inheritdoc />
     public AlertMetricSnapshot Build(AlertEvaluationContext context)
     {
-        var snapshot = new AlertMetricSnapshot
+        AlertMetricSnapshot snapshot = new AlertMetricSnapshot
         {
             CriticalRecommendationCount =
                 context.ImprovementPlan?.Recommendations.Count(x =>
@@ -43,7 +45,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     /// <summary>First cost delta on the comparison result; 0 when baseline cost is missing or zero.</summary>
     private static decimal BuildCostIncreasePercent(AlertEvaluationContext context)
     {
-        var delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
+        CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
         if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
             return 0;
 
@@ -53,15 +55,15 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     /// <summary>Sum of accepted ÷ sum of proposed across learning categories.</summary>
     private static decimal BuildAcceptanceRatePercent(AlertEvaluationContext context)
     {
-        var profile = context.LearningProfile;
+        RecommendationLearningProfile? profile = context.LearningProfile;
         if (profile is null)
             return 0;
 
-        var proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
+        int proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
         if (proposed == 0)
             return 0;
 
-        var accepted = profile.CategoryStats.Sum(x => x.AcceptedCount);
+        int accepted = profile.CategoryStats.Sum(x => x.AcceptedCount);
         return (decimal)accepted / proposed * 100m;
     }
 }

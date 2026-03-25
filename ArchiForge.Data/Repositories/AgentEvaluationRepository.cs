@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -21,7 +22,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             return;
         }
 
-        var distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
+        List<string> distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
         {
             throw new ArgumentException(
@@ -30,7 +31,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                 nameof(evaluations));
         }
 
-        var runId = evaluations.First().RunId;
+        string runId = evaluations.First().RunId;
 
         // Delete all existing evaluations for this run before inserting so that a retry
         // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
@@ -61,8 +62,8 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
-        using var transaction = connection.BeginTransaction();
+        using IDbConnection connection = connectionFactory.CreateConnection();
+        using IDbTransaction transaction = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
@@ -70,9 +71,9 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             transaction: transaction,
             cancellationToken: cancellationToken));
 
-        foreach (var e in evaluations)
+        foreach (AgentEvaluation e in evaluations)
         {
-            var payload = JsonSerializer.Serialize(e, ContractJson.Default);
+            string payload = JsonSerializer.Serialize(e, ContractJson.Default);
             await connection.ExecuteAsync(new CommandDefinition(
                 insertSql,
                 new
@@ -105,15 +106,15 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             LIMIT 500;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        var evaluations = new List<AgentEvaluation>();
-        foreach (var json in rows)
+        List<AgentEvaluation> evaluations = new List<AgentEvaluation>();
+        foreach (string json in rows)
         {
             AgentEvaluation? evaluation;
             try

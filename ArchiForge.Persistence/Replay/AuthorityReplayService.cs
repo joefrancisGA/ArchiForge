@@ -1,4 +1,5 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -31,16 +32,16 @@ public sealed class AuthorityReplayService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var readScope = scopeContextProvider.GetCurrentScope();
-        var original = await queryService.GetRunDetailAsync(readScope, request.RunId, ct);
+        ScopeContext readScope = scopeContextProvider.GetCurrentScope();
+        RunDetailDto? original = await queryService.GetRunDetailAsync(readScope, request.RunId, ct);
         if (original is null)
             return null;
 
-        var mode = string.IsNullOrWhiteSpace(request.Mode)
+        string mode = string.IsNullOrWhiteSpace(request.Mode)
             ? ReplayMode.ReconstructOnly
             : request.Mode.Trim();
 
-        var result = new ReplayResult
+        ReplayResult result = new ReplayResult
         {
             RunId = request.RunId,
             Mode = mode,
@@ -59,7 +60,7 @@ public sealed class AuthorityReplayService(
 
         if (original.GoldenManifest is not null)
         {
-            var computedHash = manifestHashService.ComputeHash(original.GoldenManifest);
+            string computedHash = manifestHashService.ComputeHash(original.GoldenManifest);
             result.Validation.ManifestHashMatches =
                 string.Equals(computedHash, original.GoldenManifest.ManifestHash, StringComparison.OrdinalIgnoreCase);
 
@@ -85,14 +86,14 @@ public sealed class AuthorityReplayService(
             return result;
         }
 
-        var (manifest, trace) = await decisionEngine.DecideAsync(
+        (GoldenManifest manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,
             original.GraphSnapshot,
             original.FindingsSnapshot,
             ct);
 
-        var writeScope = WriteScopeFromRun(original.Run);
+        ScopeContext writeScope = WriteScopeFromRun(original.Run);
         ApplyScope(trace, writeScope);
         ApplyScope(manifest, writeScope);
         manifest.ManifestHash = manifestHashService.ComputeHash(manifest);
@@ -102,7 +103,7 @@ public sealed class AuthorityReplayService(
 
         result.RebuiltManifest = manifest;
 
-        var rebuiltHash = manifestHashService.ComputeHash(manifest);
+        string rebuiltHash = manifestHashService.ComputeHash(manifest);
 
         if (original.GoldenManifest is not null)
         {
@@ -121,7 +122,7 @@ public sealed class AuthorityReplayService(
         if (!string.Equals(mode, ReplayMode.RebuildArtifacts, StringComparison.OrdinalIgnoreCase))
             return result;
 
-        var rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
+        ArtifactBundle rebuiltArtifacts = await artifactSynthesisService.SynthesizeAsync(
             manifest,
             ct);
 

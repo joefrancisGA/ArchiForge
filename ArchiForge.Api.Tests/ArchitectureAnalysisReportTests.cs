@@ -11,19 +11,19 @@ public sealed class ArchitectureAnalysisReportTests(ArchiForgeApiFactory factory
     [Fact]
     public async Task AnalysisReport_ReturnsUnifiedReport()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-ANALYSIS-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
         var request = new
@@ -41,13 +41,13 @@ public sealed class ArchitectureAnalysisReportTests(ArchiForgeApiFactory factory
             compareRunId = (string?)null
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
+        ArchitectureAnalysisReportResponse? payload = await response.Content.ReadFromJsonAsync<ArchitectureAnalysisReportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Report.Run.RunId.Should().Be(runId);
         payload.Report.Evidence.Should().NotBeNull();

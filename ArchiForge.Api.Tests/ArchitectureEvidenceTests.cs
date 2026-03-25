@@ -11,23 +11,23 @@ public sealed class ArchitectureEvidenceTests(ArchiForgeApiFactory factory) : In
     [Fact]
     public async Task GetRunEvidence_ReturnsEvidencePackageAfterExecute()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EVIDENCE-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var evidenceResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/evidence");
+        HttpResponseMessage evidenceResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/evidence");
 
         evidenceResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
+        AgentEvidencePackageResponse? payload = await evidenceResponse.Content.ReadFromJsonAsync<AgentEvidencePackageResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Evidence.RunId.Should().Be(runId);
         payload.Evidence.SystemName.Should().Be("EnterpriseRag");

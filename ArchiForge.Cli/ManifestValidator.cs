@@ -15,23 +15,23 @@ public static class ManifestValidator
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException("Manifest file not found.", manifestPath);
 
-        var schemaJson = File.ReadAllText(schemaPath);
-        var manifestJson = File.ReadAllText(manifestPath);
+        string schemaJson = File.ReadAllText(schemaPath);
+        string manifestJson = File.ReadAllText(manifestPath);
 
-        var schema = JsonSchema.FromText(schemaJson);
+        JsonSchema schema = JsonSchema.FromText(schemaJson);
 
-        using var manifestDoc = JsonDocument.Parse(manifestJson);
+        using JsonDocument manifestDoc = JsonDocument.Parse(manifestJson);
 
-        var options = new EvaluationOptions
+        EvaluationOptions options = new EvaluationOptions
         {
             OutputFormat = OutputFormat.Hierarchical
         };
 
-        var result = schema.Evaluate(manifestDoc.RootElement, options);
+        EvaluationResults result = schema.Evaluate(manifestDoc.RootElement, options);
 
         if (!result.IsValid)
         {
-            var pretty = JsonSerializer.Serialize(
+            string pretty = JsonSerializer.Serialize(
                 result.ToJsonDocument().RootElement,
                 SJsonWriteIndented);
 
@@ -42,10 +42,10 @@ public static class ManifestValidator
     public static bool TryValidate(string schemaPath, string manifestJson, out string errorsJson)
     {
         errorsJson = "";
-        var schema = JsonSchema.FromFile(schemaPath);
-        using var doc = JsonDocument.Parse(manifestJson);
+        JsonSchema schema = JsonSchema.FromFile(schemaPath);
+        using JsonDocument doc = JsonDocument.Parse(manifestJson);
 
-        var result = schema.Evaluate(doc.RootElement, new EvaluationOptions { OutputFormat = OutputFormat.Hierarchical });
+        EvaluationResults result = schema.Evaluate(doc.RootElement, new EvaluationOptions { OutputFormat = OutputFormat.Hierarchical });
 
         if (result.IsValid)
             return true;

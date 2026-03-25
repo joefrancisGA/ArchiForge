@@ -1,4 +1,6 @@
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -27,18 +29,18 @@ public sealed class RunDetailQueryService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        var run = await runRepository.GetByIdAsync(runId, cancellationToken);
+        ArchitectureRun? run = await runRepository.GetByIdAsync(runId, cancellationToken);
         if (run is null)
         {
             logger.LogDebug("RunDetailQueryService: run '{RunId}' not found.", runId);
             return null;
         }
 
-        var tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        var results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         Contracts.Manifest.GoldenManifest? manifest = null;
-        var decisionTraces = new List<Contracts.Metadata.DecisionTrace>();
+        List<DecisionTrace> decisionTraces = new List<Contracts.Metadata.DecisionTrace>();
 
         if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
             return new ArchitectureRunDetail
@@ -81,7 +83,7 @@ public sealed class RunDetailQueryService(
     public async Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(
         CancellationToken cancellationToken = default)
     {
-        var items = await runRepository.ListAsync(cancellationToken);
+        IReadOnlyList<ArchitectureRunListItem> items = await runRepository.ListAsync(cancellationToken);
 
         return items
             .Select(r => new RunSummary

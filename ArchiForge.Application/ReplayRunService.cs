@@ -1,10 +1,13 @@
 using System.Transactions;
 
+using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Application.Agents;
 using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
@@ -45,14 +48,14 @@ public sealed class ReplayRunService(
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
 
-        var sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
-            ?? throw new RunNotFoundException(originalRunId);
+        ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
+                                             ?? throw new RunNotFoundException(originalRunId);
 
-        var originalRun = sourceDetail.Run;
-        var tasks = sourceDetail.Tasks;
+        ArchitectureRun originalRun = sourceDetail.Run;
+        List<AgentTask> tasks = sourceDetail.Tasks;
 
-        var request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
-            ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
+                                      ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -61,12 +64,12 @@ public sealed class ReplayRunService(
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
         }
 
-        var evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
-            ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
+        AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
+                                        ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
-        var replayRunId = Guid.NewGuid().ToString("N");
+        string replayRunId = Guid.NewGuid().ToString("N");
 
-        var replayRun = new ArchitectureRun
+        ArchitectureRun replayRun = new ArchitectureRun
         {
             RunId = replayRunId,
             RequestId = originalRun.RequestId,
@@ -78,7 +81,7 @@ public sealed class ReplayRunService(
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var replayTasks = tasks
+        List<AgentTask> replayTasks = tasks
             .Select(t => new AgentTask
             {
                 TaskId = Guid.NewGuid().ToString("N"),
@@ -94,10 +97,10 @@ public sealed class ReplayRunService(
             })
             .ToList();
 
-        var replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
+        AgentEvidencePackage replayEvidence = CloneEvidenceForReplay(evidence, replayRunId);
 
-        var executor = agentExecutorResolver.Resolve(executionMode);
-        var results = await executor.ExecuteAsync(
+        IAgentExecutor executor = agentExecutorResolver.Resolve(executionMode);
+        IReadOnlyList<AgentResult> results = await executor.ExecuteAsync(
             replayRunId,
             request,
             replayEvidence,
@@ -122,11 +125,11 @@ public sealed class ReplayRunService(
                 Warnings = warnings
             };
         
-        var manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
+        string manifestVersion = string.IsNullOrWhiteSpace(manifestVersionOverride)
             ? BuildReplayManifestVersion(originalRun.CurrentManifestVersion)
             : manifestVersionOverride;
 
-        var merge = decisionEngineService.MergeResults(
+        DecisionMergeResult merge = decisionEngineService.MergeResults(
             replayRunId,
             request,
             manifestVersion,
@@ -145,7 +148,7 @@ public sealed class ReplayRunService(
         decisionTraces = merge.DecisionTraces;
         warnings = merge.Warnings;
 
-        using var scope = new TransactionScope(
+        using TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
 

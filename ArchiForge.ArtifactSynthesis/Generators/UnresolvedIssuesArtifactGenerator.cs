@@ -16,7 +16,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var model = new UnresolvedIssuesArtifactModel
+        UnresolvedIssuesArtifactModel model = new UnresolvedIssuesArtifactModel
         {
             Items = manifest.UnresolvedIssues.Items.Select(x => new UnresolvedIssueArtifactItem
             {
@@ -27,7 +27,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
             }).ToList()
         };
 
-        var content = JsonSerializer.Serialize(model, SynthesisJsonOptions.WriteIndented);
+        string content = JsonSerializer.Serialize(model, SynthesisJsonOptions.WriteIndented);
 
         return Task.FromResult(new SynthesizedArtifact
         {

@@ -13,29 +13,29 @@ public sealed class ArchitectureDiagramTests(ArchiForgeApiFactory factory) : Int
     [Fact]
     public async Task GetManifestDiagram_ReturnsMermaid()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        var diagramResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
+        HttpResponseMessage diagramResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/diagram");
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(JsonOptions);
+        DiagramResponse? diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<DiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.Format.Should().Be("mermaid");
         diagramPayload.Diagram.Should().Contain("flowchart LR");
@@ -47,30 +47,30 @@ public sealed class ArchitectureDiagramTests(ArchiForgeApiFactory factory) : Int
     [Fact]
     public async Task GetManifestDiagramV2_ReturnsManifestDiagramResponse_WithOptions()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DIAGRAM-002")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        var diagramResponse = await Client.GetAsync(
+        HttpResponseMessage diagramResponse = await Client.GetAsync(
             $"/v1/architecture/manifest/{manifestVersion}/diagram/v2?layout=TB&includeRuntimePlatform=false&relationshipLabels=none&groupBy=serviceType");
 
         diagramResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
+        ManifestDiagramResponse? diagramPayload = await diagramResponse.Content.ReadFromJsonAsync<ManifestDiagramResponse>(JsonOptions);
         diagramPayload.Should().NotBeNull();
         diagramPayload.DiagramType.Should().Be("Mermaid");
         diagramPayload.Content.Should().Contain("flowchart TB");

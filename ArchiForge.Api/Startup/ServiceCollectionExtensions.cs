@@ -34,6 +34,7 @@ using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Infrastructure;
 using ArchiForge.ContextIngestion.Parsing;
 using ArchiForge.ContextIngestion.Summaries;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Core.Ask;
@@ -312,7 +313,7 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
-        var agentMode = configuration["AgentExecution:Mode"];
+        string? agentMode = configuration["AgentExecution:Mode"];
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
             services.AddScoped<IAgentExecutor, DeterministicAgentSimulator>();
@@ -326,50 +327,50 @@ internal static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentHandler, CriticAgentHandler>();
             services.AddScoped<IAgentResultParser, AgentResultParser>();
 
-            var azureOpenAiEndpoint = configuration["AzureOpenAI:Endpoint"];
-            var azureOpenAiKey = configuration["AzureOpenAI:ApiKey"];
-            var azureOpenAiDeployment = configuration["AzureOpenAI:DeploymentName"];
-            var useAzureOpenAi = !string.IsNullOrWhiteSpace(azureOpenAiEndpoint)
-                && !string.IsNullOrWhiteSpace(azureOpenAiKey)
-                && !string.IsNullOrWhiteSpace(azureOpenAiDeployment);
+            string? azureOpenAiEndpoint = configuration["AzureOpenAI:Endpoint"];
+            string? azureOpenAiKey = configuration["AzureOpenAI:ApiKey"];
+            string? azureOpenAiDeployment = configuration["AzureOpenAI:DeploymentName"];
+            bool useAzureOpenAi = !string.IsNullOrWhiteSpace(azureOpenAiEndpoint)
+                                  && !string.IsNullOrWhiteSpace(azureOpenAiKey)
+                                  && !string.IsNullOrWhiteSpace(azureOpenAiDeployment);
 
             if (useAzureOpenAi)
             {
                 services.AddSingleton<IAgentCompletionClient>(sp =>
                 {
-                    var config = sp.GetRequiredService<IConfiguration>();
-                    var endpoint = config["AzureOpenAI:Endpoint"]
-                        ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
-                    var apiKey = config["AzureOpenAI:ApiKey"]
-                        ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
-                    var deploymentName = config["AzureOpenAI:DeploymentName"]
-                        ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+                    IConfiguration config = sp.GetRequiredService<IConfiguration>();
+                    string endpoint = config["AzureOpenAI:Endpoint"]
+                                      ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
+                    string apiKey = config["AzureOpenAI:ApiKey"]
+                                    ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+                    string deploymentName = config["AzureOpenAI:DeploymentName"]
+                                            ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
                     return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName);
                 });
             }
             else
             {
-                var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+                JsonSerializerOptions jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
                 services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
                     (_, userPrompt) =>
                     {
-                        var runId = "RUN-001";
-                        var taskId = "TASK-TOPO-001";
-                        foreach (var line in userPrompt.Split('\n'))
+                        string runId = "RUN-001";
+                        string taskId = "TASK-TOPO-001";
+                        foreach (string line in userPrompt.Split('\n'))
                         {
-                            var span = line.AsSpan().Trim();
+                            ReadOnlySpan<char> span = line.AsSpan().Trim();
                             if (span.StartsWith("RunId:", StringComparison.OrdinalIgnoreCase))
                                 runId = span.Length > 6 ? span[6..].Trim().ToString() : runId;
                             else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
                                 taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
                         }
-                        var dummyRequest = new ArchitectureRequest
+                        ArchitectureRequest dummyRequest = new ArchitectureRequest
                         {
                             SystemName = "Default",
                             Description = "Default request for fake topology response.",
                             Environment = "prod"
                         };
-                        var result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
+                        AgentResult result = FakeScenarioFactory.CreateTopologyResult(runId, taskId, dummyRequest);
                         return JsonSerializer.Serialize(result, jsonOptions);
                     }));
             }
@@ -392,7 +393,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IRetrievalQueryService, RetrievalQueryService>();
         services.AddScoped<IRetrievalRunCompletionIndexer, RetrievalRunCompletionIndexer>();
 
-        var vectorMode = configuration["Retrieval:VectorIndex"] ?? "InMemory";
+        string vectorMode = configuration["Retrieval:VectorIndex"] ?? "InMemory";
         if (string.Equals(vectorMode, "AzureSearch", StringComparison.OrdinalIgnoreCase))
         {
             services.AddSingleton<IAzureSearchClient, NotConfiguredAzureSearchClient>();
@@ -403,12 +404,12 @@ internal static partial class ServiceCollectionExtensions
             services.AddSingleton<IVectorIndex, InMemoryVectorIndex>();
         }
 
-        var embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
-        var endpoint = configuration["AzureOpenAI:Endpoint"];
-        var apiKey = configuration["AzureOpenAI:ApiKey"];
-        var useAzureEmbeddings = !string.IsNullOrWhiteSpace(embedDeployment)
-            && !string.IsNullOrWhiteSpace(endpoint)
-            && !string.IsNullOrWhiteSpace(apiKey);
+        string? embedDeployment = configuration["AzureOpenAI:EmbeddingDeploymentName"];
+        string? endpoint = configuration["AzureOpenAI:Endpoint"];
+        string? apiKey = configuration["AzureOpenAI:ApiKey"];
+        bool useAzureEmbeddings = !string.IsNullOrWhiteSpace(embedDeployment)
+                                  && !string.IsNullOrWhiteSpace(endpoint)
+                                  && !string.IsNullOrWhiteSpace(apiKey);
 
         if (useAzureEmbeddings)
         {

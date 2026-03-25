@@ -18,14 +18,14 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()
     {
-        var ids = new List<string>();
+        List<string> ids = new List<string>();
 
-        using (var scope = _factory.Services.CreateScope())
+        using (IServiceScope scope = _factory.Services.CreateScope())
         {
-            var repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
-            for (var i = 0; i < 6; i++)
+            IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
+            for (int i = 0; i < 6; i++)
             {
-                var record = new ComparisonRecord
+                ComparisonRecord record = new ComparisonRecord
                 {
                     ComparisonRecordId = $"cmp_search_{i}_{Guid.NewGuid():N}",
                     ComparisonType = "end-to-end-replay",
@@ -43,13 +43,13 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             }
         }
 
-        var page1 = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto? page1 = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=2&skip=0",
             JsonOptions);
         page1.Should().NotBeNull();
         page1.Records.Should().HaveCount(2);
 
-        var page2 = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto? page2 = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=2&skip=2",
             JsonOptions);
         page2.Should().NotBeNull();
@@ -60,7 +60,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             .Should().BeEmpty();
 
         // Ascending sort: first item should be the earliest CreatedUtc (minute 0)
-        var asc = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto? asc = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=6&skip=0&sortDir=asc",
             JsonOptions);
         asc.Should().NotBeNull();
@@ -71,10 +71,10 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task SearchComparisons_CursorPaging_ReturnsNextPage()
     {
-        using (var scope = _factory.Services.CreateScope())
+        using (IServiceScope scope = _factory.Services.CreateScope())
         {
-            var repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
-            for (var i = 0; i < 5; i++)
+            IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
+            for (int i = 0; i < 5; i++)
             {
                 await repo.CreateAsync(new ComparisonRecord
                 {
@@ -90,14 +90,14 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             }
         }
 
-        var page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortBy=createdUtc&sortDir=desc&limit=2",
             JsonOptions))!;
 
         page1.Records.Should().HaveCount(2);
         page1.NextCursor.Should().NotBeNullOrWhiteSpace();
 
-        var page2 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto page2 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             $"/v1/architecture/comparisons?comparisonType=end-to-end-replay&sortBy=createdUtc&sortDir=desc&limit=2&cursor={Uri.EscapeDataString(page1.NextCursor!)}",
             JsonOptions))!;
 
@@ -110,28 +110,28 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task SearchComparisons_InvalidParameters_ReturnsBadRequest()
     {
-        var badType = await Client.GetAsync("/v1/architecture/comparisons?comparisonType=nope");
+        HttpResponseMessage badType = await Client.GetAsync("/v1/architecture/comparisons?comparisonType=nope");
         badType.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var badSkip = await Client.GetAsync("/v1/architecture/comparisons?skip=-1");
+        HttpResponseMessage badSkip = await Client.GetAsync("/v1/architecture/comparisons?skip=-1");
         badSkip.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var badDates = await Client.GetAsync("/v1/architecture/comparisons?createdFromUtc=2026-01-02T00:00:00Z&createdToUtc=2026-01-01T00:00:00Z");
+        HttpResponseMessage badDates = await Client.GetAsync("/v1/architecture/comparisons?createdFromUtc=2026-01-02T00:00:00Z&createdToUtc=2026-01-01T00:00:00Z");
         badDates.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var badSort = await Client.GetAsync("/v1/architecture/comparisons?sortDir=sideways");
+        HttpResponseMessage badSort = await Client.GetAsync("/v1/architecture/comparisons?sortDir=sideways");
         badSort.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        var badSortBy = await Client.GetAsync("/v1/architecture/comparisons?sortBy=anythingElse");
+        HttpResponseMessage badSortBy = await Client.GetAsync("/v1/architecture/comparisons?sortBy=anythingElse");
         badSortBy.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
     public async Task SearchComparisons_FiltersByLabelAndTags()
     {
-        using (var scope = _factory.Services.CreateScope())
+        using (IServiceScope scope = _factory.Services.CreateScope())
         {
-            var repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
+            IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
             await repo.CreateAsync(new ComparisonRecord
             {
                 ComparisonRecordId = $"cmp_label_{Guid.NewGuid():N}",
@@ -149,13 +149,13 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
             });
         }
 
-        var byLabel = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto? byLabel = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?label=incident-42&limit=50",
             JsonOptions);
         byLabel.Should().NotBeNull();
         byLabel.Records.Should().Contain(r => r.Label == "incident-42");
 
-        var byTags = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
+        ComparisonHistoryResponseDto? byTags = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
             "/v1/architecture/comparisons?tags=incident,urgent&limit=50",
             JsonOptions);
         byTags.Should().NotBeNull();

@@ -25,13 +25,13 @@ public static class ComplianceRulePackGovernanceFilter
         if (effective.ComplianceRuleIds.Count == 0 && effective.ComplianceRuleKeys.Count == 0)
             return source;
 
-        var keySet = effective.ComplianceRuleKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var guidSet = effective.ComplianceRuleIds.ToHashSet();
+        HashSet<string> keySet = effective.ComplianceRuleKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<Guid> guidSet = effective.ComplianceRuleIds.ToHashSet();
 
-        var rules = source.Rules
+        List<ComplianceRule> rules = source.Rules
             .Where(
                 r => keySet.Contains(r.RuleId) ||
-                     (Guid.TryParse(r.RuleId, out var g) && guidSet.Contains(g)))
+                     (Guid.TryParse(r.RuleId, out Guid g) && guidSet.Contains(g)))
             .ToList();
 
         return new ComplianceRulePack

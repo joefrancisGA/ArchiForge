@@ -33,7 +33,7 @@ public sealed class InMemoryAuditRepository : IAuditRepository
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var n = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
+        int n = Math.Clamp(take <= 0 ? 100 : take, 1, 500);
         List<AuditEvent> result;
         lock (_gate)
         {

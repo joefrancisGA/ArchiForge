@@ -1,3 +1,5 @@
+using ArchiForge.Core.Comparison;
+using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 
@@ -20,9 +22,9 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(context);
-        var alerts = new List<AlertRecord>();
+        List<AlertRecord> alerts = new List<AlertRecord>();
 
-        foreach (var rule in rules.Where(x => x.IsEnabled))
+        foreach (AlertRule rule in rules.Where(x => x.IsEnabled))
         {
             switch (rule.RuleType)
             {
@@ -60,7 +62,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        var count = context.ImprovementPlan?.Recommendations.Count(x =>
+        int count = context.ImprovementPlan?.Recommendations.Count(x =>
             string.Equals(x.Urgency, "Critical", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase)) ?? 0;
 
@@ -83,7 +85,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        var count = context.ComparisonResult?.SecurityChanges.Count ?? 0;
+        int count = context.ComparisonResult?.SecurityChanges.Count ?? 0;
 
         if (count >= rule.ThresholdValue)
         {
@@ -104,11 +106,11 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        var delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
+        CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
         if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
             return;
 
-        var increasePct = (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
+        decimal increasePct = (delta.TargetCost.Value - delta.BaseCost.Value) / delta.BaseCost.Value * 100m;
 
         if (increasePct >= rule.ThresholdValue)
         {
@@ -129,7 +131,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        var cutoff = DateTime.UtcNow.AddDays(-(double)rule.ThresholdValue);
+        DateTime cutoff = DateTime.UtcNow.AddDays(-(double)rule.ThresholdValue);
 
         alerts.AddRange(context.RecommendationRecords.Where(x => string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) && x.PriorityScore >= 80 && x.LastUpdatedUtc <= cutoff).Select(item => BuildAlert(rule, context, title: "Deferred high-priority recommendation is aging", category: "Recommendation", triggerValue: item.LastUpdatedUtc.ToString("u"), description: $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.", recommendationId: item.RecommendationId, dedupeSuffix: $"deferred-aging:{item.RecommendationId}")));
     }
@@ -147,16 +149,16 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        var profile = context.LearningProfile;
+        RecommendationLearningProfile? profile = context.LearningProfile;
         if (profile is null)
             return;
 
-        var proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
-        var overall = proposed == 0
+        int proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
+        double overall = proposed == 0
             ? 0d
             : profile.CategoryStats.Sum(x => x.AcceptedCount) / (double)proposed;
 
-        var pct = overall * 100d;
+        double pct = overall * 100d;
 
         if (pct <= (double)rule.ThresholdValue)
         {

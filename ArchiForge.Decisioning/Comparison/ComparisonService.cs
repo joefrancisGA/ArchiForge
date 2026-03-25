@@ -18,7 +18,7 @@ public sealed class ComparisonService : IComparisonService
     {
         ArgumentNullException.ThrowIfNull(baseM);
         ArgumentNullException.ThrowIfNull(targetM);
-        var result = new ComparisonResult
+        ComparisonResult result = new ComparisonResult
         {
             BaseRunId = baseM.RunId,
             TargetRunId = targetM.RunId
@@ -39,13 +39,13 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareDecisions(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        var baseMap = baseM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
-        var targetMap = targetM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, ResolvedArchitectureDecision> baseMap = baseM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, ResolvedArchitectureDecision> targetMap = targetM.Decisions.GroupBy(DecisionKey).ToDictionary(g => g.Key, g => g.First());
 
-        foreach (var key in baseMap.Keys.Union(targetMap.Keys))
+        foreach (string key in baseMap.Keys.Union(targetMap.Keys))
         {
-            baseMap.TryGetValue(key, out var b);
-            targetMap.TryGetValue(key, out var t);
+            baseMap.TryGetValue(key, out ResolvedArchitectureDecision? b);
+            targetMap.TryGetValue(key, out ResolvedArchitectureDecision? t);
 
             if (b is null)
             {
@@ -80,13 +80,13 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareRequirements(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        var baseStates = RequirementStates(baseM.Requirements);
-        var targetStates = RequirementStates(targetM.Requirements);
+        Dictionary<string, RequirementState> baseStates = RequirementStates(baseM.Requirements);
+        Dictionary<string, RequirementState> targetStates = RequirementStates(targetM.Requirements);
 
-        foreach (var name in baseStates.Keys.Union(targetStates.Keys, StringComparer.OrdinalIgnoreCase))
+        foreach (string name in baseStates.Keys.Union(targetStates.Keys, StringComparer.OrdinalIgnoreCase))
         {
-            baseStates.TryGetValue(name, out var b);
-            targetStates.TryGetValue(name, out var t);
+            baseStates.TryGetValue(name, out RequirementState? b);
+            targetStates.TryGetValue(name, out RequirementState? t);
 
             if (b is null && t is not null)
             {
@@ -143,12 +143,12 @@ public sealed class ComparisonService : IComparisonService
 
     private static Dictionary<string, RequirementState> RequirementStates(RequirementsCoverageSection section)
     {
-        var map = new Dictionary<string, RequirementState>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, RequirementState> map = new Dictionary<string, RequirementState>(StringComparer.OrdinalIgnoreCase);
 
         // First-wins: if a name appears in both lists, the Covered entry takes priority.
-        foreach (var x in section.Covered)
+        foreach (RequirementCoverageItem x in section.Covered)
             map.TryAdd(x.RequirementName, new RequirementState(RequirementBucket.Covered, x.CoverageStatus, x.IsMandatory));
-        foreach (var x in section.Uncovered)
+        foreach (RequirementCoverageItem x in section.Uncovered)
             map.TryAdd(x.RequirementName, new RequirementState(RequirementBucket.Uncovered, x.CoverageStatus, x.IsMandatory));
 
         return map;
@@ -156,13 +156,13 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareSecurity(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        var baseMap = baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
-        var targetMap = targetM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, SecurityPostureItem> baseMap = baseM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
+        Dictionary<string, SecurityPostureItem> targetMap = targetM.Security.Controls.GroupBy(Key).ToDictionary(g => g.Key, g => g.First());
 
-        foreach (var key in baseMap.Keys.Union(targetMap.Keys))
+        foreach (string key in baseMap.Keys.Union(targetMap.Keys))
         {
-            baseMap.TryGetValue(key, out var b);
-            targetMap.TryGetValue(key, out var t);
+            baseMap.TryGetValue(key, out SecurityPostureItem? b);
+            targetMap.TryGetValue(key, out SecurityPostureItem? t);
 
             if (b is null && t is not null)
             {
@@ -208,15 +208,15 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareTopology(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        var baseSet = new HashSet<string>(baseM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
-        var targetSet = new HashSet<string>(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
+        HashSet<string> baseSet = new HashSet<string>(baseM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
+        HashSet<string> targetSet = new HashSet<string>(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var r in targetSet.Where(r => !baseSet.Contains(r)))
+        foreach (string r in targetSet.Where(r => !baseSet.Contains(r)))
         {
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Added" });
         }
 
-        foreach (var r in baseSet.Where(r => !targetSet.Contains(r)))
+        foreach (string r in baseSet.Where(r => !targetSet.Contains(r)))
         {
             result.TopologyChanges.Add(new TopologyDelta { Resource = r, ChangeType = "Removed" });
         }
@@ -224,8 +224,8 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareCost(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        var b = baseM.Cost.MaxMonthlyCost;
-        var t = targetM.Cost.MaxMonthlyCost;
+        decimal? b = baseM.Cost.MaxMonthlyCost;
+        decimal? t = targetM.Cost.MaxMonthlyCost;
         if (b != t)
         {
             result.CostChanges.Add(new CostDelta

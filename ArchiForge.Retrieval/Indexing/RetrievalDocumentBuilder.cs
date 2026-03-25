@@ -94,7 +94,7 @@ public sealed class RetrievalDocumentBuilder : IRetrievalDocumentBuilder
         Guid runId,
         DecisionProvenanceGraph graph)
     {
-        var summary = JsonSerializer.Serialize(graph, JsonOptions);
+        string summary = JsonSerializer.Serialize(graph, JsonOptions);
 
         return
         [

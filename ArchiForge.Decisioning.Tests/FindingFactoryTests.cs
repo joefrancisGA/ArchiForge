@@ -10,7 +10,7 @@ public sealed class FindingFactoryTests
     [Fact]
     public void CreateRequirementFinding_SetsSchemaVersionAndPayloadType()
     {
-        var f = FindingFactory.CreateRequirementFinding(
+        Finding f = FindingFactory.CreateRequirementFinding(
             "requirement", "t", "r", "N", "text", true);
 
         f.FindingSchemaVersion.Should().Be(FindingsSchema.CurrentFindingVersion);

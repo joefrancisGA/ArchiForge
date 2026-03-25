@@ -34,7 +34,7 @@ public sealed class InMemoryConversationMessageRepository : IConversationMessage
         take = Math.Clamp(take, 1, 500);
         lock (_messages)
         {
-            var result = _messages
+            List<ConversationMessage> result = _messages
                 .Where(x => x.ThreadId == threadId)
                 .OrderByDescending(x => x.CreatedUtc)
                 .Take(take)

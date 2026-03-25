@@ -37,9 +37,9 @@ public sealed class RecommendationLearningController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RecommendationLearningProfile>> GetLatest(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var profile = await learningService.GetLatestProfileAsync(
+        RecommendationLearningProfile? profile = await learningService.GetLatestProfileAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -65,9 +65,9 @@ public sealed class RecommendationLearningController(
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
     public async Task<ActionResult<RecommendationLearningProfile>> Rebuild(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var profile = await learningService.RebuildProfileAsync(
+        RecommendationLearningProfile profile = await learningService.RebuildProfileAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

@@ -12,7 +12,7 @@ public static class FindingsSerialization
 {
     public static JsonSerializerOptions CreateOptions()
     {
-        var o = new JsonSerializerOptions
+        JsonSerializerOptions o = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             PropertyNameCaseInsensitive = true,
@@ -30,7 +30,7 @@ public static class FindingsSerialization
 
     public static FindingsSnapshot DeserializeSnapshot(string json)
     {
-        var s = JsonSerializer.Deserialize<FindingsSnapshot>(json, Options) ?? new FindingsSnapshot();
+        FindingsSnapshot s = JsonSerializer.Deserialize<FindingsSnapshot>(json, Options) ?? new FindingsSnapshot();
         FindingsSnapshotMigrator.Apply(s);
         return s;
     }

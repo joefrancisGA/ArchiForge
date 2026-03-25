@@ -23,9 +23,9 @@ public class TopologyHintsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
-        foreach (var hint in payload.TopologyHints)
+        foreach (string hint in payload.TopologyHints)
         {
             batch.CanonicalObjects.Add(new CanonicalObject
             {

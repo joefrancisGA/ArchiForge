@@ -52,9 +52,9 @@ public sealed class PolicyPacksController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var pack = await policyPacksApp.CreatePackAsync(
+        PolicyPack pack = await policyPacksApp.CreatePackAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -81,7 +81,7 @@ public sealed class PolicyPacksController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var version = await policyPacksApp.PublishVersionAsync(
+        PolicyPackVersion version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
             request.ContentJson,
@@ -107,11 +107,11 @@ public sealed class PolicyPacksController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
-        var versionKey = request.Version.Trim();
-        var scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        string versionKey = request.Version.Trim();
+        string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
-        var assignment = await policyPacksApp.TryAssignAsync(
+        PolicyPackAssignment? assignment = await policyPacksApp.TryAssignAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -136,9 +136,9 @@ public sealed class PolicyPacksController(
     [ProducesResponseType(typeof(IReadOnlyList<PolicyPack>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PolicyPack>>> List(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var packs = await packRepository.ListByScopeAsync(
+        IReadOnlyList<PolicyPack> packs = await packRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -156,8 +156,8 @@ public sealed class PolicyPacksController(
         Guid policyPackId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var pack = await packRepository.GetByIdAsync(policyPackId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
 
         if (pack is null ||
             pack.TenantId != scope.TenantId ||
@@ -169,7 +169,7 @@ public sealed class PolicyPacksController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        var versions = await versionRepository.ListByPackAsync(policyPackId, ct);
+        IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, ct);
         return Ok(versions);
     }
 
@@ -181,9 +181,9 @@ public sealed class PolicyPacksController(
     [ProducesResponseType(typeof(EffectivePolicyPackSet), StatusCodes.Status200OK)]
     public async Task<ActionResult<EffectivePolicyPackSet>> GetEffective(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var effective = await resolver.ResolveAsync(
+        EffectivePolicyPackSet effective = await resolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -203,9 +203,9 @@ public sealed class PolicyPacksController(
     [ProducesResponseType(typeof(PolicyPackContentDocument), StatusCodes.Status200OK)]
     public async Task<ActionResult<PolicyPackContentDocument>> GetEffectiveContent(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var doc = await governanceLoader.LoadEffectiveContentAsync(
+        PolicyPackContentDocument doc = await governanceLoader.LoadEffectiveContentAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

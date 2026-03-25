@@ -41,7 +41,7 @@ public sealed class AlertRulesController(
         if (rule is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
         rule.RuleId = Guid.NewGuid();
         rule.TenantId = scope.TenantId;
@@ -74,9 +74,9 @@ public sealed class AlertRulesController(
     [ProducesResponseType(typeof(IReadOnlyList<AlertRule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRule>>> List(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var rules = await ruleRepository.ListByScopeAsync(
+        IReadOnlyList<AlertRule> rules = await ruleRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

@@ -16,14 +16,14 @@ public class CostSummaryArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var model = new CostSummaryArtifactModel
+        CostSummaryArtifactModel model = new CostSummaryArtifactModel
         {
             MaxMonthlyCost = manifest.Cost.MaxMonthlyCost,
             Risks = manifest.Cost.CostRisks.ToList(),
             Notes = manifest.Cost.Notes.ToList()
         };
 
-        var content = JsonSerializer.Serialize(model, SynthesisJsonOptions.WriteIndented);
+        string content = JsonSerializer.Serialize(model, SynthesisJsonOptions.WriteIndented);
 
         return Task.FromResult(new SynthesizedArtifact
         {

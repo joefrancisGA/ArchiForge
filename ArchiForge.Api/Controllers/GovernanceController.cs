@@ -42,11 +42,11 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var requestedBy = User.Identity?.Name ?? "anonymous";
+        string requestedBy = User.Identity?.Name ?? "anonymous";
 
         try
         {
-            var result = await workflowService.SubmitApprovalRequestAsync(
+            GovernanceApprovalRequest result = await workflowService.SubmitApprovalRequestAsync(
                 request.RunId,
                 request.ManifestVersion,
                 request.SourceEnvironment,
@@ -76,13 +76,13 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
+        string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
             ? User.Identity?.Name ?? "anonymous"
             : request.ReviewedBy;
 
         try
         {
-            var result = await workflowService.ApproveAsync(
+            GovernanceApprovalRequest result = await workflowService.ApproveAsync(
                 approvalRequestId,
                 reviewedBy,
                 request.ReviewComment,
@@ -109,13 +109,13 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
+        string reviewedBy = string.IsNullOrWhiteSpace(request.ReviewedBy)
             ? User.Identity?.Name ?? "anonymous"
             : request.ReviewedBy;
 
         try
         {
-            var result = await workflowService.RejectAsync(
+            GovernanceApprovalRequest result = await workflowService.RejectAsync(
                 approvalRequestId,
                 reviewedBy,
                 request.ReviewComment,
@@ -141,13 +141,13 @@ public sealed class GovernanceController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var promotedBy = string.IsNullOrWhiteSpace(request.PromotedBy)
+        string promotedBy = string.IsNullOrWhiteSpace(request.PromotedBy)
             ? User.Identity?.Name ?? "anonymous"
             : request.PromotedBy;
 
         try
         {
-            var result = await workflowService.PromoteAsync(
+            GovernancePromotionRecord result = await workflowService.PromoteAsync(
                 request.RunId,
                 request.ManifestVersion,
                 request.SourceEnvironment,
@@ -180,7 +180,7 @@ public sealed class GovernanceController(
 
         try
         {
-            var result = await workflowService.ActivateAsync(
+            GovernanceEnvironmentActivation result = await workflowService.ActivateAsync(
                 request.RunId,
                 request.ManifestVersion,
                 request.Environment,
@@ -201,7 +201,7 @@ public sealed class GovernanceController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var items = await approvalRepo.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<GovernanceApprovalRequest> items = await approvalRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
     }
 
@@ -211,7 +211,7 @@ public sealed class GovernanceController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var items = await promotionRepo.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<GovernancePromotionRecord> items = await promotionRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
     }
 
@@ -221,7 +221,7 @@ public sealed class GovernanceController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        var items = await activationRepo.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> items = await activationRepo.GetByRunIdAsync(runId, cancellationToken);
         return Ok(items);
     }
 }

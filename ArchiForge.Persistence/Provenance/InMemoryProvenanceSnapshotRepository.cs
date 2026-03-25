@@ -23,7 +23,7 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
         _ = connection;
         _ = transaction;
 
-        var key = (snapshot.TenantId, snapshot.WorkspaceId, snapshot.ProjectId, snapshot.RunId);
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid RunId) key = (snapshot.TenantId, snapshot.WorkspaceId, snapshot.ProjectId, snapshot.RunId);
         lock (_gate)
         {
             _store[key] = snapshot;
@@ -35,10 +35,10 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
     public Task<DecisionProvenanceSnapshot?> GetByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var key = (scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId);
+        (Guid TenantId, Guid WorkspaceId, Guid ProjectId, Guid runId) key = (scope.TenantId, scope.WorkspaceId, scope.ProjectId, runId);
         lock (_gate)
         {
-            _store.TryGetValue(key, out var hit);
+            _store.TryGetValue(key, out DecisionProvenanceSnapshot? hit);
             return Task.FromResult(hit);
         }
     }

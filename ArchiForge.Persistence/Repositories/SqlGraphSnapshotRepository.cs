@@ -7,6 +7,8 @@ using ArchiForge.Persistence.Serialization;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Repositories;
 
 public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionFactory) : IGraphSnapshotRepository
@@ -49,7 +51,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -63,8 +65,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             WHERE GraphSnapshotId = @GraphSnapshotId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotRow>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        GraphSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 GraphSnapshotId = graphSnapshotId

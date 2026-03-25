@@ -31,7 +31,7 @@ public static class GraphSnapshotExtensions
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        var targetIds = snapshot.Edges
+        HashSet<string> targetIds = snapshot.Edges
             .Where(x =>
                 string.Equals(x.FromNodeId, fromNodeId, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))
@@ -53,7 +53,7 @@ public static class GraphSnapshotExtensions
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        var sourceIds = snapshot.Edges
+        HashSet<string> sourceIds = snapshot.Edges
             .Where(x =>
                 string.Equals(x.ToNodeId, toNodeId, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(x.EdgeType, edgeType, StringComparison.OrdinalIgnoreCase))

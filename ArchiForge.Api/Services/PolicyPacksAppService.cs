@@ -32,7 +32,7 @@ public sealed class PolicyPacksAppService(
         string initialContentJson,
         CancellationToken ct)
     {
-        var pack = await managementService
+        PolicyPack pack = await managementService
             .CreatePackAsync(tenantId, workspaceId, projectId, name, description, packType, initialContentJson, ct)
             .ConfigureAwait(false);
 
@@ -55,7 +55,7 @@ public sealed class PolicyPacksAppService(
         string contentJson,
         CancellationToken ct)
     {
-        var packVersion = await managementService
+        PolicyPackVersion packVersion = await managementService
             .PublishVersionAsync(policyPackId, version, contentJson, ct)
             .ConfigureAwait(false);
 
@@ -85,13 +85,13 @@ public sealed class PolicyPacksAppService(
         bool isPinned,
         CancellationToken ct)
     {
-        var packVersion = await versionRepository
+        PolicyPackVersion? packVersion = await versionRepository
             .GetByPackAndVersionAsync(policyPackId, version, ct)
             .ConfigureAwait(false);
         if (packVersion is null)
             return null;
 
-        var assignment = await managementService
+        PolicyPackAssignment assignment = await managementService
             .AssignAsync(tenantId, workspaceId, projectId, policyPackId, version, scopeLevel, isPinned, ct)
             .ConfigureAwait(false);
 

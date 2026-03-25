@@ -11,14 +11,14 @@ public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task CompareExportRecords_ReturnsDifferencesBetweenTwoExports()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-DIFF-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
         await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
@@ -77,22 +77,22 @@ public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory facto
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
             JsonContent(internalRequest));
 
-        var historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
         historyResponse.EnsureSuccessStatusCode();
 
-        var history = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+        RunExportHistoryResponse? history = await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
         history.Should().NotBeNull();
         history.Exports.Should().HaveCountGreaterThanOrEqualTo(2);
 
-        var leftId = history.Exports[0].ExportRecordId;
-        var rightId = history.Exports[1].ExportRecordId;
+        string leftId = history.Exports[0].ExportRecordId;
+        string rightId = history.Exports[1].ExportRecordId;
 
-        var compareResponse = await Client.GetAsync(
+        HttpResponseMessage compareResponse = await Client.GetAsync(
             $"/v1/architecture/run/exports/compare?leftExportRecordId={leftId}&rightExportRecordId={rightId}");
 
         compareResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
+        ExportRecordDiffResponse? payload = await compareResponse.Content.ReadFromJsonAsync<ExportRecordDiffResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Diff.ChangedTopLevelFields.Should().NotBeEmpty();
     }

@@ -1,6 +1,8 @@
 using System.Transactions;
 
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Governance;
+using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -37,11 +39,11 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(targetEnvironment);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
-        var runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
-            ?? throw new RunNotFoundException(runId);
-        var run = runDetail.Run;
+        ArchitectureRunDetail runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
+                                          ?? throw new RunNotFoundException(runId);
+        ArchitectureRun run = runDetail.Run;
 
-        var request = new GovernanceApprovalRequest
+        GovernanceApprovalRequest request = new GovernanceApprovalRequest
         {
             RunId = run.RunId,
             ManifestVersion = manifestVersion,
@@ -77,8 +79,8 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        var request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
-            ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+        GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
+                                            ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
         {
@@ -115,8 +117,8 @@ public sealed class GovernanceWorkflowService(
         ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        var request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
-            ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+        GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
+                                            ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
         {
@@ -171,7 +173,7 @@ public sealed class GovernanceWorkflowService(
                     "Promotion to prod requires an approved approval request. Provide an approvalRequestId.");
             }
 
-            var approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
+            GovernanceApprovalRequest? approvalRequest = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken);
             if (approvalRequest?.Status != GovernanceApprovalStatus.Approved)
             {
                 throw new InvalidOperationException(
@@ -204,7 +206,7 @@ public sealed class GovernanceWorkflowService(
             await approvalRepo.UpdateAsync(approvalRequest, cancellationToken);
         }
 
-        var record = new GovernancePromotionRecord
+        GovernancePromotionRecord record = new GovernancePromotionRecord
         {
             RunId = runId,
             ManifestVersion = manifestVersion,
@@ -245,9 +247,9 @@ public sealed class GovernanceWorkflowService(
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
 
-        var existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
+        IReadOnlyList<GovernanceEnvironmentActivation> existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
 
-        var activation = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation activation = new GovernanceEnvironmentActivation
         {
             RunId = runId,
             ManifestVersion = manifestVersion,
@@ -256,11 +258,11 @@ public sealed class GovernanceWorkflowService(
             ActivatedUtc = DateTime.UtcNow
         };
 
-        using (var scope = new TransactionScope(
+        using (TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
-            foreach (var active in existing.Where(a => a.IsActive))
+            foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
             {
                 active.IsActive = false;
                 await activationRepo.UpdateAsync(active, cancellationToken);

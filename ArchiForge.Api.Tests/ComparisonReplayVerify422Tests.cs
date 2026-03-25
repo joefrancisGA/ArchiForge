@@ -55,19 +55,19 @@ public sealed class ComparisonReplayVerify422Tests(ComparisonVerify422ApiFactory
     [Fact]
     public async Task ReplayComparison_WhenVerificationFails_Returns422ProblemDetailsWithDrift()
     {
-        var body = JsonSerializer.Serialize(new
+        string body = JsonSerializer.Serialize(new
         {
             format = "markdown",
             replayMode = "verify",
             persistReplay = false
         });
-        var response = await _client.PostAsync(
+        HttpResponseMessage response = await _client.PostAsync(
             "/v1/architecture/comparisons/does-not-matter/replay",
             new StringContent(body, Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
-        var json = await response.Content.ReadAsStringAsync();
-        using var doc = JsonDocument.Parse(json);
+        string json = await response.Content.ReadAsStringAsync();
+        using JsonDocument doc = JsonDocument.Parse(json);
         doc.RootElement.GetProperty("status").GetInt32().Should().Be(422);
         doc.RootElement.GetProperty("title").GetString().Should().Be("Unprocessable Entity");
         doc.RootElement.GetProperty("type").GetString().Should().Contain("comparison-verification-failed");

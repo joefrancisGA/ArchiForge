@@ -36,7 +36,7 @@ public static class GovernanceScopeLevel
         if (string.IsNullOrWhiteSpace(value))
             return Project;
 
-        foreach (var level in All)
+        foreach (string level in All)
         {
             if (string.Equals(value, level, StringComparison.OrdinalIgnoreCase))
                 return level;

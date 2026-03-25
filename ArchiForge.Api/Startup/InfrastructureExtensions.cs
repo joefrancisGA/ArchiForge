@@ -28,9 +28,9 @@ internal static class InfrastructureExtensions
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            var fixedPermitLimit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
-            var fixedWindowMinutes = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
-            var fixedQueueLimit = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
+            int fixedPermitLimit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+            int fixedWindowMinutes = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
+            int fixedQueueLimit = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
 
             options.AddFixedWindowLimiter("fixed", config =>
             {
@@ -39,9 +39,9 @@ internal static class InfrastructureExtensions
                 config.QueueLimit = fixedQueueLimit;
             });
 
-            var expensivePermitLimit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
-            var expensiveWindowMinutes = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
-            var expensiveQueueLimit = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
+            int expensivePermitLimit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
+            int expensiveWindowMinutes = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
+            int expensiveQueueLimit = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
 
             options.AddFixedWindowLimiter("expensive", config =>
             {
@@ -50,24 +50,24 @@ internal static class InfrastructureExtensions
                 config.QueueLimit = expensiveQueueLimit;
             });
 
-            var replayLightPermitLimit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
-            var replayLightWindowMinutes = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
-            var replayHeavyPermitLimit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
-            var replayHeavyWindowMinutes = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
+            int replayLightPermitLimit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
+            int replayLightWindowMinutes = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
+            int replayHeavyPermitLimit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
+            int replayHeavyWindowMinutes = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
 
             options.AddPolicy("replay", httpContext =>
             {
-                var fmt = httpContext.Request.Query["format"].ToString().Trim().ToLowerInvariant();
-                var isHeavy = fmt is "docx" or "pdf";
-                var window = TimeSpan.FromMinutes(isHeavy ? replayHeavyWindowMinutes : replayLightWindowMinutes);
-                var permits = isHeavy ? replayHeavyPermitLimit : replayLightPermitLimit;
+                string fmt = httpContext.Request.Query["format"].ToString().Trim().ToLowerInvariant();
+                bool isHeavy = fmt is "docx" or "pdf";
+                TimeSpan window = TimeSpan.FromMinutes(isHeavy ? replayHeavyWindowMinutes : replayLightWindowMinutes);
+                int permits = isHeavy ? replayHeavyPermitLimit : replayLightPermitLimit;
 
-                var user = httpContext.User.Identity?.Name;
-                var key = string.IsNullOrWhiteSpace(user)
+                string? user = httpContext.User.Identity?.Name;
+                string key = string.IsNullOrWhiteSpace(user)
                     ? httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous"
                     : user;
 
-                var partitionKey = $"{key}:{(isHeavy ? "heavy" : "light")}";
+                string partitionKey = $"{key}:{(isHeavy ? "heavy" : "light")}";
                 return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey,
                     _ => new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
@@ -89,7 +89,7 @@ internal static class InfrastructureExtensions
         {
             options.AddPolicy("ArchiForge", policy =>
             {
-                var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+                string[] origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
                 if (origins.Length > 0)
                 {
                     policy.WithOrigins(origins)

@@ -43,7 +43,7 @@ public sealed class CompositeAlertRulesController(
         if (rule is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
         rule.CompositeRuleId = Guid.NewGuid();
         rule.TenantId = scope.TenantId;
@@ -51,7 +51,7 @@ public sealed class CompositeAlertRulesController(
         rule.ProjectId = scope.ProjectId;
         rule.CreatedUtc = DateTime.UtcNow;
 
-        foreach (var c in rule.Conditions)
+        foreach (AlertRuleCondition c in rule.Conditions)
         {
             if (c.ConditionId == Guid.Empty)
                 c.ConditionId = Guid.NewGuid();
@@ -81,9 +81,9 @@ public sealed class CompositeAlertRulesController(
     [ProducesResponseType(typeof(IReadOnlyList<CompositeAlertRule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<CompositeAlertRule>>> List(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var result = await repository.ListByScopeAsync(
+        IReadOnlyList<CompositeAlertRule> result = await repository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,

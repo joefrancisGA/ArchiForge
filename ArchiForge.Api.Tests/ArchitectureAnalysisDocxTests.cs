@@ -12,19 +12,19 @@ public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) 
     [Fact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DOCX-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
         var request = new
@@ -42,7 +42,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) 
             compareRunId = (string?)null
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx",
             JsonContent(request));
 
@@ -50,26 +50,26 @@ public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) 
         response.Content.Headers.ContentType!.MediaType
             .Should().Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-        var bytes = await response.Content.ReadAsByteArrayAsync();
+        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
         bytes.Length.Should().BeGreaterThan(0);
     }
 
     [Fact]
     public async Task ExportAnalysisReportDocxAsync_ReturnsJob_AndEventuallyFile()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-DOCX-ASYNC-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
         var request = new
@@ -87,25 +87,25 @@ public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) 
             compareRunId = (string?)null
         };
 
-        var start = await Client.PostAsync(
+        HttpResponseMessage start = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/async",
             JsonContent(request));
 
         start.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
-        var payload = await start.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-        payload.TryGetProperty("jobId", out var jobIdEl).Should().BeTrue();
-        var jobId = jobIdEl.GetString();
+        JsonElement payload = await start.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+        payload.TryGetProperty("jobId", out JsonElement jobIdEl).Should().BeTrue();
+        string? jobId = jobIdEl.GetString();
         jobId.Should().NotBeNullOrWhiteSpace();
 
         // Poll status briefly until succeeded.
         string state = "Pending";
-        for (var i = 0; i < 25; i++)
+        for (int i = 0; i < 25; i++)
         {
-            var statusResp = await Client.GetAsync($"/v1/jobs/{jobId}");
+            HttpResponseMessage statusResp = await Client.GetAsync($"/v1/jobs/{jobId}");
             statusResp.EnsureSuccessStatusCode();
 
-            var status = await statusResp.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
+            JsonElement status = await statusResp.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
             state = status.GetProperty("state").GetString() ?? state;
 
             if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase) ||
@@ -117,12 +117,12 @@ public sealed class ArchitectureAnalysisDocxTests(ArchiForgeApiFactory factory) 
 
         state.Should().Be("Succeeded");
 
-        var fileResp = await Client.GetAsync($"/v1/jobs/{jobId}/file");
+        HttpResponseMessage fileResp = await Client.GetAsync($"/v1/jobs/{jobId}/file");
         fileResp.StatusCode.Should().Be(HttpStatusCode.OK);
         fileResp.Content.Headers.ContentType!.MediaType
             .Should().Be("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-        var bytes = await fileResp.Content.ReadAsByteArrayAsync();
+        byte[] bytes = await fileResp.Content.ReadAsByteArrayAsync();
         bytes.Length.Should().BeGreaterThan(0);
     }
 }

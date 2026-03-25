@@ -14,8 +14,8 @@ public sealed class SqlConnectionHealthCheck(IDbConnectionFactory connectionFact
     {
         try
         {
-            var connection = (DbConnection)connectionFactory.CreateConnection();
-            await using var _ = connection;
+            DbConnection connection = (DbConnection)connectionFactory.CreateConnection();
+            await using DbConnection _ = connection;
             await connection.OpenAsync(cancellationToken);
             return HealthCheckResult.Healthy("Database connection successful.");
         }

@@ -48,7 +48,7 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<RecommendationRecord> result = _items
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&
@@ -73,10 +73,10 @@ public sealed class InMemoryRecommendationRepository : IRecommendationRepository
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var n = Math.Clamp(take <= 0 ? 50 : take, 1, 500);
+        int n = Math.Clamp(take <= 0 ? 50 : take, 1, 500);
         lock (_gate)
         {
-            var result = _items
+            List<RecommendationRecord> result = _items
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&

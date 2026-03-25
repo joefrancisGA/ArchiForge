@@ -54,7 +54,7 @@ public sealed class AdvisorySchedulingController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
         request.ScheduleId = Guid.NewGuid();
         request.TenantId = scope.TenantId;
@@ -83,9 +83,9 @@ public sealed class AdvisorySchedulingController(
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanSchedule>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AdvisoryScanSchedule>>> ListSchedules(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var result = await scheduleRepository.ListByScopeAsync(
+        IReadOnlyList<AdvisoryScanSchedule> result = await scheduleRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -108,15 +108,15 @@ public sealed class AdvisorySchedulingController(
         CancellationToken ct = default)
     {
         take = Math.Clamp(take, 1, 200);
-        var schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
+        AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
             return NotFound();
 
-        var items = await executionRepository.ListByScheduleAsync(scheduleId, take, ct);
+        IReadOnlyList<AdvisoryScanExecution> items = await executionRepository.ListByScheduleAsync(scheduleId, take, ct);
         return Ok(items);
     }
 
@@ -131,11 +131,11 @@ public sealed class AdvisorySchedulingController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RunNow(Guid scheduleId, CancellationToken ct = default)
     {
-        var schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
+        AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
             return NotFound();
 
@@ -155,9 +155,9 @@ public sealed class AdvisorySchedulingController(
         CancellationToken ct = default)
     {
         take = Math.Clamp(take, 1, 200);
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var digests = await digestRepository.ListByScopeAsync(
+        IReadOnlyList<ArchitectureDigest> digests = await digestRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -177,11 +177,11 @@ public sealed class AdvisorySchedulingController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ArchitectureDigest>> GetDigest(Guid digestId, CancellationToken ct = default)
     {
-        var digest = await digestRepository.GetByIdAsync(digestId, ct);
+        ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
         if (digest is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)

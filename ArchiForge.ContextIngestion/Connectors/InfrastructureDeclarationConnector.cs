@@ -24,11 +24,11 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         RawContextPayload payload,
         CancellationToken ct)
     {
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
-        foreach (var declaration in payload.InfrastructureDeclarations)
+        foreach (InfrastructureDeclarationReference declaration in payload.InfrastructureDeclarations)
         {
-            var parser = parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
+            IInfrastructureDeclarationParser? parser = parsers.FirstOrDefault(x => x.CanParse(declaration.Format));
             if (parser is null)
             {
                 batch.Warnings.Add(
@@ -36,7 +36,7 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
                 continue;
             }
 
-            var objects = await parser.ParseAsync(declaration, ct);
+            IReadOnlyList<CanonicalObject> objects = await parser.ParseAsync(declaration, ct);
             batch.CanonicalObjects.AddRange(objects);
         }
 

@@ -45,7 +45,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.AssignmentId == assignment.AssignmentId);
+            int i = _items.FindIndex(x => x.AssignmentId == assignment.AssignmentId);
             if (i >= 0)
                 _items[i] = assignment;
         }
@@ -64,7 +64,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<PolicyPackAssignment> result = _items
                 .Where(x => x.TenantId == tenantId)
                 .Where(x =>
                     string.Equals(x.ScopeLevel, GovernanceScopeLevel.Tenant, StringComparison.Ordinal) ||

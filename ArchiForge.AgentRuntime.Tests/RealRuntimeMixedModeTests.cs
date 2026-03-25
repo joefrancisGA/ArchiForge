@@ -20,183 +20,183 @@ public sealed class RealRuntimeMixedModeTests
     [Fact]
     public async Task RealTopologyAndCompliance_WithDeterministicCost_ShouldProduceManifest()
     {
-        var topologyJson = """
-{
-  "resultId": "RES-TOPO-001",
-  "taskId": "TASK-TOPO-001",
-  "runId": "RUN-001",
-  "agentType": "Topology",
-  "claims": [
-    "Use App Service for the API.",
-    "Use Azure AI Search for retrieval."
-  ],
-  "evidenceRefs": [
-    "request",
-    "catalog:azure-ai-search"
-  ],
-  "confidence": 0.91,
-  "findings": [
-    {
-      "findingId": "FIND-TOPO-001",
-      "sourceAgent": "Topology",
-      "severity": "Info",
-      "category": "Topology",
-      "message": "Managed Azure services fit the MVP.",
-      "evidenceRefs": [ "request" ]
-    }
-  ],
-  "proposedChanges": {
-    "proposalId": "PROP-TOPO-001",
-    "sourceAgent": "Topology",
-    "addedServices": [
-      {
-        "serviceId": "svc-api",
-        "serviceName": "rag-api",
-        "serviceType": "Api",
-        "runtimePlatform": "AppService",
-        "purpose": "Primary API"
-      },
-      {
-        "serviceId": "svc-search",
-        "serviceName": "rag-search",
-        "serviceType": "SearchService",
-        "runtimePlatform": "AzureAiSearch",
-        "purpose": "Retrieval layer"
-      }
-    ],
-    "addedDatastores": [
-      {
-        "datastoreId": "ds-metadata",
-        "datastoreName": "rag-metadata",
-        "datastoreType": "Sql",
-        "runtimePlatform": "SqlServer",
-        "purpose": "Metadata storage",
-        "privateEndpointRequired": false,
-        "encryptionAtRestRequired": true
-      }
-    ],
-    "addedRelationships": [
-      {
-        "relationshipId": "REL-001",
-        "sourceId": "svc-api",
-        "targetId": "svc-search",
-        "relationshipType": "Calls",
-        "description": "API queries search"
-      }
-    ],
-    "requiredControls": [],
-    "warnings": [
-      "Simple topology selected."
-    ]
-  },
-  "createdUtc": "2026-03-15T14:00:00Z"
-}
-""";
+        string topologyJson = """
+                              {
+                                "resultId": "RES-TOPO-001",
+                                "taskId": "TASK-TOPO-001",
+                                "runId": "RUN-001",
+                                "agentType": "Topology",
+                                "claims": [
+                                  "Use App Service for the API.",
+                                  "Use Azure AI Search for retrieval."
+                                ],
+                                "evidenceRefs": [
+                                  "request",
+                                  "catalog:azure-ai-search"
+                                ],
+                                "confidence": 0.91,
+                                "findings": [
+                                  {
+                                    "findingId": "FIND-TOPO-001",
+                                    "sourceAgent": "Topology",
+                                    "severity": "Info",
+                                    "category": "Topology",
+                                    "message": "Managed Azure services fit the MVP.",
+                                    "evidenceRefs": [ "request" ]
+                                  }
+                                ],
+                                "proposedChanges": {
+                                  "proposalId": "PROP-TOPO-001",
+                                  "sourceAgent": "Topology",
+                                  "addedServices": [
+                                    {
+                                      "serviceId": "svc-api",
+                                      "serviceName": "rag-api",
+                                      "serviceType": "Api",
+                                      "runtimePlatform": "AppService",
+                                      "purpose": "Primary API"
+                                    },
+                                    {
+                                      "serviceId": "svc-search",
+                                      "serviceName": "rag-search",
+                                      "serviceType": "SearchService",
+                                      "runtimePlatform": "AzureAiSearch",
+                                      "purpose": "Retrieval layer"
+                                    }
+                                  ],
+                                  "addedDatastores": [
+                                    {
+                                      "datastoreId": "ds-metadata",
+                                      "datastoreName": "rag-metadata",
+                                      "datastoreType": "Sql",
+                                      "runtimePlatform": "SqlServer",
+                                      "purpose": "Metadata storage",
+                                      "privateEndpointRequired": false,
+                                      "encryptionAtRestRequired": true
+                                    }
+                                  ],
+                                  "addedRelationships": [
+                                    {
+                                      "relationshipId": "REL-001",
+                                      "sourceId": "svc-api",
+                                      "targetId": "svc-search",
+                                      "relationshipType": "Calls",
+                                      "description": "API queries search"
+                                    }
+                                  ],
+                                  "requiredControls": [],
+                                  "warnings": [
+                                    "Simple topology selected."
+                                  ]
+                                },
+                                "createdUtc": "2026-03-15T14:00:00Z"
+                              }
+                              """;
 
-        var complianceJson = """
-{
-  "resultId": "RES-COMP-001",
-  "taskId": "TASK-COMP-001",
-  "runId": "RUN-001",
-  "agentType": "Compliance",
-  "claims": [
-    "Managed identity is required.",
-    "Private endpoints are required."
-  ],
-  "evidenceRefs": [
-    "policy-pack:enterprise-default"
-  ],
-  "confidence": 0.95,
-  "findings": [
-    {
-      "findingId": "FIND-COMP-001",
-      "sourceAgent": "Compliance",
-      "severity": "High",
-      "category": "Compliance",
-      "message": "ManagedIdentityRequired",
-      "evidenceRefs": [ "policy-pack:enterprise-default" ]
-    }
-  ],
-  "proposedChanges": {
-    "proposalId": "PROP-COMP-001",
-    "sourceAgent": "Compliance",
-    "addedServices": [],
-    "addedDatastores": [],
-    "addedRelationships": [],
-    "requiredControls": [
-      "Managed Identity",
-      "Private Endpoints",
-      "Key Vault"
-    ],
-    "warnings": [
-      "Public access should require exception review."
-    ]
-  },
-  "createdUtc": "2026-03-15T14:00:00Z"
-}
-""";
+        string complianceJson = """
+                                {
+                                  "resultId": "RES-COMP-001",
+                                  "taskId": "TASK-COMP-001",
+                                  "runId": "RUN-001",
+                                  "agentType": "Compliance",
+                                  "claims": [
+                                    "Managed identity is required.",
+                                    "Private endpoints are required."
+                                  ],
+                                  "evidenceRefs": [
+                                    "policy-pack:enterprise-default"
+                                  ],
+                                  "confidence": 0.95,
+                                  "findings": [
+                                    {
+                                      "findingId": "FIND-COMP-001",
+                                      "sourceAgent": "Compliance",
+                                      "severity": "High",
+                                      "category": "Compliance",
+                                      "message": "ManagedIdentityRequired",
+                                      "evidenceRefs": [ "policy-pack:enterprise-default" ]
+                                    }
+                                  ],
+                                  "proposedChanges": {
+                                    "proposalId": "PROP-COMP-001",
+                                    "sourceAgent": "Compliance",
+                                    "addedServices": [],
+                                    "addedDatastores": [],
+                                    "addedRelationships": [],
+                                    "requiredControls": [
+                                      "Managed Identity",
+                                      "Private Endpoints",
+                                      "Key Vault"
+                                    ],
+                                    "warnings": [
+                                      "Public access should require exception review."
+                                    ]
+                                  },
+                                  "createdUtc": "2026-03-15T14:00:00Z"
+                                }
+                                """;
 
-        var criticJson = """
-{
-  "resultId": "RES-CRITIC-001",
-  "taskId": "TASK-CRITIC-001",
-  "runId": "RUN-001",
-  "agentType": "Critic",
-  "claims": [
-    "Observability should be explicit."
-  ],
-  "evidenceRefs": [
-    "critic-checklist"
-  ],
-  "confidence": 0.83,
-  "findings": [
-    {
-      "findingId": "FIND-CRITIC-001",
-      "sourceAgent": "Critic",
-      "severity": "Medium",
-      "category": "Critic",
-      "message": "ObservabilityUnderSpecified",
-      "evidenceRefs": [ "critic-checklist" ]
-    }
-  ],
-  "proposedChanges": {
-    "proposalId": "PROP-CRITIC-001",
-    "sourceAgent": "Critic",
-    "addedServices": [],
-    "addedDatastores": [],
-    "addedRelationships": [],
-    "requiredControls": [
-      "Diagnostic Logging"
-    ],
-    "warnings": [
-      "Add operational diagnostics before production."
-    ]
-  },
-  "createdUtc": "2026-03-15T14:10:00Z"
-}
-""";
+        string criticJson = """
+                            {
+                              "resultId": "RES-CRITIC-001",
+                              "taskId": "TASK-CRITIC-001",
+                              "runId": "RUN-001",
+                              "agentType": "Critic",
+                              "claims": [
+                                "Observability should be explicit."
+                              ],
+                              "evidenceRefs": [
+                                "critic-checklist"
+                              ],
+                              "confidence": 0.83,
+                              "findings": [
+                                {
+                                  "findingId": "FIND-CRITIC-001",
+                                  "sourceAgent": "Critic",
+                                  "severity": "Medium",
+                                  "category": "Critic",
+                                  "message": "ObservabilityUnderSpecified",
+                                  "evidenceRefs": [ "critic-checklist" ]
+                                }
+                              ],
+                              "proposedChanges": {
+                                "proposalId": "PROP-CRITIC-001",
+                                "sourceAgent": "Critic",
+                                "addedServices": [],
+                                "addedDatastores": [],
+                                "addedRelationships": [],
+                                "requiredControls": [
+                                  "Diagnostic Logging"
+                                ],
+                                "warnings": [
+                                  "Add operational diagnostics before production."
+                                ]
+                              },
+                              "createdUtc": "2026-03-15T14:10:00Z"
+                            }
+                            """;
 
-        var parser = new AgentResultParser();
-        var traceRecorder = new NoOpTraceRecorder();
+        AgentResultParser parser = new AgentResultParser();
+        NoOpTraceRecorder traceRecorder = new NoOpTraceRecorder();
 
-        var topologyHandler = new TopologyAgentHandler(
+        TopologyAgentHandler topologyHandler = new TopologyAgentHandler(
             new StubAgentCompletionClient(topologyJson),
             parser,
             traceRecorder);
 
-        var complianceHandler = new ComplianceAgentHandler(
+        ComplianceAgentHandler complianceHandler = new ComplianceAgentHandler(
             new StubAgentCompletionClient(complianceJson),
             parser,
             traceRecorder);
 
-        var costHandler = new CostAgentHandler();
+        CostAgentHandler costHandler = new CostAgentHandler();
 
-        var criticHandler = new CriticAgentHandler(
+        CriticAgentHandler criticHandler = new CriticAgentHandler(
             new StubAgentCompletionClient(criticJson),
             parser,
             traceRecorder);
 
-        var executor = new RealAgentExecutor(
+        RealAgentExecutor executor = new RealAgentExecutor(
         [
             topologyHandler,
             complianceHandler,
@@ -204,7 +204,7 @@ public sealed class RealRuntimeMixedModeTests
             criticHandler
         ]);
 
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -225,29 +225,29 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
-        var coordinator = new CoordinatorService(new FakeAuthorityRunOrchestratorForRuntimeTests());
-        var coordination = await coordinator.CreateRunAsync(request);
+        CoordinatorService coordinator = new CoordinatorService(new FakeAuthorityRunOrchestratorForRuntimeTests());
+        CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         // Force known IDs used in stub payloads
-        var topologyTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Topology);
+        AgentTask topologyTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Topology);
         topologyTask.TaskId = "TASK-TOPO-001";
 
-        var complianceTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Compliance);
+        AgentTask complianceTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Compliance);
         complianceTask.TaskId = "TASK-COMP-001";
 
-        var costTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Cost);
+        AgentTask costTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Cost);
         costTask.TaskId = "TASK-COST-001";
 
-        var criticTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Critic);
+        AgentTask criticTask = coordination.Tasks.Single(t => t.AgentType == AgentType.Critic);
         criticTask.TaskId = "TASK-CRITIC-001";
         criticTask.RunId = "RUN-001";
 
-        foreach (var task in coordination.Tasks)
+        foreach (AgentTask task in coordination.Tasks)
         {
             task.RunId = "RUN-001";
         }
 
-        var evidence = new AgentEvidencePackage
+        AgentEvidencePackage evidence = new AgentEvidencePackage
         {
             RunId = "RUN-001",
             RequestId = request.RequestId,
@@ -263,14 +263,14 @@ public sealed class RealRuntimeMixedModeTests
             }
         };
 
-        var results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
+        IReadOnlyList<AgentResult> results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
-        var validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new SchemaValidationService(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        var engine = new DecisionEngineService(validationService);
-        var merge = engine.MergeResults(
+        DecisionEngineService engine = new DecisionEngineService(validationService);
+        DecisionMergeResult merge = engine.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -293,7 +293,7 @@ public sealed class RealRuntimeMixedModeTests
         public Task<RunRecord> ExecuteAsync(ContextIngestionRequest request, CancellationToken ct)
         {
             _ = ct;
-            var runId = Guid.NewGuid();
+            Guid runId = Guid.NewGuid();
             return Task.FromResult(new RunRecord
             {
                 RunId = runId,

@@ -15,10 +15,10 @@ public sealed class FileWithRangeResult(
 {
     public async Task ExecuteResultAsync(ActionContext context)
     {
-        var response = context.HttpContext.Response;
+        HttpResponse response = context.HttpContext.Response;
         response.Headers["Accept-Ranges"] = "bytes";
 
-        var totalLength = fileContents.LongLength;
+        long totalLength = fileContents.LongLength;
         if (totalLength == 0)
         {
             response.ContentLength = 0;
@@ -28,10 +28,10 @@ public sealed class FileWithRangeResult(
             return;
         }
 
-        var range = ParseRange(request.Headers.Range, totalLength);
+        (long Start, long End)? range = ParseRange(request.Headers.Range, totalLength);
         if (range is { Start: var start, End: var end })
         {
-            var length = end - start + 1;
+            long length = end - start + 1;
             response.StatusCode = StatusCodes.Status206PartialContent;
             response.Headers["Content-Range"] = $"bytes {start}-{end}/{totalLength}";
             response.ContentLength = length;
@@ -57,17 +57,17 @@ public sealed class FileWithRangeResult(
         if (string.IsNullOrWhiteSpace(rangeHeader) || totalLength <= 0)
             return null;
 
-        var value = rangeHeader.Trim();
+        string value = rangeHeader.Trim();
         if (!value.StartsWith("bytes=", StringComparison.OrdinalIgnoreCase))
             return null;
 
-        var spec = value["bytes=".Length..].Trim();
-        var dash = spec.IndexOf('-');
+        string spec = value["bytes=".Length..].Trim();
+        int dash = spec.IndexOf('-');
         if (dash < 0)
             return null;
 
-        var startStr = spec[..dash].Trim();
-        var endStr = spec[(dash + 1)..].Trim();
+        string startStr = spec[..dash].Trim();
+        string endStr = spec[(dash + 1)..].Trim();
 
         if (string.IsNullOrEmpty(startStr) && string.IsNullOrEmpty(endStr))
             return null;
@@ -77,7 +77,7 @@ public sealed class FileWithRangeResult(
         if (string.IsNullOrEmpty(startStr))
         {
             // suffix: bytes=-N means last N bytes
-            if (!long.TryParse(endStr, out var suffix) || suffix <= 0)
+            if (!long.TryParse(endStr, out long suffix) || suffix <= 0)
                 return null;
             start = Math.Max(0, totalLength - suffix);
             end = totalLength - 1;

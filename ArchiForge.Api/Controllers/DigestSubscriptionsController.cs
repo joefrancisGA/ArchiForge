@@ -5,6 +5,7 @@ using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
+using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Advisory;
 
 using Asp.Versioning;
@@ -49,7 +50,7 @@ public sealed class DigestSubscriptionsController(
         if (subscription is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
         subscription.SubscriptionId = Guid.NewGuid();
         subscription.TenantId = scope.TenantId;
@@ -82,9 +83,9 @@ public sealed class DigestSubscriptionsController(
     [ProducesResponseType(typeof(IReadOnlyList<DigestSubscription>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<DigestSubscription>>> List(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var result = await subscriptionRepository.ListByScopeAsync(
+        IReadOnlyList<DigestSubscription> result = await subscriptionRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -102,11 +103,11 @@ public sealed class DigestSubscriptionsController(
         Guid subscriptionId,
         CancellationToken ct = default)
     {
-        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
+        DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
@@ -137,15 +138,15 @@ public sealed class DigestSubscriptionsController(
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
-        var subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
+        DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
-        var attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, 200), ct);
+        IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, 200), ct);
         return Ok(attempts);
     }
 
@@ -157,8 +158,8 @@ public sealed class DigestSubscriptionsController(
         Guid digestId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var digest = await digestRepository.GetByIdAsync(digestId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
         if (digest is null)
             return NotFound();
         if (digest.TenantId != scope.TenantId ||
@@ -166,7 +167,7 @@ public sealed class DigestSubscriptionsController(
             digest.ProjectId != scope.ProjectId)
             return NotFound();
 
-        var attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
+        IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
         return Ok(attempts);
     }
 

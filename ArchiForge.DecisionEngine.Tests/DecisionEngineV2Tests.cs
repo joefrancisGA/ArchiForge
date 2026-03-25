@@ -15,7 +15,7 @@ public sealed class DecisionEngineV2Tests
     [Fact]
     public async Task ResolveAsync_WhenSingleProposal_SelectsInclude()
     {
-        var results = new List<AgentResult>
+        List<AgentResult> results = new List<AgentResult>
         {
             new()
             {
@@ -35,7 +35,7 @@ public sealed class DecisionEngineV2Tests
         };
 
 #pragma warning disable IDE0028 // Simplify collection initialization
-        var decisions = await _engine.ResolveAsync(
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
             "RUN-1",
             request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
             tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
@@ -43,7 +43,7 @@ public sealed class DecisionEngineV2Tests
             evaluations: []);
 #pragma warning restore IDE0028 // Simplify collection initialization
 
-        var node = decisions.Single(d => d.Topic == "TopologyAcceptance");
+        DecisionNode node = decisions.Single(d => d.Topic == "TopologyAcceptance");
         node.Options.Should().HaveCount(2);
         node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Accept topology proposal").OptionId);
     }
@@ -51,7 +51,7 @@ public sealed class DecisionEngineV2Tests
     [Fact]
     public async Task ResolveAsync_WhenOpposed_SelectsExclude()
     {
-        var results = new List<AgentResult>
+        List<AgentResult> results = new List<AgentResult>
         {
             new()
             {
@@ -69,7 +69,7 @@ public sealed class DecisionEngineV2Tests
             }
         };
 
-        var evals = new List<AgentEvaluation>
+        List<AgentEvaluation> evals = new List<AgentEvaluation>
         {
             new()
             {
@@ -82,7 +82,7 @@ public sealed class DecisionEngineV2Tests
         };
 
 #pragma warning disable IDE0028 // Simplify collection initialization
-        var decisions = await _engine.ResolveAsync(
+        IReadOnlyList<DecisionNode> decisions = await _engine.ResolveAsync(
             "RUN-1",
             request: new ArchitectureRequest { RequestId = "REQ-1", SystemName = "S", Description = "d" },
             tasks: new List<AgentTask> { new() { TaskId = "T-1", RunId = "RUN-1", AgentType = AgentType.Topology, Status = AgentTaskStatus.Completed } },
@@ -90,7 +90,7 @@ public sealed class DecisionEngineV2Tests
             evaluations: evals);
 #pragma warning restore IDE0028 // Simplify collection initialization
 
-        var node = decisions.Single(d => d.Topic == "TopologyAcceptance");
+        DecisionNode node = decisions.Single(d => d.Topic == "TopologyAcceptance");
         node.SelectedOptionId.Should().Be(node.Options.Single(o => o.Description == "Reject topology proposal").OptionId);
         node.OpposingEvaluationIds.Should().Contain(evals[0].EvaluationId);
     }

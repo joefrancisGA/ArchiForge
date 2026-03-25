@@ -24,26 +24,26 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         ArgumentNullException.ThrowIfNull(leftResults);
         ArgumentNullException.ThrowIfNull(rightResults);
 
-        var result = new AgentResultDiffResult
+        AgentResultDiffResult result = new AgentResultDiffResult
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId
         };
 
-        var allAgentTypes = leftResults.Select(r => r.AgentType)
+        List<AgentType> allAgentTypes = leftResults.Select(r => r.AgentType)
             .Union(rightResults.Select(r => r.AgentType))
             .Distinct()
             .OrderBy(x => x)
             .ToList();
 
-        foreach (var agentType in allAgentTypes)
+        foreach (AgentType agentType in allAgentTypes)
         {
-            var left = leftResults
+            AgentResult? left = leftResults
                 .Where(r => r.AgentType == agentType)
                 .OrderByDescending(r => r.CreatedUtc)
                 .FirstOrDefault();
 
-            var right = rightResults
+            AgentResult? right = rightResults
                 .Where(r => r.AgentType == agentType)
                 .OrderByDescending(r => r.CreatedUtc)
                 .FirstOrDefault();
@@ -67,7 +67,7 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         AgentResult? left,
         AgentResult? right)
     {
-        var delta = new AgentResultDelta
+        AgentResultDelta delta = new AgentResultDelta
         {
             AgentType = agentType,
             LeftExists = left is not null,
@@ -76,20 +76,20 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
             RightConfidence = right?.Confidence
         };
 
-        var leftClaims = left?.Claims ?? [];
-        var rightClaims = right?.Claims ?? [];
+        List<string> leftClaims = left?.Claims ?? [];
+        List<string> rightClaims = right?.Claims ?? [];
 
-        var leftEvidence = left?.EvidenceRefs ?? [];
-        var rightEvidence = right?.EvidenceRefs ?? [];
+        List<string> leftEvidence = left?.EvidenceRefs ?? [];
+        List<string> rightEvidence = right?.EvidenceRefs ?? [];
 
-        var leftFindings = left?.Findings.Where(_ => true).Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
-        var rightFindings = right?.Findings.Where(_ => true).Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
+        List<string> leftFindings = left?.Findings.Where(_ => true).Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
+        List<string> rightFindings = right?.Findings.Where(_ => true).Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
 
-        var leftControls = left?.ProposedChanges?.RequiredControls ?? [];
-        var rightControls = right?.ProposedChanges?.RequiredControls ?? [];
+        List<string> leftControls = left?.ProposedChanges?.RequiredControls ?? [];
+        List<string> rightControls = right?.ProposedChanges?.RequiredControls ?? [];
 
-        var leftWarnings = left?.ProposedChanges?.Warnings ?? [];
-        var rightWarnings = right?.ProposedChanges?.Warnings ?? [];
+        List<string> leftWarnings = left?.ProposedChanges?.Warnings ?? [];
+        List<string> rightWarnings = right?.ProposedChanges?.Warnings ?? [];
 
         delta.AddedClaims = Except(rightClaims, leftClaims);
         delta.RemovedClaims = Except(leftClaims, rightClaims);
@@ -113,7 +113,7 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         IReadOnlyCollection<string> left,
         IReadOnlyCollection<string> right)
     {
-        var rightSet = right.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> rightSet = right.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return left
             .Where(x => !rightSet.Contains(x))

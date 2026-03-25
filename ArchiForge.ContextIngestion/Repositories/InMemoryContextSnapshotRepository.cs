@@ -17,7 +17,7 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
         _ = ct;
         lock (_lock)
         {
-            var result = _store.Values
+            ContextSnapshot? result = _store.Values
                 .Where(s => string.Equals(s.ProjectId, projectId, StringComparison.Ordinal))
                 .OrderByDescending(s => s.CreatedUtc)
                 .FirstOrDefault();
@@ -30,7 +30,7 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
         _ = ct;
         lock (_lock)
         {
-            _store.TryGetValue(snapshotId, out var snapshot);
+            _store.TryGetValue(snapshotId, out ContextSnapshot? snapshot);
             return Task.FromResult(snapshot);
         }
     }
@@ -51,12 +51,12 @@ public class InMemoryContextSnapshotRepository : IContextSnapshotRepository
             // Evict oldest entries when the store exceeds the cap.
             if (_store.Count > MaxSnapshots)
             {
-                var toRemove = _store.Values
+                List<Guid> toRemove = _store.Values
                     .OrderBy(s => s.CreatedUtc)
                     .Take(_store.Count - MaxSnapshots)
                     .Select(s => s.SnapshotId)
                     .ToList();
-                foreach (var id in toRemove)
+                foreach (Guid id in toRemove)
                     _store.Remove(id);
             }
         }

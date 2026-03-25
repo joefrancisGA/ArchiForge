@@ -57,13 +57,13 @@ public sealed class EndToEndReplayComparisonServiceTests
     [Fact]
     public async Task BuildAsync_LoadsBothRunsViaRunDetailQueryService_AndComparesManifestsFromDetail()
     {
-        var left = new ArchitectureRunDetail
+        ArchitectureRunDetail left = new ArchitectureRunDetail
         {
             Run = Run("left", "vL"),
             Results = [new AgentResult { RunId = "left", TaskId = "t1", AgentType = AgentType.Topology }],
             Manifest = Manifest("left", "vL")
         };
-        var right = new ArchitectureRunDetail
+        ArchitectureRunDetail right = new ArchitectureRunDetail
         {
             Run = Run("right", "vR"),
             Results = [],
@@ -78,7 +78,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         _agentDiff.Setup(a => a.Compare("left", left.Results, "right", right.Results))
             .Returns(new AgentResultDiffResult());
 
-        var report = await _sut.BuildAsync("left", "right");
+        EndToEndReplayComparisonReport report = await _sut.BuildAsync("left", "right");
 
         report.LeftRunId.Should().Be("left");
         report.RightRunId.Should().Be("right");
@@ -93,7 +93,7 @@ public sealed class EndToEndReplayComparisonServiceTests
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        var act = () => _sut.BuildAsync("missing", "right");
+        Func<Task<EndToEndReplayComparisonReport>> act = () => _sut.BuildAsync("missing", "right");
 
         await act.Should().ThrowAsync<RunNotFoundException>().WithMessage("*missing*");
     }

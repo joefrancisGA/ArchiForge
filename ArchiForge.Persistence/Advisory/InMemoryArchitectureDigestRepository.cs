@@ -34,10 +34,10 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
         CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        int n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         lock (_gate)
         {
-            var result = _items
+            List<ArchitectureDigest> result = _items
                 .Where(d =>
                     d.TenantId == tenantId &&
                     d.WorkspaceId == workspaceId &&

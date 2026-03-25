@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Alerts;
 
 /// <summary>Dapper implementation of <see cref="IAlertRoutingSubscriptionRepository"/> over <c>dbo.AlertRoutingSubscriptions</c>.</summary>
@@ -28,7 +30,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
@@ -48,7 +50,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
@@ -61,7 +63,7 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<AlertRoutingSubscription>(
             new CommandDefinition(sql, new
             {
@@ -84,8 +86,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<AlertRoutingSubscription>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRoutingSubscription> rows = await connection.QueryAsync<AlertRoutingSubscription>(
             new CommandDefinition(
                 sql,
                 new
@@ -115,8 +117,8 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<AlertRoutingSubscription>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRoutingSubscription> rows = await connection.QueryAsync<AlertRoutingSubscription>(
             new CommandDefinition(
                 sql,
                 new

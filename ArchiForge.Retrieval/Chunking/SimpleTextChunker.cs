@@ -11,13 +11,13 @@ public sealed class SimpleTextChunker : ITextChunker
         if (string.IsNullOrWhiteSpace(text))
             return [];
 
-        var chunks = new List<string>();
-        var index = 0;
+        List<string> chunks = new List<string>();
+        int index = 0;
 
         while (index < text.Length)
         {
-            var length = Math.Min(maxChars, text.Length - index);
-            var chunk = text.Substring(index, length).Trim();
+            int length = Math.Min(maxChars, text.Length - index);
+            string chunk = text.Substring(index, length).Trim();
 
             if (!string.IsNullOrWhiteSpace(chunk))
                 chunks.Add(chunk);

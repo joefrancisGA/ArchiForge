@@ -12,14 +12,14 @@ public static class BrandedArchitectureTemplateGenerator
 {
     public static byte[] CreateTemplateBytes()
     {
-        using var ms = new MemoryStream();
-        using (var doc = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
+        using MemoryStream ms = new MemoryStream();
+        using (WordprocessingDocument doc = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
         {
-            var main = doc.AddMainDocumentPart();
+            MainDocumentPart main = doc.AddMainDocumentPart();
             main.Document = new Document(new Body());
 
-            var headerPart = main.AddNewPart<HeaderPart>();
-            var headerRelId = main.GetIdOfPart(headerPart);
+            HeaderPart headerPart = main.AddNewPart<HeaderPart>();
+            string headerRelId = main.GetIdOfPart(headerPart);
             headerPart.Header = new Header(
                 new Paragraph(
                     new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
@@ -39,8 +39,8 @@ public static class BrandedArchitectureTemplateGenerator
                             new Color { Val = "595959" }),
                         new Text("Architecture intelligence · Boardroom package"))));
 
-            var footerPart = main.AddNewPart<FooterPart>();
-            var footerRelId = main.GetIdOfPart(footerPart);
+            FooterPart footerPart = main.AddNewPart<FooterPart>();
+            string footerRelId = main.GetIdOfPart(footerPart);
             footerPart.Footer = new Footer(
                 new Paragraph(
                     new ParagraphProperties(new Justification { Val = JustificationValues.Center }),
@@ -50,7 +50,7 @@ public static class BrandedArchitectureTemplateGenerator
 
             AddCustomStyles(main);
 
-            var body = main.Document.Body!;
+            Body body = main.Document.Body!;
             body.AppendChild(
                 new SectionProperties(
                     new HeaderReference { Type = HeaderFooterValues.Default, Id = headerRelId },
@@ -74,7 +74,7 @@ public static class BrandedArchitectureTemplateGenerator
 
     private static void AddCustomStyles(MainDocumentPart main)
     {
-        var stylesPart = main.AddNewPart<StyleDefinitionsPart>();
+        StyleDefinitionsPart stylesPart = main.AddNewPart<StyleDefinitionsPart>();
         stylesPart.Styles = new Styles(
             new DocDefaults(
                 new RunPropertiesDefault(

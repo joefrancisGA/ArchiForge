@@ -11,8 +11,8 @@ public sealed class DefaultContextDeltaSummaryBuilder : IContextDeltaSummaryBuil
         ContextSnapshot? previous,
         bool isFirstConnector)
     {
-        var n = batch.CanonicalObjects.Count;
-        var breakdown = n == 0
+        int n = batch.CanonicalObjects.Count;
+        string breakdown = n == 0
             ? "none"
             : string.Join(
                 ", ",
@@ -21,7 +21,7 @@ public sealed class DefaultContextDeltaSummaryBuilder : IContextDeltaSummaryBuil
                     .OrderBy(g => g.Key, StringComparer.Ordinal)
                     .Select(g => $"{g.Key}×{g.Count()}"));
 
-        var priorClause = "";
+        string priorClause = "";
         if (isFirstConnector)
         {
             priorClause = previous is null
@@ -29,7 +29,7 @@ public sealed class DefaultContextDeltaSummaryBuilder : IContextDeltaSummaryBuil
                 : $" [baseline: prior snapshot had {previous.CanonicalObjects.Count} canonical object(s)]";
         }
 
-        var head = string.IsNullOrWhiteSpace(baseSummary)
+        string head = string.IsNullOrWhiteSpace(baseSummary)
             ? connectorType
             : baseSummary.Trim();
 

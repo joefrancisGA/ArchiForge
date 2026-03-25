@@ -16,20 +16,20 @@ public sealed class CorrelationIdMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context)
     {
-        var rawHeader = context.Request.Headers[HeaderName].FirstOrDefault();
-        var correlationId = IsValidCorrelationId(rawHeader)
+        string? rawHeader = context.Request.Headers[HeaderName].FirstOrDefault();
+        string correlationId = IsValidCorrelationId(rawHeader)
             ? rawHeader!
             : context.TraceIdentifier;
 
         context.Response.Headers[HeaderName] = correlationId;
         context.TraceIdentifier = correlationId;
 
-        var activity = Activity.Current;
+        Activity? activity = Activity.Current;
         if (activity is not null)
         {
             activity.SetTag("correlation.id", correlationId);
             activity.SetTag("http.request_id", context.TraceIdentifier);
-            var runId = context.Request.RouteValues["runId"]?.ToString();
+            string? runId = context.Request.RouteValues["runId"]?.ToString();
             if (!string.IsNullOrEmpty(runId))
                 activity.SetTag("archiforge.run_id", runId);
         }

@@ -30,7 +30,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.PolicyPackId == pack.PolicyPackId);
+            int i = _items.FindIndex(x => x.PolicyPackId == pack.PolicyPackId);
             if (i >= 0)
                 _items[i] = pack;
         }
@@ -54,7 +54,7 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<PolicyPack> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
                 .Take(500)

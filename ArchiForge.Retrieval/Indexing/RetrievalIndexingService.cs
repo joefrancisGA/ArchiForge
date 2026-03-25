@@ -20,7 +20,7 @@ public sealed class RetrievalIndexingService(
         if (documents.Count == 0)
             return;
 
-        var chunks = new List<RetrievalChunk>();
+        List<RetrievalChunk> chunks = new List<RetrievalChunk>();
 
         foreach (var doc in documents)
         {
@@ -29,15 +29,15 @@ public sealed class RetrievalIndexingService(
             if (doc is null)
                 continue;
 
-            var split = chunker.Chunk(doc.Content);
+            IReadOnlyList<string> split = chunker.Chunk(doc.Content);
             if (split.Count == 0)
                 continue;
 
-            var embeddings = await embeddingService.EmbedManyAsync(split, ct).ConfigureAwait(false);
+            IReadOnlyList<float[]> embeddings = await embeddingService.EmbedManyAsync(split, ct).ConfigureAwait(false);
             if (embeddings.Count != split.Count)
                 throw new InvalidOperationException("Embedding count must match chunk count.");
 
-            for (var i = 0; i < split.Count; i++)
+            for (int i = 0; i < split.Count; i++)
             {
                 chunks.Add(new RetrievalChunk
                 {

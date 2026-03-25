@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Services;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Generators;
@@ -16,11 +17,11 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var matrix = new ComplianceMatrixArtifactModel();
+        ComplianceMatrixArtifactModel matrix = new ComplianceMatrixArtifactModel();
 
-        foreach (var control in manifest.Compliance.Controls)
+        foreach (CompliancePostureItem control in manifest.Compliance.Controls)
         {
-            var notes = manifest.Compliance.Gaps
+            List<string> notes = manifest.Compliance.Gaps
                 .Where(x => x.Contains(control.ControlName, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
@@ -34,7 +35,7 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
             });
         }
 
-        var content = JsonSerializer.Serialize(matrix, SynthesisJsonOptions.WriteIndented);
+        string content = JsonSerializer.Serialize(matrix, SynthesisJsonOptions.WriteIndented);
 
         return Task.FromResult(new SynthesizedArtifact
         {

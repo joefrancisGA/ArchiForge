@@ -21,7 +21,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string summaryMarkdown,
         CancellationToken cancellationToken = default)
     {
-        var record = new ComparisonRecord
+        ComparisonRecord record = new ComparisonRecord
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = ComparisonTypes.EndToEndReplay,
@@ -44,7 +44,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string summaryMarkdown,
         CancellationToken cancellationToken = default)
     {
-        var record = new ComparisonRecord
+        ComparisonRecord record = new ComparisonRecord
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = ComparisonTypes.ExportRecordDiff,
@@ -69,7 +69,7 @@ public sealed class ComparisonAuditService(IComparisonRecordRepository repositor
         string? notes = null,
         CancellationToken cancellationToken = default)
     {
-        var record = new ComparisonRecord
+        ComparisonRecord record = new ComparisonRecord
         {
             ComparisonRecordId = Guid.NewGuid().ToString("N"),
             ComparisonType = sourceRecord.ComparisonType,

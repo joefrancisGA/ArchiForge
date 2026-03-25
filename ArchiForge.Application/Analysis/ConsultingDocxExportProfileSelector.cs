@@ -21,9 +21,9 @@ public sealed class ConsultingDocxExportProfileSelector(
     {
         if (!string.IsNullOrWhiteSpace(templateProfile))
         {
-            var catalog = profileResolver.GetCatalog();
+            ConsultingDocxTemplateProfileCatalog catalog = profileResolver.GetCatalog();
 
-            var summary = catalog.Profiles.FirstOrDefault(x =>
+            ConsultingDocxTemplateProfileInfo? summary = catalog.Profiles.FirstOrDefault(x =>
                 string.Equals(x.ProfileName, templateProfile, StringComparison.OrdinalIgnoreCase));
 
             return new ResolvedConsultingDocxExportProfile
@@ -35,7 +35,7 @@ public sealed class ConsultingDocxExportProfileSelector(
             };
         }
 
-        var recommendation = recommendationService.Recommend(recommendationRequest);
+        ConsultingDocxProfileRecommendation recommendation = recommendationService.Recommend(recommendationRequest);
 
         return new ResolvedConsultingDocxExportProfile
         {

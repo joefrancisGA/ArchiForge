@@ -19,8 +19,8 @@ public static class GovernanceManifestComparer
     /// </exception>
     public static List<GovernanceDiffItem> Compare(object? currentGovernance, object? previewGovernance)
     {
-        var current = ExtractGovernanceFields(ToManifestGovernance(currentGovernance));
-        var preview = ExtractGovernanceFields(ToManifestGovernance(previewGovernance));
+        Dictionary<string, string?> current = ExtractGovernanceFields(ToManifestGovernance(currentGovernance));
+        Dictionary<string, string?> preview = ExtractGovernanceFields(ToManifestGovernance(previewGovernance));
         return CompareDictionaries(current, preview);
     }
 
@@ -60,7 +60,7 @@ public static class GovernanceManifestComparer
     {
         if (list is null || list.Count == 0)
             return null;
-        var ordered = list
+        List<string> ordered = list
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .Select(s => s.Trim())
             .OrderBy(s => s, StringComparer.OrdinalIgnoreCase)
@@ -72,16 +72,16 @@ public static class GovernanceManifestComparer
         IReadOnlyDictionary<string, string?> current,
         IReadOnlyDictionary<string, string?> preview)
     {
-        var keys = current.Keys.Union(preview.Keys, StringComparer.Ordinal).ToList();
+        List<string> keys = current.Keys.Union(preview.Keys, StringComparer.Ordinal).ToList();
         keys.Sort(StringComparer.Ordinal);
-        var items = new List<GovernanceDiffItem>();
+        List<GovernanceDiffItem> items = new List<GovernanceDiffItem>();
 
-        foreach (var key in keys)
+        foreach (string key in keys)
         {
-            current.TryGetValue(key, out var cur);
-            preview.TryGetValue(key, out var prev);
-            var curN = cur ?? string.Empty;
-            var prevN = prev ?? string.Empty;
+            current.TryGetValue(key, out string? cur);
+            preview.TryGetValue(key, out string? prev);
+            string curN = cur ?? string.Empty;
+            string prevN = prev ?? string.Empty;
 
             if (curN == prevN)
                 continue;

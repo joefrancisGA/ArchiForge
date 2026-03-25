@@ -20,18 +20,18 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
     {
         ArgumentNullException.ThrowIfNull(declaration);
         _ = ct;
-        var matches = ResourceRegex.Matches(declaration.Content ?? string.Empty);
-        var results = new List<CanonicalObject>();
+        MatchCollection matches = ResourceRegex.Matches(declaration.Content ?? string.Empty);
+        List<CanonicalObject> results = new List<CanonicalObject>();
 
         foreach (Match match in matches)
         {
-            var terraformType = match.Groups["type"].Value;
-            var name = match.Groups["name"].Value;
+            string terraformType = match.Groups["type"].Value;
+            string name = match.Groups["name"].Value;
 
             if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
                 continue;
 
-            var objectType = ResolveObjectType(terraformType);
+            string objectType = ResolveObjectType(terraformType);
 
             results.Add(new CanonicalObject
             {
@@ -51,7 +51,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
 
     private static string ResolveObjectType(string terraformType)
     {
-        var normalized = terraformType.ToLowerInvariant();
+        string normalized = terraformType.ToLowerInvariant();
 
         if (normalized.Contains("key_vault", StringComparison.Ordinal) ||
             normalized.Contains("firewall", StringComparison.Ordinal) ||

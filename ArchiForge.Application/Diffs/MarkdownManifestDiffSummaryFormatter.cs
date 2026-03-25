@@ -8,7 +8,7 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# Manifest Comparison: {diff.LeftManifestVersion} -> {diff.RightManifestVersion}");
         sb.AppendLine();
@@ -35,7 +35,7 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
         sb.AppendLine("## Warnings");
         sb.AppendLine();
 
-        foreach (var warning in diff.Warnings)
+        foreach (string warning in diff.Warnings)
         {
             sb.AppendLine($"- {warning}");
         }
@@ -60,7 +60,7 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
             return;
         }
 
-        foreach (var item in items.OrderBy(x => x))
+        foreach (string item in items.OrderBy(x => x))
         {
             sb.AppendLine($"- {item}");
         }
@@ -83,7 +83,7 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
             return;
         }
 
-        foreach (var item in items
+        foreach (RelationshipDiffItem item in items
                      .OrderBy(x => x.SourceId)
                      .ThenBy(x => x.TargetId)
                      .ThenBy(x => x.RelationshipType))

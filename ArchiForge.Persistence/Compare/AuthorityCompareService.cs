@@ -1,5 +1,6 @@
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Queries;
 
@@ -24,8 +25,8 @@ public sealed class AuthorityCompareService(
         Guid rightManifestId,
         CancellationToken ct)
     {
-        var left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
-        var right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
+        GoldenManifest? left = await manifestRepository.GetByIdAsync(scope, leftManifestId, ct);
+        GoldenManifest? right = await manifestRepository.GetByIdAsync(scope, rightManifestId, ct);
 
         if (left is null || right is null)
             return null;
@@ -38,7 +39,7 @@ public sealed class AuthorityCompareService(
                 $"Left scope: {left.TenantId}/{left.WorkspaceId}/{left.ProjectId}, " +
                 $"Right scope: {right.TenantId}/{right.WorkspaceId}/{right.ProjectId}.");
 
-        var result = new ManifestComparisonResult
+        ManifestComparisonResult result = new ManifestComparisonResult
         {
             LeftManifestId = left.ManifestId,
             RightManifestId = right.ManifestId,
@@ -65,13 +66,13 @@ public sealed class AuthorityCompareService(
         Guid rightRunId,
         CancellationToken ct)
     {
-        var leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct);
-        var rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct);
+        RunSummaryDto? leftRun = await queryService.GetRunSummaryAsync(scope, leftRunId, ct);
+        RunSummaryDto? rightRun = await queryService.GetRunSummaryAsync(scope, rightRunId, ct);
 
         if (leftRun is null || rightRun is null)
             return null;
 
-        var result = new RunComparisonResult
+        RunComparisonResult result = new RunComparisonResult
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
@@ -99,8 +100,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = ToFirstWins(left.Requirements.Covered, x => x.RequirementName);
-        var rightMap = ToFirstWins(right.Requirements.Covered, x => x.RequirementName);
+        Dictionary<string, RequirementCoverageItem> leftMap = ToFirstWins(left.Requirements.Covered, x => x.RequirementName);
+        Dictionary<string, RequirementCoverageItem> rightMap = ToFirstWins(right.Requirements.Covered, x => x.RequirementName);
 
         CompareKeyedSets(
             result,
@@ -128,8 +129,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = ToFirstWins(left.Security.Controls, x => x.ControlName);
-        var rightMap = ToFirstWins(right.Security.Controls, x => x.ControlName);
+        Dictionary<string, SecurityPostureItem> leftMap = ToFirstWins(left.Security.Controls, x => x.ControlName);
+        Dictionary<string, SecurityPostureItem> rightMap = ToFirstWins(right.Security.Controls, x => x.ControlName);
 
         CompareKeyedSets(
             result,
@@ -165,8 +166,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = ToFirstWins(left.UnresolvedIssues.Items, x => x.Title);
-        var rightMap = ToFirstWins(right.UnresolvedIssues.Items, x => x.Title);
+        Dictionary<string, ManifestIssue> leftMap = ToFirstWins(left.UnresolvedIssues.Items, x => x.Title);
+        Dictionary<string, ManifestIssue> rightMap = ToFirstWins(right.UnresolvedIssues.Items, x => x.Title);
 
         CompareKeyedSets(
             result,
@@ -200,8 +201,8 @@ public sealed class AuthorityCompareService(
         GoldenManifest right,
         ManifestComparisonResult result)
     {
-        var leftMap = ToFirstWins(left.Decisions, x => $"{x.Category}:{x.Title}");
-        var rightMap = ToFirstWins(right.Decisions, x => $"{x.Category}:{x.Title}");
+        Dictionary<string, ResolvedArchitectureDecision> leftMap = ToFirstWins(left.Decisions, x => $"{x.Category}:{x.Title}");
+        Dictionary<string, ResolvedArchitectureDecision> rightMap = ToFirstWins(right.Decisions, x => $"{x.Category}:{x.Title}");
 
         CompareKeyedSets(
             result,
@@ -220,10 +221,10 @@ public sealed class AuthorityCompareService(
         IEnumerable<string>? left,
         IEnumerable<string>? right)
     {
-        var leftSet = new HashSet<string>(left ?? [], StringComparer.OrdinalIgnoreCase);
-        var rightSet = new HashSet<string>(right ?? [], StringComparer.OrdinalIgnoreCase);
+        HashSet<string> leftSet = new HashSet<string>(left ?? [], StringComparer.OrdinalIgnoreCase);
+        HashSet<string> rightSet = new HashSet<string>(right ?? [], StringComparer.OrdinalIgnoreCase);
 
-        foreach (var item in leftSet.Except(rightSet, StringComparer.OrdinalIgnoreCase))
+        foreach (string item in leftSet.Except(rightSet, StringComparer.OrdinalIgnoreCase))
         {
             result.Diffs.Add(new DiffItem
             {
@@ -234,7 +235,7 @@ public sealed class AuthorityCompareService(
             });
         }
 
-        foreach (var item in rightSet.Except(leftSet, StringComparer.OrdinalIgnoreCase))
+        foreach (string item in rightSet.Except(leftSet, StringComparer.OrdinalIgnoreCase))
         {
             result.Diffs.Add(new DiffItem
             {
@@ -256,7 +257,7 @@ public sealed class AuthorityCompareService(
         Func<T, string?> notesLeft,
         Func<T, string?> notesRight)
     {
-        foreach (var key in left.Keys.Except(right.Keys, StringComparer.OrdinalIgnoreCase))
+        foreach (string key in left.Keys.Except(right.Keys, StringComparer.OrdinalIgnoreCase))
         {
             result.Diffs.Add(new DiffItem
             {
@@ -268,7 +269,7 @@ public sealed class AuthorityCompareService(
             });
         }
 
-        foreach (var key in right.Keys.Except(left.Keys, StringComparer.OrdinalIgnoreCase))
+        foreach (string key in right.Keys.Except(left.Keys, StringComparer.OrdinalIgnoreCase))
         {
             result.Diffs.Add(new DiffItem
             {
@@ -280,12 +281,12 @@ public sealed class AuthorityCompareService(
             });
         }
 
-        foreach (var key in left.Keys.Intersect(right.Keys, StringComparer.OrdinalIgnoreCase))
+        foreach (string key in left.Keys.Intersect(right.Keys, StringComparer.OrdinalIgnoreCase))
         {
-            var leftValue = primaryLeft(left[key]);
-            var rightValue = primaryRight(right[key]);
-            var leftNotes = notesLeft(left[key]);
-            var rightNotes = notesRight(right[key]);
+            string? leftValue = primaryLeft(left[key]);
+            string? rightValue = primaryRight(right[key]);
+            string? leftNotes = notesLeft(left[key]);
+            string? rightNotes = notesRight(right[key]);
 
             if (!string.Equals(leftValue, rightValue, StringComparison.OrdinalIgnoreCase) ||
                 !string.Equals(leftNotes, rightNotes, StringComparison.Ordinal))

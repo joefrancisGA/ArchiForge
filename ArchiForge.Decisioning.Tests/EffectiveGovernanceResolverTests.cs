@@ -11,16 +11,16 @@ public sealed class EffectiveGovernanceResolverTests
     [Fact]
     public async Task Project_scope_wins_over_tenant_for_same_metadata_key_and_records_value_conflict()
     {
-        var tenantId = Guid.NewGuid();
-        var workspaceId = Guid.NewGuid();
-        var projectId = Guid.NewGuid();
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
 
-        var packRepo = new InMemoryPolicyPackRepository();
-        var versionRepo = new InMemoryPolicyPackVersionRepository();
-        var assignmentRepo = new InMemoryPolicyPackAssignmentRepository();
+        InMemoryPolicyPackRepository packRepo = new InMemoryPolicyPackRepository();
+        InMemoryPolicyPackVersionRepository versionRepo = new InMemoryPolicyPackVersionRepository();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new InMemoryPolicyPackAssignmentRepository();
 
-        var tenantPackId = Guid.NewGuid();
-        var projectPackId = Guid.NewGuid();
+        Guid tenantPackId = Guid.NewGuid();
+        Guid projectPackId = Guid.NewGuid();
 
         await packRepo.CreateAsync(
             new PolicyPack
@@ -102,9 +102,9 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        var resolver = new EffectiveGovernanceResolver(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new EffectiveGovernanceResolver(assignmentRepo, packRepo, versionRepo);
 
-        var result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
+        EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 
         result.EffectiveContent.Metadata["tier"].Should().Be("project");
         result.Conflicts.Should().ContainSingle(c => c.ConflictType == "ValueConflict" && c.ItemKey == "tier");

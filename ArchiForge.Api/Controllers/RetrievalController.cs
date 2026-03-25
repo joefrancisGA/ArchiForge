@@ -48,9 +48,9 @@ public sealed class RetrievalController(
                 "Query parameter 'q' is required.",
                 ProblemTypes.ValidationFailed);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var result = await retrievalQueryService.SearchAsync(
+        IReadOnlyList<RetrievalHit> result = await retrievalQueryService.SearchAsync(
             new RetrievalQuery
             {
                 TenantId = scope.TenantId,

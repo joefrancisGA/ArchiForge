@@ -11,7 +11,7 @@ public sealed class ArchitectureReplayTests(ArchiForgeApiFactory factory) : Inte
     [Fact]
     public async Task ReplayRun_ReexecutesPriorRun()
     {
-        var runId = await ComparisonReplayTestFixture.CreateRunAndExecuteAsync(Client, JsonOptions, "REQ-REPLAY-001");
+        string runId = await ComparisonReplayTestFixture.CreateRunAndExecuteAsync(Client, JsonOptions, "REQ-REPLAY-001");
 
         var replayRequest = new
         {
@@ -20,13 +20,13 @@ public sealed class ArchitectureReplayTests(ArchiForgeApiFactory factory) : Inte
             manifestVersionOverride = (string?)null
         };
 
-        var replayResponse = await Client.PostAsync(
+        HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(replayRequest));
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        ReplayRunResponseDto? payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.OriginalRunId.Should().Be(runId);
         payload.ReplayRunId.Should().NotBeNullOrWhiteSpace();
@@ -37,19 +37,19 @@ public sealed class ArchitectureReplayTests(ArchiForgeApiFactory factory) : Inte
     [Fact]
     public async Task ReplayRun_WithCommitReplay_CreatesReplayManifest()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-REPLAY-002")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
         var replayRequest = new
@@ -59,13 +59,13 @@ public sealed class ArchitectureReplayTests(ArchiForgeApiFactory factory) : Inte
             manifestVersionOverride = "v1-replay"
         };
 
-        var replayResponse = await Client.PostAsync(
+        HttpResponseMessage replayResponse = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
             JsonContent(replayRequest));
 
         replayResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
+        ReplayRunResponseDto? payload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Manifest.Should().NotBeNull();
         payload.Manifest!.Metadata.ManifestVersion.Should().Be("v1-replay");

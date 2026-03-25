@@ -26,7 +26,7 @@ public sealed class ContextIngestionServiceTests
         {
             _ = payload;
             _ = ct;
-            var batch = new NormalizedContextBatch();
+            NormalizedContextBatch batch = new NormalizedContextBatch();
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
@@ -53,22 +53,22 @@ public sealed class ContextIngestionServiceTests
     [Fact]
     public async Task IngestAsync_ProducesEnrichedDeltaSummary()
     {
-        var repo = new InMemoryContextSnapshotRepository();
+        InMemoryContextSnapshotRepository repo = new InMemoryContextSnapshotRepository();
         IContextConnector[] connectors = [new CountingConnector()];
-        var sut = new ContextIngestionService(
+        ContextIngestionService sut = new ContextIngestionService(
             connectors,
             new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
             repo,
             new DefaultContextDeltaSummaryBuilder());
 
-        var request = new ContextIngestionRequest
+        ContextIngestionRequest request = new ContextIngestionRequest
         {
             RunId = Guid.NewGuid(),
             ProjectId = "proj-ingest-test"
         };
 
-        var snapshot = await sut.IngestAsync(request, CancellationToken.None);
+        ContextSnapshot snapshot = await sut.IngestAsync(request, CancellationToken.None);
 
         snapshot.CanonicalObjects.Should().HaveCount(1);
         snapshot.DeltaSummary.Should().Contain("connector summary");

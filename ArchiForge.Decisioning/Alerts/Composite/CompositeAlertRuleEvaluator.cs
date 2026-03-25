@@ -14,7 +14,7 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
         if (rule.Conditions.Count == 0)
             return false;
 
-        var results = rule.Conditions.Select(condition =>
+        List<bool> results = rule.Conditions.Select(condition =>
             EvaluateCondition(condition, snapshot)).ToList();
 
         return rule.Operator switch
@@ -28,8 +28,8 @@ public sealed class CompositeAlertRuleEvaluator : ICompositeAlertRuleEvaluator
     /// <summary>Compares resolved metric to <see cref="AlertRuleCondition.ThresholdValue"/> using the condition’s operator.</summary>
     private static bool EvaluateCondition(AlertRuleCondition condition, AlertMetricSnapshot snapshot)
     {
-        var actual = ResolveMetric(condition.MetricType, snapshot);
-        var expected = condition.ThresholdValue;
+        decimal actual = ResolveMetric(condition.MetricType, snapshot);
+        decimal expected = condition.ThresholdValue;
 
         return condition.Operator switch
         {

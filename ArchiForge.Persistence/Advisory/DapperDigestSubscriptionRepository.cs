@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 /// <summary>Dapper implementation of <see cref="IDigestSubscriptionRepository"/> over <c>dbo.DigestSubscriptions</c>.</summary>
@@ -29,7 +31,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
@@ -48,7 +50,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             WHERE SubscriptionId = @SubscriptionId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
     }
 
@@ -64,7 +66,7 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             WHERE SubscriptionId = @SubscriptionId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<DigestSubscription>(
             new CommandDefinition(sql, new
             {
@@ -90,8 +92,8 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<DigestSubscription>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<DigestSubscription> result = await connection.QueryAsync<DigestSubscription>(
             new CommandDefinition(
                 sql,
                 new
@@ -125,8 +127,8 @@ public sealed class DapperDigestSubscriptionRepository(ISqlConnectionFactory con
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<DigestSubscription>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<DigestSubscription> result = await connection.QueryAsync<DigestSubscription>(
             new CommandDefinition(
                 sql,
                 new

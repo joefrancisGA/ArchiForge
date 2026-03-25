@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
 
@@ -60,7 +62,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             );
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using IDbConnection connection = _connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -78,7 +80,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE ComparisonRecordId = @ComparisonRecordId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
+        using IDbConnection connection = _connectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -93,10 +95,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string runId,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _connectionFactory.CreateConnection();
-        var isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
 
-        var sql = isSqlite
+        string sql = isSqlite
             ? """
               SELECT * FROM ComparisonRecords
               WHERE LeftRunId = @RunId OR RightRunId = @RunId
@@ -110,7 +112,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
               ORDER BY CreatedUtc DESC;
               """;
 
-        var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
+        IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));
@@ -124,10 +126,10 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         string exportRecordId,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _connectionFactory.CreateConnection();
-        var isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
 
-        var sql = isSqlite
+        string sql = isSqlite
             ? """
               SELECT * FROM ComparisonRecords
               WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
@@ -141,7 +143,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
               ORDER BY CreatedUtc DESC;
               """;
 
-        var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
+        IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             new { ExportRecordId = exportRecordId },
             cancellationToken: cancellationToken));
@@ -178,15 +180,15 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE 1 = 1
             """;
 
-        var conditions = new List<string>();
-        var parameters = new DynamicParameters();
-        var safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
-        var safeSkip = skip < 0 ? 0 : skip;
+        List<string> conditions = new List<string>();
+        DynamicParameters parameters = new DynamicParameters();
+        int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
+        int safeSkip = skip < 0 ? 0 : skip;
         parameters.Add("@Limit", safeLimit);
         parameters.Add("@Skip", safeSkip);
 
-        using var connection = _connectionFactory.CreateConnection();
-        var isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
             isSqlite,
             conditions,
@@ -201,13 +203,13 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             label,
             tags);
 
-        var sql = baseSql;
+        string sql = baseSql;
         if (conditions.Count > 0)
         {
             sql += " AND " + string.Join(" AND ", conditions);
         }
-        var orderColumn = ResolveOrderColumn(sortBy);
-        var sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
+        string orderColumn = ResolveOrderColumn(sortBy);
+        bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
         // Ensure stable paging by always appending ComparisonRecordId as a tiebreaker.
         // Without this, records with identical CreatedUtc could reorder between pages.
         sql += sortDescending
@@ -217,7 +219,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             ? " LIMIT @Limit OFFSET @Skip;"
             : " OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
 
-        var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
+        IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             parameters,
             cancellationToken: cancellationToken));
@@ -248,13 +250,13 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE 1 = 1
             """;
 
-        var conditions = new List<string>();
-        var parameters = new DynamicParameters();
-        var safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
+        List<string> conditions = new List<string>();
+        DynamicParameters parameters = new DynamicParameters();
+        int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         parameters.Add("@Limit", safeLimit);
 
-        using var connection = _connectionFactory.CreateConnection();
-        var isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
             isSqlite,
             conditions,
@@ -269,8 +271,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             label,
             tags);
 
-        var orderColumn = ResolveOrderColumn(sortBy);
-        var sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
+        string orderColumn = ResolveOrderColumn(sortBy);
+        bool sortDescending = !string.Equals(sortDir, "asc", StringComparison.OrdinalIgnoreCase);
 
         // Cursor paging: only supported for CreatedUtc ordering (plus ComparisonRecordId tiebreaker).
         if (!string.Equals(orderColumn, "CreatedUtc", StringComparison.OrdinalIgnoreCase))
@@ -289,7 +291,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
                 : "(CreatedUtc > @CursorCreatedUtc OR (CreatedUtc = @CursorCreatedUtc AND ComparisonRecordId > @CursorId))");
         }
 
-        var sql = baseSql;
+        string sql = baseSql;
         if (conditions.Count > 0)
         {
             sql += " AND " + string.Join(" AND ", conditions);
@@ -303,7 +305,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             ? " LIMIT @Limit;"
             : " OFFSET 0 ROWS FETCH NEXT @Limit ROWS ONLY;";
 
-        var rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
+        IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
             parameters,
             cancellationToken: cancellationToken));
@@ -326,9 +328,9 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE ComparisonRecordId = @ComparisonRecordId;
             """;
 
-        using var connection = _connectionFactory.CreateConnection();
-        var tagsJson = tags == null || tags.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(tags);
-        var rows = await connection.ExecuteAsync(new CommandDefinition(
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+        string? tagsJson = tags == null || tags.Count == 0 ? null : System.Text.Json.JsonSerializer.Serialize(tags);
+        int rows = await connection.ExecuteAsync(new CommandDefinition(
             sql,
             new
             {
@@ -342,7 +344,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
     private static string ResolveOrderColumn(string? sortBy)
     {
-        var v = (sortBy ?? "createdUtc").Trim().ToLowerInvariant();
+        string v = (sortBy ?? "createdUtc").Trim().ToLowerInvariant();
         return v switch
         {
             "createdutc" => "CreatedUtc",

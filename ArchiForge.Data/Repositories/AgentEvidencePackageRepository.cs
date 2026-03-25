@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -48,9 +49,9 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             );
             """;
 
-        var json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
+        string json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
         connection.Open();
 
         var parameters = new
@@ -65,7 +66,7 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             evidencePackage.CreatedUtc
         };
 
-        using var tx = connection.BeginTransaction();
+        using IDbTransaction tx = connection.BeginTransaction();
 
         await connection.ExecuteAsync(new CommandDefinition(
             deleteSql,
@@ -93,9 +94,9 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             ORDER BY CreatedUtc DESC;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
             new
             {
@@ -116,9 +117,9 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             WHERE EvidencePackageId = @EvidencePackageId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
             new
             {

@@ -16,8 +16,8 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var result = analyzer.AnalyzeTopology(graphSnapshot);
-        var findings = new List<Finding>();
+        TopologyCoverageResult result = analyzer.AnalyzeTopology(graphSnapshot);
+        List<Finding> findings = new List<Finding>();
 
         if (result.TopologyNodeCount == 0)
         {

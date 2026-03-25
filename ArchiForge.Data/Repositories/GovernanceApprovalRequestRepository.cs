@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Infrastructure;
 
@@ -45,7 +47,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -81,7 +83,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             WHERE ApprovalRequestId = @ApprovalRequestId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -118,7 +120,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             WHERE ApprovalRequestId = @ApprovalRequestId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         return await connection.QuerySingleOrDefaultAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
@@ -150,9 +152,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             LIMIT 200;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));

@@ -13,7 +13,7 @@ public sealed class AdaptiveRecommendationScorer : IAdaptiveRecommendationScorer
         AdaptiveScoringInput input,
         RecommendationLearningProfile? profile)
     {
-        var result = new AdaptiveScoringResult
+        AdaptiveScoringResult result = new AdaptiveScoringResult
         {
             BasePriorityScore = input.BasePriorityScore,
             AdaptedPriorityScore = input.BasePriorityScore,
@@ -28,29 +28,29 @@ public sealed class AdaptiveRecommendationScorer : IAdaptiveRecommendationScorer
             return result;
         }
 
-        if (profile.CategoryWeights.TryGetValue(input.Category, out var categoryWeight))
+        if (profile.CategoryWeights.TryGetValue(input.Category, out double categoryWeight))
         {
             result.CategoryWeight = categoryWeight;
             result.Notes.Add($"Applied category weight for {input.Category}: {categoryWeight:0.00}");
         }
 
-        if (profile.UrgencyWeights.TryGetValue(input.Urgency, out var urgencyWeight))
+        if (profile.UrgencyWeights.TryGetValue(input.Urgency, out double urgencyWeight))
         {
             result.UrgencyWeight = urgencyWeight;
             result.Notes.Add($"Applied urgency weight for {input.Urgency}: {urgencyWeight:0.00}");
         }
 
         if (!string.IsNullOrWhiteSpace(input.SignalType) &&
-            profile.SignalTypeWeights.TryGetValue(input.SignalType!, out var signalWeight))
+            profile.SignalTypeWeights.TryGetValue(input.SignalType!, out double signalWeight))
         {
             result.SignalTypeWeight = signalWeight;
             result.Notes.Add($"Applied signal-type weight for {input.SignalType}: {signalWeight:0.00}");
         }
 
-        var weighted = input.BasePriorityScore
-            * result.CategoryWeight
-            * result.UrgencyWeight
-            * result.SignalTypeWeight;
+        double weighted = input.BasePriorityScore
+                          * result.CategoryWeight
+                          * result.UrgencyWeight
+                          * result.SignalTypeWeight;
 
         result.AdaptedPriorityScore = (int)Math.Round(weighted, MidpointRounding.AwayFromZero);
         return result;

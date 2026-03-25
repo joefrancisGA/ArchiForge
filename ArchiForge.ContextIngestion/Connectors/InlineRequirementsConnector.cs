@@ -23,9 +23,9 @@ public class InlineRequirementsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        var batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new NormalizedContextBatch();
 
-        foreach (var requirement in payload.InlineRequirements)
+        foreach (string requirement in payload.InlineRequirements)
         {
             batch.CanonicalObjects.Add(new CanonicalObject
             {

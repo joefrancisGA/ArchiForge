@@ -1,4 +1,7 @@
+using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
+using ArchiForge.Application.Diffs;
+using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Application.Analysis;
 
@@ -11,7 +14,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        using var builder = new OpenXmlDocxDocumentBuilder();
+        using OpenXmlDocxDocumentBuilder builder = new OpenXmlDocxDocumentBuilder();
 
         builder.AddHeading("ArchiForge Analysis Report", 1);
 
@@ -49,7 +52,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             if (report.Evidence.Request.Constraints.Count > 0)
             {
                 builder.AddHeading("Constraints", 3);
-                foreach (var item in report.Evidence.Request.Constraints)
+                foreach (string item in report.Evidence.Request.Constraints)
                 {
                     builder.AddBullet(item);
                 }
@@ -58,7 +61,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             if (report.Evidence.Request.RequiredCapabilities.Count > 0)
             {
                 builder.AddHeading("Required Capabilities", 3);
-                foreach (var item in report.Evidence.Request.RequiredCapabilities)
+                foreach (string item in report.Evidence.Request.RequiredCapabilities)
                 {
                     builder.AddBullet(item);
                 }
@@ -84,7 +87,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             {
                 builder.AddHeading("Services", 3);
 
-                foreach (var service in report.Manifest.Services.OrderBy(x => x.ServiceName))
+                foreach (ManifestService service in report.Manifest.Services.OrderBy(x => x.ServiceName))
                 {
                     builder.AddParagraph(service.ServiceName, bold: true);
                     builder.AddBullet($"Type: {service.ServiceType}");
@@ -108,7 +111,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
             {
                 builder.AddHeading("Datastores", 3);
 
-                foreach (var datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
+                foreach (ManifestDatastore datastore in report.Manifest.Datastores.OrderBy(x => x.DatastoreName))
                 {
                     builder.AddParagraph(datastore.DatastoreName, bold: true);
                     builder.AddBullet($"Type: {datastore.DatastoreType}");
@@ -125,7 +128,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         {
             builder.AddHeading("Architecture Diagram", 2);
 
-            var diagramBytes = await diagramImageRenderer.RenderMermaidPngAsync(
+            byte[]? diagramBytes = await diagramImageRenderer.RenderMermaidPngAsync(
                 report.Diagram,
                 cancellationToken);
 
@@ -161,19 +164,19 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
             builder.AddSpacer();
 
-            foreach (var iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
+            foreach (DeterminismIterationResult iteration in report.Determinism.IterationResults.OrderBy(x => x.IterationNumber))
             {
                 builder.AddParagraph($"Iteration {iteration.IterationNumber}", bold: true);
                 builder.AddBullet($"Replay Run ID: {iteration.ReplayRunId}");
                 builder.AddBullet($"Matches Baseline Agent Results: {(iteration.MatchesBaselineAgentResults ? "Yes" : "No")}");
                 builder.AddBullet($"Matches Baseline Manifest: {(iteration.MatchesBaselineManifest ? "Yes" : "No")}");
 
-                foreach (var warning in iteration.AgentDriftWarnings)
+                foreach (string warning in iteration.AgentDriftWarnings)
                 {
                     builder.AddBullet($"Agent Drift Warning: {warning}");
                 }
 
-                foreach (var warning in iteration.ManifestDriftWarnings)
+                foreach (string warning in iteration.ManifestDriftWarnings)
                 {
                     builder.AddBullet($"Manifest Drift Warning: {warning}");
                 }
@@ -199,7 +202,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
         {
             builder.AddHeading("Agent Result Diff", 2);
 
-            foreach (var delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
+            foreach (AgentResultDelta delta in report.AgentResultDiff.AgentDeltas.OrderBy(x => x.AgentType))
             {
                 builder.AddParagraph(delta.AgentType.ToString(), bold: true);
 

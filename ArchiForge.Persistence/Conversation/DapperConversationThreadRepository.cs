@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Conversation;
 
 /// <summary>
@@ -30,7 +32,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, thread, cancellationToken: ct));
     }
 
@@ -45,7 +47,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             WHERE ThreadId = @ThreadId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<ConversationThread>(
             new CommandDefinition(sql, new
             {
@@ -74,8 +76,8 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             ORDER BY LastUpdatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var rows = await connection.QueryAsync<ConversationThread>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<ConversationThread> rows = await connection.QueryAsync<ConversationThread>(
             new CommandDefinition(
                 sql,
                 new
@@ -98,7 +100,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             WHERE ThreadId = @ThreadId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
             new CommandDefinition(sql, new
             {

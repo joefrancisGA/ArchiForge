@@ -7,14 +7,14 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
 {
     public TopologyCoverageResult AnalyzeTopology(GraphSnapshot graphSnapshot)
     {
-        var topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
+        IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
 
-        var categories = topologyNodes
+        List<string> categories = topologyNodes
             .Select(x => x.Category ?? "general")
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var result = new TopologyCoverageResult
+        TopologyCoverageResult result = new TopologyCoverageResult
         {
             HasNetwork = categories.Exists(x => x.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)),
             HasCompute = categories.Exists(x => x.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)),
@@ -38,22 +38,22 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
 
     public SecurityCoverageResult AnalyzeSecurity(GraphSnapshot graphSnapshot)
     {
-        var securityNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.SecurityBaseline);
-        var topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
-        var protectsEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.Protects);
+        IReadOnlyList<GraphNode> securityNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.SecurityBaseline);
+        IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
+        IReadOnlyList<GraphEdge> protectsEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.Protects);
 
-        var protectedIds = protectsEdges
+        HashSet<string> protectedIds = protectsEdges
             .Select(x => x.ToNodeId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var protectedResources = topologyNodes
+        List<string> protectedResources = topologyNodes
             .Where(x => protectedIds.Contains(x.NodeId))
             .Select(x => x.Label)
             .Where(l => !string.IsNullOrWhiteSpace(l))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var unprotectedResources = topologyNodes
+        List<string> unprotectedResources = topologyNodes
             .Where(x => !protectedIds.Contains(x.NodeId))
             .Select(x => x.Label)
             .Where(l => !string.IsNullOrWhiteSpace(l))
@@ -72,15 +72,15 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
 
     public PolicyCoverageResult AnalyzePolicy(GraphSnapshot graphSnapshot)
     {
-        var policyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.PolicyControl);
-        var topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
-        var appliesToEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.AppliesTo);
+        IReadOnlyList<GraphNode> policyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.PolicyControl);
+        IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
+        IReadOnlyList<GraphEdge> appliesToEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.AppliesTo);
 
-        var coveredIds = appliesToEdges
+        HashSet<string> coveredIds = appliesToEdges
             .Select(x => x.ToNodeId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var uncoveredResources = topologyNodes
+        List<string> uncoveredResources = topologyNodes
             .Where(x => !coveredIds.Contains(x.NodeId))
             .Select(x => x.Label)
             .Where(l => !string.IsNullOrWhiteSpace(l))
@@ -98,21 +98,21 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
 
     public RequirementCoverageResult AnalyzeRequirements(GraphSnapshot graphSnapshot)
     {
-        var requirementNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.Requirement);
-        var relatesToEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.RelatesTo);
+        IReadOnlyList<GraphNode> requirementNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.Requirement);
+        IReadOnlyList<GraphEdge> relatesToEdges = graphSnapshot.GetEdgesByType(GraphEdgeTypes.RelatesTo);
 
-        var coveredIds = relatesToEdges
+        HashSet<string> coveredIds = relatesToEdges
             .Select(x => x.FromNodeId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var coveredRequirements = requirementNodes
+        List<string> coveredRequirements = requirementNodes
             .Where(x => coveredIds.Contains(x.NodeId))
             .Select(x => x.Label)
             .Where(l => !string.IsNullOrWhiteSpace(l))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        var uncoveredRequirements = requirementNodes
+        List<string> uncoveredRequirements = requirementNodes
             .Where(x => !coveredIds.Contains(x.NodeId))
             .Select(x => x.Label)
             .Where(l => !string.IsNullOrWhiteSpace(l))

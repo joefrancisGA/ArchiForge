@@ -27,7 +27,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
+            int idx = _items.FindIndex(x => x.PolicyPackVersionId == version.PolicyPackVersionId);
             if (idx >= 0)
                 _items[idx] = version;
         }
@@ -43,7 +43,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var row = _items.FirstOrDefault(
+            PolicyPackVersion? row = _items.FirstOrDefault(
                 x => x.PolicyPackId == policyPackId &&
                      string.Equals(x.Version, version, StringComparison.Ordinal));
             return Task.FromResult(row);
@@ -55,7 +55,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _items
+            List<PolicyPackVersion> result = _items
                 .Where(x => x.PolicyPackId == policyPackId)
                 .OrderByDescending(x => x.CreatedUtc)
                 .ToList();

@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Findings.Factories;
+using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Models;
 
@@ -11,7 +12,7 @@ public sealed class FindingsSerializationTests
     [Fact]
     public void RoundTrip_PreservesTypedPayload()
     {
-        var snapshot = new FindingsSnapshot
+        FindingsSnapshot snapshot = new FindingsSnapshot
         {
             FindingsSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),
@@ -24,11 +25,11 @@ public sealed class FindingsSerializationTests
             }
         };
 
-        var json = FindingsSerialization.SerializeSnapshot(snapshot);
-        var back = FindingsSerialization.DeserializeSnapshot(json);
+        string json = FindingsSerialization.SerializeSnapshot(snapshot);
+        FindingsSnapshot back = FindingsSerialization.DeserializeSnapshot(json);
 
         back.Findings.Should().HaveCount(1);
-        var p = FindingPayloadConverter.ToRequirementPayload(back.Findings[0]);
+        RequirementFindingPayload? p = FindingPayloadConverter.ToRequirementPayload(back.Findings[0]);
         p!.RequirementName.Should().Be("Name");
         p.RequirementText.Should().Be("Text");
     }

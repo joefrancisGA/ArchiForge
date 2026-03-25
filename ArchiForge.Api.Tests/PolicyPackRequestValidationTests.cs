@@ -19,17 +19,17 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
             initialContentJson = "{ not valid json",
         };
 
-        var response = await Client.PostAsync("/v1/policy-packs", JsonContent(body));
+        HttpResponseMessage response = await Client.PostAsync("/v1/policy-packs", JsonContent(body));
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var text = await response.Content.ReadAsStringAsync();
+        string text = await response.Content.ReadAsStringAsync();
         text.Should().ContainEquivalentOf("InitialContentJson");
     }
 
     [Fact]
     public async Task PublishPolicyPack_InvalidSemVerVersion_Returns400()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/policy-packs",
             JsonContent(
                 new
@@ -40,10 +40,10 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
                     initialContentJson = "{}",
                 }));
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var created = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
-        var packId = created.RootElement.GetProperty("policyPackId").GetGuid();
+        using JsonDocument created = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
+        Guid packId = created.RootElement.GetProperty("policyPackId").GetGuid();
 
-        var publishResponse = await Client.PostAsync(
+        HttpResponseMessage publishResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/publish",
             JsonContent(new
             {
@@ -52,14 +52,14 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
             }));
 
         publishResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var text = await publishResponse.Content.ReadAsStringAsync();
+        string text = await publishResponse.Content.ReadAsStringAsync();
         text.Should().ContainEquivalentOf("Version");
     }
 
     [Fact]
     public async Task AssignPolicyPack_InvalidScopeLevel_Returns400()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/policy-packs",
             JsonContent(
                 new
@@ -70,10 +70,10 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
                     initialContentJson = "{}",
                 }));
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        using var created = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
-        var packId = created.RootElement.GetProperty("policyPackId").GetGuid();
+        using JsonDocument created = JsonDocument.Parse(await createResponse.Content.ReadAsStringAsync());
+        Guid packId = created.RootElement.GetProperty("policyPackId").GetGuid();
 
-        var assignResponse = await Client.PostAsync(
+        HttpResponseMessage assignResponse = await Client.PostAsync(
             $"/v1/policy-packs/{packId}/assign",
             JsonContent(new
             {
@@ -82,7 +82,7 @@ public sealed class PolicyPackRequestValidationTests(ArchiForgeApiFactory factor
             }));
 
         assignResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var text = await assignResponse.Content.ReadAsStringAsync();
+        string text = await assignResponse.Content.ReadAsStringAsync();
         text.Should().ContainEquivalentOf("ScopeLevel");
     }
 }

@@ -14,7 +14,7 @@ public sealed class DecisionRuleSet
 
     public void ComputeHash()
     {
-        var canonical = JsonSerializer.Serialize(new
+        string canonical = JsonSerializer.Serialize(new
         {
             RuleSetId,
             Version,
@@ -34,8 +34,8 @@ public sealed class DecisionRuleSet
                 .ToArray()
         });
 
-        using var sha = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(canonical);
+        using SHA256 sha = SHA256.Create();
+        byte[] bytes = Encoding.UTF8.GetBytes(canonical);
         RuleSetHash = Convert.ToHexString(sha.ComputeHash(bytes));
     }
 }

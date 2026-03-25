@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Infrastructure;
 
@@ -33,7 +35,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -59,7 +61,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             WHERE ActivationId = @ActivationId;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -89,9 +91,9 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             LIMIT 200;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
+        IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
             new { Environment = environment },
             cancellationToken: cancellationToken));
@@ -117,9 +119,9 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             LIMIT 200;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
+        IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
             new { RunId = runId },
             cancellationToken: cancellationToken));

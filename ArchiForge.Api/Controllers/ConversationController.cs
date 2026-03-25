@@ -1,5 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Core.Conversation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Conversation;
 
@@ -34,10 +35,10 @@ public sealed class ConversationController(
     [ProducesResponseType(typeof(IReadOnlyList<object>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListThreads(int take = 50, CancellationToken ct = default)
     {
-        var safeTake = Math.Clamp(take, 1, 200);
-        var scope = scopeProvider.GetCurrentScope();
+        int safeTake = Math.Clamp(take, 1, 200);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var threads = await threadRepository.ListByScopeAsync(
+        IReadOnlyList<ConversationThread> threads = await threadRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -57,9 +58,9 @@ public sealed class ConversationController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(Guid threadId, int take = 100, CancellationToken ct = default)
     {
-        var safeTake = Math.Clamp(take, 1, 500);
-        var scope = scopeProvider.GetCurrentScope();
-        var thread = await threadRepository.GetByIdAsync(threadId, ct);
+        int safeTake = Math.Clamp(take, 1, 500);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ConversationThread? thread = await threadRepository.GetByIdAsync(threadId, ct);
         if (thread is null ||
             thread.TenantId != scope.TenantId ||
             thread.WorkspaceId != scope.WorkspaceId ||
@@ -70,7 +71,7 @@ public sealed class ConversationController(
                 ProblemTypes.ResourceNotFound);
         }
 
-        var messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
+        IReadOnlyList<ConversationMessage> messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
         return Ok(messages);
     }
 }

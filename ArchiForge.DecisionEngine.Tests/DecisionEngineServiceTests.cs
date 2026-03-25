@@ -16,14 +16,14 @@ public sealed class DecisionEngineServiceTests
     [Fact]
     public void MergeResults_Should_CreateManifest_When_ValidResultsProvided()
     {
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             RequestId = "REQ-001",
             SystemName = "TestSystem",
             Description = "Design a secure Azure system."
         };
 
-        var topology = new AgentResult
+        AgentResult topology = new AgentResult
         {
             ResultId = "RES-1",
             TaskId = "TASK-1",
@@ -49,7 +49,7 @@ public sealed class DecisionEngineServiceTests
             }
         };
 
-        var compliance = new AgentResult
+        AgentResult compliance = new AgentResult
         {
             ResultId = "RES-2",
             TaskId = "TASK-2",
@@ -66,13 +66,13 @@ public sealed class DecisionEngineServiceTests
             }
         };
 
-        var validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new SchemaValidationService(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        var service = new DecisionEngineService(validationService);
+        DecisionEngineService service = new DecisionEngineService(validationService);
 
-        var result = service.MergeResults(
+        DecisionMergeResult result = service.MergeResults(
             "1",
             request,
             "v1",
@@ -92,14 +92,14 @@ public sealed class DecisionEngineServiceTests
     [Fact]
     public void MergeResults_Should_Fail_When_ResultIsMalformed()
     {
-        var request = new ArchitectureRequest
+        ArchitectureRequest request = new ArchitectureRequest
         {
             RequestId = "REQ-001",
             SystemName = "TestSystem",
             Description = "Design a secure Azure system."
         };
 
-        var malformed = new AgentResult
+        AgentResult malformed = new AgentResult
         {
             ResultId = "",
             TaskId = "",
@@ -110,13 +110,13 @@ public sealed class DecisionEngineServiceTests
             Confidence = 1.2
         };
 
-        var validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new SchemaValidationService(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        var service = new DecisionEngineService(validationService);
+        DecisionEngineService service = new DecisionEngineService(validationService);
 
-        var result = service.MergeResults(
+        DecisionMergeResult result = service.MergeResults(
             "1",
             request,
             "v1",

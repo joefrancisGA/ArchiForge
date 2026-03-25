@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Findings.Factories;
+using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
@@ -16,7 +17,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         DecisionTrace trace,
         DecisionRuleSet ruleSet)
     {
-        var manifest = new GoldenManifest
+        GoldenManifest manifest = new GoldenManifest
         {
             ManifestId = Guid.NewGuid(),
             RunId = runId,
@@ -135,13 +136,13 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateRequirements(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("RequirementFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("RequirementFinding"))
         {
-            var payload = FindingPayloadConverter.ToRequirementPayload(finding);
+            RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
             if (payload is null)
                 continue;
 
-            var item = new RequirementCoverageItem
+            RequirementCoverageItem item = new RequirementCoverageItem
             {
                 RequirementName = payload.RequirementName,
                 RequirementText = payload.RequirementText,
@@ -165,7 +166,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
     {
-        foreach (var node in graphSnapshot.GetNodesByType("TopologyResource"))
+        foreach (GraphNode node in graphSnapshot.GetNodesByType("TopologyResource"))
         {
             if (string.IsNullOrWhiteSpace(node.Label))
                 continue;
@@ -175,11 +176,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateTopology(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("TopologyGap"))
+        foreach (Finding finding in findingsSnapshot.GetByType("TopologyGap"))
         {
-            var payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
+            TopologyGapFindingPayload? payload = FindingPayloadConverter.ToTopologyGapPayload(finding);
 
-            var description = payload?.Description ?? finding.Title;
+            string description = payload?.Description ?? finding.Title;
             manifest.Topology.Gaps.Add(description);
             manifest.Warnings.Add(description);
 
@@ -196,9 +197,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateSecurity(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("SecurityControlFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("SecurityControlFinding"))
         {
-            var payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
+            SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
             if (payload is null)
                 continue;
 
@@ -238,9 +239,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("ComplianceFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("ComplianceFinding"))
         {
-            var payload = FindingPayloadConverter.ToCompliancePayload(finding);
+            ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
             if (payload is null)
                 continue;
 
@@ -271,9 +272,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateCost(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("CostConstraintFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("CostConstraintFinding"))
         {
-            var payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
+            CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
             if (payload is null)
                 continue;
 
@@ -287,9 +288,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulatePolicyApplicability(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("PolicyApplicabilityFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("PolicyApplicabilityFinding"))
         {
-            var payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
+            PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
             if (payload is null)
                 continue;
 
@@ -317,13 +318,13 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot)
     {
-        foreach (var finding in findingsSnapshot.GetByType("TopologyCoverageFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("TopologyCoverageFinding"))
         {
-            var payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
+            TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
             if (payload is null || payload.MissingCategories.Count == 0)
                 continue;
 
-            foreach (var category in payload.MissingCategories)
+            foreach (string category in payload.MissingCategories)
                 manifest.Topology.Gaps.Add($"Missing topology category: {category}");
 
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
@@ -336,13 +337,13 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
         }
 
-        foreach (var finding in findingsSnapshot.GetByType("SecurityCoverageFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("SecurityCoverageFinding"))
         {
-            var payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
+            SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
             if (payload is null)
                 continue;
 
-            foreach (var resource in payload.UnprotectedResources)
+            foreach (string resource in payload.UnprotectedResources)
                 manifest.Security.Gaps.Add($"{resource} is not protected");
 
             manifest.UnresolvedIssues.Items.Add(new ManifestIssue
@@ -355,9 +356,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
         }
 
-        foreach (var finding in findingsSnapshot.GetByType("PolicyCoverageFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("PolicyCoverageFinding"))
         {
-            var payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
+            PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
             if (payload is null)
                 continue;
 
@@ -373,13 +374,13 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             });
         }
 
-        foreach (var finding in findingsSnapshot.GetByType("RequirementCoverageFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType("RequirementCoverageFinding"))
         {
-            var payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
+            RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
             if (payload is null)
                 continue;
 
-            foreach (var req in payload.UncoveredRequirements)
+            foreach (string req in payload.UncoveredRequirements)
             {
                 manifest.Requirements.Uncovered.Add(new RequirementCoverageItem
                 {
@@ -398,9 +399,9 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         FindingsSnapshot findingsSnapshot,
         DecisionTrace trace)
     {
-        foreach (var findingId in trace.AcceptedFindingIds)
+        foreach (string findingId in trace.AcceptedFindingIds)
         {
-            var finding = findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId);
+            Finding? finding = findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId);
             if (finding is null)
                 continue;
 

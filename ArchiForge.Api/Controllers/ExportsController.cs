@@ -42,7 +42,7 @@ public sealed class ExportsController(
         if (await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken) is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        var records = await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<RunExportRecord> records = await runExportRecordRepository.GetByRunIdAsync(runId, cancellationToken);
 
         return Ok(new RunExportHistoryResponse
         {
@@ -57,7 +57,7 @@ public sealed class ExportsController(
         [FromRoute] string exportRecordId,
         CancellationToken cancellationToken)
     {
-        var record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
+        RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (record is null)
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
@@ -75,10 +75,10 @@ public sealed class ExportsController(
         [FromQuery] string rightExportRecordId,
         CancellationToken cancellationToken)
     {
-        var loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+        LoadedExportRecordPair loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
         if (loaded.Error is not null) return loaded.Error;
 
-        var diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
+        ExportRecordDiffResult diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
 
         return Ok(new ExportRecordDiffResponse
         {
@@ -96,13 +96,13 @@ public sealed class ExportsController(
         [FromBody] PersistComparisonRequest? request,
         CancellationToken cancellationToken)
     {
-        var loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
+        LoadedExportRecordPair loaded = await LoadExportRecordPairAsync(leftExportRecordId, rightExportRecordId, cancellationToken);
         if (loaded.Error is not null) return loaded.Error;
 
         request ??= new PersistComparisonRequest();
 
-        var diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
-        var summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
+        ExportRecordDiffResult diff = exportRecordDiffService.Compare(loaded.Left!, loaded.Right!);
+        string summary = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
 
         if (!request.Persist)
             return Ok(new ExportRecordDiffSummaryResponse
@@ -111,7 +111,7 @@ public sealed class ExportsController(
                 Summary = summary
             });
 
-        var comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
+        string comparisonRecordId = await comparisonAuditService.RecordExportDiffAsync(
             diff,
             summary,
             cancellationToken);
@@ -136,7 +136,7 @@ public sealed class ExportsController(
     {
         request ??= new ApiReplayExportRequest(); // body is optional; defaults apply when omitted
 
-        var result = await exportReplayService.ReplayAsync(
+        ReplayExportResult result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
                 ExportRecordId = exportRecordId,
@@ -159,7 +159,7 @@ public sealed class ExportsController(
     {
         request ??= new ApiReplayExportRequest();
 
-        var result = await exportReplayService.ReplayAsync(
+        ReplayExportResult result = await exportReplayService.ReplayAsync(
             new AppReplayExportRequest
             {
                 ExportRecordId = exportRecordId,
@@ -192,11 +192,11 @@ public sealed class ExportsController(
         if (string.IsNullOrWhiteSpace(rightExportRecordId))
             return new LoadedExportRecordPair { Error = this.BadRequestProblem("rightExportRecordId is required.", ProblemTypes.ValidationFailed) };
 
-        var left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
+        RunExportRecord? left = await runExportRecordRepository.GetByIdAsync(leftExportRecordId, cancellationToken);
         if (left is null)
             return new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{leftExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) };
 
-        var right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
+        RunExportRecord? right = await runExportRecordRepository.GetByIdAsync(rightExportRecordId, cancellationToken);
         
         return right is null ? new LoadedExportRecordPair { Error = this.NotFoundProblem($"Export record '{rightExportRecordId}' was not found.", ProblemTypes.ResourceNotFound) } : new LoadedExportRecordPair { Left = left, Right = right };
     }

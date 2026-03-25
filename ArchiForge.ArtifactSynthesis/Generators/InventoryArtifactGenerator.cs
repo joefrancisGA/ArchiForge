@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Services;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Generators;
@@ -16,9 +17,9 @@ public class InventoryArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var inventory = new InventoryArtifactModel();
+        InventoryArtifactModel inventory = new InventoryArtifactModel();
 
-        foreach (var requirement in manifest.Requirements.Covered)
+        foreach (RequirementCoverageItem requirement in manifest.Requirements.Covered)
         {
             inventory.Items.Add(new InventoryItem
             {
@@ -29,7 +30,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             });
         }
 
-        foreach (var requirement in manifest.Requirements.Uncovered)
+        foreach (RequirementCoverageItem requirement in manifest.Requirements.Uncovered)
         {
             inventory.Items.Add(new InventoryItem
             {
@@ -40,7 +41,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             });
         }
 
-        foreach (var control in manifest.Security.Controls)
+        foreach (SecurityPostureItem control in manifest.Security.Controls)
         {
             inventory.Items.Add(new InventoryItem
             {
@@ -51,7 +52,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             });
         }
 
-        foreach (var control in manifest.Compliance.Controls)
+        foreach (CompliancePostureItem control in manifest.Compliance.Controls)
         {
             inventory.Items.Add(new InventoryItem
             {
@@ -62,7 +63,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             });
         }
 
-        foreach (var issue in manifest.UnresolvedIssues.Items)
+        foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
             inventory.Items.Add(new InventoryItem
             {
@@ -73,7 +74,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
             });
         }
 
-        var content = JsonSerializer.Serialize(inventory, SynthesisJsonOptions.WriteIndented);
+        string content = JsonSerializer.Serialize(inventory, SynthesisJsonOptions.WriteIndented);
 
         return Task.FromResult(new SynthesizedArtifact
         {

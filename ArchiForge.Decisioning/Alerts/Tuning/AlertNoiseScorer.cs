@@ -11,12 +11,12 @@ public sealed class AlertNoiseScorer : IAlertNoiseScorer
         int targetCreatedAlertCountMin,
         int targetCreatedAlertCountMax)
     {
-        var result = new NoiseScoreBreakdown();
+        NoiseScoreBreakdown result = new NoiseScoreBreakdown();
 
-        var evaluated = Math.Max(1, simulationResult.EvaluatedRunCount);
-        var created = simulationResult.WouldCreateCount;
-        var suppressed = simulationResult.WouldSuppressCount;
-        var matched = simulationResult.MatchedCount;
+        int evaluated = Math.Max(1, simulationResult.EvaluatedRunCount);
+        int created = simulationResult.WouldCreateCount;
+        int suppressed = simulationResult.WouldSuppressCount;
+        int matched = simulationResult.MatchedCount;
 
         result.CoverageScore = matched == 0
             ? 0
@@ -33,7 +33,7 @@ public sealed class AlertNoiseScorer : IAlertNoiseScorer
             result.Notes.Add("Candidate may produce too many alerts and increase operator noise.");
         }
 
-        var suppressionRatio = (double)suppressed / evaluated;
+        double suppressionRatio = (double)suppressed / evaluated;
         result.SuppressionPenalty = suppressionRatio * 15;
 
         if (suppressionRatio > 0.5)
@@ -41,7 +41,7 @@ public sealed class AlertNoiseScorer : IAlertNoiseScorer
             result.Notes.Add("A large share of matched outcomes would be suppressed, which suggests redundant triggering.");
         }
 
-        var density = (double)created / evaluated;
+        double density = (double)created / evaluated;
         result.DensityPenalty = density > 1.0 ? (density - 1.0) * 20 : 0;
 
         if (density > 1.0)

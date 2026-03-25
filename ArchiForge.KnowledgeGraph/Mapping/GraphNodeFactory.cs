@@ -9,8 +9,8 @@ public class GraphNodeFactory : IGraphNodeFactory
     {
         ArgumentNullException.ThrowIfNull(item);
 
-        var properties = item.Properties ?? new Dictionary<string, string>();
-        properties.TryGetValue("category", out var category);
+        Dictionary<string, string> properties = item.Properties ?? new Dictionary<string, string>();
+        properties.TryGetValue("category", out string? category);
 
         return new GraphNode
         {

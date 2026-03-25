@@ -26,17 +26,17 @@ public sealed class MermaidCliDiagramImageRenderer(
             return null;
         }
 
-        var tempDir = Path.Combine(Path.GetTempPath(), "archiforge-mermaid", Guid.NewGuid().ToString("N"));
+        string tempDir = Path.Combine(Path.GetTempPath(), "archiforge-mermaid", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
 
-        var inputPath = Path.Combine(tempDir, "diagram.mmd");
-        var outputPath = Path.Combine(tempDir, "diagram.png");
+        string inputPath = Path.Combine(tempDir, "diagram.mmd");
+        string outputPath = Path.Combine(tempDir, "diagram.png");
 
         await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
 
         try
         {
-            var psi = new ProcessStartInfo
+            ProcessStartInfo psi = new ProcessStartInfo
             {
                 FileName = "mmdc",
                 Arguments = $"-i \"{inputPath}\" -o \"{outputPath}\" -b transparent",
@@ -46,15 +46,15 @@ public sealed class MermaidCliDiagramImageRenderer(
                 CreateNoWindow = true
             };
 
-            using var timeoutCts = new CancellationTokenSource(ProcessTimeout);
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+            using CancellationTokenSource timeoutCts = new CancellationTokenSource(ProcessTimeout);
+            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
-            using var process = new Process();
+            using Process process = new Process();
             process.StartInfo = psi;
             process.Start();
 
             await process.StandardOutput.ReadToEndAsync(linkedCts.Token);
-            var stdErr = await process.StandardError.ReadToEndAsync(linkedCts.Token);
+            string stdErr = await process.StandardError.ReadToEndAsync(linkedCts.Token);
 
             await process.WaitForExitAsync(linkedCts.Token);
 

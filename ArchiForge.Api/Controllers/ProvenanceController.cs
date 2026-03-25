@@ -26,8 +26,8 @@ public sealed class ProvenanceController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetFullGraph(Guid runId, CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var vm = await service.GetFullGraphAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        GraphViewModel? vm = await service.GetFullGraphAsync(scope, runId, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -42,8 +42,8 @@ public sealed class ProvenanceController(
         string decisionKey,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        GraphViewModel? vm = await service.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 
@@ -57,8 +57,8 @@ public sealed class ProvenanceController(
         CancellationToken ct = default)
     {
         depth = Math.Clamp(depth, 1, 5);
-        var scope = scopeProvider.GetCurrentScope();
-        var vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        GraphViewModel? vm = await service.GetNodeNeighborhoodAsync(scope, runId, nodeId, depth, ct);
         return vm is null ? NotFound() : Ok(vm);
     }
 }

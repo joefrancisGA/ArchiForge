@@ -18,9 +18,9 @@ public sealed class DecisionEngineServiceScenarioTests
     [Fact]
     public void MergeResults_ValidTopologyAndCompliance_CreatesManifest()
     {
-        var request = CreateRequest();
+        ArchitectureRequest request = CreateRequest();
 
-        var topology = new AgentResult
+        AgentResult topology = new AgentResult
         {
             ResultId = "RES-TOPO-001",
             TaskId = "TASK-TOPO-001",
@@ -63,7 +63,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var compliance = new AgentResult
+        AgentResult compliance = new AgentResult
         {
             ResultId = "RES-COMP-001",
             TaskId = "TASK-COMP-001",
@@ -85,7 +85,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var result = _service.MergeResults(
+        DecisionMergeResult result = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -105,9 +105,9 @@ public sealed class DecisionEngineServiceScenarioTests
     [Fact]
     public void MergeResults_MalformedResult_FailsMerge()
     {
-        var request = CreateRequest();
+        ArchitectureRequest request = CreateRequest();
 
-        var malformed = new AgentResult
+        AgentResult malformed = new AgentResult
         {
             ResultId = "",
             TaskId = "",
@@ -118,7 +118,7 @@ public sealed class DecisionEngineServiceScenarioTests
             Confidence = 1.2
         };
 
-        var result = _service.MergeResults(
+        DecisionMergeResult result = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -133,9 +133,9 @@ public sealed class DecisionEngineServiceScenarioTests
     [Fact]
     public void MergeResults_RequiredControls_PropagateToServices()
     {
-        var request = CreateRequest();
+        ArchitectureRequest request = CreateRequest();
 
-        var topology = new AgentResult
+        AgentResult topology = new AgentResult
         {
             ResultId = "RES-TOPO-002",
             TaskId = "TASK-TOPO-002",
@@ -161,7 +161,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var compliance = new AgentResult
+        AgentResult compliance = new AgentResult
         {
             ResultId = "RES-COMP-002",
             TaskId = "TASK-COMP-002",
@@ -178,7 +178,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var result = _service.MergeResults(
+        DecisionMergeResult result = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -189,7 +189,7 @@ public sealed class DecisionEngineServiceScenarioTests
         result.Success.Should().BeTrue();
         result.Manifest.Services.Should().ContainSingle();
 
-        var service = result.Manifest.Services.Single();
+        ManifestService service = result.Manifest.Services.Single();
         service.RequiredControls.Should().Contain(c =>
             c.Equals("Managed Identity", StringComparison.OrdinalIgnoreCase));
         service.RequiredControls.Should().Contain(c =>
@@ -199,9 +199,9 @@ public sealed class DecisionEngineServiceScenarioTests
     [Fact]
     public void MergeResults_PrivateEndpointControl_SetsDatastoreFlag()
     {
-        var request = CreateRequest();
+        ArchitectureRequest request = CreateRequest();
 
-        var topology = new AgentResult
+        AgentResult topology = new AgentResult
         {
             ResultId = "RES-TOPO-003",
             TaskId = "TASK-TOPO-003",
@@ -228,7 +228,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var compliance = new AgentResult
+        AgentResult compliance = new AgentResult
         {
             ResultId = "RES-COMP-003",
             TaskId = "TASK-COMP-003",
@@ -245,7 +245,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var result = _service.MergeResults(
+        DecisionMergeResult result = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -261,9 +261,9 @@ public sealed class DecisionEngineServiceScenarioTests
     [Fact]
     public void MergeResults_DuplicateServices_AreMergedNotDuplicated()
     {
-        var request = CreateRequest();
+        ArchitectureRequest request = CreateRequest();
 
-        var topologyA = new AgentResult
+        AgentResult topologyA = new AgentResult
         {
             ResultId = "RES-TOPO-A",
             TaskId = "TASK-TOPO-A",
@@ -290,7 +290,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var topologyB = new AgentResult
+        AgentResult topologyB = new AgentResult
         {
             ResultId = "RES-TOPO-B",
             TaskId = "TASK-TOPO-B",
@@ -318,7 +318,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var result = _service.MergeResults(
+        DecisionMergeResult result = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -329,7 +329,7 @@ public sealed class DecisionEngineServiceScenarioTests
         result.Success.Should().BeTrue();
         result.Manifest.Services.Should().ContainSingle();
 
-        var service = result.Manifest.Services.Single();
+        ManifestService service = result.Manifest.Services.Single();
         service.ServiceName.Should().Be("rag-api");
         service.Purpose.Should().Be("Primary API");
         service.Tags.Should().Contain("api");
@@ -339,9 +339,9 @@ public sealed class DecisionEngineServiceScenarioTests
     [Fact]
     public void MergeResults_ManifestVersionIncrementsAcrossCalls()
     {
-        var request = CreateRequest();
+        ArchitectureRequest request = CreateRequest();
 
-        var topology = new AgentResult
+        AgentResult topology = new AgentResult
         {
             ResultId = "RES-TOPO-004",
             TaskId = "TASK-TOPO-004",
@@ -367,7 +367,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        var v1 = _service.MergeResults(
+        DecisionMergeResult v1 = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v1",
@@ -375,7 +375,7 @@ public sealed class DecisionEngineServiceScenarioTests
             evaluations: [],
             decisionNodes: []);
 
-        var v2 = _service.MergeResults(
+        DecisionMergeResult v2 = _service.MergeResults(
             runId: "RUN-001",
             request: request,
             manifestVersion: "v2",

@@ -26,7 +26,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         _ = connection;
         _ = transaction;
         // Store as JSON to simulate durable persistence and ensure payload round-trips.
-        var json = JsonSerializer.Serialize(snapshot, JsonOptions);
+        string json = JsonSerializer.Serialize(snapshot, JsonOptions);
         lock (_lock)
         {
             _store[snapshot.FindingsSnapshotId] = json;
@@ -47,7 +47,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         if (json is null)
             return Task.FromResult<FindingsSnapshot?>(null);
 
-        var snapshot = JsonSerializer.Deserialize<FindingsSnapshot>(json, JsonOptions);
+        FindingsSnapshot? snapshot = JsonSerializer.Deserialize<FindingsSnapshot>(json, JsonOptions);
         return Task.FromResult(snapshot);
     }
 }

@@ -20,49 +20,49 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
     [Trait("Category", "Integration")]
     public async Task ComparisonReplayVerify_WhenStoredPayloadDriftsFromRegenerated_Returns422()
     {
-        var (runId, replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
+        (string runId, string replayRunId) = await ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(
             Client, JsonOptions, "REQ-VERIFY-DRIFT-001");
-        var comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
+        string comparisonRecordId = await ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(
             Client, runId, replayRunId);
 
         string payloadJson;
-        await using (var conn = new SqliteConnection(ArchiForgeApiFactory.SqliteInMemoryConnectionString))
+        await using (SqliteConnection conn = new SqliteConnection(ArchiForgeApiFactory.SqliteInMemoryConnectionString))
         {
             await conn.OpenAsync();
-            await using var cmd = conn.CreateCommand();
+            await using SqliteCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT PayloadJson FROM ComparisonRecords WHERE ComparisonRecordId = @id";
             cmd.Parameters.AddWithValue("@id", comparisonRecordId);
-            var scalar = await cmd.ExecuteScalarAsync();
+            object? scalar = await cmd.ExecuteScalarAsync();
             payloadJson = scalar?.ToString() ?? "";
         }
 
         payloadJson.Should().NotBeNullOrWhiteSpace();
-        var node = JsonNode.Parse(payloadJson)!;
+        JsonNode node = JsonNode.Parse(payloadJson)!;
         node["leftRunId"] = "tampered-run-id-for-drift";
-        var corrupted = node.ToJsonString();
+        string corrupted = node.ToJsonString();
 
-        await using (var conn = new SqliteConnection(ArchiForgeApiFactory.SqliteInMemoryConnectionString))
+        await using (SqliteConnection conn = new SqliteConnection(ArchiForgeApiFactory.SqliteInMemoryConnectionString))
         {
             await conn.OpenAsync();
-            await using var cmd = conn.CreateCommand();
+            await using SqliteCommand cmd = conn.CreateCommand();
             cmd.CommandText = "UPDATE ComparisonRecords SET PayloadJson = @p WHERE ComparisonRecordId = @id";
             cmd.Parameters.AddWithValue("@p", corrupted);
             cmd.Parameters.AddWithValue("@id", comparisonRecordId);
             (await cmd.ExecuteNonQueryAsync()).Should().Be(1);
         }
 
-        var verifyBody = JsonSerializer.Serialize(new
+        string verifyBody = JsonSerializer.Serialize(new
         {
             format = "markdown",
             replayMode = "verify",
             persistReplay = false
         });
-        var verifyResponse = await Client.PostAsync(
+        HttpResponseMessage verifyResponse = await Client.PostAsync(
             $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/replay",
             new StringContent(verifyBody, Encoding.UTF8, "application/json"));
 
         verifyResponse.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
-        var problem = await verifyResponse.Content.ReadAsStringAsync();
+        string problem = await verifyResponse.Content.ReadAsStringAsync();
         problem.Should().Contain("comparison-verification-failed");
         problem.Should().Contain("driftDetected");
     }

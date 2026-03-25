@@ -22,7 +22,7 @@ public sealed class MarkdownArchitectureExportService : IArchitectureExportServi
         ArgumentNullException.ThrowIfNull(mermaidDiagram);
         ArgumentNullException.ThrowIfNull(markdownSummary);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"# Architecture Export: {manifest.SystemName}");
         sb.AppendLine();

@@ -199,7 +199,7 @@ public static class FakeAgentResultFactory
         string taskId,
         ArchitectureRequest request)
     {
-        var requiredControls = new List<string>
+        List<string> requiredControls = new List<string>
         {
             "Managed Identity",
             "Key Vault",
@@ -385,17 +385,17 @@ public static class FakeAgentResultFactory
         IReadOnlyCollection<AgentTask> tasks,
         ArchitectureRequest request)
     {
-        var topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology)
-            ?? throw new InvalidOperationException("Topology task was not found.");
+        AgentTask topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology)
+                                 ?? throw new InvalidOperationException("Topology task was not found.");
 
-        var costTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Cost)
-            ?? throw new InvalidOperationException("Cost task was not found.");
+        AgentTask costTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Cost)
+                             ?? throw new InvalidOperationException("Cost task was not found.");
 
-        var complianceTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Compliance)
-            ?? throw new InvalidOperationException("Compliance task was not found.");
+        AgentTask complianceTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Compliance)
+                                   ?? throw new InvalidOperationException("Compliance task was not found.");
 
-        var criticTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Critic)
-            ?? throw new InvalidOperationException("Critic task was not found.");
+        AgentTask criticTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Critic)
+                               ?? throw new InvalidOperationException("Critic task was not found.");
 
         return
         [

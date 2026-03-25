@@ -3,10 +3,12 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.ArtifactSynthesis.Docx.Models;
+using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Explanation;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
+using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Provenance;
@@ -55,15 +57,15 @@ public sealed class DocxExportController(
         [FromQuery] bool includeComparisonExplanation = true,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         if (runDetail.GoldenManifest is null)
             return this.NotFoundProblem($"Run '{runId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
-        var manifest = runDetail.GoldenManifest;
-        var artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
+        GoldenManifest? manifest = runDetail.GoldenManifest;
+        IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,
             manifest.ManifestId,
             ct);
@@ -71,7 +73,7 @@ public sealed class DocxExportController(
         ComparisonResult? manifestComparison = null;
         if (compareWithRunId is not null)
         {
-            var targetDetail = await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
+            RunDetailDto? targetDetail = await authorityQueryService.GetRunDetailAsync(scope, compareWithRunId.Value, ct);
             if (targetDetail is null)
                 return this.NotFoundProblem($"Compare run '{compareWithRunId.Value}' was not found.", ProblemTypes.RunNotFound);
             if (targetDetail.GoldenManifest is null)
@@ -86,12 +88,12 @@ public sealed class DocxExportController(
         ExplanationResult? runNarrative = null;
         if (explainRun)
         {
-            var snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
-            var graph = snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+            DecisionProvenanceSnapshot? snapshot = await provenanceSnapshotRepository.GetByRunIdAsync(scope, runId, ct);
+            DecisionProvenanceGraph? graph = snapshot is null ? null : ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
             runNarrative = await explanationService.ExplainRunAsync(manifest, graph, ct);
         }
 
-        var result = await docxExportService.ExportAsync(
+        DocxExportResult result = await docxExportService.ExportAsync(
             DocxExportRequest.ForArchitecturePackage(
                 runId,
                 manifest.ManifestId,

@@ -9,9 +9,9 @@ public class GraphValidator : IGraphValidator
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        var nodeIds = new HashSet<string>(snapshot.Nodes.Select(x => x.NodeId), StringComparer.OrdinalIgnoreCase);
+        HashSet<string> nodeIds = new HashSet<string>(snapshot.Nodes.Select(x => x.NodeId), StringComparer.OrdinalIgnoreCase);
 
-        foreach (var node in snapshot.Nodes)
+        foreach (GraphNode node in snapshot.Nodes)
         {
             if (string.IsNullOrWhiteSpace(node.NodeId))
                 throw new InvalidOperationException("Graph node NodeId is required.");
@@ -20,7 +20,7 @@ public class GraphValidator : IGraphValidator
                 throw new InvalidOperationException($"Graph node '{node.NodeId}' is missing NodeType.");
         }
 
-        foreach (var edge in snapshot.Edges)
+        foreach (GraphEdge edge in snapshot.Edges)
         {
             if (string.IsNullOrWhiteSpace(edge.EdgeType))
                 throw new InvalidOperationException("Graph edge EdgeType is required.");

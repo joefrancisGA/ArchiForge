@@ -44,11 +44,11 @@ public sealed class AuthorityReplayController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var mode = string.IsNullOrWhiteSpace(request.Mode)
+        string mode = string.IsNullOrWhiteSpace(request.Mode)
             ? ReplayMode.ReconstructOnly
             : request.Mode.Trim();
 
-        var result = await replayService.ReplayAsync(
+        ReplayResult? result = await replayService.ReplayAsync(
             new ReplayRequest
             {
                 RunId = request.RunId,

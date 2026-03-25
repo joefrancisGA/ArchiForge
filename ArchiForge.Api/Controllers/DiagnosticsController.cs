@@ -22,7 +22,7 @@ public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagn
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
     {
-        var entries = replayDiagnosticsRecorder.GetRecent(Math.Clamp(maxCount, 1, 100));
+        IReadOnlyList<ReplayDiagnosticsEntry> entries = replayDiagnosticsRecorder.GetRecent(Math.Clamp(maxCount, 1, 100));
         return Ok(new ReplayDiagnosticsResponse
         {
             RecentReplays = entries.Select(e => new ReplayDiagnosticsEntryDto

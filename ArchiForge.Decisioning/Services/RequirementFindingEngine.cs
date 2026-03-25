@@ -14,27 +14,27 @@ public class RequirementFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var findings = new List<Finding>();
+        List<Finding> findings = new List<Finding>();
 
-        var requirementNodes = graphSnapshot.GetNodesByType("Requirement");
+        IReadOnlyList<GraphNode> requirementNodes = graphSnapshot.GetNodesByType("Requirement");
 
-        foreach (var node in requirementNodes)
+        foreach (GraphNode node in requirementNodes)
         {
-            node.Properties.TryGetValue("text", out var requirementText);
+            node.Properties.TryGetValue("text", out string? requirementText);
 
-            var relatedFromGraph = graphSnapshot
+            List<string> relatedFromGraph = graphSnapshot
                 .GetOutgoingTargets(node.NodeId, "RELATES_TO")
                 .Select(n => n.NodeId)
                 .ToList();
 
-            var relatedNodeIds = new List<string> { node.NodeId };
-            foreach (var id in relatedFromGraph)
+            List<string> relatedNodeIds = new List<string> { node.NodeId };
+            foreach (string id in relatedFromGraph)
             {
                 if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))
                     relatedNodeIds.Add(id);
             }
 
-            var finding = FindingFactory.CreateRequirementFinding(
+            Finding finding = FindingFactory.CreateRequirementFinding(
                 engineType: EngineType,
                 title: $"Requirement detected: {node.Label}",
                 rationale: "A requirement node exists and must be reflected in the resolved architecture.",

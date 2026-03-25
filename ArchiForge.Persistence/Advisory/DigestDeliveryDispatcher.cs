@@ -26,13 +26,13 @@ public sealed class DigestDeliveryDispatcher(
     /// <inheritdoc />
     public async Task DeliverAsync(ArchitectureDigest digest, CancellationToken ct)
     {
-        var subscriptions = await subscriptionRepository
+        IReadOnlyList<DigestSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(digest.TenantId, digest.WorkspaceId, digest.ProjectId, ct)
             .ConfigureAwait(false);
 
-        foreach (var subscription in subscriptions)
+        foreach (DigestSubscription subscription in subscriptions)
         {
-            var attempt = new DigestDeliveryAttempt
+            DigestDeliveryAttempt attempt = new DigestDeliveryAttempt
             {
                 AttemptId = Guid.NewGuid(),
                 DigestId = digest.DigestId,
@@ -50,7 +50,7 @@ public sealed class DigestDeliveryDispatcher(
 
             try
             {
-                var channel = ResolveChannel(channels, subscription.ChannelType);
+                IDigestDeliveryChannel channel = ResolveChannel(channels, subscription.ChannelType);
 
                 await channel
                     .SendAsync(

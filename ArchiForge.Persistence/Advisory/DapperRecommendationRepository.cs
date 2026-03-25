@@ -3,6 +3,8 @@ using ArchiForge.Persistence.Connections;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationRepository" />
@@ -62,7 +64,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                 );
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct));
     }
 
@@ -80,7 +82,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             WHERE RecommendationId = @RecommendationId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         return await connection.QueryFirstOrDefaultAsync<RecommendationRecord>(
             new CommandDefinition(sql, new
             {
@@ -112,8 +114,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             ORDER BY PriorityScore DESC, CreatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<RecommendationRecord>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<RecommendationRecord> result = await connection.QueryAsync<RecommendationRecord>(
             new CommandDefinition(
                 sql,
                 new
@@ -153,8 +155,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             ORDER BY LastUpdatedUtc DESC;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var result = await connection.QueryAsync<RecommendationRecord>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<RecommendationRecord> result = await connection.QueryAsync<RecommendationRecord>(
             new CommandDefinition(
                 sql,
                 new

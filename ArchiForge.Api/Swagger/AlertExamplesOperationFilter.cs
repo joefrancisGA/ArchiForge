@@ -119,8 +119,8 @@ public sealed class AlertExamplesOperationFilter : IOperationFilter
         if (example is null)
             return;
 
-        var block = "\n\n### Example request body (JSON)\n\n```json\n" + example.Trim() + "\n```\n";
-        var intro =
+        string block = "\n\n### Example request body (JSON)\n\n```json\n" + example.Trim() + "\n```\n";
+        string intro =
             "See **`docs/API_CONTRACTS.md`** (alerts / policy packs) for scope headers and governance filtering.\n\n";
 
         operation.Description = string.IsNullOrWhiteSpace(operation.Description)

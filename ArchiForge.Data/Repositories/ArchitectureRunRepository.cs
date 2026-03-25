@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Data.Infrastructure;
@@ -42,7 +44,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -86,9 +88,9 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             LIMIT 500;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
+        ArchitectureRunRow? row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
             runSql,
             new { RunId = runId },
             cancellationToken: cancellationToken));
@@ -96,12 +98,12 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         if (row is null)
             return null;
 
-        if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out var status))
+        if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out ArchitectureRunStatus status))
             throw new InvalidOperationException(
                 $"Unrecognised ArchitectureRunStatus '{row.Status}' for run '{row.RunId}'. " +
                 "The database row may have been written by a newer version of the application.");
 
-        var taskIds = await connection.QueryAsync<string>(new CommandDefinition(
+        IEnumerable<string> taskIds = await connection.QueryAsync<string>(new CommandDefinition(
             taskSql,
             new { RunId = runId },
             cancellationToken: cancellationToken));
@@ -132,7 +134,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         // COALESCE preserves the existing manifest version when the caller passes null,
         // preventing a stale null snapshot from overwriting a version already written
         // by a concurrent flow.
-        var sql = expectedStatus.HasValue
+        string sql = expectedStatus.HasValue
             ? """
               UPDATE ArchitectureRuns
               SET
@@ -151,9 +153,9 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
               WHERE RunId = @RunId;
               """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
+        int rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
             sql,
             new
             {
@@ -223,14 +225,14 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             LIMIT 200;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
+        IEnumerable<ArchitectureRunListItemRow> rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
             sql,
             cancellationToken: cancellationToken));
 
-        var items = new List<ArchitectureRunListItem>();
-        foreach (var row in rows)
+        List<ArchitectureRunListItem> items = new List<ArchitectureRunListItem>();
+        foreach (ArchitectureRunListItemRow row in rows)
         {
             if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out _))
                 throw new InvalidOperationException(

@@ -12,9 +12,9 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
         if (operation.Responses == null)
             return;
 
-        var path = (context.ApiDescription.RelativePath ?? "").ToLowerInvariant();
+        string path = (context.ApiDescription.RelativePath ?? "").ToLowerInvariant();
 
-        if (operation.Responses.TryGetValue("404", out var notFound))
+        if (operation.Responses.TryGetValue("404", out IOpenApiResponse? notFound))
         {
             if (path.Contains("run/") && (path.Contains("compare") || path.Contains("commit") || path.Contains("execute") || path.Contains("replay") || path.Contains("/run/")))
                 notFound.Description = (notFound.Description ?? "").TrimEnd() + " Problem type: `#run-not-found` when the referenced run does not exist.";
@@ -24,7 +24,7 @@ public sealed class ProblemDetailsResponsesOperationFilter : IOperationFilter
                 notFound.Description = (notFound.Description ?? "").TrimEnd() + " Problem type: `#policy-pack-version-not-found` when the pack has no row for the requested version.";
         }
 
-        if (operation.Responses.TryGetValue("409", out var conflict))
+        if (operation.Responses.TryGetValue("409", out IOpenApiResponse? conflict))
             conflict.Description = (conflict.Description ?? "").TrimEnd() + " Problem type: `#conflict` (e.g. commit when run is in Failed state or already committed).";
     }
 }

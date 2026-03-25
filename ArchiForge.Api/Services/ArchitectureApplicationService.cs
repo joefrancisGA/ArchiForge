@@ -3,8 +3,11 @@ using System.Transactions;
 using ArchiForge.Api.Diagnostics;
 using ArchiForge.Application;
 using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Requests;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Api.Services;
@@ -39,7 +42,7 @@ public sealed class ArchitectureApplicationService(
         if (string.IsNullOrWhiteSpace(runId))
             return null;
 
-        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
             return null;
 
@@ -54,19 +57,19 @@ public sealed class ArchitectureApplicationService(
         if (string.IsNullOrWhiteSpace(runId))
             return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
-        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
         {
             return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         }
 
-        var run = detail.Run;
-        var tasks = detail.Tasks;
-        var existingResults = detail.Results;
+        ArchitectureRun run = detail.Run;
+        List<AgentTask> tasks = detail.Tasks;
+        List<AgentResult> existingResults = detail.Results;
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
-            var allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
+            string allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
             return new SubmitResultResult(false, null,
                 $"Run is in status '{run.Status}' and does not accept agent results. Only {allowed} runs can receive results.",
                 ApplicationServiceFailureKind.BadRequest);
@@ -79,7 +82,7 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.BadRequest);
         }
 
-        var task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
+        AgentTask? task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
         if (task is null)
         {
             return new SubmitResultResult(false, null,
@@ -102,15 +105,15 @@ public sealed class ArchitectureApplicationService(
         }
 
         ArchitectureRunStatus newStatus;
-        using (var tx = new TransactionScope(
+        using (TransactionScope tx = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
             await resultRepository.CreateAsync(result, cancellationToken);
 
             // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-            var allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-            var hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
+            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            bool hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
             newStatus = hasAllRequiredAgentTypes
                 ? ArchitectureRunStatus.ReadyForCommit
                 : ArchitectureRunStatus.WaitingForResults;
@@ -140,7 +143,7 @@ public sealed class ArchitectureApplicationService(
     {
         if (results.Count != RequiredAgentTypes.Count)
             return false;
-        foreach (var required in RequiredAgentTypes)
+        foreach (AgentType required in RequiredAgentTypes)
         {
             if (results.Count(r => r.AgentType == required) != 1)
                 return false;
@@ -158,23 +161,23 @@ public sealed class ArchitectureApplicationService(
         if (string.IsNullOrWhiteSpace(runId))
             return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
 
-        var detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (detail is null)
         {
             return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
         }
 
-        var run = detail.Run;
+        ArchitectureRun run = detail.Run;
 
         if (!ResultSubmissionAllowedStatuses.Contains(run.Status))
         {
-            var allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
+            string allowed = string.Join(" or ", ResultSubmissionAllowedStatuses.OrderBy(s => s.ToString()));
             return new SeedFakeResultsResult(false, 0,
                 $"Run is in status '{run.Status}' and does not accept results. Only {allowed} runs can be seeded.",
                 ApplicationServiceFailureKind.BadRequest);
         }
 
-        var architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+        ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
         if (architectureRequest is null)
         {
             return new SeedFakeResultsResult(false, 0,
@@ -182,14 +185,14 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.ResourceNotFound);
         }
 
-        var tasks = detail.Tasks;
+        List<AgentTask> tasks = detail.Tasks;
 
         if (tasks.Count == 0)
         {
             return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
         }
 
-        var existingResults = detail.Results;
+        List<AgentResult> existingResults = detail.Results;
 
         if (existingResults.Count > 0)
         {
@@ -198,13 +201,13 @@ public sealed class ArchitectureApplicationService(
             return new SeedFakeResultsResult(true, 0, null);
         }
 
-        var fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
+        IReadOnlyList<AgentResult> fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
 
-        var newStatus = HasAllRequiredAgentTypes(fakeResults)
+        ArchitectureRunStatus newStatus = HasAllRequiredAgentTypes(fakeResults)
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        using (var scope = new TransactionScope(
+        using (TransactionScope scope = new TransactionScope(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {

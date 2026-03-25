@@ -17,12 +17,12 @@ public static class ManifestPresentation
         if (string.IsNullOrWhiteSpace(componentId))
             return componentId;
 
-        var service = manifest.Services.FirstOrDefault(s =>
+        ManifestService? service = manifest.Services.FirstOrDefault(s =>
             s.ServiceId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
         if (service is not null)
             return service.ServiceName;
 
-        var datastore = manifest.Datastores.FirstOrDefault(d =>
+        ManifestDatastore? datastore = manifest.Datastores.FirstOrDefault(d =>
             d.DatastoreId.Equals(componentId, StringComparison.OrdinalIgnoreCase));
         if (datastore is not null)
             return datastore.DatastoreName;

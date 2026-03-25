@@ -65,11 +65,11 @@ public static class ArchiForgeProjectScaffolder
 
         Console.WriteLine("Creating Project " + options.ProjectName);
 
-        var baseDir = string.IsNullOrWhiteSpace(options.BaseDirectory)
+        string baseDir = string.IsNullOrWhiteSpace(options.BaseDirectory)
             ? Directory.GetCurrentDirectory()
             : options.BaseDirectory!;
 
-        var projectRoot = Path.Combine(baseDir, options.ProjectName);
+        string projectRoot = Path.Combine(baseDir, options.ProjectName);
 
         // Create directories
         CreateDirectory(projectRoot);
@@ -133,7 +133,7 @@ public static class ArchiForgeProjectScaffolder
     {
         if (File.Exists(path) && !overwrite)
             return;
-        var dir = Path.GetDirectoryName(path);
+        string? dir = Path.GetDirectoryName(path);
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
         File.WriteAllText(path, contents, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
@@ -249,7 +249,7 @@ public static class ArchiForgeProjectScaffolder
 
     private static string BuildArchiForgeJson(string projectName)
     {
-        var config = new ArchiForgeConfig
+        ArchiForgeConfig config = new ArchiForgeConfig
         {
             ProjectName = projectName,
             ApiUrl = "http://localhost:5128",
@@ -275,11 +275,11 @@ public static class ArchiForgeProjectScaffolder
 
     public static ArchiForgeConfig LoadConfig(string? projectRoot)
     {
-        var manifestPath = projectRoot != null ? Path.Combine(projectRoot, "archiforge.json") : "archiforge.json";
+        string manifestPath = projectRoot != null ? Path.Combine(projectRoot, "archiforge.json") : "archiforge.json";
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException("archiforge.json not found.", manifestPath);
 
-        var json = File.ReadAllText(manifestPath, Encoding.UTF8);
+        string json = File.ReadAllText(manifestPath, Encoding.UTF8);
 
         ArchiForgeConfig? config;
         try
@@ -317,10 +317,10 @@ public static class ArchiForgeProjectScaffolder
         EnsureRelativePathOrThrow(config.Plugins.LockFile, "plugins.lockFile");
         EnsureRelativePathOrThrow(config.Infra.Terraform.Path, "infra.terraform.path");
 
-        var briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
+        string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
         if (!File.Exists(briefPath))
             throw new FileNotFoundException($"Brief file not found at '{config.Inputs.Brief}'.", briefPath);
-        var lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
+        string lockPath = Path.Combine(projectRoot, config.Plugins.LockFile);
 
         if (!File.Exists(lockPath))
             throw new FileNotFoundException($"Plugin lock file not found at '{config.Plugins.LockFile}'.", lockPath);
@@ -328,7 +328,7 @@ public static class ArchiForgeProjectScaffolder
         if (!config.Infra.Terraform.Enabled)
             return;
 
-        var tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
+        string tfDir = Path.Combine(projectRoot, config.Infra.Terraform.Path);
 
         if (!Directory.Exists(tfDir))
             throw new DirectoryNotFoundException($"Terraform directory not found at '{config.Infra.Terraform.Path}'.");
@@ -340,7 +340,7 @@ public static class ArchiForgeProjectScaffolder
             throw new InvalidDataException($"archiforge.json: {fieldName} is empty.");
         if (Path.IsPathRooted(path))
             throw new InvalidDataException($"archiforge.json: {fieldName} must be a relative path, got rooted path '{path}'.");
-        var normalized = path.Replace('\\', '/');
+        string normalized = path.Replace('\\', '/');
         if (normalized.StartsWith("../", StringComparison.Ordinal) || normalized.Contains("/../"))
             throw new InvalidDataException($"archiforge.json: {fieldName} must not contain '..' segments ('{path}').");
     }

@@ -1,5 +1,7 @@
 using ArchiForge.Persistence.Connections;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Transactions;
 
 /// <summary>
@@ -11,8 +13,8 @@ public sealed class DapperArchiForgeUnitOfWorkFactory(ISqlConnectionFactory conn
     /// <inheritdoc />
     public async Task<IArchiForgeUnitOfWork> CreateAsync(CancellationToken ct)
     {
-        var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var transaction = connection.BeginTransaction();
+        SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        SqlTransaction? transaction = connection.BeginTransaction();
         return new DapperArchiForgeUnitOfWork(connection, transaction);
     }
 }

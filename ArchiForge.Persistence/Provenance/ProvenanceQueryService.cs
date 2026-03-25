@@ -16,7 +16,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         if (runId == Guid.Empty)
             throw new ArgumentException("runId must be a non-empty GUID.", nameof(runId));
 
-        var graph = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceGraph? graph = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         return graph is null ? null : ProvenanceGraphViewMapper.ToViewModel(graph);
     }
 
@@ -29,14 +29,14 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(decisionKey);
 
-        var full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         if (full is null)
             return null;
 
-        if (!ProvenanceGraphAlgorithms.TryResolveDecisionNodeId(full, decisionKey, out var decisionNodeId))
+        if (!ProvenanceGraphAlgorithms.TryResolveDecisionNodeId(full, decisionKey, out Guid decisionNodeId))
             return null;
 
-        var sub = ProvenanceGraphAlgorithms.ExtractDecisionSubgraph(full, decisionNodeId);
+        DecisionProvenanceGraph sub = ProvenanceGraphAlgorithms.ExtractDecisionSubgraph(full, decisionNodeId);
         return ProvenanceGraphViewMapper.ToViewModel(sub);
     }
 
@@ -51,22 +51,22 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         ArgumentNullException.ThrowIfNull(scope);
         if (runId == Guid.Empty)
             throw new ArgumentException("runId must be a non-empty GUID.", nameof(runId));
-        var safeDepth = Math.Clamp(depth, 1, 10);
+        int safeDepth = Math.Clamp(depth, 1, 10);
 
-        var full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
         if (full is null)
             return null;
 
         if (full.Nodes.All(n => n.Id != nodeId))
             return null;
 
-        var sub = ProvenanceGraphAlgorithms.ExtractNeighborhood(full, nodeId, safeDepth);
+        DecisionProvenanceGraph sub = ProvenanceGraphAlgorithms.ExtractNeighborhood(full, nodeId, safeDepth);
         return ProvenanceGraphViewMapper.ToViewModel(sub);
     }
 
     private async Task<DecisionProvenanceGraph?> LoadGraphAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
-        var snapshot = await repo.GetByRunIdAsync(scope, runId, ct).ConfigureAwait(false);
+        DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct).ConfigureAwait(false);
         if (snapshot is null)
             return null;
 

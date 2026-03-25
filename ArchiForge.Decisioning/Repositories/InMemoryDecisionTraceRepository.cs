@@ -37,7 +37,7 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            var result = _store.FirstOrDefault(x =>
+            DecisionTrace? result = _store.FirstOrDefault(x =>
                 x.DecisionTraceId == decisionTraceId &&
                 x.TenantId == scope.TenantId &&
                 x.WorkspaceId == scope.WorkspaceId &&

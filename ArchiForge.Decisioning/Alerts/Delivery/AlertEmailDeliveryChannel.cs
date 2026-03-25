@@ -14,8 +14,8 @@ public sealed class AlertEmailDeliveryChannel(IEmailSender emailSender) : IAlert
     /// <inheritdoc />
     public Task SendAsync(AlertDeliveryPayload payload, CancellationToken ct)
     {
-        var subject = $"[{payload.Alert.Severity}] {payload.Alert.Title}";
-        var body =
+        string subject = $"[{payload.Alert.Severity}] {payload.Alert.Title}";
+        string body =
             $"Category: {payload.Alert.Category}{Environment.NewLine}" +
             $"Severity: {payload.Alert.Severity}{Environment.NewLine}" +
             $"Trigger: {payload.Alert.TriggerValue}{Environment.NewLine}{Environment.NewLine}" +

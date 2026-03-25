@@ -47,7 +47,7 @@ public sealed class AlertRoutingSubscriptionsController(
         if (subscription is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
         subscription.RoutingSubscriptionId = Guid.NewGuid();
         subscription.TenantId = scope.TenantId;
@@ -81,9 +81,9 @@ public sealed class AlertRoutingSubscriptionsController(
     [ProducesResponseType(typeof(IReadOnlyList<AlertRoutingSubscription>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<AlertRoutingSubscription>>> List(CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
 
-        var result = await subscriptionRepository.ListByScopeAsync(
+        IReadOnlyList<AlertRoutingSubscription> result = await subscriptionRepository.ListByScopeAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
@@ -101,11 +101,11 @@ public sealed class AlertRoutingSubscriptionsController(
         Guid routingSubscriptionId,
         CancellationToken ct = default)
     {
-        var subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
+        AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
@@ -139,15 +139,15 @@ public sealed class AlertRoutingSubscriptionsController(
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
-        var subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
+        AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
             return NotFound();
 
-        var scope = scopeProvider.GetCurrentScope();
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
             return NotFound();
 
-        var attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, 200), ct);
+        IReadOnlyList<AlertDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, 200), ct);
         return Ok(attempts);
     }
 

@@ -44,7 +44,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         take = Math.Clamp(take, 1, 200);
         lock (_threads)
         {
-            var result = _threads
+            List<ConversationThread> result = _threads
                 .Where(x => x.TenantId == tenantId &&
                             x.WorkspaceId == workspaceId &&
                             x.ProjectId == projectId)
@@ -61,7 +61,7 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         ct.ThrowIfCancellationRequested();
         lock (_threads)
         {
-            var thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
+            ConversationThread? thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
             if (thread is not null)
                 thread.LastUpdatedUtc = updatedUtc;
         }

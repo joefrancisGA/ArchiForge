@@ -15,7 +15,7 @@ public partial class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         builder.Host.UseSerilog((context, services, configuration) => configuration
             .ReadFrom.Configuration(context.Configuration)
@@ -39,22 +39,22 @@ public partial class Program
         builder.Services.AddArchiForgeApplicationServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 
-        var app = builder.Build();
+        WebApplication app = builder.Build();
 
-        using (var scope = app.Services.CreateScope())
+        using (IServiceScope scope = app.Services.CreateScope())
         {
-            var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            var options = config.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>();
+            IConfiguration config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+            ArchiForgeOptions? options = config.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>();
 
             if (string.Equals(options?.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             {
-                var bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
+                using CancellationTokenSource cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
             }
         }
 
-        var connectionString = app.Configuration.GetConnectionString("ArchiForge");
+        string? connectionString = app.Configuration.GetConnectionString("ArchiForge");
         if (!string.IsNullOrEmpty(connectionString) && !DatabaseMigrator.Run(connectionString))
         {
             throw new InvalidOperationException("Database migration failed.");

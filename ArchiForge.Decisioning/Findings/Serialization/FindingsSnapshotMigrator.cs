@@ -9,7 +9,7 @@ public static class FindingsSnapshotMigrator
 {
     public static void Apply(FindingsSnapshot snapshot)
     {
-        foreach (var finding in snapshot.Findings)
+        foreach (Finding finding in snapshot.Findings)
             MigrateFinding(finding);
 
         if (snapshot.SchemaVersion < FindingsSchema.CurrentSnapshotVersion)

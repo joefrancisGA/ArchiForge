@@ -34,7 +34,7 @@ public class InMemoryArtifactBundleRepository : IArtifactBundleRepository
     {
         lock (_lock)
         {
-            var result = _store.LastOrDefault(x =>
+            ArtifactBundle? result = _store.LastOrDefault(x =>
                 x.ManifestId == manifestId &&
                 x.TenantId == scope.TenantId &&
                 x.WorkspaceId == scope.WorkspaceId &&

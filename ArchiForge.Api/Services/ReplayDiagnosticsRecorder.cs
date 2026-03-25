@@ -8,7 +8,7 @@ public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
 
     public ReplayDiagnosticsRecorder(IConfiguration configuration)
     {
-        var configured = configuration.GetValue("ReplayDiagnostics:Capacity", 100);
+        int configured = configuration.GetValue("ReplayDiagnostics:Capacity", 100);
         _capacity = configured is > 0 and <= 1000 ? configured : 100;
         _recent = new Queue<ReplayDiagnosticsEntry>(_capacity);
     }
@@ -27,7 +27,7 @@ public sealed class ReplayDiagnosticsRecorder : IReplayDiagnosticsRecorder
     {
         lock (_lock)
         {
-            var list = _recent.ToArray();
+            ReplayDiagnosticsEntry[] list = _recent.ToArray();
             if (list.Length <= maxCount)
                 return list;
             return list.Skip(list.Length - maxCount).ToArray();

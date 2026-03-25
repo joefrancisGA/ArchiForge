@@ -17,7 +17,7 @@ public sealed class MarkdownManifestDiffExportService : IManifestDiffExportServi
         ArgumentNullException.ThrowIfNull(diff);
         ArgumentNullException.ThrowIfNull(markdownSummary);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendLine("# ArchiForge Manifest Comparison Export");
         sb.AppendLine();

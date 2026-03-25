@@ -13,8 +13,8 @@ public sealed class InfrastructureDeclarationConnectorTests
     [Fact]
     public async Task NormalizeAsync_Warns_WhenFormatUnsupported()
     {
-        var sut = new InfrastructureDeclarationConnector([]);
-        var payload = new RawContextPayload
+        InfrastructureDeclarationConnector sut = new InfrastructureDeclarationConnector([]);
+        RawContextPayload payload = new RawContextPayload
         {
             InfrastructureDeclarations =
             [
@@ -27,7 +27,7 @@ public sealed class InfrastructureDeclarationConnectorTests
             ]
         };
 
-        var batch = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch batch = await sut.NormalizeAsync(payload, CancellationToken.None);
 
         batch.CanonicalObjects.Should().BeEmpty();
         batch.Warnings.Should().ContainSingle().Which.Should().Contain("bad.fmt").And.Contain("hcl");
@@ -36,7 +36,7 @@ public sealed class InfrastructureDeclarationConnectorTests
     [Fact]
     public async Task NormalizeAsync_DelegatesToParser()
     {
-        var parser = new Mock<IInfrastructureDeclarationParser>();
+        Mock<IInfrastructureDeclarationParser> parser = new Mock<IInfrastructureDeclarationParser>();
         parser.Setup(p => p.CanParse("json")).Returns(true);
         parser.Setup(p => p.ParseAsync(It.IsAny<InfrastructureDeclarationReference>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CanonicalObject>
@@ -51,8 +51,8 @@ public sealed class InfrastructureDeclarationConnectorTests
                 }
             });
 
-        var sut = new InfrastructureDeclarationConnector([parser.Object]);
-        var payload = new RawContextPayload
+        InfrastructureDeclarationConnector sut = new InfrastructureDeclarationConnector([parser.Object]);
+        RawContextPayload payload = new RawContextPayload
         {
             InfrastructureDeclarations =
             [
@@ -60,7 +60,7 @@ public sealed class InfrastructureDeclarationConnectorTests
             ]
         };
 
-        var batch = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch batch = await sut.NormalizeAsync(payload, CancellationToken.None);
 
         batch.CanonicalObjects.Should().HaveCount(1);
         parser.Verify(p => p.ParseAsync(It.IsAny<InfrastructureDeclarationReference>(), It.IsAny<CancellationToken>()), Times.Once);

@@ -25,7 +25,7 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
 
-        var trace = new AgentExecutionTrace
+        AgentExecutionTrace trace = new AgentExecutionTrace
         {
             TraceId = Guid.NewGuid().ToString("N"),
             RunId = runId,

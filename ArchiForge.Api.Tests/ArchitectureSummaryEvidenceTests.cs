@@ -13,29 +13,29 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchiForgeApiFactory factor
     [Fact]
     public async Task GetManifestSummary_IncludesEvidenceContext()
     {
-        var createResponse = await Client.PostAsync(
+        HttpResponseMessage createResponse = await Client.PostAsync(
             "/v1/architecture/request",
             JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-SUMMARY-EVIDENCE-001")));
 
         createResponse.EnsureSuccessStatusCode();
 
-        var created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
-        var runId = created!.Run.RunId;
+        CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
 
-        var executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
         executeResponse.EnsureSuccessStatusCode();
 
-        var commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
         commitResponse.EnsureSuccessStatusCode();
 
-        var commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
-        var manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+        CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        var summaryResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
+        HttpResponseMessage summaryResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
+        ManifestSummaryResponse? summaryPayload = await summaryResponse.Content.ReadFromJsonAsync<ManifestSummaryResponse>(JsonOptions);
         summaryPayload.Should().NotBeNull();
         summaryPayload.Summary.Should().Contain("## Evidence Context");
         summaryPayload.Summary.Should().Contain("### Policy Evidence");

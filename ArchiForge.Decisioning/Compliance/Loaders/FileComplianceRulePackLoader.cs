@@ -18,7 +18,7 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
         if (!File.Exists(filePath))
             throw new FileNotFoundException($"Compliance rule pack not found: {filePath}");
 
-        var json = await File.ReadAllTextAsync(filePath, ct);
+        string json = await File.ReadAllTextAsync(filePath, ct);
 
         ComplianceRulePackDocument? doc;
         try
@@ -56,7 +56,7 @@ public class FileComplianceRulePackLoader(string filePath) : IComplianceRulePack
 
     private static string ComputeHash(string content)
     {
-        var bytes = Encoding.UTF8.GetBytes(content);
+        byte[] bytes = Encoding.UTF8.GetBytes(content);
         return Convert.ToHexString(SHA256.HashData(bytes));
     }
 }

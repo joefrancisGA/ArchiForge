@@ -8,15 +8,9 @@ public class GraphNode
 
     public string Label { get; set; } = null!;
 
-    public string? Category
-    {
-        get; set;
-    }
+    public string? Category { get; set; }
 
-    public string? SourceType
-    {
-        get; set;
-    }
+    public string? SourceType { get; set; }
 
     public string? SourceId
     {

@@ -16,7 +16,7 @@ public class CoverageSummaryArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var model = new CoverageSummaryArtifactModel
+        CoverageSummaryArtifactModel model = new CoverageSummaryArtifactModel
         {
             CoveredRequirementCount = manifest.Requirements.Covered.Count,
             UncoveredRequirementCount = manifest.Requirements.Uncovered.Count,
@@ -26,7 +26,7 @@ public class CoverageSummaryArtifactGenerator : IArtifactGenerator
             TopologyGaps = manifest.Topology.Gaps.ToList()
         };
 
-        var content = JsonSerializer.Serialize(model, SynthesisJsonOptions.WriteIndented);
+        string content = JsonSerializer.Serialize(model, SynthesisJsonOptions.WriteIndented);
 
         return Task.FromResult(new SynthesizedArtifact
         {

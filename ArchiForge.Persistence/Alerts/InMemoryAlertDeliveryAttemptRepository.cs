@@ -21,7 +21,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         _ = ct;
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId);
+            int i = _items.FindIndex(x => x.AlertDeliveryAttemptId == attempt.AlertDeliveryAttemptId);
             if (i >= 0)
                 _items[i] = attempt;
         }
@@ -34,7 +34,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         _ = ct;
         lock (_gate)
         {
-            var result = _items.Where(x => x.AlertId == alertId).OrderByDescending(x => x.AttemptedUtc).ToList();
+            List<AlertDeliveryAttempt> result = _items.Where(x => x.AlertId == alertId).OrderByDescending(x => x.AttemptedUtc).ToList();
             return Task.FromResult<IReadOnlyList<AlertDeliveryAttempt>>(result);
         }
     }
@@ -47,7 +47,7 @@ public sealed class InMemoryAlertDeliveryAttemptRepository : IAlertDeliveryAttem
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<AlertDeliveryAttempt> result = _items
                 .Where(x => x.RoutingSubscriptionId == routingSubscriptionId)
                 .OrderByDescending(x => x.AttemptedUtc)
                 .Take(take)

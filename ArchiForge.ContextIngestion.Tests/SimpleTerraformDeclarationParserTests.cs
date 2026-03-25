@@ -12,7 +12,7 @@ public sealed class SimpleTerraformDeclarationParserTests
     [Fact]
     public async Task ParseAsync_ExtractsResourceBlocks()
     {
-        var declaration = new InfrastructureDeclarationReference
+        InfrastructureDeclarationReference declaration = new InfrastructureDeclarationReference
         {
             Name = "stub.tf",
             Format = "simple-terraform",
@@ -25,7 +25,7 @@ public sealed class SimpleTerraformDeclarationParserTests
                 """
         };
 
-        var result = await _sut.ParseAsync(declaration, CancellationToken.None);
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(declaration, CancellationToken.None);
 
         result.Should().HaveCount(5);
         result.Should().ContainSingle(o => o.Name == "kv" && o.ObjectType == "SecurityBaseline");

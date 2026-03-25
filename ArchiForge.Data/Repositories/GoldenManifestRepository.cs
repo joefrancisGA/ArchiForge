@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -38,9 +39,9 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             );
             """;
 
-        var json = JsonSerializer.Serialize(manifest, ContractJson.Default);
+        string json = JsonSerializer.Serialize(manifest, ContractJson.Default);
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
         await connection.ExecuteAsync(new CommandDefinition(
             sql,
@@ -64,9 +65,9 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
             WHERE ManifestVersion = @ManifestVersion;
             """;
 
-        using var connection = connectionFactory.CreateConnection();
+        using IDbConnection connection = connectionFactory.CreateConnection();
 
-        var json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(new CommandDefinition(
             sql,
             new
             {

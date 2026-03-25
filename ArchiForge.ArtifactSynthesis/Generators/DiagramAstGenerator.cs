@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Services;
+using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 
 namespace ArchiForge.ArtifactSynthesis.Generators;
@@ -16,7 +17,7 @@ public class DiagramAstGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        var ast = new DiagramAst
+        DiagramAst ast = new DiagramAst
         {
             Title = manifest.Metadata.Name
         };
@@ -28,9 +29,9 @@ public class DiagramAstGenerator : IArtifactGenerator
             NodeType = "Manifest"
         });
 
-        foreach (var decision in manifest.Decisions)
+        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
         {
-            var nodeId = $"decision-{decision.DecisionId}";
+            string nodeId = $"decision-{decision.DecisionId}";
             ast.Nodes.Add(new DiagramNode
             {
                 NodeId = nodeId,
@@ -46,10 +47,10 @@ public class DiagramAstGenerator : IArtifactGenerator
             });
         }
 
-        for (var i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
+        for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
         {
-            var issue = manifest.UnresolvedIssues.Items[i];
-            var nodeId = $"issue-{i}";
+            ManifestIssue issue = manifest.UnresolvedIssues.Items[i];
+            string nodeId = $"issue-{i}";
             ast.Nodes.Add(new DiagramNode
             {
                 NodeId = nodeId,
@@ -65,7 +66,7 @@ public class DiagramAstGenerator : IArtifactGenerator
             });
         }
 
-        var content = JsonSerializer.Serialize(ast, SynthesisJsonOptions.WriteIndented);
+        string content = JsonSerializer.Serialize(ast, SynthesisJsonOptions.WriteIndented);
 
         return Task.FromResult(new SynthesizedArtifact
         {

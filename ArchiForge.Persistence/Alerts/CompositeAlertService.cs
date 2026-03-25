@@ -43,27 +43,27 @@ public sealed class CompositeAlertService(
         AlertEvaluationContext context,
         CancellationToken ct)
     {
-        var rules = await ruleRepository
+        IReadOnlyList<CompositeAlertRule> rules = await ruleRepository
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
+        PolicyPackContentDocument effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
             .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
         rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 
-        var snapshot = snapshotBuilder.Build(context);
-        var created = new List<AlertRecord>();
-        var suppressedMatches = 0;
+        AlertMetricSnapshot snapshot = snapshotBuilder.Build(context);
+        List<AlertRecord> created = new List<AlertRecord>();
+        int suppressedMatches = 0;
 
-        foreach (var rule in rules)
+        foreach (CompositeAlertRule rule in rules)
         {
-            var matched = ruleEvaluator.Evaluate(rule, snapshot);
+            bool matched = ruleEvaluator.Evaluate(rule, snapshot);
             if (!matched)
                 continue;
 
-            var suppression = await suppressionPolicy
+            AlertSuppressionDecision suppression = await suppressionPolicy
                 .DecideAsync(rule, context, snapshot, ct)
                 .ConfigureAwait(false);
 
@@ -87,8 +87,8 @@ public sealed class CompositeAlertService(
                 continue;
             }
 
-            var triggerSummary = BuildTriggerSummary(snapshot);
-            var alert = new AlertRecord
+            string triggerSummary = BuildTriggerSummary(snapshot);
+            AlertRecord alert = new AlertRecord
             {
                 AlertId = Guid.NewGuid(),
                 RuleId = rule.CompositeRuleId,

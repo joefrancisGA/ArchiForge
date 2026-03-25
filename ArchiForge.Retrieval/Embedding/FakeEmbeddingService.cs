@@ -16,10 +16,10 @@ public sealed class FakeEmbeddingService : IEmbeddingService
 
     private static float[] Build(string? text)
     {
-        var vector = new float[32];
-        var hash = (text ?? string.Empty).GetHashCode();
+        float[] vector = new float[32];
+        int hash = (text ?? string.Empty).GetHashCode();
 
-        for (var i = 0; i < vector.Length; i++)
+        for (int i = 0; i < vector.Length; i++)
             vector[i] = ((hash >> (i % 16)) & 255) / 255f;
 
         return vector;

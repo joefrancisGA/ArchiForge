@@ -8,6 +8,8 @@ using ArchiForge.Persistence.Serialization;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Repositories;
 
 /// <summary>Persists <see cref="DecisionTrace"/> from decisioning (not API <c>DecisionTraces</c> table).</summary>
@@ -61,7 +63,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -80,8 +82,8 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
               AND DecisionTraceId = @DecisionTraceId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        DecisionTraceRow? row = await connection.QuerySingleOrDefaultAsync<DecisionTraceRow>(
             new CommandDefinition(
                 sql,
                 new

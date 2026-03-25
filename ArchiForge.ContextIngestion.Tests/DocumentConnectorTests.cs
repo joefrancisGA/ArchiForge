@@ -13,11 +13,11 @@ public sealed class DocumentConnectorTests
     [Fact]
     public async Task NormalizeAsync_AddsWarning_WhenNoParserMatches()
     {
-        var mockParser = new Mock<IContextDocumentParser>();
+        Mock<IContextDocumentParser> mockParser = new Mock<IContextDocumentParser>();
         mockParser.Setup(p => p.CanParse(It.IsAny<string>())).Returns(false);
 
-        var sut = new DocumentConnector([mockParser.Object]);
-        var payload = new RawContextPayload
+        DocumentConnector sut = new DocumentConnector([mockParser.Object]);
+        RawContextPayload payload = new RawContextPayload
         {
             Documents =
             [
@@ -30,7 +30,7 @@ public sealed class DocumentConnectorTests
             ]
         };
 
-        var batch = await sut.NormalizeAsync(payload, CancellationToken.None);
+        NormalizedContextBatch batch = await sut.NormalizeAsync(payload, CancellationToken.None);
 
         batch.CanonicalObjects.Should().BeEmpty();
         batch.Warnings.Should().ContainSingle()

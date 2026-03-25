@@ -24,7 +24,7 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void Constructor_WithNullLogger_ThrowsArgumentNullException()
     {
-        var action = () => new SchemaValidationService(
+        Func<SchemaValidationService> action = () => new SchemaValidationService(
             null!,
             Options.Create(_options));
 
@@ -35,7 +35,7 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void Constructor_WithNullOptions_ThrowsArgumentNullException()
     {
-        var action = () => new SchemaValidationService(
+        Func<SchemaValidationService> action = () => new SchemaValidationService(
             _loggerMock.Object,
             null!);
 
@@ -46,9 +46,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithEmptyJson_ReturnsInvalidResult()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = service.ValidateAgentResultJson(string.Empty);
+        SchemaValidationResult result = service.ValidateAgentResultJson(string.Empty);
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -59,9 +59,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateGoldenManifestJson_WithEmptyJson_ReturnsInvalidResult()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = service.ValidateGoldenManifestJson(string.Empty);
+        SchemaValidationResult result = service.ValidateGoldenManifestJson(string.Empty);
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -72,9 +72,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithWhitespaceJson_ReturnsInvalidResult()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = service.ValidateAgentResultJson("   \t\n  ");
+        SchemaValidationResult result = service.ValidateAgentResultJson("   \t\n  ");
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -84,9 +84,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithInvalidJson_ReturnsParseError()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = service.ValidateAgentResultJson("{ invalid json }");
+        SchemaValidationResult result = service.ValidateAgentResultJson("{ invalid json }");
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -97,9 +97,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithMalformedJson_ReturnsParseError()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = service.ValidateAgentResultJson("{\"key\": }");
+        SchemaValidationResult result = service.ValidateAgentResultJson("{\"key\": }");
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -110,9 +110,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public async Task ValidateAgentResultJsonAsync_WithEmptyJson_ReturnsInvalidResult()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = await service.ValidateAgentResultJsonAsync(string.Empty);
+        SchemaValidationResult result = await service.ValidateAgentResultJsonAsync(string.Empty);
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -122,9 +122,9 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public async Task ValidateGoldenManifestJsonAsync_WithEmptyJson_ReturnsInvalidResult()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
-        var result = await service.ValidateGoldenManifestJsonAsync(string.Empty);
+        SchemaValidationResult result = await service.ValidateGoldenManifestJsonAsync(string.Empty);
 
         result.Should().NotBeNull();
         result.IsValid.Should().BeFalse();
@@ -134,11 +134,11 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public async Task ValidateAgentResultJsonAsync_WithCancellation_ThrowsOperationCanceledException()
     {
-        var service = CreateService();
-        var cts = new CancellationTokenSource();
+        SchemaValidationService service = CreateService();
+        CancellationTokenSource cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var action = async () => await service.ValidateAgentResultJsonAsync(
+        Func<Task<SchemaValidationResult>> action = async () => await service.ValidateAgentResultJsonAsync(
             "{\"test\": \"value\"}",
             cts.Token);
 
@@ -148,10 +148,10 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithDetailedErrorsEnabled_PopulatesDetailedErrors()
     {
-        var service = CreateService();
-        var invalidJson = "{\"unknownField\": \"value\"}";
+        SchemaValidationService service = CreateService();
+        string invalidJson = "{\"unknownField\": \"value\"}";
 
-        var result = service.ValidateAgentResultJson(invalidJson);
+        SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         if (result.IsValid)
         {
@@ -169,20 +169,20 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithDetailedErrorsDisabled_DoesNotPopulateDetailedErrors()
     {
-        var optionsWithoutDetails = new SchemaValidationOptions
+        SchemaValidationOptions optionsWithoutDetails = new SchemaValidationOptions
         {
             AgentResultSchemaPath = "schemas/agentresult.schema.json",
             GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
             EnableDetailedErrors = false
         };
 
-        var service = new SchemaValidationService(
+        SchemaValidationService service = new SchemaValidationService(
             _loggerMock.Object,
             Options.Create(optionsWithoutDetails));
 
-        var invalidJson = "{\"unknownField\": \"value\"}";
+        string invalidJson = "{\"unknownField\": \"value\"}";
 
-        var result = service.ValidateAgentResultJson(invalidJson);
+        SchemaValidationResult result = service.ValidateAgentResultJson(invalidJson);
 
         if (!result.IsValid)
         {
@@ -193,7 +193,7 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_LogsValidationFailure()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
         service.ValidateAgentResultJson(string.Empty);
 
@@ -210,7 +210,7 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateGoldenManifestJson_LogsValidationFailure()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
         service.ValidateGoldenManifestJson(string.Empty);
 
@@ -227,7 +227,7 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void LazyLoading_SchemaLoadedOnlyOnFirstUse()
     {
-        var service = CreateService();
+        SchemaValidationService service = CreateService();
 
         _loggerMock.Verify(
             x => x.Log(

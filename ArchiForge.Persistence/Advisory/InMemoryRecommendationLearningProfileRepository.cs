@@ -30,7 +30,7 @@ public sealed class InMemoryRecommendationLearningProfileRepository : IRecommend
         ct.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            var result = _profiles
+            RecommendationLearningProfile? result = _profiles
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&

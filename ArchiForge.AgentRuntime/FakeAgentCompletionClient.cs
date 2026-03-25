@@ -11,7 +11,7 @@ public sealed class FakeAgentCompletionClient(Func<string, string, string> resol
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
-        var json = resolver(systemPrompt, userPrompt);
+        string json = resolver(systemPrompt, userPrompt);
         return Task.FromResult(json);
     }
 }

@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
@@ -38,10 +40,10 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var options = configuration
-                .GetSection(ArchiForgeOptions.SectionName)
-                .Get<ArchiForgeOptions>()
-            ?? new ArchiForgeOptions();
+        ArchiForgeOptions options = configuration
+                                        .GetSection(ArchiForgeOptions.SectionName)
+                                        .Get<ArchiForgeOptions>()
+                                    ?? new ArchiForgeOptions();
 
         services.Configure<ArchiForgeOptions>(
             configuration.GetSection(ArchiForgeOptions.SectionName));
@@ -86,15 +88,15 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             return services;
         }
 
-        var connectionString = configuration.GetConnectionString("ArchiForge")
-            ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
+        string connectionString = configuration.GetConnectionString("ArchiForge")
+                                  ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
 
         services.AddSingleton<ISqlConnectionFactory>(_ =>
             new SqlConnectionFactory(connectionString));
 
-        var persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
-        var dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
-        var scriptPath = Path.Combine(dir, "Scripts", "ArchiForge.sql");
+        Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
+        string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
+        string scriptPath = Path.Combine(dir, "Scripts", "ArchiForge.sql");
 
         services.AddSingleton<ISchemaBootstrapper>(sp =>
             new SqlSchemaBootstrapper(

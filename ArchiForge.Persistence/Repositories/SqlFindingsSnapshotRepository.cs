@@ -7,6 +7,8 @@ using ArchiForge.Persistence.Serialization;
 
 using Dapper;
 
+using Microsoft.Data.SqlClient;
+
 namespace ArchiForge.Persistence.Repositories;
 
 public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory) : IFindingsSnapshotRepository
@@ -46,7 +48,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             return;
         }
 
-        await using var owned = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
@@ -58,8 +60,8 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             WHERE FindingsSnapshotId = @FindingsSnapshotId;
             """;
 
-        await using var connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        var json = await connection.QuerySingleOrDefaultAsync<string>(
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        string? json = await connection.QuerySingleOrDefaultAsync<string>(
             new CommandDefinition(sql, new
             {
                 FindingsSnapshotId = findingsSnapshotId

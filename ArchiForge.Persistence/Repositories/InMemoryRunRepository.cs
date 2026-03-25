@@ -26,7 +26,7 @@ public sealed class InMemoryRunRepository : IRunRepository
 
         if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
         {
-            var oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
+            RunRecord? oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
             if (oldest is not null)
                 _store.TryRemove(oldest.RunId, out _);
         }
@@ -38,7 +38,7 @@ public sealed class InMemoryRunRepository : IRunRepository
     public Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        if (!_store.TryGetValue(runId, out var r))
+        if (!_store.TryGetValue(runId, out RunRecord? r))
             return Task.FromResult<RunRecord?>(null);
         return Task.FromResult(MatchesScope(r, scope) ? r : null);
     }
@@ -46,8 +46,8 @@ public sealed class InMemoryRunRepository : IRunRepository
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        var n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
-        var list = _store.Values
+        int n = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        List<RunRecord> list = _store.Values
             .Where(r =>
                 MatchesScope(r, scope) &&
                 string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))

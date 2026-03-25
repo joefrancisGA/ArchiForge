@@ -17,20 +17,20 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        var findings = new List<Finding>();
-        var policyNodes = graphSnapshot.GetNodesByType("PolicyControl");
-        var topologyCount = graphSnapshot.GetNodesByType("TopologyResource").Count;
+        List<Finding> findings = new List<Finding>();
+        IReadOnlyList<GraphNode> policyNodes = graphSnapshot.GetNodesByType("PolicyControl");
+        int topologyCount = graphSnapshot.GetNodesByType("TopologyResource").Count;
 
-        foreach (var policy in policyNodes)
+        foreach (GraphNode policy in policyNodes)
         {
-            var targets = graphSnapshot
+            List<GraphNode> targets = graphSnapshot
                 .GetOutgoingTargets(policy.NodeId, "APPLIES_TO")
                 .Where(n => string.Equals(n.NodeType, "TopologyResource", StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-            policy.Properties.TryGetValue("reference", out var reference);
-            policy.Properties.TryGetValue("policyId", out var policyId);
-            var policyRef = reference ?? policyId;
+            policy.Properties.TryGetValue("reference", out string? reference);
+            policy.Properties.TryGetValue("policyId", out string? policyId);
+            string? policyRef = reference ?? policyId;
 
             if (topologyCount > 0 && targets.Count == 0)
             {
@@ -45,8 +45,8 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
             if (targets.Count == 0)
                 continue;
 
-            var targetIds = targets.Select(t => t.NodeId).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-            var examined = new List<string> { policy.NodeId };
+            List<string> targetIds = targets.Select(t => t.NodeId).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            List<string> examined = new List<string> { policy.NodeId };
             examined.AddRange(targetIds);
 
             findings.Add(FindingFactory.CreatePolicyApplicabilityFinding(

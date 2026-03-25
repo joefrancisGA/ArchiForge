@@ -21,7 +21,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            var i = _items.FindIndex(x => x.CompositeRuleId == rule.CompositeRuleId);
+            int i = _items.FindIndex(x => x.CompositeRuleId == rule.CompositeRuleId);
             if (i >= 0)
                 _items[i] = CloneRule(rule);
         }
@@ -34,7 +34,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            var found = _items.FirstOrDefault(x => x.CompositeRuleId == compositeRuleId);
+            CompositeAlertRule? found = _items.FirstOrDefault(x => x.CompositeRuleId == compositeRuleId);
             return Task.FromResult(found is null ? null : CloneRule(found));
         }
     }
@@ -48,7 +48,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<CompositeAlertRule> result = _items
                 .Where(x => x.TenantId == tenantId && x.WorkspaceId == workspaceId && x.ProjectId == projectId)
                 .OrderByDescending(x => x.CreatedUtc)
                 .Select(CloneRule)
@@ -66,7 +66,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
         _ = ct;
         lock (_gate)
         {
-            var result = _items
+            List<CompositeAlertRule> result = _items
                 .Where(x =>
                     x.TenantId == tenantId &&
                     x.WorkspaceId == workspaceId &&
@@ -81,7 +81,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
 
     private static CompositeAlertRule CloneRule(CompositeAlertRule r)
     {
-        var copy = new CompositeAlertRule
+        CompositeAlertRule copy = new CompositeAlertRule
         {
             CompositeRuleId = r.CompositeRuleId,
             TenantId = r.TenantId,

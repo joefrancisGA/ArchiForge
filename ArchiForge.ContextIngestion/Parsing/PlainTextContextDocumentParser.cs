@@ -15,17 +15,17 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
     {
         ArgumentNullException.ThrowIfNull(document);
         _ = ct;
-        var results = new List<CanonicalObject>();
+        List<CanonicalObject> results = new List<CanonicalObject>();
 
-        var lines = (document.Content ?? string.Empty)
+        string[] lines = (document.Content ?? string.Empty)
             .Replace("\r\n", "\n")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        foreach (var line in lines)
+        foreach (string line in lines)
         {
             if (line.StartsWith("REQ:", StringComparison.OrdinalIgnoreCase))
             {
-                var text = line.Substring(4).Trim();
+                string text = line.Substring(4).Trim();
 
                 results.Add(new CanonicalObject
                 {
@@ -41,7 +41,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             }
             else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
             {
-                var text = line.Substring(4).Trim();
+                string text = line.Substring(4).Trim();
 
                 results.Add(new CanonicalObject
                 {
@@ -57,7 +57,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             }
             else if (line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
             {
-                var text = line.Substring(4).Trim();
+                string text = line.Substring(4).Trim();
 
                 results.Add(new CanonicalObject
                 {
@@ -73,7 +73,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             }
             else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
             {
-                var text = line.Substring(4).Trim();
+                string text = line.Substring(4).Trim();
 
                 results.Add(new CanonicalObject
                 {

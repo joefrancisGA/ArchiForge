@@ -21,12 +21,12 @@ public sealed class ImprovementAdvisorService(
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNull(findingsSnapshot);
 
-        var profile = await learningService
+        RecommendationLearningProfile? profile = await learningService
             .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var signals = signalAnalyzer.Analyze(manifest, findingsSnapshot);
-        var recommendations = recommendationGenerator.Generate(signals, profile);
+        IReadOnlyList<ImprovementSignal> signals = signalAnalyzer.Analyze(manifest, findingsSnapshot);
+        IReadOnlyList<ImprovementRecommendation> recommendations = recommendationGenerator.Generate(signals, profile);
 
         return new ImprovementPlan
         {
@@ -47,12 +47,12 @@ public sealed class ImprovementAdvisorService(
         ArgumentNullException.ThrowIfNull(findingsSnapshot);
         ArgumentNullException.ThrowIfNull(comparison);
 
-        var profile = await learningService
+        RecommendationLearningProfile? profile = await learningService
             .GetLatestProfileAsync(manifest.TenantId, manifest.WorkspaceId, manifest.ProjectId, ct)
             .ConfigureAwait(false);
 
-        var signals = signalAnalyzer.Analyze(manifest, findingsSnapshot, comparison);
-        var recommendations = recommendationGenerator.Generate(signals, profile);
+        IReadOnlyList<ImprovementSignal> signals = signalAnalyzer.Analyze(manifest, findingsSnapshot, comparison);
+        IReadOnlyList<ImprovementRecommendation> recommendations = recommendationGenerator.Generate(signals, profile);
 
         return new ImprovementPlan
         {
@@ -67,7 +67,7 @@ public sealed class ImprovementAdvisorService(
         IReadOnlyList<ImprovementRecommendation> recommendations,
         RecommendationLearningProfile? profile)
     {
-        var notes = new List<string>();
+        List<string> notes = new List<string>();
 
         if (recommendations.Count == 0)
         {
@@ -82,13 +82,13 @@ public sealed class ImprovementAdvisorService(
         else
             notes.Add("No adaptive learning profile was available. Base prioritization was used.");
 
-        var high = recommendations.Count(x =>
+        int high = recommendations.Count(x =>
             string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(x.Urgency, "Critical", StringComparison.OrdinalIgnoreCase));
 
         notes.Add($"{high} recommendations are high urgency or above.");
 
-        var topCategories = recommendations
+        List<string> topCategories = recommendations
             .GroupBy(x => x.Category)
             .OrderByDescending(x => x.Count())
             .Select(x => $"{x.Key}: {x.Count()}")

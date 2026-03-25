@@ -23,12 +23,12 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         ImprovementPlan plan,
         IReadOnlyList<AlertRecord>? evaluatedAlerts = null)
     {
-        var top = plan.Recommendations
+        List<ImprovementRecommendation> top = plan.Recommendations
             .OrderByDescending(x => x.PriorityScore)
             .Take(5)
             .ToList();
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.AppendLine("# Daily Architecture Digest");
         sb.AppendLine();
         sb.AppendLine($"Generated: {plan.GeneratedUtc:u}");
@@ -37,7 +37,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         sb.AppendLine();
 
         sb.AppendLine("## Summary");
-        foreach (var note in plan.SummaryNotes)
+        foreach (string note in plan.SummaryNotes)
             sb.AppendLine($"- {note}");
         sb.AppendLine();
 
@@ -48,7 +48,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         }
         else
         {
-            foreach (var item in top)
+            foreach (ImprovementRecommendation item in top)
             {
                 sb.AppendLine($"### {item.Title}");
                 sb.AppendLine($"- Category: {item.Category}");
@@ -61,8 +61,8 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
             }
         }
 
-        var alerts = evaluatedAlerts ?? [];
-        var highCritical = alerts
+        IReadOnlyList<AlertRecord> alerts = evaluatedAlerts ?? [];
+        int highCritical = alerts
             .Count(a =>
                 string.Equals(a.Severity, AlertSeverity.High, StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(a.Severity, AlertSeverity.Critical, StringComparison.OrdinalIgnoreCase));
@@ -74,13 +74,13 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         }
         else
         {
-            foreach (var alert in alerts)
+            foreach (AlertRecord alert in alerts)
                 sb.AppendLine($"- [{alert.Severity}] {alert.Title} — {alert.Description}");
         }
 
         sb.AppendLine();
 
-        var summary = top.Count == 0
+        string summary = top.Count == 0
             ? "No major architecture issues were identified in the latest scan."
             : $"Top advisory items: {string.Join("; ", top.Select(x => x.Title))}";
 

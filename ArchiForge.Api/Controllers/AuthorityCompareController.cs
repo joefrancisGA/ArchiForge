@@ -37,8 +37,8 @@ public sealed class AuthorityCompareController(
         [FromQuery] Guid rightManifestId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var result = await compareService.CompareManifestsAsync(scope, leftManifestId, rightManifestId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        ManifestComparisonResult? result = await compareService.CompareManifestsAsync(scope, leftManifestId, rightManifestId, ct);
         if (result is null)
             return NotFound();
 
@@ -58,8 +58,8 @@ public sealed class AuthorityCompareController(
         [FromQuery] Guid rightRunId,
         CancellationToken ct = default)
     {
-        var scope = scopeProvider.GetCurrentScope();
-        var result = await compareService.CompareRunsAsync(scope, leftRunId, rightRunId, ct);
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunComparisonResult? result = await compareService.CompareRunsAsync(scope, leftRunId, rightRunId, ct);
         if (result is null)
             return NotFound();
 

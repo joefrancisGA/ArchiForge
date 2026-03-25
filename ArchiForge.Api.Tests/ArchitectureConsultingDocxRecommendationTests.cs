@@ -23,13 +23,13 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchiForgeApiF
             needDeterminismOrCompareAppendices = false
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/analysis-report/export/docx/consulting/profiles/recommend",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
+        ConsultingDocxProfileRecommendationResponse? payload = await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Recommendation.RecommendedProfileName.Should().Be("executive");
         payload.Recommendation.Reason.Should().NotBeNullOrWhiteSpace();
@@ -49,13 +49,13 @@ public sealed class ArchitectureConsultingDocxRecommendationTests(ArchiForgeApiF
             needDeterminismOrCompareAppendices = true
         };
 
-        var response = await Client.PostAsync(
+        HttpResponseMessage response = await Client.PostAsync(
             "/v1/architecture/analysis-report/export/docx/consulting/profiles/recommend",
             JsonContent(request));
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var payload = await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
+        ConsultingDocxProfileRecommendationResponse? payload = await response.Content.ReadFromJsonAsync<ConsultingDocxProfileRecommendationResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Recommendation.RecommendedProfileName.Should().Be("regulated");
     }
