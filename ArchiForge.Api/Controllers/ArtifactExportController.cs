@@ -15,6 +15,14 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for listing, downloading, and packaging synthesized artifacts produced for a golden manifest.
+/// </summary>
+/// <remarks>
+/// Routes are prefixed <c>api/artifacts</c> and require the <see cref="ArchiForgePolicies.ReadAuthority"/> policy.
+/// Artifact descriptors are resolved from the artifact query service; packaging (ZIP export) is performed
+/// by <see cref="IArtifactPackagingService"/>. All download operations emit an <c>ArtifactExported</c> audit event.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]

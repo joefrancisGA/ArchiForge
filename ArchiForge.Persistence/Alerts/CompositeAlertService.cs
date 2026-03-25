@@ -32,6 +32,7 @@ public sealed class CompositeAlertService(
     IAuditService auditService,
     IEffectiveGovernanceLoader effectiveGovernanceLoader) : ICompositeAlertService
 {
+    private const string CompositeAlertCategory = "CompositeAlert";
     /// <summary>
     /// Loads composite rules, filters with <see cref="PolicyPackGovernanceFilter.FilterCompositeRules"/>, evaluates each rule, and persists non-suppressed matches.
     /// </summary>
@@ -97,7 +98,7 @@ public sealed class CompositeAlertService(
                 RunId = context.RunId,
                 ComparedToRunId = context.ComparedToRunId,
                 Title = $"Composite alert: {rule.Name}",
-                Category = "CompositeAlert",
+                Category = CompositeAlertCategory,
                 Severity = rule.Severity,
                 Status = AlertStatus.Open,
                 TriggerValue = triggerSummary,

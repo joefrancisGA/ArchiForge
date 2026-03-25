@@ -22,6 +22,15 @@ using ApiReplayComparisonRequest = ArchiForge.Api.Models.ReplayComparisonRequest
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for managing architectural run comparison records, drift analysis, and comparison replay.
+/// </summary>
+/// <remarks>
+/// Routes are prefixed <c>v{version}/architecture</c>. Read actions (comparison history, drift reports,
+/// export downloads) require <see cref="ArchiForgePolicies.ReadAuthority"/>. Replay and mutation actions
+/// additionally require <see cref="ArchiForgePolicies.CanReplayComparisons"/>.
+/// Run existence is validated through <see cref="IRunDetailQueryService"/> before acting on comparison records.
+/// </remarks>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
@@ -252,7 +261,7 @@ public sealed class ComparisonsController(
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [Authorize(Policy = "CanReplayComparisons")]
+    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status206PartialContent)]
@@ -296,7 +305,7 @@ public sealed class ComparisonsController(
     }
 
     [HttpGet("comparisons/{comparisonRecordId}/drift-report")]
-    [Authorize(Policy = "CanReplayComparisons")]
+    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -338,7 +347,7 @@ public sealed class ComparisonsController(
 
     [HttpPost("comparisons/{comparisonRecordId}/replay/metadata")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [Authorize(Policy = "CanReplayComparisons")]
+    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
     [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(ReplayComparisonMetadataResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -378,7 +387,7 @@ public sealed class ComparisonsController(
 
     [HttpPost("comparisons/replay/batch")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
-    [Authorize(Policy = "CanReplayComparisons")]
+    [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

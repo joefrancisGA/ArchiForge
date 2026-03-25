@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Persistence.Replay;
 
@@ -34,13 +35,14 @@ public sealed class AuthorityReplayController(
     /// <returns><see cref="ReplayResponse"/> with validation and rebuilt entity ids when applicable, or 404 when the run is unknown.</returns>
     [HttpPost]
     [ProducesResponseType(typeof(ReplayResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ReplayResponse>> Replay(
+    public async Task<IActionResult> Replay(
         [FromBody] ReplayRequestResponse? request,
         CancellationToken ct = default)
     {
         if (request is null)
-            return BadRequest(new { error = "Request body is required." });
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
         var mode = string.IsNullOrWhiteSpace(request.Mode)
             ? ReplayMode.ReconstructOnly

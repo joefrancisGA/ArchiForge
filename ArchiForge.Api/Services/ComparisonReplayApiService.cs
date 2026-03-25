@@ -5,12 +5,35 @@ using ArchiForge.Application.Analysis;
 
 namespace ArchiForge.Api.Services;
 
+/// <summary>
+/// API-layer wrapper around <see cref="IComparisonReplayService"/> that adds timing,
+/// structured diagnostics recording, and structured log emission for each replay attempt.
+/// </summary>
+/// <param name="inner">Core replay service that performs the actual comparison reconstruction.</param>
+/// <param name="replayDiagnosticsRecorder">In-memory ring-buffer that stores per-attempt diagnostics.</param>
+/// <param name="logger">Structured logger for success and warning entries.</param>
+/// <remarks>
+/// On success, a <see cref="ReplayDiagnosticsEntry"/> with <c>Success = true</c> is recorded and an
+/// <c>Information</c> log entry is emitted. On <see cref="InvalidOperationException"/> or
+/// <see cref="RunNotFoundException"/>, a failure entry is recorded, a <c>Warning</c> is logged,
+/// and the exception is rethrown so the calling controller can map it to the appropriate HTTP status.
+/// All other exceptions propagate without being recorded.
+/// </remarks>
 public sealed class ComparisonReplayApiService(
     IComparisonReplayService inner,
     IReplayDiagnosticsRecorder replayDiagnosticsRecorder,
     ILogger<ComparisonReplayApiService> logger)
     : IComparisonReplayApiService
 {
+    /// <summary>
+    /// Executes a comparison replay, records diagnostics, and logs the outcome.
+    /// </summary>
+    /// <param name="request">Replay configuration including comparison record id, format, mode, and persist flag.</param>
+    /// <param name="metadataOnly">When <see langword="true"/>, only metadata is returned; artifact re-generation is skipped.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <returns>The full replay result from the inner service.</returns>
+    /// <exception cref="InvalidOperationException">Rethrown from <paramref name="inner"/> when the comparison record is invalid.</exception>
+    /// <exception cref="RunNotFoundException">Rethrown from <paramref name="inner"/> when a referenced run cannot be found.</exception>
     public async Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
         bool metadataOnly,
@@ -83,6 +106,12 @@ public sealed class ComparisonReplayApiService(
         }
     }
 
+    /// <summary>
+    /// Delegates drift analysis for <paramref name="comparisonRecordId"/> directly to the inner service.
+    /// </summary>
+    /// <param name="comparisonRecordId">Identifier of the comparison record to analyse.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
+    /// <returns>The drift analysis result produced by the inner service.</returns>
     public Task<DriftAnalysisResult> AnalyzeDriftAsync(
         string comparisonRecordId,
         CancellationToken cancellationToken = default)

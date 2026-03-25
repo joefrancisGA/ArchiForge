@@ -14,6 +14,12 @@ public sealed class RecommendationLearningService(
     IRecommendationLearningAnalyzer analyzer,
     IRecommendationLearningProfileRepository profileRepository) : IRecommendationLearningService
 {
+    /// <summary>
+    /// Maximum number of historical recommendation rows loaded per profile rebuild.
+    /// Caps the working set to keep analysis latency predictable even for high-volume projects.
+    /// </summary>
+    private const int ProfileRebuildBatchCap = 5000;
+
     /// <inheritdoc />
     public async Task<RecommendationLearningProfile> RebuildProfileAsync(
         Guid tenantId,
@@ -22,7 +28,7 @@ public sealed class RecommendationLearningService(
         CancellationToken ct)
     {
         var items = await recommendationRepository
-            .ListByScopeAsync(tenantId, workspaceId, projectId, null, 5000, ct)
+            .ListByScopeAsync(tenantId, workspaceId, projectId, null, ProfileRebuildBatchCap, ct)
             .ConfigureAwait(false);
 
         var profile = analyzer.BuildProfile(tenantId, workspaceId, projectId, items);

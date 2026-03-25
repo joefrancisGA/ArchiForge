@@ -18,4 +18,7 @@ public static class ArchiForgePolicies
 
     /// <summary>Required for viewing internal replay diagnostics and execution traces.</summary>
     public const string CanViewReplayDiagnostics = "CanViewReplayDiagnostics";
+
+    /// <summary>Required for triggering comparison replay and persisting replay results.</summary>
+    public const string CanReplayComparisons = "CanReplayComparisons";
 }

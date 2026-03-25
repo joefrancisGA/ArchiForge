@@ -19,6 +19,10 @@ public sealed class DigestDeliveryDispatcher(
     IDigestDeliveryAttemptRepository attemptRepository,
     IAuditService auditService) : IDigestDeliveryDispatcher
 {
+    private static IDigestDeliveryChannel ResolveChannel(IEnumerable<IDigestDeliveryChannel> channels, string channelType) =>
+        channels.FirstOrDefault(x => string.Equals(x.ChannelType, channelType, StringComparison.OrdinalIgnoreCase))
+        ?? throw new InvalidOperationException($"No delivery channel registered for '{channelType}'.");
+
     /// <inheritdoc />
     public async Task DeliverAsync(ArchitectureDigest digest, CancellationToken ct)
     {
@@ -46,11 +50,7 @@ public sealed class DigestDeliveryDispatcher(
 
             try
             {
-                var channel = channels.FirstOrDefault(x =>
-                    string.Equals(x.ChannelType, subscription.ChannelType, StringComparison.OrdinalIgnoreCase));
-
-                if (channel is null)
-                    throw new InvalidOperationException($"No delivery channel registered for {subscription.ChannelType}.");
+                var channel = ResolveChannel(channels, subscription.ChannelType);
 
                 await channel
                     .SendAsync(

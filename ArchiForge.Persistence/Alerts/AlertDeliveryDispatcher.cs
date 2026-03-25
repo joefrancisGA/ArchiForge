@@ -22,6 +22,10 @@ public sealed class AlertDeliveryDispatcher(
     IAlertDeliveryAttemptRepository attemptRepository,
     IAuditService auditService) : IAlertDeliveryDispatcher
 {
+    private static IAlertDeliveryChannel ResolveChannel(IEnumerable<IAlertDeliveryChannel> channels, string channelType) =>
+        channels.FirstOrDefault(x => string.Equals(x.ChannelType, channelType, StringComparison.OrdinalIgnoreCase))
+        ?? throw new InvalidOperationException($"No alert delivery channel registered for '{channelType}'.");
+
     /// <inheritdoc />
     public async Task DeliverAsync(AlertRecord alert, CancellationToken ct)
     {
@@ -54,11 +58,7 @@ public sealed class AlertDeliveryDispatcher(
 
             try
             {
-                var channel = channels.FirstOrDefault(x =>
-                    string.Equals(x.ChannelType, subscription.ChannelType, StringComparison.OrdinalIgnoreCase));
-
-                if (channel is null)
-                    throw new InvalidOperationException($"No alert delivery channel registered for {subscription.ChannelType}.");
+                var channel = ResolveChannel(channels, subscription.ChannelType);
 
                 await channel
                     .SendAsync(

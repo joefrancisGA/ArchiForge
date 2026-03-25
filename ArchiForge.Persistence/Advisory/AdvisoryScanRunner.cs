@@ -58,6 +58,10 @@ public sealed class AdvisoryScanRunner(
     IScanScheduleCalculator scheduleCalculator,
     IAuditService auditService) : IAdvisoryScanRunner
 {
+    private const string StatusStarted = "Started";
+    private const string StatusCompleted = "Completed";
+    private const string StatusFailed = "Failed";
+
     /// <summary>
     /// Creates an execution record, runs the scan under ambient scope, and advances the schedule; failures are recorded and the schedule still advances.
     /// </summary>
@@ -80,7 +84,7 @@ public sealed class AdvisoryScanRunner(
             WorkspaceId = schedule.WorkspaceId,
             ProjectId = schedule.ProjectId,
             StartedUtc = DateTime.UtcNow,
-            Status = "Started",
+            Status = StatusStarted,
             ResultJson = "{}"
         };
 
@@ -99,7 +103,7 @@ public sealed class AdvisoryScanRunner(
         }
         catch (Exception ex)
         {
-            execution.Status = "Failed";
+            execution.Status = StatusFailed;
             execution.CompletedUtc = DateTime.UtcNow;
             execution.ErrorMessage = ex.Message;
             await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
@@ -250,7 +254,7 @@ public sealed class AdvisoryScanRunner(
 
         await deliveryDispatcher.DeliverAsync(digest, ct).ConfigureAwait(false);
 
-        execution.Status = "Completed";
+        execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ResultJson = JsonSerializer.Serialize(new
         {
@@ -292,7 +296,7 @@ public sealed class AdvisoryScanRunner(
         AdvisoryScanSchedule schedule,
         CancellationToken ct)
     {
-        execution.Status = "Completed";
+        execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ResultJson = """{"message":"No runs were available."}""";
         await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);
@@ -314,7 +318,7 @@ public sealed class AdvisoryScanRunner(
         string message,
         CancellationToken ct)
     {
-        execution.Status = "Failed";
+        execution.Status = StatusFailed;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ErrorMessage = message;
         await executionRepository.UpdateAsync(execution, ct).ConfigureAwait(false);

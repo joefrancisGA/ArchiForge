@@ -1,4 +1,5 @@
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Comparison;
@@ -47,8 +48,17 @@ public sealed class ComparisonController(
         var baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
         var targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
 
-        if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
-            return NotFound();
+        if (baseRun is null)
+            return this.NotFoundProblem($"Run '{baseRunId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (targetRun is null)
+            return this.NotFoundProblem($"Run '{targetRunId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (baseRun.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{baseRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
+
+        if (targetRun.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{targetRunId}' does not have a committed golden manifest.", ProblemTypes.ManifestNotFound);
 
         var result = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
         return Ok(result);
