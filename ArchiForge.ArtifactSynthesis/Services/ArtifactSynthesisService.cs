@@ -23,7 +23,7 @@ public class ArtifactSynthesisService(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(manifest);
-        ArtifactBundle bundle = new ArtifactBundle
+        ArtifactBundle bundle = new()
         {
             TenantId = manifest.TenantId,
             WorkspaceId = manifest.WorkspaceId,

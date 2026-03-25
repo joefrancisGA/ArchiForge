@@ -427,9 +427,9 @@ public sealed class ComparisonsController(
         string format = request.Format;
         string mode = request.ReplayMode;
 
-        MemoryStream ms = new MemoryStream();
+        MemoryStream ms = new();
 
-        await using (ZipArchive zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+        await using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
         {
             foreach (string id in request.ComparisonRecordIds.Distinct(StringComparer.OrdinalIgnoreCase))
             {

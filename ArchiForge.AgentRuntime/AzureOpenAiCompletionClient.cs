@@ -24,7 +24,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         string apiKey,
         string deploymentName)
     {
-        AzureOpenAIClient azureClient = new AzureOpenAIClient(
+        AzureOpenAIClient azureClient = new(
             new Uri(endpoint),
             new ApiKeyCredential(apiKey));
 
@@ -40,13 +40,13 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
-        List<ChatMessage> messages = new List<ChatMessage>
+        List<ChatMessage> messages = new()
         {
             new SystemChatMessage(systemPrompt),
             new UserChatMessage(userPrompt)
         };
 
-        ChatCompletionOptions options = new ChatCompletionOptions
+        ChatCompletionOptions options = new()
         {
             Temperature = 0.1f,
             ResponseFormat = ChatResponseFormat.CreateJsonObjectFormat()

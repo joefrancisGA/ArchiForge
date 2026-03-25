@@ -39,7 +39,7 @@ public sealed class AuthorityCompareService(
                 $"Left scope: {left.TenantId}/{left.WorkspaceId}/{left.ProjectId}, " +
                 $"Right scope: {right.TenantId}/{right.WorkspaceId}/{right.ProjectId}.");
 
-        ManifestComparisonResult result = new ManifestComparisonResult
+        ManifestComparisonResult result = new()
         {
             LeftManifestId = left.ManifestId,
             RightManifestId = right.ManifestId,
@@ -72,7 +72,7 @@ public sealed class AuthorityCompareService(
         if (leftRun is null || rightRun is null)
             return null;
 
-        RunComparisonResult result = new RunComparisonResult
+        RunComparisonResult result = new()
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
@@ -221,8 +221,8 @@ public sealed class AuthorityCompareService(
         IEnumerable<string>? left,
         IEnumerable<string>? right)
     {
-        HashSet<string> leftSet = new HashSet<string>(left ?? [], StringComparer.OrdinalIgnoreCase);
-        HashSet<string> rightSet = new HashSet<string>(right ?? [], StringComparer.OrdinalIgnoreCase);
+        HashSet<string> leftSet = new(left ?? [], StringComparer.OrdinalIgnoreCase);
+        HashSet<string> rightSet = new(right ?? [], StringComparer.OrdinalIgnoreCase);
 
         foreach (string item in leftSet.Except(rightSet, StringComparer.OrdinalIgnoreCase))
         {

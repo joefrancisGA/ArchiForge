@@ -11,7 +11,7 @@ public class MermaidDiagramRenderer : IDiagramRenderer
 
     public string Render(DiagramAst ast)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("flowchart TD");
 
         foreach (DiagramNode node in ast.Nodes)

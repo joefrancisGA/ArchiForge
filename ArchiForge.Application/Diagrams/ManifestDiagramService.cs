@@ -21,12 +21,12 @@ public sealed class ManifestDiagramService : IManifestDiagramService
         string relationshipLabels = NormalizeRelationshipLabels(options.RelationshipLabels);
         string groupBy = NormalizeGroupBy(options.GroupBy);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine($"flowchart {layout}");
 
         // Build stable, collision-safe node IDs for services and datastores.
-        Dictionary<string, string> nodeIds = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        HashSet<string> usedNodeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> nodeIds = new(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> usedNodeIds = new(StringComparer.OrdinalIgnoreCase);
 
         List<ManifestService> services = manifest.Services;
         List<ManifestDatastore> datastores = manifest.Datastores;

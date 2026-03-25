@@ -26,7 +26,7 @@ public sealed class PolicyPackManagementService(
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(packType);
 
-        PolicyPack pack = new PolicyPack
+        PolicyPack pack = new()
         {
             PolicyPackId = Guid.NewGuid(),
             TenantId = tenantId,
@@ -40,7 +40,7 @@ public sealed class PolicyPackManagementService(
             CurrentVersion = "1.0.0",
         };
 
-        using (TransactionScope scope = new TransactionScope(
+        using (TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -145,7 +145,7 @@ public sealed class PolicyPackManagementService(
             proj = Guid.Empty;
         }
 
-        PolicyPackAssignment assignment = new PolicyPackAssignment
+        PolicyPackAssignment assignment = new()
         {
             AssignmentId = Guid.NewGuid(),
             TenantId = tenantId,

@@ -28,7 +28,7 @@ public sealed class ApplicationProblemMapperTests
     [Fact]
     public void TryMapUnhandledException_RunNotFoundException_returns_404_run_not_found()
     {
-        RunNotFoundException ex = new RunNotFoundException("run-123");
+        RunNotFoundException ex = new("run-123");
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out ObjectResult? result);
 
@@ -41,7 +41,7 @@ public sealed class ApplicationProblemMapperTests
     [Fact]
     public void TryMapUnhandledException_ConflictException_returns_409()
     {
-        ConflictException ex = new ConflictException("Run is already committed.");
+        ConflictException ex = new("Run is already committed.");
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out ObjectResult? result);
 

@@ -59,7 +59,7 @@ public sealed class GovernancePreviewService(
         if (active is not null)
             currentManifest = await manifestRepository.GetByVersionAsync(active.ManifestVersion, cancellationToken);
 
-        List<string> notes = new List<string> { DiffOnlyNote };
+        List<string> notes = new() { DiffOnlyNote };
 
         if (active is null)
         {
@@ -109,7 +109,7 @@ public sealed class GovernancePreviewService(
                 nameof(request));
         }
 
-        List<string> notes = new List<string> { DiffOnlyNote };
+        List<string> notes = new() { DiffOnlyNote };
 
         IReadOnlyList<GovernanceEnvironmentActivation> sourceRows = await activationRepository.GetByEnvironmentAsync(source, cancellationToken);
         IReadOnlyList<GovernanceEnvironmentActivation> targetRows = await activationRepository.GetByEnvironmentAsync(target, cancellationToken);

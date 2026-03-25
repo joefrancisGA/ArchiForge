@@ -11,7 +11,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void ServiceRegistration_WithConfiguration_RegistersSuccessfully()
     {
-        ServiceCollection services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddLogging();
 
         services.AddSchemaValidation(options =>
@@ -32,7 +32,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void ServiceRegistration_IsSingleton()
     {
-        ServiceCollection services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddLogging();
 
         services.AddSchemaValidation(options =>
@@ -52,7 +52,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void MultipleValidations_UseSameSchemasInstances()
     {
-        ServiceCollection services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddLogging();
 
         services.AddSchemaValidation(options =>
@@ -75,7 +75,7 @@ public sealed class SchemaValidationIntegrationTests
     [Trait("Category", "Integration")]
     public void ValidateAgentResult_WithRealSchema_ValidPayload_ReturnsSuccess()
     {
-        ServiceCollection services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddLogging();
         services.AddSchemaValidation(options =>
         {
@@ -108,7 +108,7 @@ public sealed class SchemaValidationIntegrationTests
     [Trait("Category", "Integration")]
     public void ValidateAgentResult_WithRealSchema_InvalidPayload_ReturnsErrors()
     {
-        ServiceCollection services = new ServiceCollection();
+        ServiceCollection services = new();
         services.AddLogging();
         services.AddSchemaValidation(options =>
         {

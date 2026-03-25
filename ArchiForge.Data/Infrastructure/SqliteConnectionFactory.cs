@@ -32,10 +32,10 @@ public sealed class SqliteConnectionFactory(string connectionString) : IDbConnec
         string resourceName = "ArchiForge.Data.SQL.ArchiForge.Sqlite.sql";
         using Stream stream = assembly.GetManifestResourceStream(resourceName)
                               ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
-        using StreamReader reader = new StreamReader(stream);
+        using StreamReader reader = new(stream);
         string schema = reader.ReadToEnd();
 
-        using SqliteConnection connection = new SqliteConnection(connectionString);
+        using SqliteConnection connection = new(connectionString);
         connection.Open();
         using SqliteCommand cmd = connection.CreateCommand();
         cmd.CommandText = schema;

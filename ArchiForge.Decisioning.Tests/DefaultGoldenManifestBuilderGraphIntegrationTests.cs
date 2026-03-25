@@ -14,7 +14,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
     {
         Guid runId = Guid.NewGuid();
         Guid ctxId = Guid.NewGuid();
-        GraphSnapshot graph = new GraphSnapshot
+        GraphSnapshot graph = new()
         {
             GraphSnapshotId = Guid.NewGuid(),
             Nodes =
@@ -30,7 +30,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             ]
         };
 
-        FindingsSnapshot findings = new FindingsSnapshot
+        FindingsSnapshot findings = new()
         {
             FindingsSnapshotId = Guid.NewGuid(),
             RunId = runId,
@@ -39,7 +39,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             Findings = []
         };
 
-        DecisionTrace trace = new DecisionTrace { DecisionTraceId = Guid.NewGuid(), RunId = runId };
+        DecisionTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
         GoldenManifest manifest = new DefaultGoldenManifestBuilder().Build(

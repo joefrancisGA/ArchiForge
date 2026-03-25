@@ -10,7 +10,7 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
         Guid projectId,
         IReadOnlyList<RecommendationRecord> recommendations)
     {
-        RecommendationLearningProfile profile = new RecommendationLearningProfile
+        RecommendationLearningProfile profile = new()
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
@@ -54,7 +54,7 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
 
     private static Dictionary<string, double> BuildWeights(IReadOnlyList<RecommendationOutcomeStats> stats)
     {
-        Dictionary<string, double> weights = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, double> weights = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (RecommendationOutcomeStats stat in stats)
         {

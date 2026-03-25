@@ -165,7 +165,7 @@ Important review themes:
         AgentEvidencePackage evidence,
         AgentTask task)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine("Generate a critic AgentResult.");
         sb.AppendLine();

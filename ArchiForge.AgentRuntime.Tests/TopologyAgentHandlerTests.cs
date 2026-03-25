@@ -84,12 +84,12 @@ public sealed class TopologyAgentHandlerTests
                       }
                       """;
 
-        StubAgentCompletionClient completionClient = new StubAgentCompletionClient(json);
-        AgentResultParser parser = new AgentResultParser();
-        NoOpTraceRecorder traceRecorder = new NoOpTraceRecorder();
-        TopologyAgentHandler handler = new TopologyAgentHandler(completionClient, parser, traceRecorder);
+        StubAgentCompletionClient completionClient = new(json);
+        AgentResultParser parser = new();
+        NoOpTraceRecorder traceRecorder = new();
+        TopologyAgentHandler handler = new(completionClient, parser, traceRecorder);
 
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -98,7 +98,7 @@ public sealed class TopologyAgentHandlerTests
             CloudProvider = CloudProvider.Azure
         };
 
-        AgentTask task = new AgentTask
+        AgentTask task = new()
         {
             TaskId = "TASK-TOPO-001",
             RunId = "RUN-001",
@@ -106,7 +106,7 @@ public sealed class TopologyAgentHandlerTests
             Objective = "Produce a topology proposal."
         };
 
-        AgentEvidencePackage evidence = new AgentEvidencePackage
+        AgentEvidencePackage evidence = new()
         {
             RunId = "RUN-001",
             RequestId = request.RequestId,

@@ -70,7 +70,7 @@ public partial class FindingsOrchestrator(
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        List<Finding> allFindings = new List<Finding>();
+        List<Finding> allFindings = new();
 
         foreach (IFindingEngine engine in engines)
         {
@@ -117,7 +117,7 @@ public partial class FindingsOrchestrator(
             .Select(g => g.First())
             .ToList();
 
-        FindingsSnapshot snapshot = new FindingsSnapshot
+        FindingsSnapshot snapshot = new()
         {
             FindingsSnapshotId = Guid.NewGuid(),
             RunId = runId,

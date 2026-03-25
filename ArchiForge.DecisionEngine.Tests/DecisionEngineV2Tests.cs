@@ -15,7 +15,7 @@ public sealed class DecisionEngineV2Tests
     [Fact]
     public async Task ResolveAsync_WhenSingleProposal_SelectsInclude()
     {
-        List<AgentResult> results = new List<AgentResult>
+        List<AgentResult> results = new()
         {
             new()
             {
@@ -51,7 +51,7 @@ public sealed class DecisionEngineV2Tests
     [Fact]
     public async Task ResolveAsync_WhenOpposed_SelectsExclude()
     {
-        List<AgentResult> results = new List<AgentResult>
+        List<AgentResult> results = new()
         {
             new()
             {
@@ -69,7 +69,7 @@ public sealed class DecisionEngineV2Tests
             }
         };
 
-        List<AgentEvaluation> evals = new List<AgentEvaluation>
+        List<AgentEvaluation> evals = new()
         {
             new()
             {

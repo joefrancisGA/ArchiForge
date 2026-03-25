@@ -32,7 +32,7 @@ public sealed class ComplianceRulePackGovernanceFilterTests
     public void Filter_WhenNoComplianceRestrictions_ReturnsOriginalPack()
     {
         ComplianceRulePack source = Pack(Rule("a"), Rule("b"));
-        PolicyPackContentDocument effective = new PolicyPackContentDocument();
+        PolicyPackContentDocument effective = new();
 
         ComplianceRulePack filtered = ComplianceRulePackGovernanceFilter.Filter(source, effective);
 
@@ -44,7 +44,7 @@ public sealed class ComplianceRulePackGovernanceFilterTests
     public void Filter_ByComplianceRuleKeys_KeepsOnlyMatches_CaseInsensitive()
     {
         ComplianceRulePack source = Pack(Rule("Alpha-Rule"), Rule("beta-rule"), Rule("gamma"));
-        PolicyPackContentDocument effective = new PolicyPackContentDocument
+        PolicyPackContentDocument effective = new()
         {
             ComplianceRuleKeys = ["ALPHA-RULE", "gamma"],
         };
@@ -59,7 +59,7 @@ public sealed class ComplianceRulePackGovernanceFilterTests
     {
         Guid g = Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
         ComplianceRulePack source = Pack(Rule(g.ToString("D")), Rule("other"));
-        PolicyPackContentDocument effective = new PolicyPackContentDocument
+        PolicyPackContentDocument effective = new()
         {
             ComplianceRuleIds = [g],
         };
@@ -74,7 +74,7 @@ public sealed class ComplianceRulePackGovernanceFilterTests
     {
         Guid g = Guid.Parse("11111111-2222-3333-4444-555555555555");
         ComplianceRulePack source = Pack(Rule("by-key"), Rule(g.ToString("D")), Rule("drop-me"));
-        PolicyPackContentDocument effective = new PolicyPackContentDocument
+        PolicyPackContentDocument effective = new()
         {
             ComplianceRuleKeys = ["by-key"],
             ComplianceRuleIds = [g],

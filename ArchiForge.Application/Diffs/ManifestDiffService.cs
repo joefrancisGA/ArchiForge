@@ -19,7 +19,7 @@ public sealed class ManifestDiffService : IManifestDiffService
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
-        ManifestDiffResult result = new ManifestDiffResult
+        ManifestDiffResult result = new()
         {
             LeftManifestVersion = left.Metadata.ManifestVersion,
             RightManifestVersion = right.Metadata.ManifestVersion,
@@ -165,7 +165,7 @@ public sealed class ManifestDiffService : IManifestDiffService
 
     private static List<string> BuildWarnings(GoldenManifest left, GoldenManifest right)
     {
-        List<string> warnings = new List<string>();
+        List<string> warnings = new();
 
         if (!string.Equals(left.SystemName, right.SystemName, StringComparison.OrdinalIgnoreCase))
         {

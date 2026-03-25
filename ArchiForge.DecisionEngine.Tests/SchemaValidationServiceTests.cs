@@ -135,7 +135,7 @@ public sealed class SchemaValidationServiceTests
     public async Task ValidateAgentResultJsonAsync_WithCancellation_ThrowsOperationCanceledException()
     {
         SchemaValidationService service = CreateService();
-        CancellationTokenSource cts = new CancellationTokenSource();
+        CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
         Func<Task<SchemaValidationResult>> action = async () => await service.ValidateAgentResultJsonAsync(
@@ -169,14 +169,14 @@ public sealed class SchemaValidationServiceTests
     [Fact]
     public void ValidateAgentResultJson_WithDetailedErrorsDisabled_DoesNotPopulateDetailedErrors()
     {
-        SchemaValidationOptions optionsWithoutDetails = new SchemaValidationOptions
+        SchemaValidationOptions optionsWithoutDetails = new()
         {
             AgentResultSchemaPath = "schemas/agentresult.schema.json",
             GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
             EnableDetailedErrors = false
         };
 
-        SchemaValidationService service = new SchemaValidationService(
+        SchemaValidationService service = new(
             _loggerMock.Object,
             Options.Create(optionsWithoutDetails));
 

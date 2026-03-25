@@ -17,7 +17,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         DecisionTrace trace,
         DecisionRuleSet ruleSet)
     {
-        GoldenManifest manifest = new GoldenManifest
+        GoldenManifest manifest = new()
         {
             ManifestId = Guid.NewGuid(),
             RunId = runId,
@@ -142,7 +142,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             if (payload is null)
                 continue;
 
-            RequirementCoverageItem item = new RequirementCoverageItem
+            RequirementCoverageItem item = new()
             {
                 RequirementName = payload.RequirementName,
                 RequirementText = payload.RequirementText,

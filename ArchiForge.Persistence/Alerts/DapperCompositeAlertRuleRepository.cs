@@ -169,7 +169,7 @@ public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory con
         if (rule is null)
             return null;
 
-        List<CompositeAlertRule> singleRule = new List<CompositeAlertRule> { rule };
+        List<CompositeAlertRule> singleRule = new() { rule };
         await HydrateConditionsAsync(connection, singleRule, ct).ConfigureAwait(false);
         return rule;
     }

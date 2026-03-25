@@ -199,7 +199,7 @@ public static class FakeAgentResultFactory
         string taskId,
         ArchitectureRequest request)
     {
-        List<string> requiredControls = new List<string>
+        List<string> requiredControls = new()
         {
             "Managed Identity",
             "Key Vault",

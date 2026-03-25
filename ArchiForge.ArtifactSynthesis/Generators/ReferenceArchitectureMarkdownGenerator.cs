@@ -17,7 +17,7 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# Reference Architecture - {manifest.Metadata.Name}");
         sb.AppendLine();

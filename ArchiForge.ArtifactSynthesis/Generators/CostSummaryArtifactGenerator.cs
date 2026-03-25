@@ -16,7 +16,7 @@ public class CostSummaryArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        CostSummaryArtifactModel model = new CostSummaryArtifactModel
+        CostSummaryArtifactModel model = new()
         {
             MaxMonthlyCost = manifest.Cost.MaxMonthlyCost,
             Risks = manifest.Cost.CostRisks.ToList(),

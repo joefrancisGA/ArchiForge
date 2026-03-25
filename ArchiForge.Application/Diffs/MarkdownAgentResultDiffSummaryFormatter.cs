@@ -8,7 +8,7 @@ public sealed class MarkdownAgentResultDiffSummaryFormatter : IAgentResultDiffSu
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# Agent Result Comparison: {diff.LeftRunId} -> {diff.RightRunId}");
         sb.AppendLine();

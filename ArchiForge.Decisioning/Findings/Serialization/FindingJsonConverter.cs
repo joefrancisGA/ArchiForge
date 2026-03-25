@@ -14,7 +14,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
     {
         using JsonDocument doc = JsonDocument.ParseValue(ref reader);
         JsonElement root = doc.RootElement;
-        Finding finding = new Finding
+        Finding finding = new()
         {
             FindingSchemaVersion = root.TryGetProperty("findingSchemaVersion", out JsonElement fsv) && fsv.TryGetInt32(out int v) ? v : 0,
             FindingId = root.GetProperty("findingId").GetString() ?? Guid.NewGuid().ToString("N"),
@@ -118,7 +118,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
     {
         if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
             return new Dictionary<string, string>();
-        Dictionary<string, string> d = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
         foreach (JsonProperty p in el.EnumerateObject())
             d[p.Name] = p.Value.GetString() ?? "";
         return d;

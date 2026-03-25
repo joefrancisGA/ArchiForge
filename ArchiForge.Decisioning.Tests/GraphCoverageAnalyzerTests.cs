@@ -12,7 +12,7 @@ public sealed class GraphCoverageAnalyzerTests
     [Fact]
     public void AnalyzeRequirements_marks_requirement_with_RELATES_TO_as_covered()
     {
-        GraphSnapshot graph = new GraphSnapshot
+        GraphSnapshot graph = new()
         {
             Nodes =
             [

@@ -27,7 +27,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         ArgumentNullException.ThrowIfNull(evaluations);
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<DecisionNode> decisions = new List<DecisionNode>();
+        List<DecisionNode> decisions = new();
 
         AgentTask? topologyTask = tasks.FirstOrDefault(t => t.AgentType == AgentType.Topology);
         AgentResult? topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
@@ -65,7 +65,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                         e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase))
             .Sum(e => Math.Abs(e.ConfidenceDelta));
 
-        DecisionOption accept = new DecisionOption
+        DecisionOption accept = new()
         {
             Description = "Accept topology proposal",
             BaseConfidence = baseConfidence,
@@ -74,7 +74,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             EvidenceRefs = relevant.SelectMany(e => e.EvidenceRefs).Distinct(StringComparer.OrdinalIgnoreCase).ToList()
         };
 
-        DecisionOption reject = new DecisionOption
+        DecisionOption reject = new()
         {
             Description = "Reject topology proposal",
             BaseConfidence = 0.10,
@@ -128,7 +128,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase) &&
             e.Rationale.Contains("managed identity", StringComparison.OrdinalIgnoreCase));
 
-        List<string> controls = new List<string>();
+        List<string> controls = new();
 
         if (promotePrivateEndpoints)
             controls.Add("Private Endpoints");
@@ -136,7 +136,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         if (promoteManagedIdentity)
             controls.Add("Managed Identity");
 
-        DecisionOption promote = new DecisionOption
+        DecisionOption promote = new()
         {
             Description = controls.Count == 0
                 ? "No control promotion"
@@ -179,7 +179,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                         e.EvaluationType.Equals(EvalTypes.Oppose, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        DecisionOption keep = new DecisionOption
+        DecisionOption keep = new()
         {
             Description = "Keep current solution complexity",
             BaseConfidence = 0.60,
@@ -188,7 +188,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
             OppositionScore = cautions.Sum(e => Math.Abs(e.ConfidenceDelta))
         };
 
-        DecisionOption reduce = new DecisionOption
+        DecisionOption reduce = new()
         {
             Description = "Reduce complexity / consider MVP trimming",
             BaseConfidence = cautions.Count > 0 ? 0.65 : 0.20,

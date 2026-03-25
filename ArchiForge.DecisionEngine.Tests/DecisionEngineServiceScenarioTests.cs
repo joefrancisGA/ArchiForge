@@ -20,7 +20,7 @@ public sealed class DecisionEngineServiceScenarioTests
     {
         ArchitectureRequest request = CreateRequest();
 
-        AgentResult topology = new AgentResult
+        AgentResult topology = new()
         {
             ResultId = "RES-TOPO-001",
             TaskId = "TASK-TOPO-001",
@@ -63,7 +63,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        AgentResult compliance = new AgentResult
+        AgentResult compliance = new()
         {
             ResultId = "RES-COMP-001",
             TaskId = "TASK-COMP-001",
@@ -107,7 +107,7 @@ public sealed class DecisionEngineServiceScenarioTests
     {
         ArchitectureRequest request = CreateRequest();
 
-        AgentResult malformed = new AgentResult
+        AgentResult malformed = new()
         {
             ResultId = "",
             TaskId = "",
@@ -135,7 +135,7 @@ public sealed class DecisionEngineServiceScenarioTests
     {
         ArchitectureRequest request = CreateRequest();
 
-        AgentResult topology = new AgentResult
+        AgentResult topology = new()
         {
             ResultId = "RES-TOPO-002",
             TaskId = "TASK-TOPO-002",
@@ -161,7 +161,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        AgentResult compliance = new AgentResult
+        AgentResult compliance = new()
         {
             ResultId = "RES-COMP-002",
             TaskId = "TASK-COMP-002",
@@ -201,7 +201,7 @@ public sealed class DecisionEngineServiceScenarioTests
     {
         ArchitectureRequest request = CreateRequest();
 
-        AgentResult topology = new AgentResult
+        AgentResult topology = new()
         {
             ResultId = "RES-TOPO-003",
             TaskId = "TASK-TOPO-003",
@@ -228,7 +228,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        AgentResult compliance = new AgentResult
+        AgentResult compliance = new()
         {
             ResultId = "RES-COMP-003",
             TaskId = "TASK-COMP-003",
@@ -263,7 +263,7 @@ public sealed class DecisionEngineServiceScenarioTests
     {
         ArchitectureRequest request = CreateRequest();
 
-        AgentResult topologyA = new AgentResult
+        AgentResult topologyA = new()
         {
             ResultId = "RES-TOPO-A",
             TaskId = "TASK-TOPO-A",
@@ -290,7 +290,7 @@ public sealed class DecisionEngineServiceScenarioTests
             }
         };
 
-        AgentResult topologyB = new AgentResult
+        AgentResult topologyB = new()
         {
             ResultId = "RES-TOPO-B",
             TaskId = "TASK-TOPO-B",
@@ -341,7 +341,7 @@ public sealed class DecisionEngineServiceScenarioTests
     {
         ArchitectureRequest request = CreateRequest();
 
-        AgentResult topology = new AgentResult
+        AgentResult topology = new()
         {
             ResultId = "RES-TOPO-004",
             TaskId = "TASK-TOPO-004",

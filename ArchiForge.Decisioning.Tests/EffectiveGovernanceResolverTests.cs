@@ -15,9 +15,9 @@ public sealed class EffectiveGovernanceResolverTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
-        InMemoryPolicyPackRepository packRepo = new InMemoryPolicyPackRepository();
-        InMemoryPolicyPackVersionRepository versionRepo = new InMemoryPolicyPackVersionRepository();
-        InMemoryPolicyPackAssignmentRepository assignmentRepo = new InMemoryPolicyPackAssignmentRepository();
+        InMemoryPolicyPackRepository packRepo = new();
+        InMemoryPolicyPackVersionRepository versionRepo = new();
+        InMemoryPolicyPackAssignmentRepository assignmentRepo = new();
 
         Guid tenantPackId = Guid.NewGuid();
         Guid projectPackId = Guid.NewGuid();
@@ -102,7 +102,7 @@ public sealed class EffectiveGovernanceResolverTests
             },
             CancellationToken.None);
 
-        EffectiveGovernanceResolver resolver = new EffectiveGovernanceResolver(assignmentRepo, packRepo, versionRepo);
+        EffectiveGovernanceResolver resolver = new(assignmentRepo, packRepo, versionRepo);
 
         EffectiveGovernanceResolutionResult result = await resolver.ResolveAsync(tenantId, workspaceId, projectId, CancellationToken.None);
 

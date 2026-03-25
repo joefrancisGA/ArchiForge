@@ -19,7 +19,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
-        ExportRecordDiffResult result = new ExportRecordDiffResult
+        ExportRecordDiffResult result = new()
         {
             LeftExportRecordId = left.ExportRecordId,
             RightExportRecordId = right.ExportRecordId,
@@ -82,7 +82,7 @@ public sealed class ExportRecordDiffService : IExportRecordDiffService
         PersistedAnalysisExportRequest? left,
         PersistedAnalysisExportRequest? right)
     {
-        ExportRecordRequestDiff diff = new ExportRecordRequestDiff
+        ExportRecordRequestDiff diff = new()
         {
             LeftRequest = left,
             RightRequest = right

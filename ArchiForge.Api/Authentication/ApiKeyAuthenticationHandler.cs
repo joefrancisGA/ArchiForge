@@ -22,7 +22,7 @@ public sealed class ApiKeyAuthenticationHandler(
         if (!enabled)
         {
             // When disabled, include full permissions so policy-protected endpoints continue to work locally.
-            ClaimsIdentity identity = new ClaimsIdentity([
+            ClaimsIdentity identity = new([
                 new Claim(ClaimTypes.Name, "DevUser"),
                 new Claim("permission", "commit:run"),
                 new Claim("permission", "seed:results"),
@@ -31,8 +31,8 @@ public sealed class ApiKeyAuthenticationHandler(
                 new Claim("permission", "replay:comparisons"),
                 new Claim("permission", "replay:diagnostics")
             ], Scheme.Name);
-            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-            AuthenticationTicket ticket = new AuthenticationTicket(principal, Scheme.Name);
+            ClaimsPrincipal principal = new(identity);
+            AuthenticationTicket ticket = new(principal, Scheme.Name);
             return Task.FromResult(AuthenticateResult.Success(ticket));
         }
 
@@ -77,9 +77,9 @@ public sealed class ApiKeyAuthenticationHandler(
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
         }
 
-        ClaimsIdentity successIdentity = new ClaimsIdentity(claims, Scheme.Name);
-        ClaimsPrincipal successPrincipal = new ClaimsPrincipal(successIdentity);
-        AuthenticationTicket successTicket = new AuthenticationTicket(successPrincipal, Scheme.Name);
+        ClaimsIdentity successIdentity = new(claims, Scheme.Name);
+        ClaimsPrincipal successPrincipal = new(successIdentity);
+        AuthenticationTicket successTicket = new(successPrincipal, Scheme.Name);
 
         return Task.FromResult(AuthenticateResult.Success(successTicket));
     }

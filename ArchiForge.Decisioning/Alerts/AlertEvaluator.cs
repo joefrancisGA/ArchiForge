@@ -22,7 +22,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         ArgumentNullException.ThrowIfNull(rules);
         ArgumentNullException.ThrowIfNull(context);
-        List<AlertRecord> alerts = new List<AlertRecord>();
+        List<AlertRecord> alerts = new();
 
         foreach (AlertRule rule in rules.Where(x => x.IsEnabled))
         {

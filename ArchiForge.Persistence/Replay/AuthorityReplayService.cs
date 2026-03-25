@@ -41,7 +41,7 @@ public sealed class AuthorityReplayService(
             ? ReplayMode.ReconstructOnly
             : request.Mode.Trim();
 
-        ReplayResult result = new ReplayResult
+        ReplayResult result = new()
         {
             RunId = request.RunId,
             Mode = mode,

@@ -15,7 +15,7 @@ public sealed class JsonInfrastructureDeclarationParserTests
     [Fact]
     public async Task ParseAsync_MapsVnetSubnetStorageApp_KeyVault()
     {
-        InfrastructureDeclarationReference declaration = new InfrastructureDeclarationReference
+        InfrastructureDeclarationReference declaration = new()
         {
             Name = "core.json",
             Format = "json",

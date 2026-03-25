@@ -47,7 +47,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        CoordinationResult output = new CoordinationResult();
+        CoordinationResult output = new();
 
         List<string> validationErrors = ValidateRequest(request);
         if (validationErrors.Count > 0)
@@ -76,7 +76,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static List<string> ValidateRequest(ArchitectureRequest request)
     {
-        List<string> errors = new List<string>();
+        List<string> errors = new();
 
         if (string.IsNullOrWhiteSpace(request.RequestId))
             errors.Add("RequestId is required.");
@@ -112,7 +112,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static EvidenceBundle BuildEvidenceBundle(ArchitectureRequest request)
     {
-        Dictionary<string, string> metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
         {
             ["systemName"] = request.SystemName,
             ["environment"] = request.Environment,
@@ -139,7 +139,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
 
     private static List<string> BuildPolicyRefs(ArchitectureRequest request)
     {
-        List<string> refs = new List<string>
+        List<string> refs = new()
         {
             PolicyPackEnterpriseDefault,
             PolicyPackAzureSecurityBaseline
@@ -161,7 +161,7 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         // CatalogAzureSql is always included because DefaultEvidenceBuilder always
         // provides SQL catalog evidence as a baseline service, keeping both in sync.
-        List<string> refs = new List<string>
+        List<string> refs = new()
         {
             CatalogAzureCoreServices,
             CatalogAzureSql

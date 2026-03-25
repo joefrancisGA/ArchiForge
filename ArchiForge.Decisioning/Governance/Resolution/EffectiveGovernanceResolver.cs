@@ -57,8 +57,8 @@ public sealed class EffectiveGovernanceResolver(
             .Where(x => AppliesToScope(x, tenantId, workspaceId, projectId))
             .ToList();
 
-        List<ResolvedPackRow> resolvedPacks = new List<ResolvedPackRow>();
-        List<string> skippedNotes = new List<string>();
+        List<ResolvedPackRow> resolvedPacks = new();
+        List<string> skippedNotes = new();
 
         foreach (PolicyPackAssignment assignment in applicable)
         {
@@ -108,7 +108,7 @@ public sealed class EffectiveGovernanceResolver(
             resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
         }
 
-        EffectiveGovernanceResolutionResult result = new EffectiveGovernanceResolutionResult
+        EffectiveGovernanceResolutionResult result = new()
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
@@ -278,7 +278,7 @@ public sealed class EffectiveGovernanceResolver(
             .Distinct()
             .ToList();
 
-        List<Guid> effective = new List<Guid>();
+        List<Guid> effective = new();
 
         foreach (Guid id in allIds)
         {
@@ -340,7 +340,7 @@ public sealed class EffectiveGovernanceResolver(
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        List<string> effective = new List<string>();
+        List<string> effective = new();
 
         foreach (string key in allKeys)
         {
@@ -411,7 +411,7 @@ public sealed class EffectiveGovernanceResolver(
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        Dictionary<string, string> effective = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> effective = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string key in keys)
         {

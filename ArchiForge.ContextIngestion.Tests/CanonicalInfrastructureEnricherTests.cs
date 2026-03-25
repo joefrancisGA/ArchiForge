@@ -12,7 +12,7 @@ public sealed class CanonicalInfrastructureEnricherTests
     [Fact]
     public void Enrich_AddsCategory_ForJsonResourceTypes()
     {
-        List<CanonicalObject> items = new List<CanonicalObject>
+        List<CanonicalObject> items = new()
         {
             new()
             {
@@ -36,7 +36,7 @@ public sealed class CanonicalInfrastructureEnricherTests
     [Fact]
     public void Enrich_AddsCategory_AndStatus_ForTerraformAndSecurity()
     {
-        List<CanonicalObject> items = new List<CanonicalObject>
+        List<CanonicalObject> items = new()
         {
             new()
             {

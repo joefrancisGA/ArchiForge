@@ -179,7 +179,7 @@ public sealed class ManifestsController(
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
 
-        ManifestDiagramOptions opts = new ManifestDiagramOptions
+        ManifestDiagramOptions opts = new()
         {
             Layout = layout ?? DiagramLayoutDefault,
             IncludeRuntimePlatform = includeRuntimePlatform,
@@ -277,7 +277,7 @@ public sealed class ManifestsController(
                 ProblemTypes.ValidationFailed);
         }
 
-        ManifestSummaryOptions options = new ManifestSummaryOptions
+        ManifestSummaryOptions options = new()
         {
             IncludeRelationships = includeRelationships,
             IncludeRequiredControls = includeRequiredControls,

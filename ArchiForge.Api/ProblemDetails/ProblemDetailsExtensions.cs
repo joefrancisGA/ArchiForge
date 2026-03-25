@@ -20,7 +20,7 @@ public static class ProblemDetailsExtensions
         string? type = null,
         string? instance = null)
     {
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
             Type = type ?? ProblemTypes.BadRequest,
             Title = "Bad Request",
@@ -44,7 +44,7 @@ public static class ProblemDetailsExtensions
         string? type = null,
         string? instance = null)
     {
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
             Type = type ?? ProblemTypes.ResourceNotFound,
             Title = "Not Found",
@@ -65,7 +65,7 @@ public static class ProblemDetailsExtensions
         string? type = null,
         string? instance = null)
     {
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
             Type = type ?? ProblemTypes.Conflict,
             Title = "Conflict",

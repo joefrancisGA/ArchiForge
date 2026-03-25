@@ -9,7 +9,7 @@ public class GraphValidator : IGraphValidator
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        HashSet<string> nodeIds = new HashSet<string>(snapshot.Nodes.Select(x => x.NodeId), StringComparer.OrdinalIgnoreCase);
+        HashSet<string> nodeIds = new(snapshot.Nodes.Select(x => x.NodeId), StringComparer.OrdinalIgnoreCase);
 
         foreach (GraphNode node in snapshot.Nodes)
         {

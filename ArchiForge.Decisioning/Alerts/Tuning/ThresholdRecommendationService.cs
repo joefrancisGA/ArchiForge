@@ -25,7 +25,7 @@ public sealed class ThresholdRecommendationService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        ThresholdRecommendationResult result = new ThresholdRecommendationResult
+        ThresholdRecommendationResult result = new()
         {
             EvaluatedUtc = DateTime.UtcNow,
             RuleKind = request.RuleKind,

@@ -30,7 +30,7 @@ public sealed class GovernanceWorkflowServiceTests
         _activationRepo = new Mock<IGovernanceEnvironmentActivationRepository>();
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
 
-        Mock<ILogger<GovernanceWorkflowService>> logger = new Mock<ILogger<GovernanceWorkflowService>>();
+        Mock<ILogger<GovernanceWorkflowService>> logger = new();
 
         _sut = new GovernanceWorkflowService(
             _approvalRepo.Object,
@@ -91,7 +91,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Approve_SubmittedRequest_ChangesStatusToApproved()
     {
-        GovernanceApprovalRequest existing = new GovernanceApprovalRequest
+        GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-1",
             RunId = "run-1",
@@ -119,7 +119,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Approve_DraftRequest_ChangesStatusToApproved()
     {
-        GovernanceApprovalRequest existing = new GovernanceApprovalRequest
+        GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-draft",
             Status = GovernanceApprovalStatus.Draft
@@ -138,7 +138,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Approve_AlreadyRejected_ThrowsInvalidOperationException()
     {
-        GovernanceApprovalRequest existing = new GovernanceApprovalRequest
+        GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-rejected",
             Status = GovernanceApprovalStatus.Rejected
@@ -158,7 +158,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Reject_SubmittedRequest_ChangesStatusToRejected()
     {
-        GovernanceApprovalRequest existing = new GovernanceApprovalRequest
+        GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-2",
             Status = GovernanceApprovalStatus.Submitted
@@ -179,7 +179,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Reject_AlreadyApproved_ThrowsInvalidOperationException()
     {
-        GovernanceApprovalRequest existing = new GovernanceApprovalRequest
+        GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-approved",
             Status = GovernanceApprovalStatus.Approved
@@ -213,7 +213,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Promote_ToProd_WithUnapprovedRequest_ThrowsInvalidOperationException()
     {
-        GovernanceApprovalRequest pendingApproval = new GovernanceApprovalRequest
+        GovernanceApprovalRequest pendingApproval = new()
         {
             ApprovalRequestId = "apr-pending",
             Status = GovernanceApprovalStatus.Submitted
@@ -233,7 +233,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Promote_ToProd_WithApprovedRequest_Succeeds()
     {
-        GovernanceApprovalRequest approvedRequest = new GovernanceApprovalRequest
+        GovernanceApprovalRequest approvedRequest = new()
         {
             ApprovalRequestId = "apr-approved",
             Status = GovernanceApprovalStatus.Approved,
@@ -285,7 +285,7 @@ public sealed class GovernanceWorkflowServiceTests
     [Fact]
     public async Task Activate_DeactivatesPreviousActiveActivation()
     {
-        GovernanceEnvironmentActivation previous = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation previous = new()
         {
             ActivationId = "act-old",
             RunId = "run-1",

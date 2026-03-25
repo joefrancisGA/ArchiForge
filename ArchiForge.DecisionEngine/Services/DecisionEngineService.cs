@@ -34,7 +34,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         ArgumentNullException.ThrowIfNull(evaluations);
         ArgumentNullException.ThrowIfNull(decisionNodes);
 
-        DecisionMergeResult output = new DecisionMergeResult();
+        DecisionMergeResult output = new();
 
         if (string.IsNullOrWhiteSpace(runId))
         {
@@ -222,7 +222,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         IReadOnlyCollection<AgentResult> results,
         DecisionMergeResult output)
     {
-        List<AgentResult> valid = new List<AgentResult>();
+        List<AgentResult> valid = new();
 
         foreach (AgentResult result in results)
         {
@@ -241,7 +241,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
     private static List<string> ValidateResult(AgentResult result, string runId)
     {
-        List<string> errors = new List<string>();
+        List<string> errors = new();
 
         if (string.IsNullOrWhiteSpace(result.ResultId))
             errors.Add("ResultId is required.");

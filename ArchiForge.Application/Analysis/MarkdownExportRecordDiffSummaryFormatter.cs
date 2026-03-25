@@ -13,7 +13,7 @@ public sealed class MarkdownExportRecordDiffSummaryFormatter : IExportRecordDiff
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# Export Record Comparison: {diff.LeftExportRecordId} -> {diff.RightExportRecordId}");
         sb.AppendLine();

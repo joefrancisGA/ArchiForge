@@ -17,7 +17,7 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
 
-        List<AgentResult> results = new List<AgentResult>();
+        List<AgentResult> results = new();
 
         foreach (AgentTask task in tasks.OrderBy(t => t.AgentType))
         {

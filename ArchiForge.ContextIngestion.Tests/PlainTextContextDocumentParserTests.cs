@@ -12,7 +12,7 @@ public sealed class PlainTextContextDocumentParserTests
     [Fact]
     public async Task ParseAsync_ExtractsPrefixedLines()
     {
-        ContextDocumentReference doc = new ContextDocumentReference
+        ContextDocumentReference doc = new()
         {
             Name = "spec.md",
             ContentType = "text/markdown",

@@ -8,14 +8,14 @@ public sealed class CoordinatorServiceTests
     [Fact]
     public async Task CreateRun_Should_CreateRunAndStarterTasks_When_RequestIsValid()
     {
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "TestSystem",
             Description = "Design a secure Azure system."
         };
 
-        CoordinatorService service = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        CoordinatorService service = new(new FakeAuthorityRunOrchestrator());
 
         CoordinationResult result = await service.CreateRunAsync(request);
 

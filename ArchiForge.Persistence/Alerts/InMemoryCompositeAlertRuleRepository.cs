@@ -81,7 +81,7 @@ public sealed class InMemoryCompositeAlertRuleRepository : ICompositeAlertRuleRe
 
     private static CompositeAlertRule CloneRule(CompositeAlertRule r)
     {
-        CompositeAlertRule copy = new CompositeAlertRule
+        CompositeAlertRule copy = new()
         {
             CompositeRuleId = r.CompositeRuleId,
             TenantId = r.TenantId,

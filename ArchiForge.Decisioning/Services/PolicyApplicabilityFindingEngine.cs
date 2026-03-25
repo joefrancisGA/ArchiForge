@@ -17,7 +17,7 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        List<Finding> findings = new List<Finding>();
+        List<Finding> findings = new();
         IReadOnlyList<GraphNode> policyNodes = graphSnapshot.GetNodesByType("PolicyControl");
         int topologyCount = graphSnapshot.GetNodesByType("TopologyResource").Count;
 
@@ -46,7 +46,7 @@ public class PolicyApplicabilityFindingEngine : IFindingEngine
                 continue;
 
             List<string> targetIds = targets.Select(t => t.NodeId).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-            List<string> examined = new List<string> { policy.NodeId };
+            List<string> examined = new() { policy.NodeId };
             examined.AddRange(targetIds);
 
             findings.Add(FindingFactory.CreatePolicyApplicabilityFinding(

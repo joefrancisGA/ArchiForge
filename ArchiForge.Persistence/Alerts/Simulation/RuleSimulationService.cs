@@ -52,7 +52,7 @@ public sealed class RuleSimulationService(
                 ct)
             .ConfigureAwait(false);
 
-        RuleSimulationResult result = new RuleSimulationResult
+        RuleSimulationResult result = new()
         {
             RuleKind = request.RuleKind,
             SimulatedUtc = DateTime.UtcNow,
@@ -253,7 +253,7 @@ public sealed class RuleSimulationService(
                 .ConfigureAwait(false);
         }
 
-        RuleCandidateComparisonResult result = new RuleCandidateComparisonResult
+        RuleCandidateComparisonResult result = new()
         {
             CandidateA = candidateA,
             CandidateB = candidateB,

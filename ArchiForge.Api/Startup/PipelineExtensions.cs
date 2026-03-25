@@ -25,7 +25,7 @@ internal static class PipelineExtensions
                         context.Request.Method, context.Request.Path);
                 }
 
-                Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+                Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
                 {
                     Type = ProblemTypes.InternalError,
                     Title = "An unexpected error occurred.",

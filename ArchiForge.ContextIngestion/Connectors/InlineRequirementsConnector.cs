@@ -23,7 +23,7 @@ public class InlineRequirementsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        NormalizedContextBatch batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new();
 
         foreach (string requirement in payload.InlineRequirements)
         {

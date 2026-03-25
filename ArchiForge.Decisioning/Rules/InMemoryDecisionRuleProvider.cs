@@ -41,7 +41,7 @@ public class InMemoryDecisionRuleProvider : IDecisionRuleProvider
     public Task<DecisionRuleSet> GetRuleSetAsync(CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        DecisionRuleSet ruleSet = new DecisionRuleSet
+        DecisionRuleSet ruleSet = new()
         {
             RuleSetId = RuleSetId,
             Version = RuleSetVersion,

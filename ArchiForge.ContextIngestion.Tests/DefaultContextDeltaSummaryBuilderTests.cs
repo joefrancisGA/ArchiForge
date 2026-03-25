@@ -12,7 +12,7 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
     [Fact]
     public void BuildSegment_IncludesBaseline_WhenFirstConnector()
     {
-        ContextSnapshot previous = new ContextSnapshot
+        ContextSnapshot previous = new()
         {
             CanonicalObjects =
             [
@@ -27,7 +27,7 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
             ]
         };
 
-        NormalizedContextBatch batch = new NormalizedContextBatch
+        NormalizedContextBatch batch = new()
         {
             CanonicalObjects =
             [
@@ -52,7 +52,7 @@ public sealed class DefaultContextDeltaSummaryBuilderTests
     [Fact]
     public void BuildSegment_OmitsBaselineClause_WhenNotFirstConnector()
     {
-        NormalizedContextBatch batch = new NormalizedContextBatch
+        NormalizedContextBatch batch = new()
         {
             CanonicalObjects = []
         };

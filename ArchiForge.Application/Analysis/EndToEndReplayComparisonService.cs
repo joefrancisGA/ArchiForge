@@ -41,7 +41,7 @@ public sealed class EndToEndReplayComparisonService(
         ArchitectureRun leftRun = leftDetail.Run;
         ArchitectureRun rightRun = rightDetail.Run;
 
-        EndToEndReplayComparisonReport report = new EndToEndReplayComparisonReport
+        EndToEndReplayComparisonReport report = new()
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId,
@@ -116,7 +116,7 @@ public sealed class EndToEndReplayComparisonService(
 
     private static RunMetadataDiffResult BuildRunDiff(ArchitectureRun leftRun, ArchitectureRun rightRun)
     {
-        RunMetadataDiffResult result = new RunMetadataDiffResult();
+        RunMetadataDiffResult result = new();
 
         AddIfChanged(result.ChangedFields, "RequestId", leftRun.RequestId, rightRun.RequestId);
         AddIfChanged(result.ChangedFields, "Status", leftRun.Status, rightRun.Status);

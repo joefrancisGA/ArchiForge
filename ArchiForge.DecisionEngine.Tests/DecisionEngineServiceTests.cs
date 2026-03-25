@@ -16,14 +16,14 @@ public sealed class DecisionEngineServiceTests
     [Fact]
     public void MergeResults_Should_CreateManifest_When_ValidResultsProvided()
     {
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "TestSystem",
             Description = "Design a secure Azure system."
         };
 
-        AgentResult topology = new AgentResult
+        AgentResult topology = new()
         {
             ResultId = "RES-1",
             TaskId = "TASK-1",
@@ -49,7 +49,7 @@ public sealed class DecisionEngineServiceTests
             }
         };
 
-        AgentResult compliance = new AgentResult
+        AgentResult compliance = new()
         {
             ResultId = "RES-2",
             TaskId = "TASK-2",
@@ -66,11 +66,11 @@ public sealed class DecisionEngineServiceTests
             }
         };
 
-        SchemaValidationService validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        DecisionEngineService service = new DecisionEngineService(validationService);
+        DecisionEngineService service = new(validationService);
 
         DecisionMergeResult result = service.MergeResults(
             "1",
@@ -92,14 +92,14 @@ public sealed class DecisionEngineServiceTests
     [Fact]
     public void MergeResults_Should_Fail_When_ResultIsMalformed()
     {
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "TestSystem",
             Description = "Design a secure Azure system."
         };
 
-        AgentResult malformed = new AgentResult
+        AgentResult malformed = new()
         {
             ResultId = "",
             TaskId = "",
@@ -110,11 +110,11 @@ public sealed class DecisionEngineServiceTests
             Confidence = 1.2
         };
 
-        SchemaValidationService validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        DecisionEngineService service = new DecisionEngineService(validationService);
+        DecisionEngineService service = new(validationService);
 
         DecisionMergeResult result = service.MergeResults(
             "1",

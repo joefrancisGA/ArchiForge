@@ -31,7 +31,7 @@ public sealed class RunExportAuditService(IRunExportRecordRepository repository)
         ArgumentException.ThrowIfNullOrWhiteSpace(format);
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
 
-        RunExportRecord record = new RunExportRecord
+        RunExportRecord record = new()
         {
             ExportRecordId = Guid.NewGuid().ToString("N"),
             RunId = runId,

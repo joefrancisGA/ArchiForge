@@ -14,15 +14,15 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         DecisionTrace trace,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
-        DecisionProvenanceGraph result = new DecisionProvenanceGraph
+        DecisionProvenanceGraph result = new()
         {
             Id = Guid.NewGuid(),
             RunId = runId
         };
 
-        Dictionary<string, Guid> nodeMap = new Dictionary<string, Guid>(StringComparer.Ordinal);
+        Dictionary<string, Guid> nodeMap = new(StringComparer.Ordinal);
 
-        HashSet<string> graphNodeIds = new HashSet<string>(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
+        HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
 
         foreach (GraphNode n in graph.Nodes)
         {

@@ -16,7 +16,7 @@ public sealed class CliSmokeTests
     [Fact]
     public async Task RunAsync_ComparisonsWithNoSubcommand_ShowsUsageAndReturns1()
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         TextWriter oldOut = Console.Out;
         try
         {

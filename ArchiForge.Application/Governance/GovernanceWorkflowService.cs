@@ -43,7 +43,7 @@ public sealed class GovernanceWorkflowService(
                                           ?? throw new RunNotFoundException(runId);
         ArchitectureRun run = runDetail.Run;
 
-        GovernanceApprovalRequest request = new GovernanceApprovalRequest
+        GovernanceApprovalRequest request = new()
         {
             RunId = run.RunId,
             ManifestVersion = manifestVersion,
@@ -206,7 +206,7 @@ public sealed class GovernanceWorkflowService(
             await approvalRepo.UpdateAsync(approvalRequest, cancellationToken);
         }
 
-        GovernancePromotionRecord record = new GovernancePromotionRecord
+        GovernancePromotionRecord record = new()
         {
             RunId = runId,
             ManifestVersion = manifestVersion,
@@ -249,7 +249,7 @@ public sealed class GovernanceWorkflowService(
 
         IReadOnlyList<GovernanceEnvironmentActivation> existing = await activationRepo.GetByEnvironmentAsync(environment, cancellationToken);
 
-        GovernanceEnvironmentActivation activation = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation activation = new()
         {
             RunId = runId,
             ManifestVersion = manifestVersion,
@@ -258,7 +258,7 @@ public sealed class GovernanceWorkflowService(
             ActivatedUtc = DateTime.UtcNow
         };
 
-        using (TransactionScope scope = new TransactionScope(
+        using (TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {

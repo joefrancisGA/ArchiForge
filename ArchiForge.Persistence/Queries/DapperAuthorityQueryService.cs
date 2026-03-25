@@ -47,7 +47,7 @@ public sealed class DapperAuthorityQueryService(
         if (run is null)
             return null;
 
-        RunDetailDto result = new RunDetailDto { Run = run };
+        RunDetailDto result = new() { Run = run };
 
         if (run.ContextSnapshotId.HasValue)
         {

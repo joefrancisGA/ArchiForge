@@ -113,7 +113,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        List<AgentEvaluation> evaluations = new List<AgentEvaluation>();
+        List<AgentEvaluation> evaluations = new();
         foreach (string json in rows)
         {
             AgentEvaluation? evaluation;

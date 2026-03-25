@@ -64,7 +64,7 @@ public sealed class ArchitectureRunService(
             request.SystemName,
             request.Environment);
 
-        using (TransactionScope scope = new TransactionScope(
+        using (TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -158,7 +158,7 @@ public sealed class ArchitectureRunService(
         // Persist all four writes atomically: a partial failure followed by a retry would
         // otherwise append duplicate result/evaluation rows because the repos are now
         // idempotent (delete-by-RunId + bulk insert) but only within a single transaction.
-        using (TransactionScope scope = new TransactionScope(
+        using (TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -297,7 +297,7 @@ public sealed class ArchitectureRunService(
 
         // Persist decision nodes, manifest, traces, and status atomically so a retry
         // cannot produce duplicate node rows from a previous partially-committed attempt.
-        using (TransactionScope scope = new TransactionScope(
+        using (TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {

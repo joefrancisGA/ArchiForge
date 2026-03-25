@@ -26,7 +26,7 @@ public sealed class ManifestSummaryService : IManifestSummaryService
         List<ManifestDatastore> datastores = manifest.Datastores;
         List<ManifestRelationship> relationships = manifest.Relationships;
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# Architecture Summary: {manifest.SystemName}");
         sb.AppendLine();

@@ -36,7 +36,7 @@ public sealed class MermaidCliDiagramImageRenderer(
 
         try
         {
-            ProcessStartInfo psi = new ProcessStartInfo
+            ProcessStartInfo psi = new()
             {
                 FileName = "mmdc",
                 Arguments = $"-i \"{inputPath}\" -o \"{outputPath}\" -b transparent",
@@ -46,10 +46,10 @@ public sealed class MermaidCliDiagramImageRenderer(
                 CreateNoWindow = true
             };
 
-            using CancellationTokenSource timeoutCts = new CancellationTokenSource(ProcessTimeout);
+            using CancellationTokenSource timeoutCts = new(ProcessTimeout);
             using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
-            using Process process = new Process();
+            using Process process = new();
             process.StartInfo = psi;
             process.Start();
 

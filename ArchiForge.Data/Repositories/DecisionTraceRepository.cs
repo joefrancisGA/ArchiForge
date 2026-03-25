@@ -76,7 +76,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             },
             cancellationToken: cancellationToken));
 
-        List<DecisionTrace> traces = new List<DecisionTrace>();
+        List<DecisionTrace> traces = new();
         foreach (string json in rows)
         {
             DecisionTrace? trace;

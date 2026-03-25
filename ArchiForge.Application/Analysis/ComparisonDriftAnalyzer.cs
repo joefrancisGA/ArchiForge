@@ -19,7 +19,7 @@ public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
         JsonElement storedJson = JsonSerializer.SerializeToElement(stored, JsonOptions);
         JsonElement regeneratedJson = JsonSerializer.SerializeToElement(regenerated, JsonOptions);
 
-        DriftAnalysisResult result = new DriftAnalysisResult();
+        DriftAnalysisResult result = new();
 
         CompareElement("$", storedJson, regeneratedJson, result.Items);
 

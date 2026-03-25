@@ -69,7 +69,7 @@ public sealed class ReplayRunService(
 
         string replayRunId = Guid.NewGuid().ToString("N");
 
-        ArchitectureRun replayRun = new ArchitectureRun
+        ArchitectureRun replayRun = new()
         {
             RunId = replayRunId,
             RequestId = originalRun.RequestId,
@@ -148,7 +148,7 @@ public sealed class ReplayRunService(
         decisionTraces = merge.DecisionTraces;
         warnings = merge.Warnings;
 
-        using TransactionScope scope = new TransactionScope(
+        using TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled);
 

@@ -27,7 +27,7 @@ public class ContextIngestionService(
             throw new ArgumentException("RunId must be a non-empty GUID.", nameof(request));
         ArgumentException.ThrowIfNullOrWhiteSpace(request.ProjectId, nameof(request));
 
-        ContextSnapshot snapshot = new ContextSnapshot
+        ContextSnapshot snapshot = new()
         {
             SnapshotId = Guid.NewGuid(),
             RunId = request.RunId,
@@ -38,8 +38,8 @@ public class ContextIngestionService(
         // Latest persisted snapshot for this project (any prior run), used for connector delta messaging.
         ContextSnapshot? previous = await snapshotRepository.GetLatestAsync(request.ProjectId, ct);
 
-        List<CanonicalObject> allObjects = new List<CanonicalObject>();
-        List<string> deltaSummaries = new List<string>();
+        List<CanonicalObject> allObjects = new();
+        List<string> deltaSummaries = new();
         int connectorIndex = 0;
 
         foreach (IContextConnector connector in connectors)

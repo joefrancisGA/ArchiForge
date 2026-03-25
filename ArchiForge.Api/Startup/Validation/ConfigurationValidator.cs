@@ -8,7 +8,7 @@ public sealed class ConfigurationValidator(
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        List<string> errors = new List<string>();
+        List<string> errors = new();
 
         string? connectionString = configuration.GetConnectionString("ArchiForge");
         if (string.IsNullOrWhiteSpace(connectionString))

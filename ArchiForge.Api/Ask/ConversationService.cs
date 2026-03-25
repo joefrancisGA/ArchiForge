@@ -37,7 +37,7 @@ public sealed class ConversationService(
             }
         }
 
-        ConversationThread thread = new ConversationThread
+        ConversationThread thread = new()
         {
             ThreadId = Guid.NewGuid(),
             TenantId = tenantId,

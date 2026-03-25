@@ -17,7 +17,7 @@ internal static class DiagramIdSanitizer
             return "node_unknown";
 
         char[] chars = value.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray();
-        string cleaned = new string(chars);
+        string cleaned = new(chars);
 
         if (string.IsNullOrWhiteSpace(cleaned))
             cleaned = "node_unknown";

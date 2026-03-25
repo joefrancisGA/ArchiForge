@@ -54,7 +54,7 @@ public sealed class CompositeAlertService(
         rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 
         AlertMetricSnapshot snapshot = snapshotBuilder.Build(context);
-        List<AlertRecord> created = new List<AlertRecord>();
+        List<AlertRecord> created = new();
         int suppressedMatches = 0;
 
         foreach (CompositeAlertRule rule in rules)
@@ -88,7 +88,7 @@ public sealed class CompositeAlertService(
             }
 
             string triggerSummary = BuildTriggerSummary(snapshot);
-            AlertRecord alert = new AlertRecord
+            AlertRecord alert = new()
             {
                 AlertId = Guid.NewGuid(),
                 RuleId = rule.CompositeRuleId,

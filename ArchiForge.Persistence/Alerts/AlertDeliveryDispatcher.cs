@@ -39,7 +39,7 @@ public sealed class AlertDeliveryDispatcher(
 
         foreach (AlertRoutingSubscription subscription in matching)
         {
-            AlertDeliveryAttempt attempt = new AlertDeliveryAttempt
+            AlertDeliveryAttempt attempt = new()
             {
                 AlertDeliveryAttemptId = Guid.NewGuid(),
                 AlertId = alert.AlertId,

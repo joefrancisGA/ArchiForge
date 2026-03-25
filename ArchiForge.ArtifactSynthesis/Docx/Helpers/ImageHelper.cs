@@ -36,7 +36,7 @@ public static class ImageHelper
                                     ?? throw new InvalidOperationException("Main document part is missing.");
 
         ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
-        using (MemoryStream s = new MemoryStream(imageBytes))
+        using (MemoryStream s = new(imageBytes))
             imagePart.FeedData(s);
 
         string relationshipId = mainPart.GetIdOfPart(imagePart);
@@ -55,7 +55,7 @@ public static class ImageHelper
         ArgumentNullException.ThrowIfNull(imageBytes);
 
         ImagePart imagePart = headerPart.AddImagePart(ImagePartType.Png);
-        using (MemoryStream s = new MemoryStream(imageBytes))
+        using (MemoryStream s = new(imageBytes))
             imagePart.FeedData(s);
 
         string relationshipId = headerPart.GetIdOfPart(imagePart);

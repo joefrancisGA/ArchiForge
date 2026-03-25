@@ -64,7 +64,7 @@ public sealed class CommandLineTests
     [Fact]
     public async Task New_WithProjectName_Returns0_AndCreatesFiles()
     {
-        using TempDirectory temp = new TempDirectory();
+        using TempDirectory temp = new();
         string prevCwd = Directory.GetCurrentDirectory();
         try
         {

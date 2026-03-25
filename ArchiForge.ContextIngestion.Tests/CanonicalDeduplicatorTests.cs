@@ -12,7 +12,7 @@ public sealed class CanonicalDeduplicatorTests
     [Fact]
     public void Deduplicate_UsesReferenceFingerprint_WhenTextMissing()
     {
-        List<CanonicalObject> items = new List<CanonicalObject>
+        List<CanonicalObject> items = new()
         {
             new()
             {
@@ -48,7 +48,7 @@ public sealed class CanonicalDeduplicatorTests
     [Fact]
     public void Deduplicate_PrefersTextOverReference_ForFingerprint()
     {
-        List<CanonicalObject> items = new List<CanonicalObject>
+        List<CanonicalObject> items = new()
         {
             new()
             {

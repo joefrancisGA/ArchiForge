@@ -14,7 +14,7 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        TopologyCoverageResult result = new TopologyCoverageResult
+        TopologyCoverageResult result = new()
         {
             HasNetwork = categories.Exists(x => x.Equals(GraphTopologyCategories.Network, StringComparison.OrdinalIgnoreCase)),
             HasCompute = categories.Exists(x => x.Equals(GraphTopologyCategories.Compute, StringComparison.OrdinalIgnoreCase)),

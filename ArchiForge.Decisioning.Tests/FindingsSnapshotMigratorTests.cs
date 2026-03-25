@@ -10,7 +10,7 @@ public sealed class FindingsSnapshotMigratorTests
     [Fact]
     public void Apply_FillsCategoryAndPayloadType_ForLegacyFinding()
     {
-        FindingsSnapshot snapshot = new FindingsSnapshot
+        FindingsSnapshot snapshot = new()
         {
             Findings =
             {

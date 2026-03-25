@@ -12,7 +12,7 @@ public sealed class ContextIngestionRequestMapperTests
     [Fact]
     public void FromArchitectureRequest_MapsSystemNameToProjectId_AndDocuments()
     {
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             Description = "1234567890 minimum len",
             SystemName = "billing-api",

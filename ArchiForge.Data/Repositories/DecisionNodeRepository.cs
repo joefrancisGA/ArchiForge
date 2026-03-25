@@ -92,7 +92,7 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             new { RunId = runId },
             cancellationToken: cancellationToken));
 
-        List<DecisionNode> nodes = new List<DecisionNode>();
+        List<DecisionNode> nodes = new();
         foreach (string json in rows)
         {
             DecisionNode? node;

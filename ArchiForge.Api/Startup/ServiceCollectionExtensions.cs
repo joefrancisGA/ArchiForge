@@ -350,7 +350,7 @@ internal static partial class ServiceCollectionExtensions
             }
             else
             {
-                JsonSerializerOptions jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
+                JsonSerializerOptions jsonOptions = new(JsonSerializerDefaults.Web) { PropertyNameCaseInsensitive = true };
                 services.AddScoped<IAgentCompletionClient>(_ => new FakeAgentCompletionClient(
                     (_, userPrompt) =>
                     {
@@ -364,7 +364,7 @@ internal static partial class ServiceCollectionExtensions
                             else if (span.StartsWith("TaskId:", StringComparison.OrdinalIgnoreCase))
                                 taskId = span.Length > 7 ? span[7..].Trim().ToString() : taskId;
                         }
-                        ArchitectureRequest dummyRequest = new ArchitectureRequest
+                        ArchitectureRequest dummyRequest = new()
                         {
                             SystemName = "Default",
                             Description = "Default request for fake topology response.",

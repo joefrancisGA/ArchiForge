@@ -13,7 +13,7 @@ public sealed class AdaptiveRecommendationScorer : IAdaptiveRecommendationScorer
         AdaptiveScoringInput input,
         RecommendationLearningProfile? profile)
     {
-        AdaptiveScoringResult result = new AdaptiveScoringResult
+        AdaptiveScoringResult result = new()
         {
             BasePriorityScore = input.BasePriorityScore,
             AdaptedPriorityScore = input.BasePriorityScore,

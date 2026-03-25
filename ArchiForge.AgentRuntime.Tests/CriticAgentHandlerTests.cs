@@ -61,12 +61,12 @@ public sealed class CriticAgentHandlerTests
                       }
                       """;
 
-        StubAgentCompletionClient completionClient = new StubAgentCompletionClient(json);
-        AgentResultParser parser = new AgentResultParser();
-        NoOpTraceRecorder traceRecorder = new NoOpTraceRecorder();
-        CriticAgentHandler handler = new CriticAgentHandler(completionClient, parser, traceRecorder);
+        StubAgentCompletionClient completionClient = new(json);
+        AgentResultParser parser = new();
+        NoOpTraceRecorder traceRecorder = new();
+        CriticAgentHandler handler = new(completionClient, parser, traceRecorder);
 
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -87,7 +87,7 @@ public sealed class CriticAgentHandlerTests
             ]
         };
 
-        AgentTask task = new AgentTask
+        AgentTask task = new()
         {
             TaskId = "TASK-CRITIC-001",
             RunId = "RUN-001",
@@ -95,7 +95,7 @@ public sealed class CriticAgentHandlerTests
             Objective = "Critique the architecture direction."
         };
 
-        AgentEvidencePackage evidence = new AgentEvidencePackage
+        AgentEvidencePackage evidence = new()
         {
             RunId = "RUN-001",
             RequestId = request.RequestId,

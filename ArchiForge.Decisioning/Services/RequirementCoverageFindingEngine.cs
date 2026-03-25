@@ -17,7 +17,7 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
         CancellationToken ct)
     {
         RequirementCoverageResult result = analyzer.AnalyzeRequirements(graphSnapshot);
-        List<Finding> findings = new List<Finding>();
+        List<Finding> findings = new();
 
         if (result.UnrelatedRequirementCount > 0)
         {

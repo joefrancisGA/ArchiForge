@@ -8,7 +8,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        using OpenXmlDocxDocumentBuilder builder = new OpenXmlDocxDocumentBuilder();
+        using OpenXmlDocxDocumentBuilder builder = new();
 
         builder.AddHeading("ArchiForge Export Record Diff Comparison Export", 1);
 

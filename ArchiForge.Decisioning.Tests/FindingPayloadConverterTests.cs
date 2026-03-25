@@ -11,7 +11,7 @@ public sealed class FindingPayloadConverterTests
     [Fact]
     public void ToRequirementPayload_FromStronglyTypedObject()
     {
-        Finding f = new Finding
+        Finding f = new()
         {
             PayloadType = nameof(RequirementFindingPayload),
             Payload = new RequirementFindingPayload

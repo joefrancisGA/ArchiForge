@@ -18,7 +18,7 @@ public sealed class ComparisonService : IComparisonService
     {
         ArgumentNullException.ThrowIfNull(baseM);
         ArgumentNullException.ThrowIfNull(targetM);
-        ComparisonResult result = new ComparisonResult
+        ComparisonResult result = new()
         {
             BaseRunId = baseM.RunId,
             TargetRunId = targetM.RunId
@@ -143,7 +143,7 @@ public sealed class ComparisonService : IComparisonService
 
     private static Dictionary<string, RequirementState> RequirementStates(RequirementsCoverageSection section)
     {
-        Dictionary<string, RequirementState> map = new Dictionary<string, RequirementState>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, RequirementState> map = new(StringComparer.OrdinalIgnoreCase);
 
         // First-wins: if a name appears in both lists, the Covered entry takes priority.
         foreach (RequirementCoverageItem x in section.Covered)
@@ -208,8 +208,8 @@ public sealed class ComparisonService : IComparisonService
 
     private static void CompareTopology(GoldenManifest baseM, GoldenManifest targetM, ComparisonResult result)
     {
-        HashSet<string> baseSet = new HashSet<string>(baseM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
-        HashSet<string> targetSet = new HashSet<string>(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
+        HashSet<string> baseSet = new(baseM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
+        HashSet<string> targetSet = new(targetM.Topology.Resources, StringComparer.OrdinalIgnoreCase);
 
         foreach (string r in targetSet.Where(r => !baseSet.Contains(r)))
         {

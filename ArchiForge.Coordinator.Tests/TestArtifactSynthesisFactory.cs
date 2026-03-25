@@ -9,7 +9,7 @@ internal static class TestArtifactSynthesisFactory
 {
     public static IArtifactSynthesisService Create()
     {
-        MermaidDiagramRenderer renderer = new MermaidDiagramRenderer();
+        MermaidDiagramRenderer renderer = new();
         IEnumerable<IArtifactGenerator> generators =
         [
             new ReferenceArchitectureMarkdownGenerator(),

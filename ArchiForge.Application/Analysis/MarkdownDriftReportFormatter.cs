@@ -17,7 +17,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("# ArchiForge Comparison Drift Report");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
@@ -56,7 +56,7 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>ArchiForge Drift Report</title>");
         sb.AppendLine("<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
         sb.AppendLine("</head><body>");

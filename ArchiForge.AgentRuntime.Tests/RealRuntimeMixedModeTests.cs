@@ -176,27 +176,27 @@ public sealed class RealRuntimeMixedModeTests
                             }
                             """;
 
-        AgentResultParser parser = new AgentResultParser();
-        NoOpTraceRecorder traceRecorder = new NoOpTraceRecorder();
+        AgentResultParser parser = new();
+        NoOpTraceRecorder traceRecorder = new();
 
-        TopologyAgentHandler topologyHandler = new TopologyAgentHandler(
+        TopologyAgentHandler topologyHandler = new(
             new StubAgentCompletionClient(topologyJson),
             parser,
             traceRecorder);
 
-        ComplianceAgentHandler complianceHandler = new ComplianceAgentHandler(
+        ComplianceAgentHandler complianceHandler = new(
             new StubAgentCompletionClient(complianceJson),
             parser,
             traceRecorder);
 
-        CostAgentHandler costHandler = new CostAgentHandler();
+        CostAgentHandler costHandler = new();
 
-        CriticAgentHandler criticHandler = new CriticAgentHandler(
+        CriticAgentHandler criticHandler = new(
             new StubAgentCompletionClient(criticJson),
             parser,
             traceRecorder);
 
-        RealAgentExecutor executor = new RealAgentExecutor(
+        RealAgentExecutor executor = new(
         [
             topologyHandler,
             complianceHandler,
@@ -204,7 +204,7 @@ public sealed class RealRuntimeMixedModeTests
             criticHandler
         ]);
 
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -225,7 +225,7 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
-        CoordinatorService coordinator = new CoordinatorService(new FakeAuthorityRunOrchestratorForRuntimeTests());
+        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestratorForRuntimeTests());
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         // Force known IDs used in stub payloads
@@ -247,7 +247,7 @@ public sealed class RealRuntimeMixedModeTests
             task.RunId = "RUN-001";
         }
 
-        AgentEvidencePackage evidence = new AgentEvidencePackage
+        AgentEvidencePackage evidence = new()
         {
             RunId = "RUN-001",
             RequestId = request.RequestId,
@@ -265,11 +265,11 @@ public sealed class RealRuntimeMixedModeTests
 
         IReadOnlyList<AgentResult> results = await executor.ExecuteAsync("RUN-001", request, evidence, coordination.Tasks);
 
-        SchemaValidationService validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        DecisionEngineService engine = new DecisionEngineService(validationService);
+        DecisionEngineService engine = new(validationService);
         DecisionMergeResult merge = engine.MergeResults(
             runId: "RUN-001",
             request: request,

@@ -53,7 +53,7 @@ public sealed class AgentResultDiffServiceTests
             }
         };
 
-        AgentResultDiffService service = new AgentResultDiffService();
+        AgentResultDiffService service = new();
 
         AgentResultDiffResult diff = service.Compare("RUN-LEFT", left, "RUN-RIGHT", right);
 

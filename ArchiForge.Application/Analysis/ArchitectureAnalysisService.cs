@@ -63,7 +63,7 @@ public sealed class ArchitectureAnalysisService(
             run = primaryDetail.Run;
         }
 
-        ArchitectureAnalysisReport report = new ArchitectureAnalysisReport
+        ArchitectureAnalysisReport report = new()
         {
             Run = run
         };

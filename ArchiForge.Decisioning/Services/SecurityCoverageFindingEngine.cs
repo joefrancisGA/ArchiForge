@@ -17,7 +17,7 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
         CancellationToken ct)
     {
         SecurityCoverageResult result = analyzer.AnalyzeSecurity(graphSnapshot);
-        List<Finding> findings = new List<Finding>();
+        List<Finding> findings = new();
 
         if (result.UnprotectedResourceCount > 0)
         {

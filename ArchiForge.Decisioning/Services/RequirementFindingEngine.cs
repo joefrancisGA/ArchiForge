@@ -14,7 +14,7 @@ public class RequirementFindingEngine : IFindingEngine
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
-        List<Finding> findings = new List<Finding>();
+        List<Finding> findings = new();
 
         IReadOnlyList<GraphNode> requirementNodes = graphSnapshot.GetNodesByType("Requirement");
 
@@ -27,7 +27,7 @@ public class RequirementFindingEngine : IFindingEngine
                 .Select(n => n.NodeId)
                 .ToList();
 
-            List<string> relatedNodeIds = new List<string> { node.NodeId };
+            List<string> relatedNodeIds = new() { node.NodeId };
             foreach (string id in relatedFromGraph)
             {
                 if (!relatedNodeIds.Contains(id, StringComparer.OrdinalIgnoreCase))

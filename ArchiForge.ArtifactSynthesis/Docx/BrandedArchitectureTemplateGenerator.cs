@@ -12,7 +12,7 @@ public static class BrandedArchitectureTemplateGenerator
 {
     public static byte[] CreateTemplateBytes()
     {
-        using MemoryStream ms = new MemoryStream();
+        using MemoryStream ms = new();
         using (WordprocessingDocument doc = WordprocessingDocument.Create(ms, WordprocessingDocumentType.Document, true))
         {
             MainDocumentPart main = doc.AddMainDocumentPart();

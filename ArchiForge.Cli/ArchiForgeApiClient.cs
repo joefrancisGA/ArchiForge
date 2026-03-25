@@ -133,7 +133,7 @@ namespace ArchiForge.Cli
             try
             {
                 result.RunId = runId;
-                SubmitAgentResultRequest request = new SubmitAgentResultRequest { Result = result };
+                SubmitAgentResultRequest request = new() { Result = result };
                 string uri = $"/v1/architecture/run/{Uri.EscapeDataString(runId)}/result";
                 HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.PostAsJsonAsync(uri, request, _jsonOptions, cancellationToken)), ct);
                 string content = await response.Content.ReadAsStringAsync(ct);
@@ -319,10 +319,10 @@ namespace ArchiForge.Cli
                 using JsonDocument doc = JsonDocument.Parse(content);
                 JsonElement root = doc.RootElement;
                 JsonElement recordsProp = root.GetProperty("records");
-                List<ComparisonRecordSummary> list = new List<ComparisonRecordSummary>();
+                List<ComparisonRecordSummary> list = new();
                 foreach (JsonElement item in recordsProp.EnumerateArray())
                 {
-                    List<string> tagsList = new List<string>();
+                    List<string> tagsList = new();
                     if (item.TryGetProperty("tags", out JsonElement tagsEl) && tagsEl.ValueKind == JsonValueKind.Array)
                     {
                         foreach (JsonElement t in tagsEl.EnumerateArray())
@@ -594,7 +594,7 @@ namespace ArchiForge.Cli
 
                 using JsonDocument doc = JsonDocument.Parse(content);
                 JsonElement root = doc.RootElement;
-                DriftAnalysis result = new DriftAnalysis
+                DriftAnalysis result = new()
                 {
                     DriftDetected = root.TryGetProperty("driftDetected", out JsonElement dd) && dd.ValueKind == JsonValueKind.True,
                     Summary = root.TryGetProperty("summary", out JsonElement s) ? s.GetString() ?? "" : ""
@@ -670,7 +670,7 @@ namespace ArchiForge.Cli
 
                 using JsonDocument doc = JsonDocument.Parse(content);
                 JsonElement root = doc.RootElement;
-                ReplayDiagnostics result = new ReplayDiagnostics();
+                ReplayDiagnostics result = new();
                 if (root.TryGetProperty("recentReplays", out JsonElement arr) && arr.ValueKind == JsonValueKind.Array)
                 {
                     foreach (JsonElement it in arr.EnumerateArray())
@@ -712,7 +712,7 @@ namespace ArchiForge.Cli
                     label,
                     tags = tags ?? (object?)null
                 };
-                using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Patch, uri);
+                using HttpRequestMessage request = new(HttpMethod.Patch, uri);
                 request.Content = JsonContent.Create(body, options: _jsonOptions);
                 HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
                 return response.IsSuccessStatusCode;

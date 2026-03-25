@@ -13,7 +13,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine("# ArchiForge Analysis Report");
         sb.AppendLine();

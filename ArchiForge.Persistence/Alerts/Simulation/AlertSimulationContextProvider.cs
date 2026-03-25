@@ -41,14 +41,14 @@ public sealed class AlertSimulationContextProvider(
         string runProjectSlug,
         CancellationToken ct)
     {
-        ScopeContext scope = new ScopeContext
+        ScopeContext scope = new()
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,
             ProjectId = projectId,
         };
 
-        List<AlertEvaluationContext> results = new List<AlertEvaluationContext>();
+        List<AlertEvaluationContext> results = new();
 
         if (runId.HasValue)
         {

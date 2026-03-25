@@ -62,7 +62,7 @@ internal static class ConsultingDocxOpenXmlComposer
         ArgumentNullException.ThrowIfNull(diagramImageRenderer);
         ArgumentNullException.ThrowIfNull(logoProvider);
 
-        using MemoryStream stream = new MemoryStream();
+        using MemoryStream stream = new();
 
         using (WordprocessingDocument document = WordprocessingDocument.Create(
                    stream,
@@ -563,7 +563,7 @@ internal static class ConsultingDocxOpenXmlComposer
         string fontSizeHalfPoints,
         bool bold = false)
     {
-        Style style = new Style
+        Style style = new()
         {
             Type = StyleValues.Paragraph,
             StyleId = styleId,
@@ -575,7 +575,7 @@ internal static class ConsultingDocxOpenXmlComposer
         style.Append(new UIPriority { Val = 1 });
         style.Append(new PrimaryStyle());
 
-        StyleRunProperties runProps = new StyleRunProperties(
+        StyleRunProperties runProps = new(
             new Color { Val = colorHex },
             new FontSize { Val = fontSizeHalfPoints });
 
@@ -638,7 +638,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static void AddCallout(Body body, string text, ConsultingDocxTemplateOptions options)
     {
-        WpParagraph paragraph = new WpParagraph(
+        WpParagraph paragraph = new(
             new WpParagraphProperties(
                 new WpShading
                 {
@@ -665,7 +665,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
         {
-            WpRun run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
+            WpRun run = new(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
             {
                 RunProperties = new WpRunProperties(
                     new RunFonts { Ascii = "Consolas" },
@@ -685,9 +685,9 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static void AddKeyValueTable(Body body, IEnumerable<(string Key, string Value)> rows)
     {
-        WpTable table = new WpTable();
+        WpTable table = new();
 
-        WpTableProperties props = new WpTableProperties(
+        WpTableProperties props = new(
             new TableBorders(
                 new WpTopBorder { Val = BorderValues.Single, Size = 8 },
                 new WpBottomBorder { Val = BorderValues.Single, Size = 8 },
@@ -701,7 +701,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
         foreach ((string key, string value) in rows)
         {
-            WpTableRow tr = new WpTableRow();
+            WpTableRow tr = new();
 
             tr.Append(
                 BuildCell(key, bold: true, width: "2800"),
@@ -716,7 +716,7 @@ internal static class ConsultingDocxOpenXmlComposer
 
     private static WpTableCell BuildCell(string text, bool bold, string width)
     {
-        WpRun run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
         {
@@ -742,14 +742,14 @@ internal static class ConsultingDocxOpenXmlComposer
     {
         ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Png);
 
-        using (MemoryStream stream = new MemoryStream(imageBytes))
+        using (MemoryStream stream = new(imageBytes))
         {
             imagePart.FeedData(stream);
         }
 
         string relationshipId = mainPart.GetIdOfPart(imagePart);
 
-        Drawing drawing = new Drawing(
+        Drawing drawing = new(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
                 new EffectExtent

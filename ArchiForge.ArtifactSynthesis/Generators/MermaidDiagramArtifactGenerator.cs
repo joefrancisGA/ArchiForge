@@ -14,7 +14,7 @@ public class MermaidDiagramArtifactGenerator(IDiagramRenderer renderer) : IArtif
         CancellationToken ct)
     {
         _ = ct;
-        DiagramAst ast = new DiagramAst
+        DiagramAst ast = new()
         {
             Title = manifest.Metadata.Name
         };

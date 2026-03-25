@@ -17,7 +17,7 @@ public class ArchitectureNarrativeArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# {manifest.Metadata.Name}");
         sb.AppendLine();

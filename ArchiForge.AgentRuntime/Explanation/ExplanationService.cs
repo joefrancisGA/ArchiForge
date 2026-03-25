@@ -182,7 +182,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractMajorChanges(ComparisonResult c)
     {
-        List<string> list = new List<string>();
+        List<string> list = new();
         foreach (DecisionDelta d in c.DecisionChanges)
         {
             if (d.ChangeType == "Modified")
@@ -231,7 +231,7 @@ public sealed class ExplanationService(
 
     private static string BuildComparisonHeuristicSummary(ComparisonResult c)
     {
-        List<string> parts = new List<string>();
+        List<string> parts = new();
         if (c.DecisionChanges.Count > 0)
             parts.Add($"{c.DecisionChanges.Count} decision change(s)");
         if (c.RequirementChanges.Count > 0)
@@ -249,7 +249,7 @@ public sealed class ExplanationService(
 
     private static string BuildComparisonNarrativeFallback(ComparisonResult c, List<string> majorChanges)
     {
-        List<string> lines = new List<string>
+        List<string> lines = new()
         {
             "The target run differs from the base run in the areas summarized below.",
             string.Join(" ", c.SummaryHighlights)
@@ -292,7 +292,7 @@ public sealed class ExplanationService(
 
     private static List<string> ExtractCostImplications(GoldenManifest m)
     {
-        List<string> list = new List<string>
+        List<string> list = new()
         {
             m.Cost.MaxMonthlyCost.HasValue
                 ? $"Max monthly cost: {m.Cost.MaxMonthlyCost.Value:0.00}"

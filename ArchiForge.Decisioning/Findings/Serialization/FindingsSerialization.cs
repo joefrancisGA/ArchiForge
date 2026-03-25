@@ -12,7 +12,7 @@ public static class FindingsSerialization
 {
     public static JsonSerializerOptions CreateOptions()
     {
-        JsonSerializerOptions o = new JsonSerializerOptions
+        JsonSerializerOptions o = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             PropertyNameCaseInsensitive = true,

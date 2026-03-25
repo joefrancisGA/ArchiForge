@@ -105,7 +105,7 @@ public sealed class ArchitectureApplicationService(
         }
 
         ArchitectureRunStatus newStatus;
-        using (TransactionScope tx = new TransactionScope(
+        using (TransactionScope tx = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {
@@ -207,7 +207,7 @@ public sealed class ArchitectureApplicationService(
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        using (TransactionScope scope = new TransactionScope(
+        using (TransactionScope scope = new(
             TransactionScopeOption.Required,
             TransactionScopeAsyncFlowOption.Enabled))
         {

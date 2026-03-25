@@ -12,7 +12,7 @@ public sealed class SimpleTerraformDeclarationParserTests
     [Fact]
     public async Task ParseAsync_ExtractsResourceBlocks()
     {
-        InfrastructureDeclarationReference declaration = new InfrastructureDeclarationReference
+        InfrastructureDeclarationReference declaration = new()
         {
             Name = "stub.tf",
             Format = "simple-terraform",

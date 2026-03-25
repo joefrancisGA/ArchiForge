@@ -17,7 +17,7 @@ public static class WordDocumentBuilder
 
     public static void AddStyledParagraph(Body body, string text, string styleId)
     {
-        Paragraph p = new Paragraph(
+        Paragraph p = new(
             new ParagraphProperties(new ParagraphStyleId { Val = styleId }),
             new Run(new Text(Sanitize(text))));
         body.AppendChild(p);
@@ -124,7 +124,7 @@ public static class WordDocumentBuilder
 
         foreach (ManifestIssue issue in issues)
         {
-            Run severityRun = new Run(new Text(Sanitize(issue.Severity)));
+            Run severityRun = new(new Text(Sanitize(issue.Severity)));
             if (IsHighSeverity(issue.Severity))
                 severityRun.RunProperties = new RunProperties(new Bold(), new Color { Val = "C00000" });
 
@@ -174,7 +174,7 @@ public static class WordDocumentBuilder
 
     private static Table CreateTableGrid()
     {
-        Table table = new Table();
+        Table table = new();
         table.AppendChild(
             new TableProperties(
                 new TableBorders(

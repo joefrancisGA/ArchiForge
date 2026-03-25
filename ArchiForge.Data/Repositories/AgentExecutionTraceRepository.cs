@@ -150,7 +150,7 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         IEnumerable<string> jsonRows,
         string context)
     {
-        List<AgentExecutionTrace> traces = new List<AgentExecutionTrace>();
+        List<AgentExecutionTrace> traces = new();
         foreach (string json in jsonRows)
         {
             AgentExecutionTrace? trace;

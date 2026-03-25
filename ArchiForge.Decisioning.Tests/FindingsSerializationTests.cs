@@ -12,7 +12,7 @@ public sealed class FindingsSerializationTests
     [Fact]
     public void RoundTrip_PreservesTypedPayload()
     {
-        FindingsSnapshot snapshot = new FindingsSnapshot
+        FindingsSnapshot snapshot = new()
         {
             FindingsSnapshotId = Guid.NewGuid(),
             RunId = Guid.NewGuid(),

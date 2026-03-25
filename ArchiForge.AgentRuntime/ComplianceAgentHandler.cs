@@ -166,7 +166,7 @@ Important guidance:
         AgentEvidencePackage evidence,
         AgentTask task)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine("Generate a compliance AgentResult.");
         sb.AppendLine();

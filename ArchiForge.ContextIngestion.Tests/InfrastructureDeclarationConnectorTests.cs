@@ -13,8 +13,8 @@ public sealed class InfrastructureDeclarationConnectorTests
     [Fact]
     public async Task NormalizeAsync_Warns_WhenFormatUnsupported()
     {
-        InfrastructureDeclarationConnector sut = new InfrastructureDeclarationConnector([]);
-        RawContextPayload payload = new RawContextPayload
+        InfrastructureDeclarationConnector sut = new([]);
+        RawContextPayload payload = new()
         {
             InfrastructureDeclarations =
             [
@@ -36,7 +36,7 @@ public sealed class InfrastructureDeclarationConnectorTests
     [Fact]
     public async Task NormalizeAsync_DelegatesToParser()
     {
-        Mock<IInfrastructureDeclarationParser> parser = new Mock<IInfrastructureDeclarationParser>();
+        Mock<IInfrastructureDeclarationParser> parser = new();
         parser.Setup(p => p.CanParse("json")).Returns(true);
         parser.Setup(p => p.ParseAsync(It.IsAny<InfrastructureDeclarationReference>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CanonicalObject>
@@ -51,8 +51,8 @@ public sealed class InfrastructureDeclarationConnectorTests
                 }
             });
 
-        InfrastructureDeclarationConnector sut = new InfrastructureDeclarationConnector([parser.Object]);
-        RawContextPayload payload = new RawContextPayload
+        InfrastructureDeclarationConnector sut = new([parser.Object]);
+        RawContextPayload payload = new()
         {
             InfrastructureDeclarations =
             [

@@ -13,11 +13,11 @@ public sealed class DocumentConnectorTests
     [Fact]
     public async Task NormalizeAsync_AddsWarning_WhenNoParserMatches()
     {
-        Mock<IContextDocumentParser> mockParser = new Mock<IContextDocumentParser>();
+        Mock<IContextDocumentParser> mockParser = new();
         mockParser.Setup(p => p.CanParse(It.IsAny<string>())).Returns(false);
 
-        DocumentConnector sut = new DocumentConnector([mockParser.Object]);
-        RawContextPayload payload = new RawContextPayload
+        DocumentConnector sut = new([mockParser.Object]);
+        RawContextPayload payload = new()
         {
             Documents =
             [

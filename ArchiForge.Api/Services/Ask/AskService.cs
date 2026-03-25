@@ -229,7 +229,7 @@ public sealed class AskService(
         {
             DateTime now = DateTime.UtcNow;
             List<ConversationMessage> conversationTurn =
-                new List<ConversationMessage>
+                new()
                 {
                     new()
                     {

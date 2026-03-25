@@ -33,7 +33,7 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository = new Mock<IAgentResultRepository>();
         _manifestRepository = new Mock<IGoldenManifestRepository>();
         _requestRepository = new Mock<IArchitectureRequestRepository>();
-        Mock<ILogger<ArchitectureApplicationService>> logger = new Mock<ILogger<ArchitectureApplicationService>>();
+        Mock<ILogger<ArchitectureApplicationService>> logger = new();
 
         _sut = new ArchitectureApplicationService(
             _runDetailQueryService.Object,
@@ -98,8 +98,8 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task GetRunAsync_WhenRunExists_ReturnsRunWithTasksAndResults()
     {
         ArchitectureRun run = ValidRun();
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
-        List<AgentResult> results = new List<AgentResult> { ValidResult() };
+        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentResult> results = new() { ValidResult() };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, results));
@@ -154,7 +154,7 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task GetRunAsync_PassesCancellationTokenToRepositories()
     {
         ArchitectureRun run = ValidRun();
-        CancellationTokenSource cts = new CancellationTokenSource();
+        CancellationTokenSource cts = new();
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", cts.Token))
             .ReturnsAsync(DetailFor(run, [], []));
 
@@ -172,7 +172,7 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
+        List<AgentTask> tasks = new() { ValidTask() };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -215,7 +215,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult("run-1", AgentType.Compliance);
         result.TaskId = "task-compliance";
-        List<AgentTask> tasks = new List<AgentTask>
+        List<AgentTask> tasks = new()
         {
             ValidTask(),
             ValidTask("run-1", AgentType.Cost),
@@ -224,7 +224,7 @@ public sealed class ArchitectureApplicationServiceTests
         tasks[0].TaskId = "task-topology";
         tasks[1].TaskId = "task-cost";
         tasks[2].TaskId = "task-compliance";
-        List<AgentResult> existingResults = new List<AgentResult>
+        List<AgentResult> existingResults = new()
         {
             ValidResult(),
             ValidResult("run-1", AgentType.Cost)
@@ -249,7 +249,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
         result.TaskId = "task-topology-3";
-        List<AgentTask> tasks = new List<AgentTask>
+        List<AgentTask> tasks = new()
         {
             ValidTask(),
             ValidTask(),
@@ -258,7 +258,7 @@ public sealed class ArchitectureApplicationServiceTests
         tasks[0].TaskId = "task-topology-1";
         tasks[1].TaskId = "task-topology-2";
         tasks[2].TaskId = "task-topology-3";
-        List<AgentResult> existingResults = new List<AgentResult>
+        List<AgentResult> existingResults = new()
         {
             ValidResult(),
             ValidResult()
@@ -333,7 +333,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
         result.RunId = "RUN-1";
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
+        List<AgentTask> tasks = new() { ValidTask() };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -351,8 +351,8 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
-        List<AgentResult> existingResults = new List<AgentResult> { result };
+        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentResult> existingResults = new() { result };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
@@ -370,7 +370,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
         result.TaskId = "nonexistent-task";
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
+        List<AgentTask> tasks = new() { ValidTask() };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -388,7 +388,7 @@ public sealed class ArchitectureApplicationServiceTests
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult("run-1", AgentType.Cost);
         result.TaskId = "task-1";
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
+        List<AgentTask> tasks = new() { ValidTask() };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -407,7 +407,7 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task GetManifestAsync_WhenVersionExists_ReturnsManifest()
     {
-        GoldenManifest manifest = new GoldenManifest { RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
+        GoldenManifest manifest = new() { RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
         _manifestRepository.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
 
         GoldenManifest? result = await _sut.GetManifestAsync("v1");
@@ -429,8 +429,8 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task GetManifestAsync_PassesCancellationTokenToRepository()
     {
-        CancellationTokenSource cts = new CancellationTokenSource();
-        GoldenManifest manifest = new GoldenManifest { Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
+        CancellationTokenSource cts = new();
+        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
         _manifestRepository.Setup(r => r.GetByVersionAsync("v1", cts.Token)).ReturnsAsync(manifest);
 
         await _sut.GetManifestAsync("v1", cts.Token);
@@ -461,7 +461,7 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         ArchitectureRequest request = ValidRequest();
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask(), ValidTask("run-1", AgentType.Cost), ValidTask("run-1", AgentType.Compliance) };
+        List<AgentTask> tasks = new() { ValidTask(), ValidTask("run-1", AgentType.Cost), ValidTask("run-1", AgentType.Compliance) };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, []));
@@ -545,8 +545,8 @@ public sealed class ArchitectureApplicationServiceTests
     {
         ArchitectureRun run = ValidRun();
         ArchitectureRequest request = ValidRequest();
-        List<AgentTask> tasks = new List<AgentTask> { ValidTask() };
-        List<AgentResult> existingResults = new List<AgentResult> { ValidResult() };
+        List<AgentTask> tasks = new() { ValidTask() };
+        List<AgentResult> existingResults = new() { ValidResult() };
 
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(DetailFor(run, tasks, existingResults));

@@ -17,7 +17,7 @@ public sealed class DeterministicAgentSimulatorTests
     [Fact]
     public async Task Simulator_ShouldProduceDeterministicStarterResultsAsync()
     {
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -38,7 +38,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        CoordinatorService coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestrator());
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         coordination.Success.Should().BeTrue();
@@ -64,7 +64,7 @@ public sealed class DeterministicAgentSimulatorTests
     [Fact]
     public async Task Simulator_AndDecisionEngine_ShouldProduceManifestAsync()
     {
-        ArchitectureRequest request = new ArchitectureRequest
+        ArchitectureRequest request = new()
         {
             RequestId = "REQ-001",
             SystemName = "EnterpriseRag",
@@ -85,7 +85,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        CoordinatorService coordinator = new CoordinatorService(new FakeAuthorityRunOrchestrator());
+        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestrator());
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         DeterministicAgentSimulator simulator = new();
@@ -97,11 +97,11 @@ public sealed class DeterministicAgentSimulatorTests
             evidence,
             coordination.Tasks);
 
-        SchemaValidationService validationService = new SchemaValidationService(
+        SchemaValidationService validationService = new(
             NullLogger<SchemaValidationService>.Instance,
             Options.Create(new SchemaValidationOptions()));
 
-        DecisionEngineService engine = new DecisionEngineService(validationService);
+        DecisionEngineService engine = new(validationService);
 
         DecisionMergeResult merge = engine.MergeResults(
             coordination.Run.RunId,

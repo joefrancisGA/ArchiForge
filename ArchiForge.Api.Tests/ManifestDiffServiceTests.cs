@@ -12,7 +12,7 @@ public sealed class ManifestDiffServiceTests
     [Fact]
     public void Compare_ShouldDetectAddedServiceAndControl()
     {
-        GoldenManifest left = new GoldenManifest
+        GoldenManifest left = new()
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -38,7 +38,7 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        GoldenManifest right = new GoldenManifest
+        GoldenManifest right = new()
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -71,7 +71,7 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        ManifestDiffService service = new ManifestDiffService();
+        ManifestDiffService service = new();
 
         ManifestDiffResult diff = service.Compare(left, right);
 
@@ -84,7 +84,7 @@ public sealed class ManifestDiffServiceTests
     [Fact]
     public void Compare_ShouldDetectRemovedDatastore()
     {
-        GoldenManifest left = new GoldenManifest
+        GoldenManifest left = new()
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -107,7 +107,7 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        GoldenManifest right = new GoldenManifest
+        GoldenManifest right = new()
         {
             RunId = "RUN-001",
             SystemName = "EnterpriseRag",
@@ -121,7 +121,7 @@ public sealed class ManifestDiffServiceTests
             }
         };
 
-        ManifestDiffService service = new ManifestDiffService();
+        ManifestDiffService service = new();
 
         ManifestDiffResult diff = service.Compare(left, right);
 

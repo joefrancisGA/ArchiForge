@@ -24,7 +24,7 @@ public sealed class RecommendationWorkflowService(IRecommendationRepository repo
         {
             RecommendationRecord? existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct).ConfigureAwait(false);
 
-            RecommendationRecord record = new RecommendationRecord
+            RecommendationRecord record = new()
             {
                 RecommendationId = recommendation.RecommendationId,
                 TenantId = tenantId,

@@ -74,7 +74,7 @@ public static class GovernanceManifestComparer
     {
         List<string> keys = current.Keys.Union(preview.Keys, StringComparer.Ordinal).ToList();
         keys.Sort(StringComparer.Ordinal);
-        List<GovernanceDiffItem> items = new List<GovernanceDiffItem>();
+        List<GovernanceDiffItem> items = new();
 
         foreach (string key in keys)
         {

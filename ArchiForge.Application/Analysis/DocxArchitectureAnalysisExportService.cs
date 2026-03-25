@@ -14,7 +14,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        using OpenXmlDocxDocumentBuilder builder = new OpenXmlDocxDocumentBuilder();
+        using OpenXmlDocxDocumentBuilder builder = new();
 
         builder.AddHeading("ArchiForge Analysis Report", 1);
 

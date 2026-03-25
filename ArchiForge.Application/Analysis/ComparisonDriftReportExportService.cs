@@ -10,7 +10,7 @@ public sealed class ComparisonDriftReportExportService : IComparisonDriftReportE
     {
         ArgumentNullException.ThrowIfNull(drift);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("# ArchiForge Comparison Drift Report");
         sb.AppendLine();
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))

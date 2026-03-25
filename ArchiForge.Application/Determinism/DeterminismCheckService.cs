@@ -24,7 +24,7 @@ public sealed class DeterminismCheckService(
         if (request.Iterations < 2)
             throw new ArgumentOutOfRangeException(nameof(request), "Iterations must be at least 2.");
 
-        DeterminismCheckResult output = new DeterminismCheckResult
+        DeterminismCheckResult output = new()
         {
             SourceRunId = request.RunId,
             Iterations = request.Iterations,
@@ -57,7 +57,7 @@ public sealed class DeterminismCheckService(
 
             bool hasAgentDrift = HasAgentDrift(agentDiff);
 
-            DeterminismIterationResult iteration = new DeterminismIterationResult
+            DeterminismIterationResult iteration = new()
             {
                 IterationNumber = i,
                 ReplayRunId = replay.ReplayRunId,

@@ -10,7 +10,7 @@ public static class TemplateLoader
     public static MemoryStream OpenWritableTemplate()
     {
         byte[] bytes = TryLoadFromDisk() ?? BrandedArchitectureTemplateGenerator.CreateTemplateBytes();
-        MemoryStream ms = new MemoryStream();
+        MemoryStream ms = new();
         ms.Write(bytes, 0, bytes.Length);
         ms.Position = 0;
         return ms;

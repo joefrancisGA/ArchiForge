@@ -15,7 +15,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     /// <inheritdoc />
     public AlertMetricSnapshot Build(AlertEvaluationContext context)
     {
-        AlertMetricSnapshot snapshot = new AlertMetricSnapshot
+        AlertMetricSnapshot snapshot = new()
         {
             CriticalRecommendationCount =
                 context.ImprovementPlan?.Recommendations.Count(x =>

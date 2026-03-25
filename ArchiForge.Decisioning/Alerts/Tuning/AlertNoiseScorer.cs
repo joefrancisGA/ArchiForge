@@ -11,7 +11,7 @@ public sealed class AlertNoiseScorer : IAlertNoiseScorer
         int targetCreatedAlertCountMin,
         int targetCreatedAlertCountMax)
     {
-        NoiseScoreBreakdown result = new NoiseScoreBreakdown();
+        NoiseScoreBreakdown result = new();
 
         int evaluated = Math.Max(1, simulationResult.EvaluatedRunCount);
         int created = simulationResult.WouldCreateCount;

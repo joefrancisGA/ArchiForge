@@ -17,9 +17,9 @@ public class DefaultGraphBuilder(
     {
         ArgumentNullException.ThrowIfNull(contextSnapshot);
 
-        GraphBuildResult result = new GraphBuildResult();
+        GraphBuildResult result = new();
 
-        GraphNode contextNode = new GraphNode
+        GraphNode contextNode = new()
         {
             NodeId = $"context-{contextSnapshot.SnapshotId:N}",
             NodeType = GraphNodeTypes.ContextSnapshot,

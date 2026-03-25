@@ -40,7 +40,7 @@ public sealed class ArchiForgeRoleClaimsTransformation : IClaimsTransformation
         if (clone.Identity is not ClaimsIdentity id)
             return Task.FromResult(principal);
 
-        HashSet<string> roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> roles = new(StringComparer.OrdinalIgnoreCase);
         foreach (Claim c in clone.FindAll(ClaimTypes.Role))
             roles.Add(c.Value);
         foreach (Claim c in clone.FindAll("roles"))

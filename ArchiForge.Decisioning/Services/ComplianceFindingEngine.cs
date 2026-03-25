@@ -25,7 +25,7 @@ public class ComplianceFindingEngine(
         packValidator.Validate(rulePack);
 
         ComplianceEvaluationResult evaluation = evaluator.Evaluate(graphSnapshot, rulePack);
-        List<Finding> findings = new List<Finding>();
+        List<Finding> findings = new();
 
         foreach (ComplianceViolation violation in evaluation.Violations)
         {

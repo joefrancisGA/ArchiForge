@@ -13,7 +13,7 @@ public sealed class ImprovementPlanSerializationTests
     [Fact]
     public void PolicyPackAdvisoryDefaults_RoundTrips_Json()
     {
-        ImprovementPlan plan = new ImprovementPlan
+        ImprovementPlan plan = new()
         {
             RunId = Guid.NewGuid(),
             GeneratedUtc = DateTime.UtcNow,

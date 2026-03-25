@@ -13,7 +13,7 @@ public class GraphComplianceEvaluator : IComplianceEvaluator
         ArgumentNullException.ThrowIfNull(graphSnapshot);
         ArgumentNullException.ThrowIfNull(rulePack);
 
-        ComplianceEvaluationResult result = new ComplianceEvaluationResult();
+        ComplianceEvaluationResult result = new();
         IReadOnlyList<GraphNode> topologyNodes = graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource);
 
         foreach (ComplianceRule rule in rulePack.Rules)

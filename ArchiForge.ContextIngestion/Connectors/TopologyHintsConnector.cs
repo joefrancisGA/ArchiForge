@@ -23,7 +23,7 @@ public class TopologyHintsConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        NormalizedContextBatch batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new();
 
         foreach (string hint in payload.TopologyHints)
         {

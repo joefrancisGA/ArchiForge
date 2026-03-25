@@ -180,8 +180,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE 1 = 1
             """;
 
-        List<string> conditions = new List<string>();
-        DynamicParameters parameters = new DynamicParameters();
+        List<string> conditions = new();
+        DynamicParameters parameters = new();
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         int safeSkip = skip < 0 ? 0 : skip;
         parameters.Add("@Limit", safeLimit);
@@ -250,8 +250,8 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             WHERE 1 = 1
             """;
 
-        List<string> conditions = new List<string>();
-        DynamicParameters parameters = new DynamicParameters();
+        List<string> conditions = new();
+        DynamicParameters parameters = new();
         int safeLimit = limit <= 0 ? 50 : Math.Min(limit, 500);
         parameters.Add("@Limit", safeLimit);
 

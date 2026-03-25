@@ -21,7 +21,7 @@ public sealed class TypedFindingsGoldenPathTests
     {
         Guid runId = Guid.NewGuid();
         Guid ctxId = Guid.NewGuid();
-        GraphSnapshot graph = new GraphSnapshot
+        GraphSnapshot graph = new()
         {
             GraphSnapshotId = Guid.NewGuid(),
             RunId = runId,
@@ -107,16 +107,16 @@ public sealed class TypedFindingsGoldenPathTests
             }
         };
 
-        GraphCoverageAnalyzer analyzer = new GraphCoverageAnalyzer();
+        GraphCoverageAnalyzer analyzer = new();
         string complianceRulePackPath = Path.Combine(
             AppContext.BaseDirectory,
             "Compliance",
             "RulePacks",
             "default-compliance.rules.json");
-        FileComplianceRulePackLoader complianceLoader = new FileComplianceRulePackLoader(complianceRulePackPath);
-        FileComplianceRulePackProvider complianceProvider = new FileComplianceRulePackProvider(complianceLoader);
-        ComplianceRulePackValidator complianceValidator = new ComplianceRulePackValidator();
-        GraphComplianceEvaluator complianceEvaluator = new GraphComplianceEvaluator();
+        FileComplianceRulePackLoader complianceLoader = new(complianceRulePackPath);
+        FileComplianceRulePackProvider complianceProvider = new(complianceLoader);
+        ComplianceRulePackValidator complianceValidator = new();
+        GraphComplianceEvaluator complianceEvaluator = new();
 
         IFindingEngine[] engines =
         [
@@ -128,7 +128,7 @@ public sealed class TypedFindingsGoldenPathTests
             new CostConstraintFindingEngine()
         ];
 
-        FindingsOrchestrator orchestrator = new FindingsOrchestrator(engines, new FindingPayloadValidator(), NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator orchestrator = new(engines, new FindingPayloadValidator(), NullLogger<FindingsOrchestrator>.Instance);
 
         FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 
@@ -139,7 +139,7 @@ public sealed class TypedFindingsGoldenPathTests
         snapshot.Findings.Should().Contain(f =>
             f.FindingType == "SecurityControlFinding" && f.RelatedNodeIds.Contains("t1"));
 
-        RuleBasedDecisionEngine decisionEngine = new RuleBasedDecisionEngine(
+        RuleBasedDecisionEngine decisionEngine = new(
             new InMemoryDecisionRuleProvider(),
             new DefaultGoldenManifestBuilder(),
             new GoldenManifestValidator(),

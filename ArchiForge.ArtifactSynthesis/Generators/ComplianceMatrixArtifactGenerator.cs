@@ -17,7 +17,7 @@ public class ComplianceMatrixArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        ComplianceMatrixArtifactModel matrix = new ComplianceMatrixArtifactModel();
+        ComplianceMatrixArtifactModel matrix = new();
 
         foreach (CompliancePostureItem control in manifest.Compliance.Controls)
         {

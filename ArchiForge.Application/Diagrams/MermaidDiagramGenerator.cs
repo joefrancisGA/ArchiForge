@@ -17,7 +17,7 @@ public sealed class MermaidDiagramGenerator : IDiagramGenerator
     {
         ArgumentNullException.ThrowIfNull(manifest);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine("flowchart LR");
 

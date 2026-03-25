@@ -19,8 +19,8 @@ public sealed class ArchiForgeApiClientHttpTests
 
     private static ArchiForgeApiClient CreateClient(HttpResponseMessage response)
     {
-        MockHttpMessageHandler handler = new MockHttpMessageHandler(response);
-        HttpClient http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost") };
+        MockHttpMessageHandler handler = new(response);
+        HttpClient http = new(handler) { BaseAddress = new Uri("http://localhost") };
         return new ArchiForgeApiClient(http);
     }
 
@@ -48,7 +48,7 @@ public sealed class ArchiForgeApiClientHttpTests
             },
             tasks = Array.Empty<object>()
         }, SJsonCamelCase);
-        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.Created) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.Created) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         ArchiForgeApiClient client = CreateClient(response);
@@ -67,7 +67,7 @@ public sealed class ArchiForgeApiClientHttpTests
         {
             detail = "Validation failed"
         });
-        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.BadRequest) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         ArchiForgeApiClient client = CreateClient(response);
@@ -95,7 +95,7 @@ public sealed class ArchiForgeApiClientHttpTests
             tasks = Array.Empty<object>(),
             results = Array.Empty<object>()
         }, SJsonCamelCase);
-        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         ArchiForgeApiClient client = CreateClient(response);
@@ -110,7 +110,7 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task GetRunAsync_On404_ReturnsNull()
     {
-        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.NotFound);
+        HttpResponseMessage response = new(HttpStatusCode.NotFound);
 
         ArchiForgeApiClient client = CreateClient(response);
         ArchiForgeApiClient.GetRunResult? result = await client.GetRunAsync("nonexistent");
@@ -135,7 +135,7 @@ public sealed class ArchiForgeApiClientHttpTests
             },
             warnings = Array.Empty<string>()
         }, SJsonCamelCase);
-        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+        HttpResponseMessage response = new(HttpStatusCode.OK) { Content = new StringContent(json) };
         response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
         ArchiForgeApiClient client = CreateClient(response);
@@ -150,7 +150,7 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CheckHealthAsync_On200_ReturnsTrue()
     {
-        HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+        HttpResponseMessage response = new(HttpStatusCode.OK);
 
         ArchiForgeApiClient client = CreateClient(response);
         bool result = await client.CheckHealthAsync();
@@ -161,7 +161,7 @@ public sealed class ArchiForgeApiClientHttpTests
     [Fact]
     public async Task CheckHealthAsync_On503_ReturnsFalse()
     {
-        HttpResponseMessage response = new HttpResponseMessage((HttpStatusCode)503);
+        HttpResponseMessage response = new((HttpStatusCode)503);
 
         ArchiForgeApiClient client = CreateClient(response);
         bool result = await client.CheckHealthAsync();

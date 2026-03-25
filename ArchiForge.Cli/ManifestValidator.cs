@@ -22,7 +22,7 @@ public static class ManifestValidator
 
         using JsonDocument manifestDoc = JsonDocument.Parse(manifestJson);
 
-        EvaluationOptions options = new EvaluationOptions
+        EvaluationOptions options = new()
         {
             OutputFormat = OutputFormat.Hierarchical
         };

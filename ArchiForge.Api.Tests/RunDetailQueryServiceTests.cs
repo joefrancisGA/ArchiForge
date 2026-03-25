@@ -89,9 +89,9 @@ public sealed class RunDetailQueryServiceTests
     {
         ArchitectureRun run = CommittedRun();
         GoldenManifest manifest = Manifest();
-        AgentTask task = new AgentTask { TaskId = "t1", RunId = run.RunId };
-        AgentResult agentResult = new AgentResult { ResultId = "r1", RunId = run.RunId };
-        DecisionTrace trace = new DecisionTrace { TraceId = "tr1", RunId = run.RunId };
+        AgentTask task = new() { TaskId = "t1", RunId = run.RunId };
+        AgentResult agentResult = new() { ResultId = "r1", RunId = run.RunId };
+        DecisionTrace trace = new() { TraceId = "tr1", RunId = run.RunId };
 
         _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(run);

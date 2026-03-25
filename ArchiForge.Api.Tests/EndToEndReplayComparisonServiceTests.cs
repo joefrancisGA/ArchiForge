@@ -57,13 +57,13 @@ public sealed class EndToEndReplayComparisonServiceTests
     [Fact]
     public async Task BuildAsync_LoadsBothRunsViaRunDetailQueryService_AndComparesManifestsFromDetail()
     {
-        ArchitectureRunDetail left = new ArchitectureRunDetail
+        ArchitectureRunDetail left = new()
         {
             Run = Run("left", "vL"),
             Results = [new AgentResult { RunId = "left", TaskId = "t1", AgentType = AgentType.Topology }],
             Manifest = Manifest("left", "vL")
         };
-        ArchitectureRunDetail right = new ArchitectureRunDetail
+        ArchitectureRunDetail right = new()
         {
             Run = Run("right", "vR"),
             Results = [],

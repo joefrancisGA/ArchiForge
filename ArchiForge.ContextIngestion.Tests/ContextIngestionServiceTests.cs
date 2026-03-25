@@ -26,7 +26,7 @@ public sealed class ContextIngestionServiceTests
         {
             _ = payload;
             _ = ct;
-            NormalizedContextBatch batch = new NormalizedContextBatch();
+            NormalizedContextBatch batch = new();
             batch.CanonicalObjects.Add(new CanonicalObject
             {
                 ObjectType = "Requirement",
@@ -53,16 +53,16 @@ public sealed class ContextIngestionServiceTests
     [Fact]
     public async Task IngestAsync_ProducesEnrichedDeltaSummary()
     {
-        InMemoryContextSnapshotRepository repo = new InMemoryContextSnapshotRepository();
+        InMemoryContextSnapshotRepository repo = new();
         IContextConnector[] connectors = [new CountingConnector()];
-        ContextIngestionService sut = new ContextIngestionService(
+        ContextIngestionService sut = new(
             connectors,
             new CanonicalInfrastructureEnricher(),
             new CanonicalDeduplicator(),
             repo,
             new DefaultContextDeltaSummaryBuilder());
 
-        ContextIngestionRequest request = new ContextIngestionRequest
+        ContextIngestionRequest request = new()
         {
             RunId = Guid.NewGuid(),
             ProjectId = "proj-ingest-test"

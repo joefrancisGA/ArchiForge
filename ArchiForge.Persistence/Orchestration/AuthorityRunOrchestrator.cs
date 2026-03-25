@@ -68,7 +68,7 @@ public sealed class AuthorityRunOrchestrator(
         try
         {
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            RunRecord run = new RunRecord
+            RunRecord run = new()
             {
                 RunId = Guid.NewGuid(),
                 ProjectId = request.ProjectId,

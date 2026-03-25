@@ -181,7 +181,7 @@ public static class FakeScenarioFactory
         string taskId,
         ArchitectureRequest request)
     {
-        List<string> requiredControls = new List<string>
+        List<string> requiredControls = new()
         {
             "Managed Identity",
             "Private Endpoints",

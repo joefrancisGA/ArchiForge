@@ -131,7 +131,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
         if (request.IncludeCoverageSection)
         {
             WordDocumentBuilder.AddHeading(body, "Requirements Coverage");
-            List<(string Name, string Status, string Mandatory)> reqRows = new List<(string Name, string Status, string Mandatory)>();
+            List<(string Name, string Status, string Mandatory)> reqRows = new();
             foreach (RequirementCoverageItem item in manifest.Requirements.Covered)
                 reqRows.Add((item.RequirementName, item.CoverageStatus, item.IsMandatory ? "Yes" : "No"));
             foreach (RequirementCoverageItem item in manifest.Requirements.Uncovered)

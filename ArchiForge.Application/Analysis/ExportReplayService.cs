@@ -42,7 +42,7 @@ public sealed class ExportReplayService(
                                                           ?? throw new InvalidOperationException(
                                                               $"Export record '{request.ExportRecordId}' does not contain a persisted analysis request.");
 
-        ArchitectureAnalysisRequest analysisRequest = new ArchitectureAnalysisRequest
+        ArchitectureAnalysisRequest analysisRequest = new()
         {
             RunId = record.RunId,
             IncludeEvidence = persistedRequest.IncludeEvidence,

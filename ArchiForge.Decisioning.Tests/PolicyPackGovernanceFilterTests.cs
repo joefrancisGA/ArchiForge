@@ -32,8 +32,8 @@ public sealed class PolicyPackGovernanceFilterTests
     {
         Guid a = Guid.NewGuid();
         Guid b = Guid.NewGuid();
-        List<AlertRule> rules = new List<AlertRule> { Rule(a), Rule(b) };
-        PolicyPackContentDocument effective = new PolicyPackContentDocument();
+        List<AlertRule> rules = new() { Rule(a), Rule(b) };
+        PolicyPackContentDocument effective = new();
 
         List<AlertRule> filtered = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
@@ -45,8 +45,8 @@ public sealed class PolicyPackGovernanceFilterTests
     {
         Guid keep = Guid.NewGuid();
         Guid drop = Guid.NewGuid();
-        List<AlertRule> rules = new List<AlertRule> { Rule(keep), Rule(drop) };
-        PolicyPackContentDocument effective = new PolicyPackContentDocument { AlertRuleIds = [keep] };
+        List<AlertRule> rules = new() { Rule(keep), Rule(drop) };
+        PolicyPackContentDocument effective = new() { AlertRuleIds = [keep] };
 
         List<AlertRule> filtered = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
 
@@ -58,8 +58,8 @@ public sealed class PolicyPackGovernanceFilterTests
     {
         Guid a = Guid.NewGuid();
         Guid b = Guid.NewGuid();
-        List<CompositeAlertRule> rules = new List<CompositeAlertRule> { Composite(a), Composite(b) };
-        PolicyPackContentDocument effective = new PolicyPackContentDocument();
+        List<CompositeAlertRule> rules = new() { Composite(a), Composite(b) };
+        PolicyPackContentDocument effective = new();
 
         List<CompositeAlertRule> filtered = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 
@@ -71,8 +71,8 @@ public sealed class PolicyPackGovernanceFilterTests
     {
         Guid keep = Guid.NewGuid();
         Guid drop = Guid.NewGuid();
-        List<CompositeAlertRule> rules = new List<CompositeAlertRule> { Composite(keep), Composite(drop) };
-        PolicyPackContentDocument effective = new PolicyPackContentDocument { CompositeAlertRuleIds = [keep] };
+        List<CompositeAlertRule> rules = new() { Composite(keep), Composite(drop) };
+        PolicyPackContentDocument effective = new() { CompositeAlertRuleIds = [keep] };
 
         List<CompositeAlertRule> filtered = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
 

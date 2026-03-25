@@ -37,7 +37,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     {
         ArgumentNullException.ThrowIfNull(report);
         string p = EndToEndComparisonExportProfile.Normalize(profile);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         AppendMarkdownHeader(sb, report);
         sb.AppendLine(summaryFormatter.FormatMarkdown(report).Trim());
@@ -76,7 +76,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     {
         ArgumentNullException.ThrowIfNull(report);
         string p = EndToEndComparisonExportProfile.Normalize(profile);
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("<!DOCTYPE html>");
         sb.AppendLine("<html lang=\"en\">");
         sb.AppendLine("<head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>");
@@ -130,7 +130,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         ArgumentNullException.ThrowIfNull(report);
         string p = EndToEndComparisonExportProfile.Normalize(profile);
 
-        using MemoryStream stream = new MemoryStream();
+        using MemoryStream stream = new();
 
         using (WordprocessingDocument document = WordprocessingDocument.Create(
                    stream,
@@ -298,7 +298,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             });
         });
 
-        using MemoryStream stream = new MemoryStream();
+        using MemoryStream stream = new();
         doc.GeneratePdf(stream);
         return Task.FromResult(stream.ToArray());
     }
@@ -426,7 +426,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
     {
         if (string.IsNullOrEmpty(markdown))
             return "";
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         foreach (string line in markdown.Split('\n'))
         {
             string t = line.TrimEnd();
@@ -586,7 +586,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AddParagraph(Body body, string text, bool bold = false)
     {
-        Run run = new Run(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
+        Run run = new(new Text(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
         {

@@ -54,7 +54,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchiForgeApiFacto
 
         string url =
             $"/v1/architecture/run/compare/end-to-end/export/file?leftRunId={runId}&rightRunId={replayRunId}";
-        using HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Get, url);
+        using HttpRequestMessage req = new(HttpMethod.Get, url);
         req.Headers.Range = new RangeHeaderValue(0, 15);
 
         HttpResponseMessage response = await Client.SendAsync(req);

@@ -58,13 +58,13 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
     [Fact]
     public async Task BuildAsync_WithPreloadedRunDetail_DoesNotRecallRunDetailOrPrimaryManifestFromRepository()
     {
-        GoldenManifest manifest = new GoldenManifest
+        GoldenManifest manifest = new()
         {
             RunId = "run-1",
             SystemName = "Sys",
             Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
-        ArchitectureRunDetail detail = new ArchitectureRunDetail
+        ArchitectureRunDetail detail = new()
         {
             Run = new ArchitectureRun
             {
@@ -79,7 +79,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             Results = []
         };
 
-        ArchitectureAnalysisRequest request = new ArchitectureAnalysisRequest
+        ArchitectureAnalysisRequest request = new()
         {
             RunId = "run-1",
             PreloadedRunDetail = detail,

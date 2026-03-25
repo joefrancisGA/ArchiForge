@@ -38,7 +38,7 @@ public class RuleBasedDecisionEngine(
             .OrderByDescending(r => r.Priority)
             .ToList();
 
-        DecisionTrace trace = new DecisionTrace
+        DecisionTrace trace = new()
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,

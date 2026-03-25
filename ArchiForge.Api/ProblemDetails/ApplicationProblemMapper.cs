@@ -89,7 +89,7 @@ public static class ApplicationProblemMapper
         ComparisonVerificationFailedException cvf,
         string? instance)
     {
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
             Type = ProblemTypes.ComparisonVerificationFailed,
             Title = "Unprocessable Entity",
@@ -119,7 +119,7 @@ public static class ApplicationProblemMapper
         string type,
         string? instance)
     {
-        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new Microsoft.AspNetCore.Mvc.ProblemDetails
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
         {
             Type = type,
             Title = title,

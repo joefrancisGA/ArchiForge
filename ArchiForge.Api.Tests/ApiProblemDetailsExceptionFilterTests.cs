@@ -17,26 +17,26 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [Fact]
     public void ComparisonVerificationFailedException_Produces422WithDriftExtensions()
     {
-        ApiProblemDetailsExceptionFilter filter = new ApiProblemDetailsExceptionFilter();
-        DefaultHttpContext httpContext = new DefaultHttpContext
+        ApiProblemDetailsExceptionFilter filter = new();
+        DefaultHttpContext httpContext = new()
         {
             Request =
             {
                 Path = "/v1/architecture/comparisons/r1/replay"
             }
         };
-        ActionContext actionContext = new ActionContext(
+        ActionContext actionContext = new(
             httpContext,
             new RouteData(),
             new ControllerActionDescriptor());
-        DriftAnalysisResult drift = new DriftAnalysisResult
+        DriftAnalysisResult drift = new()
         {
             DriftDetected = true,
             Summary = "payload mismatch"
         };
-        ComparisonVerificationFailedException ex = new ComparisonVerificationFailedException("Verification failed.", drift);
+        ComparisonVerificationFailedException ex = new("Verification failed.", drift);
 #pragma warning disable IDE0028 // Simplify collection initialization
-        ExceptionContext context = new ExceptionContext(actionContext, new List<IFilterMetadata>())
+        ExceptionContext context = new(actionContext, new List<IFilterMetadata>())
         {
             Exception = ex
         };

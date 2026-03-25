@@ -24,7 +24,7 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         RawContextPayload payload,
         CancellationToken ct)
     {
-        NormalizedContextBatch batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new();
 
         foreach (InfrastructureDeclarationReference declaration in payload.InfrastructureDeclarations)
         {

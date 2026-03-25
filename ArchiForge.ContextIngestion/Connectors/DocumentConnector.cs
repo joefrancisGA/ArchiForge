@@ -23,7 +23,7 @@ public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IC
         RawContextPayload payload,
         CancellationToken ct)
     {
-        NormalizedContextBatch batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new();
 
         foreach (ContextDocumentReference document in payload.Documents)
         {

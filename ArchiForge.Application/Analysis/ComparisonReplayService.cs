@@ -213,7 +213,7 @@ public sealed class ComparisonReplayService(
         string content,
         string? profile)
     {
-        ReplayComparisonResult r = new ReplayComparisonResult
+        ReplayComparisonResult r = new()
         {
             ComparisonRecordId = record.ComparisonRecordId,
             ComparisonType = record.ComparisonType,
@@ -232,7 +232,7 @@ public sealed class ComparisonReplayService(
         byte[] bytes,
         string? profile)
     {
-        ReplayComparisonResult r = new ReplayComparisonResult
+        ReplayComparisonResult r = new()
         {
             ComparisonRecordId = record.ComparisonRecordId,
             ComparisonType = record.ComparisonType,
@@ -285,7 +285,7 @@ public sealed class ComparisonReplayService(
                 throw new InvalidOperationException($"Unsupported replay format '{format}' for export-record diff.");
 
             byte[] bytes = await exportRecordDiffExportService.GenerateDocxAsync(diff, cancellationToken);
-            ReplayComparisonResult resultDocx = new ReplayComparisonResult
+            ReplayComparisonResult resultDocx = new()
             {
                 ComparisonRecordId = record.ComparisonRecordId,
                 ComparisonType = record.ComparisonType,
@@ -305,7 +305,7 @@ public sealed class ComparisonReplayService(
         }
 
         string markdown = exportRecordDiffSummaryFormatter.FormatMarkdown(diff);
-        ReplayComparisonResult result = new ReplayComparisonResult
+        ReplayComparisonResult result = new()
         {
             ComparisonRecordId = record.ComparisonRecordId,
             ComparisonType = record.ComparisonType,

@@ -16,7 +16,7 @@ public class CoverageSummaryArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        CoverageSummaryArtifactModel model = new CoverageSummaryArtifactModel
+        CoverageSummaryArtifactModel model = new()
         {
             CoveredRequirementCount = manifest.Requirements.Covered.Count,
             UncoveredRequirementCount = manifest.Requirements.Uncovered.Count,

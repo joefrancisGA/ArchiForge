@@ -8,7 +8,7 @@ public sealed class MarkdownManifestDiffSummaryFormatter : IManifestDiffSummaryF
     {
         ArgumentNullException.ThrowIfNull(diff);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# Manifest Comparison: {diff.LeftManifestVersion} -> {diff.RightManifestVersion}");
         sb.AppendLine();

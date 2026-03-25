@@ -13,8 +13,8 @@ public sealed class ReplayComparisonResultHeadersTests
     [Fact]
     public void ApplyFull_writes_expected_core_and_optional_headers()
     {
-        DefaultHttpContext context = new DefaultHttpContext();
-        ReplayComparisonResult result = new ReplayComparisonResult
+        DefaultHttpContext context = new();
+        ReplayComparisonResult result = new()
         {
             ComparisonRecordId = "cmp-1",
             ComparisonType = "end-to-end-replay",
@@ -49,8 +49,8 @@ public sealed class ReplayComparisonResultHeadersTests
     [Fact]
     public void ApplyMetadata_writes_only_metadata_subset_headers()
     {
-        DefaultHttpContext context = new DefaultHttpContext();
-        ReplayComparisonResult result = new ReplayComparisonResult
+        DefaultHttpContext context = new();
+        ReplayComparisonResult result = new()
         {
             ComparisonRecordId = "cmp-2",
             ComparisonType = "export-record-diff",

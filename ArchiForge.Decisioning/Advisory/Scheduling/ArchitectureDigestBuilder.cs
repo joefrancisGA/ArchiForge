@@ -28,7 +28,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
             .Take(5)
             .ToList();
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.AppendLine("# Daily Architecture Digest");
         sb.AppendLine();
         sb.AppendLine($"Generated: {plan.GeneratedUtc:u}");

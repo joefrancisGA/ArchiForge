@@ -39,7 +39,7 @@ public sealed class GovernancePreviewController(
 
         try
         {
-            GovernancePreviewRequest request = new GovernancePreviewRequest
+            GovernancePreviewRequest request = new()
             {
                 RunId = body.RunId,
                 ManifestVersion = body.ManifestVersion,
@@ -78,7 +78,7 @@ public sealed class GovernancePreviewController(
 
         try
         {
-            GovernanceEnvironmentComparisonRequest request = new GovernanceEnvironmentComparisonRequest
+            GovernanceEnvironmentComparisonRequest request = new()
             {
                 SourceEnvironment = body.SourceEnvironment,
                 TargetEnvironment = body.TargetEnvironment

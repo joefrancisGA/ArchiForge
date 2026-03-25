@@ -19,7 +19,7 @@ public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
     /// <param name="embeddingDeploymentName">Embeddings deployment name (not the chat deployment).</param>
     public AzureOpenAiEmbeddingClient(string endpoint, string apiKey, string embeddingDeploymentName)
     {
-        AzureOpenAIClient azureClient = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+        AzureOpenAIClient azureClient = new(new Uri(endpoint), new ApiKeyCredential(apiKey));
         _embeddingClient = azureClient.GetEmbeddingClient(embeddingDeploymentName);
     }
 

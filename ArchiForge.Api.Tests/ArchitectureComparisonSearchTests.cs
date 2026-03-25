@@ -18,14 +18,14 @@ public sealed class ArchitectureComparisonSearchTests(ArchiForgeApiFactory facto
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()
     {
-        List<string> ids = new List<string>();
+        List<string> ids = new();
 
         using (IServiceScope scope = _factory.Services.CreateScope())
         {
             IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
             for (int i = 0; i < 6; i++)
             {
-                ComparisonRecord record = new ComparisonRecord
+                ComparisonRecord record = new()
                 {
                     ComparisonRecordId = $"cmp_search_{i}_{Guid.NewGuid():N}",
                     ComparisonType = "end-to-end-replay",

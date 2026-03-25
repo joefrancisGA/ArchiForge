@@ -40,7 +40,7 @@ public sealed class RunDetailQueryService(
         IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         Contracts.Manifest.GoldenManifest? manifest = null;
-        List<DecisionTrace> decisionTraces = new List<Contracts.Metadata.DecisionTrace>();
+        List<DecisionTrace> decisionTraces = new();
 
         if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
             return new ArchitectureRunDetail

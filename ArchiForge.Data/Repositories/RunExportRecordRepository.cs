@@ -135,7 +135,7 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
             },
             cancellationToken: cancellationToken));
 
-        List<RunExportRecord> records = new List<RunExportRecord>();
+        List<RunExportRecord> records = new();
         foreach (string json in rows)
         {
             RunExportRecord? record;

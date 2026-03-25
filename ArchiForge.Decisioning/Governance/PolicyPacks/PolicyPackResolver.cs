@@ -30,7 +30,7 @@ public sealed class PolicyPackResolver(
             .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
             .ConfigureAwait(false);
 
-        EffectivePolicyPackSet result = new EffectivePolicyPackSet
+        EffectivePolicyPackSet result = new()
         {
             TenantId = tenantId,
             WorkspaceId = workspaceId,

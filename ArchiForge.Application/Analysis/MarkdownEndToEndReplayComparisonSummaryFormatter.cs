@@ -14,7 +14,7 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
     {
         ArgumentNullException.ThrowIfNull(report);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine($"# End-to-End Replay Comparison: {report.LeftRunId} -> {report.RightRunId}");
         sb.AppendLine();

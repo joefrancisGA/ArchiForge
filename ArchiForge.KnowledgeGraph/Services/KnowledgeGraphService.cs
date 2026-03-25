@@ -21,7 +21,7 @@ public class KnowledgeGraphService(
 
         GraphBuildResult buildResult = await graphBuilder.BuildAsync(contextSnapshot, ct);
 
-        GraphSnapshot snapshot = new GraphSnapshot
+        GraphSnapshot snapshot = new()
         {
             GraphSnapshotId = Guid.NewGuid(),
             ContextSnapshotId = contextSnapshot.SnapshotId,

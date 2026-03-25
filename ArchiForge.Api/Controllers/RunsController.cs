@@ -365,7 +365,7 @@ public sealed partial class RunsController(
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         }
 
-        PagingParameters paging = new PagingParameters { PageNumber = pageNumber, PageSize = pageSize };
+        PagingParameters paging = new() { PageNumber = pageNumber, PageSize = pageSize };
         (int skip, int take) = paging.Normalize();
 
         (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) = await agentExecutionTraceRepository.GetPagedByRunIdAsync(

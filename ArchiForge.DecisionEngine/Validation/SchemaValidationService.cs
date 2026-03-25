@@ -94,7 +94,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         JsonSchema schema,
         string objectName)
     {
-        SchemaValidationResult result = new SchemaValidationResult();
+        SchemaValidationResult result = new();
 
         if (string.IsNullOrWhiteSpace(json))
         {

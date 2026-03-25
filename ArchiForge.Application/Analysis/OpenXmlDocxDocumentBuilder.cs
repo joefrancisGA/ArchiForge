@@ -62,7 +62,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
     public void AddParagraph(string text, bool bold = false)
     {
-        WpRun run = new WpRun(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
+        WpRun run = new(new WpText(text) { Space = SpaceProcessingModeValues.Preserve });
 
         if (bold)
         {
@@ -102,7 +102,7 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
 
         foreach (string line in text.Replace("\r\n", "\n").Split('\n'))
         {
-            WpRun run = new WpRun(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
+            WpRun run = new(new WpText(line) { Space = SpaceProcessingModeValues.Preserve })
             {
                 RunProperties = new WpRunProperties(new RunFonts { Ascii = "Consolas" })
             };
@@ -131,14 +131,14 @@ public sealed class OpenXmlDocxDocumentBuilder : IDocxDocumentBuilder, IDisposab
     {
         ImagePart imagePart = MainPart.AddImagePart(ImagePartType.Png);
 
-        using (MemoryStream stream = new MemoryStream(imageBytes))
+        using (MemoryStream stream = new(imageBytes))
         {
             imagePart.FeedData(stream);
         }
 
         string relationshipId = MainPart.GetIdOfPart(imagePart);
 
-        Drawing drawing = new Drawing(
+        Drawing drawing = new(
             new Inline(
                 new Extent { Cx = widthEmus, Cy = heightEmus },
                 new EffectExtent

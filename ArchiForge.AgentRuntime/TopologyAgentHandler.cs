@@ -192,7 +192,7 @@ Return JSON matching this conceptual shape:
         AgentEvidencePackage evidence,
         AgentTask task)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine("Generate a topology AgentResult.");
         sb.AppendLine();

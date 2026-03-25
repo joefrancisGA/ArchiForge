@@ -12,7 +12,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         ArgumentNullException.ThrowIfNull(contextSnapshot);
         ArgumentNullException.ThrowIfNull(nodes);
 
-        List<GraphEdge> edges = new List<GraphEdge>();
+        List<GraphEdge> edges = new();
 
         string contextNodeId = $"context-{contextSnapshot.SnapshotId:N}";
         List<GraphNode> topologyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.TopologyResource).ToList();

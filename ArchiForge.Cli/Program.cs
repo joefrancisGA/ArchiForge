@@ -110,7 +110,7 @@ namespace ArchiForge.Cli
         private static void ArchiForge_New(string projectName)
         {
             Console.WriteLine("Creating ArchiForge project " + projectName);
-            ArchiForgeProjectScaffolder.ScaffoldOptions scaffoldOptions = new ArchiForgeProjectScaffolder.ScaffoldOptions
+            ArchiForgeProjectScaffolder.ScaffoldOptions scaffoldOptions = new()
             {
                 ProjectName = projectName,
                 BaseDirectory = null,
@@ -140,7 +140,7 @@ namespace ArchiForge.Cli
         /// </summary>
         private static async Task<bool> EnsureApiConnectedAsync(string baseUrl, CancellationToken ct = default)
         {
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
             if (await client.CheckHealthAsync(ct))
                 return true;
             Console.WriteLine($"Cannot connect to ArchiForge API at {baseUrl}");
@@ -152,7 +152,7 @@ namespace ArchiForge.Cli
         private static async Task<int> ArchiForge_HealthAsync()
         {
             string baseUrl = GetBaseUrl(TryLoadConfigFromCwd());
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
             if (await client.CheckHealthAsync())
             {
                 Console.WriteLine($"OK - ArchiForge API at {baseUrl} is reachable.");
@@ -183,7 +183,7 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
 
             switch (sub)
             {
@@ -368,7 +368,7 @@ namespace ArchiForge.Cli
 
             string comparisonRecordId = args[0];
             string? label = null;
-            List<string> tags = new List<string>();
+            List<string> tags = new();
 
             for (int i = 1; i < args.Length; i++)
             {
@@ -695,7 +695,7 @@ namespace ArchiForge.Cli
 
         private static (int ExitCode, string StdOut, string StdErr) RunProcess(string fileName, string arguments, string workingDirectory)
         {
-            ProcessStartInfo psi = new ProcessStartInfo
+            ProcessStartInfo psi = new()
             {
                 FileName = fileName,
                 Arguments = arguments,
@@ -719,7 +719,7 @@ namespace ArchiForge.Cli
             string briefContent)
         {
             ArchiForgeProjectScaffolder.ArchitectureSection? arch = config.Architecture;
-            ArchitectureRequest request = new ArchitectureRequest
+            ArchitectureRequest request = new()
             {
                 RequestId = Guid.NewGuid().ToString("N"),
                 SystemName = config.ProjectName,
@@ -778,7 +778,7 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
 
             Console.WriteLine($"Submitting request to {baseUrl}...");
 
@@ -864,7 +864,7 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
 
             ArchiForgeApiClient.GetRunResult? run = await client.GetRunAsync(runId);
             if (run is null)
@@ -918,7 +918,7 @@ namespace ArchiForge.Cli
                 return 1;
             }
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
             ArchiForgeApiClient.SubmitResultResult? submitResult = await client.SubmitAgentResultAsync(runId, result);
             if (submitResult is null || !submitResult.Success)
             {
@@ -937,7 +937,7 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
 
             ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync(runId);
             if (result is null || !result.Success)
@@ -967,7 +967,7 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
 
             ArchiForgeApiClient.SeedFakeResultsResult? result = await client.SeedFakeResultsAsync(runId);
             if (result is null || !result.Success)
@@ -989,7 +989,7 @@ namespace ArchiForge.Cli
             if (!await EnsureApiConnectedAsync(baseUrl))
                 return 1;
 
-            ArchiForgeApiClient client = new ArchiForgeApiClient(baseUrl);
+            ArchiForgeApiClient client = new(baseUrl);
 
             ArchiForgeApiClient.GetRunResult? run = await client.GetRunAsync(runId);
             if (run is null)

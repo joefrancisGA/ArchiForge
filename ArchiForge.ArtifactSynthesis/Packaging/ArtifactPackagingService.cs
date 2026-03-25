@@ -55,11 +55,11 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
     {
         ArgumentNullException.ThrowIfNull(artifacts);
 
-        using MemoryStream memoryStream = new MemoryStream();
+        using MemoryStream memoryStream = new();
 
-        using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            HashSet<string> usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> usedEntryNames = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
@@ -96,11 +96,11 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         ArgumentNullException.ThrowIfNull(artifacts);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestJson);
 
-        using MemoryStream memoryStream = new MemoryStream();
+        using MemoryStream memoryStream = new();
 
-        using (ZipArchive archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
+        using (ZipArchive archive = new(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            HashSet<string> usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> usedEntryNames = new(StringComparer.OrdinalIgnoreCase);
 
             foreach (SynthesizedArtifact artifact in artifacts.OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase))
             {
@@ -145,7 +145,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
     {
         ZipArchiveEntry entry = archive.CreateEntry(entryName.Replace('\\', '/'), CompressionLevel.Fastest);
         using Stream entryStream = entry.Open();
-        using StreamWriter writer = new StreamWriter(entryStream, Encoding.UTF8);
+        using StreamWriter writer = new(entryStream, Encoding.UTF8);
         writer.Write(content);
     }
 

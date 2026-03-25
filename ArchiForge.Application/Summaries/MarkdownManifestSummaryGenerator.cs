@@ -26,7 +26,7 @@ public sealed class MarkdownManifestSummaryGenerator(IEvidenceSummaryFormatter e
         List<ManifestDatastore> datastores = manifest.Datastores;
         List<ManifestRelationship> relationships = manifest.Relationships;
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         AppendOverview(sb, manifest, services, datastores, relationships);
         AppendServices(sb, services);

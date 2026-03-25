@@ -240,7 +240,7 @@ public sealed class AnalysisReportsController(
 
         try
         {
-            ArchitectureAnalysisRequest analysisRequest = new ArchitectureAnalysisRequest
+            ArchitectureAnalysisRequest analysisRequest = new()
             {
                 RunId = runId,
                 PreloadedRunDetail = loaded.Detail,

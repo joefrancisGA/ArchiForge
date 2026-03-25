@@ -22,7 +22,7 @@ public sealed class RetrievalRunCompletionIndexer(
         DecisionProvenanceGraph provenanceGraph,
         CancellationToken ct)
     {
-        List<RetrievalDocument> retrievalDocuments = new List<RetrievalDocument>();
+        List<RetrievalDocument> retrievalDocuments = new();
         retrievalDocuments.AddRange(documentBuilder.BuildForManifest(manifest));
         retrievalDocuments.AddRange(documentBuilder.BuildForArtifacts(
             tenantId,

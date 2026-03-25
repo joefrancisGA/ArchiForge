@@ -18,7 +18,7 @@ public sealed class MarkdownEvidenceSummaryFormatter : IEvidenceSummaryFormatter
 
         RequestEvidence request = evidence.Request;
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendLine("## Evidence Context");
         sb.AppendLine();

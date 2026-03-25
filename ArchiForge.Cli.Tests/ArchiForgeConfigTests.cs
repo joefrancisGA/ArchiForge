@@ -7,7 +7,7 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_ValidJsonAndFilesExist_ReturnsConfig()
     {
-        using TempDirectory temp = new TempDirectory();
+        using TempDirectory temp = new();
         string validJson = """
                            {
                              "schemaVersion": "1.0",
@@ -39,7 +39,7 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_MissingManifestFile_ThrowsFileNotFoundException()
     {
-        using TempDirectory temp = new TempDirectory();
+        using TempDirectory temp = new();
 
         Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
 
@@ -50,7 +50,7 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_InvalidJson_ThrowsInvalidDataException()
     {
-        using TempDirectory temp = new TempDirectory();
+        using TempDirectory temp = new();
         File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), "{ invalid json }");
 
         Func<ArchiForgeProjectScaffolder.ArchiForgeConfig> act = () => ArchiForgeProjectScaffolder.LoadConfig(temp.Path);
@@ -61,7 +61,7 @@ public sealed class ArchiForgeConfigTests
     [Fact]
     public void LoadConfig_MissingBriefFile_Throws()
     {
-        using TempDirectory temp = new TempDirectory();
+        using TempDirectory temp = new();
         string validJson = """
                            {
                              "schemaVersion": "1.0",

@@ -32,7 +32,7 @@ public sealed class DigestDeliveryDispatcher(
 
         foreach (DigestSubscription subscription in subscriptions)
         {
-            DigestDeliveryAttempt attempt = new DigestDeliveryAttempt
+            DigestDeliveryAttempt attempt = new()
             {
                 AttemptId = Guid.NewGuid(),
                 DigestId = digest.DigestId,

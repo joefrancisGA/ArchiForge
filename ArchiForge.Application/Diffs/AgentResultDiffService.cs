@@ -24,7 +24,7 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         ArgumentNullException.ThrowIfNull(leftResults);
         ArgumentNullException.ThrowIfNull(rightResults);
 
-        AgentResultDiffResult result = new AgentResultDiffResult
+        AgentResultDiffResult result = new()
         {
             LeftRunId = leftRunId,
             RightRunId = rightRunId
@@ -67,7 +67,7 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         AgentResult? left,
         AgentResult? right)
     {
-        AgentResultDelta delta = new AgentResultDelta
+        AgentResultDelta delta = new()
         {
             AgentType = agentType,
             LeftExists = left is not null,

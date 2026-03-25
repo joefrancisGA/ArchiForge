@@ -12,7 +12,7 @@ public sealed class PolicyPackJsonSerializerOptionsTests
     [Fact]
     public void Default_RoundTripsPolicyPackContentDocument_WithCamelCase()
     {
-        PolicyPackContentDocument doc = new PolicyPackContentDocument
+        PolicyPackContentDocument doc = new()
         {
             AlertRuleIds = [Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")],
             AdvisoryDefaults = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

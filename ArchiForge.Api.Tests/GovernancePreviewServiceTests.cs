@@ -32,7 +32,7 @@ public sealed class GovernancePreviewServiceTests
 
     private static GoldenManifest Manifest(string runId, string version, Action<ManifestGovernance>? tweak = null)
     {
-        ManifestGovernance gov = new ManifestGovernance();
+        ManifestGovernance gov = new();
         tweak?.Invoke(gov);
         return new GoldenManifest
         {
@@ -100,7 +100,7 @@ public sealed class GovernancePreviewServiceTests
                 g.RiskClassification = "High";
             }));
 
-        GovernanceEnvironmentActivation currentActivation = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation currentActivation = new()
         {
             ActivationId = "act-1",
             RunId = "run-old",
@@ -133,14 +133,14 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task CompareEnvironmentsAsync_WhenBothHaveActiveRows_ReturnsDifferences()
     {
-        GovernanceEnvironmentActivation srcAct = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation srcAct = new()
         {
             RunId = "r1",
             ManifestVersion = "m1",
             Environment = "dev",
             IsActive = true
         };
-        GovernanceEnvironmentActivation tgtAct = new GovernanceEnvironmentActivation
+        GovernanceEnvironmentActivation tgtAct = new()
         {
             RunId = "r2",
             ManifestVersion = "m2",
@@ -173,12 +173,12 @@ public sealed class GovernancePreviewServiceTests
     [Fact]
     public async Task CompareEnvironmentsAsync_WhenStatesAreEquivalent_ReturnsNoMeaningfulDiffs()
     {
-        ManifestGovernance gov = new ManifestGovernance { RiskClassification = "Moderate", CostClassification = "Moderate" };
+        ManifestGovernance gov = new() { RiskClassification = "Moderate", CostClassification = "Moderate" };
         GoldenManifest m = Manifest("r1", "v1", _ => { });
         m.Governance = gov;
 
-        GovernanceEnvironmentActivation act1 = new GovernanceEnvironmentActivation { RunId = "r1", ManifestVersion = "v1", Environment = "dev", IsActive = true };
-        GovernanceEnvironmentActivation act2 = new GovernanceEnvironmentActivation { RunId = "r2", ManifestVersion = "v2", Environment = "prod", IsActive = true };
+        GovernanceEnvironmentActivation act1 = new() { RunId = "r1", ManifestVersion = "v1", Environment = "dev", IsActive = true };
+        GovernanceEnvironmentActivation act2 = new() { RunId = "r2", ManifestVersion = "v2", Environment = "prod", IsActive = true };
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);

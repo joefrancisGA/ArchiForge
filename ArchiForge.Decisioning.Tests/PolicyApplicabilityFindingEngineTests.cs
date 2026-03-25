@@ -11,8 +11,8 @@ public sealed class PolicyApplicabilityFindingEngineTests
     [Fact]
     public async Task Emits_info_when_APPLIES_TO_topology_targets_exist()
     {
-        PolicyApplicabilityFindingEngine engine = new PolicyApplicabilityFindingEngine();
-        GraphSnapshot graph = new GraphSnapshot
+        PolicyApplicabilityFindingEngine engine = new();
+        GraphSnapshot graph = new()
         {
             Nodes =
             [
@@ -34,7 +34,7 @@ public sealed class PolicyApplicabilityFindingEngineTests
 
         IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
 
-        FindingPayloadValidator payloadValidator = new FindingPayloadValidator();
+        FindingPayloadValidator payloadValidator = new();
         foreach (Finding finding in findings)
             payloadValidator.Validate(finding);
 
@@ -48,8 +48,8 @@ public sealed class PolicyApplicabilityFindingEngineTests
     [Fact]
     public async Task Emits_warning_when_topology_exists_but_policy_has_no_APPLIES_TO()
     {
-        PolicyApplicabilityFindingEngine engine = new PolicyApplicabilityFindingEngine();
-        GraphSnapshot graph = new GraphSnapshot
+        PolicyApplicabilityFindingEngine engine = new();
+        GraphSnapshot graph = new()
         {
             Nodes =
             [
@@ -61,7 +61,7 @@ public sealed class PolicyApplicabilityFindingEngineTests
 
         IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
 
-        FindingPayloadValidator payloadValidator = new FindingPayloadValidator();
+        FindingPayloadValidator payloadValidator = new();
         foreach (Finding finding in findings)
             payloadValidator.Validate(finding);
 

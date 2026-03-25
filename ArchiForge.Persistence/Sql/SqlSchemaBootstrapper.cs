@@ -33,8 +33,8 @@ public sealed class SqlSchemaBootstrapper(
     public IReadOnlyList<string> SplitGoBatches(string script)
     {
         string[] lines = script.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-        List<string> batches = new List<string>();
-        List<string> current = new List<string>();
+        List<string> batches = new();
+        List<string> current = new();
 
         foreach (string line in lines)
         {

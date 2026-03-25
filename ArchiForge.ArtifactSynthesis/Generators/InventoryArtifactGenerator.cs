@@ -17,7 +17,7 @@ public class InventoryArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        InventoryArtifactModel inventory = new InventoryArtifactModel();
+        InventoryArtifactModel inventory = new();
 
         foreach (RequirementCoverageItem requirement in manifest.Requirements.Covered)
         {

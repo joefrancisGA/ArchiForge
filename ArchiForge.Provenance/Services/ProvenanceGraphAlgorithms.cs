@@ -60,8 +60,8 @@ public static class ProvenanceGraphAlgorithms
             };
         }
 
-        HashSet<Guid> includedNodes = new HashSet<Guid> { decisionInternalNodeId };
-        List<ProvenanceEdge> includedEdges = new List<ProvenanceEdge>();
+        HashSet<Guid> includedNodes = new() { decisionInternalNodeId };
+        List<ProvenanceEdge> includedEdges = new();
         foreach (ProvenanceEdge edge in full.Edges)
         {
             if (edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId)
@@ -99,12 +99,12 @@ public static class ProvenanceGraphAlgorithms
             };
         }
 
-        HashSet<Guid> visited = new HashSet<Guid> { startNodeId };
-        HashSet<Guid> frontier = new HashSet<Guid> { startNodeId };
+        HashSet<Guid> visited = new() { startNodeId };
+        HashSet<Guid> frontier = new() { startNodeId };
 
         for (int i = 0; i < depth; i++)
         {
-            HashSet<Guid> next = new HashSet<Guid>();
+            HashSet<Guid> next = new();
             foreach (ProvenanceEdge edge in full.Edges)
             {
                 if (frontier.Contains(edge.FromNodeId))

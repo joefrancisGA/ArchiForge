@@ -27,7 +27,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
 
-        AgentEvidencePackage package = new AgentEvidencePackage
+        AgentEvidencePackage package = new()
         {
             EvidencePackageId = Guid.NewGuid().ToString("N"),
             RunId = runId,
@@ -55,7 +55,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<PolicyEvidence> BuildPolicies(ArchitectureRequest request)
     {
-        List<PolicyEvidence> policies = new List<PolicyEvidence>
+        List<PolicyEvidence> policies = new()
         {
             new()
             {
@@ -108,7 +108,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<ServiceCatalogEvidence> BuildServiceCatalog(ArchitectureRequest request)
     {
-        List<ServiceCatalogEvidence> services = new List<ServiceCatalogEvidence>
+        List<ServiceCatalogEvidence> services = new()
         {
             new()
             {
@@ -161,7 +161,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<PatternEvidence> BuildPatterns(ArchitectureRequest request)
     {
-        List<PatternEvidence> patterns = new List<PatternEvidence>();
+        List<PatternEvidence> patterns = new();
 
         if (RequiresSearchCapability(request))
         {
@@ -188,7 +188,7 @@ public sealed class DefaultEvidenceBuilder : IEvidenceBuilder
 
     private static List<EvidenceNote> BuildNotes(ArchitectureRequest request)
     {
-        List<EvidenceNote> notes = new List<EvidenceNote>
+        List<EvidenceNote> notes = new()
         {
             new()
             {

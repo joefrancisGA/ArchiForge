@@ -16,7 +16,7 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
         CancellationToken ct)
     {
         _ = ct;
-        UnresolvedIssuesArtifactModel model = new UnresolvedIssuesArtifactModel
+        UnresolvedIssuesArtifactModel model = new()
         {
             Items = manifest.UnresolvedIssues.Items.Select(x => new UnresolvedIssueArtifactItem
             {

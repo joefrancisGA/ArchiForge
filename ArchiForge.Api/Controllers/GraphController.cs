@@ -62,7 +62,7 @@ public sealed class GraphController(
 
     private static GraphNodeVm MapNode(GraphNode x)
     {
-        Dictionary<string, string> meta = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, string> meta = new(StringComparer.OrdinalIgnoreCase);
 
         // Known structured fields take priority over raw property bag entries.
         if (!string.IsNullOrEmpty(x.Category))

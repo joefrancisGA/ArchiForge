@@ -7,7 +7,7 @@ public sealed class ArchiForgeApiClientTests
     [Fact]
     public void ResolveBaseUrl_WhenConfigHasApiUrl_ReturnsConfigUrl()
     {
-        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new ArchiForgeProjectScaffolder.ArchiForgeConfig
+        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new()
         {
             ApiUrl = "https://custom:9090"
         };
@@ -37,7 +37,7 @@ public sealed class ArchiForgeApiClientTests
     [Fact]
     public void ResolveBaseUrl_WhenConfigHasApiUrlWithTrailingSlash_TrimsSlash()
     {
-        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new ArchiForgeProjectScaffolder.ArchiForgeConfig
+        ArchiForgeProjectScaffolder.ArchiForgeConfig config = new()
         {
             ApiUrl = "http://localhost:5128/"
         };

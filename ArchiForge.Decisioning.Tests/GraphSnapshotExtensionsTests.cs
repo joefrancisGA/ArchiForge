@@ -9,7 +9,7 @@ public sealed class GraphSnapshotExtensionsTests
     [Fact]
     public void GetIncomingSources_returns_nodes_with_edges_to_target()
     {
-        GraphSnapshot graph = new GraphSnapshot
+        GraphSnapshot graph = new()
         {
             Nodes =
             [

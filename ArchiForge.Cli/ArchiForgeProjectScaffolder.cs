@@ -249,7 +249,7 @@ public static class ArchiForgeProjectScaffolder
 
     private static string BuildArchiForgeJson(string projectName)
     {
-        ArchiForgeConfig config = new ArchiForgeConfig
+        ArchiForgeConfig config = new()
         {
             ProjectName = projectName,
             ApiUrl = "http://localhost:5128",

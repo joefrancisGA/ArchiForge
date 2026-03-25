@@ -23,7 +23,7 @@ public class PolicyReferenceConnector : IContextConnector
         CancellationToken ct)
     {
         _ = ct;
-        NormalizedContextBatch batch = new NormalizedContextBatch();
+        NormalizedContextBatch batch = new();
 
         foreach (string policy in payload.PolicyReferences)
         {
