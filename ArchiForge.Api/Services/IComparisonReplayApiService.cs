@@ -18,7 +18,6 @@ public interface IComparisonReplayApiService
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     /// <returns>The replay result from the underlying service.</returns>
     /// <exception cref="InvalidOperationException">Propagated when the comparison record is invalid.</exception>
-    /// <exception cref="RunNotFoundException">Propagated when a referenced run cannot be found.</exception>
     Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
         bool metadataOnly,

@@ -1,5 +1,6 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Decisions;
+using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.DecisionEngine.Services;

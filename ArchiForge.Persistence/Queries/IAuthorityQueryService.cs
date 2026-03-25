@@ -1,4 +1,5 @@
 using ArchiForge.Core.Scoping;
+using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Queries;
 

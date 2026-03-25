@@ -1,3 +1,5 @@
+using ArchiForge.Decisioning.Advisory.Models;
+
 namespace ArchiForge.Decisioning.Advisory.Learning;
 
 /// <summary>

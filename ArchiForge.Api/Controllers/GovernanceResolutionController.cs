@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Governance.Resolution;
 
 using Asp.Versioning;
@@ -18,7 +19,7 @@ namespace ArchiForge.Api.Controllers;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Why:</strong> Operators need the same explainability the resolver produces without pulling only <see cref="PolicyPacks.IEffectiveGovernanceLoader"/>
+/// <strong>Why:</strong> Operators need the same explainability the resolver produces without pulling only <see cref="IEffectiveGovernanceLoader"/>
 /// (which drops decisions/conflicts). Complements <c>GET …/policy-packs/effective-content</c>.
 /// </para>
 /// <para>

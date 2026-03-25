@@ -25,6 +25,7 @@ public sealed class ComparisonReplayApiService(
     ILogger<ComparisonReplayApiService> logger)
     : IComparisonReplayApiService
 {
+    // ReSharper disable InvalidXmlDocComment
     /// <summary>
     /// Executes a comparison replay, records diagnostics, and logs the outcome.
     /// </summary>
@@ -34,6 +35,7 @@ public sealed class ComparisonReplayApiService(
     /// <returns>The full replay result from the inner service.</returns>
     /// <exception cref="InvalidOperationException">Rethrown from <paramref name="inner"/> when the comparison record is invalid.</exception>
     /// <exception cref="RunNotFoundException">Rethrown from <paramref name="inner"/> when a referenced run cannot be found.</exception>
+    // ReSharper enable InvalidXmlDocComment
     public async Task<ReplayComparisonResult> ReplayAsync(
         ReplayComparisonRequest request,
         bool metadataOnly,
@@ -62,16 +64,19 @@ public sealed class ComparisonReplayApiService(
                 MetadataOnly = metadataOnly
             });
 
-            logger.LogInformation(
-                "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
-                request.ComparisonRecordId,
-                result.ComparisonType,
-                result.Format,
-                result.ReplayMode,
-                request.PersistReplay,
-                metadataOnly,
-                sw.ElapsedMilliseconds,
-                result.VerificationPassed);
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
+                    request.ComparisonRecordId,
+                    result.ComparisonType,
+                    result.Format,
+                    result.ReplayMode,
+                    request.PersistReplay,
+                    metadataOnly,
+                    sw.ElapsedMilliseconds,
+                    result.VerificationPassed);
+            }
 
             return result;
         }

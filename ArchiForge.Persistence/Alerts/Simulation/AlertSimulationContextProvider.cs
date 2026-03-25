@@ -1,6 +1,7 @@
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Learning;
+using ArchiForge.Decisioning.Advisory.Models;
 using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Decisioning.Alerts;
