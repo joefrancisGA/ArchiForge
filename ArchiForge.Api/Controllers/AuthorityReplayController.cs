@@ -57,7 +57,7 @@ public sealed class AuthorityReplayController(
             ct);
 
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem($"Run '{request.RunId}' was not found.", ProblemTypes.RunNotFound);
 
         await auditService.LogAsync(
             new AuditEvent

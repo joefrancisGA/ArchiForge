@@ -5,6 +5,11 @@ using ArchiForge.Provenance;
 
 namespace ArchiForge.Persistence.Provenance;
 
+/// <summary>
+/// In-memory implementation of <see cref="IProvenanceSnapshotRepository"/> for testing and local development.
+/// Uses last-write-wins semantics per <c>(TenantId, WorkspaceId, ProjectId, RunId)</c> key to prevent
+/// unbounded memory growth when the same run is saved multiple times.
+/// </summary>
 public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRepository
 {
     private readonly Lock _gate = new();
@@ -19,6 +24,7 @@ public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRe
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
+        ArgumentNullException.ThrowIfNull(snapshot);
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;

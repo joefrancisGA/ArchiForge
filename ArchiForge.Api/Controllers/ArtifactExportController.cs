@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ArtifactSynthesis.Packaging;
 using ArchiForge.Core.Audit;
@@ -74,7 +75,7 @@ public sealed class ArtifactExportController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
-            return NotFound();
+            return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.", ProblemTypes.ResourceNotFound);
 
         ArtifactFileExport file = artifactPackagingService.BuildSingleFileExport(artifact);
 
@@ -100,7 +101,7 @@ public sealed class ArtifactExportController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
-            return NotFound();
+            return this.NotFoundProblem($"No artifacts were found for manifest '{manifestId}'.", ProblemTypes.ManifestNotFound);
 
         ArtifactPackage package = artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
 
@@ -124,8 +125,10 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? runDetail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
-        if (runDetail is null || runDetail.GoldenManifest is null)
-            return NotFound();
+        if (runDetail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem($"Run '{runId}' has no committed golden manifest available for export.", ProblemTypes.ManifestNotFound);
 
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(
             scope,

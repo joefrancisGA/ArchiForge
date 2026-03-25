@@ -10,6 +10,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Provenance;
 
+/// <summary>
+/// SQL Server-backed implementation of <see cref="IProvenanceSnapshotRepository"/>.
+/// Persists and retrieves <see cref="DecisionProvenanceSnapshot"/> records from the
+/// <c>dbo.ProvenanceSnapshots</c> table.
+/// </summary>
 public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connectionFactory)
     : IProvenanceSnapshotRepository
 {
@@ -42,6 +47,8 @@ public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connec
 
     public async Task<DecisionProvenanceSnapshot?> GetByRunIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
+
         const string sql = """
             SELECT TOP 1
                 Id, TenantId, WorkspaceId, ProjectId, RunId, GraphJson, CreatedUtc

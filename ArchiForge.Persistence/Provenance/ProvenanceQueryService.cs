@@ -27,6 +27,7 @@ public sealed class ProvenanceQueryService(IProvenanceSnapshotRepository repo) :
         string decisionKey,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(decisionKey);
 
         DecisionProvenanceGraph? full = await LoadGraphAsync(scope, runId, ct).ConfigureAwait(false);
