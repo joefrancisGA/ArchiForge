@@ -16,7 +16,7 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         _ = ct;
         return Task.FromResult(new RawContextPayload
         {
-            InfrastructureDeclarations = (request.InfrastructureDeclarations).ToList()
+            InfrastructureDeclarations = request.InfrastructureDeclarations.ToList()
         });
     }
 

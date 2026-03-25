@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Learning;
@@ -35,7 +36,7 @@ public sealed class RecommendationLearningController(
     [HttpGet("latest")]
     [ProducesResponseType(typeof(RecommendationLearningProfile), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RecommendationLearningProfile>> GetLatest(CancellationToken ct = default)
+    public async Task<IActionResult> GetLatest(CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -46,7 +47,7 @@ public sealed class RecommendationLearningController(
             ct);
 
         if (profile is null)
-            return NotFound();
+            return this.NotFoundProblem("No recommendation learning profile found for the current scope.", ProblemTypes.ResourceNotFound);
 
         return Ok(profile);
     }

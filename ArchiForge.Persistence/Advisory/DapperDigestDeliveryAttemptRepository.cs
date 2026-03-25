@@ -12,6 +12,8 @@ namespace ArchiForge.Persistence.Advisory;
 public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory connectionFactory)
     : IDigestDeliveryAttemptRepository
 {
+    /// <summary>Maximum rows returned by <see cref="ListByDigestAsync"/>; kept in sync with <see cref="InMemoryDigestDeliveryAttemptRepository.ListByDigestCap"/>.</summary>
+    private const int ListByDigestCap = InMemoryDigestDeliveryAttemptRepository.ListByDigestCap;
     /// <inheritdoc />
     public async Task CreateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
@@ -51,12 +53,13 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
         await connection.ExecuteAsync(new CommandDefinition(sql, attempt, cancellationToken: ct));
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<DigestDeliveryAttempt>> ListByDigestAsync(
         Guid digestId,
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200
+            SELECT TOP (@Cap)
                 AttemptId, DigestId, SubscriptionId,
                 TenantId, WorkspaceId, ProjectId,
                 AttemptedUtc, Status, ErrorMessage,
@@ -70,6 +73,7 @@ public sealed class DapperDigestDeliveryAttemptRepository(ISqlConnectionFactory 
         IEnumerable<DigestDeliveryAttempt> result = await connection.QueryAsync<DigestDeliveryAttempt>(
             new CommandDefinition(sql, new
             {
+                Cap = ListByDigestCap,
                 DigestId = digestId
             }, cancellationToken: ct));
 

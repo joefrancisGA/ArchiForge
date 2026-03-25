@@ -97,17 +97,17 @@ public sealed class AlertRoutingSubscriptionsController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(AlertRoutingSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AlertRoutingSubscription>> Toggle(
+    public async Task<IActionResult> Toggle(
         Guid routingSubscriptionId,
         CancellationToken ct = default)
     {
         AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
-            return NotFound();
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return NotFound();
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         subscription.IsEnabled = !subscription.IsEnabled;
         await subscriptionRepository.UpdateAsync(subscription, ct);
@@ -134,18 +134,18 @@ public sealed class AlertRoutingSubscriptionsController(
     [HttpGet("{routingSubscriptionId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<AlertDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<AlertDeliveryAttempt>>> GetAttempts(
+    public async Task<IActionResult> GetAttempts(
         Guid routingSubscriptionId,
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
         AlertRoutingSubscription? subscription = await subscriptionRepository.GetByIdAsync(routingSubscriptionId, ct);
         if (subscription is null)
-            return NotFound();
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return NotFound();
+            return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<AlertDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, 200), ct);
         return Ok(attempts);

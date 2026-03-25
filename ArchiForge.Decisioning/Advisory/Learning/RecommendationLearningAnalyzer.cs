@@ -10,6 +10,8 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
         Guid projectId,
         IReadOnlyList<RecommendationRecord> recommendations)
     {
+        ArgumentNullException.ThrowIfNull(recommendations);
+
         RecommendationLearningProfile profile = new()
         {
             TenantId = tenantId,
@@ -74,18 +76,20 @@ public sealed class RecommendationLearningAnalyzer : IRecommendationLearningAnal
 
     private static string InferSignalType(RecommendationRecord record)
     {
-        if (record.Category.Equals("Security", StringComparison.OrdinalIgnoreCase))
+        string? category = record.Category;
+
+        if (string.Equals(category, "Security", StringComparison.OrdinalIgnoreCase))
             return "SecurityGap";
 
-        if (record.Category.Equals("Compliance", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(category, "Compliance", StringComparison.OrdinalIgnoreCase))
             return "ComplianceGap";
 
-        if (record.Category.Equals("Requirement", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(category, "Requirement", StringComparison.OrdinalIgnoreCase))
             return "UncoveredRequirement";
 
-        if (record.Category.Equals("Topology", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(category, "Topology", StringComparison.OrdinalIgnoreCase))
             return "TopologyGap";
 
-        return record.Category.Equals("Cost", StringComparison.OrdinalIgnoreCase) ? "CostRisk" : "General";
+        return string.Equals(category, "Cost", StringComparison.OrdinalIgnoreCase) ? "CostRisk" : "General";
     }
 }

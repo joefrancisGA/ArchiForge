@@ -2,13 +2,19 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// Thread-safe in-memory implementation of <see cref="IDigestDeliveryAttemptRepository"/> used for testing and local development.
+/// </summary>
 public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAttemptRepository
 {
+    internal const int ListByDigestCap = 200;
+
     private readonly List<DigestDeliveryAttempt> _items = [];
     private readonly Lock _gate = new();
 
     public Task CreateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(attempt);
         _ = ct;
         lock (_gate)
             _items.Add(attempt);
@@ -17,6 +23,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
 
     public Task UpdateAsync(DigestDeliveryAttempt attempt, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(attempt);
         _ = ct;
         lock (_gate)
         {
@@ -38,7 +45,7 @@ public sealed class InMemoryDigestDeliveryAttemptRepository : IDigestDeliveryAtt
             List<DigestDeliveryAttempt> result = _items
                 .Where(x => x.DigestId == digestId)
                 .OrderByDescending(x => x.AttemptedUtc)
-                .Take(500)
+                .Take(ListByDigestCap)
                 .ToList();
 
             return Task.FromResult<IReadOnlyList<DigestDeliveryAttempt>>(result);

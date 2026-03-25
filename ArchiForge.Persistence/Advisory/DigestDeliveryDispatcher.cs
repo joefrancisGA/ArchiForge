@@ -26,6 +26,8 @@ public sealed class DigestDeliveryDispatcher(
     /// <inheritdoc />
     public async Task DeliverAsync(ArchitectureDigest digest, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(digest);
+
         IReadOnlyList<DigestSubscription> subscriptions = await subscriptionRepository
             .ListEnabledByScopeAsync(digest.TenantId, digest.WorkspaceId, digest.ProjectId, ct)
             .ConfigureAwait(false);

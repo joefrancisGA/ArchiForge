@@ -99,17 +99,17 @@ public sealed class DigestSubscriptionsController(
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DigestSubscription), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<DigestSubscription>> Toggle(
+    public async Task<IActionResult> Toggle(
         Guid subscriptionId,
         CancellationToken ct = default)
     {
         DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
-            return NotFound();
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return NotFound();
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         subscription.IsEnabled = !subscription.IsEnabled;
         await subscriptionRepository.UpdateAsync(subscription, ct);
@@ -133,18 +133,18 @@ public sealed class DigestSubscriptionsController(
     [HttpGet("{subscriptionId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<DigestDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<DigestDeliveryAttempt>>> GetAttempts(
+    public async Task<IActionResult> GetAttempts(
         Guid subscriptionId,
         [FromQuery] int take = 50,
         CancellationToken ct = default)
     {
         DigestSubscription? subscription = await subscriptionRepository.GetByIdAsync(subscriptionId, ct);
         if (subscription is null)
-            return NotFound();
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(subscription, scope))
-            return NotFound();
+            return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, 200), ct);
         return Ok(attempts);
@@ -154,18 +154,18 @@ public sealed class DigestSubscriptionsController(
     [HttpGet("digests/{digestId:guid}/attempts")]
     [ProducesResponseType(typeof(IReadOnlyList<DigestDeliveryAttempt>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<DigestDeliveryAttempt>>> GetAttemptsForDigest(
+    public async Task<IActionResult> GetAttemptsForDigest(
         Guid digestId,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
         if (digest is null)
-            return NotFound();
+            return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)
-            return NotFound();
+            return this.NotFoundProblem($"Digest '{digestId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListByDigestAsync(digestId, ct);
         return Ok(attempts);

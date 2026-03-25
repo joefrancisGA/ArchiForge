@@ -17,7 +17,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
         _ = ct;
         List<CanonicalObject> results = [];
 
-        string[] lines = (document.Content)
+        string[] lines = document.Content
             .Replace("\r\n", "\n")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
@@ -25,7 +25,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
         {
             if (line.StartsWith("REQ:", StringComparison.OrdinalIgnoreCase))
             {
-                string text = line.Substring(4).Trim();
+                string text = line[4..].Trim();
 
                 results.Add(new CanonicalObject
                 {
@@ -41,7 +41,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             }
             else if (line.StartsWith("POL:", StringComparison.OrdinalIgnoreCase))
             {
-                string text = line.Substring(4).Trim();
+                string text = line[4..].Trim();
 
                 results.Add(new CanonicalObject
                 {
@@ -57,7 +57,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             }
             else if (line.StartsWith("TOP:", StringComparison.OrdinalIgnoreCase))
             {
-                string text = line.Substring(4).Trim();
+                string text = line[4..].Trim();
 
                 results.Add(new CanonicalObject
                 {
@@ -73,7 +73,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
             }
             else if (line.StartsWith("SEC:", StringComparison.OrdinalIgnoreCase))
             {
-                string text = line.Substring(4).Trim();
+                string text = line[4..].Trim();
 
                 results.Add(new CanonicalObject
                 {

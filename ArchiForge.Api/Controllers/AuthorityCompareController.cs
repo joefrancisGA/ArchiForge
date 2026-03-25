@@ -1,5 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
+using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Compare;
 
@@ -32,7 +33,7 @@ public sealed class AuthorityCompareController(
     [HttpGet("manifests")]
     [ProducesResponseType(typeof(ManifestComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ManifestComparisonResponse>> CompareManifests(
+    public async Task<IActionResult> CompareManifests(
         [FromQuery] Guid leftManifestId,
         [FromQuery] Guid rightManifestId,
         CancellationToken ct = default)
@@ -40,7 +41,9 @@ public sealed class AuthorityCompareController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ManifestComparisonResult? result = await compareService.CompareManifestsAsync(scope, leftManifestId, rightManifestId, ct);
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"One or both manifests ('{leftManifestId}', '{rightManifestId}') were not found in the current scope.",
+                ProblemTypes.ManifestNotFound);
 
         return Ok(MapManifest(result));
     }
@@ -53,7 +56,7 @@ public sealed class AuthorityCompareController(
     [HttpGet("runs")]
     [ProducesResponseType(typeof(RunComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RunComparisonResponse>> CompareRuns(
+    public async Task<IActionResult> CompareRuns(
         [FromQuery] Guid leftRunId,
         [FromQuery] Guid rightRunId,
         CancellationToken ct = default)
@@ -61,7 +64,9 @@ public sealed class AuthorityCompareController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunComparisonResult? result = await compareService.CompareRunsAsync(scope, leftRunId, rightRunId, ct);
         if (result is null)
-            return NotFound();
+            return this.NotFoundProblem(
+                $"One or both runs ('{leftRunId}', '{rightRunId}') were not found in the current scope.",
+                ProblemTypes.RunNotFound);
 
         return Ok(new RunComparisonResponse
         {

@@ -102,7 +102,7 @@ public sealed class AdvisorySchedulingController(
     [HttpGet("schedules/{scheduleId:guid}/executions")]
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanExecution>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IReadOnlyList<AdvisoryScanExecution>>> ListExecutions(
+    public async Task<IActionResult> ListExecutions(
         Guid scheduleId,
         [FromQuery] int take = 30,
         CancellationToken ct = default)
@@ -110,11 +110,11 @@ public sealed class AdvisorySchedulingController(
         take = Math.Clamp(take, 1, 200);
         AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
-            return NotFound();
+            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
-            return NotFound();
+            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         IReadOnlyList<AdvisoryScanExecution> items = await executionRepository.ListByScheduleAsync(scheduleId, take, ct);
         return Ok(items);
@@ -133,11 +133,11 @@ public sealed class AdvisorySchedulingController(
     {
         AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
-            return NotFound();
+            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (!MatchesScope(schedule, scope))
-            return NotFound();
+            return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         await scanRunner.RunScheduleAsync(schedule, ct);
         return Ok();
@@ -175,17 +175,17 @@ public sealed class AdvisorySchedulingController(
     [HttpGet("digests/{digestId:guid}")]
     [ProducesResponseType(typeof(ArchitectureDigest), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ArchitectureDigest>> GetDigest(Guid digestId, CancellationToken ct = default)
+    public async Task<IActionResult> GetDigest(Guid digestId, CancellationToken ct = default)
     {
         ArchitectureDigest? digest = await digestRepository.GetByIdAsync(digestId, ct);
         if (digest is null)
-            return NotFound();
+            return this.NotFoundProblem($"Digest '{digestId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (digest.TenantId != scope.TenantId ||
             digest.WorkspaceId != scope.WorkspaceId ||
             digest.ProjectId != scope.ProjectId)
-            return NotFound();
+            return this.NotFoundProblem($"Digest '{digestId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
         return Ok(digest);
     }

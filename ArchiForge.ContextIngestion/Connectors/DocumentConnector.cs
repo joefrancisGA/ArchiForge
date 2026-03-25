@@ -15,7 +15,7 @@ public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IC
         _ = ct;
         return Task.FromResult(new RawContextPayload
         {
-            Documents = (request.Documents).ToList()
+            Documents = request.Documents.ToList()
         });
     }
 

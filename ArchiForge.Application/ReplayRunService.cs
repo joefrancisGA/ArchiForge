@@ -207,7 +207,7 @@ public sealed class ReplayRunService(
                 RequiredControls = p.RequiredControls.ToList(),
                 Tags = p.Tags.ToList()
             }).ToList(),
-            ServiceCatalog = (original.ServiceCatalog).Select(s => new ServiceCatalogEvidence
+            ServiceCatalog = original.ServiceCatalog.Select(s => new ServiceCatalogEvidence
             {
                 ServiceId = s.ServiceId,
                 ServiceName = s.ServiceName,
@@ -216,7 +216,7 @@ public sealed class ReplayRunService(
                 Tags = s.Tags.ToList(),
                 RecommendedUseCases = s.RecommendedUseCases.ToList()
             }).ToList(),
-            Patterns = (original.Patterns).Select(p => new PatternEvidence
+            Patterns = original.Patterns.Select(p => new PatternEvidence
             {
                 PatternId = p.PatternId,
                 Name = p.Name,
@@ -234,7 +234,7 @@ public sealed class ReplayRunService(
                     ExistingDatastores = original.PriorManifest.ExistingDatastores.ToList(),
                     ExistingRequiredControls = original.PriorManifest.ExistingRequiredControls.ToList()
                 },
-            Notes = (original.Notes).Select(n => new EvidenceNote
+            Notes = original.Notes.Select(n => new EvidenceNote
             {
                 NoteType = n.NoteType,
                 Message = n.Message

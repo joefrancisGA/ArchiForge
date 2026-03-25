@@ -9,6 +9,11 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Advisory;
 
+/// <summary>
+/// Dapper implementation of <see cref="IRecommendationLearningProfileRepository"/> backed by <c>dbo.RecommendationLearningProfiles</c>.
+/// Profiles are serialized to JSON on write and deserialized on read; dictionary comparers are normalized to <see cref="StringComparer.OrdinalIgnoreCase"/> after deserialization.
+/// </summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
 public sealed class DapperRecommendationLearningProfileRepository(ISqlConnectionFactory connectionFactory)
     : IRecommendationLearningProfileRepository
 {
