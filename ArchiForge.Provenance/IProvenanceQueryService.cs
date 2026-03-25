@@ -19,7 +19,10 @@ public interface IProvenanceQueryService
     /// <summary>
     /// Subgraph around one decision: incident edges + endpoints (findings, rules, manifest, artifacts).
     /// </summary>
+    /// <param name="runId"></param>
     /// <param name="decisionKey">Provenance decision node id (GUID string) or the node's <see cref="ProvenanceNode.ReferenceId"/>.</param>
+    /// <param name="scope"></param>
+    /// <param name="ct"></param>
     /// <returns>Filtered view model, or <see langword="null"/> when the run or decision cannot be resolved.</returns>
     Task<GraphViewModel?> GetDecisionSubgraphAsync(ScopeContext scope, Guid runId, string decisionKey, CancellationToken ct);
 

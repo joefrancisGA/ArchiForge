@@ -211,27 +211,26 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
                 Impact = payload.Impact
             });
 
-            if (string.Equals(payload.Status, "missing", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(payload.Status, "missing", StringComparison.OrdinalIgnoreCase)) continue;
+            
+            manifest.Security.Gaps.Add($"{payload.ControlName} is missing");
+            manifest.UnresolvedIssues.Items.Add(new ManifestIssue
             {
-                manifest.Security.Gaps.Add($"{payload.ControlName} is missing");
-                manifest.UnresolvedIssues.Items.Add(new ManifestIssue
-                {
-                    IssueType = "SecurityGap",
-                    Title = $"Missing security control: {payload.ControlName}",
-                    Description = payload.Impact,
-                    Severity = finding.Severity.ToString(),
-                    SupportingFindingIds = [finding.FindingId]
-                });
+                IssueType = "SecurityGap",
+                Title = $"Missing security control: {payload.ControlName}",
+                Description = payload.Impact,
+                Severity = finding.Severity.ToString(),
+                SupportingFindingIds = [finding.FindingId]
+            });
 
-                manifest.Decisions.Add(new ResolvedArchitectureDecision
-                {
-                    Category = "Security",
-                    Title = $"Enforce control: {payload.ControlName}",
-                    SelectedOption = "RequiredRemediation",
-                    Rationale = payload.Impact,
-                    SupportingFindingIds = [finding.FindingId]
-                });
-            }
+            manifest.Decisions.Add(new ResolvedArchitectureDecision
+            {
+                Category = "Security",
+                Title = $"Enforce control: {payload.ControlName}",
+                SelectedOption = "RequiredRemediation",
+                Rationale = payload.Impact,
+                SupportingFindingIds = [finding.FindingId]
+            });
         }
     }
 
@@ -399,12 +398,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         FindingsSnapshot findingsSnapshot,
         DecisionTrace trace)
     {
-        foreach (string findingId in trace.AcceptedFindingIds)
+        foreach (var finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
         {
-            Finding? finding = findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId);
-            if (finding is null)
-                continue;
-
             if (finding.Severity == FindingSeverity.Critical || finding.Severity == FindingSeverity.Error)
             {
                 manifest.Constraints.MandatoryConstraints.Add(finding.Title);

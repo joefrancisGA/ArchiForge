@@ -120,13 +120,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         foreach (ResolvedArchitectureDecision d in manifest.Decisions)
         {
             string decisionKey = $"decision:{d.DecisionId}";
-            if (!nodeMap.ContainsKey(decisionKey))
+            if (!nodeMap.TryGetValue(decisionKey, out Guid to))
                 continue;
 
-            Guid to = nodeMap[decisionKey];
-            foreach (string fId in d.SupportingFindingIds)
+            foreach (string fk in d.SupportingFindingIds.Select(fId => $"finding:{fId}"))
             {
-                string fk = $"finding:{fId}";
                 if (!nodeMap.TryGetValue(fk, out Guid from))
                     continue;
 
@@ -152,9 +150,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Rules → Decisions (rules that fired in this trace influenced decisions — v1: cross-product of applied rules × decisions)
-        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+        foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
         {
-            string dk = $"decision:{d.DecisionId}";
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
 
@@ -186,9 +183,8 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         }
 
         // Decisions → Manifest
-        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+        foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
         {
-            string dk = $"decision:{d.DecisionId}";
             if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
                 continue;
 
@@ -199,15 +195,13 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
 
         Guid AddNode(string key, ProvenanceNode node)
         {
-            if (!nodeMap.TryGetValue(key, out Guid existing))
-            {
-                node.Id = Guid.NewGuid();
-                result.Nodes.Add(node);
-                nodeMap[key] = node.Id;
-                return node.Id;
-            }
+            if (nodeMap.TryGetValue(key, out Guid existing)) return existing;
+            
+            node.Id = Guid.NewGuid();
+            result.Nodes.Add(node);
+            nodeMap[key] = node.Id;
+            return node.Id;
 
-            return existing;
         }
 
         void AddEdge(Guid from, Guid to, ProvenanceEdgeType type)

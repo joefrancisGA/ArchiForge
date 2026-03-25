@@ -20,14 +20,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> policyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.PolicyControl).ToList();
         List<GraphNode> requirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList();
 
-        foreach (GraphNode node in nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot))
-        {
-            edges.Add(CreateEdge(
-                contextNodeId,
-                node.NodeId,
-                GraphEdgeTypes.Contains,
-                "contains"));
-        }
+        edges.AddRange(nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot).Select(node => CreateEdge(contextNodeId, node.NodeId, GraphEdgeTypes.Contains, "contains")));
 
         InferTopologyContainment(edges, topologyNodes);
         InferSecurityProtection(edges, securityNodes, topologyNodes);
@@ -141,10 +134,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         if (text.Contains("security", StringComparison.Ordinal) && resource.NodeType == GraphNodeTypes.SecurityBaseline)
             return true;
 
-        if (text.Contains("database", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
+        return text.Contains("database", StringComparison.Ordinal) && string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase);
     }
 
     private static GraphEdge CreateEdge(

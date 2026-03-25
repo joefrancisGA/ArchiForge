@@ -28,13 +28,10 @@ public static class ProvenanceGraphAlgorithms
                 n.Type == ProvenanceNodeType.Decision &&
                 (string.Equals(n.ReferenceId, nFormat, StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(n.ReferenceId, dFormat, StringComparison.OrdinalIgnoreCase)));
-            if (byRefFromGuid is not null)
-            {
-                decisionInternalNodeId = byRefFromGuid.Id;
-                return true;
-            }
+            if (byRefFromGuid is null) return false;
+            decisionInternalNodeId = byRefFromGuid.Id;
+            return true;
 
-            return false;
         }
 
         ProvenanceNode? byRef = graph.Nodes.FirstOrDefault(n =>
@@ -62,14 +59,12 @@ public static class ProvenanceGraphAlgorithms
 
         HashSet<Guid> includedNodes = [decisionInternalNodeId];
         List<ProvenanceEdge> includedEdges = [];
-        foreach (ProvenanceEdge edge in full.Edges)
+        
+        foreach (ProvenanceEdge edge in full.Edges.Where(edge => edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId))
         {
-            if (edge.FromNodeId == decisionInternalNodeId || edge.ToNodeId == decisionInternalNodeId)
-            {
-                includedEdges.Add(edge);
-                includedNodes.Add(edge.FromNodeId);
-                includedNodes.Add(edge.ToNodeId);
-            }
+            includedEdges.Add(edge);
+            includedNodes.Add(edge.FromNodeId);
+            includedNodes.Add(edge.ToNodeId);
         }
 
         return new DecisionProvenanceGraph

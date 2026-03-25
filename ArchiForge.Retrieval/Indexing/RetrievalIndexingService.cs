@@ -22,12 +22,9 @@ public sealed class RetrievalIndexingService(
 
         List<RetrievalChunk> chunks = [];
 
-        foreach (var doc in documents)
+        foreach (RetrievalDocument doc in documents)
         {
             ct.ThrowIfCancellationRequested();
-
-            if (doc is null)
-                continue;
 
             IReadOnlyList<string> split = chunker.Chunk(doc.Content);
             if (split.Count == 0)
@@ -37,26 +34,23 @@ public sealed class RetrievalIndexingService(
             if (embeddings.Count != split.Count)
                 throw new InvalidOperationException("Embedding count must match chunk count.");
 
-            for (int i = 0; i < split.Count; i++)
+            chunks.AddRange(split.Select((t, i) => new RetrievalChunk
             {
-                chunks.Add(new RetrievalChunk
-                {
-                    ChunkId = $"{doc.DocumentId}-chunk-{i}",
-                    DocumentId = doc.DocumentId,
-                    TenantId = doc.TenantId,
-                    WorkspaceId = doc.WorkspaceId,
-                    ProjectId = doc.ProjectId,
-                    RunId = doc.RunId,
-                    ManifestId = doc.ManifestId,
-                    SourceType = doc.SourceType,
-                    SourceId = doc.SourceId,
-                    Title = doc.Title,
-                    Text = split[i],
-                    ChunkOrdinal = i,
-                    Embedding = embeddings[i],
-                    CreatedUtc = doc.CreatedUtc
-                });
-            }
+                ChunkId = $"{doc.DocumentId}-chunk-{i}",
+                DocumentId = doc.DocumentId,
+                TenantId = doc.TenantId,
+                WorkspaceId = doc.WorkspaceId,
+                ProjectId = doc.ProjectId,
+                RunId = doc.RunId,
+                ManifestId = doc.ManifestId,
+                SourceType = doc.SourceType,
+                SourceId = doc.SourceId,
+                Title = doc.Title,
+                Text = t,
+                ChunkOrdinal = i,
+                Embedding = embeddings[i],
+                CreatedUtc = doc.CreatedUtc
+            }));
         }
 
         if (chunks.Count > 0)

@@ -23,11 +23,11 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
         lock (_lock)
         {
             _store[snapshot.GraphSnapshotId] = snapshot;
-            if (_store.Count > MaxEntries)
-            {
-                Guid oldest = _store.Keys.First();
-                _store.Remove(oldest);
-            }
+            
+            if (_store.Count <= MaxEntries) return Task.CompletedTask;
+            
+            Guid oldest = _store.Keys.First();
+            _store.Remove(oldest);
         }
 
         return Task.CompletedTask;

@@ -11,7 +11,7 @@ public sealed class InMemoryVectorIndex : IVectorIndex
     private const int MaxChunks = 10_000;
 
     private readonly List<RetrievalChunk> _chunks = [];
-    private readonly object _sync = new();
+    private readonly Lock _sync = new();
 
     /// <inheritdoc />
     public Task UpsertChunksAsync(IReadOnlyList<RetrievalChunk> chunks, CancellationToken ct)
