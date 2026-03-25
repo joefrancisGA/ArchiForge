@@ -20,7 +20,7 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
     private const int MaxEntries = 2_000;
 
     private readonly List<PolicyPackAssignment> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     /// <inheritdoc />
     public Task CreateAsync(PolicyPackAssignment assignment, CancellationToken ct)

@@ -7,7 +7,7 @@ namespace ArchiForge.Persistence.Provenance;
 
 public sealed class InMemoryProvenanceSnapshotRepository : IProvenanceSnapshotRepository
 {
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     // Key: (TenantId, WorkspaceId, ProjectId, RunId) → latest snapshot.
     // Last-write-wins semantics prevent unbounded memory growth for repeated saves.

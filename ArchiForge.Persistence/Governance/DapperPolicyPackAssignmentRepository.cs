@@ -8,13 +8,14 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Governance;
 
+// ReSharper disable InvalidXmlDocComment
 /// <summary>
 /// SQL Server implementation of <see cref="IPolicyPackAssignmentRepository"/> using Dapper against <c>dbo.PolicyPackAssignments</c>.
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>List semantics:</strong> Returns tenant-wide rows, workspace rows matching <paramref name="workspaceId"/>, and project rows matching
-/// both workspace and <paramref name="projectId"/>. Aligns with <see cref="InMemoryPolicyPackAssignmentRepository"/> and
+/// <strong>List semantics:</strong> Returns tenant-wide rows, workspace rows matching <paramref name="WorkspaceId"/>, and project rows matching
+/// both workspace and <paramref name="ProjectId"/>. Aligns with <see cref="InMemoryPolicyPackAssignmentRepository"/> and
 /// <see cref="EffectiveGovernanceResolver"/> filtering.
 /// </para>
 /// <para>
@@ -22,6 +23,7 @@ namespace ArchiForge.Persistence.Governance;
 /// assignment writes from <c>PolicyPackManagementService</c>.
 /// </para>
 /// </remarks>
+/// // ReSharper enable InvalidXmlDocComment
 public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory connectionFactory)
     : IPolicyPackAssignmentRepository
 {

@@ -6,7 +6,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
 {
     private const int MaxEntries = 500;
     private readonly List<PolicyPackVersion> _items = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     public Task CreateAsync(PolicyPackVersion version, CancellationToken ct)
     {

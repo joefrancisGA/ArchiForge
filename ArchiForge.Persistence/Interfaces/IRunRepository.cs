@@ -5,6 +5,7 @@ using ArchiForge.Persistence.Models;
 
 namespace ArchiForge.Persistence.Interfaces;
 
+// ReSharper disable InvalidXmlDocComment
 /// <summary>
 /// Persistence contract for <see cref="RunRecord"/> — the root authority run entity that
 /// anchors every snapshot, manifest, trace, and artifact bundle for an architecture run.
@@ -14,6 +15,7 @@ namespace ArchiForge.Persistence.Interfaces;
 /// methods allow callers to enlist the operation inside an existing ambient transaction.
 /// When omitted, each method opens its own connection.
 /// </remarks>
+/// // ReSharper enable InvalidXmlDocComment
 public interface IRunRepository
 {
     /// <summary>
