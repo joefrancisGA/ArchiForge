@@ -98,7 +98,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         if (row is null)
             return null;
 
-        if (!Enum.TryParse<ArchitectureRunStatus>(row.Status, true, out ArchitectureRunStatus status))
+        if (!Enum.TryParse(row.Status, true, out ArchitectureRunStatus status))
             throw new InvalidOperationException(
                 $"Unrecognised ArchitectureRunStatus '{row.Status}' for run '{row.RunId}'. " +
                 "The database row may have been written by a newer version of the application.");

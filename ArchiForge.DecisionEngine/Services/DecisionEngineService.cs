@@ -277,7 +277,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             Governance = new ManifestGovernance
             {
                 ComplianceTags = [],
-                PolicyConstraints = (request.Constraints ?? []).ToList(),
+                PolicyConstraints = request.Constraints.ToList(),
                 RequiredControls = [],
                 RiskClassification = "Moderate",
                 CostClassification = "Moderate"
@@ -398,12 +398,12 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         }
 
 #pragma warning disable IDE0305 // Simplify collection initialization   
-        existing.Tags = (existing.Tags ?? [])
-            .Union(incoming.Tags ?? [], StringComparer.OrdinalIgnoreCase)
+        existing.Tags = existing.Tags
+            .Union(incoming.Tags, StringComparer.OrdinalIgnoreCase)
             .ToList();
 #pragma warning restore IDE0305 // Simplify collection initialization
 
-        existing.RequiredControls = (existing.RequiredControls ?? []).Union(incoming.RequiredControls ?? [], StringComparer.OrdinalIgnoreCase).ToList();
+        existing.RequiredControls = existing.RequiredControls.Union(incoming.RequiredControls, StringComparer.OrdinalIgnoreCase).ToList();
 
         AddTrace(
             output,
@@ -565,7 +565,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         AgentResult result,
         DecisionMergeResult output)
     {
-        foreach (ArchitectureFinding finding in result.Findings ?? [])
+        foreach (ArchitectureFinding finding in result.Findings)
         {
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))
@@ -597,13 +597,13 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         IReadOnlyCollection<AgentResult> validResults,
         DecisionMergeResult output)
     {
-        if ((request.RequiredCapabilities ?? []).Any(c =>
+        if (request.RequiredCapabilities.Any(c =>
             c.Contains("private", StringComparison.OrdinalIgnoreCase)))
         {
             AddRequiredControlIfMissing(manifest, ControlPrivateNetworking, output);
         }
 
-        if ((request.RequiredCapabilities ?? []).Any(c =>
+        if (request.RequiredCapabilities.Any(c =>
             c.Contains("managed identity", StringComparison.OrdinalIgnoreCase)))
         {
             AddRequiredControlIfMissing(manifest, ControlManagedIdentity, output);
@@ -647,12 +647,9 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
     {
         foreach (string control in manifest.Governance.RequiredControls)
         {
-            foreach (ManifestService service in manifest.Services)
+            foreach (ManifestService service in manifest.Services.Where(service => !service.RequiredControls.Contains(control, StringComparer.OrdinalIgnoreCase)))
             {
-                if (!service.RequiredControls.Contains(control, StringComparer.OrdinalIgnoreCase))
-                {
-                    service.RequiredControls.Add(control);
-                }
+                service.RequiredControls.Add(control);
             }
 
             if (!control.Equals(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&

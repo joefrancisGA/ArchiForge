@@ -75,19 +75,18 @@ internal static class ComparisonRecordSearchPredicateBuilder
             parameters.Add("@Label", label);
         }
 
-        if (tags is { Count: > 0 })
+        if (tags is not { Count: > 0 }) return;
+        
+        for (int i = 0; i < tags.Count; i++)
         {
-            for (int i = 0; i < tags.Count; i++)
-            {
-                string t = tags[i];
-                if (string.IsNullOrWhiteSpace(t))
-                    continue;
-                string paramName = $"@Tag{i}";
-                parameters.Add(paramName, t);
-                conditions.Add(isSqlite
-                    ? $"EXISTS (SELECT 1 FROM json_each(COALESCE(Tags,'[]')) WHERE json_each.value = {paramName})"
-                    : $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
-            }
+            string t = tags[i];
+            if (string.IsNullOrWhiteSpace(t))
+                continue;
+            string paramName = $"@Tag{i}";
+            parameters.Add(paramName, t);
+            conditions.Add(isSqlite
+                ? $"EXISTS (SELECT 1 FROM json_each(COALESCE(Tags,'[]')) WHERE json_each.value = {paramName})"
+                : $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
         }
     }
 }

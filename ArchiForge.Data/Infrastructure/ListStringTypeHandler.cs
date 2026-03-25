@@ -12,22 +12,17 @@ public sealed class ListStringTypeHandler : SqlMapper.TypeHandler<List<string>>
 
     public override List<string> Parse(object value)
     {
-        if (value is null or DBNull)
+        if (value is null or DBNull || value is not string s || string.IsNullOrWhiteSpace(s))
             return [];
-        if (value is string s)
+
+        try
         {
-            if (string.IsNullOrWhiteSpace(s))
-                return [];
-            try
-            {
-                return JsonSerializer.Deserialize<List<string>>(s) ?? [];
-            }
-            catch (JsonException)
-            {
-                return [];
-            }
+            return JsonSerializer.Deserialize<List<string>>(s) ?? [];
         }
-        return [];
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     public override void SetValue(IDbDataParameter parameter, List<string>? value)

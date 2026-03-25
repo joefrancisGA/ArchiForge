@@ -136,10 +136,7 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         GoldenManifest? manifest = await architectureApplicationService.GetManifestAsync(version, cancellationToken);
-        if (manifest is null)
-            return this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound);
-
-        return Ok(manifest);
+        return manifest is null ? this.NotFoundProblem($"Manifest '{version}' was not found.", ProblemTypes.ManifestNotFound) : Ok(manifest);
     }
 
     [HttpGet("manifest/{version}/diagram")]
@@ -216,7 +213,7 @@ public sealed class ManifestsController(
 
         int? clampedMaxRelationships = maxRelationships.HasValue
             ? Math.Clamp(maxRelationships.Value, 1, 1000)
-            : (int?)null;
+            : null;
 
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
         {
@@ -397,18 +394,18 @@ public sealed class ManifestsController(
     {
         if (string.IsNullOrWhiteSpace(leftVersion))
             return new LoadedManifestPair { Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed) };
+        
         if (string.IsNullOrWhiteSpace(rightVersion))
             return new LoadedManifestPair { Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed) };
 
         GoldenManifest? left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        
         if (left is null)
             return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound) };
 
         GoldenManifest? right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
-        if (right is null)
-            return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound) };
 
-        return new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
+        return right is null ? new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound) } : new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
     }
 
     /// <summary>

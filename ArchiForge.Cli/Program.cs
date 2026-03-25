@@ -69,12 +69,10 @@ namespace ArchiForge.Cli
                     return 1;
 
                 case "seed":
-                    if (args.Length <= 1)
-                    {
-                        Console.WriteLine("Usage: archiforge seed <runId>");
-                        return 1;
-                    }
-                    return await ArchiForge_SeedAsync(args[1]);
+                    if (args.Length > 1) return await ArchiForge_SeedAsync(args[1]);
+                    
+                    Console.WriteLine("Usage: archiforge seed <runId>");
+                    return 1;
 
                 case "artifacts":
                     if (args.Length <= 1)

@@ -21,7 +21,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             FindingType = root.GetProperty("findingType").GetString() ?? "",
             Category = root.TryGetProperty("category", out JsonElement cat) ? cat.GetString() ?? "" : "",
             EngineType = root.GetProperty("engineType").GetString() ?? "",
-            Severity = root.TryGetProperty("severity", out JsonElement sev) && Enum.TryParse<FindingSeverity>(sev.GetString(), true, out FindingSeverity se)
+            Severity = root.TryGetProperty("severity", out JsonElement sev) && Enum.TryParse(sev.GetString(), true, out FindingSeverity se)
                 ? se
                 : FindingSeverity.Info,
             Title = root.GetProperty("title").GetString() ?? "",

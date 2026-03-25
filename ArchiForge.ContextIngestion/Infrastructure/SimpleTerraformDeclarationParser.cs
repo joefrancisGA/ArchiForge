@@ -60,11 +60,6 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
             return "SecurityBaseline";
         }
 
-        if (normalized.Contains("policy", StringComparison.Ordinal))
-        {
-            return "PolicyControl";
-        }
-
-        return "TopologyResource";
+        return normalized.Contains("policy", StringComparison.Ordinal) ? "PolicyControl" : "TopologyResource";
     }
 }

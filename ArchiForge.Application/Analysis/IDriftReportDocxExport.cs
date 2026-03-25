@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace ArchiForge.Application.Analysis;
 
 /// <summary>
@@ -16,5 +18,6 @@ public interface IDriftReportDocxExport
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="drift"/> is <see langword="null"/>.
     /// </exception>
+    [UsedImplicitly]
     byte[] GenerateDocx(DriftAnalysisResult drift, string? comparisonRecordId = null);
 }
