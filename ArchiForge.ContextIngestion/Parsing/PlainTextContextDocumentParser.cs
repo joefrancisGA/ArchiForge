@@ -1,7 +1,7 @@
 using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Models;
 
-using static global::ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes;
+using static ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes;
 
 namespace ArchiForge.ContextIngestion.Parsing;
 
@@ -17,7 +17,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
         _ = ct;
         List<CanonicalObject> results = [];
 
-        string[] lines = (document.Content ?? string.Empty)
+        string[] lines = (document.Content)
             .Replace("\r\n", "\n")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 

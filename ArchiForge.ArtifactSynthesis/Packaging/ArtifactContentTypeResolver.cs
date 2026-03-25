@@ -10,7 +10,6 @@ public class ArtifactContentTypeResolver : IArtifactContentTypeResolver
         {
             "json" => "application/json",
             "markdown" => "text/markdown",
-            "mermaid" => "text/plain",
             _ => "text/plain"
         };
     }

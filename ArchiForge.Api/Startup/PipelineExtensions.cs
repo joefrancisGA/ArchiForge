@@ -15,7 +15,7 @@ internal static class PipelineExtensions
             exceptionHandlerApp.Run(async context =>
             {
                 IExceptionHandlerFeature? exceptionFeature = context.Features
-                    .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+                    .Get<IExceptionHandlerFeature>();
 
                 if (exceptionFeature?.Error is { } ex)
                 {

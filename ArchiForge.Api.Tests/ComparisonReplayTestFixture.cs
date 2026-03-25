@@ -65,9 +65,7 @@ public static class ComparisonReplayTestFixture
             new StringContent("""{"persist":true}""", Encoding.UTF8, "application/json"));
         persist.EnsureSuccessStatusCode();
         string? comparisonRecordId = persist.Headers.GetValues("X-ArchiForge-ComparisonRecordId").FirstOrDefault();
-        if (string.IsNullOrEmpty(comparisonRecordId))
-            throw new InvalidOperationException("X-ArchiForge-ComparisonRecordId header missing.");
-        return comparisonRecordId;
+        return string.IsNullOrEmpty(comparisonRecordId) ? throw new InvalidOperationException("X-ArchiForge-ComparisonRecordId header missing.") : comparisonRecordId;
     }
 
     private static StringContent JsonContent(object value)

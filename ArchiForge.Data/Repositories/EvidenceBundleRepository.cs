@@ -73,7 +73,7 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
         {
             bundle = JsonSerializer.Deserialize<EvidenceBundle>(json, ContractJson.Default);
         }
-        catch (System.Text.Json.JsonException ex)
+        catch (JsonException ex)
         {
             throw new InvalidOperationException(
                 $"Evidence bundle JSON for '{evidenceBundleId}' could not be deserialized. " +

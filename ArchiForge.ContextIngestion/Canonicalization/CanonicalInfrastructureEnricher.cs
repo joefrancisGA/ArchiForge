@@ -18,8 +18,7 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
 
             if (string.Equals(item.ObjectType, "SecurityBaseline", StringComparison.OrdinalIgnoreCase))
             {
-                if (!item.Properties.ContainsKey("status"))
-                    item.Properties["status"] = "declared";
+                item.Properties.TryAdd("status", "declared");
             }
 
             results.Add(item);
@@ -52,30 +51,26 @@ public class CanonicalInfrastructureEnricher : ICanonicalEnricher
                 return "data";
         }
 
-        if (item.Properties.TryGetValue("resourceType", out string? resourceType))
-        {
-            string r = resourceType.ToLowerInvariant();
+        if (!item.Properties.TryGetValue("resourceType", out string? resourceType)) return "general";
+        
+        string r = resourceType.ToLowerInvariant();
 
-            if (r.Contains("network", StringComparison.OrdinalIgnoreCase) ||
-                r.Contains("subnet", StringComparison.OrdinalIgnoreCase) ||
-                r.Contains("vnet", StringComparison.OrdinalIgnoreCase))
-                return "network";
+        if (r.Contains("network", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("subnet", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("vnet", StringComparison.OrdinalIgnoreCase))
+            return "network";
 
-            if (r.Contains("storage", StringComparison.OrdinalIgnoreCase))
-                return "storage";
+        if (r.Contains("storage", StringComparison.OrdinalIgnoreCase))
+            return "storage";
 
-            if (r.Contains("compute", StringComparison.OrdinalIgnoreCase) ||
-                r.Contains("appservice", StringComparison.OrdinalIgnoreCase) ||
-                r.Contains("container", StringComparison.OrdinalIgnoreCase))
-                return "compute";
+        if (r.Contains("compute", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("appservice", StringComparison.OrdinalIgnoreCase) ||
+            r.Contains("container", StringComparison.OrdinalIgnoreCase))
+            return "compute";
 
-            if (r.Contains("database", StringComparison.OrdinalIgnoreCase))
-                return "data";
+        if (r.Contains("database", StringComparison.OrdinalIgnoreCase))
+            return "data";
 
-            if (r.Contains("identity", StringComparison.OrdinalIgnoreCase))
-                return "identity";
-        }
-
-        return "general";
+        return r.Contains("identity", StringComparison.OrdinalIgnoreCase) ? "identity" : "general";
     }
 }

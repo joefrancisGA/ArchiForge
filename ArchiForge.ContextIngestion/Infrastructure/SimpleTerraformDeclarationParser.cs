@@ -20,7 +20,7 @@ public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
     {
         ArgumentNullException.ThrowIfNull(declaration);
         _ = ct;
-        MatchCollection matches = ResourceRegex.Matches(declaration.Content ?? string.Empty);
+        MatchCollection matches = ResourceRegex.Matches(declaration.Content);
         List<CanonicalObject> results = [];
 
         foreach (Match match in matches)

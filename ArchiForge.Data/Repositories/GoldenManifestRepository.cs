@@ -83,7 +83,7 @@ public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFact
         {
             manifest = JsonSerializer.Deserialize<GoldenManifest>(json, ContractJson.Default);
         }
-        catch (System.Text.Json.JsonException ex)
+        catch (JsonException ex)
         {
             throw new InvalidOperationException(
                 $"Manifest JSON for version '{manifestVersion}' could not be deserialized. " +

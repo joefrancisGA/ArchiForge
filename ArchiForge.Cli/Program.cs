@@ -54,28 +54,19 @@ namespace ArchiForge.Cli
                     return await ArchiForge_RunAsync(quick);
 
                 case "status":
-                    if (args.Length <= 1)
-                    {
-                        Console.WriteLine("Usage: archiforge status <runId>");
-                        return 1;
-                    }
-                    return await ArchiForge_StatusAsync(args[1]);
+                    if (args.Length > 1) return await ArchiForge_StatusAsync(args[1]);
+                    Console.WriteLine("Usage: archiforge status <runId>");
+                    return 1;
 
                 case "submit":
-                    if (args.Length <= 2)
-                    {
-                        Console.WriteLine("Usage: archiforge submit <runId> <result.json>");
-                        return 1;
-                    }
-                    return await ArchiForge_SubmitAsync(args[1], args[2]);
+                    if (args.Length > 2) return await ArchiForge_SubmitAsync(args[1], args[2]);
+                    Console.WriteLine("Usage: archiforge submit <runId> <result.json>");
+                    return 1;
 
                 case "commit":
-                    if (args.Length <= 1)
-                    {
-                        Console.WriteLine("Usage: archiforge commit <runId>");
-                        return 1;
-                    }
-                    return await ArchiForge_CommitAsync(args[1]);
+                    if (args.Length > 1) return await ArchiForge_CommitAsync(args[1]);
+                    Console.WriteLine("Usage: archiforge commit <runId>");
+                    return 1;
 
                 case "seed":
                     if (args.Length <= 1)
@@ -304,12 +295,10 @@ namespace ArchiForge.Cli
             {
                 string json = JsonSerializer.Serialize(result, SJsonWriteIndented);
                 Console.WriteLine(json);
-                if (!string.IsNullOrWhiteSpace(result.NextCursor))
-                {
-                    // Keep it easy to copy/paste into the next call.
-                    Console.WriteLine();
-                    Console.WriteLine($"nextCursor: {result.NextCursor}");
-                }
+                if (string.IsNullOrWhiteSpace(result.NextCursor)) return 0;
+                // Keep it easy to copy/paste into the next call.
+                Console.WriteLine();
+                Console.WriteLine($"nextCursor: {result.NextCursor}");
                 return 0;
             }
 

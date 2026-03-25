@@ -292,14 +292,14 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
     {
         return
             $"Estimate cost posture and cost-sensitive design considerations for system '{request.SystemName}'. " +
-            $"Required capabilities: {string.Join(", ", request.RequiredCapabilities ?? [])}";
+            $"Required capabilities: {string.Join(", ", request.RequiredCapabilities)}";
     }
 
     private static string BuildComplianceObjective(ArchitectureRequest request)
     {
         return
             $"Validate the proposed architecture for system '{request.SystemName}' " +
-            $"against policy constraints: {string.Join(", ", request.Constraints ?? [])}";
+            $"against policy constraints: {string.Join(", ", request.Constraints)}";
     }
 
     private static AgentTask CreateCriticTask(

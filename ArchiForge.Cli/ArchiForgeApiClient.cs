@@ -75,9 +75,7 @@ namespace ArchiForge.Cli
         /// <summary>Resolve API base URL: config.ApiUrl (when set) > ARCHIFORGE_API_URL env > default.</summary>
         public static string ResolveBaseUrl(ArchiForgeProjectScaffolder.ArchiForgeConfig? config)
         {
-            if (!string.IsNullOrWhiteSpace(config?.ApiUrl))
-                return config.ApiUrl.Trim().TrimEnd('/');
-            return GetDefaultBaseUrl().TrimEnd('/');
+            return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
         }
 
         /// <summary>
@@ -168,10 +166,7 @@ namespace ArchiForge.Cli
                 HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
                 string content = await response.Content.ReadAsStringAsync(ct);
 
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                return JsonSerializer.Deserialize<GetRunResult>(content, _jsonOptions);
+                return !response.IsSuccessStatusCode ? null : JsonSerializer.Deserialize<GetRunResult>(content, _jsonOptions);
             }
             catch
             {
@@ -480,10 +475,7 @@ namespace ArchiForge.Cli
                 string uri = $"/v1/architecture/comparisons/{Uri.EscapeDataString(comparisonRecordId)}/summary";
                 HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
                 string content = await response.Content.ReadAsStringAsync(ct);
-                if (!response.IsSuccessStatusCode)
-                    return null;
-
-                return JsonSerializer.Deserialize<ComparisonSummary>(content, _jsonOptions);
+                return !response.IsSuccessStatusCode ? null : JsonSerializer.Deserialize<ComparisonSummary>(content, _jsonOptions);
             }
             catch
             {
@@ -600,17 +592,17 @@ namespace ArchiForge.Cli
                     Summary = root.TryGetProperty("summary", out JsonElement s) ? s.GetString() ?? "" : ""
                 };
 
-                if (root.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Array)
+                if (!root.TryGetProperty("items", out JsonElement items) || items.ValueKind != JsonValueKind.Array)
+                    return result;
+                
+                foreach (JsonElement it in items.EnumerateArray())
                 {
-                    foreach (JsonElement it in items.EnumerateArray())
+                    result.Items.Add(new DriftItem
                     {
-                        result.Items.Add(new DriftItem
-                        {
-                            Category = it.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "" : "",
-                            Path = it.TryGetProperty("path", out JsonElement p) ? p.GetString() ?? "" : "",
-                            Description = it.TryGetProperty("description", out JsonElement d) ? d.GetString() : null
-                        });
-                    }
+                        Category = it.TryGetProperty("category", out JsonElement c) ? c.GetString() ?? "" : "",
+                        Path = it.TryGetProperty("path", out JsonElement p) ? p.GetString() ?? "" : "",
+                        Description = it.TryGetProperty("description", out JsonElement d) ? d.GetString() : null
+                    });
                 }
 
                 return result;
@@ -671,24 +663,24 @@ namespace ArchiForge.Cli
                 using JsonDocument doc = JsonDocument.Parse(content);
                 JsonElement root = doc.RootElement;
                 ReplayDiagnostics result = new();
-                if (root.TryGetProperty("recentReplays", out JsonElement arr) && arr.ValueKind == JsonValueKind.Array)
+                if (!root.TryGetProperty("recentReplays", out JsonElement arr) || arr.ValueKind != JsonValueKind.Array)
+                    return result;
+                
+                foreach (JsonElement it in arr.EnumerateArray())
                 {
-                    foreach (JsonElement it in arr.EnumerateArray())
+                    result.RecentReplays.Add(new ReplayDiagnosticsEntry
                     {
-                        result.RecentReplays.Add(new ReplayDiagnosticsEntry
-                        {
-                            TimestampUtc = it.TryGetProperty("timestampUtc", out JsonElement t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
-                            ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out JsonElement id) ? id.GetString() ?? "" : "",
-                            ComparisonType = it.TryGetProperty("comparisonType", out JsonElement ctEl) ? ctEl.GetString() ?? "" : "",
-                            Format = it.TryGetProperty("format", out JsonElement f) ? f.GetString() ?? "" : "",
-                            ReplayMode = it.TryGetProperty("replayMode", out JsonElement rm) ? rm.GetString() ?? "" : "",
-                            DurationMs = it.TryGetProperty("durationMs", out JsonElement dm) && dm.TryGetInt64(out long l) ? l : 0,
-                            Success = it.TryGetProperty("success", out JsonElement ok) && ok.ValueKind == JsonValueKind.True,
-                            MetadataOnly = it.TryGetProperty("metadataOnly", out JsonElement mo) && mo.ValueKind == JsonValueKind.True,
-                            PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out JsonElement pr) ? pr.GetString() : null,
-                            ErrorMessage = it.TryGetProperty("errorMessage", out JsonElement em) ? em.GetString() : null
-                        });
-                    }
+                        TimestampUtc = it.TryGetProperty("timestampUtc", out JsonElement t) && t.ValueKind == JsonValueKind.String ? DateTime.Parse(t.GetString()!) : default,
+                        ComparisonRecordId = it.TryGetProperty("comparisonRecordId", out JsonElement id) ? id.GetString() ?? "" : "",
+                        ComparisonType = it.TryGetProperty("comparisonType", out JsonElement ctEl) ? ctEl.GetString() ?? "" : "",
+                        Format = it.TryGetProperty("format", out JsonElement f) ? f.GetString() ?? "" : "",
+                        ReplayMode = it.TryGetProperty("replayMode", out JsonElement rm) ? rm.GetString() ?? "" : "",
+                        DurationMs = it.TryGetProperty("durationMs", out JsonElement dm) && dm.TryGetInt64(out long l) ? l : 0,
+                        Success = it.TryGetProperty("success", out JsonElement ok) && ok.ValueKind == JsonValueKind.True,
+                        MetadataOnly = it.TryGetProperty("metadataOnly", out JsonElement mo) && mo.ValueKind == JsonValueKind.True,
+                        PersistedReplayRecordId = it.TryGetProperty("persistedReplayRecordId", out JsonElement pr) ? pr.GetString() : null,
+                        ErrorMessage = it.TryGetProperty("errorMessage", out JsonElement em) ? em.GetString() : null
+                    });
                 }
                 return result;
             }

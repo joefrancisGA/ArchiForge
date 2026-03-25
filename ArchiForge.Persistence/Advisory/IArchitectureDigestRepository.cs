@@ -15,7 +15,11 @@ public interface IArchitectureDigestRepository
     Task CreateAsync(ArchitectureDigest digest, CancellationToken ct);
 
     /// <summary>Lists the most recently generated digests for the scope.</summary>
+    /// <param name="workspaceId"></param>
+    /// <param name="projectId"></param>
     /// <param name="take">Maximum rows (<c>TOP</c> on SQL Server).</param>
+    /// <param name="tenantId"></param>
+    /// <param name="ct"></param>
     /// <returns>Newest <see cref="ArchitectureDigest.GeneratedUtc"/> first.</returns>
     Task<IReadOnlyList<ArchitectureDigest>> ListByScopeAsync(
         Guid tenantId,

@@ -84,7 +84,7 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
         {
             request = JsonSerializer.Deserialize<ArchitectureRequest>(json, ContractJson.Default);
         }
-        catch (System.Text.Json.JsonException ex)
+        catch (JsonException ex)
         {
             throw new InvalidOperationException(
                 $"Request JSON for '{requestId}' could not be deserialized. " +

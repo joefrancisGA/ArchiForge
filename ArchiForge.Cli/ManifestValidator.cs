@@ -29,14 +29,12 @@ public static class ManifestValidator
 
         EvaluationResults result = schema.Evaluate(manifestDoc.RootElement, options);
 
-        if (!result.IsValid)
-        {
-            string pretty = JsonSerializer.Serialize(
-                result.ToJsonDocument().RootElement,
-                SJsonWriteIndented);
+        if (result.IsValid) return;
+        string pretty = JsonSerializer.Serialize(
+            result.ToJsonDocument().RootElement,
+            SJsonWriteIndented);
 
-            throw new InvalidDataException("Manifest validation failed:\n" + pretty);
-        }
+        throw new InvalidDataException("Manifest validation failed:\n" + pretty);
     }
 
     public static bool TryValidate(string schemaPath, string manifestJson, out string errorsJson)
