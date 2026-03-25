@@ -69,7 +69,13 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
     public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT
+                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
+                RunId, ComparedToRunId, RecommendationId,
+                Title, Category, Severity, Status,
+                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
+                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
+                DeduplicationKey
             FROM dbo.AlertRecords
             WHERE AlertId = @AlertId;
             """;
@@ -91,7 +97,13 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 1 *
+            SELECT TOP 1
+                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
+                RunId, ComparedToRunId, RecommendationId,
+                Title, Category, Severity, Status,
+                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
+                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
+                DeduplicationKey
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -125,7 +137,13 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP (@Take) *
+            SELECT TOP (@Take)
+                AlertId, RuleId, TenantId, WorkspaceId, ProjectId,
+                RunId, ComparedToRunId, RecommendationId,
+                Title, Category, Severity, Status,
+                TriggerValue, Description, CreatedUtc, LastUpdatedUtc,
+                AcknowledgedByUserId, AcknowledgedByUserName, ResolutionComment,
+                DeduplicationKey
             FROM dbo.AlertRecords
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

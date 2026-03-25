@@ -70,6 +70,8 @@ public partial class FindingsOrchestrator(
         GraphSnapshot graphSnapshot,
         CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(graphSnapshot);
+
         List<Finding> allFindings = [];
 
         foreach (IFindingEngine engine in engines)
@@ -78,7 +80,7 @@ public partial class FindingsOrchestrator(
             IReadOnlyList<Finding> findings;
             try
             {
-                findings = await engine.AnalyzeAsync(graphSnapshot, ct);
+                findings = await engine.AnalyzeAsync(graphSnapshot, ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {

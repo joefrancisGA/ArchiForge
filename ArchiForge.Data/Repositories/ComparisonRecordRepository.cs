@@ -75,7 +75,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         const string sql = """
-            SELECT TOP 1 *
+            SELECT TOP 1
+                ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                LeftManifestVersion, RightManifestVersion,
+                LeftExportRecordId, RightExportRecordId,
+                Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
             FROM ComparisonRecords
             WHERE ComparisonRecordId = @ComparisonRecordId;
             """;
@@ -100,13 +104,22 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         string sql = isSqlite
             ? """
-              SELECT * FROM ComparisonRecords
+              SELECT
+                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                  LeftManifestVersion, RightManifestVersion,
+                  LeftExportRecordId, RightExportRecordId,
+                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
+              FROM ComparisonRecords
               WHERE LeftRunId = @RunId OR RightRunId = @RunId
               ORDER BY CreatedUtc DESC
               LIMIT 200;
               """
             : """
-              SELECT TOP 200 *
+              SELECT TOP 200
+                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                  LeftManifestVersion, RightManifestVersion,
+                  LeftExportRecordId, RightExportRecordId,
+                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
               FROM ComparisonRecords
               WHERE LeftRunId = @RunId OR RightRunId = @RunId
               ORDER BY CreatedUtc DESC;
@@ -131,13 +144,22 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
 
         string sql = isSqlite
             ? """
-              SELECT * FROM ComparisonRecords
+              SELECT
+                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                  LeftManifestVersion, RightManifestVersion,
+                  LeftExportRecordId, RightExportRecordId,
+                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
+              FROM ComparisonRecords
               WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
               ORDER BY CreatedUtc DESC
               LIMIT 200;
               """
             : """
-              SELECT TOP 200 *
+              SELECT TOP 200
+                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                  LeftManifestVersion, RightManifestVersion,
+                  LeftExportRecordId, RightExportRecordId,
+                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
               FROM ComparisonRecords
               WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
               ORDER BY CreatedUtc DESC;
@@ -175,7 +197,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         //   differently for SQLite vs SQL Server
         // - paging syntax differs by provider (SQLite uses LIMIT/OFFSET; SQL Server uses OFFSET/FETCH)
         const string baseSql = """
-            SELECT *
+            SELECT
+                ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                LeftManifestVersion, RightManifestVersion,
+                LeftExportRecordId, RightExportRecordId,
+                Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
             FROM ComparisonRecords
             WHERE 1 = 1
             """;
@@ -245,7 +271,11 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         const string baseSql = """
-            SELECT *
+            SELECT
+                ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                LeftManifestVersion, RightManifestVersion,
+                LeftExportRecordId, RightExportRecordId,
+                Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
             FROM ComparisonRecords
             WHERE 1 = 1
             """;

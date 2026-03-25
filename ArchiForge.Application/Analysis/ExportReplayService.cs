@@ -32,7 +32,7 @@ public sealed class ExportReplayService(
 
         RunExportRecord? record = await runExportRecordRepository.GetByIdAsync(
             request.ExportRecordId,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         if (record is null)
         {
@@ -62,7 +62,7 @@ public sealed class ExportReplayService(
 
         ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(
             analysisRequest,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         return record.ExportType switch
         {
@@ -87,7 +87,7 @@ public sealed class ExportReplayService(
     {
         byte[] bytes = await consultingDocxExportService.GenerateDocxAsync(
             report,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         string replayFileName = BuildReplayFileName(record.FileName);
 
@@ -105,7 +105,7 @@ public sealed class ExportReplayService(
                 manifestVersion: report.Manifest?.Metadata.ManifestVersion,
                 analysisRequest: persistedRequest,
                 notes: $"Replay generated from export record {record.ExportRecordId}.",
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         return new ReplayExportResult

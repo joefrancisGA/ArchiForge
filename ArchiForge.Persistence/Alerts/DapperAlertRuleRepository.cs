@@ -58,7 +58,10 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
     public async Task<AlertRule?> GetByIdAsync(Guid ruleId, CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT
+                RuleId, TenantId, WorkspaceId, ProjectId,
+                Name, RuleType, Severity, ThresholdValue, IsEnabled,
+                TargetChannelType, MetadataJson, CreatedUtc
             FROM dbo.AlertRules
             WHERE RuleId = @RuleId;
             """;
@@ -79,7 +82,10 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200 *
+            SELECT TOP 200
+                RuleId, TenantId, WorkspaceId, ProjectId,
+                Name, RuleType, Severity, ThresholdValue, IsEnabled,
+                TargetChannelType, MetadataJson, CreatedUtc
             FROM dbo.AlertRules
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -106,7 +112,10 @@ public sealed class DapperAlertRuleRepository(ISqlConnectionFactory connectionFa
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200 *
+            SELECT TOP 200
+                RuleId, TenantId, WorkspaceId, ProjectId,
+                Name, RuleType, Severity, ThresholdValue, IsEnabled,
+                TargetChannelType, MetadataJson, CreatedUtc
             FROM dbo.AlertRules
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

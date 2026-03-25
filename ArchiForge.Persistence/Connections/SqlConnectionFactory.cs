@@ -15,7 +15,7 @@ public sealed class SqlConnectionFactory : ISqlConnectionFactory
     public async Task<SqlConnection> CreateOpenConnectionAsync(CancellationToken ct)
     {
         SqlConnection connection = new(_connectionString);
-        await connection.OpenAsync(ct);
+        await connection.OpenAsync(ct).ConfigureAwait(false);
         return connection;
     }
 }

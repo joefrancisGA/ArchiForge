@@ -58,7 +58,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
     public async Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct)
     {
         const string sql = """
-            SELECT *
+            SELECT
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
             WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
             """;
@@ -78,7 +81,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200 *
+            SELECT TOP 200
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -108,7 +114,10 @@ public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFacto
         CancellationToken ct)
     {
         const string sql = """
-            SELECT TOP 200 *
+            SELECT TOP 200
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, LastDeliveredUtc, MetadataJson
             FROM dbo.AlertRoutingSubscriptions
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
