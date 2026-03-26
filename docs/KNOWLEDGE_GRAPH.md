@@ -108,8 +108,21 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 
 ## Suggested next refactors
 
-1. **Replace stringly-typed finding `GetByType("...")` calls** with a shared constants class (parallel to **`GraphNodeTypes`**).
-2. **Richer topology containment** — drive **`CONTAINS_RESOURCE`** from declared parent/child in canonical `Properties` instead of label/category heuristics only.
-3. **Policy / requirement targeting** — narrow **`APPLIES_TO`** / **`RELATES_TO`** using explicit references from ingestion when available.
-4. **Dedicated `PolicySection` on `GoldenManifest`** + SQL column if policy data should be first-class in storage (today folded into assumptions/warnings/issues).
-5. **`ArchiForge.KnowledgeGraph.Tests`** project — unit tests for inferrer, validator, and extensions without pulling Persistence.
+> Items 1–5 below have been implemented (batch j, March 2026). See `docs/NEXT_REFACTORINGS.md` §§88–94 and the j-batch entries for full changelog.
+
+### Completed ✓
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | Replace stringly-typed `GetByType("…")` with `FindingTypes` constants class | ✓ Done — `ArchiForge.Decisioning/Findings/FindingTypes.cs` |
+| 2 | Richer topology containment — `CONTAINS_RESOURCE` from explicit `parentNodeId` property | ✓ Done — `DefaultGraphEdgeInferer.InferExplicitParentChildContainment` |
+| 3 | Policy / requirement targeting — narrow `APPLIES_TO`/`RELATES_TO` using explicit references | Open — heuristic-only until ingestion emits explicit refs |
+| 4 | `PolicySection` first-class on `GoldenManifest`, included in `ManifestHashService` + validated by `GoldenManifestValidator` | ✓ Done |
+| 5 | `ArchiForge.KnowledgeGraph.Tests` — inferrer, validator, graph builder, and extensions unit tests | ✓ Done |
+
+### Open items
+
+1. **Policy / requirement targeting (item 3 above)** — ingestion side must emit explicit `APPLIES_TO` references before this can be narrowed; currently every policy applies to every topology resource.
+2. **Weighted edge scoring** — add a numeric `Weight` field to `GraphEdge` so traversals can prioritise strong relationships (e.g. explicit parent/child) over inferred ones.
+3. **Graph persistence indexes** — the `GraphSnapshots` table stores JSON; add a computed or shadow table for edge-level queries to avoid full-document deserialization at read time.
+4. **Incremental graph rebuild** — today the full snapshot is rebuilt on every run. Add a delta path that reuses the previous `GraphSnapshot` and only replaces changed nodes/edges.

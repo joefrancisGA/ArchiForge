@@ -22,12 +22,43 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 
         edges.AddRange(nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot).Select(node => CreateEdge(contextNodeId, node.NodeId, GraphEdgeTypes.Contains, "contains")));
 
+        // Build a lookup so explicit parent/child edges can be resolved in O(n).
+        Dictionary<string, GraphNode> nodeById = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
+
+        InferExplicitParentChildContainment(edges, nodes, nodeById);
         InferTopologyContainment(edges, topologyNodes);
         InferSecurityProtection(edges, securityNodes, topologyNodes);
         InferPolicyApplicability(edges, policyNodes, topologyNodes);
         InferRequirementRelevance(edges, requirementNodes, topologyNodes);
 
         return Deduplicate(edges);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="GraphEdgeTypes.ContainsResource"/> edge when a node carries an
+    /// explicit <c>parentNodeId</c> property pointing to another node in the snapshot.
+    /// This complements the heuristic label/category logic in <see cref="InferTopologyContainment"/>
+    /// and is the authoritative path for nodes that were built with known parent relationships
+    /// (e.g. a subnet referencing its parent VNet by ID).
+    /// </summary>
+    private static void InferExplicitParentChildContainment(
+        List<GraphEdge> edges,
+        IReadOnlyList<GraphNode> nodes,
+        Dictionary<string, GraphNode> nodeById)
+    {
+        foreach (GraphNode node in nodes)
+        {
+            if (!node.Properties.TryGetValue("parentNodeId", out string? parentId))
+                continue;
+
+            if (string.IsNullOrWhiteSpace(parentId))
+                continue;
+
+            if (!nodeById.ContainsKey(parentId))
+                continue;
+
+            edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource"));
+        }
     }
 
     private static void InferTopologyContainment(

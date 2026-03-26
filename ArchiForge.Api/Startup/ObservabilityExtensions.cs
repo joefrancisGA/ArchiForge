@@ -1,3 +1,5 @@
+using ArchiForge.DecisionEngine.Validation;
+
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -36,6 +38,11 @@ internal static class ObservabilityExtensions
             {
                 metrics.AddAspNetCoreInstrumentation();
                 metrics.AddHttpClientInstrumentation();
+
+                // Wires the schema-validation meter so Prometheus / OTLP exporters receive
+                // schema_validation_total and schema_validation_duration_ms.
+                metrics.AddMeter(SchemaValidationService.MeterName);
+
                 if (prometheusEnabled)
                 {
                     metrics.AddPrometheusExporter();

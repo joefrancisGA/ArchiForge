@@ -33,6 +33,9 @@ public class GoldenManifestValidator : IGoldenManifestValidator
 
         if (manifest.Provenance is null)
             throw new InvalidOperationException("Provenance section is required.");
+
+        if (manifest.Policy is null)
+            throw new InvalidOperationException("Policy section is required.");
     }
 }
 

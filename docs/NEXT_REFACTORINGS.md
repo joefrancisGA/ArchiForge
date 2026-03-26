@@ -1020,3 +1020,114 @@ The following were implemented together for safer operator APIs, tests, and back
 - [x] 92. Api.Tests: ExportReplayServiceTests + ComparisonDriftAnalyzerTests
 - [x] 93. Docs: CI_MIGRATION_CHECKLIST.md; expanded SQL_SCRIPTS §6 checklist
 - [x] 94. Docs: HOWTO_ADD_COMPARISON_TYPE.md
+
+---
+
+## §95 — `FindingTypes` constants class
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning/Findings/FindingTypes.cs` — 10 `const string` fields replacing bare string literals in `DefaultGoldenManifestBuilder.GetByType(...)` calls.
+- All 10 call-sites updated. Compile-time safety; typo-silent-failures eliminated.
+
+---
+
+## §96 — `GoldenManifestValidator`: PolicySection null guard + tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `GoldenManifestValidator.Validate` — added `Policy is null` guard mirroring existing section guards.
+- `ArchiForge.Decisioning.Tests/GoldenManifestValidatorTests.cs` — 10 unit tests (one per guarded field including the new Policy guard).
+
+---
+
+## §97 — `ManifestHashService`: PolicySection in canonical hash
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ManifestHashService.ComputeHash` — `manifest.Policy` added to the anonymous projection before SHA-256 serialization.
+- `ArchiForge.Decisioning.Tests/ManifestHashServiceTests.cs` — 6 tests: stable hash for equal manifests, distinct hash when ManifestId/PolicyViolation/PolicySatisfiedControl differ, null throws, hex format validated.
+
+---
+
+## §98 — `AdaptiveRecommendationScorer` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AdaptiveRecommendationScorerTests.cs` — 8 tests covering: null profile passthrough, individual weight application (category/urgency/signalType), all-weights product, missing-key defaults, null signalType skipping weight, and zero-base-score edge case.
+
+---
+
+## §99 — `DefaultGraphEdgeInferer`: explicit parent/child `CONTAINS_RESOURCE`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `DefaultGraphEdgeInferer.InferExplicitParentChildContainment` — new private method called before heuristic `InferTopologyContainment`. Reads a `parentNodeId` property from each node's Properties dictionary and emits a `CONTAINS_RESOURCE` edge when the parent exists in the snapshot.
+- O(n) lookup via `Dictionary<string, GraphNode>` built once per `InferEdges` call.
+
+---
+
+## §100 — `ImprovementSignalAnalyzer` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/ImprovementSignalAnalyzerTests.cs` — 12 tests: null guards, empty manifest, one signal per analyzer branch (requirement/security/compliance/topology/cost/unresolvedIssue), regression/identical security delta, cost increase/decrease, decision removed.
+
+---
+
+## §101 — `DefaultGraphBuilder` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.KnowledgeGraph.Tests/DefaultGraphBuilderTests.cs` — 6 tests: null snapshot throws, empty snapshot produces context-only node, context node id matches snapshotId, canonical objects call node factory, inferred edges appear in result, context node properties contain snapshotId/runId/projectId.
+
+---
+
+## §102 — `RecommendationGenerator` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/RecommendationGeneratorTests.cs` — 8 tests using Moq for `IAdaptiveRecommendationScorer`: null guard, empty list, signal-type→title mapping, unknown type fallback, ordering by priority score, finding-id propagation, urgency mapping, and impact text per category.
+- Added `<PackageReference Include="Moq" />` to `ArchiForge.Decisioning.Tests.csproj`.
+
+---
+
+## §103 — `docs/KNOWLEDGE_GRAPH.md`: Suggested next refactors updated
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- "Suggested next refactors" section rewritten with a done/open table. Items 1, 2, 4, 5 marked complete; item 3 (policy/requirement targeting) and 4 new open items (weighted edges, persistence indexes, incremental rebuild) documented.
+
+---
+
+## §104 — OTel: SchemaValidation meter wired into `AddArchiForgeOpenTelemetry`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ObservabilityExtensions.WithMetrics` — `metrics.AddMeter(SchemaValidationService.MeterName)` added so `schema_validation_total` and `schema_validation_duration_ms` are exported to Prometheus/OTLP without any additional configuration.
+- `using ArchiForge.DecisionEngine.Validation;` added (project reference already present).
+
+---
+
+## Checklist (§95–104)
+
+- [x] 95. `FindingTypes` constants class; 10 `GetByType` string literals replaced
+- [x] 96. `GoldenManifestValidator`: PolicySection null guard + 10 unit tests
+- [x] 97. `ManifestHashService`: PolicySection in canonical hash + 6 unit tests
+- [x] 98. `AdaptiveRecommendationScorer`: 8 unit tests
+- [x] 99. `DefaultGraphEdgeInferer`: explicit `parentNodeId` → `CONTAINS_RESOURCE`
+- [x] 100. `ImprovementSignalAnalyzer`: 12 unit tests
+- [x] 101. `DefaultGraphBuilder`: 6 unit tests in `KnowledgeGraph.Tests`
+- [x] 102. `RecommendationGenerator`: 8 unit tests; Moq added to Decisioning.Tests
+- [x] 103. `docs/KNOWLEDGE_GRAPH.md`: next refactors table updated
+- [x] 104. OTel: SchemaValidation meter wired into `AddArchiForgeOpenTelemetry`

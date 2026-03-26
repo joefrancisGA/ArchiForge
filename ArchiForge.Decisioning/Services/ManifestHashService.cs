@@ -59,6 +59,7 @@ public sealed class ManifestHashService : IManifestHashService
                 .ToArray(),
             Assumptions = manifest.Assumptions.OrderBy(x => x).ToArray(),
             Warnings = manifest.Warnings.OrderBy(x => x).ToArray(),
+            manifest.Policy,
             manifest.Provenance
         });
 
