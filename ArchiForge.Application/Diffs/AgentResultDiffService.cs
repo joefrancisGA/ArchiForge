@@ -82,8 +82,8 @@ public sealed class AgentResultDiffService : IAgentResultDiffService
         List<string> leftEvidence = left?.EvidenceRefs ?? [];
         List<string> rightEvidence = right?.EvidenceRefs ?? [];
 
-        List<string> leftFindings = left?.Findings?.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
-        List<string> rightFindings = right?.Findings?.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
+        List<string> leftFindings = left?.Findings.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
+        List<string> rightFindings = right?.Findings.Select(f => f.Message).Where(m => !string.IsNullOrWhiteSpace(m)).ToList() ?? [];
 
         List<string> leftControls = left?.ProposedChanges?.RequiredControls ?? [];
         List<string> rightControls = right?.ProposedChanges?.RequiredControls ?? [];

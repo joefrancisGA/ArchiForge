@@ -55,7 +55,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         ClientResult<ChatCompletion>? response = await _chatClient.CompleteChatAsync(
             messages,
             options,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         return response.Value.Content[0].Text;
     }

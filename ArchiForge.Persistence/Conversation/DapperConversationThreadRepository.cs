@@ -32,8 +32,8 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, thread, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, thread, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -47,12 +47,12 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             WHERE ThreadId = @ThreadId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<ConversationThread>(
             new CommandDefinition(sql, new
             {
                 ThreadId = threadId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -76,7 +76,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             ORDER BY LastUpdatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<ConversationThread> rows = await connection.QueryAsync<ConversationThread>(
             new CommandDefinition(
                 sql,
@@ -87,7 +87,7 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
                     ProjectId = projectId,
                     Take = take
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
         return rows.ToList();
     }
 
@@ -100,12 +100,12 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             WHERE ThreadId = @ThreadId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await connection.ExecuteAsync(
             new CommandDefinition(sql, new
             {
                 ThreadId = threadId,
                 UpdatedUtc = updatedUtc
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 }

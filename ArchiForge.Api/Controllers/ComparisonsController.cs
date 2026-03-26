@@ -37,6 +37,8 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class ComparisonsController(
     IRunDetailQueryService runDetailQueryService,
     IRunExportRecordRepository runExportRecordRepository,
@@ -256,10 +258,8 @@ public sealed class ComparisonsController(
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
 
         ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
-        if (record is null)
-            return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found after update.", ProblemTypes.ResourceNotFound);
 
-        return Ok(new ComparisonRecordResponse { Record = record });
+        return record is null ? this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found after update.", ProblemTypes.ResourceNotFound) : Ok(new ComparisonRecordResponse { Record = record });
     }
 
     [HttpPost("comparisons/{comparisonRecordId}/replay")]

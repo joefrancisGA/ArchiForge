@@ -66,8 +66,8 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                 );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, recommendation, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<RecommendationRecord?> GetByIdAsync(Guid recommendationId, CancellationToken ct)
@@ -84,12 +84,12 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             WHERE RecommendationId = @RecommendationId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<RecommendationRecord>(
             new CommandDefinition(sql, new
             {
                 RecommendationId = recommendationId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -116,7 +116,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             ORDER BY PriorityScore DESC, CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<RecommendationRecord> result = await connection.QueryAsync<RecommendationRecord>(
             new CommandDefinition(
                 sql,
@@ -127,7 +127,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     ProjectId = projectId,
                     RunId = runId
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return result.ToList();
     }
@@ -157,7 +157,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
             ORDER BY LastUpdatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<RecommendationRecord> result = await connection.QueryAsync<RecommendationRecord>(
             new CommandDefinition(
                 sql,
@@ -169,7 +169,7 @@ public sealed class DapperRecommendationRepository(ISqlConnectionFactory connect
                     Status = status,
                     Take = Math.Clamp(take <= 0 ? 50 : take, 1, 500)
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
 
         return result.ToList();
     }

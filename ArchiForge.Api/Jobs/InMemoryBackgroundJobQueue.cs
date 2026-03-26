@@ -49,14 +49,12 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
             FileName: fileNameHint,
             ContentType: contentTypeHint);
 
-        if (!_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work)))
-        {
-            _info.TryRemove(id, out _);
-            throw new InvalidOperationException(
-                $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
-        }
-
-        return id;
+        if (_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work))) return id;
+        
+        _info.TryRemove(id, out _);
+        
+        throw new InvalidOperationException(
+            $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
     }
 
     public BackgroundJobInfo? GetInfo(string jobId)

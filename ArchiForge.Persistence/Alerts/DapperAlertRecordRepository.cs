@@ -42,8 +42,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -62,8 +62,8 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             WHERE AlertId = @AlertId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct));
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+        await connection.ExecuteAsync(new CommandDefinition(sql, alert, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     public async Task<AlertRecord?> GetByIdAsync(Guid alertId, CancellationToken ct)
@@ -80,12 +80,12 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             WHERE AlertId = @AlertId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
             new CommandDefinition(sql, new
             {
                 AlertId = alertId
-            }, cancellationToken: ct));
+            }, cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -113,7 +113,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         return await connection.QueryFirstOrDefaultAsync<AlertRecord>(
             new CommandDefinition(
                 sql,
@@ -124,7 +124,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                     ProjectId = projectId,
                     DeduplicationKey = deduplicationKey,
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -152,7 +152,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         IEnumerable<AlertRecord> rows = await connection.QueryAsync<AlertRecord>(
             new CommandDefinition(
                 sql,
@@ -164,7 +164,7 @@ public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connection
                     Status = status,
                     Take = Math.Clamp(take, 1, 500),
                 },
-                cancellationToken: ct));
+                cancellationToken: ct)).ConfigureAwait(false);
         return rows.ToList();
     }
 }

@@ -17,6 +17,8 @@ namespace ArchiForge.Api.Controllers;
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [Route("v{version:apiVersion}/jobs")]
 [ApiVersion("1.0")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
 {
     /// <summary>Returns the current status of a background job.</summary>

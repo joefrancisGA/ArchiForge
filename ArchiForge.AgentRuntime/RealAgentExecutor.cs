@@ -21,6 +21,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         IReadOnlyCollection<AgentTask> tasks,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(tasks);
@@ -40,7 +41,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 request,
                 evidence,
                 task,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             results.Add(result);
         }
