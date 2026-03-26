@@ -19,6 +19,40 @@
 - **Knowledge graph** – typed nodes/edges from `ContextSnapshot`, inference, validation, SQL JSON  
   - `docs/KNOWLEDGE_GRAPH.md`
 
+### API and contracts
+
+- **HTTP contracts** – status codes, validation, problem details  
+  - `docs/API_CONTRACTS.md`
+- **Alerts** – rules, evaluation, delivery, persistence  
+  - `docs/ALERTS.md`
+- **Typed findings schema** – payloads and versioning  
+  - `docs/FINDINGS_TYPED_SCHEMA.md`, `docs/DECISIONING_TYPED_FINDINGS.md`
+
+### Build, CLI, and operations
+
+- **Build and run** – configuration, ports, local setup  
+  - `docs/BUILD.md`
+- **CLI usage** – commands and flags  
+  - `docs/CLI_USAGE.md`
+- **CLI ↔ API plan** – implementation status and phases  
+  - `docs/CLI_API_IMPLEMENTATION_PLAN.md`
+- **Demo quickstart**  
+  - `docs/demo-quickstart.md`
+- **Replay drift runbook**  
+  - `docs/RUNBOOK_REPLAY_DRIFT.md`
+- **Rate limiting / CORS / auth** – see `README.md` and `docs/BUILD.md` (cross-links from backlog `docs/NEXT_REFACTORINGS.md`)
+
+### Contributing and process
+
+- **Test layout** – integration vs unit, traits  
+  - `docs/TEST_STRUCTURE.md`
+- **Formatting** – repo conventions  
+  - `docs/FORMATTING.md`
+- **Method documentation** – XML doc expectations  
+  - `docs/METHOD_DOCUMENTATION.md`
+- **Refactoring backlog** – completed batches (§88+) and open ideas  
+  - `docs/NEXT_REFACTORINGS.md`
+
 ### How-to guides
 
 - **Comparison replay** – formats, modes, headers, examples  

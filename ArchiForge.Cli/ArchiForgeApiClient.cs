@@ -78,6 +78,10 @@ namespace ArchiForge.Cli
             return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
         }
 
+        /// <summary>Writes unexpected failures to stderr so CLI operators see a cause when methods return null/false.</summary>
+        private static void LogCliFailure(string operation, Exception ex) =>
+            Console.Error.WriteLine($"[ArchiForge CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
+
         /// <summary>
         /// Check connectivity to the ArchiForge API (GET /health). Returns true if the API is reachable and healthy.
         /// </summary>
@@ -88,8 +92,9 @@ namespace ArchiForge.Cli
                 HttpResponseMessage response = await _http.GetAsync("/health", ct);
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure("Health check", ex);
                 return false;
             }
         }
@@ -168,8 +173,9 @@ namespace ArchiForge.Cli
 
                 return !response.IsSuccessStatusCode ? null : JsonSerializer.Deserialize<GetRunResult>(content, _jsonOptions);
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure($"GetRun({runId})", ex);
                 return null;
             }
         }
@@ -250,8 +256,9 @@ namespace ArchiForge.Cli
 
                 return JsonSerializer.Deserialize<JsonElement>(content);
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure($"GetManifest({version})", ex);
                 return null;
             }
         }
@@ -345,8 +352,9 @@ namespace ArchiForge.Cli
                     : null;
                 return new ComparisonHistoryResult { Records = list, NextCursor = nextCursor };
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure("GetComparisonHistory", ex);
                 return null;
             }
         }
@@ -454,8 +462,9 @@ namespace ArchiForge.Cli
                 HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.GetAsync(uri, cancellationToken)), ct);
                 return await response.Content.ReadAsStringAsync(ct);
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure("GetReplayDiagnosticsJson", ex);
                 return null;
             }
         }
@@ -477,8 +486,9 @@ namespace ArchiForge.Cli
                 string content = await response.Content.ReadAsStringAsync(ct);
                 return !response.IsSuccessStatusCode ? null : JsonSerializer.Deserialize<ComparisonSummary>(content, _jsonOptions);
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure($"GetComparisonSummary({comparisonRecordId})", ex);
                 return null;
             }
         }
@@ -607,8 +617,9 @@ namespace ArchiForge.Cli
 
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure($"GetComparisonDrift({comparisonRecordId})", ex);
                 return null;
             }
         }
@@ -684,8 +695,9 @@ namespace ArchiForge.Cli
                 }
                 return result;
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure("GetReplayDiagnostics", ex);
                 return null;
             }
         }
@@ -709,8 +721,9 @@ namespace ArchiForge.Cli
                 HttpResponseMessage response = await _pipeline.ExecuteAsync(cancellationToken => new ValueTask<HttpResponseMessage>(_http.SendAsync(request, cancellationToken)), ct);
                 return response.IsSuccessStatusCode;
             }
-            catch
+            catch (Exception ex)
             {
+                LogCliFailure($"UpdateComparisonRecord({comparisonRecordId})", ex);
                 return false;
             }
         }
@@ -774,9 +787,9 @@ namespace ArchiForge.Cli
                 if (root.TryGetProperty("title", out JsonElement title))
                     return title.GetString();
             }
-            catch
+            catch (Exception)
             {
-                // ignored
+                // Best-effort parse of arbitrary API error JSON; avoid stderr noise.
             }
 
             return null;

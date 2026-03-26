@@ -200,58 +200,16 @@ public sealed class ArchitectureRunService(
         ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
                               ?? throw new RunNotFoundException(runId);
 
-        // Idempotency: if the run is already committed and has a manifest version,
-        // return the existing manifest and decision traces instead of creating a new manifest version.
-        if (run.Status is ArchitectureRunStatus.Committed)
-        {
-            if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            {
-                throw new ConflictException(
-                    $"Run '{runId}' is already committed but no manifest version was recorded. " +
-                    "The run record may be corrupt; check storage integrity.");
-            }
+        CommitRunResult? idempotent = await TryReturnCommittedManifestAsync(run, runId, cancellationToken).ConfigureAwait(false);
+        if (idempotent is not null)
+            return idempotent;
 
-            GoldenManifest? existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken).ConfigureAwait(false);
-            if (existingManifest is null)
-            {
-                throw new ConflictException(
-                    $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
-                    "but the manifest could not be found in storage. " +
-                    "It may have been deleted or there is a replication lag.");
-            }
-
-            IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-
-            logger.LogInformation(
-                "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-                runId,
-                run.CurrentManifestVersion,
-                existingTraces.Count);
-
-            return new CommitRunResult
-            {
-                Manifest = existingManifest,
-                DecisionTraces = existingTraces.ToList(),
-                Warnings = []
-            };
-        }
-
-        if (run.Status != ArchitectureRunStatus.ReadyForCommit)
-        {
-            if (run.Status == ArchitectureRunStatus.Failed)
-            {
-                throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
-            }
-
-            throw new ConflictException(
-                $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
-        }
+        EnforceCommitAllowedForStatus(run, runId);
 
         ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
                                       ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-        _ = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false)
-            ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
+        await EnsureCommitPrerequisitesAsync(runId, cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
         IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
@@ -284,35 +242,10 @@ public sealed class ArchitectureRunService(
 
         if (!merge.Success)
         {
-            await runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Failed,
-                run.CurrentManifestVersion,
-                DateTime.UtcNow,
-                cancellationToken).ConfigureAwait(false);
-
-            throw new InvalidOperationException(
-                $"CommitRun failed: {string.Join("; ", merge.Errors)}");
+            await FailRunAfterMergeFailureAsync(runId, run.CurrentManifestVersion, merge.Errors, cancellationToken).ConfigureAwait(false);
         }
 
-        // Persist decision nodes, manifest, traces, and status atomically so a retry
-        // cannot produce duplicate node rows from a previous partially-committed attempt.
-        using (TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken).ConfigureAwait(false);
-            await manifestRepository.CreateAsync(merge.Manifest, cancellationToken).ConfigureAwait(false);
-            await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken).ConfigureAwait(false);
-            await runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Committed,
-                merge.Manifest.Metadata.ManifestVersion,
-                DateTime.UtcNow,
-                cancellationToken,
-                expectedStatus: ArchitectureRunStatus.ReadyForCommit).ConfigureAwait(false);
-            scope.Complete();
-        }
+        await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation(
             "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
@@ -326,6 +259,109 @@ public sealed class ArchitectureRunService(
             DecisionTraces = merge.DecisionTraces,
             Warnings = merge.Warnings
         };
+    }
+
+    /// <summary>
+    /// When the run is already <see cref="ArchitectureRunStatus.Committed"/>, loads manifest and traces and returns a result, or throws if data is inconsistent.
+    /// </summary>
+    private async Task<CommitRunResult?> TryReturnCommittedManifestAsync(
+        ArchitectureRun run,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (run.Status is not ArchitectureRunStatus.Committed)
+            return null;
+
+        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+        {
+            throw new ConflictException(
+                $"Run '{runId}' is already committed but no manifest version was recorded. " +
+                "The run record may be corrupt; check storage integrity.");
+        }
+
+        GoldenManifest? existingManifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken).ConfigureAwait(false);
+        if (existingManifest is null)
+        {
+            throw new ConflictException(
+                $"Run '{runId}' is already committed (manifest version '{run.CurrentManifestVersion}') " +
+                "but the manifest could not be found in storage. " +
+                "It may have been deleted or there is a replication lag.");
+        }
+
+        IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+
+        logger.LogInformation(
+            "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
+            runId,
+            run.CurrentManifestVersion,
+            existingTraces.Count);
+
+        return new CommitRunResult
+        {
+            Manifest = existingManifest,
+            DecisionTraces = existingTraces.ToList(),
+            Warnings = []
+        };
+    }
+
+    private static void EnforceCommitAllowedForStatus(ArchitectureRun run, string runId)
+    {
+        if (run.Status == ArchitectureRunStatus.ReadyForCommit)
+            return;
+
+        if (run.Status == ArchitectureRunStatus.Failed)
+        {
+            throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
+        }
+
+        throw new ConflictException(
+            $"Run '{runId}' cannot be committed in status '{run.Status}'. Execute the run until it reaches ReadyForCommit.");
+    }
+
+    private async Task EnsureCommitPrerequisitesAsync(string runId, CancellationToken cancellationToken)
+    {
+        _ = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException($"Evidence package for run '{runId}' was not found.");
+    }
+
+    private async Task FailRunAfterMergeFailureAsync(
+        string runId,
+        string? currentManifestVersion,
+        IReadOnlyList<string> mergeErrors,
+        CancellationToken cancellationToken)
+    {
+        await runRepository.UpdateStatusAsync(
+            runId,
+            ArchitectureRunStatus.Failed,
+            currentManifestVersion,
+            DateTime.UtcNow,
+            cancellationToken).ConfigureAwait(false);
+
+        throw new InvalidOperationException(
+            $"CommitRun failed: {string.Join("; ", mergeErrors)}");
+    }
+
+    private async Task PersistCommittedRunAsync(
+        string runId,
+        IReadOnlyList<DecisionNode> decisionNodes,
+        DecisionMergeResult merge,
+        CancellationToken cancellationToken)
+    {
+        using TransactionScope scope = new(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled);
+
+        await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken).ConfigureAwait(false);
+        await manifestRepository.CreateAsync(merge.Manifest, cancellationToken).ConfigureAwait(false);
+        await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken).ConfigureAwait(false);
+        await runRepository.UpdateStatusAsync(
+            runId,
+            ArchitectureRunStatus.Committed,
+            merge.Manifest.Metadata.ManifestVersion,
+            DateTime.UtcNow,
+            cancellationToken,
+            expectedStatus: ArchitectureRunStatus.ReadyForCommit).ConfigureAwait(false);
+        scope.Complete();
     }
 
     /// <summary>

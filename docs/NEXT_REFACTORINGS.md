@@ -1,104 +1,10 @@
-# Next five refactorings
+# Next refactorings
 
-Candidates for the next round of refactors, in rough priority order.
+**Last updated:** March 2026.
 
----
+Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
-## 1. Unify Api.Tests JSON options
-
-**Problem:** Several tests that extend `IntegrationTestBase` still use `new JsonOptions().JsonSerializerOptions` instead of the inherited `JsonOptions` (and some use it for `ReadFromJsonAsync` only, while the base also provides `JsonContent(object)`).
-
-**Change:**
-- In **ArchitectureControllerTests**, **ArchitectureDiagramTests**, and **ArchitectureSummaryTests**, replace every `new JsonOptions().JsonSerializerOptions` with `JsonOptions`, and use `JsonContent(...)` from the base where building request bodies.
-- Optionally add a single shared `JsonSerializerOptions` in a test helper if any tests don’t inherit `IntegrationTestBase` but need the same options.
-
-**Outcome:** One place to tune JSON behavior; consistent test style.
-
----
-
-## 2. Use ComparisonReplayTestFixture in end-to-end comparison tests
-
-**Problem:** **ArchitectureEndToEndComparisonExportTests** and **ArchitectureEndToEndComparisonTests** (and any similar) repeat the same flow: create run → execute → commit → replay, then call compare/export by `leftRunId`/`rightRunId`. Only **ComparisonReplayVerifyDriftIntegrationTests** currently uses **ComparisonReplayTestFixture**.
-
-**Change:**
-- In **ArchitectureEndToEndComparisonExportTests** and **ArchitectureEndToEndComparisonTests**, use `ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(Client, JsonOptions)` to obtain `(runId, replayRunId)`, then call the compare/export endpoints with those IDs.
-- Where a test needs a **persisted** comparison (e.g. for replay by `comparisonRecordId`), also use `PersistEndToEndComparisonAsync` and then hit the comparisons replay endpoint.
-
-**Outcome:** Less duplicated setup; changes to the create/execute/commit/replay flow live in one fixture.
-
----
-
-## 3. RunComparisonController: optional facade for end-to-end services
-
-**Problem:** **RunComparisonController** injects three application services for end-to-end comparison: `IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`. That’s a lot of constructor parameters and ties the API to three separate abstractions.
-
-**Change (optional):**
-- Introduce an application-level facade, e.g. **`IEndToEndComparisonFacade`** (or **`IRunComparisonAppService`**), in **ArchiForge.Application**, with methods that delegate to the existing three services. Register the facade in **Program.cs** and inject it into **RunComparisonController** for the end-to-end summary/export actions; keep agent compare and audit as-is (or also behind the facade if you want a single “run comparison” entry point).
-- Alternatively, leave the controller as-is and document that we intentionally keep the three services explicit for clarity and testability.
-
-**Outcome:** Either a thinner controller and a single “comparison” dependency for those operations, or a documented decision to keep fine-grained dependencies.
-
----
-
-## 4. Health check documentation
-
-**Problem:** The API registers `AddHealthChecks()` with a database check and maps `/health`, but this isn’t documented for operators or in BUILD/README.
-
-**Change:**
-- In **README.md** or **docs/BUILD.md**, add a short “Health” section: what `/health` returns, that it includes a DB check, and that failure is unhealthy. Optionally mention readiness vs liveness if you later split them (e.g. liveness = no deps, readiness = DB).
-
-**Outcome:** Clear contract for monitoring and runbooks.
-
----
-
-## 5. Comparison replay request validation
-
-**Problem:** The comparison replay endpoint accepts a body (format, replayMode, profile, persistReplay, etc.). Validation may be ad hoc or missing; OpenAPI and 400 responses could be more consistent.
-
-**Change:**
-- Add a **FluentValidation** validator for the comparison replay request DTO (e.g. **ReplayComparisonRequest** or whatever the bound model is). Validate format enum, replayMode, optional profile, etc.
-- Register it with **AddValidatorsFromAssemblyContaining** (or the existing pattern). Ensure the controller uses the validated model so 400 responses and Swagger reflect the same rules.
-- Optionally add a short note in **API_CONTRACTS.md** or Swagger description that validation errors return 400 with problem details.
-
-**Outcome:** Consistent validation and better API docs for replay request shape.
-
----
-
-## 6. Use ComparisonReplayTestFixture in ArchitectureComparisonReplayTests
-
-**Problem:** **ArchitectureComparisonReplayTests** repeats the same create→execute→commit→replay flow, then persists via end-to-end summary and finally calls `POST comparisons/{comparisonRecordId}/replay`. Only the last step is unique; the rest matches **ComparisonReplayTestFixture**.
-
-**Change:**
-- Use `ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(Client, JsonOptions)` to get `(runId, replayRunId)`.
-- Use `ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(Client, runId, replayRunId)` to get `comparisonRecordId`.
-- Then `POST /v1/architecture/comparisons/{comparisonRecordId}/replay` with the desired body (e.g. `{ format = "markdown" }`).
-
-**Outcome:** One less place with duplicated run/replay/persist setup; consistent with other E2E comparison tests.
-
----
-
-## 7. Audit remaining Api.Tests for JsonOptions / JsonContent
-
-**Problem:** After refactorings 1–2, some test files may still use `new JsonOptions().JsonSerializerOptions` or construct request bodies without using the base `JsonContent(object)`. Inconsistencies make it harder to change JSON behavior in one place.
-
-**Change:**
-- Grep for `new JsonOptions()` or `JsonSerializerOptions` in **ArchiForge.Api.Tests** and replace with inherited `JsonOptions` where the test extends **IntegrationTestBase**.
-- Where request bodies are built with `new StringContent(JsonSerializer.Serialize(...))`, prefer the base `JsonContent(value)` if the test has access to it.
-- Optionally add a one-line note in **TEST_STRUCTURE.md** that integration tests should use the base `JsonOptions` and `JsonContent`.
-
-**Outcome:** Full consistency across Api.Tests; single place to tune JSON for tests.
-
----
-
-## Checklist (for “integrate all changes” later)
-
-- [x] 1. Api.Tests: use `JsonOptions` / `JsonContent` from base everywhere
-- [x] 2. Api.Tests: use `ComparisonReplayTestFixture` in E2E comparison and export tests
-- [x] 3. Application + Api: optional `IEndToEndComparisonFacade` and controller refactor (or document “no facade”)
-- [x] 4. Docs: health check section in README or BUILD.md
-- [x] 5. Api: FluentValidation for comparison replay request + docs/OpenAPI alignment
-- [x] 6. Api.Tests: use `ComparisonReplayTestFixture` in **ArchitectureComparisonReplayTests** (create→execute→commit→replay→persist via fixture, then call `comparisons/{id}/replay`)
-- [x] 7. Api.Tests: audit remaining tests for `JsonOptions` / `JsonContent` — any file still using `new JsonOptions().JsonSerializerOptions` or not using base `JsonContent` should be updated for consistency
+Numbered sections **8+** below continue the living backlog (rate limits, traits, CORS, OpenTelemetry extraction, …).
 
 ---
 
@@ -927,6 +833,112 @@ The following were implemented together for safer operator APIs, tests, and back
 
 ---
 
+## Archive (completed items 1–7)
+
+<a id="archive-completed-items-17"></a>
+
+Historical detail for the first integration batch (all checkboxes done). Kept for provenance; skip when scanning for **open** work.
+
+---
+
+### 1. Unify Api.Tests JSON options
+
+**Problem:** Several tests that extend `IntegrationTestBase` still use `new JsonOptions().JsonSerializerOptions` instead of the inherited `JsonOptions` (and some use it for `ReadFromJsonAsync` only, while the base also provides `JsonContent(object)`).
+
+**Change:**
+- In **ArchitectureControllerTests**, **ArchitectureDiagramTests**, and **ArchitectureSummaryTests**, replace every `new JsonOptions().JsonSerializerOptions` with `JsonOptions`, and use `JsonContent(...)` from the base where building request bodies.
+- Optionally add a single shared `JsonSerializerOptions` in a test helper if any tests don’t inherit `IntegrationTestBase` but need the same options.
+
+**Outcome:** One place to tune JSON behavior; consistent test style.
+
+---
+
+### 2. Use ComparisonReplayTestFixture in end-to-end comparison tests
+
+**Problem:** **ArchitectureEndToEndComparisonExportTests** and **ArchitectureEndToEndComparisonTests** (and any similar) repeat the same flow: create run → execute → commit → replay, then call compare/export by `leftRunId`/`rightRunId`. Only **ComparisonReplayVerifyDriftIntegrationTests** currently uses **ComparisonReplayTestFixture**.
+
+**Change:**
+- In **ArchitectureEndToEndComparisonExportTests** and **ArchitectureEndToEndComparisonTests**, use `ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(Client, JsonOptions)` to obtain `(runId, replayRunId)`, then call the compare/export endpoints with those IDs.
+- Where a test needs a **persisted** comparison (e.g. for replay by `comparisonRecordId`), also use `PersistEndToEndComparisonAsync` and then hit the comparisons replay endpoint.
+
+**Outcome:** Less duplicated setup; changes to the create/execute/commit/replay flow live in one fixture.
+
+---
+
+### 3. RunComparisonController: optional facade for end-to-end services
+
+**Problem:** **RunComparisonController** injects three application services for end-to-end comparison: `IEndToEndReplayComparisonService`, `IEndToEndReplayComparisonSummaryFormatter`, `IEndToEndReplayComparisonExportService`. That’s a lot of constructor parameters and ties the API to three separate abstractions.
+
+**Change (optional):**
+- Introduce an application-level facade, e.g. **`IEndToEndComparisonFacade`** (or **`IRunComparisonAppService`**), in **ArchiForge.Application**, with methods that delegate to the existing three services. Register the facade in **Program.cs** and inject it into **RunComparisonController** for the end-to-end summary/export actions; keep agent compare and audit as-is (or also behind the facade if you want a single “run comparison” entry point).
+- Alternatively, leave the controller as-is and document that we intentionally keep the three services explicit for clarity and testability.
+
+**Outcome:** Either a thinner controller and a single “comparison” dependency for those operations, or a documented decision to keep fine-grained dependencies.
+
+---
+
+### 4. Health check documentation
+
+**Problem:** The API registers `AddHealthChecks()` with a database check and maps `/health`, but this isn’t documented for operators or in BUILD/README.
+
+**Change:**
+- In **README.md** or **docs/BUILD.md**, add a short “Health” section: what `/health` returns, that it includes a DB check, and that failure is unhealthy. Optionally mention readiness vs liveness if you later split them (e.g. liveness = no deps, readiness = DB).
+
+**Outcome:** Clear contract for monitoring and runbooks.
+
+---
+
+### 5. Comparison replay request validation
+
+**Problem:** The comparison replay endpoint accepts a body (format, replayMode, profile, persistReplay, etc.). Validation may be ad hoc or missing; OpenAPI and 400 responses could be more consistent.
+
+**Change:**
+- Add a **FluentValidation** validator for the comparison replay request DTO (e.g. **ReplayComparisonRequest** or whatever the bound model is). Validate format enum, replayMode, optional profile, etc.
+- Register it with **AddValidatorsFromAssemblyContaining** (or the existing pattern). Ensure the controller uses the validated model so 400 responses and Swagger reflect the same rules.
+- Optionally add a short note in **API_CONTRACTS.md** or Swagger description that validation errors return 400 with problem details.
+
+**Outcome:** Consistent validation and better API docs for replay request shape.
+
+---
+
+### 6. Use ComparisonReplayTestFixture in ArchitectureComparisonReplayTests
+
+**Problem:** **ArchitectureComparisonReplayTests** repeats the same create→execute→commit→replay flow, then persists via end-to-end summary and finally calls `POST comparisons/{comparisonRecordId}/replay`. Only the last step is unique; the rest matches **ComparisonReplayTestFixture**.
+
+**Change:**
+- Use `ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(Client, JsonOptions)` to get `(runId, replayRunId)`.
+- Use `ComparisonReplayTestFixture.PersistEndToEndComparisonAsync(Client, runId, replayRunId)` to get `comparisonRecordId`.
+- Then `POST /v1/architecture/comparisons/{comparisonRecordId}/replay` with the desired body (e.g. `{ format = "markdown" }`).
+
+**Outcome:** One less place with duplicated run/replay/persist setup; consistent with other E2E comparison tests.
+
+---
+
+### 7. Audit remaining Api.Tests for JsonOptions / JsonContent
+
+**Problem:** After refactorings 1–2, some test files may still use `new JsonOptions().JsonSerializerOptions` or construct request bodies without using the base `JsonContent(object)`. Inconsistencies make it harder to change JSON behavior in one place.
+
+**Change:**
+- Grep for `new JsonOptions()` or `JsonSerializerOptions` in **ArchiForge.Api.Tests** and replace with inherited `JsonOptions` where the test extends **IntegrationTestBase**.
+- Where request bodies are built with `new StringContent(JsonSerializer.Serialize(...))`, prefer the base `JsonContent(value)` if the test has access to it.
+- Optionally add a one-line note in **TEST_STRUCTURE.md** that integration tests should use the base `JsonOptions` and `JsonContent`.
+
+**Outcome:** Full consistency across Api.Tests; single place to tune JSON for tests.
+
+---
+
+### Checklist (items 1–7)
+
+- [x] 1. Api.Tests: use `JsonOptions` / `JsonContent` from base everywhere
+- [x] 2. Api.Tests: use `ComparisonReplayTestFixture` in E2E comparison and export tests
+- [x] 3. Application + Api: optional `IEndToEndComparisonFacade` and controller refactor (or document “no facade”)
+- [x] 4. Docs: health check section in README or BUILD.md
+- [x] 5. Api: FluentValidation for comparison replay request + docs/OpenAPI alignment
+- [x] 6. Api.Tests: use `ComparisonReplayTestFixture` in **ArchitectureComparisonReplayTests** (create→execute→commit→replay→persist via fixture, then call `comparisons/{id}/replay`)
+- [x] 7. Api.Tests: audit remaining tests for `JsonOptions` / `JsonContent` — any file still using `new JsonOptions().JsonSerializerOptions` or not using base `JsonContent` should be updated for consistency
+
+---
+
 ## §88 — KnowledgeGraph.Tests project
 
 **Status:** Done (Mar 2026).
@@ -1131,3 +1143,111 @@ The following were implemented together for safer operator APIs, tests, and back
 - [x] 102. `RecommendationGenerator`: 8 unit tests; Moq added to Decisioning.Tests
 - [x] 103. `docs/KNOWLEDGE_GRAPH.md`: next refactors table updated
 - [x] 104. OTel: SchemaValidation meter wired into `AddArchiForgeOpenTelemetry`
+
+---
+
+## §105 — `InMemoryBackgroundJobQueue`: `ILogger` + `LogError` on job failure
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Primary constructor `InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueue> logger)`; `catch` in `ExecuteAsync` calls `logger.LogError(ex, "Background job {JobId} failed.", item.JobId)` before updating failed job state.
+
+---
+
+## §106 — `ArchiForgeApiClient`: stderr logging on unexpected failures
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `LogCliFailure(operation, ex)` writes to `Console.Error` with exception type and message.
+- Bare `catch` blocks on health, get run/manifest, comparison history/drift/summary/diagnostics, update comparison replaced with `catch (Exception ex)` + `LogCliFailure`. `TryParseError` uses `catch (Exception)` with a comment (no stderr noise for garbage JSON).
+
+---
+
+## §107 — `SimpleScanScheduleCalculator` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/SimpleScanScheduleCalculatorTests.cs` — `@hourly` / `@daily` / `@weekly`, `0 7 * * *` before/after 07:00 UTC, unknown cron → +1 day, whitespace trim.
+
+---
+
+## §108 — `ArchitectureDigestBuilder` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/ArchitectureDigestBuilderTests.cs` — empty recommendations/alerts text, top-5 slice from seven items, alert lines, `MetadataJson` counts, null plan throws, `ComparedToRunId` line.
+
+---
+
+## §109 — `FindingsOrchestrator` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/FindingsOrchestratorTests.cs` — null graph throws, two engines invoked, engine exception propagates, category mismatch throws, dedupe by type+title, empty category filled from engine.
+
+---
+
+## §110 — `PolicyCoverageFindingEngine` + `RequirementCoverageFindingEngine` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `PolicyCoverageFindingEngineTests.cs` — no policy nodes, full coverage empty, uncovered resources payload; stable `EngineType`/`Category`.
+- `RequirementCoverageFindingEngineTests.cs` — all related → empty; unrelated → finding + payload; stable `EngineType`/`Category`.
+
+---
+
+## §111 — `docs/ARCHITECTURE_INDEX.md`: more doc links
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- New subsections: API and contracts; Build, CLI, operations; Contributing and process — linking `API_CONTRACTS`, `ALERTS`, findings schema docs, `BUILD`, `CLI_*`, `demo-quickstart`, `RUNBOOK_REPLAY_DRIFT`, `TEST_STRUCTURE`, `FORMATTING`, `METHOD_DOCUMENTATION`, `NEXT_REFACTORINGS`.
+
+---
+
+## §112 — `ArchitectureRunService.CommitRunAsync`: extracted private helpers
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `TryReturnCommittedManifestAsync`, `EnforceCommitAllowedForStatus`, `EnsureCommitPrerequisitesAsync`, `FailRunAfterMergeFailureAsync`, `PersistCommittedRunAsync`; public `CommitRunAsync` is orchestration-only.
+
+---
+
+## §113 — `InMemoryBackgroundJobQueue` unit tests (capacity + eviction + failure)
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Api.Tests/InMemoryBackgroundJobQueueTests.cs` — channel full → `InvalidOperationException`; work throws → failed state + `Error` message; 201 sequential completions with small delay → oldest job evicted from `GetInfo`.
+
+---
+
+## §114 — `docs/NEXT_REFACTORINGS.md`: archive items 1–7; front matter trimmed
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Top of file: short “last updated” note + pointer to anchor `archive-completed-items-17`; living backlog starts at §8.
+- Before §88: full **Archive (completed items 1–7)** section with original §1–§7 text and checklist.
+
+---
+
+## Checklist (§105–114)
+
+- [x] 105. `InMemoryBackgroundJobQueue`: `ILogger` + `LogError` on failure
+- [x] 106. `ArchiForgeApiClient`: `LogCliFailure` / explicit exception catches
+- [x] 107. `SimpleScanScheduleCalculator` tests
+- [x] 108. `ArchitectureDigestBuilder` tests
+- [x] 109. `FindingsOrchestrator` tests
+- [x] 110. Policy + requirement coverage engine tests
+- [x] 111. `ARCHITECTURE_INDEX.md` expanded
+- [x] 112. `CommitRunAsync` refactor into private methods
+- [x] 113. `InMemoryBackgroundJobQueue` tests (Api.Tests)
+- [x] 114. `NEXT_REFACTORINGS` archive + intro

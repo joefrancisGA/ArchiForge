@@ -3,9 +3,11 @@ using System.Threading.Channels;
 
 using JetBrains.Annotations;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.Api.Jobs;
 
-public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJobQueue
+public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueue> logger) : BackgroundService, IBackgroundJobQueue
 {
     private sealed record WorkItem(
         string JobId,
@@ -101,6 +103,8 @@ public sealed class InMemoryBackgroundJobQueue : BackgroundService, IBackgroundJ
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Background job {JobId} failed.", item.JobId);
+
                 BackgroundJobInfo failed = _info[item.JobId];
                 _info[item.JobId] = failed with
                 {
