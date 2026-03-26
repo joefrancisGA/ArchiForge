@@ -1359,3 +1359,126 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 122. `GraphSnapshotReuseEvaluator` + orchestrator + tests
 - [x] 123. `NEXT_REFACTORINGS` §115–124 documentation
 - [x] 124. `PolicyViolation` advisory signal end-to-end
+
+---
+
+## §125 — `FindingPayloadValidator`: replace private constants with `FindingTypes.*`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Deleted 10 private string constants from `FindingPayloadValidator`.
+- All finding-type comparisons now reference `FindingTypes.RequirementFinding`, `FindingTypes.TopologyGap`, etc.
+- Added `using ArchiForge.Decisioning.Findings;`. Compiler now catches any type-name drift.
+
+---
+
+## §126 — `AlertCategories` + `AlertUrgencies` constant classes
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning/Alerts/AlertCategories.cs` — Advisory, Compliance, Security, Cost, Recommendation, Learning, CompositeAlert.
+- `ArchiForge.Decisioning/Alerts/AlertUrgencies.cs` — Critical, High.
+- `AlertEvaluator` replaced all six category literals and two urgency literals; `CompositeAlertService` replaced its private `CompositeAlertCategory` constant.
+
+---
+
+## §127 — `AlertEvaluatorTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AlertEvaluatorTests.cs` — 12 tests across all six rule types (disabled-rule guard; CriticalRecommendationCount: below/at-threshold/null-plan; NewComplianceGapCount: below/at; CostIncreasePercent: no-delta/below/at; DeferredHighPriorityAge: recent/old-enough/low-score; RejectedSecurityRecommendation: non-security/security; AcceptanceRateDrop: null-profile/above/below threshold).
+
+---
+
+## §128 — `AlertNoiseScorerTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AlertNoiseScorerTests.cs` — 10 tests covering CoverageScore (zero/scales/cap-at-40), NoisePenalty (below-min/above-max/in-band), SuppressionPenalty (high-ratio/none), DensityPenalty (above-one/at-one), FinalScore arithmetic, and always-present summary notes.
+
+---
+
+## §129 — `PolicyApplicabilityFindingEngineTests` expanded
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Added two new scenarios to `PolicyApplicabilityFindingEngineTests.cs`:
+  - `NoPolicyNodes_ReturnsEmpty` — only topology nodes, no engine output.
+  - `PolicyNodeWithNoTopologyResources_ReturnsEmpty` — policy node present but `topologyCount == 0`, engine skips gap finding.
+- Existing two tests (info-finding with APPLIES_TO, warning-finding without APPLIES_TO) preserved.
+
+---
+
+## §130 — `AlertService`: extract `PersistAndDeliverAlertAsync`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Private `PersistAndDeliverAlertAsync(alert, context, ct) → bool` extracted from `EvaluateAndPersistAsync` inner loop.
+- Returns `false` when a duplicate dedup key already exists; `true` when alert was newly persisted, audited, and delivered.
+- `EvaluateAndPersistAsync` loop body is now a single call + conditional `persisted.Add`.
+
+---
+
+## §131 — `AlertGovernanceResolver` shared helper
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Persistence/Alerts/Helpers/AlertGovernanceResolver.cs` — internal static `ResolveAsync(context, loader, ct)` that short-circuits when `EffectiveGovernanceContent` is already set.
+- Both `AlertService` and `CompositeAlertService` replaced their inline governance-loading expressions with `AlertGovernanceResolver.ResolveAsync(...)`.
+
+---
+
+## §132 — `AuthorityReplayServiceTests`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/AuthorityReplayServiceTests.cs` — 4 tests:
+  - Unknown RunId → returns null.
+  - `ReconstructOnly` → decision engine and artifact synthesis never called.
+  - `RebuildManifest` → decision engine called once; artifact synthesis not called; `RebuiltManifest` set.
+  - `RebuildArtifacts` → both decision engine and artifact synthesis called once; `RebuiltArtifactBundle` set.
+
+---
+
+## §133 — `GoldenManifestValidator`: `PolicySection` list null guards
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `GoldenManifestValidator.Validate` now checks `Policy.SatisfiedControls`, `Policy.Violations`, and `Policy.Exemptions` for null after the section-level null check.
+- Added three tests to `GoldenManifestValidatorTests.cs`: each list null → `InvalidOperationException` with the list name in the message.
+
+---
+
+## §134 — `InfrastructureDeclarationConnector.DeltaAsync`: object-count summary
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `DeltaAsync` now compares `current.CanonicalObjects.Count` vs `previous?.CanonicalObjects.Count`.
+- Returns `"Initial infrastructure declaration ingestion: {n} object(s)."` when no prior snapshot exists.
+- Returns `"… no count change."` when counts match; `"… (Δ{diff:+#;-#;0} from prior snapshot)."` when they differ.
+- Removed the `_ = current;` discard — `current` is now meaningfully consumed.
+
+---
+
+## Checklist (§125–134)
+
+- [x] 125. `FindingPayloadValidator` — replace 10 private constants with `FindingTypes.*`
+- [x] 126. `AlertCategories` + `AlertUrgencies` constant classes; wire into `AlertEvaluator` + `CompositeAlertService`
+- [x] 127. `AlertEvaluatorTests` — 12 tests across all 6 rule types
+- [x] 128. `AlertNoiseScorerTests` — 10 score-component tests
+- [x] 129. `PolicyApplicabilityFindingEngineTests` — 2 additional scenarios (total 4)
+- [x] 130. `AlertService.PersistAndDeliverAlertAsync` extraction
+- [x] 131. `AlertGovernanceResolver` shared helper wired into both alert services
+- [x] 132. `AuthorityReplayServiceTests` — 4 path tests
+- [x] 133. `GoldenManifestValidator` `PolicySection` list null guards + 3 tests
+- [x] 134. `InfrastructureDeclarationConnector.DeltaAsync` meaningful object-count delta

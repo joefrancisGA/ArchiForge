@@ -48,13 +48,25 @@ public class InfrastructureDeclarationConnector(IEnumerable<IInfrastructureDecla
         ContextSnapshot? previous,
         CancellationToken ct)
     {
-        _ = current;
         _ = ct;
-        return Task.FromResult(new ContextDelta
+
+        int currentCount = current.CanonicalObjects.Count;
+
+        if (previous is null)
         {
-            Summary = previous is null
-                ? "Initial infrastructure declaration ingestion"
-                : "Updated infrastructure declaration ingestion"
-        });
+            return Task.FromResult(new ContextDelta
+            {
+                Summary = $"Initial infrastructure declaration ingestion: {currentCount} object(s)."
+            });
+        }
+
+        int previousCount = previous.CanonicalObjects.Count;
+        int diff = currentCount - previousCount;
+
+        string summary = diff == 0
+            ? $"Infrastructure declaration ingestion: {currentCount} object(s), no count change."
+            : $"Infrastructure declaration ingestion: {currentCount} object(s) (\u0394{diff:+#;-#;0} from prior snapshot).";
+
+        return Task.FromResult(new ContextDelta { Summary = summary });
     }
 }

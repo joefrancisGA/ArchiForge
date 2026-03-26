@@ -155,4 +155,40 @@ public sealed class GoldenManifestValidatorTests
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("*Policy*");
     }
+
+    [Fact]
+    public void Validate_NullPolicySatisfiedControls_Throws()
+    {
+        GoldenManifest manifest = ValidManifest();
+        manifest.Policy.SatisfiedControls = null!;
+
+        Action act = () => _sut.Validate(manifest);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*SatisfiedControls*");
+    }
+
+    [Fact]
+    public void Validate_NullPolicyViolations_Throws()
+    {
+        GoldenManifest manifest = ValidManifest();
+        manifest.Policy.Violations = null!;
+
+        Action act = () => _sut.Validate(manifest);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Violations*");
+    }
+
+    [Fact]
+    public void Validate_NullPolicyExemptions_Throws()
+    {
+        GoldenManifest manifest = ValidManifest();
+        manifest.Policy.Exemptions = null!;
+
+        Action act = () => _sut.Validate(manifest);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Exemptions*");
+    }
 }

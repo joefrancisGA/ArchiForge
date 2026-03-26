@@ -62,10 +62,48 @@ public sealed class PolicyApplicabilityFindingEngineTests
         IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
 
         FindingPayloadValidator payloadValidator = new();
+
         foreach (Finding finding in findings)
             payloadValidator.Validate(finding);
 
         findings.Should().ContainSingle(x =>
             x.FindingType == "PolicyApplicabilityFinding" && x.Severity == FindingSeverity.Warning);
+    }
+
+    [Fact]
+    public async Task NoPolicyNodes_ReturnsEmpty()
+    {
+        PolicyApplicabilityFindingEngine engine = new();
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "t1", NodeType = "TopologyResource", Label = "vnet", Category = "network", Properties = new() }
+            ],
+            Edges = []
+        };
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PolicyNodeWithNoTopologyResources_ReturnsEmpty()
+    {
+        // topologyCount == 0, policy has no APPLIES_TO targets → engine skips gap finding
+        PolicyApplicabilityFindingEngine engine = new();
+        GraphSnapshot graph = new()
+        {
+            Nodes =
+            [
+                new GraphNode { NodeId = "p1", NodeType = "PolicyControl", Label = "Encryption", Properties = new() }
+            ],
+            Edges = []
+        };
+
+        IReadOnlyList<Finding> findings = await engine.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().BeEmpty();
     }
 }

@@ -1,3 +1,4 @@
+using ArchiForge.Decisioning.Findings;
 using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Interfaces;
@@ -7,17 +8,6 @@ namespace ArchiForge.Decisioning.Services;
 
 public class FindingPayloadValidator : IFindingPayloadValidator
 {
-    private const string FindingTypeRequirementFinding = "RequirementFinding";
-    private const string FindingTypeTopologyGap = "TopologyGap";
-    private const string FindingTypeSecurityControlFinding = "SecurityControlFinding";
-    private const string FindingTypeCostConstraintFinding = "CostConstraintFinding";
-    private const string FindingTypePolicyApplicabilityFinding = "PolicyApplicabilityFinding";
-    private const string FindingTypeTopologyCoverageFinding = "TopologyCoverageFinding";
-    private const string FindingTypeSecurityCoverageFinding = "SecurityCoverageFinding";
-    private const string FindingTypePolicyCoverageFinding = "PolicyCoverageFinding";
-    private const string FindingTypeRequirementCoverageFinding = "RequirementCoverageFinding";
-    private const string FindingTypeComplianceFinding = "ComplianceFinding";
-
     public void Validate(Finding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
@@ -34,61 +24,65 @@ public class FindingPayloadValidator : IFindingPayloadValidator
         if (finding.Payload is null && !string.IsNullOrWhiteSpace(finding.PayloadType))
             throw new InvalidOperationException("PayloadType was set but Payload is null.");
 
-        if (finding.FindingType.Equals(FindingTypeRequirementFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.RequirementFinding, StringComparison.OrdinalIgnoreCase))
         {
             _ = FindingPayloadConverter.ToRequirementPayload(finding) ?? throw new InvalidOperationException("RequirementFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypeTopologyGap, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.TopologyGap, StringComparison.OrdinalIgnoreCase))
         {
             _ = FindingPayloadConverter.ToTopologyGapPayload(finding) ?? throw new InvalidOperationException("TopologyGap payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypeSecurityControlFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.SecurityControlFinding, StringComparison.OrdinalIgnoreCase))
         {
             SecurityControlFindingPayload? payload = FindingPayloadConverter.ToSecurityControlPayload(finding);
+
             if (payload is null)
                 throw new InvalidOperationException("SecurityControlFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypeCostConstraintFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.CostConstraintFinding, StringComparison.OrdinalIgnoreCase))
         {
             CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
+
             if (payload is null)
                 throw new InvalidOperationException("CostConstraintFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypePolicyApplicabilityFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.PolicyApplicabilityFinding, StringComparison.OrdinalIgnoreCase))
         {
             _ = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding) ?? throw new InvalidOperationException("PolicyApplicabilityFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypeTopologyCoverageFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.TopologyCoverageFinding, StringComparison.OrdinalIgnoreCase))
         {
             _ = FindingPayloadConverter.ToTopologyCoveragePayload(finding) ?? throw new InvalidOperationException("TopologyCoverageFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypeSecurityCoverageFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.SecurityCoverageFinding, StringComparison.OrdinalIgnoreCase))
         {
             _ = FindingPayloadConverter.ToSecurityCoveragePayload(finding) ?? throw new InvalidOperationException("SecurityCoverageFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypePolicyCoverageFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.PolicyCoverageFinding, StringComparison.OrdinalIgnoreCase))
         {
             _ = FindingPayloadConverter.ToPolicyCoveragePayload(finding) ?? throw new InvalidOperationException("PolicyCoverageFinding payload is invalid.");
         }
 
-        if (finding.FindingType.Equals(FindingTypeRequirementCoverageFinding, StringComparison.OrdinalIgnoreCase))
+        if (finding.FindingType.Equals(FindingTypes.RequirementCoverageFinding, StringComparison.OrdinalIgnoreCase))
         {
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
+
             if (payload is null)
                 throw new InvalidOperationException("RequirementCoverageFinding payload is invalid.");
         }
 
-        if (!finding.FindingType.Equals(FindingTypeComplianceFinding, StringComparison.OrdinalIgnoreCase)) return;
+        if (!finding.FindingType.Equals(FindingTypes.ComplianceFinding, StringComparison.OrdinalIgnoreCase)) return;
 
         {
             ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
+
             if (payload is null)
                 throw new InvalidOperationException("ComplianceFinding payload is invalid.");
         }

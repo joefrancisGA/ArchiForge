@@ -4,6 +4,7 @@ using ArchiForge.Core.Audit;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchiForge.Persistence.Alerts.Helpers;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -44,8 +45,8 @@ public sealed class AlertService(
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
-        PolicyPackContentDocument effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
-            .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
+        PolicyPackContentDocument effective = await AlertGovernanceResolver
+            .ResolveAsync(context, effectiveGovernanceLoader, ct)
             .ConfigureAwait(false);
 
         rules = PolicyPackGovernanceFilter.FilterAlertRules(rules, effective);
@@ -55,41 +56,57 @@ public sealed class AlertService(
 
         foreach (AlertRecord alert in generated)
         {
-            AlertRecord? existing = await alertRepository
-                .GetOpenByDeduplicationKeyAsync(
-                    context.TenantId,
-                    context.WorkspaceId,
-                    context.ProjectId,
-                    alert.DeduplicationKey,
-                    ct)
-                .ConfigureAwait(false);
+            bool wasCreated = await PersistAndDeliverAlertAsync(alert, context, ct).ConfigureAwait(false);
 
-            if (existing is not null)
-                continue;
-
-            await alertRepository.CreateAsync(alert, ct).ConfigureAwait(false);
-            persisted.Add(alert);
-
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.AlertTriggered,
-                    RunId = context.RunId,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        alertId = alert.AlertId,
-                        ruleId = alert.RuleId,
-                        alert.Title,
-                        alert.Severity,
-                        alert.DeduplicationKey,
-                    }),
-                },
-                ct).ConfigureAwait(false);
-
-            await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
+            if (wasCreated)
+                persisted.Add(alert);
         }
 
         return new AlertEvaluationOutcome(generated, persisted);
+    }
+
+    /// <summary>
+    /// Deduplicates, persists, audits, and delivers a single generated alert.
+    /// </summary>
+    /// <returns><c>true</c> when the alert was new and persisted; <c>false</c> when a duplicate already existed.</returns>
+    private async Task<bool> PersistAndDeliverAlertAsync(
+        AlertRecord alert,
+        AlertEvaluationContext context,
+        CancellationToken ct)
+    {
+        AlertRecord? existing = await alertRepository
+            .GetOpenByDeduplicationKeyAsync(
+                context.TenantId,
+                context.WorkspaceId,
+                context.ProjectId,
+                alert.DeduplicationKey,
+                ct)
+            .ConfigureAwait(false);
+
+        if (existing is not null)
+            return false;
+
+        await alertRepository.CreateAsync(alert, ct).ConfigureAwait(false);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.AlertTriggered,
+                RunId = context.RunId,
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    alertId = alert.AlertId,
+                    ruleId = alert.RuleId,
+                    alert.Title,
+                    alert.Severity,
+                    alert.DeduplicationKey,
+                }),
+            },
+            ct).ConfigureAwait(false);
+
+        await alertDeliveryDispatcher.DeliverAsync(alert, ct).ConfigureAwait(false);
+
+        return true;
     }
 
     /// <summary>

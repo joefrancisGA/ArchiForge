@@ -63,8 +63,8 @@ public sealed class AlertEvaluator : IAlertEvaluator
         List<AlertRecord> alerts)
     {
         int count = context.ImprovementPlan?.Recommendations.Count(x =>
-            string.Equals(x.Urgency, "Critical", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(x.Urgency, "High", StringComparison.OrdinalIgnoreCase)) ?? 0;
+            string.Equals(x.Urgency, AlertUrgencies.Critical, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(x.Urgency, AlertUrgencies.High, StringComparison.OrdinalIgnoreCase)) ?? 0;
 
         if (count >= rule.ThresholdValue)
         {
@@ -72,7 +72,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 rule,
                 context,
                 title: "High number of critical/high-priority recommendations detected",
-                category: "Advisory",
+                category: AlertCategories.Advisory,
                 triggerValue: count.ToString(),
                 description: $"The current improvement plan contains {count} critical or high-priority recommendations.",
                 recommendationId: null,
@@ -93,7 +93,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 rule,
                 context,
                 title: "New compliance or security delta threshold exceeded",
-                category: "Compliance",
+                category: AlertCategories.Compliance,
                 triggerValue: count.ToString(),
                 description: $"The latest comparison produced {count} relevant compliance/security deltas.",
                 recommendationId: null,
@@ -107,6 +107,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         List<AlertRecord> alerts)
     {
         CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
+
         if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
             return;
 
@@ -118,7 +119,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 rule,
                 context,
                 title: "Projected cost increase exceeded threshold",
-                category: "Cost",
+                category: AlertCategories.Cost,
                 triggerValue: $"{increasePct:0.##}%",
                 description: $"Projected cost increased by {increasePct:0.##}% compared to the baseline run.",
                 recommendationId: null,
@@ -133,7 +134,21 @@ public sealed class AlertEvaluator : IAlertEvaluator
     {
         DateTime cutoff = DateTime.UtcNow.AddDays(-(double)rule.ThresholdValue);
 
-        alerts.AddRange(context.RecommendationRecords.Where(x => string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) && x.PriorityScore >= 80 && x.LastUpdatedUtc <= cutoff).Select(item => BuildAlert(rule, context, title: "Deferred high-priority recommendation is aging", category: "Recommendation", triggerValue: item.LastUpdatedUtc.ToString("u"), description: $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.", recommendationId: item.RecommendationId, dedupeSuffix: $"deferred-aging:{item.RecommendationId}")));
+        alerts.AddRange(
+            context.RecommendationRecords
+                .Where(x =>
+                    string.Equals(x.Status, RecommendationStatus.Deferred, StringComparison.OrdinalIgnoreCase) &&
+                    x.PriorityScore >= 80 &&
+                    x.LastUpdatedUtc <= cutoff)
+                .Select(item => BuildAlert(
+                    rule,
+                    context,
+                    title: "Deferred high-priority recommendation is aging",
+                    category: AlertCategories.Recommendation,
+                    triggerValue: item.LastUpdatedUtc.ToString("u"),
+                    description: $"Recommendation '{item.Title}' has remained deferred beyond the configured threshold.",
+                    recommendationId: item.RecommendationId,
+                    dedupeSuffix: $"deferred-aging:{item.RecommendationId}")));
     }
 
     private static void EvaluateRejectedSecurityRecommendation(
@@ -141,7 +156,20 @@ public sealed class AlertEvaluator : IAlertEvaluator
         AlertEvaluationContext context,
         List<AlertRecord> alerts)
     {
-        alerts.AddRange(context.RecommendationRecords.Where(x => string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) && x.Category.Equals("Security", StringComparison.OrdinalIgnoreCase)).Select(item => BuildAlert(rule, context, title: "Security recommendation was rejected", category: "Security", triggerValue: item.RecommendationId.ToString(), description: $"Security recommendation '{item.Title}' was rejected.", recommendationId: item.RecommendationId, dedupeSuffix: $"rejected-security:{item.RecommendationId}")));
+        alerts.AddRange(
+            context.RecommendationRecords
+                .Where(x =>
+                    string.Equals(x.Status, RecommendationStatus.Rejected, StringComparison.OrdinalIgnoreCase) &&
+                    x.Category.Equals(AlertCategories.Security, StringComparison.OrdinalIgnoreCase))
+                .Select(item => BuildAlert(
+                    rule,
+                    context,
+                    title: "Security recommendation was rejected",
+                    category: AlertCategories.Security,
+                    triggerValue: item.RecommendationId.ToString(),
+                    description: $"Security recommendation '{item.Title}' was rejected.",
+                    recommendationId: item.RecommendationId,
+                    dedupeSuffix: $"rejected-security:{item.RecommendationId}")));
     }
 
     private static void EvaluateAcceptanceRateDrop(
@@ -150,6 +178,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
         List<AlertRecord> alerts)
     {
         RecommendationLearningProfile? profile = context.LearningProfile;
+
         if (profile is null)
             return;
 
@@ -166,7 +195,7 @@ public sealed class AlertEvaluator : IAlertEvaluator
                 rule,
                 context,
                 title: "Recommendation acceptance rate is below threshold",
-                category: "Learning",
+                category: AlertCategories.Learning,
                 triggerValue: $"{pct:0.##}%",
                 description: $"Overall recommendation acceptance rate is {pct:0.##}%, below the configured threshold.",
                 recommendationId: null,

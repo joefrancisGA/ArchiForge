@@ -36,6 +36,15 @@ public class GoldenManifestValidator : IGoldenManifestValidator
 
         if (manifest.Policy is null)
             throw new InvalidOperationException("Policy section is required.");
+
+        if (manifest.Policy.SatisfiedControls is null)
+            throw new InvalidOperationException("Policy.SatisfiedControls list must be initialized.");
+
+        if (manifest.Policy.Violations is null)
+            throw new InvalidOperationException("Policy.Violations list must be initialized.");
+
+        if (manifest.Policy.Exemptions is null)
+            throw new InvalidOperationException("Policy.Exemptions list must be initialized.");
     }
 }
 

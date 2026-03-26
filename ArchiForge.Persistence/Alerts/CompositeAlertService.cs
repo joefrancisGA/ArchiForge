@@ -5,6 +5,7 @@ using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
+using ArchiForge.Persistence.Alerts.Helpers;
 
 namespace ArchiForge.Persistence.Alerts;
 
@@ -32,7 +33,6 @@ public sealed class CompositeAlertService(
     IAuditService auditService,
     IEffectiveGovernanceLoader effectiveGovernanceLoader) : ICompositeAlertService
 {
-    private const string CompositeAlertCategory = "CompositeAlert";
     /// <summary>
     /// Loads composite rules, filters with <see cref="PolicyPackGovernanceFilter.FilterCompositeRules"/>, evaluates each rule, and persists non-suppressed matches.
     /// </summary>
@@ -49,8 +49,8 @@ public sealed class CompositeAlertService(
             .ListEnabledByScopeAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
             .ConfigureAwait(false);
 
-        PolicyPackContentDocument effective = context.EffectiveGovernanceContent ?? await effectiveGovernanceLoader
-            .LoadEffectiveContentAsync(context.TenantId, context.WorkspaceId, context.ProjectId, ct)
+        PolicyPackContentDocument effective = await AlertGovernanceResolver
+            .ResolveAsync(context, effectiveGovernanceLoader, ct)
             .ConfigureAwait(false);
 
         rules = PolicyPackGovernanceFilter.FilterCompositeRules(rules, effective);
@@ -100,7 +100,7 @@ public sealed class CompositeAlertService(
                 RunId = context.RunId,
                 ComparedToRunId = context.ComparedToRunId,
                 Title = $"Composite alert: {rule.Name}",
-                Category = CompositeAlertCategory,
+                Category = AlertCategories.CompositeAlert,
                 Severity = rule.Severity,
                 Status = AlertStatus.Open,
                 TriggerValue = triggerSummary,
