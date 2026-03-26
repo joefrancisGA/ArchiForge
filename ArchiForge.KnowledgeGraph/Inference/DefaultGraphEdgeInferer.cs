@@ -5,6 +5,15 @@ namespace ArchiForge.KnowledgeGraph.Inference;
 
 public class DefaultGraphEdgeInferer : IGraphEdgeInferer
 {
+    private const double WeightContextContains = 0.55d;
+    private const double WeightExplicitParentChild = 1d;
+    private const double WeightHeuristicTopologyContainment = 0.5d;
+    private const double WeightSecurityBroad = 0.3d;
+    private const double WeightPolicyBroad = 0.35d;
+    private const double WeightPolicyTargeted = 1d;
+    private const double WeightRequirementHeuristic = 0.45d;
+    private const double WeightRequirementTargeted = 1d;
+
     public IReadOnlyList<GraphEdge> InferEdges(
         ContextSnapshot contextSnapshot,
         IReadOnlyList<GraphNode> nodes)
@@ -20,27 +29,20 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         List<GraphNode> policyNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.PolicyControl).ToList();
         List<GraphNode> requirementNodes = nodes.Where(x => x.NodeType == GraphNodeTypes.Requirement).ToList();
 
-        edges.AddRange(nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot).Select(node => CreateEdge(contextNodeId, node.NodeId, GraphEdgeTypes.Contains, "contains")));
+        edges.AddRange(nodes.Where(x => x.NodeType != GraphNodeTypes.ContextSnapshot).Select(node =>
+            CreateEdge(contextNodeId, node.NodeId, GraphEdgeTypes.Contains, "contains", WeightContextContains)));
 
-        // Build a lookup so explicit parent/child edges can be resolved in O(n).
         Dictionary<string, GraphNode> nodeById = nodes.ToDictionary(n => n.NodeId, StringComparer.OrdinalIgnoreCase);
 
         InferExplicitParentChildContainment(edges, nodes, nodeById);
         InferTopologyContainment(edges, topologyNodes);
         InferSecurityProtection(edges, securityNodes, topologyNodes);
-        InferPolicyApplicability(edges, policyNodes, topologyNodes);
-        InferRequirementRelevance(edges, requirementNodes, topologyNodes);
+        InferPolicyApplicability(edges, policyNodes, topologyNodes, nodeById);
+        InferRequirementRelevance(edges, requirementNodes, topologyNodes, nodeById);
 
         return Deduplicate(edges);
     }
 
-    /// <summary>
-    /// Creates a <see cref="GraphEdgeTypes.ContainsResource"/> edge when a node carries an
-    /// explicit <c>parentNodeId</c> property pointing to another node in the snapshot.
-    /// This complements the heuristic label/category logic in <see cref="InferTopologyContainment"/>
-    /// and is the authoritative path for nodes that were built with known parent relationships
-    /// (e.g. a subnet referencing its parent VNet by ID).
-    /// </summary>
     private static void InferExplicitParentChildContainment(
         List<GraphEdge> edges,
         IReadOnlyList<GraphNode> nodes,
@@ -57,7 +59,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             if (!nodeById.ContainsKey(parentId))
                 continue;
 
-            edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource"));
+            edges.Add(CreateEdge(parentId, node.NodeId, GraphEdgeTypes.ContainsResource, "contains resource", WeightExplicitParentChild));
         }
     }
 
@@ -81,7 +83,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                     network.NodeId,
                     subnet.NodeId,
                     GraphEdgeTypes.ContainsResource,
-                    "contains resource"));
+                    "contains resource",
+                    WeightHeuristicTopologyContainment));
             }
         }
     }
@@ -99,7 +102,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                     security.NodeId,
                     resource.NodeId,
                     GraphEdgeTypes.Protects,
-                    "protects"));
+                    "protects",
+                    WeightSecurityBroad));
             }
         }
     }
@@ -107,17 +111,38 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private static void InferPolicyApplicability(
         List<GraphEdge> edges,
         List<GraphNode> policyNodes,
-        List<GraphNode> topologyNodes)
+        List<GraphNode> topologyNodes,
+        Dictionary<string, GraphNode> nodeById)
     {
         foreach (GraphNode policy in policyNodes)
         {
+            HashSet<string>? targeted = ParseTargetNodeIds(policy.Properties, CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds);
+            if (targeted is not null && targeted.Count > 0)
+            {
+                foreach (GraphNode resource in topologyNodes)
+                {
+                    if (!targeted.Contains(resource.NodeId))
+                        continue;
+
+                    edges.Add(CreateEdge(
+                        policy.NodeId,
+                        resource.NodeId,
+                        GraphEdgeTypes.AppliesTo,
+                        "applies to",
+                        WeightPolicyTargeted));
+                }
+
+                continue;
+            }
+
             foreach (GraphNode resource in topologyNodes)
             {
                 edges.Add(CreateEdge(
                     policy.NodeId,
                     resource.NodeId,
                     GraphEdgeTypes.AppliesTo,
-                    "applies to"));
+                    "applies to",
+                    WeightPolicyBroad));
             }
         }
     }
@@ -125,10 +150,30 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     private static void InferRequirementRelevance(
         List<GraphEdge> edges,
         List<GraphNode> requirementNodes,
-        List<GraphNode> topologyNodes)
+        List<GraphNode> topologyNodes,
+        Dictionary<string, GraphNode> nodeById)
     {
         foreach (GraphNode requirement in requirementNodes)
         {
+            HashSet<string>? targeted = ParseTargetNodeIds(requirement.Properties, CanonicalGraphPropertyKeys.RelatedTopologyNodeIds);
+            if (targeted is not null && targeted.Count > 0)
+            {
+                foreach (GraphNode resource in topologyNodes)
+                {
+                    if (!targeted.Contains(resource.NodeId))
+                        continue;
+
+                    edges.Add(CreateEdge(
+                        requirement.NodeId,
+                        resource.NodeId,
+                        GraphEdgeTypes.RelatesTo,
+                        "relates to",
+                        WeightRequirementTargeted));
+                }
+
+                continue;
+            }
+
             string requirementText = requirement.Properties.TryGetValue("text", out string? text)
                 ? text
                 : requirement.Label;
@@ -141,10 +186,26 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                         requirement.NodeId,
                         resource.NodeId,
                         GraphEdgeTypes.RelatesTo,
-                        "relates to"));
+                        "relates to",
+                        WeightRequirementHeuristic));
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Parses comma-separated node ids; returns <see langword="null"/> when the key is missing or empty.
+    /// </summary>
+    private static HashSet<string>? ParseTargetNodeIds(Dictionary<string, string> properties, string key)
+    {
+        if (!properties.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (parts.Length == 0)
+            return null;
+
+        return parts.ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool LooksRelevant(string requirementText, GraphNode resource)
@@ -172,7 +233,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
         string fromNodeId,
         string toNodeId,
         string edgeType,
-        string label)
+        string label,
+        double weight)
     {
         return new GraphEdge
         {
@@ -180,7 +242,8 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             FromNodeId = fromNodeId,
             ToNodeId = toNodeId,
             EdgeType = edgeType,
-            Label = label
+            Label = label,
+            Weight = weight
         };
     }
 
@@ -190,7 +253,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
             .GroupBy(
                 x => $"{x.FromNodeId}|{x.ToNodeId}|{x.EdgeType}",
                 StringComparer.OrdinalIgnoreCase)
-            .Select(g => g.First())
+            .Select(g => g.OrderByDescending(e => e.Weight).First())
             .ToList();
     }
 }

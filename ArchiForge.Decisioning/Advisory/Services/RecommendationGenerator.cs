@@ -47,37 +47,40 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
     private static string BuildTitle(ImprovementSignal signal) =>
         signal.SignalType switch
         {
-            "UncoveredRequirement" => "Cover an uncovered requirement",
-            "SecurityGap" => "Close a security protection gap",
-            "ComplianceGap" => "Address a compliance control gap",
-            "TopologyGap" => "Improve topology completeness",
-            "CostRisk" => "Reduce a cost risk",
-            "SecurityRegression" => "Reverse a security regression",
-            "CostIncrease" => "Reduce increased projected cost",
-            "UnresolvedIssue" => $"Resolve: {signal.Title}",
-            "DecisionRemoved" => "Restore or replace removed architecture decision",
+            ImprovementSignalTypes.UncoveredRequirement => "Cover an uncovered requirement",
+            ImprovementSignalTypes.SecurityGap => "Close a security protection gap",
+            ImprovementSignalTypes.ComplianceGap => "Address a compliance control gap",
+            ImprovementSignalTypes.TopologyGap => "Improve topology completeness",
+            ImprovementSignalTypes.CostRisk => "Reduce a cost risk",
+            ImprovementSignalTypes.SecurityRegression => "Reverse a security regression",
+            ImprovementSignalTypes.CostIncrease => "Reduce increased projected cost",
+            ImprovementSignalTypes.UnresolvedIssue => $"Resolve: {signal.Title}",
+            ImprovementSignalTypes.DecisionRemoved => "Restore or replace removed architecture decision",
+            ImprovementSignalTypes.PolicyViolation => "Resolve a manifest policy violation",
             _ => signal.Title
         };
 
     private static string BuildSuggestedAction(ImprovementSignal signal) =>
         signal.SignalType switch
         {
-            "UncoveredRequirement" =>
+            ImprovementSignalTypes.UncoveredRequirement =>
                 "Add architecture components or decisions that explicitly satisfy the uncovered requirement.",
-            "SecurityGap" => "Introduce or apply missing security controls to the affected resources.",
-            "ComplianceGap" =>
+            ImprovementSignalTypes.SecurityGap => "Introduce or apply missing security controls to the affected resources.",
+            ImprovementSignalTypes.ComplianceGap =>
                 "Map the required control to architecture resources and add enforcement coverage.",
-            "TopologyGap" => "Add missing topology categories or required platform components.",
-            "CostRisk" =>
+            ImprovementSignalTypes.TopologyGap => "Add missing topology categories or required platform components.",
+            ImprovementSignalTypes.CostRisk =>
                 "Review sizing, deployment choices, and service selection to reduce projected cost risk.",
-            "SecurityRegression" =>
+            ImprovementSignalTypes.SecurityRegression =>
                 "Review the changed control posture and restore the stronger security baseline where appropriate.",
-            "CostIncrease" =>
+            ImprovementSignalTypes.CostIncrease =>
                 "Review the decision changes that increased cost and consider lower-cost alternatives.",
-            "UnresolvedIssue" =>
+            ImprovementSignalTypes.UnresolvedIssue =>
                 "Triage the issue, assign ownership, and update the architecture or context to close the gap.",
-            "DecisionRemoved" =>
+            ImprovementSignalTypes.DecisionRemoved =>
                 "Confirm whether the removal was intentional; if not, reinstate the decision or document replacement rationale.",
+            ImprovementSignalTypes.PolicyViolation =>
+                "Update architecture or context so the policy control is satisfied, or document an approved exemption.",
             _ => "Review this signal and determine the most appropriate architecture correction."
         };
 
@@ -106,23 +109,34 @@ public sealed class RecommendationGenerator(IAdaptiveRecommendationScorer adapti
     {
         int score = signal.Category switch
         {
-            "Security" => 90,
-            "Compliance" => 85,
-            "Requirement" => 80,
-            "Risk" => 75,
-            "Topology" => 65,
-            "Cost" => 60,
+            ImprovementSignalCategories.Security => 90,
+            ImprovementSignalCategories.Compliance => 85,
+            ImprovementSignalCategories.Requirement => 80,
+            ImprovementSignalCategories.Risk => 75,
+            ImprovementSignalCategories.Topology => 65,
+            ImprovementSignalCategories.Cost => 60,
             _ => 50
         };
 
-        score += signal.Severity.ToLowerInvariant() switch
-        {
-            "critical" => 20,
-            "high" => 10,
-            "medium" => 5,
-            _ => 0
-        };
+        score += SeverityBonus(signal.Severity);
 
         return score;
+    }
+
+    private static int SeverityBonus(string severity)
+    {
+        if (string.IsNullOrWhiteSpace(severity))
+            return 0;
+
+        if (string.Equals(severity, ImprovementSignalSeverities.Critical, StringComparison.OrdinalIgnoreCase))
+            return 20;
+
+        if (string.Equals(severity, ImprovementSignalSeverities.High, StringComparison.OrdinalIgnoreCase))
+            return 10;
+
+        if (string.Equals(severity, ImprovementSignalSeverities.Medium, StringComparison.OrdinalIgnoreCase))
+            return 5;
+
+        return 0;
     }
 }

@@ -1,6 +1,5 @@
 using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Decisioning.Services;
 using ArchiForge.KnowledgeGraph.Models;
@@ -37,7 +36,7 @@ public sealed class PolicyCoverageFindingEngineTests
         findings[0].Title.Should().Contain("No policy");
         PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;
         payload.Should().NotBeNull();
-        payload!.PolicyNodeCount.Should().Be(0);
+        payload.PolicyNodeCount.Should().Be(0);
     }
 
     [Fact]
@@ -76,7 +75,7 @@ public sealed class PolicyCoverageFindingEngineTests
         findings.Should().ContainSingle();
         PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;
         payload.Should().NotBeNull();
-        payload!.UncoveredResources.Should().Equal("storage-1", "vm-2");
+        payload.UncoveredResources.Should().Equal("storage-1", "vm-2");
         payload.PolicyNodeCount.Should().Be(1);
     }
 

@@ -64,7 +64,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = queue.GetInfo(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.State.Should().Be(BackgroundJobState.Failed);
         info.Error.Should().Contain("work failed");
 
         await queue.StopAsync(CancellationToken.None);

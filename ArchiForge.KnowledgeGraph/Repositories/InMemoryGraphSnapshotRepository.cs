@@ -42,4 +42,35 @@ public class InMemoryGraphSnapshotRepository : IGraphSnapshotRepository
             return Task.FromResult(result);
         }
     }
+
+    public Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock (_lock)
+        {
+            GraphSnapshot? latest = _store.Values
+                .Where(s => s.ContextSnapshotId == contextSnapshotId)
+                .OrderByDescending(s => s.CreatedUtc)
+                .FirstOrDefault();
+
+            return Task.FromResult(latest);
+        }
+    }
+
+    public Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock (_lock)
+        {
+            if (!_store.TryGetValue(graphSnapshotId, out GraphSnapshot? snapshot) || snapshot is null)
+                return Task.FromResult<IReadOnlyList<GraphSnapshotIndexedEdge>>([]);
+
+            IReadOnlyList<GraphSnapshotIndexedEdge> edges = snapshot.Edges
+                .Select(e => new GraphSnapshotIndexedEdge(e.EdgeId, e.FromNodeId, e.ToNodeId, e.EdgeType, e.Weight))
+                .OrderBy(e => e.EdgeId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return Task.FromResult(edges);
+        }
+    }
 }

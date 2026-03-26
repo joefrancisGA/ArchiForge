@@ -70,7 +70,7 @@ public sealed class ArchitectureDigestBuilderTests
         ImprovementPlan plan = EmptyPlan();
         List<AlertRecord> alerts =
         [
-            new AlertRecord
+            new()
             {
                 Severity = AlertSeverity.Warning,
                 Title = "A1",
@@ -79,7 +79,7 @@ public sealed class ArchitectureDigestBuilderTests
                 TriggerValue = "t",
                 DeduplicationKey = "k1"
             },
-            new AlertRecord
+            new()
             {
                 Severity = AlertSeverity.Info,
                 Title = "A2",
@@ -102,7 +102,7 @@ public sealed class ArchitectureDigestBuilderTests
         ImprovementPlan plan = EmptyPlan();
         List<AlertRecord> alerts =
         [
-            new AlertRecord
+            new()
             {
                 Severity = AlertSeverity.High,
                 Title = "H",
@@ -111,7 +111,7 @@ public sealed class ArchitectureDigestBuilderTests
                 TriggerValue = "t",
                 DeduplicationKey = "h"
             },
-            new AlertRecord
+            new()
             {
                 Severity = AlertSeverity.Critical,
                 Title = "C",
@@ -120,7 +120,7 @@ public sealed class ArchitectureDigestBuilderTests
                 TriggerValue = "t",
                 DeduplicationKey = "c"
             },
-            new AlertRecord
+            new()
             {
                 Severity = AlertSeverity.Info,
                 Title = "I",

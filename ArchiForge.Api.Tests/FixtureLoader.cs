@@ -4,6 +4,11 @@ namespace ArchiForge.Api.Tests;
 
 public static class FixtureLoader
 {
+    private static readonly JsonSerializerOptions FixtureJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     public static T Load<T>(string relativePath)
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, "fixtures", relativePath);
@@ -13,10 +18,7 @@ public static class FixtureLoader
 
         string json = File.ReadAllText(fullPath);
 
-        T? result = JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
+        T? result = JsonSerializer.Deserialize<T>(json, FixtureJsonOptions);
 
         return result ?? throw new InvalidOperationException($"Failed to deserialize fixture: {relativePath}");
     }

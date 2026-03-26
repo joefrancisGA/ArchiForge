@@ -36,49 +36,16 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         DecisionMergeResult output = new();
 
-        if (string.IsNullOrWhiteSpace(runId))
-        {
-            output.Errors.Add("RunId is required.");
+        if (!TryValidateMergeInputs(runId, manifestVersion, results, output))
             return output;
-        }
-
-        if (string.IsNullOrWhiteSpace(manifestVersion))
-        {
-            output.Errors.Add("Manifest version is required.");
-            return output;
-        }
-
-        if (results.Count == 0)
-        {
-            output.Errors.Add("At least one agent result is required.");
-            return output;
-        }
 
         List<AgentResult> validResults = ValidateAndFilterResults(runId, results, output);
 
         if (output.Errors.Count > 0)
-        {
             return output;
-        }
 
-        foreach (AgentResult result in validResults)
-        {
-            string resultJson = SchemaValidationSerializer.Serialize(result);
-            SchemaValidationResult schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
-
-            if (schemaValidation.IsValid)
-                continue;
-
-            foreach (string error in schemaValidation.Errors)
-            {
-                output.Errors.Add($"AgentResult {result.ResultId}: {error}");
-            }
-        }
-
-        if (output.Errors.Count > 0)
-        {
+        if (!ValidateAgentResultsAgainstSchema(validResults, runId, output))
             return output;
-        }
 
         GoldenManifest manifest = CreateBaseManifest(runId, request, manifestVersion, parentManifestVersion);
 
@@ -106,6 +73,55 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
         output.Manifest = manifest;
         return output;
+    }
+
+    private static bool TryValidateMergeInputs(
+        string runId,
+        string manifestVersion,
+        IReadOnlyCollection<AgentResult> results,
+        DecisionMergeResult output)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            output.Errors.Add("RunId is required.");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+        {
+            output.Errors.Add("Manifest version is required.");
+            return false;
+        }
+
+        if (results.Count == 0)
+        {
+            output.Errors.Add("At least one agent result is required.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool ValidateAgentResultsAgainstSchema(
+        List<AgentResult> validResults,
+        string runId,
+        DecisionMergeResult output)
+    {
+        foreach (AgentResult result in validResults)
+        {
+            string resultJson = SchemaValidationSerializer.Serialize(result);
+            SchemaValidationResult schemaValidation = _schemaValidationService.ValidateAgentResultJson(resultJson);
+
+            if (schemaValidation.IsValid)
+                continue;
+
+            foreach (string error in schemaValidation.Errors)
+            {
+                output.Errors.Add($"AgentResult {result.ResultId}: {error}");
+            }
+        }
+
+        return output.Errors.Count == 0;
     }
 
     private static void ApplyDecisionNodes(

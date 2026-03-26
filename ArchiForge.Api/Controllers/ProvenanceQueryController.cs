@@ -30,10 +30,7 @@ public sealed class ProvenanceQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
-        if (snapshot is null)
-            return this.NotFoundProblem($"Provenance snapshot for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-
-        return Ok(snapshot);
+        return snapshot is null ? this.NotFoundProblem($"Provenance snapshot for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(snapshot);
     }
 
     [HttpGet("runs/{runId:guid}/graph")]
@@ -43,9 +40,7 @@ public sealed class ProvenanceQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetFullGraphAsync(scope, runId, ct);
-        if (vm is null)
-            return this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-        return Ok(vm);
+        return vm is null ? this.NotFoundProblem($"Provenance graph for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(vm);
     }
 
     /// <summary>Returns the provenance subgraph rooted at the specified decision node.</summary>
@@ -66,9 +61,7 @@ public sealed class ProvenanceQueryController(
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetDecisionSubgraphAsync(scope, runId, decisionKey, ct);
-        if (vm is null)
-            return this.NotFoundProblem($"Decision subgraph '{decisionKey}' for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-        return Ok(vm);
+        return vm is null ? this.NotFoundProblem($"Decision subgraph '{decisionKey}' for run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(vm);
     }
 
     [HttpGet("runs/{runId:guid}/graph/node/{nodeId:guid}")]
@@ -83,8 +76,6 @@ public sealed class ProvenanceQueryController(
         int safeDepth = Math.Clamp(depth, 1, 10);
         ScopeContext scope = scopeProvider.GetCurrentScope();
         GraphViewModel? vm = await graphQuery.GetNodeNeighborhoodAsync(scope, runId, nodeId, safeDepth, ct);
-        if (vm is null)
-            return this.NotFoundProblem($"Node '{nodeId}' in run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-        return Ok(vm);
+        return vm is null ? this.NotFoundProblem($"Node '{nodeId}' in run '{runId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(vm);
     }
 }

@@ -1251,3 +1251,111 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 112. `CommitRunAsync` refactor into private methods
 - [x] 113. `InMemoryBackgroundJobQueue` tests (Api.Tests)
 - [x] 114. `NEXT_REFACTORINGS` archive + intro
+
+---
+
+## §115 — `ImprovementSignalCategories` + `ImprovementSignalSeverities`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning/Advisory/Models/ImprovementSignalCategories.cs` — Requirement, Security, Compliance, Topology, Cost, Risk.
+- `ArchiForge.Decisioning/Advisory/Models/ImprovementSignalSeverities.cs` — Critical, High, Medium.
+- `ImprovementSignalAnalyzer` and `RecommendationGenerator` use these constants (`BuildImpact`, `ComputePriority` / `SeverityBonus`).
+
+---
+
+## §116 — `InMemoryGraphSnapshotRepository` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.KnowledgeGraph.Tests/InMemoryGraphSnapshotRepositoryTests.cs` — latest-by-context, empty indexed edges, ordered edge list.
+
+---
+
+## §117 — `DefaultGoldenManifestBuilder.PopulatePolicySection` unit tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.Decisioning.Tests/DefaultGoldenManifestBuilderPolicySectionTests.cs` — policy applicability (info/warning), policy coverage (per-resource + empty list).
+
+---
+
+## §118 — `SqlGraphSnapshotRepository` batch edge insert
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `InsertIndexedEdgesAsync` uses a single Dapper `ExecuteAsync` with an `IEnumerable` of parameter objects (one command preparation for all rows).
+
+---
+
+## §119 — `DecisionEngineService.MergeResults` early-path tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.DecisionEngine.Tests/DecisionEngineServiceMergeTests.cs` — blank runId / manifestVersion / empty results; schema failure; happy path with `PassthroughSchemaValidationService`.
+
+---
+
+## §120 — `PolicyReferenceConnector` + stable topology ids for `applicableTopologyNodeIds`
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.ContextIngestion/Topology/TopologyHintStableObjectIds.cs` — deterministic 32-hex `ObjectId` from hint name (SHA-256, first 16 bytes).
+- `PolicyReferenceConnector.FetchAsync` copies `TopologyHints`; `NormalizeAsync` sets `applicableTopologyNodeIds` to `obj-{stableId}` when policy reference and hint overlap (substring, case-insensitive).
+- `TopologyHintsConnector` sets `ObjectId` from the same helper so graph `APPLIES_TO` targets align.
+
+---
+
+## §121 — `TopologyHintsConnector`: `parentNodeId` from `parent/child` hints
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- Hints containing `/` set `Properties["parentNodeId"]` = `obj-{TopologyHintStableObjectIds(parentSegment)}` so `DefaultGraphEdgeInferer` can emit `CONTAINS_RESOURCE` when a separate hint exists for the parent name.
+
+---
+
+## §122 — `GraphSnapshotReuseEvaluator` + tests
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ArchiForge.KnowledgeGraph/Services/GraphSnapshotReuseEvaluator.cs` — centralizes reuse vs rebuild; `AuthorityRunOrchestrator` calls it (private `ResolveGraphSnapshotAsync` removed).
+- `GraphSnapshotReuseEvaluatorTests.cs` — prior null, fingerprint diff, equivalent without prior graph, equivalent with clone (no `BuildSnapshotAsync`).
+
+---
+
+## §123 — This checklist block (§115–124)
+
+**Status:** Done (Mar 2026). Documents the integrated batch; no separate code change beyond this file.
+
+---
+
+## §124 — `PolicyViolation` signal + analyzer + generator
+
+**Status:** Done (Mar 2026).
+
+**What was built:**
+- `ImprovementSignalTypes.PolicyViolation`; `AnalyzePolicyViolationSignals` in `ImprovementSignalAnalyzer` over `manifest.Policy.Violations` (null-safe).
+- `RecommendationGenerator` title/action/impact for policy violations (Compliance category).
+
+---
+
+## Checklist (§115–124)
+
+- [x] 115. `ImprovementSignalCategories` + `ImprovementSignalSeverities`; analyzer + generator wiring
+- [x] 116. `InMemoryGraphSnapshotRepository` tests
+- [x] 117. `DefaultGoldenManifestBuilder` policy section tests
+- [x] 118. SQL graph snapshot edge batch insert
+- [x] 119. `DecisionEngineServiceMergeTests`
+- [x] 120. `TopologyHintStableObjectIds` + policy/topology connector linking
+- [x] 121. Topology slash hints → `parentNodeId`
+- [x] 122. `GraphSnapshotReuseEvaluator` + orchestrator + tests
+- [x] 123. `NEXT_REFACTORINGS` §115–124 documentation
+- [x] 124. `PolicyViolation` advisory signal end-to-end

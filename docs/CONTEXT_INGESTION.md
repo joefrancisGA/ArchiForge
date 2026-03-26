@@ -37,6 +37,10 @@ Connectors implement **`IContextConnector`**. Registration order is explicit (se
 
 Each connector’s **`DeltaAsync`** returns a short base summary; **`IContextDeltaSummaryBuilder`** (default: **`DefaultContextDeltaSummaryBuilder`**) enriches it with normalized object counts, a per-type breakdown (e.g. `Requirement×2`), and a one-time baseline clause against the **latest persisted `ContextSnapshot` for `ProjectId`** (if any). The enriched segments are joined into **`ContextSnapshot.DeltaSummary`**.
 
+### Optional properties for knowledge-graph targeting
+
+Connectors or parsers may set comma-separated graph **`NodeId`** values on **`CanonicalObject.Properties`** using keys from **`ArchiForge.KnowledgeGraph.CanonicalGraphPropertyKeys`** (`applicableTopologyNodeIds` on **`PolicyControl`**, `relatedTopologyNodeIds` on **`Requirement`**) so **`DefaultGraphEdgeInferer`** emits narrow **`APPLIES_TO`** / **`RELATES_TO`** edges instead of broad heuristics. See **`docs/KNOWLEDGE_GRAPH.md`**.
+
 ---
 
 ## Supported document content types (single source of truth)

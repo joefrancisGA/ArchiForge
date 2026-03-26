@@ -102,32 +102,9 @@ public sealed class ArchitectureRunService(
         ArchitectureRun run = await runRepository.GetByIdAsync(runId, cancellationToken).ConfigureAwait(false)
                               ?? throw new RunNotFoundException(runId);
 
-        // Idempotency: ReadyForCommit and Committed are terminal for execution.
-        // Always short-circuit; never re-run agents against a finished run.
-        if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
-        {
-            IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
-            if (existingResults.Count > 0)
-            {
-                logger.LogInformation(
-                    "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
-                    runId,
-                    run.Status,
-                    existingResults.Count);
-
-                return new ExecuteRunResult
-                {
-                    RunId = runId,
-                    Results = existingResults.ToList()
-                };
-            }
-
-            // Status says done but results are missing — inconsistent state. Refuse to re-execute
-            // rather than producing duplicate inserts or overwriting committed data.
-            throw new ConflictException(
-                $"Run '{runId}' is in status '{run.Status}' but has no stored agent results. " +
-                "The run is in an inconsistent state and cannot be safely re-executed.");
-        }
+        ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken).ConfigureAwait(false);
+        if (idempotent is not null)
+            return idempotent;
 
         ArchitectureRequest request = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken).ConfigureAwait(false)
                                       ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
@@ -155,25 +132,14 @@ public sealed class ArchitectureRunService(
             results,
             cancellationToken).ConfigureAwait(false);
 
-        // Persist all four writes atomically: a partial failure followed by a retry would
-        // otherwise append duplicate result/evaluation rows because the repos are now
-        // idempotent (delete-by-RunId + bulk insert) but only within a single transaction.
-        using (TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
-        {
-            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken).ConfigureAwait(false);
-            await resultRepository.CreateManyAsync(results, cancellationToken).ConfigureAwait(false);
-            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken).ConfigureAwait(false);
-            await runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.ReadyForCommit,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken,
-                expectedStatus: run.Status).ConfigureAwait(false);
-            scope.Complete();
-        }
+        await PersistExecutePhaseAsync(
+            runId,
+            run.Status,
+            run.CurrentManifestVersion,
+            evidence,
+            results,
+            evaluations,
+            cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation(
             "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
@@ -185,6 +151,69 @@ public sealed class ArchitectureRunService(
             RunId = runId,
             Results = results.ToList()
         };
+    }
+
+    /// <summary>
+    /// Idempotency: <see cref="ArchitectureRunStatus.ReadyForCommit"/> and <see cref="ArchitectureRunStatus.Committed"/> are terminal;
+    /// returns stored results or throws when the run record contradicts stored agent outputs.
+    /// </summary>
+    private async Task<ExecuteRunResult?> TryReturnExistingExecuteResultsAsync(
+        ArchitectureRun run,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.Committed)
+            return null;
+
+        IReadOnlyList<AgentResult> existingResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken).ConfigureAwait(false);
+        if (existingResults.Count > 0)
+        {
+            logger.LogInformation(
+                "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
+                runId,
+                run.Status,
+                existingResults.Count);
+
+            return new ExecuteRunResult
+            {
+                RunId = runId,
+                Results = existingResults.ToList()
+            };
+        }
+
+        throw new ConflictException(
+            $"Run '{runId}' is in status '{run.Status}' but has no stored agent results. " +
+            "The run is in an inconsistent state and cannot be safely re-executed.");
+    }
+
+    /// <summary>
+    /// Persists evidence, results, evaluations, and status inside one transaction so retries do not duplicate rows.
+    /// </summary>
+    private async Task PersistExecutePhaseAsync(
+        string runId,
+        ArchitectureRunStatus expectedStatus,
+        string? currentManifestVersion,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentResult> results,
+        IReadOnlyList<AgentEvaluation> evaluations,
+        CancellationToken cancellationToken)
+    {
+        using (TransactionScope scope = new(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled))
+        {
+            await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken).ConfigureAwait(false);
+            await resultRepository.CreateManyAsync(results, cancellationToken).ConfigureAwait(false);
+            await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken).ConfigureAwait(false);
+            await runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.ReadyForCommit,
+                currentManifestVersion: currentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken,
+                expectedStatus: expectedStatus).ConfigureAwait(false);
+            scope.Complete();
+        }
     }
 
     public async Task<CommitRunResult> CommitRunAsync(

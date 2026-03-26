@@ -10,6 +10,7 @@ using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
+using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Transactions;
@@ -80,13 +81,23 @@ public sealed class AuthorityRunOrchestrator(
             await SaveRunAsync(run, uow, ct).ConfigureAwait(false);
 
             request.RunId = run.RunId;
+
+            ContextSnapshot? priorCommittedContext = await contextSnapshotRepository
+                .GetLatestAsync(request.ProjectId, ct).ConfigureAwait(false);
+
             ContextSnapshot contextSnapshot = await contextIngestionService.IngestAsync(request, ct).ConfigureAwait(false);
             await SaveContextAsync(contextSnapshot, uow, ct).ConfigureAwait(false);
 
             run.ContextSnapshotId = contextSnapshot.SnapshotId;
             await UpdateRunAsync(run, uow, ct).ConfigureAwait(false);
 
-            GraphSnapshot graphSnapshot = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct).ConfigureAwait(false);
+            GraphSnapshot graphSnapshot = await GraphSnapshotReuseEvaluator.ResolveAsync(
+                priorCommittedContext,
+                contextSnapshot,
+                run.RunId,
+                knowledgeGraphService,
+                graphSnapshotRepository,
+                ct).ConfigureAwait(false);
             await SaveGraphAsync(graphSnapshot, uow, ct).ConfigureAwait(false);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;

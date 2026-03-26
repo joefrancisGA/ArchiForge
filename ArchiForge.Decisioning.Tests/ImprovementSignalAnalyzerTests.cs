@@ -198,6 +198,27 @@ public sealed class ImprovementSignalAnalyzerTests
     }
 
     [Fact]
+    public void Analyze_PolicyViolations_ProducesPolicyViolationSignals()
+    {
+        GoldenManifest manifest = EmptyManifest();
+        manifest.Policy.Violations.Add(new PolicyControlItem
+        {
+            ControlId = "c1",
+            ControlName = "Encryption",
+            PolicyPack = "Internal",
+            Description = "At rest encryption required"
+        });
+
+        IReadOnlyList<ImprovementSignal> signals = _sut.Analyze(manifest, EmptySnapshot());
+
+        signals.Should().ContainSingle(s =>
+            s.SignalType == ImprovementSignalTypes.PolicyViolation &&
+            s.Category == ImprovementSignalCategories.Compliance &&
+            s.Severity == ImprovementSignalSeverities.High &&
+            s.Title.Contains("Encryption", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Analyze_DecisionRemoved_ProducesDecisionRemovedSignal()
     {
         ComparisonResult comparison = new();

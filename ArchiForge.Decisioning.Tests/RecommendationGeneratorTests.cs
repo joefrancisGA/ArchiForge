@@ -96,6 +96,27 @@ public sealed class RecommendationGeneratorTests
     }
 
     [Fact]
+    public void Generate_PolicyViolationSignal_MapsToCorrectTitle()
+    {
+        SetupScorerPassThrough();
+        RecommendationGenerator sut = BuildSut();
+
+        ImprovementSignal signal = new()
+        {
+            SignalType = ImprovementSignalTypes.PolicyViolation,
+            Category = ImprovementSignalCategories.Compliance,
+            Title = "Policy violation: X",
+            Description = "desc",
+            Severity = ImprovementSignalSeverities.High
+        };
+
+        IReadOnlyList<ImprovementRecommendation> result = sut.Generate([signal]);
+
+        result.Should().ContainSingle()
+            .Which.Title.Should().Be("Resolve a manifest policy violation");
+    }
+
+    [Fact]
     public void Generate_UnknownSignalType_UsesTitleFromSignal()
     {
         SetupScorerPassThrough();

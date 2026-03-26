@@ -304,6 +304,21 @@ CREATE TABLE IF NOT EXISTS GraphSnapshots
 CREATE INDEX IF NOT EXISTS IX_GraphSnapshots_RunId ON GraphSnapshots (RunId);
 CREATE INDEX IF NOT EXISTS IX_GraphSnapshots_ContextSnapshotId ON GraphSnapshots (ContextSnapshotId);
 
+CREATE TABLE IF NOT EXISTS GraphSnapshotEdges
+(
+    GraphSnapshotId TEXT NOT NULL,
+    EdgeId          TEXT NOT NULL,
+    FromNodeId      TEXT NOT NULL,
+    ToNodeId        TEXT NOT NULL,
+    EdgeType        TEXT NOT NULL,
+    Weight          REAL NOT NULL DEFAULT 1,
+    PRIMARY KEY (GraphSnapshotId, EdgeId),
+    FOREIGN KEY (GraphSnapshotId) REFERENCES GraphSnapshots (GraphSnapshotId)
+);
+
+CREATE INDEX IF NOT EXISTS IX_GraphSnapshotEdges_FromTo
+    ON GraphSnapshotEdges (GraphSnapshotId, FromNodeId, ToNodeId);
+
 CREATE TABLE IF NOT EXISTS FindingsSnapshots
 (
     FindingsSnapshotId TEXT NOT NULL PRIMARY KEY,

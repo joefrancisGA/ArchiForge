@@ -46,6 +46,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         PopulateCompliance(manifest, findingsSnapshot);
         PopulateCost(manifest, findingsSnapshot);
         PopulatePolicyApplicability(manifest, findingsSnapshot);
+        PopulatePolicySection(manifest, findingsSnapshot);
         PopulateCoverageWarnings(manifest, findingsSnapshot);
         PopulateConstraints(manifest, findingsSnapshot, trace);
         PopulateProvenance(manifest, findingsSnapshot, trace);
@@ -131,6 +132,19 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
         manifest.Provenance.AppliedRuleIds = manifest.Provenance.AppliedRuleIds
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        manifest.Policy.SatisfiedControls = manifest.Policy.SatisfiedControls
+            .OrderBy(x => x.ControlName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Policy.Violations = manifest.Policy.Violations
+            .OrderBy(x => x.ControlName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Policy.Exemptions = manifest.Policy.Exemptions
+            .OrderBy(x => x.ControlId, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Policy.Notes = manifest.Policy.Notes
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
@@ -314,11 +328,77 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         }
     }
 
+    private static void PopulatePolicySection(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)
+    {
+        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
+        {
+            PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
+            if (payload is null)
+                continue;
+
+            string pack = string.IsNullOrWhiteSpace(payload.PolicyReference) ? "Inferred" : payload.PolicyReference!;
+            string controlId = string.IsNullOrWhiteSpace(payload.PolicyReference) ? payload.PolicyName : payload.PolicyReference!;
+
+            if (finding.Severity == FindingSeverity.Info)
+            {
+                manifest.Policy.SatisfiedControls.Add(new PolicyControlItem
+                {
+                    ControlId = controlId,
+                    ControlName = payload.PolicyName,
+                    PolicyPack = pack,
+                    Description =
+                        $"{payload.ApplicableTopologyResourceCount} topology resource(s) in APPLIES_TO scope."
+                });
+            }
+            else if (finding.Severity == FindingSeverity.Warning)
+            {
+                manifest.Policy.Violations.Add(new PolicyControlItem
+                {
+                    ControlId = controlId,
+                    ControlName = payload.PolicyName,
+                    PolicyPack = pack,
+                    Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
+                });
+            }
+        }
+
+        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
+        {
+            PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
+            if (payload is null)
+                continue;
+
+            if (payload.UncoveredResources.Count == 0)
+            {
+                manifest.Policy.Violations.Add(new PolicyControlItem
+                {
+                    ControlId = "policy-coverage",
+                    ControlName = "Policy topology coverage",
+                    PolicyPack = "Governance",
+                    Description = string.IsNullOrWhiteSpace(finding.Rationale) ? finding.Title : finding.Rationale
+                });
+
+                continue;
+            }
+
+            foreach (string resource in payload.UncoveredResources)
+            {
+                manifest.Policy.Violations.Add(new PolicyControlItem
+                {
+                    ControlId = "policy-coverage",
+                    ControlName = $"Uncovered: {resource}",
+                    PolicyPack = "Governance",
+                    Description = finding.Title
+                });
+            }
+        }
+    }
+
     private static void PopulateCoverageWarnings(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot)
     {
-        foreach (Finding finding in findingsSnapshot.GetByType("TopologyCoverageFinding"))
+        foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyCoverageFinding))
         {
             TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
             if (payload is null || payload.MissingCategories.Count == 0)

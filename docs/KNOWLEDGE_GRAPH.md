@@ -13,7 +13,8 @@
    - Adds one **`ContextSnapshot`** root node (`nodeId` = `context-{SnapshotId:N}`).
    - Maps each **`CanonicalObject`** with **`IGraphNodeFactory`** → **`GraphNode`** (`NodeId` = `obj-{ObjectId}`, **`NodeType`** = `ObjectType`, **`Category`** from `properties["category"]` when present, **`SourceType`** / **`SourceId`**).
    - Calls **`IGraphEdgeInferer.InferEdges`**.
-3. **`GraphSnapshot`** is persisted (SQL) as JSON columns for nodes, edges, and warnings (`ArchiForge.Persistence`).
+3. **`GraphSnapshot`** is persisted (SQL) as JSON columns for nodes, edges, and warnings (`ArchiForge.Persistence`). **`SqlGraphSnapshotRepository`** also inserts denormalized rows into **`GraphSnapshotEdges`** (same transaction) for **`IGraphSnapshotRepository.ListIndexedEdgesAsync`** without loading **`EdgesJson`**.
+4. When the latest committed **`ContextSnapshot`** for the project matches the new snapshot’s canonical fingerprint (**`GraphSnapshotCanonicalFingerprint`**), **`AuthorityRunOrchestrator`** may **`GraphSnapshotCloner.CloneForNewRun`** from **`GetLatestByContextSnapshotIdAsync`** instead of rebuilding the graph.
 
 ---
 
@@ -26,7 +27,7 @@
 | **`Inference/`** | **`IGraphEdgeInferer`** / **`DefaultGraphEdgeInferer`** — edge inference from node sets. |
 | **`Interfaces/`** | **`IGraphBuilder`**, **`IKnowledgeGraphService`**, **`IGraphSnapshotRepository`**, **`IGraphValidator`**. |
 | **`Models/`** | **`GraphNode`**, **`GraphEdge`**, **`GraphSnapshot`**, **`GraphBuildResult`**, **`GraphSnapshotExtensions`**. |
-| **`Services/`** | **`KnowledgeGraphService`**, **`GraphValidator`**. |
+| **`Services/`** | **`KnowledgeGraphService`**, **`GraphValidator`**, **`GraphSnapshotCanonicalFingerprint`**, **`GraphSnapshotCloner`**. Root **`CanonicalGraphPropertyKeys`** type documents optional **`CanonicalObject.Properties`** keys (`applicableTopologyNodeIds`, `relatedTopologyNodeIds`) for **`DefaultGraphEdgeInferer`**. |
 | **`Repositories/`** | In-memory graph snapshot store (tests / in-memory authority). |
 
 Well-known **`NodeType`** / **`EdgeType`** string constants live in **`WellKnownGraph.cs`** (`GraphNodeTypes`, `GraphEdgeTypes`, `GraphTopologyCategories`).
@@ -50,10 +51,10 @@ Well-known **`NodeType`** / **`EdgeType`** string constants live in **`WellKnown
 | **`CONTAINS`** | Context root → every non-context node. |
 | **`CONTAINS_RESOURCE`** | Topology `category=network` → topology nodes whose **label** contains `"subnet"` (case-insensitive). |
 | **`PROTECTS`** | Each **`SecurityBaseline`** → each **`TopologyResource`**. |
-| **`APPLIES_TO`** | Each **`PolicyControl`** → each **`TopologyResource`**. |
-| **`RELATES_TO`** | **`Requirement`** → topology nodes when requirement **text** matches simple keyword/category heuristics (network/storage/compute/security/database). |
+| **`APPLIES_TO`** | Each **`PolicyControl`** → **`TopologyResource`** nodes listed in **`CanonicalGraphPropertyKeys.ApplicableTopologyNodeIds`** when set; otherwise every topology node (legacy heuristic). |
+| **`RELATES_TO`** | **`Requirement`** → topology nodes listed in **`CanonicalGraphPropertyKeys.RelatedTopologyNodeIds`** when set; otherwise keyword/category heuristics on requirement text. |
 
-Edges are **deduplicated** by `(FromNodeId, ToNodeId, EdgeType)` (case-insensitive).
+Edges are **deduplicated** by `(FromNodeId, ToNodeId, EdgeType)` (case-insensitive); when duplicates exist, the higher **`GraphEdge.Weight`** wins.
 
 ---
 
@@ -97,6 +98,7 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 
 - **`PopulateTopologyFromGraph`** — **`TopologyResource`** labels → **`manifest.Topology.Resources`**.
 - **`PopulatePolicyApplicability`** — **`PolicyApplicabilityFinding`** → assumptions (info) or warnings + **`UnresolvedIssues`** (policy applicability gap).
+- **`PopulatePolicySection`** — **`PolicyApplicabilityFinding`** / **`PolicyCoverageFinding`** → **`manifest.Policy`** (**`SatisfiedControls`** / **`Violations`**).
 
 ---
 
@@ -116,13 +118,12 @@ Round-trip serialization uses the **canonical** names. See **`JsonEntitySerializ
 |---|------|--------|
 | 1 | Replace stringly-typed `GetByType("…")` with `FindingTypes` constants class | ✓ Done — `ArchiForge.Decisioning/Findings/FindingTypes.cs` |
 | 2 | Richer topology containment — `CONTAINS_RESOURCE` from explicit `parentNodeId` property | ✓ Done — `DefaultGraphEdgeInferer.InferExplicitParentChildContainment` |
-| 3 | Policy / requirement targeting — narrow `APPLIES_TO`/`RELATES_TO` using explicit references | Open — heuristic-only until ingestion emits explicit refs |
+| 3 | Policy / requirement targeting — narrow `APPLIES_TO`/`RELATES_TO` using explicit references | ✓ Done — `CanonicalGraphPropertyKeys` + `DefaultGraphEdgeInferer` |
 | 4 | `PolicySection` first-class on `GoldenManifest`, included in `ManifestHashService` + validated by `GoldenManifestValidator` | ✓ Done |
 | 5 | `ArchiForge.KnowledgeGraph.Tests` — inferrer, validator, graph builder, and extensions unit tests | ✓ Done |
+| 6 | `GraphEdge.Weight`, `GraphSnapshotEdges` index table, `ListIndexedEdgesAsync`, fingerprint + clone reuse in `AuthorityRunOrchestrator` | ✓ Done |
 
 ### Open items
 
-1. **Policy / requirement targeting (item 3 above)** — ingestion side must emit explicit `APPLIES_TO` references before this can be narrowed; currently every policy applies to every topology resource.
-2. **Weighted edge scoring** — add a numeric `Weight` field to `GraphEdge` so traversals can prioritise strong relationships (e.g. explicit parent/child) over inferred ones.
-3. **Graph persistence indexes** — the `GraphSnapshots` table stores JSON; add a computed or shadow table for edge-level queries to avoid full-document deserialization at read time.
-4. **Incremental graph rebuild** — today the full snapshot is rebuilt on every run. Add a delta path that reuses the previous `GraphSnapshot` and only replaces changed nodes/edges.
+1. **Traversal consumers** — use **`Weight`** and **`ListIndexedEdgesAsync`** in read paths that today deserialize full **`EdgesJson`** (when those APIs are added).
+2. **Cross-run graph diff** — optional delta persistence when fingerprint differs but overlap is high (not implemented).

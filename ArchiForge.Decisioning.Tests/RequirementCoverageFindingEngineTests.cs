@@ -1,6 +1,5 @@
 using ArchiForge.Decisioning.Analysis;
 using ArchiForge.Decisioning.Findings.Payloads;
-using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Decisioning.Services;
 using ArchiForge.KnowledgeGraph.Models;
@@ -54,7 +53,7 @@ public sealed class RequirementCoverageFindingEngineTests
         findings[0].FindingType.Should().Be("RequirementCoverageFinding");
         RequirementCoverageFindingPayload? payload = findings[0].Payload as RequirementCoverageFindingPayload;
         payload.Should().NotBeNull();
-        payload!.UncoveredRequirements.Should().Contain("REQ-99");
+        payload.UncoveredRequirements.Should().Contain("REQ-99");
         payload.UncoveredRequirementCount.Should().Be(1);
     }
 

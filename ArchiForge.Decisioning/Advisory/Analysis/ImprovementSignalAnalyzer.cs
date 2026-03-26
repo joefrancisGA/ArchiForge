@@ -10,27 +10,6 @@ namespace ArchiForge.Decisioning.Advisory.Analysis;
 /// </summary>
 public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
 {
-    private const string CategoryRequirement = "Requirement";
-    private const string CategorySecurity = "Security";
-    private const string CategoryCompliance = "Compliance";
-    private const string CategoryTopology = "Topology";
-    private const string CategoryCost = "Cost";
-    private const string CategoryRisk = "Risk";
-
-    private const string SignalTypeUncoveredRequirement = "UncoveredRequirement";
-    private const string SignalTypeSecurityGap = "SecurityGap";
-    private const string SignalTypeComplianceGap = "ComplianceGap";
-    private const string SignalTypeTopologyGap = "TopologyGap";
-    private const string SignalTypeCostRisk = "CostRisk";
-    private const string SignalTypeUnresolvedIssue = "UnresolvedIssue";
-    private const string SignalTypeSecurityRegression = "SecurityRegression";
-    private const string SignalTypeCostIncrease = "CostIncrease";
-    private const string SignalTypeDecisionRemoved = "DecisionRemoved";
-
-    private const string SeverityHigh = "High";
-    private const string SeverityMedium = "Medium";
-    private const string SeverityCritical = "Critical";
-
     private const string ChangeTypeRemoved = "Removed";
     /// <inheritdoc />
     /// <remarks>
@@ -49,6 +28,7 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         AnalyzeRequirementSignals(manifest, signals);
         AnalyzeSecuritySignals(manifest, signals);
         AnalyzeComplianceSignals(manifest, signals);
+        AnalyzePolicyViolationSignals(manifest, signals);
         AnalyzeTopologySignals(manifest, signals);
         AnalyzeCostSignals(manifest, signals);
         AnalyzeUnresolvedIssueSignals(manifest, signals);
@@ -65,13 +45,13 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         {
             signals.Add(new ImprovementSignal
             {
-                SignalType = SignalTypeUncoveredRequirement,
-                Category = CategoryRequirement,
+                SignalType = ImprovementSignalTypes.UncoveredRequirement,
+                Category = ImprovementSignalCategories.Requirement,
                 Title = $"Requirement not covered: {uncovered.RequirementName}",
                 Description = string.IsNullOrWhiteSpace(uncovered.RequirementText)
                     ? uncovered.RequirementName
                     : uncovered.RequirementText,
-                Severity = SeverityHigh,
+                Severity = ImprovementSignalSeverities.High,
                 FindingIds = uncovered.SupportingFindingIds.ToList()
             });
         }
@@ -83,11 +63,11 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         {
             signals.Add(new ImprovementSignal
             {
-                SignalType = SignalTypeSecurityGap,
-                Category = CategorySecurity,
+                SignalType = ImprovementSignalTypes.SecurityGap,
+                Category = ImprovementSignalCategories.Security,
                 Title = "Security protection gap",
                 Description = gap,
-                Severity = SeverityHigh
+                Severity = ImprovementSignalSeverities.High
             });
         }
     }
@@ -98,11 +78,33 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         {
             signals.Add(new ImprovementSignal
             {
-                SignalType = SignalTypeComplianceGap,
-                Category = CategoryCompliance,
+                SignalType = ImprovementSignalTypes.ComplianceGap,
+                Category = ImprovementSignalCategories.Compliance,
                 Title = "Compliance gap detected",
                 Description = gap,
-                Severity = SeverityHigh
+                Severity = ImprovementSignalSeverities.High
+            });
+        }
+    }
+
+    private static void AnalyzePolicyViolationSignals(GoldenManifest manifest, List<ImprovementSignal> signals)
+    {
+        if (manifest.Policy is null)
+            return;
+
+        foreach (PolicyControlItem violation in manifest.Policy.Violations)
+        {
+            signals.Add(new ImprovementSignal
+            {
+                SignalType = ImprovementSignalTypes.PolicyViolation,
+                Category = ImprovementSignalCategories.Compliance,
+                Title = string.IsNullOrWhiteSpace(violation.ControlName)
+                    ? "Policy violation"
+                    : $"Policy violation: {violation.ControlName}",
+                Description = string.IsNullOrWhiteSpace(violation.Description)
+                    ? violation.ControlId
+                    : violation.Description,
+                Severity = ImprovementSignalSeverities.High
             });
         }
     }
@@ -113,11 +115,11 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         {
             signals.Add(new ImprovementSignal
             {
-                SignalType = SignalTypeTopologyGap,
-                Category = CategoryTopology,
+                SignalType = ImprovementSignalTypes.TopologyGap,
+                Category = ImprovementSignalCategories.Topology,
                 Title = "Topology coverage gap",
                 Description = gap,
-                Severity = SeverityMedium
+                Severity = ImprovementSignalSeverities.Medium
             });
         }
     }
@@ -128,11 +130,11 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
         {
             signals.Add(new ImprovementSignal
             {
-                SignalType = SignalTypeCostRisk,
-                Category = CategoryCost,
+                SignalType = ImprovementSignalTypes.CostRisk,
+                Category = ImprovementSignalCategories.Cost,
                 Title = "Cost risk detected",
                 Description = risk,
-                Severity = SeverityMedium
+                Severity = ImprovementSignalSeverities.Medium
             });
         }
     }
@@ -141,14 +143,18 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
     {
         foreach (ManifestIssue issue in manifest.UnresolvedIssues.Items)
         {
-            string sev = string.IsNullOrWhiteSpace(issue.Severity) ? SeverityMedium : issue.Severity;
+            string sev = string.IsNullOrWhiteSpace(issue.Severity)
+                ? ImprovementSignalSeverities.Medium
+                : issue.Severity;
             signals.Add(new ImprovementSignal
             {
-                SignalType = SignalTypeUnresolvedIssue,
-                Category = CategoryRisk,
+                SignalType = ImprovementSignalTypes.UnresolvedIssue,
+                Category = ImprovementSignalCategories.Risk,
                 Title = issue.Title,
                 Description = issue.Description,
-                Severity = string.Equals(sev, SeverityCritical, StringComparison.OrdinalIgnoreCase) ? SeverityCritical : sev,
+                Severity = string.Equals(sev, ImprovementSignalSeverities.Critical, StringComparison.OrdinalIgnoreCase)
+                    ? ImprovementSignalSeverities.Critical
+                    : sev,
                 FindingIds = issue.SupportingFindingIds.ToList()
             });
         }
@@ -162,11 +168,11 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             {
                 signals.Add(new ImprovementSignal
                 {
-                    SignalType = SignalTypeSecurityRegression,
-                    Category = CategorySecurity,
+                    SignalType = ImprovementSignalTypes.SecurityRegression,
+                    Category = ImprovementSignalCategories.Security,
                     Title = $"Security posture changed: {delta.ControlName}",
                     Description = $"{delta.BaseStatus ?? "—"} → {delta.TargetStatus ?? "—"}",
-                    Severity = SeverityHigh
+                    Severity = ImprovementSignalSeverities.High
                 });
             }
         }
@@ -177,11 +183,11 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             {
                 signals.Add(new ImprovementSignal
                 {
-                    SignalType = SignalTypeCostIncrease,
-                    Category = CategoryCost,
+                    SignalType = ImprovementSignalTypes.CostIncrease,
+                    Category = ImprovementSignalCategories.Cost,
                     Title = "Estimated cost increased",
                     Description = $"{delta.BaseCost:0.00} → {delta.TargetCost:0.00}",
-                    Severity = SeverityMedium
+                    Severity = ImprovementSignalSeverities.Medium
                 });
             }
         }
@@ -192,11 +198,11 @@ public sealed class ImprovementSignalAnalyzer : IImprovementSignalAnalyzer
             {
                 signals.Add(new ImprovementSignal
                 {
-                    SignalType = SignalTypeDecisionRemoved,
-                    Category = CategoryRequirement,
+                    SignalType = ImprovementSignalTypes.DecisionRemoved,
+                    Category = ImprovementSignalCategories.Requirement,
                     Title = $"Decision removed: {d.DecisionKey}",
                     Description = $"Previously: {d.BaseValue ?? "—"}",
-                    Severity = SeverityMedium
+                    Severity = ImprovementSignalSeverities.Medium
                 });
             }
         }

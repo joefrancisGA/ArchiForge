@@ -31,5 +31,16 @@ public interface IGraphSnapshotRepository
     /// <param name="graphSnapshotId">Primary key of the snapshot.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
     Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns the most recently persisted graph for the given context snapshot, or <see langword="null"/>.
+    /// Used for incremental reuse when canonical objects are unchanged.
+    /// </summary>
+    Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct);
+
+    /// <summary>
+    /// Returns denormalized edges from <c>GraphSnapshotEdges</c> when the index exists; otherwise empty.
+    /// </summary>
+    Task<IReadOnlyList<GraphSnapshotIndexedEdge>> ListIndexedEdgesAsync(Guid graphSnapshotId, CancellationToken ct);
 }
 

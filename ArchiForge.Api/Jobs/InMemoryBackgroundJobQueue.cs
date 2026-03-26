@@ -3,8 +3,6 @@ using System.Threading.Channels;
 
 using JetBrains.Annotations;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchiForge.Api.Jobs;
 
 public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueue> logger) : BackgroundService, IBackgroundJobQueue
