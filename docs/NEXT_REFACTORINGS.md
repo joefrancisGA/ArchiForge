@@ -1714,7 +1714,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `ArchiForge.Persistence/Serialization/AuditJsonSerializationOptions.cs` — shared `JsonSerializerOptions` instance (`CamelCase`, not indented).
-- Wired into **DigestDeliveryDispatcher**, **AdvisoryScanRunner**, **CompositeAlertService**, **AlertService**, **AlertDeliveryDispatcher**; **AuthorityRunOrchestrator** now uses the same static instance instead of a duplicate field.
+- Wired into **DigestDeliveryDispatcher**, **AdvisoryScanRunner**, **CompositeAlertService**, **AlertService**, **AlertDeliveryDispatcher** (success + failure audit payloads); **AuthorityRunOrchestrator** now uses the same static instance instead of a duplicate field.
 
 ---
 
@@ -1739,3 +1739,152 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 152. `DefaultGraphEdgeInfererContractTests` (KnowledgeGraph.Tests)
 - [x] 153. `AuditJsonSerializationOptions` + persistence audit/result JSON call sites
 - [x] 154. `AdvisoryScanRunner` digest persist + `DeliverAsync` verification test
+
+---
+
+## Multi-quarter backlog §155–§254 (proposed Mar 2026)
+
+**Scope:** ~100 follow-on improvements (documentation, tests, observability, security, performance, API, data, UI). They are **not** all implemented in one release; use the checkboxes to track incremental delivery.
+
+### Documentation & ADRs (155–169)
+
+- [ ] 155. Finish **METHOD_DOCUMENTATION** piece tracker **12–21** (XML for authority compare/replay through `ArchitectureRunService`).
+- [ ] 156. ADRs: effective governance merge, alert dedupe scopes, digest delivery failure semantics.
+- [ ] 157. Runbook: advisory scan failures and schedule advance.
+- [ ] 158. Runbook: comparison replay (light/heavy) + rate limits.
+- [ ] 159. **API_CONTRACTS:** idempotency / retry for create run + commit.
+- [x] 160. **README:** operator quick start (health, `/v1`, correlation id, auth, SMB/storage boundary).
+- [ ] 161. Terraform variable reference diagram for Azure dependencies.
+- [ ] 162. File-backed connectors: private network + no public SMB (445).
+- [ ] 163. **CONTEXT_INGESTION:** connector ordering + warning surface.
+- [ ] 164. **ALERTS.md:** composite vs simple lifecycle diagram.
+- [ ] 165. **TEST_STRUCTURE:** map test projects → bounded contexts.
+- [x] 166. **Swagger:** tag grouping for Authority, Advisory, Retrieval, Ask, artifacts, Comparison, Analysis, runs, learning, Audit, Diagnostics.
+- [ ] 167. **Swagger:** examples for alert rule create/update bodies.
+- [ ] 168. **BUILD.md:** SQL Server vs Testcontainers for contributors.
+- [ ] 169. Provenance indexing: failure modes + retry story.
+
+### Tests — unit (170–194)
+
+- [ ] 170. SQL-backed alert/digest repos: strategy (Testcontainers vs abstraction) + tests.
+- [ ] 171. `DapperArchitectureDigestRepository` / similar round-trips.
+- [x] 172. **`AlertDeliveryDispatcherTests`** (null alert, no subs, success audit, failure audited).
+- [ ] 173. `EffectiveGovernanceLoader` merge edge cases.
+- [ ] 174. `PolicyPackResolver` / assignment resolution layers.
+- [ ] 175. `ImprovementAdvisorService` mapping tests.
+- [x] 176. `ArchitectureDigestBuilder` markdown snapshot tests.
+- [ ] 177. `AuthorityQueryService` DTO mapping tests.
+- [ ] 178. `ComparisonService` per-section delta tests.
+- [ ] 179. `ExportReplayService` extra formats / errors.
+- [x] 180. **`FindingPayloadValidatorTests`** (envelope guards, compliance + multi-type happy paths).
+- [ ] 181. `CostConstraintFindingEngine` / `ComplianceFindingEngine` branch coverage.
+- [ ] 182. `RetrievalQueryService` empty index + ranking.
+- [ ] 183. `ConversationService` thread lifecycle.
+- [ ] 184. `DocxExportService` golden / snapshot tests.
+- [ ] 185. `CoordinatorService` ingestion mapper tests.
+- [x] 186. `ContextIngestionService` parser-miss warnings.
+- [ ] 187. `JsonEntitySerializer` corrupt graph JSON tests.
+- [ ] 188. Golden audit JSON payload (camelCase) contract test.
+- [ ] 189. `SimpleScanScheduleCalculator` DST / timezone if behavior defined.
+- [ ] 190. `AdvisoryScanHostedService` overlap / cancellation.
+- [x] 191. **`PolicyPacksAppServiceTests`** (create + audit; assign miss → no management call).
+- [x] 192. `ReplayValidationConstants` extensions.
+- [ ] 193. `ApiProblemDetailsExceptionFilter` exception-type matrix.
+- [ ] 194. FluentValidation negative tests per advisory/alert DTO.
+
+### Tests — integration / E2E (195–204)
+
+- [ ] 195. Api.Tests: full alert lifecycle (rule → evaluate → list).
+- [ ] 196. Api.Tests: digest subscription → delivery attempt row.
+- [ ] 197. Api.Tests: governance two-pack merge + effective-content.
+- [ ] 198. Api.Tests: retrieval index + query smoke (fake vector).
+- [ ] 199. Api.Tests: Ask thread + fake LLM.
+- [ ] 200. Committed OpenAPI snapshot diff in CI.
+- [ ] 201. Load test: expensive rate-limit boundary.
+- [ ] 202. Resilience: SQL timeout → health / problem details.
+- [ ] 203. CI: migrate from N−1 schema.
+- [ ] 204. UI e2e: policy assign + effective-content.
+
+### Observability & reliability (205–214)
+
+- [x] 205. `ActivitySource` for orchestration, advisory scan, retrieval index.
+- [x] 206. Metrics: digest delivery by channel.
+- [ ] 207. Metrics: alert evaluation duration (simple vs composite).
+- [ ] 208. Metrics: governance resolve + cache hit ratio (if cached).
+- [ ] 209. Correlation id → audit fields where missing.
+- [ ] 210. Retry / DLQ for background jobs (beyond in-memory queue).
+- [ ] 211. Outbox for post-commit indexing.
+- [ ] 212. Circuit breaker for OpenAI / embedding clients.
+- [ ] 213. Graceful shutdown: advisory poller + host.
+- [ ] 214. SLO dashboards (Grafana + Prometheus).
+
+### Security (215–226)
+
+- [ ] 215. Entra ID app roles migration from long-lived API keys.
+- [ ] 216. Key Vault references for all secrets in config samples.
+- [ ] 217. Private Link for SQL, storage, AI Search (Terraform).
+- [ ] 218. WAF / APIM in front of API.
+- [ ] 219. SBOM (CycloneDX) in CI.
+- [ ] 220. `dotnet list package --vulnerable` gate.
+- [ ] 221. Secret scanning in CI.
+- [ ] 222. Row-level security design for multi-tenant SQL.
+- [ ] 223. PII classification + retention for conversations.
+- [ ] 224. Threat model update for Ask/RAG.
+- [ ] 225. CORS regression test (disallowed origin).
+- [ ] 226. Security headers review (HSTS, CSP for Swagger).
+
+### Performance & cost (227–234)
+
+- [ ] 227. SQL index review (alerts, runs, graphs, digests).
+- [ ] 228. Remove N+1 on hot `ListByScope` paths.
+- [x] 229. Compression for large JSON responses.
+- [ ] 230. Cache effective governance per HTTP scope (beyond advisory path).
+- [ ] 231. Graph snapshot pagination API design.
+- [ ] 232. Embedding batching cost caps.
+- [ ] 233. AI Search SKU guidance (dev vs prod).
+- [ ] 234. Cold-start profiling + trimming options.
+
+### API & contracts (235–242)
+
+- [ ] 235. Deprecation: `Sunset` + versioned routes policy.
+- [ ] 236. Standard list pagination (`page`/`pageSize` or cursor).
+- [ ] 237. ProblemDetails `extensions` machine codes on all 4xx/5xx.
+- [ ] 238. OpenAPI `securitySchemes` for Entra when enabled.
+- [ ] 239. Webhook HMAC for digest/alert channels.
+- [ ] 240. Optional `Idempotency-Key` on create run.
+- [ ] 241. Bulk endpoint limits + partial success model.
+- [ ] 242. JSON camelCase audit on public DTOs.
+
+### Data & persistence (243–249)
+
+- [ ] 243. Archival for old runs / digests / conversations.
+- [ ] 244. Soft-delete policy for governance assignments.
+- [ ] 245. Connection resilience (retry + backoff).
+- [ ] 246. Read replica routing for heavy authority lists.
+- [ ] 247. Shared test cases InMemory vs Dapper parity.
+- [ ] 248. Single DDL file discipline audit.
+- [ ] 249. Migration rollback documentation.
+
+### UI & developer experience (250–254)
+
+- [ ] 250. UI feature flags for experimental advisory panels.
+- [ ] 251. Map ProblemDetails `type` → operator-facing copy.
+- [ ] 252. Dev container (SQL + Azurite + fakes).
+- [ ] 253. `dotnet new` template for finding engine + tests.
+- [ ] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
+
+---
+
+## Checklist (§155–254 progress)
+
+Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
+
+- [ ] Documentation & ADRs (155–169): partial (160, 166 done).
+- [ ] Unit tests (170–194): partial (172, 176, 180, 186, 191, 192 done; `ApplicationProblemMapperTests`, `EffectiveGovernanceLoaderTests`, `SecurityHeadersMiddlewareTests` added).
+- [ ] Integration / E2E (195–204): not started.
+- [ ] Observability & reliability (205–214): partial (205–206 done; 207+ still open).
+- [ ] Security (215–226): partial (baseline response headers via `SecurityHeadersMiddleware`; HSTS/CSP/Entra items still open).
+- [ ] Performance & cost (227–234): partial (229 response compression enabled).
+- [ ] API & contracts (235–242): not started.
+- [ ] Data & persistence (243–249): not started.
+- [ ] UI & DX (250–254): not started.

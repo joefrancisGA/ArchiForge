@@ -10,6 +10,7 @@ internal static class PipelineExtensions
     public static WebApplication UseArchiForgePipeline(this WebApplication app)
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
+        app.UseMiddleware<SecurityHeadersMiddleware>();
         app.UseExceptionHandler(exceptionHandlerApp =>
         {
             exceptionHandlerApp.Run(async context =>
@@ -51,6 +52,7 @@ internal static class PipelineExtensions
         }
 
         app.UseHttpsRedirection();
+        app.UseResponseCompression();
         app.UseCors("ArchiForge");
         app.UseRateLimiter();
         app.UseAuthentication();

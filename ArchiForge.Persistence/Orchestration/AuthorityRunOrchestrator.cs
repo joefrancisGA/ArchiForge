@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.ArtifactSynthesis.Interfaces;
@@ -5,6 +6,7 @@ using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -78,6 +80,9 @@ public sealed class AuthorityRunOrchestrator(
                 CreatedUtc = DateTime.UtcNow
             };
             ApplyScope(run, scope);
+
+            using Activity? runActivity = ArchiForgeInstrumentation.AuthorityRun.StartActivity(nameof(ExecuteAsync));
+            runActivity?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
 
             await SaveRunAsync(run, uow, ct).ConfigureAwait(false);
 

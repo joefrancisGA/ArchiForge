@@ -84,12 +84,14 @@ public sealed class AlertDeliveryDispatcher(
                     {
                         EventType = AuditEventTypes.AlertDeliverySucceeded,
                         RunId = alert.RunId,
-                        DataJson = JsonSerializer.Serialize(new
-                        {
-                            alertId = alert.AlertId,
-                            subscription.RoutingSubscriptionId,
-                            subscription.ChannelType,
-                        }),
+                        DataJson = JsonSerializer.Serialize(
+                            new
+                            {
+                                alertId = alert.AlertId,
+                                subscription.RoutingSubscriptionId,
+                                subscription.ChannelType,
+                            },
+                            AuditJsonSerializationOptions.Instance),
                     },
                     ct).ConfigureAwait(false);
             }

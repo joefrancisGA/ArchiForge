@@ -1,4 +1,7 @@
+using System.Diagnostics;
+
 using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Provenance;
 using ArchiForge.Retrieval.Models;
@@ -22,6 +25,9 @@ public sealed class RetrievalRunCompletionIndexer(
         DecisionProvenanceGraph provenanceGraph,
         CancellationToken ct)
     {
+        using Activity? indexActivity = ArchiForgeInstrumentation.RetrievalIndex.StartActivity(nameof(IndexAuthorityRunAsync));
+        indexActivity?.SetTag("archiforge.run_id", manifest.RunId.ToString("D"));
+
         List<RetrievalDocument> retrievalDocuments = [];
         retrievalDocuments.AddRange(documentBuilder.BuildForManifest(manifest));
         retrievalDocuments.AddRange(documentBuilder.BuildForArtifacts(

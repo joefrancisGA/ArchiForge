@@ -14,10 +14,21 @@ internal static class SwaggerExtensions
                 
                 string tag = cad.ControllerName switch
                 {
-                    "PolicyPacks" => "Governance",
+                    "PolicyPacks" or "Governance" or "GovernancePreview" or "GovernanceResolution" => "Governance",
+                    "AuthorityQuery" or "AuthorityCompare" or "AuthorityReplay" => "Authority",
+                    "Advisory" or "AdvisoryScheduling" => "Advisory",
+                    "Retrieval" => "Retrieval",
+                    "Ask" or "Conversation" => "Ask & conversations",
+                    "Graph" or "Manifests" or "Provenance" or "ProvenanceQuery" or "ArtifactExport" => "Authority artifacts",
+                    "Comparison" or "Comparisons" or "RunComparison" => "Comparison",
+                    "Explanation" or "AnalysisReports" or "DocxExport" or "Exports" => "Analysis & export",
+                    "Runs" or "Jobs" => "Architecture runs",
                     "AlertRules" or "Alerts" or "AlertSimulation" or "AlertTuning" or "CompositeAlertRules"
                         or "AlertRoutingSubscriptions" => "Alerts & routing",
                     "DigestSubscriptions" => "Digest subscriptions",
+                    "RecommendationLearning" => "Advisory learning",
+                    "Audit" => "Audit",
+                    "Diagnostics" or "Docs" or "AuthDebug" or "ScopeDebug" or "Demo" => "Diagnostics & debug",
                     _ => cad.ControllerName,
                 };
                 return [tag];

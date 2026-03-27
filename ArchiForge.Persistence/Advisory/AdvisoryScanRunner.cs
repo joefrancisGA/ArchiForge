@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Comparison;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Advisory.Delivery;
@@ -71,6 +73,9 @@ public sealed class AdvisoryScanRunner(
     public async Task RunScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(schedule);
+
+        using Activity? scanActivity = ArchiForgeInstrumentation.AdvisoryScan.StartActivity(nameof(RunScheduleAsync));
+        scanActivity?.SetTag("archiforge.schedule_id", schedule.ScheduleId.ToString("D"));
 
         ScopeContext scope = new()
         {

@@ -37,6 +37,7 @@ public partial class Program
         builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);
         builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
         builder.Services.AddArchiForgeCors(builder.Configuration);
+        builder.Services.AddArchiForgeResponseCompression();
         builder.Services.AddArchiForgeApplicationServices(builder.Configuration);
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 

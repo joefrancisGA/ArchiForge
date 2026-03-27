@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace ArchiForge.Api.Startup;
 
@@ -101,6 +102,16 @@ internal static class InfrastructureExtensions
                     policy.SetIsOriginAllowed(_ => false);
                 }
             });
+        });
+        return services;
+    }
+
+    /// <summary>Enables Brotli/Gzip for HTTPS responses (default MIME types include JSON).</summary>
+    public static IServiceCollection AddArchiForgeResponseCompression(this IServiceCollection services)
+    {
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
         });
         return services;
     }

@@ -1,51 +1,107 @@
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
+using ArchiForge.Application.Analysis;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using MvcProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
+
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Unit")]
 public sealed class ApplicationProblemMapperTests
 {
-    [Theory]
-    [InlineData("Something went wrong.")]
-    [InlineData("Run 'x' was not found.")]   // "not found" in message must NOT produce 404 anymore
-    [InlineData("No tasks found for run 'r'.")]
-    public void MapInvalidOperation_always_returns_400_regardless_of_message(string message)
-    {
-        ObjectResult result = ApplicationProblemMapper.MapInvalidOperation(
-            new InvalidOperationException(message),
-            instance: null,
-            badRequestProblemType: ProblemTypes.BadRequest);
-
-        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-    }
-
     [Fact]
-    public void TryMapUnhandledException_RunNotFoundException_returns_404_run_not_found()
+    public void TryMapUnhandledException_ComparisonVerificationFailed_Returns422()
     {
-        RunNotFoundException ex = new("run-123");
+        DriftAnalysisResult drift = new() { DriftDetected = true, Summary = "x" };
+        ComparisonVerificationFailedException ex = new("verify", drift);
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
 
         mapped.Should().BeTrue();
-        result!.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-        Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
-        problem!.Type.Should().Be(ProblemTypes.RunNotFound);
+        result!.StatusCode.Should().Be(422);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.ComparisonVerificationFailed);
     }
 
     [Fact]
-    public void TryMapUnhandledException_ConflictException_returns_409()
+    public void TryMapUnhandledException_Conflict_Returns409()
     {
-        ConflictException ex = new("Run is already committed.");
+        ConflictException ex = new("c");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, instance: null, out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.Conflict);
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_RunNotFound_Returns404()
+    {
+        RunNotFoundException ex = new("missing");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(404);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.RunNotFound);
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_InvalidOperation_Returns400()
+    {
+        InvalidOperationException ex = new("bad op");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(400);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.BadRequest);
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_ArgumentException_Returns400Validation()
+    {
+        ArgumentException ex = new("arg");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(400);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_ArgumentNullException_Returns400Validation()
+    {
+        ArgumentNullException ex = new("p");
+
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+
+        mapped.Should().BeTrue();
+        result!.StatusCode.Should().Be(400);
+        MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public void TryMapUnhandledException_UnmappedException_ReturnsFalse()
+    {
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(
+            new NotSupportedException(),
+            "/p",
+            out ObjectResult? result);
+
+        mapped.Should().BeFalse();
+        result.Should().BeNull();
     }
 }

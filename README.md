@@ -20,6 +20,13 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | [docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md) | **SQL reference:** DbUp migrations, consolidated scripts, bootstrap paths, troubleshooting, change checklist |
 | [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Demo / 50R:** DbUp + Contoso seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
 
+## Operator quick start
+
+- **Health:** `GET /health` runs registered checks (including the database when a connection string is configured). See [docs/BUILD.md](docs/BUILD.md) for startup vs migration failure behavior.
+- **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md)).
+- **Auth:** Configure **`ArchiForgeAuth`** (`DevelopmentBypass` locally, `JwtBearer` in production). Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
+- **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
+
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)

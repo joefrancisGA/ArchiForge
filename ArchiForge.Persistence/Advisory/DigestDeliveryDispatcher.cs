@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Text.Json;
 
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Serialization;
@@ -102,6 +104,10 @@ public sealed class DigestDeliveryDispatcher(
                         AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
+
+            ArchiForgeInstrumentation.DigestDeliverySucceeded.Add(
+                1,
+                new KeyValuePair<string, object?>("channel", subscription.ChannelType));
         }
         catch (OperationCanceledException)
         {
@@ -130,6 +136,10 @@ public sealed class DigestDeliveryDispatcher(
                         AuditJsonSerializationOptions.Instance),
                 },
                 ct).ConfigureAwait(false);
+
+            ArchiForgeInstrumentation.DigestDeliveryFailed.Add(
+                1,
+                new KeyValuePair<string, object?>("channel", subscription.ChannelType));
         }
     }
 }
