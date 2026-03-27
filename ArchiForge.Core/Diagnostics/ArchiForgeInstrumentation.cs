@@ -35,4 +35,21 @@ public static class ArchiForgeInstrumentation
         "alert_evaluation_duration_ms",
         unit: "ms",
         description: "Time spent in alert EvaluateAndPersistAsync per rule kind.");
+
+    /// <summary>Wall time for effective governance resolution (<c>IEffectiveGovernanceResolver.ResolveAsync</c>).</summary>
+    public static readonly Histogram<double> GovernanceResolveDurationMilliseconds = AppMeter.CreateHistogram<double>(
+        "governance_resolve_duration_ms",
+        unit: "ms",
+        description: "Time to resolve effective governance for a tenant/workspace/project scope.");
+
+    /// <summary>
+    /// Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside <c>EffectiveGovernanceResolver</c>
+    /// (avoids duplicate JSON work when the same version appears on multiple assignments).
+    /// </summary>
+    public static readonly Counter<long> GovernancePackContentDeserializeCacheHits =
+        AppMeter.CreateCounter<long>("governance_pack_content_deserialize_cache_hits");
+
+    /// <summary>Misses on that cache (JSON deserialize executed for a distinct pack version in the resolve call).</summary>
+    public static readonly Counter<long> GovernancePackContentDeserializeCacheMisses =
+        AppMeter.CreateCounter<long>("governance_pack_content_deserialize_cache_misses");
 }

@@ -1810,7 +1810,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 205. `ActivitySource` for orchestration, advisory scan, retrieval index.
 - [x] 206. Metrics: digest delivery by channel.
 - [x] 207. Metrics: alert evaluation duration (simple vs composite).
-- [ ] 208. Metrics: governance resolve + cache hit ratio (if cached).
+- [x] 208. Metrics: governance resolve + cache hit ratio (if cached) — `governance_resolve_duration_ms`; `governance_pack_content_deserialize_cache_hits` / `_misses` for per-resolve `(packId, version)` JSON dedupe.
 - [x] 209. Correlation id → audit fields where missing (activity `correlation.id` chain + advisory/authority/index tags; `AuditService` enrichment).
 - [ ] 210. Retry / DLQ for background jobs (beyond in-memory queue).
 - [ ] 211. Outbox for post-commit indexing.
@@ -1882,7 +1882,7 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [ ] Documentation & ADRs (155–169): partial (155 open; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [ ] Unit tests (170–194): partial (170–171, 174–175, 177–179, 182–185, 189–190 still open; added 181, 187, 188, 193, 194, 225 coverage).
 - [ ] Integration / E2E (195–204): not started.
-- [ ] Observability & reliability (205–214): partial (205–207, 209 done; 208, 210+ still open).
+- [ ] Observability & reliability (205–214): partial (205–209 done; 210+ still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
 - [ ] Performance & cost (227–234): partial (229 response compression enabled).
 - [ ] API & contracts (235–242): not started.

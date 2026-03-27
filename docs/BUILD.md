@@ -14,6 +14,19 @@ dotnet build
 dotnet test
 ```
 
+## OpenTelemetry metrics (`ArchiForge` meter)
+
+The API registers meter **`ArchiForge`** (`ArchiForgeInstrumentation.MeterName`). Notable series:
+
+| Metric | Notes |
+|--------|--------|
+| `digest_delivery_succeeded` / `digest_delivery_failed` | Tag **`channel`**. |
+| `alert_evaluation_duration_ms` | Tag **`rule_kind`**: `simple` \| `composite`. |
+| `governance_resolve_duration_ms` | End-to-end **`EffectiveGovernanceResolver.ResolveAsync`** latency. |
+| `governance_pack_content_deserialize_cache_hits` / `_misses` | In-resolve dedupe when the same pack **version** appears on multiple assignments (not HTTP-scope cache — see **`NEXT_REFACTORINGS.md`** §230). |
+
+Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping.
+
 ## SQL Server vs Testcontainers (contributors)
 
 **Default / CI-friendly:** Most **ArchiForge.Api.Tests** integration tests use **in-memory SQLite** via **`ArchiForgeApiFactory`** and a shared connection string — no Docker required.

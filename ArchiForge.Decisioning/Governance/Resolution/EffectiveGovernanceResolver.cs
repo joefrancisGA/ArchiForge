@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.Text.Json;
 
+using ArchiForge.Core.Diagnostics;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 
 namespace ArchiForge.Decisioning.Governance.Resolution;
@@ -48,6 +50,10 @@ public sealed class EffectiveGovernanceResolver(
         Guid projectId,
         CancellationToken ct)
     {
+        Stopwatch resolveWallClock = Stopwatch.StartNew();
+
+        try
+        {
         IReadOnlyList<PolicyPackAssignment> assignments = await assignmentRepository
             .ListByScopeAsync(tenantId, workspaceId, projectId, ct)
             .ConfigureAwait(false);
@@ -113,6 +119,11 @@ public sealed class EffectiveGovernanceResolver(
                 }
 
                 contentCache[cacheKey] = content;
+                ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheMisses.Add(1);
+            }
+            else
+            {
+                ArchiForgeInstrumentation.GovernancePackContentDeserializeCacheHits.Add(1);
             }
 
             resolvedPacks.Add(new ResolvedPackRow(assignment, pack, version, content));
@@ -175,6 +186,13 @@ public sealed class EffectiveGovernanceResolver(
         result.Notes.Add($"Detected {result.Conflicts.Count} conflict(s).");
 
         return result;
+        }
+        finally
+        {
+            resolveWallClock.Stop();
+            ArchiForgeInstrumentation.GovernanceResolveDurationMilliseconds.Record(
+                resolveWallClock.Elapsed.TotalMilliseconds);
+        }
     }
 
     /// <summary>
