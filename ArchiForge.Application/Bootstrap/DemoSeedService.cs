@@ -11,9 +11,12 @@ using Microsoft.Extensions.Logging;
 namespace ArchiForge.Application.Bootstrap;
 
 /// <summary>
-/// Idempotent seed for the Contoso Retail Modernization demo (baseline vs hardened runs, governance workflow, activations).
+/// Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow, activations).
 /// </summary>
-/// <remarks>Persists via <c>ArchiForge.Data</c> repositories only; does not touch authority/persistence policy-pack stores.</remarks>
+/// <remarks>
+/// Persists via <c>ArchiForge.Data</c> repositories only. The export row is optional metadata for export history — not required for
+/// consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
+/// </remarks>
 public sealed class DemoSeedService(
     IArchitectureRequestRepository requestRepository,
     IArchitectureRunRepository runRepository,
@@ -157,7 +160,7 @@ public sealed class DemoSeedService(
                 ? "Committed hardened Contoso retail manifest after governance review."
                 : "Committed baseline Contoso retail manifest.",
             CreatedUtc = DemoUtc,
-            Metadata = new Dictionary<string, string> { ["demo"] = "50R" }
+            Metadata = new Dictionary<string, string> { ["demo"] = "trusted-baseline-49R" }
         };
 
         await decisionTraceRepository.CreateManyAsync([trace], cancellationToken).ConfigureAwait(false);
@@ -270,7 +273,7 @@ public sealed class DemoSeedService(
                 PromotedBy = "demo.release@contoso.com",
                 PromotedUtc = DemoUtc.AddHours(3),
                 ApprovalRequestId = ContosoRetailDemoIdentifiers.ApprovalRequest,
-                Notes = "Demo promotion after approval (50R seed)."
+                Notes = "Demo promotion after approval (trusted baseline seed)."
             };
 
             await promotionRepository.CreateAsync(promotion, cancellationToken).ConfigureAwait(false);
@@ -321,6 +324,7 @@ public sealed class DemoSeedService(
         await activationRepository.CreateAsync(activation, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no AnalysisRequestJson).</summary>
     private async Task EnsureExportRecordAsync(CancellationToken cancellationToken)
     {
         if (await runExportRecordRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ExportRecord, cancellationToken).ConfigureAwait(false) is not null)
@@ -340,7 +344,7 @@ public sealed class DemoSeedService(
             WasAutoSelected = false,
             ResolutionReason = "Demo seed export snapshot.",
             ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
-            Notes = "Seeded by ArchiForge 50R demo.",
+            Notes = "Seeded by ArchiForge trusted baseline demo (export history only).",
             IncludedManifest = true,
             IncludedSummary = true,
             CreatedUtc = DemoUtc

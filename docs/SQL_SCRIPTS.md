@@ -126,10 +126,10 @@ They are **different domains**; names overlap conceptually but not at the databa
 
 ### 5.1 Mechanics
 
-- Scripts are **`EmbeddedResource`** in **ArchiForge.Data**.
-- **DbUp** selects resources whose name **contains** `Migrations` and ends with `.sql`.
-- Ordering is **lexicographic by embedded resource name** — therefore files **must** keep the prefix pattern **`001_`**, **`002_`**, … **`016_`** (see `DatabaseMigrationScriptTests`).
-- **`DatabaseMigrator.Run`** skips all of this when the connection string looks like SQLite (`Data Source=:memory:` or `Data Source=file:`).
+- Scripts are **`EmbeddedResource`** in **ArchiForge.Data** (`Migrations\*.sql` plus the standalone SQLite reference script under `SQL\`, which is **not** under `.Migrations.`).
+- **DbUp** (`DatabaseMigrator.Run`) selects only embedded names that contain **`.Migrations.`** and end with **`.sql`**, so only `ArchiForge.Data/Migrations/*.sql` run — not ad-hoc embedded SQL.
+- Ordering is **lexicographic by embedded resource name** — keep the filename prefix pattern **`001_`**, **`002_`**, … (see `DatabaseMigrationScriptTests`).
+- **`DatabaseMigrator.IsSqliteConnection`** skips DbUp for SQLite test strings and typical file-backed `*.db` / `*.sqlite` strings without `Server=` / `Initial Catalog=` (SQL Server uses DbUp).
 
 ### 5.2 Catalog (one file = one version step)
 

@@ -1,6 +1,8 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+using ArchiForge.Data.Infrastructure;
+
 using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
@@ -32,6 +34,11 @@ public sealed class DatabaseMigrationScriptTests
             string tail = idx >= 0 ? n[(idx + ".Migrations.".Length)..] : n;
             MigrationFileNameRegex.IsMatch(tail).Should().BeTrue(
                 $"migration embedded name should end with Migrations.###_Name.sql (got tail '{tail}' from '{n}')");
+
+            bool dbUpWouldInclude = n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
+                                    n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase);
+            dbUpWouldInclude.Should().BeTrue(
+                $"DbUp predicate should include '{n}' (see {nameof(DatabaseMigrator)}.{nameof(DatabaseMigrator.Run)})");
         }
     }
 }

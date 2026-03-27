@@ -144,15 +144,15 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
     public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT ResultJson
             FROM AgentResults
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 1000;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 1000)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

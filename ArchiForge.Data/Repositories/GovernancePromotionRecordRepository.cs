@@ -64,7 +64,9 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT
                 PromotionRecordId,
                 RunId,
@@ -78,10 +80,8 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             FROM GovernancePromotionRecords
             WHERE RunId = @RunId
             ORDER BY PromotedUtc DESC
-            LIMIT 200;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(
             sql,

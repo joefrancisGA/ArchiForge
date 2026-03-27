@@ -68,7 +68,9 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
 
     public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT
                 TaskId,
                 RunId,
@@ -81,10 +83,8 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             FROM AgentTasks
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 500;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(
             sql,

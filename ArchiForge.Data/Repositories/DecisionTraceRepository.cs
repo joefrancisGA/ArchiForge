@@ -58,15 +58,15 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT EventJson
             FROM DecisionTraces
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 2000;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 2000)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

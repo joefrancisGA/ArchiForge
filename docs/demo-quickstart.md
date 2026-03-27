@@ -1,6 +1,6 @@
-# Demo quickstart (Change 50R — Contoso Retail Modernization)
+# Demo quickstart (Corrected 50R — Contoso Retail Modernization)
 
-This guide gets a **fresh SQL-backed** environment to a repeatable demo state: two committed runs (baseline vs hardened), governance workflow rows, environment activations for preview/compare, and a sample export record.
+This guide gets a **fresh SQL-backed** environment to a repeatable demo state: two committed runs (baseline vs hardened), governance workflow rows, environment activations for preview/compare, and an optional sample export-history row. See **[TRUSTED_BASELINE.md](TRUSTED_BASELINE.md)** for what is baseline-trusted vs optional (export replay is not part of the minimal proof).
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ This guide gets a **fresh SQL-backed** environment to a repeatable demo state: t
 
 ## 1. Migrations (DbUp)
 
-On API startup, when `ConnectionStrings:ArchiForge` is set and is **not** an in-memory SQLite string, [DatabaseMigrator](../ArchiForge.Data/Infrastructure/DatabaseMigrator.cs) runs all embedded scripts under `ArchiForge.Data/Migrations/` in **lexicographic** order. Governance workflow DDL is in **`017_GovernanceWorkflow.sql`** (approval requests, promotion records, environment activations).
+On API startup, when `ConnectionStrings:ArchiForge` is set and is **not** SQLite (see `DatabaseMigrator.IsSqliteConnection`), [DatabaseMigrator](../ArchiForge.Data/Infrastructure/DatabaseMigrator.cs) runs embedded scripts whose resource name contains **`.Migrations.`** (i.e. files under `ArchiForge.Data/Migrations/`) in **lexicographic** order. Console output lists each script. Governance workflow DDL is in **`017_GovernanceWorkflow.sql`** (approval requests, promotion records, environment activations).
 
 If migration fails, the process throws and the host does not start.
 
@@ -57,7 +57,7 @@ Stable identifiers are defined in [ContosoRetailDemoIdentifiers](../ArchiForge.A
 | Decision traces | One commit trace per run |
 | Governance | Approved approval `apr-demo-001`, promotion `promo-demo-001` on hardened run |
 | Activations | **dev** → baseline manifest; **test** → hardened manifest (`act-demo-dev-001`, `act-demo-test-001`) |
-| Export | `export-demo-baseline-001` on baseline run |
+| Export history (optional) | `export-demo-baseline-001` — placeholder row for export **history**; not used for consulting DOCX replay (see [TRUSTED_BASELINE.md](TRUSTED_BASELINE.md)) |
 
 ## 4. Verify with HTTP
 

@@ -1,6 +1,6 @@
 namespace ArchiForge.Application.Bootstrap;
 
-/// <summary>Stable keys for the Contoso Retail Modernization demo dataset (50R).</summary>
+/// <summary>Stable keys for the Contoso Retail Modernization trusted-baseline demo (49R pass 2 / Corrected 50R).</summary>
 public static class ContosoRetailDemoIdentifiers
 {
     public const string RequestContoso = "request-contoso-demo";

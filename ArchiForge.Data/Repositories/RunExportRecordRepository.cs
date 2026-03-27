@@ -120,15 +120,15 @@ public sealed class RunExportRecordRepository(IDbConnectionFactory connectionFac
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT RecordJson
             FROM RunExportRecords
             WHERE RunId = @RunId
             ORDER BY CreatedUtc DESC
-            LIMIT 500;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

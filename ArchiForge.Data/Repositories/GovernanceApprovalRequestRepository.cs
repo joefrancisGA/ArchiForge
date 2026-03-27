@@ -132,7 +132,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT
                 ApprovalRequestId,
                 RunId,
@@ -149,10 +151,8 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             FROM GovernanceApprovalRequests
             WHERE RunId = @RunId
             ORDER BY RequestedUtc DESC
-            LIMIT 200;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
             sql,

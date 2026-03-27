@@ -76,15 +76,15 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT TraceJson
             FROM AgentExecutionTraces
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 500;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,
@@ -134,15 +134,15 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
         string taskId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT TraceJson
             FROM AgentExecutionTraces
             WHERE TaskId = @TaskId
             ORDER BY CreatedUtc
-            LIMIT 500;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

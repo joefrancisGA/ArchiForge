@@ -2,7 +2,7 @@ using ArchiForge.Application.Bootstrap;
 
 namespace ArchiForge.Api.Configuration;
 
-/// <summary>Feature flags for deterministic Contoso demo data seeding (50R). Never enable in production-like environments.</summary>
+/// <summary>Feature flags for deterministic Contoso trusted-baseline seeding (49R pass 2 / Corrected 50R). Never enable in production-like environments.</summary>
 public sealed class DemoOptions
 {
     public const string SectionName = "Demo";

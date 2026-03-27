@@ -10,6 +10,7 @@
     <ProjectReference Include="..\ArchiForge.Contracts\ArchiForge.Contracts.csproj" />
   </ItemGroup>
 
+  <!-- DbUp: DatabaseMigrator includes only resources whose name contains ".Migrations." (see DatabaseMigrator.cs). -->
   <ItemGroup>
     <EmbeddedResource Include="Migrations\*.sql" />
     <EmbeddedResource Include="SQL\ArchiForge.Sqlite.sql" LogicalName="ArchiForge.Data.SQL.ArchiForge.Sqlite.sql" />

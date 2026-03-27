@@ -1,8 +1,8 @@
 using System.Data;
 
-using Dapper;
+using ArchiForge.Data.Infrastructure;
 
-using Microsoft.Data.Sqlite;
+using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
@@ -11,7 +11,7 @@ namespace ArchiForge.Data.Repositories;
 /// </summary>
 internal static class ComparisonRecordSearchPredicateBuilder
 {
-    public static bool IsSqlite(IDbConnection connection) => connection is SqliteConnection;
+    public static bool IsSqlite(IDbConnection connection) => SqlPagingSyntax.IsSqlite(connection);
 
     public static void AppendFilters(
         bool isSqlite,

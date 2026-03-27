@@ -43,6 +43,12 @@ public partial class Program
 
         WebApplication app = builder.Build();
 
+        app.Logger.LogInformation(
+            "ArchiForge API host built. Environment={Environment}, ContentRoot={ContentRoot}",
+            app.Environment.EnvironmentName,
+            app.Environment.ContentRootPath);
+
+        // 1) Optional: Persistence layer applies bundled ArchiForge.sql batches when StorageProvider=Sql (authority / extended tables).
         using (IServiceScope scope = app.Services.CreateScope())
         {
             IConfiguration config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
@@ -50,29 +56,59 @@ public partial class Program
 
             if (string.Equals(options?.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
             {
+                app.Logger.LogInformation(
+                    "Startup: running ISchemaBootstrapper (ArchiForge:StorageProvider=Sql).");
+
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
                 bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
+                app.Logger.LogInformation("Startup: schema bootstrap completed.");
             }
         }
 
+        // 2) DbUp: embedded ArchiForge.Data/Migrations/*.sql in deterministic lexicographic order (SQL Server only).
         string? connectionString = app.Configuration.GetConnectionString("ArchiForge");
-        if (!string.IsNullOrEmpty(connectionString) && !DatabaseMigrator.Run(connectionString))
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
-            throw new InvalidOperationException("Database migration failed.");
+            app.Logger.LogWarning(
+                "Startup: ConnectionStrings:ArchiForge is not set; skipping DbUp migrations.");
+        }
+        else if (DatabaseMigrator.IsSqliteConnection(connectionString))
+        {
+            app.Logger.LogInformation(
+                "Startup: SQLite connection detected; skipping DbUp (migrations apply to SQL Server only).");
+        }
+        else
+        {
+            app.Logger.LogInformation(
+                "Startup: running DbUp migrations (embedded scripts under ArchiForge.Data/Migrations).");
+
+            if (!DatabaseMigrator.Run(connectionString))
+            {
+                throw new InvalidOperationException("Database migration failed; see DbUp console output.");
+            }
+
+            app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
         }
 
+        // 3) Optional: deterministic demo dataset (Development + Demo:Enabled + Demo:SeedOnStartup only).
         if (app.Environment.IsDevelopment())
         {
             DemoOptions? demo = app.Configuration.GetSection(DemoOptions.SectionName).Get<DemoOptions>();
             if (demo is { Enabled: true, SeedOnStartup: true })
             {
+                app.Logger.LogInformation(
+                    "Startup: Demo:SeedOnStartup=true; running {Service}.",
+                    nameof(IDemoSeedService));
+
                 using IServiceScope seedScope = app.Services.CreateScope();
                 IDemoSeedService demoSeed = seedScope.ServiceProvider.GetRequiredService<IDemoSeedService>();
                 demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
+                app.Logger.LogInformation("Startup: demo seed completed.");
             }
         }
 
+        app.Logger.LogInformation("ArchiForge API starting request pipeline.");
         app.UseArchiForgePipeline();
         app.Run();
     }

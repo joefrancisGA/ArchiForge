@@ -1,5 +1,6 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Bootstrap;
+using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Governance.Preview;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Tests;
 
-/// <summary>Validates 50R Contoso demo seed against the shared SQLite test database.</summary>
+/// <summary>Validates trusted-baseline Contoso demo seed against the shared SQLite test database.</summary>
 [Trait("Category", "Integration")]
 public sealed class DemoSeedServiceTests
 {
@@ -64,5 +65,70 @@ public sealed class DemoSeedServiceTests
             });
 
         result.Differences.Should().NotBeEmpty("baseline vs hardened governance should differ");
+    }
+
+    [Fact]
+    public async Task SeedAsync_lists_both_demo_runs_in_run_summaries()
+    {
+        await using ArchiForgeApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+        IReadOnlyList<RunSummary> summaries = await detail.ListRunSummariesAsync();
+
+        summaries.Select(s => s.RunId).Should().Contain(
+            [
+                ContosoRetailDemoIdentifiers.RunBaseline,
+                ContosoRetailDemoIdentifiers.RunHardened
+            ]);
+    }
+
+    [Fact]
+    public async Task SeedAsync_manifest_diff_detects_structural_differences_between_versions()
+    {
+        await using ArchiForgeApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+        IManifestDiffService manifestDiff = scope.ServiceProvider.GetRequiredService<IManifestDiffService>();
+
+        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunBaseline);
+        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunHardened);
+
+        ManifestDiffResult diff = manifestDiff.Compare(baseline!.Manifest!, hardened!.Manifest!);
+
+        bool hasMeaningfulStructuralDiff =
+            diff.AddedServices.Count > 0
+            || diff.RemovedServices.Count > 0
+            || diff.AddedDatastores.Count > 0
+            || diff.RemovedDatastores.Count > 0
+            || diff.AddedRequiredControls.Count > 0
+            || diff.RemovedRequiredControls.Count > 0;
+
+        hasMeaningfulStructuralDiff.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SeedAsync_agent_result_compare_produces_deltas()
+    {
+        await using ArchiForgeApiFactory factory = new();
+        using IServiceScope scope = factory.Services.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
+
+        IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
+        IAgentResultDiffService agentDiff = scope.ServiceProvider.GetRequiredService<IAgentResultDiffService>();
+
+        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunBaseline);
+        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunHardened);
+
+        AgentResultDiffResult diff = agentDiff.Compare(
+            ContosoRetailDemoIdentifiers.RunBaseline,
+            baseline!.Results,
+            ContosoRetailDemoIdentifiers.RunHardened,
+            hardened!.Results);
+
+        diff.AgentDeltas.Should().NotBeEmpty();
     }
 }

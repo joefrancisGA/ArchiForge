@@ -77,7 +77,9 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         string environment,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT
                 ActivationId,
                 RunId,
@@ -88,10 +90,8 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             FROM GovernanceEnvironmentActivations
             WHERE Environment = @Environment
             ORDER BY ActivatedUtc DESC
-            LIMIT 200;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,
@@ -105,7 +105,9 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT
                 ActivationId,
                 RunId,
@@ -116,10 +118,8 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             FROM GovernanceEnvironmentActivations
             WHERE RunId = @RunId
             ORDER BY ActivatedUtc DESC
-            LIMIT 200;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
             sql,

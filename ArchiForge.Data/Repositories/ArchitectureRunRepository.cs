@@ -80,15 +80,15 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             WHERE RunId = @RunId;
             """;
 
-        const string taskSql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string taskSql = $"""
             SELECT TaskId
             FROM AgentTasks
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 500;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         ArchitectureRunRow? row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
             runSql,
@@ -209,7 +209,9 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT
                 r.RunId,
                 r.RequestId,
@@ -222,10 +224,8 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             INNER JOIN ArchitectureRequests req
                 ON r.RequestId = req.RequestId
             ORDER BY r.CreatedUtc DESC, r.RunId DESC
-            LIMIT 200;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<ArchitectureRunListItemRow> rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(
             sql,

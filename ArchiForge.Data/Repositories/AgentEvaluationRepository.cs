@@ -101,15 +101,15 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT EvaluationJson
             FROM AgentEvaluations
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 500;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

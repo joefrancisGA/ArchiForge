@@ -77,15 +77,15 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
         string runId,
         CancellationToken cancellationToken = default)
     {
-        const string sql = """
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+
+        string sql = $"""
             SELECT DecisionJson
             FROM DecisionNodes
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            LIMIT 1000;
+            {SqlPagingSyntax.FirstRowsOnly(connection, 1000)};
             """;
-
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
             sql,

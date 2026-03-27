@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Controllers;
 
-/// <summary>Development-only endpoints for deterministic demo data (Change 50R).</summary>
+/// <summary>Development-only endpoints for deterministic trusted-baseline demo data (Corrected 50R / 49R pass 2).</summary>
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/demo")]
