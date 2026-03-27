@@ -1778,7 +1778,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 179. `ExportReplayService` extra formats / errors (`analysis-report-docx` replay + `ExportReplayServiceReplayAsyncTests`).
 - [x] 180. **`FindingPayloadValidatorTests`** (envelope guards, compliance + multi-type happy paths).
 - [x] 181. `CostConstraintFindingEngine` / `ComplianceFindingEngine` branch coverage.
-- [ ] 182. `RetrievalQueryService` empty index + ranking.
+- [x] 182. `RetrievalQueryService` empty index + ranking (`ArchiForge.Retrieval.Tests`: `RetrievalQueryServiceTests`, `InMemoryVectorIndexTests`).
 - [ ] 183. `ConversationService` thread lifecycle.
 - [ ] 184. `DocxExportService` golden / snapshot tests.
 - [ ] 185. `CoordinatorService` ingestion mapper tests.
@@ -1880,7 +1880,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
 - [ ] Documentation & ADRs (155–169): partial (155 open; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
-- [ ] Unit tests (170–194): partial (170–171, 182–185, 189–190 still open; added 174, 175, 177, 178, 179, 181, 187, 188, 193, 194, 225 coverage).
+- [ ] Unit tests (170–194): partial (170–171, 183–185, 189–190 still open; added 174, 175, 177, 178, 179, 181, 182, 187, 188, 193, 194, 225 coverage).
 - [ ] Integration / E2E (195–204): not started.
 - [ ] Observability & reliability (205–214): partial (205–209 done; 210+ still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
