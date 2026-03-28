@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
@@ -9,7 +10,9 @@ public sealed class AgentResultParser : IAgentResultParser
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        // Agent/LLM payloads use string enum names (see schemas/agentresult.schema.json); default is numeric.
+        Converters = { new JsonStringEnumConverter() }
     };
 
     public AgentResult ParseAndValidate(
