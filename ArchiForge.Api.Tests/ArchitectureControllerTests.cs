@@ -233,10 +233,11 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
     [Fact]
     public async Task CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId()
     {
+        string idempotencyKey = $"idem-{Guid.NewGuid():N}";
         object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-001");
         using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
         first.Content = JsonContent(body);
-        first.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-001");
+        first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
         HttpResponseMessage firstResponse = await Client.SendAsync(first);
         firstResponse.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -246,7 +247,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
 
         using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
         second.Content = JsonContent(body);
-        second.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-001");
+        second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
         HttpResponseMessage secondResponse = await Client.SendAsync(second);
         secondResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -261,10 +262,11 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
     [Fact]
     public async Task CreateRun_SameIdempotencyKeyDifferentBody_Returns409()
     {
+        string idempotencyKey = $"idem-{Guid.NewGuid():N}";
         object firstBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002A");
         using HttpRequestMessage first = new(HttpMethod.Post, "/v1/architecture/request");
         first.Content = JsonContent(firstBody);
-        first.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-002");
+        first.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
         HttpResponseMessage firstResponse = await Client.SendAsync(first);
         firstResponse.EnsureSuccessStatusCode();
@@ -272,7 +274,7 @@ public sealed class ArchitectureControllerTests(ArchiForgeApiFactory factory) : 
         object secondBody = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-002B");
         using HttpRequestMessage second = new(HttpMethod.Post, "/v1/architecture/request");
         second.Content = JsonContent(secondBody);
-        second.Headers.TryAddWithoutValidation("Idempotency-Key", "idem-key-002");
+        second.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
 
         HttpResponseMessage secondResponse = await Client.SendAsync(second);
         secondResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);

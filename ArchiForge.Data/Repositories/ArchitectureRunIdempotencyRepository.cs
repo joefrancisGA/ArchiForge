@@ -111,7 +111,23 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
                 .ExecuteAsync(new CommandDefinition(sql, parameters, cancellationToken: cancellationToken))
                 .ConfigureAwait(false);
 
-            return affected > 0;
+            if (affected > 0)
+                return true;
+
+            // Dapper + Microsoft.Data.Sqlite sometimes report 0 rows changed for INSERT even when the row exists.
+            // Treating that as "lost race" makes CreateRunAsync call ResolveIdempotencyRaceAsync / Rehydrate and can surface DbException (503).
+            if (connection is SqliteConnection)
+            {
+                return await RowExistsForScopeAsync(
+                    connection,
+                    tenantId,
+                    workspaceId,
+                    projectId,
+                    idempotencyKeyHash,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            return false;
         }
         catch (SqlException ex) when (ex.Number is 2601 or 2627)
         {
@@ -123,6 +139,33 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
             // 19 = SQLITE_CONSTRAINT; 2067 = SQLITE_CONSTRAINT_UNIQUE (duplicate key on INSERT).
             return false;
         }
+    }
+
+    private static async Task<bool> RowExistsForScopeAsync(
+        IDbConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        byte[] idempotencyKeyHash,
+        CancellationToken cancellationToken)
+    {
+        const string existsSql = """
+            SELECT COUNT(1)
+            FROM ArchitectureRunIdempotency
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND IdempotencyKeyHash = @IdempotencyKeyHash;
+            """;
+
+        object scopeParameters = CreateScopeParameters(connection, tenantId, workspaceId, projectId, idempotencyKeyHash);
+
+        object? scalar = await connection.ExecuteScalarAsync(new CommandDefinition(
+            existsSql,
+            scopeParameters,
+            cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+        return scalar is not null && Convert.ToInt64(scalar, System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
     private static object CreateScopeParameters(
