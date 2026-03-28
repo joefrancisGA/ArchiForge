@@ -1,4 +1,4 @@
-using ArchiForge.Application.Common;
+using ArchiForge.Application;
 
 using FluentAssertions;
 

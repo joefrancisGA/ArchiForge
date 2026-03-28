@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace ArchiForge.Application.Common;
+namespace ArchiForge.Application;
 
 /// <summary>
 /// HTTP-scoped actor resolution from <see cref="HttpContext.User"/> (identity name only; no RBAC).

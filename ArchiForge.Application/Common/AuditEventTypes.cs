@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Common;
+namespace ArchiForge.Application;
 
 /// <summary>
 /// Stable event type strings for <see cref="IBaselineMutationAuditService"/> (trusted baseline only).

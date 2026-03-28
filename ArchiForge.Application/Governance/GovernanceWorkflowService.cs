@@ -1,6 +1,6 @@
 using System.Transactions;
 
-using ArchiForge.Application.Common;
+using ArchiForge.Application;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Metadata;

@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Common;
+namespace ArchiForge.Application;
 
 /// <summary>
 /// Resolves the acting principal for audit and logging (Corrected 51R). Host supplies an implementation using <c>IHttpContextAccessor</c>.

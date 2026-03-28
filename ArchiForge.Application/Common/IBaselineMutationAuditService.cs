@@ -1,4 +1,4 @@
-namespace ArchiForge.Application.Common;
+namespace ArchiForge.Application;
 
 /// <summary>
 /// Corrected 51R structured logging for baseline mutations. This is log discipline only—distinct from the host

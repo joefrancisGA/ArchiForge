@@ -1,5 +1,4 @@
 using ArchiForge.Application;
-using ArchiForge.Application.Common;
 using ArchiForge.Application.Governance;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
@@ -22,6 +21,7 @@ public sealed class GovernanceWorkflowServiceTests
     private readonly Mock<IGovernancePromotionRecordRepository> _promotionRepo;
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo;
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
+    private readonly Mock<IBaselineMutationAuditService> _baselineAudit;
     private readonly GovernanceWorkflowService _sut;
 
     public GovernanceWorkflowServiceTests()
@@ -30,6 +30,7 @@ public sealed class GovernanceWorkflowServiceTests
         _promotionRepo = new Mock<IGovernancePromotionRecordRepository>();
         _activationRepo = new Mock<IGovernanceEnvironmentActivationRepository>();
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
+        _baselineAudit = new Mock<IBaselineMutationAuditService>();
 
         Mock<ILogger<GovernanceWorkflowService>> logger = new();
 
@@ -38,6 +39,7 @@ public sealed class GovernanceWorkflowServiceTests
             _promotionRepo.Object,
             _activationRepo.Object,
             _runDetailQueryService.Object,
+            _baselineAudit.Object,
             logger.Object);
     }
 
@@ -238,6 +240,15 @@ public sealed class GovernanceWorkflowServiceTests
 
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*cannot be rejected*");
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Promote ──────────────────────────────────────────────────────────────
@@ -402,6 +413,15 @@ public sealed class GovernanceWorkflowServiceTests
         _activationRepo.Verify(r => r.CreateAsync(
             It.Is<GovernanceEnvironmentActivation>(a => a.IsActive && a.ManifestVersion == "v2"),
             It.IsAny<CancellationToken>()), Times.Once);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                AuditEventTypes.Governance.EnvironmentActivated,
+                "activator",
+                It.IsAny<string>(),
+                It.Is<string>(d => d.Contains("run-2", StringComparison.Ordinal) && d.Contains("dev", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
