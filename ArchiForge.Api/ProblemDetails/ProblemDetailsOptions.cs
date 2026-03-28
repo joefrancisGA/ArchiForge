@@ -35,4 +35,7 @@ public static class ProblemTypes
 
     /// <summary>The database is unreachable or returned a transient error.</summary>
     public const string DatabaseUnavailable = Base + "#database-unavailable";
+
+    /// <summary>Azure OpenAI (or embedding) calls are blocked by the circuit breaker after repeated failures.</summary>
+    public const string CircuitBreakerOpen = Base + "#circuit-breaker-open";
 }

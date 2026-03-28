@@ -2,6 +2,7 @@ using System.Data.Common;
 
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Core.Resilience;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -53,6 +54,20 @@ public static class ApplicationProblemMapper
 
         if (TryMapDatabaseException(ex, instance, out result))
             return true;
+
+        if (ex is CircuitBreakerOpenException cbo)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status503ServiceUnavailable,
+                "AI Service Temporarily Unavailable",
+                cbo.Message,
+                ProblemTypes.CircuitBreakerOpen,
+                instance);
+            if (result.Value is Microsoft.AspNetCore.Mvc.ProblemDetails details && cbo.RetryAfterUtc is { } until)
+                details.Extensions["retryAfterUtc"] = until;
+
+            return true;
+        }
 
         if (ex is InvalidOperationException ioe)
         {

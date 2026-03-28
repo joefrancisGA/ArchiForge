@@ -3,6 +3,7 @@ using System.Data.Common;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Core.Resilience;
 
 using FluentAssertions;
 
@@ -148,6 +149,26 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
+    }
+
+    [Fact]
+    public void CircuitBreakerOpenException_Produces503WithProblemTypeAndRetryExtension()
+    {
+        DateTimeOffset retryAfter = new(2026, 3, 1, 12, 0, 0, TimeSpan.Zero);
+        ExceptionContext context = CreateExceptionContext(
+            new CircuitBreakerOpenException(retryAfter),
+            "/api/ask");
+
+        RunFilter(context);
+
+        context.ExceptionHandled.Should().BeTrue();
+        ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
+        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p =
+            result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Type.Should().Be(ProblemTypes.CircuitBreakerOpen);
+        p.Extensions.Should().ContainKey("retryAfterUtc");
+        p.Extensions["retryAfterUtc"].Should().Be(retryAfter);
     }
 
     [Fact]

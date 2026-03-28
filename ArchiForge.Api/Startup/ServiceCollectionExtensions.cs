@@ -6,6 +6,7 @@ using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Ask;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Health;
+using ArchiForge.Api.Resilience;
 using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Services;
@@ -39,6 +40,7 @@ using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Core.Ask;
+using ArchiForge.Core.Resilience;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
@@ -68,7 +70,9 @@ using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Retrieval.Queries;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
@@ -340,6 +344,10 @@ internal static partial class ServiceCollectionExtensions
 
             if (useAzureOpenAi)
             {
+                services.AddKeyedSingleton<CircuitBreakerGate>(
+                    OpenAiCircuitBreakerKeys.Completion,
+                    (sp, _) => new CircuitBreakerGate(ResolveOpenAiCircuitBreakerOptions(sp.GetRequiredService<IConfiguration>())));
+
                 services.AddSingleton<IAgentCompletionClient>(sp =>
                 {
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
@@ -349,7 +357,11 @@ internal static partial class ServiceCollectionExtensions
                                     ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
                     string deploymentName = config["AzureOpenAI:DeploymentName"]
                                             ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
-                    return new AzureOpenAiCompletionClient(endpoint, apiKey, deploymentName);
+                    AzureOpenAiCompletionClient inner = new(endpoint, apiKey, deploymentName);
+                    CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
+                    ILogger<CircuitBreakingAgentCompletionClient> logger =
+                        sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
+                    return new CircuitBreakingAgentCompletionClient(inner, gate, logger);
                 });
             }
             else
@@ -417,13 +429,36 @@ internal static partial class ServiceCollectionExtensions
 
         if (useAzureEmbeddings)
         {
-            services.AddSingleton<IOpenAiEmbeddingClient>(_ =>
-                new AzureOpenAiEmbeddingClient(endpoint!, apiKey!, embedDeployment!));
+            services.AddKeyedSingleton<CircuitBreakerGate>(
+                OpenAiCircuitBreakerKeys.Embedding,
+                (sp, _) => new CircuitBreakerGate(ResolveOpenAiCircuitBreakerOptions(sp.GetRequiredService<IConfiguration>())));
+
+            services.AddSingleton<IOpenAiEmbeddingClient>(sp =>
+            {
+                AzureOpenAiEmbeddingClient inner = new(endpoint!, apiKey!, embedDeployment!);
+                CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Embedding);
+                ILogger<CircuitBreakingOpenAiEmbeddingClient> logger =
+                    sp.GetRequiredService<ILogger<CircuitBreakingOpenAiEmbeddingClient>>();
+                return new CircuitBreakingOpenAiEmbeddingClient(inner, gate, logger);
+            });
             services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
         }
         else
         {
             services.AddSingleton<IEmbeddingService, FakeEmbeddingService>();
         }
+    }
+
+    private static CircuitBreakerOptions ResolveOpenAiCircuitBreakerOptions(IConfiguration configuration)
+    {
+        IConfigurationSection section = configuration.GetSection("AzureOpenAI:CircuitBreaker");
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = section.GetValue<int?>("FailureThreshold") ?? CircuitBreakerOptions.DefaultFailureThreshold,
+            DurationOfBreakSeconds = section.GetValue<int?>("DurationOfBreakSeconds")
+                                     ?? CircuitBreakerOptions.DefaultDurationOfBreakSeconds
+        };
+        options.ApplyDefaults();
+        return options;
     }
 }

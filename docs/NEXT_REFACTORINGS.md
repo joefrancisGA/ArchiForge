@@ -1814,7 +1814,13 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 209. Correlation id → audit fields where missing (activity `correlation.id` chain + advisory/authority/index tags; `AuditService` enrichment).
 - [x] 210. Retry / DLQ for background jobs — `InMemoryBackgroundJobQueue` now supports `maxRetries` (exponential backoff, DLQ on exhaustion); `BackgroundJobInfo` tracks `RetryCount`/`MaxRetries`; tests: retry→succeed, retry→exhaust→fail, zero-retry immediate fail.
 - [ ] 211. Outbox for post-commit indexing.
-- [ ] 212. Circuit breaker for OpenAI / embedding clients.
+- [x] 212. Circuit breaker for OpenAI / embedding clients.
+  - **`CircuitBreakerGate`** (`ArchiForge.Core.Resilience`): closed → open after N consecutive failures → half-open single probe after `DurationOfBreakSeconds` → closed on success; concurrent callers rejected while probe in flight; optional injectable `Func<DateTimeOffset>` clock for tests.
+  - **`CircuitBreakerOptions`**: `FailureThreshold` (default 5), `DurationOfBreakSeconds` (default 30), bound from `AzureOpenAI:CircuitBreaker` (`FailureThreshold`, `DurationOfBreakSeconds`).
+  - **`CircuitBreakerOpenException`**: thrown when open or probe busy; `RetryAfterUtc` when known.
+  - **`CircuitBreakingAgentCompletionClient`** wraps `AzureOpenAiCompletionClient`; **`CircuitBreakingOpenAiEmbeddingClient`** wraps `AzureOpenAiEmbeddingClient`; independent **keyed** `CircuitBreakerGate` instances (`OpenAiCircuitBreakerKeys.Completion` / `Embedding`).
+  - **ProblemDetails**: `ApplicationProblemMapper` maps to 503 `ProblemTypes.CircuitBreakerOpen` with `extensions.retryAfterUtc` when set; filter tests in `ApiProblemDetailsExceptionFilterTests`.
+  - **Tests**: `CircuitBreakerGateTests`, `CircuitBreakingOpenAiEmbeddingClientTests` (`ArchiForge.Retrieval.Tests`); `CircuitBreakingAgentCompletionClientTests` (`ArchiForge.Api.Tests` + `AgentRuntime` reference).
 - [x] 213. Graceful shutdown: advisory poller + host — `AdvisoryScanHostedServiceShutdownTests` (clean exit on cancellation during delay, continues after non-cancellation exception, handles OCE during processing).
 - [ ] 214. SLO dashboards (Grafana + Prometheus).
 
@@ -1893,7 +1899,7 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
-- [ ] Observability & reliability (205–214): partial (205–210, 213 done; 211–212, 214 still open).
+- [ ] Observability & reliability (205–214): partial (205–210, 212–213 done; 211, 214 still open).
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
 - [ ] Performance & cost (227–234): partial (229 response compression enabled).
 - [ ] API & contracts (235–242): partial (236 standard pagination done; 235, 237–242 open).
