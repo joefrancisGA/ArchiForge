@@ -7,7 +7,9 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 public sealed class ArchitectureDeterminismTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]

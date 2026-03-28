@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchiForge.Cli.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class CliSmokeTests
 {
     [Fact]

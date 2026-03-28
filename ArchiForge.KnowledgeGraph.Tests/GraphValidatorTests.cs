@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchiForge.KnowledgeGraph.Tests;
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class GraphValidatorTests
 {

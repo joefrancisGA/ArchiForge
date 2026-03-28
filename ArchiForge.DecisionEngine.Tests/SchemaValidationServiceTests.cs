@@ -11,6 +11,8 @@ using Moq;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Slow")]
 public sealed class SchemaValidationServiceTests
 {
     private readonly Mock<ILogger<SchemaValidationService>> _loggerMock = new();

@@ -21,6 +21,30 @@
 - **ArchiForge.Coordinator.Tests**, **ArchiForge.AgentRuntime.Tests**, **ArchiForge.Decisioning.Tests**, **ArchiForge.Retrieval.Tests**, etc. — Domain/component tests; no web stack unless explicitly added.
 - **ArchiForge.Persistence.Tests** — SQL integration tests for `DapperArchitectureDigestRepository`, `DapperAlertRuleRepository`, and future Dapper round-trips. Requires **Docker** (Linux SQL Server image). After container start, tests run **`ArchiForge.Data.Infrastructure.DatabaseMigrator.Run`** so DDL matches embedded **`ArchiForge.Data/Migrations/*.sql`**, not the consolidated `ArchiForge.sql` reference script alone. **Contract tests** (`Contracts/` folder): abstract base classes (`AlertRuleRepositoryContractTests`, `ArchitectureDigestRepositoryContractTests`) define shared assertions; `InMemory*ContractTests` (`Category=Unit`) and `Dapper*ContractTests` (`Category=SqlServerContainer`) run the same suite against both implementations to guarantee InMemory ↔ Dapper parity.
 
+## Suite=Core (high-value regression subset)
+
+A curated set of tests is tagged at **class** level with:
+
+```csharp
+[Trait("Suite", "Core")]
+```
+
+Run the **core suite** (all tagged tests across the solution):
+
+```bash
+dotnet test ArchiForge.sln --filter "Suite=Core"
+```
+
+From the repo root, **`test-core.cmd`** / **`test-fast-core.cmd`** (and `.ps1` equivalents) wrap the same filters.
+
+**Fast core** — Core tests that are neither **Slow** nor **Integration** (useful for quick feedback; skips API integration and other heavy cases):
+
+```bash
+dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
+```
+
+Heavy or integration-style tests may add `[Trait("Category", "Slow")]` and/or `[Trait("Category", "Integration")]` in addition to `Suite=Core` so they remain in the full core run but drop out of the fast-core filter.
+
 ## Categories (optional filtering)
 
 All tests in **ArchiForge.Api.Tests** that extend **IntegrationTestBase** (and thus use `WebApplicationFactory`) are integration tests. They are tagged at class level with:

@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class ManifestHashServiceTests
 {
     private readonly ManifestHashService _sut = new();

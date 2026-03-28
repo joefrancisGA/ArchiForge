@@ -12,6 +12,7 @@ namespace ArchiForge.Decisioning.Tests;
 /// empty graph, single node without PROTECTS, missing status becomes Error,
 /// present status becomes Info, PROTECTS edges expand relatedNodeIds.
 /// </summary>
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class SecurityBaselineFindingEngineTests
 {

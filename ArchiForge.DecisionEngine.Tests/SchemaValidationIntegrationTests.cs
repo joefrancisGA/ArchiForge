@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.DecisionEngine.Tests;
 
+[Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 public sealed class SchemaValidationIntegrationTests
 {
     [Fact]

@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class CanonicalDeduplicatorTests
 {
     private readonly CanonicalDeduplicator _sut = new();

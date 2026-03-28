@@ -8,6 +8,7 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class RecommendationGeneratorTests
 {
     private readonly Mock<IAdaptiveRecommendationScorer> _scorerMock = new(MockBehavior.Strict);

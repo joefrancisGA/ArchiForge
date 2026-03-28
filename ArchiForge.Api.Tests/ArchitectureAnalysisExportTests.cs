@@ -8,6 +8,7 @@ using FluentAssertions;
 namespace ArchiForge.Api.Tests;
 
 [Trait("Category", "Integration")]
+[Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisExportTests(ArchiForgeApiFactory factory) : IntegrationTestBase(factory)
 {
     [Fact]

@@ -5,6 +5,7 @@ using FluentAssertions;
 
 namespace ArchiForge.ContextIngestion.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class SimpleTerraformDeclarationParserTests
 {
     private readonly SimpleTerraformDeclarationParser _sut = new();

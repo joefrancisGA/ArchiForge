@@ -7,6 +7,7 @@ using FluentAssertions;
 
 namespace ArchiForge.Api.Tests;
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class DatabaseMigrationScriptTests
 {

@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+[Trait("Suite", "Core")]
+[Trait("Category", "Slow")]
 public sealed class TypedFindingsGoldenPathTests
 {
     [Fact]

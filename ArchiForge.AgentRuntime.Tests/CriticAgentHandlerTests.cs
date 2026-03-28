@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchiForge.AgentRuntime.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class CriticAgentHandlerTests
 {
     [Fact]

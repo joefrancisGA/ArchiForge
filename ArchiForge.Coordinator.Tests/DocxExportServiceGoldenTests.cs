@@ -17,6 +17,7 @@ namespace ArchiForge.Coordinator.Tests;
 /// Golden-style checks on <see cref="DocxExportService"/> output: valid OpenXML package and stable anchor strings from a minimal manifest.
 /// </summary>
 [Trait("Category", "Unit")]
+[Trait("Category", "Slow")]
 public sealed class DocxExportServiceGoldenTests
 {
     [Fact]

@@ -6,6 +6,7 @@ using FluentAssertions;
 
 namespace ArchiForge.Decisioning.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class PolicyPackGovernanceFilterTests
 {
     private static AlertRule Rule(Guid id, string name = "r") =>

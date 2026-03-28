@@ -11,6 +11,7 @@ using Moq;
 
 namespace ArchiForge.Decisioning.Tests;
 
+[Trait("Suite", "Core")]
 public sealed class FindingsOrchestratorTests
 {
     private static GraphSnapshot EmptyGraph() => new()
