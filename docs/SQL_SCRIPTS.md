@@ -6,20 +6,19 @@ This document is the **canonical guide** to every SQL artifact in ArchiForge: wh
 
 ---
 
-## 1. Why there are three SQL pathways
+## 1. Why there are two SQL pathways
 
-ArchiForge does **not** use a single script for all environments. Three mechanisms coexist by design:
+ArchiForge uses **two** mechanisms for SQL Server schema (by design):
 
 | Pathway | When it runs | Engine | Script source | Purpose |
 |--------|----------------|--------|----------------|--------|
-| **DbUp migrations** | API startup (SQL Server connection only) | SQL Server | `ArchiForge.Data/Migrations/*.sql` embedded in **ArchiForge.Data** | **Authoritative upgrades** for deployed databases; ordered, transactional, logged. |
-| **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchiForge.Data/SQL/ArchiForge.sql` copied to **ArchiForge.Persistence** output as `Scripts/ArchiForge.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §4). |
-| **SQLite bootstrap** | First connection per distinct SQLite connection string (e.g. in-memory tests) | SQLite | `ArchiForge.Data/SQL/ArchiForge.Sqlite.sql` embedded in **ArchiForge.Data** | Test / local schema; **DbUp is skipped** when the connection string is SQLite. |
+| **DbUp migrations** | API startup when `ConnectionStrings:ArchiForge` is set | SQL Server | `ArchiForge.Data/Migrations/*.sql` embedded in **ArchiForge.Data** | **Authoritative upgrades** for deployed and test databases; ordered, transactional, logged. |
+| **Persistence schema bootstrap** | First use of Dapper SQL persistence (same DB as API typically) | SQL Server | `ArchiForge.Data/SQL/ArchiForge.sql` copied to **ArchiForge.Persistence** output as `Scripts/ArchiForge.sql` | Ensures **authority + decisioning** objects exist; runs **full** consolidated DDL in `GO` batches (see §3). |
 
 **Important:**
 
 - **Production / dev SQL Server:** Schema evolution is driven by **migrations**. The consolidated `ArchiForge.sql` is still run by Persistence bootstrap and should stay **aligned** with migrations + authority DDL, but **do not** rely on it alone for long-lived DB upgrades.
-- **Integration tests:** Often use **in-memory SQLite** → DbUp does not run; only `ArchiForge.Sqlite.sql` defines the shape of the test DB (for code paths using `SqliteConnectionFactory`).
+- **Integration tests:** `WebApplicationFactory` hosts use **SQL Server** (e.g. `localhost` with a per-run database name from **`ArchiForgeApiFactory`**). **DbUp runs** on test host startup against that database, same as production code paths.
 
 ---
 
@@ -28,9 +27,8 @@ ArchiForge does **not** use a single script for all environments. Three mechanis
 | Path | Role |
 |------|------|
 | `ArchiForge.Data/SQL/ArchiForge.sql` | SQL Server **consolidated** schema (API + authority + decisioning). Source of truth for **greenfield** / manual runs / Persistence bootstrap copy. |
-| `ArchiForge.Data/SQL/ArchiForge.Sqlite.sql` | SQLite **consolidated** schema for tests/reference. |
 | `ArchiForge.Data/SQL/README.md` | Short pointer to this doc for repo browsers. |
-| `ArchiForge.Data/Migrations/001_*.sql` … `017_*.sql` | Incremental **DbUp** scripts (SQL Server); **`017_GovernanceWorkflow.sql`** adds governance approval / promotion / environment activation tables. |
+| `ArchiForge.Data/Migrations/001_*.sql` … `022_*.sql` | Incremental **DbUp** scripts (SQL Server); see §4 catalog. |
 | `ArchiForge.Data/Migrations/README.md` | Short pointer + naming rule for DbUp ordering. |
 | `ArchiForge.Persistence` output | `Scripts/ArchiForge.sql` — MSBuild **linked copy** of `ArchiForge.Data/SQL/ArchiForge.sql` (`CopyToOutputDirectory`). |
 
@@ -90,48 +88,19 @@ They are **different domains**; names overlap conceptually but not at the databa
 ### 3.7 When to change `ArchiForge.sql`
 
 - **Always** when you add or change objects that Persistence bootstrap must create on a **fresh** database.
-- **Also** update **`ArchiForge.Sqlite.sql`** (if tests need the same concept on SQLite).
 - **Always** add or extend a **DbUp migration** for SQL Server deployments that already exist.
 
 ---
 
-## 4. `ArchiForge.Sqlite.sql` (SQLite consolidated)
+## 4. DbUp migrations (`ArchiForge.Data/Migrations/`)
 
-### 4.1 Purpose
+### 4.1 Mechanics
 
-- Defines a **full** logical schema for **SQLite** used when `IDbConnectionFactory` is **`SqliteConnectionFactory`** (typically in-memory integration tests).
-- **Not** executed by DbUp.
-
-### 4.2 How it is executed
-
-- Embedded as **`ArchiForge.Data.SQL.ArchiForge.Sqlite.sql`** (`ArchiForge.Data.csproj` sets `LogicalName`).
-- On **first** connection for a given connection string, `SqliteConnectionFactory` loads the resource and runs the entire script with **`ExecuteNonQuery`** (multi-statement script).
-
-### 4.3 Syntax & limitations vs SQL Server
-
-- **`CREATE TABLE IF NOT EXISTS`** / **`CREATE INDEX IF NOT EXISTS`** — idempotent style appropriate for SQLite.
-- **No `dbo.` schema**; table names are unqualified.
-- **GUIDs / datetimes** stored as **`TEXT`** (ISO-8601 for times).
-- **SQLite cannot** embed arbitrary named non-unique indexes inside `CREATE TABLE` like SQL Server; each table’s **`CREATE INDEX IF NOT EXISTS`** statements appear **immediately after** that table’s `CREATE TABLE` in the file (documented in the file header).
-- **Foreign keys:** Application should enable `PRAGMA foreign_keys = ON` per connection where enforcement is required (see file header comment).
-
-### 4.4 Alignment
-
-- Comment in file references DbUp range **001–016** and parity with the authority/decisioning portion of `ArchiForge.sql`.
-- When adding SQL Server objects, **evaluate** whether SQLite tests need matching tables/indexes (many Dapper repositories are SQL Server–only in production).
-
----
-
-## 5. DbUp migrations (`ArchiForge.Data/Migrations/`)
-
-### 5.1 Mechanics
-
-- Scripts are **`EmbeddedResource`** in **ArchiForge.Data** (`Migrations\*.sql` plus the standalone SQLite reference script under `SQL\`, which is **not** under `.Migrations.`).
-- **DbUp** (`DatabaseMigrator.Run`) selects only embedded names that contain **`.Migrations.`** and end with **`.sql`**, so only `ArchiForge.Data/Migrations/*.sql` run — not ad-hoc embedded SQL.
+- Scripts are **`EmbeddedResource`** in **ArchiForge.Data** (`Migrations\*.sql` only — no ad-hoc SQL under `SQL\` is picked up by DbUp).
+- **DbUp** (`DatabaseMigrator.Run`) selects only embedded names that contain **`.Migrations.`** and end with **`.sql`**, so only `ArchiForge.Data/Migrations/*.sql` run.
 - Ordering is **lexicographic by embedded resource name** — keep the filename prefix pattern **`001_`**, **`002_`**, … (see `DatabaseMigrationScriptTests`).
-- **`DatabaseMigrator.IsSqliteConnection`** skips DbUp for SQLite test strings and typical file-backed `*.db` / `*.sqlite` strings without `Server=` / `Initial Catalog=` (SQL Server uses DbUp).
 
-### 5.2 Catalog (one file = one version step)
+### 4.2 Catalog (one file = one version step)
 
 | File | Summary |
 |------|--------|
@@ -139,30 +108,28 @@ They are **different domains**; names overlap conceptually but not at the databa
 | **002_ComparisonRecords.sql** | `ComparisonRecords` table for stored comparisons / replay payloads. |
 | **003_ComparisonRecords_LabelAndTags.sql** | Adds `Label`, `Tags` on `ComparisonRecords`. |
 | **004_DecisionNodes_And_Evaluations.sql** | `DecisionNodes`, `AgentEvaluations`. |
-| **005_ArchitectureRuns_ContextSnapshotId.sql** | `ArchitectureRuns.ContextSnapshotId`. |
-| **006_ArchitectureRuns_GraphSnapshotId.sql** | `ArchitectureRuns.GraphSnapshotId`. |
-| **007_ArchitectureRuns_ArtifactBundleId.sql** | `ArchitectureRuns.ArtifactBundleId`. |
-| **008_RecommendationRecords.sql** | Recommendation workflow storage (scoped by tenant/workspace/project). |
-| **009_RecommendationLearningProfiles.sql** | Learning profiles for recommendations. |
-| **010_AdvisoryScheduling.sql** | Advisory scan schedules and executions. |
-| **011_DigestDelivery.sql** | Digests, subscriptions, delivery attempts. |
-| **012_Alerts.sql** | Alert rules and alert records. |
-| **013_AlertRouting.sql** | Routing subscriptions and delivery attempts. |
-| **014_CompositeAlertRules.sql** | Composite alert rules and conditions. |
-| **015_PolicyPacks.sql** | Policy packs, versions, assignments (baseline assignment shape). |
-| **016_PolicyPackAssignments_Scope.sql** | Adds **`ScopeLevel`**, **`IsPinned`** on `PolicyPackAssignments` + index (aligns with Dapper / consolidated `CREATE TABLE`). |
+| **005–007** | `ArchitectureRuns` snapshot id columns (`ContextSnapshotId`, `GraphSnapshotId`, `ArtifactBundleId`). |
+| **008–016** | Recommendations, advisory, digests, alerts, routing, composite rules, policy packs, scoped assignments. |
+| **017_GovernanceWorkflow.sql** | Governance approval / promotion / environment activation tables. |
+| **017_GraphSnapshots_ParentTables.sql** | Authority **`Runs`**, **`ContextSnapshots`**, **`GraphSnapshots`** (parent of **`GraphSnapshotEdges`** FK). |
+| **018_GraphSnapshotEdges.sql** | Denormalized graph edges table + index. |
+| **019_RetrievalIndexingOutbox.sql** | Post-commit retrieval indexing outbox. |
+| **020_PerformanceIndexes_HotLists.sql** | Hot-list indexes (e.g. scoped **`Runs`** lists). |
+| **021_ArchitectureRunIdempotency.sql** | **`ArchitectureRunIdempotency`** for **`Idempotency-Key`** on create run. |
+| **022_GraphSnapshotEdges_IndexKeyLength.sql** | Index shape fix for **`GraphSnapshotEdges`** (1700-byte key limit). |
 
-**Note:** Authority-chain tables (`dbo.Runs`, snapshots, etc.) are **not** introduced by migrations 001–007; they come from **`ArchiForge.sql`** via Persistence bootstrap (and are mirrored in consolidated scripts).
+**Note:** Authority-chain tables also appear in **`ArchiForge.sql`** for Persistence bootstrap parity.
 
-### 5.3 Adding migration `017_…`
+### 4.3 Adding a new migration `0NN_…`
 
-1. Create `ArchiForge.Data/Migrations/017_YourChange.sql` (idempotent `IF` / `IF NOT EXISTS` patterns preferred).
-2. Update **`ArchiForge.sql`** (and **`ArchiForge.Sqlite.sql`** if tests need it).
+1. Create `ArchiForge.Data/Migrations/0NN_YourChange.sql` (idempotent `IF` / `IF NOT EXISTS` patterns preferred).
+2. Update **`ArchiForge.sql`** with the same objects/columns/indexes for greenfield parity.
 3. Run tests; optionally extend **`DatabaseMigrationScriptTests`** if you add new ordering rules.
+4. Update §4.2 in this file.
 
 ---
 
-## 6. Change checklist (schema work)
+## 5. Change checklist (schema work)
 
 Treat this checklist as a **definition of done** for every schema change. Do not merge without completing each applicable item.
 
@@ -170,8 +137,7 @@ Treat this checklist as a **definition of done** for every schema change. Do not
 
 - [ ] **DbUp migration:** new `ArchiForge.Data/Migrations/0NN_*.sql` for SQL Server incremental change. Use `IF NOT EXISTS` / `IF OBJECT_ID IS NULL` patterns; migrations must be idempotent.
 - [ ] **`ArchiForge.Data/SQL/ArchiForge.sql`:** same objects, columns, and indexes as the migration — keeps greenfield provisioning in parity.
-- [ ] **`ArchiForge.Data/SQL/ArchiForge.Sqlite.sql`:** add equivalent SQLite DDL if any integration test must see the new schema. SQLite syntax differs (no `ALTER COLUMN`, no `NVARCHAR`).
-- [ ] **Migration catalog:** update §5.2 of this file with the new migration number and description.
+- [ ] **Migration catalog:** update §4.2 of this file with the new migration number and description.
 
 ### Required when schema changes affect data access
 
@@ -190,25 +156,24 @@ Before opening a PR with SQL changes, run the full local pre-push loop from `doc
 
 ---
 
-## 7. Troubleshooting
+## 6. Troubleshooting
 
 | Symptom | Things to check |
 |---------|------------------|
 | **“Schema script not found”** (Persistence) | `ArchiForge.Persistence` build output contains **`Scripts/ArchiForge.sql`**; verify `ArchiForge.Persistence.csproj` link to `..\ArchiForge.Data\SQL\ArchiForge.sql`. |
 | **Missing tables on SQL Server** | DbUp errors on startup (API logs); run migrations manually in order if needed. Persistence bootstrap only runs when SQL storage is registered. |
-| **SQLite tests fail with “no such table”** | Embedded resource name / `ArchiForge.Sqlite.sql` content; ensure new tables added to SQLite script. |
 | **Duplicate or wrong migration order** | Embedded resource names must sort correctly (`010` before `011`). |
 
 ---
 
-## 8. Security & operations
+## 7. Security & operations
 
 - Scripts contain **no secrets**. Connection strings live in configuration (User Secrets, env, Key Vault, etc.).
 - **Production:** Prefer controlled migration runs (CI/CD or DBA) over ad-hoc execution of `ArchiForge.sql`, unless you intentionally use it for greenfield provisioning.
 
 ---
 
-## 9. Versioning
+## 8. Versioning
 
-- Update the **migration catalog** (§5.2) and any **“Aligns with migrations …”** comments in `ArchiForge.Sqlite.sql` when adding `017+`.
+- Update the **migration catalog** (§4.2) when adding `0NN_*.sql`.
 - This document’s last migration line should stay in sync with the highest `ArchiForge.Data/Migrations/0NN_*.sql` file.

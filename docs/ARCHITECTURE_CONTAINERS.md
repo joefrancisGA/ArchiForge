@@ -94,7 +94,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 - Database access (Dapper repositories) for runs, tasks, results, manifests, export records, comparison records, traces, evidence, etc.
 - Migration scripts under `ArchiForge.Data/Migrations/*` applied by DbUp at startup.
-- DB connection factory (`IDbConnectionFactory`) supporting SQL Server and SQLite (tests).
+- DB connection factory (`IDbConnectionFactory`) for **SQL Server** (`SqlConnectionFactory`).
 
 **Depends on**
 

@@ -13,7 +13,7 @@ dotnet build
 
 - **Fast feedback (exclude HTTP integration):**  
   `dotnet test --filter "Category!=Integration"`
-- **Integration (full API + SQLite):**  
+- **Integration (full API + SQL Server — see [TEST_STRUCTURE.md](TEST_STRUCTURE.md)):**  
   `dotnet test --filter "Category=Integration"`
 
 See **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** for project layout and traits.

@@ -117,7 +117,7 @@ This document zooms into the most important components inside each container/lib
 
 - Create and read comparison records.
 - Query comparison history by run ID, export record ID, or search filters.
-- Supports JSON tag filtering across SQLite and SQL Server.
+- Supports JSON tag filtering via SQL Server **`OPENJSON`** on stored tag arrays.
 
 ---
 

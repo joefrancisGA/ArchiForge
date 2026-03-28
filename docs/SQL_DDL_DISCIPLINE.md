@@ -8,12 +8,11 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 - Production and shared dev databases evolve via **DbUp** embedded scripts under **`ArchiForge.Data/Migrations/`** (`DatabaseMigrator`).
 - Greenfield SQL Server installs, Persistence **bootstrap**, and human operators may run **`ArchiForge.Data/SQL/ArchiForge.sql`** (batched by `GO`, idempotent `IF OBJECT_ID` / `IF NOT EXISTS` patterns).
-- **SQLite** tests load **`ArchiForge.Data/SQL/ArchiForge.Sqlite.sql`** once per distinct connection string (`SqliteConnectionFactory`).
+- **Integration tests** use **SQL Server** (per-test databases); **DbUp** runs on test host startup (see **`ArchiForge.Api.Tests`** / **`TEST_STRUCTURE.md`**).
 
 ## Constraints
 
 - **One consolidated SQL Server DDL file per logical database:** **`ArchiForge.sql`** (not split per feature area for the canonical reference).
-- **One consolidated SQLite DDL file:** **`ArchiForge.Sqlite.sql`** (parity for API + authority tables used in tests).
 - **Additive migrations** use new **`NNN_Description.sql`** files; DbUp order is **lexicographic on the embedded resource name**—keep **`NNN_`** prefixes zero-padded.
 
 ## Architecture overview
@@ -22,7 +21,6 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 |----------|------|
 | **`Migrations/*.sql`** | Brownfield deltas applied in order by DbUp. |
 | **`ArchiForge.sql`** | Full reference + bootstrap parity (includes objects that also appeared first in migrations, e.g. outbox **019**, indexes **020**, idempotency **021**). |
-| **`ArchiForge.Sqlite.sql`** | Test/prototype parity for SQLite (subset aligned with integration needs). |
 
 ## Component breakdown
 
@@ -32,7 +30,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 ## Data flow
 
 1. **New column/table/index:** add **`ArchiForge.Data/Migrations/NNN_....sql`** (idempotent `IF NOT EXISTS` where possible).
-2. **Mirror** the same logical object into **`ArchiForge.sql`** (and **`ArchiForge.Sqlite.sql`** when SQLite tests exercise that path).
+2. **Mirror** the same logical object into **`ArchiForge.sql`**.
 3. Run **`DatabaseMigrator`** in CI or locally against SQL Server test instances (see **`ArchiForge.Persistence.Tests`** / **`TEST_STRUCTURE.md`**).
 
 ## Security model
@@ -49,12 +47,9 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 | Script | Purpose |
 |--------|---------|
-| `001_InitialSchema.sql` – `018_...` | Historical API + decisioning deltas (see `Migrations/README.md`). |
-| `019_RetrievalIndexingOutbox.sql` | Post-commit retrieval indexing outbox. |
-| `020_PerformanceIndexes_HotLists.sql` | **`IX_Runs_Scope_Project_CreatedUtc`** for scoped run lists. |
-| `021_ArchitectureRunIdempotency.sql` | **`ArchitectureRunIdempotency`** for **`Idempotency-Key`** on create run. |
+| `001_InitialSchema.sql` – `022_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). |
 
-**Consolidated script parity:** **`ArchiForge.sql`** includes **019–021** semantics in the trailing “DbUp parity” section so bootstrap matches migrated databases.
+**Consolidated script parity:** **`ArchiForge.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
 ## Cost / scalability / reliability
 

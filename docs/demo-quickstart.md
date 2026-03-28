@@ -10,7 +10,7 @@ This guide gets a **fresh SQL-backed** environment to a repeatable demo state: t
 
 ## 1. Migrations (DbUp)
 
-On API startup, when `ConnectionStrings:ArchiForge` is set and is **not** SQLite (see `DatabaseMigrator.IsSqliteConnection`), [DatabaseMigrator](../ArchiForge.Data/Infrastructure/DatabaseMigrator.cs) runs embedded scripts whose resource name contains **`.Migrations.`** (i.e. files under `ArchiForge.Data/Migrations/`) in **lexicographic** order. Console output lists each script. Governance workflow DDL is in **`017_GovernanceWorkflow.sql`** (approval requests, promotion records, environment activations).
+On API startup, when `ConnectionStrings:ArchiForge` is set, [DatabaseMigrator](../ArchiForge.Data/Infrastructure/DatabaseMigrator.cs) runs embedded scripts whose resource name contains **`.Migrations.`** (i.e. files under `ArchiForge.Data/Migrations/`) in **lexicographic** order. Console output lists each script. Governance workflow DDL is in **`017_GovernanceWorkflow.sql`** (approval requests, promotion records, environment activations).
 
 If migration fails, the process throws and the host does not start.
 
@@ -71,7 +71,7 @@ Replace base URL and version as needed (`v1.0`).
 
 ## 5. Tests
 
-[DemoSeedServiceTests](../ArchiForge.Api.Tests/DemoSeedServiceTests.cs) cover idempotency, canonical run detail, and governance environment comparison against the SQLite test factory.
+[DemoSeedServiceTests](../ArchiForge.Api.Tests/DemoSeedServiceTests.cs) cover idempotency, canonical run detail, and governance environment comparison against the **`ArchiForgeApiFactory`** SQL Server test database.
 
 ## Safety
 

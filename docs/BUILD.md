@@ -29,16 +29,13 @@ The API registers meter **`ArchiForge`** (`ArchiForgeInstrumentation.MeterName`)
 
 Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping.
 
-## SQL Server vs Testcontainers (contributors)
+## SQL Server for API integration tests (contributors)
 
-**Default / CI-friendly:** Most **ArchiForge.Api.Tests** integration tests use **in-memory SQLite** via **`ArchiForgeApiFactory`** and a shared connection string — no Docker required.
+**ArchiForge.Api.Tests** integration tests host the real API with **`WebApplicationFactory`**. **`ArchiForgeApiFactory`** targets **SQL Server** on **`localhost`** (default), creates a **per-factory** database (`ArchiForgeTest_*`), and relies on **DbUp** at startup — same migration path as the running API.
 
-**When you need SQL Server fidelity:** For behaviors that differ between SQLite and SQL Server (locking, types, T-SQL), prefer either:
+**CI / headless:** Ensure SQL Server is available (local install, named instance, or **Testcontainers.MsSql**). **`ArchiForge.Persistence.Tests`** already use **Testcontainers** for Dapper contract tests.
 
-1. **Testcontainers.MsSql** (or similar) in a dedicated test fixture that boots a throwaway container and sets **`ConnectionStrings:ArchiForge`** before building the host, or  
-2. A **narrow repository integration test** project that targets a developer-owned SQL instance (document connection string via user secrets / env, never commit secrets).
-
-Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql`) and run **`DatabaseMigrator`** (or your migration tool) against the test database before tests that assume schema.
+Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql` + **`ArchiForge.Data/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to the test database.
 
 ## Central Package Management (CPM)
 

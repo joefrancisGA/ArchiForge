@@ -2,7 +2,7 @@
   ArchiForge — SQL Server consolidated schema (idempotent)
 
   DOCUMENTATION
-    Full guide: docs/SQL_SCRIPTS.md (DbUp vs this file vs SQLite; migration catalog;
+    Full guide: docs/SQL_SCRIPTS.md (DbUp vs this file; migration catalog;
     two Run tables; change checklist; troubleshooting).
 
   EXECUTION

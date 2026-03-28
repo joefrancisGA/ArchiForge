@@ -2,7 +2,7 @@
 
 This document summarizes the persisted data model used by ArchiForge. It is based on the migration scripts in `ArchiForge.Data/Migrations/*` and the `ArchiForge.Contracts.Metadata` records.
 
-**SQL mechanics (how scripts run, idempotency, change workflow):** see **[SQL_SCRIPTS.md](SQL_SCRIPTS.md)** — canonical reference for `ArchiForge.sql`, `ArchiForge.Sqlite.sql`, DbUp, and Persistence bootstrap.
+**SQL mechanics (how scripts run, idempotency, change workflow):** see **[SQL_SCRIPTS.md](SQL_SCRIPTS.md)** — canonical reference for `ArchiForge.sql`, DbUp migrations, and Persistence bootstrap.
 
 ---
 

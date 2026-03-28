@@ -219,7 +219,7 @@ Numbered sections **8+** below continue the living backlog (rate limits, traits,
 **Problem:** README says "Migrations run automatically on startup via DbUp" but doesn't state that if migration fails, the API throws and does not start. Operators may not expect a hard failure.
 
 **Change:**
-- In **README.md** (Database Setup or Running the API), add one sentence: if the connection string is set and migration fails, the API throws and does not start (no fallback). Optionally mention that integration tests use in-memory SQLite and skip this path.
+- In **README.md** (Database Setup or Running the API), add one sentence: if the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use SQL Server with DbUp on the test host.
 
 **Outcome:** Clear runbook for migration failures.
 
@@ -1010,7 +1010,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 **What was built:**
 - `docs/CI_MIGRATION_CHECKLIST.md` — local pre-push command sequence; per-migration and per-seed-change sub-checklists; CI YAML snippet; security notes.
-- `docs/SQL_SCRIPTS.md §6` — expanded to a structured checklist with Required/data-access/seeding/CI-gate sections and a link to `CI_MIGRATION_CHECKLIST.md`.
+- `docs/SQL_SCRIPTS.md` (change checklist section) — structured checklist with Required/data-access/seeding/CI-gate sections and a link to `CI_MIGRATION_CHECKLIST.md`.
 
 ---
 
@@ -1030,7 +1030,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 90. DecisionEngine: schema validation result caching + OTel metrics (counter + histogram)
 - [x] 91. Cli: ScaffoldOptions.ConnectionString; remove hardcoded server address
 - [x] 92. Api.Tests: ExportReplayServiceTests + ComparisonDriftAnalyzerTests
-- [x] 93. Docs: CI_MIGRATION_CHECKLIST.md; expanded SQL_SCRIPTS §6 checklist
+- [x] 93. Docs: CI_MIGRATION_CHECKLIST.md; expanded SQL_SCRIPTS change checklist
 - [x] 94. Docs: HOWTO_ADD_COMPARISON_TYPE.md
 
 ---
@@ -1852,7 +1852,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 227. SQL index review (alerts, runs, graphs, digests).
   - **`020_PerformanceIndexes_HotLists.sql`**: **`IX_Runs_Scope_Project_CreatedUtc`** on **`dbo.Runs`** for **`SqlRunRepository.ListByProjectAsync`** filters (`TenantId`, `WorkspaceId`, `ScopeProjectId`, `ProjectId`, `ORDER BY CreatedUtc DESC`). **AlertRecords**, **ArchitectureDigests**, **ConversationThreads**, **GraphSnapshots** already had scope/time indexes in **`ArchiForge.sql`**; no change required beyond Runs.
-  - **`ArchiForge.sql`** / **`ArchiForge.Sqlite.sql`**: same index on **`Runs`** for SQLite tests.
+  - **`ArchiForge.sql`**: same index on **`Runs`** for greenfield/bootstrap parity.
 - [x] 228. Remove N+1 on hot `ListByScope` paths.
   - **`IAlertRecordRepository.ListByScopePagedAsync`** / **`IConversationThreadRepository.ListByScopePagedAsync`**: COUNT + `OFFSET`/`FETCH` (Dapper) or in-memory skip/take; `AlertsController` / `ConversationController` use `PagedResponseBuilder.FromDatabasePage` instead of loading `MaxPageSize * 10` rows.
   - **`DapperAuthorityQueryService` / `InMemoryAuthorityQueryService` `GetRunDetailAsync`**: parallel `Task.WhenAll` for snapshot/manifest/bundle loads (single run hot path).
@@ -1878,7 +1878,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [ ] 238. OpenAPI `securitySchemes` for Entra when enabled.
 - [ ] 239. Webhook HMAC for digest/alert channels.
 - [x] 240. Optional `Idempotency-Key` on create run.
-  - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchiForge.sql`** / **`ArchiForge.Sqlite.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
+  - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchiForge.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
   - **`ArchitectureRunService`**: optional **`CreateRunIdempotencyState`**; replay → **`CreateRunResult.IdempotentReplay`**; key + different body → **`ConflictException`** (409).
   - **`RunsController`**: header **`Idempotency-Key`**, **200** + **`Idempotency-Replayed`** on replay; **`ConflictException`** before **`InvalidOperationException`** catch.
   - **`docs/API_CONTRACTS.md`**: contract table + cross-store limitation note.
@@ -1907,7 +1907,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Dapper subclasses** (`DapperAlertRuleRepositoryContractTests`, `DapperArchitectureDigestRepositoryContractTests`): `Category=SqlServerContainer`, reuse `SqlServerPersistenceFixture`.
   - All files in `ArchiForge.Persistence.Tests/Contracts/`.
 - [x] 248. Single DDL file discipline audit.
-  - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchiForge.sql`** / **`ArchiForge.Sqlite.sql`**, DbUp migration pairing, inventory **019–021**.
+  - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchiForge.sql`**, DbUp migration pairing, inventory **019–021**.
   - **`ArchiForge.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
 - [ ] 249. Migration rollback documentation.
 

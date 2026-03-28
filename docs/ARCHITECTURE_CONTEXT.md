@@ -49,9 +49,8 @@ This document is written for **internal engineers** and is intentionally pragmat
 ### External dependencies (runtime)
 
 - **Database**
-  - SQL Server in production/dev (typical)
-  - SQLite in integration tests (in-memory)
-  - Migrations are applied with DbUp on startup.
+  - SQL Server in production, dev, and **ArchiForge.Api.Tests** integration tests (per-test databases; **DbUp** on host startup).
+  - Migrations are applied with DbUp when `ConnectionStrings:ArchiForge` is set.
 
 - **Azure OpenAI (optional)**
   - Used when `AgentExecution:Mode` is not `Simulator`.

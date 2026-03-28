@@ -1,191 +1,395 @@
   Determining projects to restore...
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 1.85 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 1.84 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 7 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 1.93 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 1.88 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 1.89 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 1.83 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 18 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 1.89 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 151 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 15 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 8 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 125 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 84 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 133 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 79 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 208 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 157 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 66 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 74 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 98 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 78 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 298 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 129 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 40 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 109 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 449 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 2.66 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 423 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 402 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 1.03 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 1.03 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 1.05 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 1.07 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 539 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 633 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 1.09 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 1.03 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 16 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 179 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 9 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 144 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 14 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 282 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 30 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 119 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 12 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 422 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 423 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 80 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 413 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 173 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 318 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 325 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 2.01 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 2.02 sec).
   ArchiForge.Core -> C:\ArchiForge\ArchiForge\ArchiForge.Core\bin\Debug\net10.0\ArchiForge.Core.dll
   ArchiForge.Contracts -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts\bin\Debug\net10.0\ArchiForge.Contracts.dll
   ArchiForge.AgentSimulator -> C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\bin\Debug\net10.0\ArchiForge.AgentSimulator.dll
   ArchiForge.DecisionEngine -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\bin\Debug\net10.0\ArchiForge.DecisionEngine.dll
-  ArchiForge.ContextIngestion -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\bin\Debug\net10.0\ArchiForge.ContextIngestion.dll
-  ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
-  ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
   ArchiForge.Contracts.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
+  ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
   ArchiForge.DecisionEngine.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll (.NETCoreApp,Version=v10.0)
-  ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
 A total of 1 test files matched the specified pattern.
+  ArchiForge.ContextIngestion -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\bin\Debug\net10.0\ArchiForge.ContextIngestion.dll
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 
-  ArchiForge.KnowledgeGraph.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll (.NETCoreApp,Version=v10.0)
-  ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
-  ArchiForge.Provenance -> C:\ArchiForge\ArchiForge\ArchiForge.Provenance\bin\Debug\net10.0\ArchiForge.Provenance.dll
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 922 ms - ArchiForge.DecisionEngine.Tests.dll (net10.0)
-  ArchiForge.Retrieval -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\bin\Debug\net10.0\ArchiForge.Retrieval.dll
+  ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
   ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
+
+Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 1 sA total of 1 test files matched the specified pattern.
+ - ArchiForge.DecisionEngine.Tests.dll (net10.0)
+  ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
+  ArchiForge.KnowledgeGraph.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 379 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
+  ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
+  ArchiForge.Provenance -> C:\ArchiForge\ArchiForge\ArchiForge.Provenance\bin\Debug\net10.0\ArchiForge.Provenance.dll
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 378 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
   ArchiForge.AgentRuntime -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\bin\Debug\net10.0\ArchiForge.AgentRuntime.dll
-
-Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 358 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
-  ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
-
-Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 198 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
+  ArchiForge.Retrieval -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\bin\Debug\net10.0\ArchiForge.Retrieval.dll
   ArchiForge.Retrieval.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
+  ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
+  ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
 
   ArchiForge.Persistence.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
 A total of 1 test files matched the specified pattern.
   ArchiForge.Decisioning.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
-No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
-
-
-Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 346 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
-  ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
   ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 675 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
-  ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
-  ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
   ArchiForge.Cli.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
+
+  ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 515 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 739 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
   ArchiForge.AgentRuntime.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
 
-Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 4 s - ArchiForge.Cli.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 258 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
 
-Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 315 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 4 s - ArchiForge.Cli.Tests.dll (net10.0)
   ArchiForge.Api -> C:\ArchiForge\ArchiForge\ArchiForge.Api\bin\Debug\net10.0\ArchiForge.Api.dll
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(64,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(92,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(160,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(126,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(185,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(227,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(277,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(333,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
+C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs(309,12): warning xUnit1030: Test methods should not call ConfigureAwait(false), as it may bypass parallelization limits. Omit ConfigureAwait, or use ConfigureAwait(true) to avoid CA2007. (https://xunit.net/xunit.analyzers/rules/xUnit1030) [C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj]
   ArchiForge.Api.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks [3 s]
+  Failed ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult [1 ms]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 45
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [3 s]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 9
+   at ArchiForge.Api.Tests.ArchitectureDeterminismTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureDeterminismTests.cs:line 13
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.PublishPolicyPack_InvalidSemVerVersion_Returns400 [1 ms]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(HttpClient client, JsonSerializerOptions jsonOptions, String requestId) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ComparisonReplayTestFixture.cs:line 37
-   at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 18
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult [3 s]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 9
+   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [1 ms]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureDeterminismTests.cs:line 22
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [97 ms]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 9
+   at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 13
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.AssignPolicyPack_InvalidScopeLevel_Returns400 [1 ms]
   Error Message:
-   Expected response.StatusCode to be HttpStatusCode.Created {value: 201}, but found HttpStatusCode.ServiceUnavailable {value: 503}.
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
-   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
-   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
-   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
-   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
-   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
-   at FluentAssertions.Primitives.EnumAssertions`2.Be(TEnum expected, String because, Object[] becauseArgs)
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 22
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [109 ms]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 9
+   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
+   at InvokeStub_PolicyPackRequestValidationTests..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.CreatePolicyPack_InvalidInitialContentJson_Returns400WithValidationErrors [1 ms]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 70
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults [16 ms]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 9
+   at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
+   at InvokeStub_PolicyPackRequestValidationTests..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks [6 s]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 132
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd [27 ms]
-  Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
-  Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 193
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 70
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId [24 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [3 s]
   Error Message:
-   Expected firstResponse.StatusCode to be HttpStatusCode.Created {value: 201}, but found HttpStatusCode.ServiceUnavailable {value: 503}.
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
-   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
-   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
-   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
-   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
-   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
-   at FluentAssertions.Primitives.EnumAssertions`2.Be(TEnum expected, String because, Object[] becauseArgs)
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 243
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute [22 ms]
-  Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
-  Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 154
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 44
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest [23 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [5 s]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 101
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409 [16 ms]
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 98
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults [3 s]
   Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
   Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 272
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 166
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd [3 s]
+  Error Message:
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
+  Stack Trace:
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 233
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId [3 s]
+  Error Message:
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
+  Stack Trace:
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 283
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute [3 s]
+  Error Message:
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
+  Stack Trace:
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 191
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest [3 s]
+  Error Message:
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
+  Stack Trace:
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 132
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409 [3 s]
+  Error Message:
+   System.InvalidOperationException : Database migration failed; see DbUp console output.
+  Stack Trace:
+     at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 83
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.DeferredHost.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.Start(IHost host)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.RunWithIsolatedFactory(Func`2 act) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 37
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 315
 --- End of stack trace from previous location ---
 
-Failed!  - Failed:    11, Passed:    38, Skipped:     0, Total:    49, Duration: 3 s - ArchiForge.Api.Tests.dll (net10.0)
+Failed!  - Failed:    14, Passed:    35, Skipped:     0, Total:    49, Duration: 37 s - ArchiForge.Api.Tests.dll (net10.0)

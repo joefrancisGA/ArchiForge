@@ -12,7 +12,7 @@
   - `docs/ARCHITECTURE_FLOWS.md`
 - **Data model** – core tables/records and relationships  
   - `docs/DATA_MODEL.md`
-- **SQL scripts** – migrations, consolidated SQL Server/SQLite DDL, DbUp vs Persistence bootstrap  
+- **SQL scripts** – migrations, consolidated SQL Server DDL, DbUp vs Persistence bootstrap  
   - `docs/SQL_SCRIPTS.md`
 - **Context ingestion** – connectors, parsers, deduplication, create-run fields  
   - `docs/CONTEXT_INGESTION.md`

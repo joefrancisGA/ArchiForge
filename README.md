@@ -69,7 +69,7 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use in-memory SQLite and do not run this migration path. Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, SQLite script, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
@@ -134,7 +134,7 @@ dotnet test
 
 See **[docs/BUILD.md](docs/BUILD.md)** for CPM, project-reference audits, and DecisionEngine’s Microsoft.Extensions bundle.
 
-See **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)** for test categories (Integration vs Unit) and filter examples (`Category=Integration`, `Category=Unit`). Integration tests use in-memory SQLite by default—no SQL Server required. The schema is created automatically.
+See **[docs/TEST_STRUCTURE.md](docs/TEST_STRUCTURE.md)** for test categories (Integration vs Unit) and filter examples (`Category=Integration`, `Category=Unit`). **ArchiForge.Api.Tests** integration tests require a reachable **SQL Server** instance (e.g. `localhost`); **`ArchiForgeApiFactory`** creates a temporary database per factory and runs **DbUp** on startup.
 
 **Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
 

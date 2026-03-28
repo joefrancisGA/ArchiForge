@@ -10,8 +10,7 @@ Run these locally before pushing; they must also run in CI on every PR.
 
 - `DemoSeedService` is idempotent by design — running it twice must not throw or duplicate data.
 - Every DbUp migration must be idempotent (`IF NOT EXISTS`, `IF OBJECT_ID IS NULL`, etc.).
-- `ArchiForge.sql` (greenfield SQL Server) and `ArchiForge.Sqlite.sql` (integration test SQLite)
-  must stay in sync with migration `0NN_*.sql` files, or test builds break silently.
+- `ArchiForge.sql` (greenfield SQL Server) must stay in sync with migration `0NN_*.sql` files, or greenfield bootstrap drifts from DbUp-upgraded databases.
 
 ---
 
@@ -59,9 +58,8 @@ Follow this checklist **before** opening a PR:
 
 - [ ] Created `ArchiForge.Data/Migrations/017_YourChange.sql` — idempotent DDL only.
 - [ ] Updated `ArchiForge.Data/SQL/ArchiForge.sql` with the same objects/columns.
-- [ ] Updated `ArchiForge.Data/SQL/ArchiForge.Sqlite.sql` if integration tests require the change.
 - [ ] Extended `DatabaseMigrationScriptTests` if new ordering rules apply.
-- [ ] Updated `docs/SQL_SCRIPTS.md` migration catalog (§5.2) with the new entry.
+- [ ] Updated `docs/SQL_SCRIPTS.md` migration catalog (§4.2) with the new entry.
 - [ ] Updated `docs/DATA_MODEL.md` if the conceptual data model changed.
 - [ ] All five steps of the local pre-push loop pass.
 
@@ -91,8 +89,7 @@ Add the following to your CI YAML (Azure DevOps / GitHub Actions):
   run: dotnet test ArchiForge.sln --filter "Category=Integration" --no-build --logger trx
 ```
 
-The integration tests spin up an in-memory SQLite database — no external dependencies.
-`DemoSeedServiceTests` and `DatabaseMigrationScriptTests` both run in this phase.
+**ArchiForge.Api.Tests** integration tests require a reachable **SQL Server** (default **`localhost`**); factories create temporary databases and run **DbUp**. `DemoSeedServiceTests` and `DatabaseMigrationScriptTests` run in this phase when included in the filter.
 
 ---
 
