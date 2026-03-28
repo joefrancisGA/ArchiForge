@@ -1,110 +1,103 @@
   Determining projects to restore...
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 490 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 979 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 980 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 1.03 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 1.01 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 1.03 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 67 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 1.09 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 486 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 34 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 213 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 261 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 11 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 215 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 25 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 54 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 8 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 88 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 101 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 42 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 479 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 298 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 98 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 90 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 5 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 61 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 1.57 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 85 ms).
-  ArchiForge.Contracts -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts\bin\Debug\net10.0\ArchiForge.Contracts.dll
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 1.22 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 1.23 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 1.22 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 1.25 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 1.25 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 1.25 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 9 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 1.31 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 21 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 12 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 90 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 69 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 163 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 185 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 186 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 74 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 7 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 13 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 9 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 17 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 73 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 6 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 91 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 321 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 1.88 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 222 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 523 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 199 ms).
   ArchiForge.Core -> C:\ArchiForge\ArchiForge\ArchiForge.Core\bin\Debug\net10.0\ArchiForge.Core.dll
-  ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
+  ArchiForge.Contracts -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts\bin\Debug\net10.0\ArchiForge.Contracts.dll
   ArchiForge.ContextIngestion -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\bin\Debug\net10.0\ArchiForge.ContextIngestion.dll
   ArchiForge.DecisionEngine -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\bin\Debug\net10.0\ArchiForge.DecisionEngine.dll
-  ArchiForge.AgentSimulator -> C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\bin\Debug\net10.0\ArchiForge.AgentSimulator.dll
-  ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
   ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 254 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
+  ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
   ArchiForge.Contracts.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
+  ArchiForge.DecisionEngine.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 
+  ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 1 s - ArchiForge.DecisionEngine.Tests.dll (net10.0)
   ArchiForge.KnowledgeGraph.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
 
-Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 216 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
-  ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
-  ArchiForge.DecisionEngine.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
+Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 189 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
+  ArchiForge.AgentSimulator -> C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\bin\Debug\net10.0\ArchiForge.AgentSimulator.dll
 
-Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 585 ms - ArchiForge.DecisionEngine.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 236 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
+  ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
   ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
   ArchiForge.Provenance -> C:\ArchiForge\ArchiForge\ArchiForge.Provenance\bin\Debug\net10.0\ArchiForge.Provenance.dll
   ArchiForge.Retrieval -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\bin\Debug\net10.0\ArchiForge.Retrieval.dll
   ArchiForge.AgentRuntime -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\bin\Debug\net10.0\ArchiForge.AgentRuntime.dll
   ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
   ArchiForge.Retrieval.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
-  ArchiForge.Persistence.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll (.NETCoreApp,Version=v10.0)
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
+
   ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
+  ArchiForge.Persistence.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
   ArchiForge.Decisioning.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll (.NETCoreApp,Version=v10.0)
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
 A total of 1 test files matched the specified pattern.
+  ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
 
 
-
-Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 374 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    47, Skipped:     0, Total:    47, Duration: 1 s - ArchiForge.Decisioning.Tests.dll (net10.0)
   ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
-  ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
   ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 919 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
   ArchiForge.AgentRuntime.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
-A total of 1 test files matched the specified pattern.
-
-Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 333 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
   ArchiForge.Cli.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll (.NETCoreApp,Version=v10.0)
-
-Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 625 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
+A total of 1 test files matched the specified pattern.
 A total of 1 test files matched the specified pattern.
 
-Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 4 s - ArchiForge.Cli.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 509 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 5 s - ArchiForge.Cli.Tests.dll (net10.0)
   ArchiForge.Api -> C:\ArchiForge\ArchiForge\ArchiForge.Api\bin\Debug\net10.0\ArchiForge.Api.dll
   ArchiForge.Api.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-  Failed ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult [2 s]
-  Error Message:
-   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
-  Stack Trace:
-     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureDeterminismTests.cs:line 22
---- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [2 s]
+  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [3 s]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
@@ -112,14 +105,21 @@ A total of 1 test files matched the specified pattern.
    at ArchiForge.Api.Tests.ComparisonReplayTestFixture.CreateRunExecuteCommitReplayAsync(HttpClient client, JsonSerializerOptions jsonOptions, String requestId) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ComparisonReplayTestFixture.cs:line 37
    at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 18
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks [2 s]
+  Failed ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult [3 s]
+  Error Message:
+   System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
+  Stack Trace:
+     at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
+   at ArchiForge.Api.Tests.ArchitectureDeterminismTests.DeterminismCheck_ReturnsResult() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureDeterminismTests.cs:line 22
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks [3 s]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at ArchiForge.Api.Tests.ArchitectureControllerTests.GetRun_ReturnsTasks() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 45
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [85 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [135 ms]
   Error Message:
    Expected response.StatusCode to be HttpStatusCode.Created {value: 201}, but found HttpStatusCode.ServiceUnavailable {value: 503}.
   Stack Trace:
@@ -132,28 +132,28 @@ A total of 1 test files matched the specified pattern.
    at FluentAssertions.Primitives.EnumAssertions`2.Be(TEnum expected, String because, Object[] becauseArgs)
    at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 22
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [100 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [161 ms]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 70
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults [36 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults [45 ms]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 132
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd [16 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd [28 ms]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 193
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId [17 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId [29 ms]
   Error Message:
    Expected firstResponse.StatusCode to be HttpStatusCode.Created {value: 201}, but found HttpStatusCode.ServiceUnavailable {value: 503}.
   Stack Trace:
@@ -164,28 +164,28 @@ A total of 1 test files matched the specified pattern.
    at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
    at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
    at FluentAssertions.Primitives.EnumAssertions`2.Be(TEnum expected, String because, Object[] becauseArgs)
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 242
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyAndBody_SecondCallReturns200WithSameRunId() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 243
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute [13 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute [27 ms]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at ArchiForge.Api.Tests.ArchitectureControllerTests.GoldenPath_EndToEnd_WithExecute() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 154
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest [13 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest [25 ms]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
    at ArchiForge.Api.Tests.ArchitectureControllerTests.CommitRun_CreatesManifest() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 101
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409 [8 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409 [14 ms]
   Error Message:
    System.Net.Http.HttpRequestException : Response status code does not indicate success: 503 (Service Unavailable).
   Stack Trace:
      at System.Net.Http.HttpResponseMessage.EnsureSuccessStatusCode()
-   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 270
+   at ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_SameIdempotencyKeyDifferentBody_Returns409() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 272
 --- End of stack trace from previous location ---
 
 Failed!  - Failed:    11, Passed:    38, Skipped:     0, Total:    49, Duration: 3 s - ArchiForge.Api.Tests.dll (net10.0)

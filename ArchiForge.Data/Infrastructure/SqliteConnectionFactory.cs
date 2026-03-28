@@ -42,16 +42,36 @@ public sealed class SqliteConnectionFactory(string connectionString) : IDbConnec
             string resourceName = "ArchiForge.Data.SQL.ArchiForge.Sqlite.sql";
             using Stream stream = assembly.GetManifestResourceStream(resourceName)
                                   ?? throw new InvalidOperationException($"Embedded resource '{resourceName}' not found.");
-            using StreamReader reader = new(stream);
-            string schema = reader.ReadToEnd();
+            using StreamReader textReader = new(stream);
+            string schema = textReader.ReadToEnd();
 
             using SqliteConnection connection = new(connectionString);
             connection.Open();
-            using SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = schema;
-            cmd.ExecuteNonQuery();
+
+            // ExecuteNonQuery runs only the first statement in a batch; the rest are skipped (native sqlite3_prepare).
+            // Batched DDL must use ExecuteReader and drain result sets so every CREATE runs. See Microsoft Learn: Batching (Microsoft.Data.Sqlite).
+            ExecuteSqliteScript(connection, schema);
 
             InitializedDatabases.Add(connectionString);
+        }
+    }
+
+    private static void ExecuteSqliteScript(SqliteConnection connection, string sql)
+    {
+        using SqliteCommand cmd = connection.CreateCommand();
+        cmd.CommandText = sql;
+        using SqliteDataReader batchReader = cmd.ExecuteReader();
+
+        while (true)
+        {
+            while (batchReader.Read())
+            {
+            }
+
+            if (!batchReader.NextResult())
+            {
+                break;
+            }
         }
     }
 }
