@@ -1866,7 +1866,13 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Health check**: `SqlConnectionHealthCheck` delegates to the shared `SqlTransientDetector`.
   - **Tests**: `SqlTransientDetectorTests` (9 cases — all error numbers, null, `TimeoutException`, inner exception), `ResilientSqlConnectionFactoryTests` (8 cases — success, transient retry + success, retry exhaustion, non-transient immediate throw, cancellation, exponential delay range, null guards, zero-retries).
 - [ ] 246. Read replica routing for heavy authority lists.
-- [ ] 247. Shared test cases InMemory vs Dapper parity.
+- [x] 247. Shared test cases InMemory vs Dapper parity.
+  - **Contract test pattern**: Abstract base test classes define shared assertions per repository interface; concrete subclasses supply InMemory or Dapper implementations. Both run the exact same test suite.
+  - **`AlertRuleRepositoryContractTests`** (7 tests): Create+GetById round-trip, GetById nonexistent → null, Update modifies mutable fields, ListByScope scope filtering, ListByScope ordering (CreatedUtc DESC), ListEnabledByScope excludes disabled, ListEnabledByScope empty when none enabled.
+  - **`ArchitectureDigestRepositoryContractTests`** (5 tests): Create+GetById round-trip, GetById nonexistent → null, ListByScope scope filtering, ListByScope ordering (GeneratedUtc DESC), ListByScope respects `take` limit, empty scope → empty list.
+  - **InMemory subclasses** (`InMemoryAlertRuleRepositoryContractTests`, `InMemoryArchitectureDigestRepositoryContractTests`): `Category=Unit`, no Docker needed.
+  - **Dapper subclasses** (`DapperAlertRuleRepositoryContractTests`, `DapperArchitectureDigestRepositoryContractTests`): `Category=SqlServerContainer`, reuse `SqlServerPersistenceFixture`.
+  - All files in `ArchiForge.Persistence.Tests/Contracts/`.
 - [ ] 248. Single DDL file discipline audit.
 - [ ] 249. Migration rollback documentation.
 
@@ -1891,5 +1897,5 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [ ] Security (215–226): partial (**225–226** CORS + HSTS/headers; **215–224** Entra/RLS/WAF/SBOM/etc. still open).
 - [ ] Performance & cost (227–234): partial (229 response compression enabled).
 - [ ] API & contracts (235–242): partial (236 standard pagination done; 235, 237–242 open).
-- [ ] Data & persistence (243–249): not started.
+- [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests; 243–244, 246, 248–249 open).
 - [ ] UI & DX (250–254): partial (254 onboarding doc; 250–253 open).
