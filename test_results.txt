@@ -1,219 +1,106 @@
   Determining projects to restore...
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 1.32 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 1.35 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 1.32 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 1.37 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 1.33 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 12 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 12 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 1.39 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 12 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 46 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 190 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 1.67 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 1.65 sec).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 14 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 169 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 177 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 106 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 151 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 78 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 13 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 80 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 5 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 55 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 238 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 132 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 41 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 208 ms).
-  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 109 ms).
-  ArchiForge.Contracts -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts\bin\Debug\net10.0\ArchiForge.Contracts.dll
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Core\ArchiForge.Core.csproj (in 515 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj (in 1.04 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\ArchiForge.AgentSimulator.csproj (in 1.04 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj (in 1.07 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj (in 1.08 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj (in 1.07 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Contracts\ArchiForge.Contracts.csproj (in 7 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\ArchiForge.Retrieval.csproj (in 1.17 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\ArchiForge.DecisionEngine.Tests.csproj (in 138 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj (in 527 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj (in 11 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ArchiForge.AgentRuntime.csproj (in 1.22 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\ArchiForge.Coordinator.csproj (in 122 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj (in 37 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Data\ArchiForge.Data.csproj (in 356 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\ArchiForge.DecisionEngine.csproj (in 75 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj (in 174 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj (in 190 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Provenance\ArchiForge.Provenance.csproj (in 103 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence\ArchiForge.Persistence.csproj (in 90 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj (in 123 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj (in 84 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Cli\ArchiForge.Cli.csproj (in 112 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj (in 469 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\ArchiForge.ArtifactSynthesis.csproj (in 145 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Application\ArchiForge.Application.csproj (in 165 ms).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj (in 1.17 sec).
+  Restored C:\ArchiForge\ArchiForge\ArchiForge.Api\ArchiForge.Api.csproj (in 1.17 sec).
   ArchiForge.Core -> C:\ArchiForge\ArchiForge\ArchiForge.Core\bin\Debug\net10.0\ArchiForge.Core.dll
-  ArchiForge.DecisionEngine -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\bin\Debug\net10.0\ArchiForge.DecisionEngine.dll
+  ArchiForge.Contracts -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts\bin\Debug\net10.0\ArchiForge.Contracts.dll
+  ArchiForge.AgentSimulator -> C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\bin\Debug\net10.0\ArchiForge.AgentSimulator.dll
+  ArchiForge.ContextIngestion -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\bin\Debug\net10.0\ArchiForge.ContextIngestion.dll
   ArchiForge.Data -> C:\ArchiForge\ArchiForge\ArchiForge.Data\bin\Debug\net10.0\ArchiForge.Data.dll
+  ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
+  ArchiForge.DecisionEngine -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\bin\Debug\net10.0\ArchiForge.DecisionEngine.dll
   ArchiForge.Contracts.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
-  ArchiForge.AgentSimulator -> C:\ArchiForge\ArchiForge\ArchiForge.AgentSimulator\bin\Debug\net10.0\ArchiForge.AgentSimulator.dll
   ArchiForge.DecisionEngine.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\bin\Debug\net10.0\ArchiForge.DecisionEngine.Tests.dll (.NETCoreApp,Version=v10.0)
-  ArchiForge.ContextIngestion -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion\bin\Debug\net10.0\ArchiForge.ContextIngestion.dll
 A total of 1 test files matched the specified pattern.
-  ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Contracts.Tests\bin\Debug\net10.0\ArchiForge.Contracts.Tests.dll
 
-A total of 1 test files matched the specified pattern.
-  ArchiForge.KnowledgeGraph -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.dll
-  Failed ArchiForge.DecisionEngine.Tests.SchemaValidationServiceTests.ValidateGoldenManifestJson_LogsValidationFailure [141 ms]
-  Error Message:
-   Moq.MockException : 
-Expected invocation on the mock once, but was 0 times: x => x.Log<It.IsAnyType>(LogLevel.Warning, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Empty payload")), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>())
 
-Performed invocations:
-
-   Mock<ILogger<SchemaValidationService>:3> (x):
-
-      ILogger.IsEnabled(LogLevel.Information)
-      ILogger.IsEnabled(LogLevel.Information)
-      ILogger.IsEnabled(LogLevel.Warning)
-
-  Stack Trace:
-     at Moq.Mock.Verify(Mock mock, LambdaExpression expression, Times times, String failMessage) in /_/src/Moq/Mock.cs:line 332
-   at Moq.Mock`1.Verify(Expression`1 expression, Times times) in /_/src/Moq/Mock`1.cs:line 727
-   at Moq.Mock`1.Verify(Expression`1 expression, Func`1 times) in /_/src/Moq/Mock`1.cs:line 741
-   at ArchiForge.DecisionEngine.Tests.SchemaValidationServiceTests.ValidateGoldenManifestJson_LogsValidationFailure() in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\SchemaValidationServiceTests.cs:line 219
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
-  Failed ArchiForge.DecisionEngine.Tests.DecisionEngineServiceTests.MergeResults_Should_CreateManifest_When_ValidResultsProvided [677 ms]
-  Error Message:
-   Assert.True() Failure
-Expected: True
-Actual:   False
-  Stack Trace:
-     at ArchiForge.DecisionEngine.Tests.DecisionEngineServiceTests.MergeResults_Should_CreateManifest_When_ValidResultsProvided() in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\DecisionEngineServiceTests.cs:line 85
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
-  Failed ArchiForge.DecisionEngine.Tests.SchemaValidationServiceTests.ValidateAgentResultJson_LogsValidationFailure [14 ms]
-  Error Message:
-   Moq.MockException : 
-Expected invocation on the mock once, but was 0 times: x => x.Log<It.IsAnyType>(LogLevel.Warning, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Empty payload")), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>())
-
-Performed invocations:
-
-   Mock<ILogger<SchemaValidationService>:7> (x):
-
-      ILogger.IsEnabled(LogLevel.Information)
-      ILogger.IsEnabled(LogLevel.Information)
-      ILogger.IsEnabled(LogLevel.Warning)
-
-  Stack Trace:
-     at Moq.Mock.Verify(Mock mock, LambdaExpression expression, Times times, String failMessage) in /_/src/Moq/Mock.cs:line 332
-   at Moq.Mock`1.Verify(Expression`1 expression, Times times) in /_/src/Moq/Mock`1.cs:line 727
-   at Moq.Mock`1.Verify(Expression`1 expression, Func`1 times) in /_/src/Moq/Mock`1.cs:line 741
-   at ArchiForge.DecisionEngine.Tests.SchemaValidationServiceTests.ValidateAgentResultJson_LogsValidationFailure() in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\SchemaValidationServiceTests.cs:line 202
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+Passed!  - Failed:     0, Passed:    19, Skipped:     0, Total:    19, Duration: 1 s - ArchiForge.DecisionEngine.Tests.dll (net10.0)
   ArchiForge.Decisioning -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning\bin\Debug\net10.0\ArchiForge.Decisioning.dll
-  Failed ArchiForge.DecisionEngine.Tests.SchemaValidationServiceTests.LazyLoading_SchemaLoadedOnlyOnFirstUse [17 ms]
-  Error Message:
-   Moq.MockException : 
-Expected invocation on the mock at least once, but was never performed: x => x.Log<It.IsAnyType>(LogLevel.Information, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Loading schema")), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>())
-
-Performed invocations:
-
-   Mock<ILogger<SchemaValidationService>:10> (x):
-
-      ILogger.IsEnabled(LogLevel.Information)
-      ILogger.IsEnabled(LogLevel.Information)
-      ILogger.IsEnabled(LogLevel.Warning)
-
-  Stack Trace:
-     at Moq.Mock.Verify(Mock mock, LambdaExpression expression, Times times, String failMessage) in /_/src/Moq/Mock.cs:line 332
-   at Moq.Mock`1.Verify(Expression`1 expression, Times times) in /_/src/Moq/Mock`1.cs:line 727
-   at Moq.Mock`1.Verify(Expression`1 expression, Func`1 times) in /_/src/Moq/Mock`1.cs:line 741
-   at ArchiForge.DecisionEngine.Tests.SchemaValidationServiceTests.LazyLoading_SchemaLoadedOnlyOnFirstUse() in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine.Tests\SchemaValidationServiceTests.cs:line 245
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
-
-Failed!  - Failed:     4, Passed:    15, Skipped:     0, Total:    19, Duration: 1 s - ArchiForge.DecisionEngine.Tests.dll (net10.0)
+  ArchiForge.ContextIngestion.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.ContextIngestion.Tests\bin\Debug\net10.0\ArchiForge.ContextIngestion.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
   ArchiForge.KnowledgeGraph.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.KnowledgeGraph.Tests\bin\Debug\net10.0\ArchiForge.KnowledgeGraph.Tests.dll (.NETCoreApp,Version=v10.0)
-
-Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 320 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
-  ArchiForge.ArtifactSynthesis -> C:\ArchiForge\ArchiForge\ArchiForge.ArtifactSynthesis\bin\Debug\net10.0\ArchiForge.ArtifactSynthesis.dll
+A total of 1 test files matched the specified pattern.
   ArchiForge.Provenance -> C:\ArchiForge\ArchiForge\ArchiForge.Provenance\bin\Debug\net10.0\ArchiForge.Provenance.dll
 A total of 1 test files matched the specified pattern.
-  ArchiForge.AgentRuntime -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\bin\Debug\net10.0\ArchiForge.AgentRuntime.dll
   ArchiForge.Retrieval -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval\bin\Debug\net10.0\ArchiForge.Retrieval.dll
-  ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
-  ArchiForge.Persistence.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll (.NETCoreApp,Version=v10.0)
-A total of 1 test files matched the specified pattern.
 
-Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 236 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
-  ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
-  ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
-No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
+Passed!  - Failed:     0, Passed:    13, Skipped:     0, Total:    13, Duration: 308 ms - ArchiForge.ContextIngestion.Tests.dll (net10.0)
+  ArchiForge.AgentRuntime -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\bin\Debug\net10.0\ArchiForge.AgentRuntime.dll
 
-A total of 1 test files matched the specified pattern.
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 437 ms - ArchiForge.KnowledgeGraph.Tests.dll (net10.0)
   ArchiForge.Retrieval.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
+  ArchiForge.Persistence -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence\bin\Debug\net10.0\ArchiForge.Persistence.dll
 No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Retrieval.Tests\bin\Debug\net10.0\ArchiForge.Retrieval.Tests.dll
-  Failed ArchiForge.Coordinator.Tests.DeterministicAgentSimulatorTests.Simulator_AndDecisionEngine_ShouldProduceManifestAsync [563 ms]
-  Error Message:
-   System.IO.FileNotFoundException : Schema file not found: C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\schemas/agentresult.schema.json
-  Stack Trace:
-     at ArchiForge.DecisionEngine.Validation.SchemaValidationService.LoadSchema(String relativePath, String schemaName) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Validation\SchemaValidationService.cs:line 95
-   at ArchiForge.DecisionEngine.Validation.SchemaValidationService.<.ctor>b__9_0() in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Validation\SchemaValidationService.cs:line 49
-   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
-   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
-   at System.Lazy`1.CreateValue()
-   at ArchiForge.DecisionEngine.Validation.SchemaValidationService.ValidateAgentResultJson(String json) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Validation\SchemaValidationService.cs:line 61
-   at ArchiForge.DecisionEngine.Services.DecisionEngineService.ValidateAgentResultsAgainstSchema(List`1 validResults, DecisionMergeResult output) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Services\DecisionEngineService.cs:line 109
-   at ArchiForge.DecisionEngine.Services.DecisionEngineService.MergeResults(String runId, ArchitectureRequest request, String manifestVersion, IReadOnlyCollection`1 results, IReadOnlyCollection`1 evaluations, IReadOnlyCollection`1 decisionNodes, String parentManifestVersion) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Services\DecisionEngineService.cs:line 47
-   at ArchiForge.Coordinator.Tests.DeterministicAgentSimulatorTests.Simulator_AndDecisionEngine_ShouldProduceManifestAsync() in C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\DeterministicAgentSimulatorTests.cs:line 108
---- End of stack trace from previous location ---
 
-
-Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3, Duration: 619 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
-  ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
+  ArchiForge.Persistence.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
   ArchiForge.Decisioning.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\bin\Debug\net10.0\ArchiForge.Decisioning.Tests.dll (.NETCoreApp,Version=v10.0)
-  ArchiForge.AgentRuntime.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll
-Test run for C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+No test matches the given testcase filter `Suite=Core` in C:\ArchiForge\ArchiForge\ArchiForge.Persistence.Tests\bin\Debug\net10.0\ArchiForge.Persistence.Tests.dll
+
+  Failed ArchiForge.Decisioning.Tests.TypedFindingsGoldenPathTests.EndToEnd_SecurityCostAndComplianceFlowThroughFindingsAndManifest [384 ms]
+  Error Message:
+   Expected manifest.Assumptions {empty} to have an item matching (a.Contains("Preferred:", OrdinalIgnoreCase) AndAlso a.Contains("Cost", OrdinalIgnoreCase)).
+  Stack Trace:
+     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
+   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
+   at FluentAssertions.Collections.GenericCollectionAssertions`3.Contain(Expression`1 predicate, String because, Object[] becauseArgs)
+   at ArchiForge.Decisioning.Tests.TypedFindingsGoldenPathTests.EndToEnd_SecurityCostAndComplianceFlowThroughFindingsAndManifest() in C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\TypedFindingsGoldenPathTests.cs:line 161
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     1, Passed:    46, Skipped:     0, Total:    47, Duration: 406 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
+  ArchiForge.Coordinator -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator\bin\Debug\net10.0\ArchiForge.Coordinator.dll
+  ArchiForge.Cli -> C:\ArchiForge\ArchiForge\ArchiForge.Cli\bin\Debug\net10.0\ArchiForge.Cli.dll
   ArchiForge.Cli.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll
+  ArchiForge.Coordinator.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Cli.Tests\bin\Debug\net10.0\ArchiForge.Cli.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.AgentRuntime.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\ArchiForge.Coordinator.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\bin\Debug\net10.0\ArchiForge.AgentRuntime.Tests.dll (.NETCoreApp,Version=v10.0)
+  ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
 A total of 1 test files matched the specified pattern.
 A total of 1 test files matched the specified pattern.
 A total of 1 test files matched the specified pattern.
-  Failed ArchiForge.AgentRuntime.Tests.ComplianceAgentHandlerTests.ExecuteAsync_ShouldReturnParsedComplianceAgentResult [359 ms]
-  Error Message:
-   System.InvalidOperationException : Failed to deserialize AgentResult JSON.
----- System.Text.Json.JsonException : The JSON value could not be converted to ArchiForge.Contracts.Common.AgentType. Path: $.agentType | LineNumber: 4 | BytePositionInLine: 27.
-  Stack Trace:
-     at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 33
-   at ArchiForge.AgentRuntime.ComplianceAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ComplianceAgentHandler.cs:line 46
-   at ArchiForge.AgentRuntime.ComplianceAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ComplianceAgentHandler.cs:line 82
-   at ArchiForge.AgentRuntime.Tests.ComplianceAgentHandlerTests.ExecuteAsync_ShouldReturnParsedComplianceAgentResult() in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ComplianceAgentHandlerTests.cs:line 120
---- End of stack trace from previous location ---
------ Inner Stack Trace -----
-   at System.Text.Json.ThrowHelper.ThrowJsonException(String message)
-   at System.Text.Json.Serialization.Converters.EnumConverter`1.Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
-   at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.ReadJsonAndSetMember(Object obj, ReadStack& state, Utf8JsonReader& reader)
-   at System.Text.Json.Serialization.Converters.ObjectDefaultConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
-   at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
-   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
-   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.Deserialize(Utf8JsonReader& reader, ReadStack& state)
-   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 utf8Json, JsonTypeInfo`1 jsonTypeInfo, Nullable`1 actualByteCount)
-   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 json, JsonTypeInfo`1 jsonTypeInfo)
-   at System.Text.Json.JsonSerializer.Deserialize[TValue](String json, JsonSerializerOptions options)
-   at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 29
-  Failed ArchiForge.AgentRuntime.Tests.TopologyAgentHandlerTests.ExecuteAsync_ShouldReturnParsedTopologyAgentResult [361 ms]
-  Error Message:
-   System.InvalidOperationException : Failed to deserialize AgentResult JSON.
----- System.Text.Json.JsonException : The JSON value could not be converted to ArchiForge.Contracts.Common.AgentType. Path: $.agentType | LineNumber: 4 | BytePositionInLine: 25.
-  Stack Trace:
-     at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 33
-   at ArchiForge.AgentRuntime.TopologyAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\TopologyAgentHandler.cs:line 46
-   at ArchiForge.AgentRuntime.TopologyAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\TopologyAgentHandler.cs:line 82
-   at ArchiForge.AgentRuntime.Tests.TopologyAgentHandlerTests.ExecuteAsync_ShouldReturnParsedTopologyAgentResult() in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\TopologyAgentHandlerTests.cs:line 126
---- End of stack trace from previous location ---
------ Inner Stack Trace -----
-   at System.Text.Json.ThrowHelper.ThrowJsonException(String message)
-   at System.Text.Json.Serialization.Converters.EnumConverter`1.Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
-   at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.ReadJsonAndSetMember(Object obj, ReadStack& state, Utf8JsonReader& reader)
-   at System.Text.Json.Serialization.Converters.ObjectDefaultConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
-   at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
-   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
-   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.Deserialize(Utf8JsonReader& reader, ReadStack& state)
-   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 utf8Json, JsonTypeInfo`1 jsonTypeInfo, Nullable`1 actualByteCount)
-   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 json, JsonTypeInfo`1 jsonTypeInfo)
-   at System.Text.Json.JsonSerializer.Deserialize[TValue](String json, JsonSerializerOptions options)
-   at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 29
-  Failed ArchiForge.AgentRuntime.Tests.CriticAgentHandlerTests.ExecuteAsync_ShouldReturnParsedCriticAgentResult [359 ms]
+  Failed ArchiForge.AgentRuntime.Tests.CriticAgentHandlerTests.ExecuteAsync_ShouldReturnParsedCriticAgentResult [296 ms]
   Error Message:
    System.InvalidOperationException : Failed to deserialize AgentResult JSON.
 ---- System.Text.Json.JsonException : The JSON value could not be converted to ArchiForge.Contracts.Common.AgentType. Path: $.agentType | LineNumber: 4 | BytePositionInLine: 23.
@@ -235,45 +122,81 @@ A total of 1 test files matched the specified pattern.
    at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 json, JsonTypeInfo`1 jsonTypeInfo)
    at System.Text.Json.JsonSerializer.Deserialize[TValue](String json, JsonSerializerOptions options)
    at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 29
-
-Failed!  - Failed:     3, Passed:     0, Skipped:     0, Total:     3, Duration: 374 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
-  Failed ArchiForge.Decisioning.Tests.TypedFindingsGoldenPathTests.EndToEnd_SecurityCostAndComplianceFlowThroughFindingsAndManifest [634 ms]
+  Failed ArchiForge.AgentRuntime.Tests.ComplianceAgentHandlerTests.ExecuteAsync_ShouldReturnParsedComplianceAgentResult [296 ms]
   Error Message:
-   Expected manifest.Assumptions {empty} to have an item matching (a.Contains("Preferred:", OrdinalIgnoreCase) AndAlso a.Contains("Cost", OrdinalIgnoreCase)).
+   System.InvalidOperationException : Failed to deserialize AgentResult JSON.
+---- System.Text.Json.JsonException : The JSON value could not be converted to ArchiForge.Contracts.Common.AgentType. Path: $.agentType | LineNumber: 4 | BytePositionInLine: 27.
   Stack Trace:
-     at FluentAssertions.Execution.LateBoundTestFramework.Throw(String message)
-   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
-   at FluentAssertions.Execution.AssertionScope.AddPreFormattedFailure(String formattedFailureMessage)
-   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
-   at FluentAssertions.Execution.AssertionChain.FailWith(Func`1 getFailureReason)
-   at FluentAssertions.Execution.AssertionChain.FailWith(String message, Object[] args)
-   at FluentAssertions.Collections.GenericCollectionAssertions`3.Contain(Expression`1 predicate, String because, Object[] becauseArgs)
-   at ArchiForge.Decisioning.Tests.TypedFindingsGoldenPathTests.EndToEnd_SecurityCostAndComplianceFlowThroughFindingsAndManifest() in C:\ArchiForge\ArchiForge\ArchiForge.Decisioning.Tests\TypedFindingsGoldenPathTests.cs:line 161
+     at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 33
+   at ArchiForge.AgentRuntime.ComplianceAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ComplianceAgentHandler.cs:line 46
+   at ArchiForge.AgentRuntime.ComplianceAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\ComplianceAgentHandler.cs:line 82
+   at ArchiForge.AgentRuntime.Tests.ComplianceAgentHandlerTests.ExecuteAsync_ShouldReturnParsedComplianceAgentResult() in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\ComplianceAgentHandlerTests.cs:line 120
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonException(String message)
+   at System.Text.Json.Serialization.Converters.EnumConverter`1.Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
+   at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.ReadJsonAndSetMember(Object obj, ReadStack& state, Utf8JsonReader& reader)
+   at System.Text.Json.Serialization.Converters.ObjectDefaultConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+   at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.Deserialize(Utf8JsonReader& reader, ReadStack& state)
+   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 utf8Json, JsonTypeInfo`1 jsonTypeInfo, Nullable`1 actualByteCount)
+   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 json, JsonTypeInfo`1 jsonTypeInfo)
+   at System.Text.Json.JsonSerializer.Deserialize[TValue](String json, JsonSerializerOptions options)
+   at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 29
+  Failed ArchiForge.AgentRuntime.Tests.TopologyAgentHandlerTests.ExecuteAsync_ShouldReturnParsedTopologyAgentResult [296 ms]
+  Error Message:
+   System.InvalidOperationException : Failed to deserialize AgentResult JSON.
+---- System.Text.Json.JsonException : The JSON value could not be converted to ArchiForge.Contracts.Common.AgentType. Path: $.agentType | LineNumber: 4 | BytePositionInLine: 25.
+  Stack Trace:
+     at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 33
+   at ArchiForge.AgentRuntime.TopologyAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\TopologyAgentHandler.cs:line 46
+   at ArchiForge.AgentRuntime.TopologyAgentHandler.ExecuteAsync(String runId, ArchitectureRequest request, AgentEvidencePackage evidence, AgentTask task, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\TopologyAgentHandler.cs:line 82
+   at ArchiForge.AgentRuntime.Tests.TopologyAgentHandlerTests.ExecuteAsync_ShouldReturnParsedTopologyAgentResult() in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime.Tests\TopologyAgentHandlerTests.cs:line 126
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at System.Text.Json.ThrowHelper.ThrowJsonException(String message)
+   at System.Text.Json.Serialization.Converters.EnumConverter`1.Read(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options)
+   at System.Text.Json.Serialization.Metadata.JsonPropertyInfo`1.ReadJsonAndSetMember(Object obj, ReadStack& state, Utf8JsonReader& reader)
+   at System.Text.Json.Serialization.Converters.ObjectDefaultConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+   at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+   at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)
+   at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.Deserialize(Utf8JsonReader& reader, ReadStack& state)
+   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 utf8Json, JsonTypeInfo`1 jsonTypeInfo, Nullable`1 actualByteCount)
+   at System.Text.Json.JsonSerializer.ReadFromSpan[TValue](ReadOnlySpan`1 json, JsonTypeInfo`1 jsonTypeInfo)
+   at System.Text.Json.JsonSerializer.Deserialize[TValue](String json, JsonSerializerOptions options)
+   at ArchiForge.AgentRuntime.AgentResultParser.ParseAndValidate(String json, String expectedRunId, String expectedTaskId, AgentType expectedAgentType) in C:\ArchiForge\ArchiForge\ArchiForge.AgentRuntime\AgentResultParser.cs:line 29
+
+Failed!  - Failed:     3, Passed:     0, Skipped:     0, Total:     3, Duration: 324 ms - ArchiForge.AgentRuntime.Tests.dll (net10.0)
+  Failed ArchiForge.Coordinator.Tests.DeterministicAgentSimulatorTests.Simulator_AndDecisionEngine_ShouldProduceManifestAsync [695 ms]
+  Error Message:
+   System.IO.FileNotFoundException : Schema file not found: C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\bin\Debug\net10.0\schemas/agentresult.schema.json
+  Stack Trace:
+     at ArchiForge.DecisionEngine.Validation.SchemaValidationService.LoadSchema(String relativePath, String schemaName) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Validation\SchemaValidationService.cs:line 95
+   at ArchiForge.DecisionEngine.Validation.SchemaValidationService.<.ctor>b__9_0() in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Validation\SchemaValidationService.cs:line 49
+   at System.Lazy`1.ViaFactory(LazyThreadSafetyMode mode)
+   at System.Lazy`1.ExecutionAndPublication(LazyHelper executionAndPublication, Boolean useDefaultConstructor)
+   at System.Lazy`1.CreateValue()
+   at ArchiForge.DecisionEngine.Validation.SchemaValidationService.ValidateAgentResultJson(String json) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Validation\SchemaValidationService.cs:line 61
+   at ArchiForge.DecisionEngine.Services.DecisionEngineService.ValidateAgentResultsAgainstSchema(List`1 validResults, DecisionMergeResult output) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Services\DecisionEngineService.cs:line 109
+   at ArchiForge.DecisionEngine.Services.DecisionEngineService.MergeResults(String runId, ArchitectureRequest request, String manifestVersion, IReadOnlyCollection`1 results, IReadOnlyCollection`1 evaluations, IReadOnlyCollection`1 decisionNodes, String parentManifestVersion) in C:\ArchiForge\ArchiForge\ArchiForge.DecisionEngine\Services\DecisionEngineService.cs:line 47
+   at ArchiForge.Coordinator.Tests.DeterministicAgentSimulatorTests.Simulator_AndDecisionEngine_ShouldProduceManifestAsync() in C:\ArchiForge\ArchiForge\ArchiForge.Coordinator.Tests\DeterministicAgentSimulatorTests.cs:line 108
 --- End of stack trace from previous location ---
 
-Failed!  - Failed:     1, Passed:    46, Skipped:     0, Total:    47, Duration: 668 ms - ArchiForge.Decisioning.Tests.dll (net10.0)
-  ArchiForge.Application -> C:\ArchiForge\ArchiForge\ArchiForge.Application\bin\Debug\net10.0\ArchiForge.Application.dll
+Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3, Duration: 770 ms - ArchiForge.Coordinator.Tests.dll (net10.0)
 
-Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 4 s - ArchiForge.Cli.Tests.dll (net10.0)
+Passed!  - Failed:     0, Passed:    10, Skipped:     0, Total:    10, Duration: 5 s - ArchiForge.Cli.Tests.dll (net10.0)
   ArchiForge.Api -> C:\ArchiForge\ArchiForge\ArchiForge.Api\bin\Debug\net10.0\ArchiForge.Api.dll
   ArchiForge.Api.Tests -> C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll
 Test run for C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\bin\Debug\net10.0\ArchiForge.Api.Tests.dll (.NETCoreApp,Version=v10.0)
 A total of 1 test files matched the specified pattern.
-  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsButSameAgentType_StaysWaitingForResults [52 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsButSameAgentType_StaysWaitingForResults [37 ms]
   Error Message:
    System.NullReferenceException : Object reference not set to an instance of an object.
   Stack Trace:
      at ArchiForge.Api.Services.ArchitectureApplicationService.HasAllRequiredAgentTypes(IReadOnlyList`1 results) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 141
    at ArchiForge.Api.Services.ArchitectureApplicationService.SubmitAgentResultAsync(String runId, AgentResult result, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 113
    at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsButSameAgentType_StaysWaitingForResults() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 275
---- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsWithDistinctRequiredTypes_TransitionsToReadyForCommit [31 ms]
-  Error Message:
-   System.NullReferenceException : Object reference not set to an instance of an object.
-  Stack Trace:
-     at ArchiForge.Api.Services.ArchitectureApplicationService.HasAllRequiredAgentTypes(IReadOnlyList`1 results) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 141
-   at ArchiForge.Api.Services.ArchitectureApplicationService.SubmitAgentResultAsync(String runId, AgentResult result, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 113
-   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsWithDistinctRequiredTypes_TransitionsToReadyForCommit() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 241
 --- End of stack trace from previous location ---
   Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.PublishPolicyPack_InvalidSemVerVersion_Returns400 [1 ms]
   Error Message:
@@ -311,113 +234,6 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
    at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
    at ArchiForge.Api.Tests.PolicyPackRequestValidationTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\PolicyPackRequestValidationTests.cs:line 11
-   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
-   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
------ Inner Stack Trace #1 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #2 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #3 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #4 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #5 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #6 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [1 ms]
-  Error Message:
-   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
-  Stack Trace:
-     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
-   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
-   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
-   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 44
-   at InvokeStub_Program.Main(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
---- End of stack trace from previous location ---
-   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()
-   at Microsoft.Extensions.Hosting.HostFactoryResolver.<>c__DisplayClass10_0.<ResolveHostFactory>b__0(String[] args)
-   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
-   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 13
    at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
    at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
 ----- Inner Stack Trace #1 (System.InvalidOperationException) -----
@@ -703,22 +519,228 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunExists_StoresResultAndUpdatesStatus [59 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests.CompareRunsEndToEndSummary_ReturnsUnifiedSummary [1 ms]
+  Error Message:
+   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
+  Stack Trace:
+     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 44
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+--- End of stack trace from previous location ---
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.<>c__DisplayClass10_0.<ResolveHostFactory>b__0(String[] args)
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
+   at ArchiForge.Api.Tests.ArchitectureEndToEndComparisonTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureEndToEndComparisonTests.cs:line 13
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Constructor(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeDirectByRefWithFewArgs(Object obj, Span`1 copyOfArgs, BindingFlags invokeAttr)
+----- Inner Stack Trace #1 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #2 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #3 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #4 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #5 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #6 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsWithDistinctRequiredTypes_TransitionsToReadyForCommit [21 ms]
   Error Message:
    System.NullReferenceException : Object reference not set to an instance of an object.
   Stack Trace:
      at ArchiForge.Api.Services.ArchitectureApplicationService.HasAllRequiredAgentTypes(IReadOnlyList`1 results) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 141
    at ArchiForge.Api.Services.ArchitectureApplicationService.SubmitAgentResultAsync(String runId, AgentResult result, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 113
-   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunExists_StoresResultAndUpdatesStatus() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 183
+   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenThreeResultsWithDistinctRequiredTypes_TransitionsToReadyForCommit() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 241
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult [9 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [1 ms]
   Error Message:
-   System.NullReferenceException : Object reference not set to an instance of an object.
+   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
+---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
+-------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
   Stack Trace:
-     at ArchiForge.Api.Services.ArchitectureApplicationService.HasAllRequiredAgentTypes(IReadOnlyList`1 results) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 141
-   at ArchiForge.Api.Services.ArchitectureApplicationService.SubmitAgentResultAsync(String runId, AgentResult result, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 113
-   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 344
+     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
+   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
+   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
+   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 44
+   at InvokeStub_Program.Main(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
 --- End of stack trace from previous location ---
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.<>c__DisplayClass10_0.<ResolveHostFactory>b__0(String[] args)
+   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
+   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
+   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
+   at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
+   at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
+   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+----- Inner Stack Trace #1 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #2 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #3 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #4 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #5 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+----- Inner Stack Trace #6 (System.InvalidOperationException) -----
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
+----- Inner Stack Trace -----
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
   Failed ArchiForge.Api.Tests.PolicyPackRequestValidationTests.AssignPolicyPack_InvalidScopeLevel_Returns400 [1 ms]
   Error Message:
    System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
@@ -826,15 +848,23 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus [24 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunExists_StoresResultAndUpdatesStatus [14 ms]
   Error Message:
-   System.InvalidOperationException : Critic task was not found.
+   System.NullReferenceException : Object reference not set to an instance of an object.
   Stack Trace:
-     at ArchiForge.Api.Diagnostics.FakeAgentResultFactory.CreateStarterResults(String runId, IReadOnlyCollection`1 tasks, ArchitectureRequest request) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Diagnostics\FakeAgentResultFactory.cs:line 397
-   at ArchiForge.Api.Services.ArchitectureApplicationService.SeedFakeResultsAsync(String runId, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 201
-   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 474
+     at ArchiForge.Api.Services.ArchitectureApplicationService.HasAllRequiredAgentTypes(IReadOnlyList`1 results) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 141
+   at ArchiForge.Api.Services.ArchitectureApplicationService.SubmitAgentResultAsync(String runId, AgentResult result, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 113
+   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunExists_StoresResultAndUpdatesStatus() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 183
 --- End of stack trace from previous location ---
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.CreateRun_ReturnsRun [1 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult [6 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at ArchiForge.Api.Services.ArchitectureApplicationService.HasAllRequiredAgentTypes(IReadOnlyList`1 results) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 141
+   at ArchiForge.Api.Services.ArchitectureApplicationService.SubmitAgentResultAsync(String runId, AgentResult result, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 113
+   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SubmitAgentResultAsync_WhenRunIdMatchIsCaseInsensitive_AcceptsResult() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 344
+--- End of stack trace from previous location ---
+  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [1 ms]
   Error Message:
    System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
 ---- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
@@ -1048,113 +1078,14 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-  Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_SeedsResults [1 ms]
+  Failed ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus [17 ms]
   Error Message:
-   System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.
----- System.InvalidOperationException : Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
--------- System.InvalidOperationException : Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.
+   System.InvalidOperationException : Critic task was not found.
   Stack Trace:
-     at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
-   at Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(IServiceCollection services, ServiceProviderOptions options)
-   at Microsoft.Extensions.Hosting.HostApplicationBuilder.Build()
-   at Microsoft.AspNetCore.Builder.WebApplicationBuilder.Build()
-   at ArchiForge.Api.Program.Main(String[] args) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Program.cs:line 44
-   at InvokeStub_Program.Main(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+     at ArchiForge.Api.Diagnostics.FakeAgentResultFactory.CreateStarterResults(String runId, IReadOnlyCollection`1 tasks, ArchitectureRequest request) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Diagnostics\FakeAgentResultFactory.cs:line 397
+   at ArchiForge.Api.Services.ArchitectureApplicationService.SeedFakeResultsAsync(String runId, CancellationToken cancellationToken) in C:\ArchiForge\ArchiForge\ArchiForge.Api\Services\ArchitectureApplicationService.cs:line 201
+   at ArchiForge.Api.Tests.ArchitectureApplicationServiceTests.SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus() in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureApplicationServiceTests.cs:line 474
 --- End of stack trace from previous location ---
-   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.CreateHost()
-   at Microsoft.Extensions.Hosting.HostFactoryResolver.<>c__DisplayClass10_0.<ResolveHostFactory>b__0(String[] args)
-   at Microsoft.AspNetCore.Mvc.Testing.DeferredHostBuilder.Build()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateHost(IHostBuilder builder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.ConfigureHostBuilder(IHostBuilder hostBuilder)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.StartServer()
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateDefaultClient(Uri baseAddress, DelegatingHandler[] handlers)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient(WebApplicationFactoryClientOptions options)
-   at Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory`1.CreateClient()
-   at ArchiForge.Api.Tests.IntegrationTestBase..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\IntegrationTestBase.cs:line 8
-   at ArchiForge.Api.Tests.ArchitectureControllerTests..ctor(ArchiForgeApiFactory factory) in C:\ArchiForge\ArchiForge\ArchiForge.Api.Tests\ArchitectureControllerTests.cs:line 13
-   at InvokeStub_ArchitectureControllerTests..ctor(Object, Span`1)
-   at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
------ Inner Stack Trace #1 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #2 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #3 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.TryCreateExact(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateCallSite(ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #4 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #5 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
------ Inner Stack Trace #6 (System.InvalidOperationException) -----
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider..ctor(ICollection`1 serviceDescriptors, ServiceProviderOptions options)
------ Inner Stack Trace -----
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateArgumentCallSites(ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain, ParameterInfo[] parameters, Boolean throwIfCallSiteNotFound)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateConstructorCallSite(ResultCache lifetime, ServiceIdentifier serviceIdentifier, Type implementationType, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.CreateExact(ServiceDescriptor descriptor, ServiceIdentifier serviceIdentifier, CallSiteChain callSiteChain, Int32 slot)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
   Failed ArchiForge.Api.Tests.ArchitectureControllerTests.ExecuteRun_ExecutesTasksAndReturnsResults [1 ms]
   Error Message:
    System.AggregateException : Some services are not able to be constructed (Error while validating the service descriptor 'ServiceType: ArchiForge.Persistence.Orchestration.IAuthorityRunOrchestrator Lifetime: Scoped ImplementationType: ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Application.IArchitectureRunService Lifetime: Scoped ImplementationType: ArchiForge.Application.ArchitectureRunService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Coordinator.Services.ICoordinatorService Lifetime: Scoped ImplementationType: ArchiForge.Coordinator.Services.CoordinatorService': Unable to resolve service for type 'ArchiForge.Persistence.Retrieval.IRetrievalIndexingOutboxRepository' while attempting to activate 'ArchiForge.Persistence.Orchestration.AuthorityRunOrchestrator'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.AgentRuntime.Explanation.IExplanationService Lifetime: Scoped ImplementationType: ArchiForge.AgentRuntime.Explanation.ExplanationService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.AgentRuntime.Explanation.ExplanationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Api.Ask.IConversationService Lifetime: Scoped ImplementationType: ArchiForge.Api.Ask.ConversationService': Unable to resolve service for type 'ArchiForge.Persistence.Conversation.IConversationThreadRepository' while attempting to activate 'ArchiForge.Api.Ask.ConversationService'.) (Error while validating the service descriptor 'ServiceType: ArchiForge.Core.Ask.IAskService Lifetime: Scoped ImplementationType: ArchiForge.Api.Services.Ask.AskService': Unable to resolve service for type 'ArchiForge.AgentRuntime.IAgentCompletionClient' while attempting to activate 'ArchiForge.Api.Services.Ask.AskService'.)
@@ -1798,4 +1729,4 @@ A total of 1 test files matched the specified pattern.
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteFactory.GetCallSite(ServiceDescriptor serviceDescriptor, CallSiteChain callSiteChain)
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.ValidateService(ServiceDescriptor descriptor)
 
-Failed!  - Failed:    19, Passed:    30, Skipped:     0, Total:    49, Duration: 1 s - ArchiForge.Api.Tests.dll (net10.0)
+Failed!  - Failed:    19, Passed:    30, Skipped:     0, Total:    49, Duration: 710 ms - ArchiForge.Api.Tests.dll (net10.0)

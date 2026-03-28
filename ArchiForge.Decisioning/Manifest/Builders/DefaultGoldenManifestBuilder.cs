@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using ArchiForge.Decisioning.Findings;
 using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Findings.Payloads;
@@ -297,6 +299,14 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
             if (!string.IsNullOrWhiteSpace(payload.CostRisk))
                 manifest.Cost.CostRisks.Add(payload.CostRisk);
+
+            string budgetLabel = string.IsNullOrWhiteSpace(payload.BudgetName) ? "default" : payload.BudgetName;
+            string capText = payload.MaxMonthlyCost.HasValue
+                ? payload.MaxMonthlyCost.Value.ToString("N0", CultureInfo.InvariantCulture)
+                : "unspecified";
+
+            manifest.Assumptions.Add(
+                $"Preferred: Cost targets align with budget '{budgetLabel}' (monthly cap {capText}, risk {payload.CostRisk}).");
         }
     }
 
