@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 using FluentAssertions;
 
-using Microsoft.Data.Sqlite;
+using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Api.Tests;
 
@@ -29,10 +29,10 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
             Client, runId, replayRunId);
 
         string payloadJson;
-        await using (SqliteConnection conn = new(_factory.SqliteConnectionString))
+        await using (SqlConnection conn = new(_factory.SqlConnectionString))
         {
             await conn.OpenAsync();
-            await using SqliteCommand cmd = conn.CreateCommand();
+            await using SqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = "SELECT PayloadJson FROM ComparisonRecords WHERE ComparisonRecordId = @id";
             cmd.Parameters.AddWithValue("@id", comparisonRecordId);
             object? scalar = await cmd.ExecuteScalarAsync();
@@ -44,10 +44,10 @@ public sealed class ComparisonReplayVerifyDriftIntegrationTests(ArchiForgeApiFac
         node["leftRunId"] = "tampered-run-id-for-drift";
         string corrupted = node.ToJsonString();
 
-        await using (SqliteConnection conn = new(_factory.SqliteConnectionString))
+        await using (SqlConnection conn = new(_factory.SqlConnectionString))
         {
             await conn.OpenAsync();
-            await using SqliteCommand cmd = conn.CreateCommand();
+            await using SqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = "UPDATE ComparisonRecords SET PayloadJson = @p WHERE ComparisonRecordId = @id";
             cmd.Parameters.AddWithValue("@p", corrupted);
             cmd.Parameters.AddWithValue("@id", comparisonRecordId);

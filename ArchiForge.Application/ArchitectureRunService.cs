@@ -13,7 +13,6 @@ using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
@@ -29,7 +28,6 @@ namespace ArchiForge.Application;
 /// </remarks>
 public sealed class ArchitectureRunService(
     ICoordinatorService coordinator,
-    IDbConnectionFactory connectionFactory,
     IAgentExecutor agentExecutor,
     IDecisionEngineService decisionEngine,
     IAgentEvaluationService agentEvaluationService,
@@ -101,28 +99,17 @@ public sealed class ArchitectureRunService(
 
         try
         {
-            if (connectionFactory.SupportsAmbientTransactionScope)
-            {
-                using TransactionScope scope = new(
-                    TransactionScopeOption.Required,
-                    TransactionScopeAsyncFlowOption.Enabled);
-                inserted = await PersistCreateRunRowsAsync(
-                    request,
-                    coordination,
-                    idempotency,
-                    cancellationToken).ConfigureAwait(false);
+            using TransactionScope scope = new(
+                TransactionScopeOption.Required,
+                TransactionScopeAsyncFlowOption.Enabled);
+            inserted = await PersistCreateRunRowsAsync(
+                request,
+                coordination,
+                idempotency,
+                cancellationToken).ConfigureAwait(false);
 
-                if (inserted || idempotency is null)
-                    scope.Complete();
-            }
-            else
-            {
-                inserted = await PersistCreateRunRowsAsync(
-                    request,
-                    coordination,
-                    idempotency,
-                    cancellationToken).ConfigureAwait(false);
-            }
+            if (inserted || idempotency is null)
+                scope.Complete();
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -465,33 +452,19 @@ public sealed class ArchitectureRunService(
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
     {
-        if (connectionFactory.SupportsAmbientTransactionScope)
-        {
-            using TransactionScope scope = new(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled);
-            await PersistExecutePhaseRowsAsync(
-                runId,
-                expectedStatus,
-                currentManifestVersion,
-                evidence,
-                results,
-                evaluations,
-                cancellationToken).ConfigureAwait(false);
+        using TransactionScope scope = new(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled);
+        await PersistExecutePhaseRowsAsync(
+            runId,
+            expectedStatus,
+            currentManifestVersion,
+            evidence,
+            results,
+            evaluations,
+            cancellationToken).ConfigureAwait(false);
 
-            scope.Complete();
-        }
-        else
-        {
-            await PersistExecutePhaseRowsAsync(
-                runId,
-                expectedStatus,
-                currentManifestVersion,
-                evidence,
-                results,
-                evaluations,
-                cancellationToken).ConfigureAwait(false);
-        }
+        scope.Complete();
     }
 
     private async Task PersistExecutePhaseRowsAsync(
@@ -777,18 +750,11 @@ public sealed class ArchitectureRunService(
         DecisionMergeResult merge,
         CancellationToken cancellationToken)
     {
-        if (connectionFactory.SupportsAmbientTransactionScope)
-        {
-            using TransactionScope scope = new(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled);
-            await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
-            scope.Complete();
-        }
-        else
-        {
-            await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
-        }
+        using TransactionScope scope = new(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled);
+        await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+        scope.Complete();
     }
 
     private async Task PersistCommittedRunRowsAsync(

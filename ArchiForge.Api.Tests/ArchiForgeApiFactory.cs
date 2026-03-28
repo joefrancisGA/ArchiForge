@@ -1,33 +1,34 @@
 using System.Collections.Generic;
 
-using ArchiForge.Data.Infrastructure;
-
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchiForge.Api.Tests;
 
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
-    private readonly string _sqliteConnectionString =
-        $"Data Source=file:archiforge-test-{Guid.NewGuid():N}?mode=memory&cache=shared";
+    private readonly string _connectionString;
+
+    public ArchiForgeApiFactory()
+    {
+        string databaseName = "ArchiForgeTest_" + Guid.NewGuid().ToString("N");
+        _connectionString =
+            $"Server=localhost;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True";
+        SqlServerTestDatabaseHelper.EnsureDatabaseExists(_connectionString);
+    }
 
     /// <summary>
-    /// Connection string for this factory’s in-memory SQLite (<see cref="IDbConnectionFactory"/>).
-    /// Tests that open <see cref="Microsoft.Data.Sqlite.SqliteConnection"/> must use this instance property so they hit the same DB as the hosted API.
+    /// Connection string for this factory’s SQL Server database (per-test database on <c>localhost</c>).
+    /// Tests that open <see cref="Microsoft.Data.SqlClient.SqlConnection"/> must use this instance property so they hit the same DB as the hosted API.
     /// </summary>
-    public string SqliteConnectionString => _sqliteConnectionString;
+    public string SqlConnectionString => _connectionString;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
 
-        // Host-level settings merge into configuration early; helps when machine/CI env vars override appsettings.
-        builder.UseSetting("ConnectionStrings:ArchiForge", _sqliteConnectionString);
+        builder.UseSetting("ConnectionStrings:ArchiForge", _connectionString);
         builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
@@ -35,15 +36,25 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 ["ArchiForge:StorageProvider"] = "InMemory",
-                ["ConnectionStrings:ArchiForge"] = _sqliteConnectionString
+                ["ConnectionStrings:ArchiForge"] = _connectionString
             });
         });
+    }
 
-        // Runs after all app registrations: guarantees SQLite even if IConfiguration precedence or singleton timing is wrong.
-        builder.ConfigureTestServices(services =>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+
+        if (disposing)
         {
-            services.RemoveAll<IDbConnectionFactory>();
-            services.AddSingleton<IDbConnectionFactory>(new SqliteConnectionFactory(_sqliteConnectionString));
-        });
+            try
+            {
+                SqlServerTestDatabaseHelper.DropDatabaseIfExists(_connectionString);
+            }
+            catch
+            {
+                // Best-effort cleanup (SQL Server may be unavailable on teardown).
+            }
+        }
     }
 }

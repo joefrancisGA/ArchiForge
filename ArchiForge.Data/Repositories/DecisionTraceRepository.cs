@@ -65,7 +65,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             FROM DecisionTraces
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(connection, 2000)};
+            {SqlPagingSyntax.FirstRowsOnly(2000)};
             """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(

@@ -8,7 +8,6 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.Api.Services;
@@ -23,7 +22,6 @@ namespace ArchiForge.Api.Services;
 /// inside a <see cref="System.Transactions.TransactionScope"/> to guarantee atomicity.
 /// </remarks>
 public sealed class ArchitectureApplicationService(
-    IDbConnectionFactory connectionFactory,
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunRepository runRepository,
     IAgentResultRepository resultRepository,
@@ -103,28 +101,16 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.BadRequest);
         }
 
-        ArchitectureRunStatus newStatus;
-        if (connectionFactory.SupportsAmbientTransactionScope)
-        {
-            using TransactionScope tx = new(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled);
-            newStatus = await SubmitAgentResultPersistAsync(
-                runId,
-                result,
-                run,
-                cancellationToken).ConfigureAwait(false);
+        using TransactionScope tx = new(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled);
+        ArchitectureRunStatus newStatus = await SubmitAgentResultPersistAsync(
+            runId,
+            result,
+            run,
+            cancellationToken).ConfigureAwait(false);
 
-            tx.Complete();
-        }
-        else
-        {
-            newStatus = await SubmitAgentResultPersistAsync(
-                runId,
-                result,
-                run,
-                cancellationToken).ConfigureAwait(false);
-        }
+        tx.Complete();
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
@@ -207,18 +193,11 @@ public sealed class ArchitectureApplicationService(
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        if (connectionFactory.SupportsAmbientTransactionScope)
-        {
-            using TransactionScope scope = new(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled);
-            await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
-            scope.Complete();
-        }
-        else
-        {
-            await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
-        }
+        using TransactionScope scope = new(
+            TransactionScopeOption.Required,
+            TransactionScopeAsyncFlowOption.Enabled);
+        await SeedFakeResultsPersistAsync(runId, fakeResults, run, newStatus, cancellationToken).ConfigureAwait(false);
+        scope.Complete();
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);

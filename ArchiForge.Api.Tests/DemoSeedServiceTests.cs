@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Tests;
 
-/// <summary>Validates trusted-baseline Contoso demo seed against the shared SQLite test database.</summary>
+/// <summary>Validates trusted-baseline Contoso demo seed against the integration test SQL Server database.</summary>
 [Trait("Category", "Integration")]
 public sealed class DemoSeedServiceTests
 {

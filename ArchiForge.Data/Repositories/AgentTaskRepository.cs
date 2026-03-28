@@ -83,7 +83,7 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             FROM AgentTasks
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
+            {SqlPagingSyntax.FirstRowsOnly(500)};
             """;
 
         IEnumerable<AgentTaskRow> rows = await connection.QueryAsync<AgentTaskRow>(new CommandDefinition(

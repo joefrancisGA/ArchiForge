@@ -66,17 +66,12 @@ public partial class Program
             }
         }
 
-        // 2) DbUp: embedded ArchiForge.Data/Migrations/*.sql in deterministic lexicographic order (SQL Server only).
+        // 2) DbUp: embedded ArchiForge.Data/Migrations/*.sql in deterministic lexicographic order.
         string? connectionString = app.Configuration.GetConnectionString("ArchiForge");
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             app.Logger.LogWarning(
                 "Startup: ConnectionStrings:ArchiForge is not set; skipping DbUp migrations.");
-        }
-        else if (DatabaseMigrator.IsSqliteConnection(connectionString))
-        {
-            app.Logger.LogInformation(
-                "Startup: SQLite connection detected; skipping DbUp (migrations apply to SQL Server only).");
         }
         else
         {

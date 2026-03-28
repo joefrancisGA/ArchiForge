@@ -6,7 +6,6 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 
 using FluentAssertions;
@@ -38,7 +37,6 @@ public sealed class ArchitectureApplicationServiceTests
         Mock<ILogger<ArchitectureApplicationService>> logger = new();
 
         _sut = new ArchitectureApplicationService(
-            Mock.Of<IDbConnectionFactory>(),
             _runDetailQueryService.Object,
             _runRepository.Object,
             _resultRepository.Object,

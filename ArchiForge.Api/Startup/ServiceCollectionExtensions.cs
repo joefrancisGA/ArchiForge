@@ -168,24 +168,7 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterDataInfrastructure(IServiceCollection services)
     {
-        // Integration tests and file-backed dev DBs use SQLite; production uses SQL Server. Pick factory by connection string
-        // so tests do not depend on ConfigureTestServices ordering to replace SqlConnectionFactory.
-        services.AddSingleton<IDbConnectionFactory>(static sp =>
-        {
-            IConfiguration configuration = sp.GetRequiredService<IConfiguration>();
-            string? connectionString = configuration.GetConnectionString("ArchiForge");
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException("Connection string 'ArchiForge' was not found.");
-            }
-
-            if (DatabaseMigrator.IsSqliteConnection(connectionString))
-            {
-                return new SqliteConnectionFactory(connectionString);
-            }
-
-            return new SqlConnectionFactory(configuration);
-        });
+        services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
 
         services.AddHealthChecks()
             .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);

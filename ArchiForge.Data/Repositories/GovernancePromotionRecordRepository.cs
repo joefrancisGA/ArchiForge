@@ -80,7 +80,7 @@ public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory con
             FROM GovernancePromotionRecords
             WHERE RunId = @RunId
             ORDER BY PromotedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
+            {SqlPagingSyntax.FirstRowsOnly(200)};
             """;
 
         IEnumerable<GovernancePromotionRecord> rows = await connection.QueryAsync<GovernancePromotionRecord>(new CommandDefinition(

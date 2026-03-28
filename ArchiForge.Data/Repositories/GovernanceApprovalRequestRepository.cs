@@ -151,7 +151,7 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             FROM GovernanceApprovalRequests
             WHERE RunId = @RunId
             ORDER BY RequestedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
+            {SqlPagingSyntax.FirstRowsOnly(200)};
             """;
 
         IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(

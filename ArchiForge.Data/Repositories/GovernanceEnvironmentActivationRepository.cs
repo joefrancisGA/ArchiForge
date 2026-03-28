@@ -90,7 +90,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             FROM GovernanceEnvironmentActivations
             WHERE Environment = @Environment
             ORDER BY ActivatedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
+            {SqlPagingSyntax.FirstRowsOnly(200)};
             """;
 
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(
@@ -118,7 +118,7 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             FROM GovernanceEnvironmentActivations
             WHERE RunId = @RunId
             ORDER BY ActivatedUtc DESC
-            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
+            {SqlPagingSyntax.FirstRowsOnly(200)};
             """;
 
         IEnumerable<GovernanceEnvironmentActivation> rows = await connection.QueryAsync<GovernanceEnvironmentActivation>(new CommandDefinition(

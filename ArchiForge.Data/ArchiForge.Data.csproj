@@ -13,13 +13,11 @@
   <!-- DbUp: DatabaseMigrator includes only resources whose name contains ".Migrations." (see DatabaseMigrator.cs). -->
   <ItemGroup>
     <EmbeddedResource Include="Migrations\*.sql" />
-    <EmbeddedResource Include="SQL\ArchiForge.Sqlite.sql" LogicalName="ArchiForge.Data.SQL.ArchiForge.Sqlite.sql" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Dapper" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="dbup-sqlserver" />
-    <PackageReference Include="Microsoft.Data.Sqlite" />
     <PackageReference Include="Microsoft.Extensions.Configuration" />
   </ItemGroup>
 

@@ -87,7 +87,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             FROM AgentTasks
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
+            {SqlPagingSyntax.FirstRowsOnly(500)};
             """;
 
         ArchitectureRunRow? row = await connection.QuerySingleOrDefaultAsync<ArchitectureRunRow>(new CommandDefinition(
@@ -196,14 +196,10 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         {
             get; init;
         }
-        public Guid? GraphSnapshotId
-        {
-            get; init;
-        }
-        public Guid? ArtifactBundleId
-        {
-            get; init;
-        }
+
+        public Guid? GraphSnapshotId { get; init; }
+
+        public Guid? ArtifactBundleId { get; init; }
     }
 
     public async Task<IReadOnlyList<ArchitectureRunListItem>> ListAsync(
@@ -224,7 +220,7 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             INNER JOIN ArchitectureRequests req
                 ON r.RequestId = req.RequestId
             ORDER BY r.CreatedUtc DESC, r.RunId DESC
-            {SqlPagingSyntax.FirstRowsOnly(connection, 200)};
+            {SqlPagingSyntax.FirstRowsOnly(200)};
             """;
 
         IEnumerable<ArchitectureRunListItemRow> rows = await connection.QueryAsync<ArchitectureRunListItemRow>(new CommandDefinition(

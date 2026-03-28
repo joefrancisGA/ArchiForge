@@ -10,9 +10,6 @@ public sealed class SqlConnectionFactory(IConfiguration configuration) : IDbConn
     private readonly string _connectionString = configuration.GetConnectionString("ArchiForge")
                                                 ?? throw new InvalidOperationException("Connection string 'ArchiForge' was not found.");
 
-    /// <inheritdoc />
-    public bool SupportsAmbientTransactionScope => true;
-
     public IDbConnection CreateConnection()
     {
         return new SqlConnection(_connectionString);

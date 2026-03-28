@@ -108,7 +108,7 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             FROM AgentEvaluations
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(connection, 500)};
+            {SqlPagingSyntax.FirstRowsOnly(500)};
             """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(

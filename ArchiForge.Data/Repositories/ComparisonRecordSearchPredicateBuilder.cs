@@ -1,7 +1,3 @@
-using System.Data;
-
-using ArchiForge.Data.Infrastructure;
-
 using Dapper;
 
 namespace ArchiForge.Data.Repositories;
@@ -11,10 +7,7 @@ namespace ArchiForge.Data.Repositories;
 /// </summary>
 internal static class ComparisonRecordSearchPredicateBuilder
 {
-    public static bool IsSqlite(IDbConnection connection) => SqlPagingSyntax.IsSqlite(connection);
-
     public static void AppendFilters(
-        bool isSqlite,
         List<string> conditions,
         DynamicParameters parameters,
         string? comparisonType,
@@ -84,9 +77,8 @@ internal static class ComparisonRecordSearchPredicateBuilder
                 continue;
             string paramName = $"@Tag{i}";
             parameters.Add(paramName, t);
-            conditions.Add(isSqlite
-                ? $"EXISTS (SELECT 1 FROM json_each(COALESCE(Tags,'[]')) WHERE json_each.value = {paramName})"
-                : $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
+            conditions.Add(
+                $"EXISTS (SELECT 1 FROM OPENJSON(ISNULL(Tags, '[]')) AS t WHERE t.value = {paramName})");
         }
     }
 }

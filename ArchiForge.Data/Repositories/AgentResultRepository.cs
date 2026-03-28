@@ -151,7 +151,7 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             FROM AgentResults
             WHERE RunId = @RunId
             ORDER BY CreatedUtc
-            {SqlPagingSyntax.FirstRowsOnly(connection, 1000)};
+            {SqlPagingSyntax.FirstRowsOnly(1000)};
             """;
 
         IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(

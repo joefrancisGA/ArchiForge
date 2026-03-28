@@ -100,30 +100,17 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
 
-        string sql = isSqlite
-            ? """
-              SELECT
-                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                  LeftManifestVersion, RightManifestVersion,
-                  LeftExportRecordId, RightExportRecordId,
-                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-              FROM ComparisonRecords
-              WHERE LeftRunId = @RunId OR RightRunId = @RunId
-              ORDER BY CreatedUtc DESC
-              LIMIT 200;
-              """
-            : """
-              SELECT TOP 200
-                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                  LeftManifestVersion, RightManifestVersion,
-                  LeftExportRecordId, RightExportRecordId,
-                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-              FROM ComparisonRecords
-              WHERE LeftRunId = @RunId OR RightRunId = @RunId
-              ORDER BY CreatedUtc DESC;
-              """;
+        const string sql = """
+            SELECT TOP 200
+                ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                LeftManifestVersion, RightManifestVersion,
+                LeftExportRecordId, RightExportRecordId,
+                Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
+            FROM ComparisonRecords
+            WHERE LeftRunId = @RunId OR RightRunId = @RunId
+            ORDER BY CreatedUtc DESC;
+            """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -140,30 +127,17 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         CancellationToken cancellationToken = default)
     {
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
 
-        string sql = isSqlite
-            ? """
-              SELECT
-                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                  LeftManifestVersion, RightManifestVersion,
-                  LeftExportRecordId, RightExportRecordId,
-                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-              FROM ComparisonRecords
-              WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
-              ORDER BY CreatedUtc DESC
-              LIMIT 200;
-              """
-            : """
-              SELECT TOP 200
-                  ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
-                  LeftManifestVersion, RightManifestVersion,
-                  LeftExportRecordId, RightExportRecordId,
-                  Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
-              FROM ComparisonRecords
-              WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
-              ORDER BY CreatedUtc DESC;
-              """;
+        const string sql = """
+            SELECT TOP 200
+                ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
+                LeftManifestVersion, RightManifestVersion,
+                LeftExportRecordId, RightExportRecordId,
+                Format, SummaryMarkdown, PayloadJson, Notes, CreatedUtc, Label, Tags
+            FROM ComparisonRecords
+            WHERE LeftExportRecordId = @ExportRecordId OR RightExportRecordId = @ExportRecordId
+            ORDER BY CreatedUtc DESC;
+            """;
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -193,9 +167,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
     {
         // This query is intentionally generated at runtime because:
         // - filter predicates are optional
-        // - tag matching is stored as JSON in a NVARCHAR column and must be implemented
-        //   differently for SQLite vs SQL Server
-        // - paging syntax differs by provider (SQLite uses LIMIT/OFFSET; SQL Server uses OFFSET/FETCH)
+        // - tag matching is stored as JSON in an NVARCHAR column (OPENJSON)
         const string baseSql = """
             SELECT
                 ComparisonRecordId, ComparisonType, LeftRunId, RightRunId,
@@ -214,9 +186,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         parameters.Add("@Skip", safeSkip);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
-            isSqlite,
             conditions,
             parameters,
             comparisonType,
@@ -241,9 +211,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         sql += sortDescending
             ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
             : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";
-        sql += isSqlite
-            ? " LIMIT @Limit OFFSET @Skip;"
-            : " OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
+        sql += " OFFSET @Skip ROWS FETCH NEXT @Limit ROWS ONLY;";
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
@@ -286,9 +254,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
         parameters.Add("@Limit", safeLimit);
 
         using IDbConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        bool isSqlite = ComparisonRecordSearchPredicateBuilder.IsSqlite(connection);
         ComparisonRecordSearchPredicateBuilder.AppendFilters(
-            isSqlite,
             conditions,
             parameters,
             comparisonType,
@@ -331,9 +297,7 @@ public sealed class ComparisonRecordRepository : IComparisonRecordRepository
             ? $" ORDER BY {orderColumn} DESC, ComparisonRecordId DESC"
             : $" ORDER BY {orderColumn} ASC, ComparisonRecordId ASC";
 
-        sql += isSqlite
-            ? " LIMIT @Limit;"
-            : " OFFSET 0 ROWS FETCH NEXT @Limit ROWS ONLY;";
+        sql += " OFFSET 0 ROWS FETCH NEXT @Limit ROWS ONLY;";
 
         IEnumerable<ComparisonRecord> rows = await connection.QueryAsync<ComparisonRecord>(new CommandDefinition(
             sql,
