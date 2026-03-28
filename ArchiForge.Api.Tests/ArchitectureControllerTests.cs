@@ -35,7 +35,7 @@ public sealed class ArchitectureControllerTests
     {
         using ArchiForgeApiFactory factory = new();
         HttpClient client = factory.CreateClient();
-        await act(client).ConfigureAwait(false);
+        await act(client);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public sealed class ArchitectureControllerTests
                 "Compliance",
                 "Critic"
             ]);
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public sealed class ArchitectureControllerTests
             payload.Run.RunId.Should().Be(runId);
             payload.Tasks.Should().HaveCount(4);
             payload.Results.Should().BeEmpty();
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public sealed class ArchitectureControllerTests
 
             GetRunResponseDto? getRunPayload = await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             getRunPayload!.Results.Should().HaveCount(4);
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public sealed class ArchitectureControllerTests
             commitPayload.Manifest.Governance.RequiredControls.Should().Contain(c =>
                 c.Equals("Managed Identity", StringComparison.OrdinalIgnoreCase));
             commitPayload.DecisionTraces.Should().NotBeEmpty();
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -182,7 +182,7 @@ public sealed class ArchitectureControllerTests
             executePayload.Should().NotBeNull();
             executePayload.RunId.Should().Be(runId);
             executePayload.Results.Should().HaveCount(4);
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -224,7 +224,7 @@ public sealed class ArchitectureControllerTests
             manifestPayload.Datastores.Should().NotBeEmpty();
             manifestPayload.Governance.RequiredControls.Should().NotBeEmpty();
             manifestPayload.Metadata.DecisionTraceIds.Should().NotBeEmpty();
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -274,7 +274,7 @@ public sealed class ArchitectureControllerTests
             manifestPayload.Governance.RequiredControls.Should().Contain(c =>
                 c.Equals("Private Endpoints", StringComparison.OrdinalIgnoreCase));
             manifestPayload.Metadata.DecisionTraceIds.Should().NotBeEmpty();
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -306,7 +306,7 @@ public sealed class ArchitectureControllerTests
             CreateRunResponseDto? secondPayload = await secondResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             secondPayload.Should().NotBeNull();
             secondPayload.Run.RunId.Should().Be(firstPayload.Run.RunId);
-        }).ConfigureAwait(false);
+        });
     }
 
     [Fact]
@@ -330,6 +330,6 @@ public sealed class ArchitectureControllerTests
 
             HttpResponseMessage secondResponse = await client.SendAsync(second);
             secondResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        }).ConfigureAwait(false);
+        });
     }
 }

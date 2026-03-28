@@ -52,7 +52,6 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
         string json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-        connection.Open();
 
         var parameters = new
         {
