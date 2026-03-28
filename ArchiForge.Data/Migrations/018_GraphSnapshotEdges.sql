@@ -15,6 +15,8 @@ BEGIN
             REFERENCES dbo.GraphSnapshots (GraphSnapshotId)
     );
 
-    CREATE INDEX IX_GraphSnapshotEdges_FromTo
-        ON dbo.GraphSnapshotEdges (GraphSnapshotId, FromNodeId, ToNodeId);
+    -- Index key (GraphSnapshotId, FromNodeId, ToNodeId) exceeds 1700-byte SQL Server limit; use INCLUDE for ToNodeId.
+    CREATE NONCLUSTERED INDEX IX_GraphSnapshotEdges_SnapshotFrom
+        ON dbo.GraphSnapshotEdges (GraphSnapshotId, FromNodeId)
+        INCLUDE (ToNodeId, EdgeType, Weight);
 END;

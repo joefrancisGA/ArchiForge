@@ -330,8 +330,10 @@ CREATE TABLE IF NOT EXISTS GraphSnapshotEdges
     FOREIGN KEY (GraphSnapshotId) REFERENCES GraphSnapshots (GraphSnapshotId)
 );
 
-CREATE INDEX IF NOT EXISTS IX_GraphSnapshotEdges_FromTo
-    ON GraphSnapshotEdges (GraphSnapshotId, FromNodeId, ToNodeId);
+-- Align with SQL Server: avoid oversized composite key; INCLUDE for ToNodeId (SQLite 3.31+).
+CREATE INDEX IF NOT EXISTS IX_GraphSnapshotEdges_SnapshotFrom
+    ON GraphSnapshotEdges (GraphSnapshotId, FromNodeId)
+    INCLUDE (ToNodeId, EdgeType, Weight);
 
 CREATE TABLE IF NOT EXISTS FindingsSnapshots
 (
