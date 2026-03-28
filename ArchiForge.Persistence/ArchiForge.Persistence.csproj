@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ArchiForge.Decisioning.Tests" />
+    <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
   </ItemGroup>
 
 </Project>

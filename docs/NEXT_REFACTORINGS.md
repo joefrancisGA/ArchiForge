@@ -1859,7 +1859,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [ ] 243. Archival for old runs / digests / conversations.
 - [ ] 244. Soft-delete policy for governance assignments.
-- [ ] 245. Connection resilience (retry + backoff).
+- [x] 245. Connection resilience (retry + backoff).
+  - **`SqlTransientDetector`** (`ArchiForge.Persistence.Connections`): shared classifier for transient SQL Server error numbers (-2 timeout, 40613 Azure SQL unavailable, 40197 service error, 49918–49920 throttling) and `TimeoutException`. Used by both the health check and the resilient factory.
+  - **`ResilientSqlConnectionFactory`** (`ArchiForge.Persistence.Connections`): decorator over `ISqlConnectionFactory` that retries `CreateOpenConnectionAsync` on transient failures with exponential backoff (default 3 retries, 200 ms base, ±25 % jitter). Non-transient exceptions propagate immediately.
+  - **DI wiring**: `ArchiForgeStorageServiceCollectionExtensions` now wraps `SqlConnectionFactory` in `ResilientSqlConnectionFactory` for the SQL storage path.
+  - **Health check**: `SqlConnectionHealthCheck` delegates to the shared `SqlTransientDetector`.
+  - **Tests**: `SqlTransientDetectorTests` (9 cases — all error numbers, null, `TimeoutException`, inner exception), `ResilientSqlConnectionFactoryTests` (8 cases — success, transient retry + success, retry exhaustion, non-transient immediate throw, cancellation, exponential delay range, null guards, zero-retries).
 - [ ] 246. Read replica routing for heavy authority lists.
 - [ ] 247. Shared test cases InMemory vs Dapper parity.
 - [ ] 248. Single DDL file discipline audit.

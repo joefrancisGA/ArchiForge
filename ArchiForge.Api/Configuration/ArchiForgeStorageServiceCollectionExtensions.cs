@@ -32,6 +32,8 @@ using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.Api.Configuration;
 
 public static class ArchiForgeStorageServiceCollectionExtensions
@@ -91,8 +93,13 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         string connectionString = configuration.GetConnectionString("ArchiForge")
                                   ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
 
-        services.AddSingleton<ISqlConnectionFactory>(_ =>
-            new SqlConnectionFactory(connectionString));
+        services.AddSingleton<ISqlConnectionFactory>(sp =>
+        {
+            SqlConnectionFactory inner = new(connectionString);
+            ILogger<ResilientSqlConnectionFactory> logger =
+                sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>();
+            return new ResilientSqlConnectionFactory(inner, logger);
+        });
 
         Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
         string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
