@@ -29,4 +29,10 @@ public static class ProblemTypes
     public const string Conflict = Base + "#conflict";
 
     public const string PolicyPackVersionNotFound = Base + "#policy-pack-version-not-found";
+
+    /// <summary>A SQL or database timeout occurred; the request may succeed on retry.</summary>
+    public const string DatabaseTimeout = Base + "#database-timeout";
+
+    /// <summary>The database is unreachable or returned a transient error.</summary>
+    public const string DatabaseUnavailable = Base + "#database-unavailable";
 }

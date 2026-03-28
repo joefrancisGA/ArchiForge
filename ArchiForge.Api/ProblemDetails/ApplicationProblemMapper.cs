@@ -1,7 +1,10 @@
+using System.Data.Common;
+
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Api.ProblemDetails;
 
@@ -47,6 +50,9 @@ public static class ApplicationProblemMapper
                 instance);
             return true;
         }
+
+        if (TryMapDatabaseException(ex, instance, out result))
+            return true;
 
         if (ex is InvalidOperationException ioe)
         {
@@ -110,6 +116,55 @@ public static class ApplicationProblemMapper
             StatusCode = problem.Status,
             ContentTypes = { ProblemJsonMediaType }
         };
+    }
+
+    /// <summary>
+    /// Maps SQL Server timeouts (<see cref="SqlException"/> with <c>Number == -2</c>),
+    /// generic <see cref="TimeoutException"/>, and <see cref="DbException"/> to 503 Service Unavailable.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="SqlException.Number"/> <c>-2</c> is the canonical SQL Server timeout error code.
+    /// All database-origin exceptions are surfaced as retryable 503 so clients and load balancers
+    /// can distinguish transient failures from permanent 500 errors.
+    /// </remarks>
+    public static bool TryMapDatabaseException(Exception ex, string? instance, out ObjectResult? result)
+    {
+        result = null;
+
+        if (ex is SqlException sqlEx && sqlEx.Number == -2)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status503ServiceUnavailable,
+                "Database Timeout",
+                "The database query timed out. The request may succeed on retry.",
+                ProblemTypes.DatabaseTimeout,
+                instance);
+            return true;
+        }
+
+        if (ex is TimeoutException)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status503ServiceUnavailable,
+                "Request Timeout",
+                "An operation timed out. The request may succeed on retry.",
+                ProblemTypes.DatabaseTimeout,
+                instance);
+            return true;
+        }
+
+        if (ex is DbException)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status503ServiceUnavailable,
+                "Database Unavailable",
+                "The database is currently unreachable. The request may succeed on retry.",
+                ProblemTypes.DatabaseUnavailable,
+                instance);
+            return true;
+        }
+
+        return false;
     }
 
     public static ObjectResult CreateProblemResult(

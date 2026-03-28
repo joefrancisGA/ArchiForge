@@ -1801,7 +1801,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 199. Api.Tests: Ask thread + fake LLM — `AskThreadIntegrationTests` (POST `api/ask` with seeded authority run, verify thread, follow-up on same thread, messages list, validation).
 - [ ] 200. Committed OpenAPI snapshot diff in CI.
 - [ ] 201. Load test: expensive rate-limit boundary.
-- [ ] 202. Resilience: SQL timeout → health / problem details.
+- [x] 202. Resilience: SQL timeout → health / problem details — `ApplicationProblemMapper.TryMapDatabaseException` maps `SqlException(-2)` / `TimeoutException` → 503 `DatabaseTimeout`, `DbException` → 503 `DatabaseUnavailable`; `SqlConnectionHealthCheck` reports `Degraded` for transient SQL errors (timeout, Azure throttling); `ProblemTypes.DatabaseTimeout` / `DatabaseUnavailable` constants; `ProblemDetailsExtensions.ServiceUnavailableProblem` helper; unit tests in `ApiProblemDetailsExceptionFilterTests` + `SqlConnectionHealthCheckTests`.
 - [ ] 203. CI: migrate from N−1 schema.
 - [ ] 204. UI e2e: policy assign + effective-content.
 

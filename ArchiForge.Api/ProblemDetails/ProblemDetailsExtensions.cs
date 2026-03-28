@@ -81,6 +81,30 @@ public static class ProblemDetailsExtensions
     }
 
     /// <summary>
+    /// Returns 503 Service Unavailable with a Problem Details body (e.g. database timeout, transient downstream failure).
+    /// </summary>
+    public static IActionResult ServiceUnavailableProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = type ?? ProblemTypes.DatabaseUnavailable,
+            Title = "Service Unavailable",
+            Status = StatusCodes.Status503ServiceUnavailable,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path
+        };
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status,
+            ContentTypes = { ProblemJsonMediaType }
+        };
+    }
+
+    /// <summary>
     /// Converts common InvalidOperationException variants to consistent ProblemDetails.
     /// </summary>
     public static IActionResult InvalidOperationProblem(
