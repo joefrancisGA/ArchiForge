@@ -5,6 +5,7 @@ using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Runs;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Coordinator.Services;
+using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
@@ -88,6 +89,7 @@ public sealed class ArchitectureRunServiceAuditTests
     {
         return new ArchitectureRunService(
             Mock.Of<ICoordinatorService>(),
+            Mock.Of<IDbConnectionFactory>(),
             Mock.Of<IAgentExecutor>(),
             Mock.Of<IDecisionEngineService>(),
             Mock.Of<IAgentEvaluationService>(),

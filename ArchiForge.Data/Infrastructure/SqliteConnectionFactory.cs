@@ -14,6 +14,9 @@ public sealed class SqliteConnectionFactory(string connectionString) : IDbConnec
     private static readonly Lock SchemaLock = new();
     private static readonly HashSet<string> InitializedDatabases = [];
 
+    /// <inheritdoc />
+    public bool SupportsAmbientTransactionScope => false;
+
     public IDbConnection CreateConnection()
     {
         EnsureSchema();

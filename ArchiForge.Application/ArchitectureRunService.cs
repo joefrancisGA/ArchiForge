@@ -12,6 +12,7 @@ using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
+using ArchiForge.Data.Infrastructure;
 using ArchiForge.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
@@ -27,6 +28,7 @@ namespace ArchiForge.Application;
 /// </remarks>
 public sealed class ArchitectureRunService(
     ICoordinatorService coordinator,
+    IDbConnectionFactory connectionFactory,
     IAgentExecutor agentExecutor,
     IDecisionEngineService decisionEngine,
     IAgentEvaluationService agentEvaluationService,
@@ -98,38 +100,29 @@ public sealed class ArchitectureRunService(
 
         try
         {
-            using (TransactionScope scope = new(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled))
+            if (connectionFactory.SupportsAmbientTransactionScope)
             {
-                await requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
-                await runRepository.CreateAsync(coordination.Run, cancellationToken).ConfigureAwait(false);
-                await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken).ConfigureAwait(false);
-                await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken).ConfigureAwait(false);
-
-                if (idempotency is not null)
+                using (TransactionScope scope = new(
+                    TransactionScopeOption.Required,
+                    TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    inserted = await architectureRunIdempotencyRepository
-                        .TryInsertAsync(
-                            idempotency.TenantId,
-                            idempotency.WorkspaceId,
-                            idempotency.ProjectId,
-                            idempotency.IdempotencyKeyHash,
-                            idempotency.RequestFingerprint,
-                            coordination.Run.RunId,
-                            cancellationToken)
-                        .ConfigureAwait(false);
+                    inserted = await PersistCreateRunRowsAsync(
+                        request,
+                        coordination,
+                        idempotency,
+                        cancellationToken).ConfigureAwait(false);
 
-                    if (!inserted)
-                    {
-                        logger.LogWarning(
-                            "CreateRun idempotency insert lost race for RunId={RunId}; rolling back legacy row and returning winner.",
-                            coordination.Run.RunId);
-                    }
+                    if (inserted || idempotency is null)
+                        scope.Complete();
                 }
-
-                if (inserted || idempotency is null)
-                    scope.Complete();
+            }
+            else
+            {
+                inserted = await PersistCreateRunRowsAsync(
+                    request,
+                    coordination,
+                    idempotency,
+                    cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
@@ -179,6 +172,41 @@ public sealed class ArchitectureRunService(
             EvidenceBundle = coordination.EvidenceBundle,
             Tasks = coordination.Tasks
         };
+    }
+
+    private async Task<bool> PersistCreateRunRowsAsync(
+        ArchitectureRequest request,
+        CoordinationResult coordination,
+        CreateRunIdempotencyState? idempotency,
+        CancellationToken cancellationToken)
+    {
+        await requestRepository.CreateAsync(request, cancellationToken).ConfigureAwait(false);
+        await runRepository.CreateAsync(coordination.Run, cancellationToken).ConfigureAwait(false);
+        await evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken).ConfigureAwait(false);
+        await taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken).ConfigureAwait(false);
+
+        if (idempotency is null)
+            return false;
+
+        bool inserted = await architectureRunIdempotencyRepository
+            .TryInsertAsync(
+                idempotency.TenantId,
+                idempotency.WorkspaceId,
+                idempotency.ProjectId,
+                idempotency.IdempotencyKeyHash,
+                idempotency.RequestFingerprint,
+                coordination.Run.RunId,
+                cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!inserted)
+        {
+            logger.LogInformation(
+                "Idempotency insert did not win race for RunId={RunId}; SQL Server rolls back the ambient transaction when the scope is not completed.",
+                coordination.Run.RunId);
+        }
+
+        return inserted;
     }
 
     private async Task<CreateRunResult?> TryReplayFromIdempotencyAsync(
@@ -438,9 +466,46 @@ public sealed class ArchitectureRunService(
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
     {
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
+        if (connectionFactory.SupportsAmbientTransactionScope)
+        {
+            using (TransactionScope scope = new(
+                       TransactionScopeOption.Required,
+                       TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await PersistExecutePhaseRowsAsync(
+                    runId,
+                    expectedStatus,
+                    currentManifestVersion,
+                    evidence,
+                    results,
+                    evaluations,
+                    cancellationToken).ConfigureAwait(false);
+
+                scope.Complete();
+            }
+        }
+        else
+        {
+            await PersistExecutePhaseRowsAsync(
+                runId,
+                expectedStatus,
+                currentManifestVersion,
+                evidence,
+                results,
+                evaluations,
+                cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task PersistExecutePhaseRowsAsync(
+        string runId,
+        ArchitectureRunStatus expectedStatus,
+        string? currentManifestVersion,
+        AgentEvidencePackage evidence,
+        IReadOnlyList<AgentResult> results,
+        IReadOnlyList<AgentEvaluation> evaluations,
+        CancellationToken cancellationToken)
+    {
         await agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken).ConfigureAwait(false);
         await resultRepository.CreateManyAsync(results, cancellationToken).ConfigureAwait(false);
         await agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken).ConfigureAwait(false);
@@ -451,7 +516,6 @@ public sealed class ArchitectureRunService(
             completedUtc: null,
             cancellationToken: cancellationToken,
             expectedStatus: expectedStatus).ConfigureAwait(false);
-        scope.Complete();
     }
 
     /// <inheritdoc />
@@ -716,10 +780,28 @@ public sealed class ArchitectureRunService(
         DecisionMergeResult merge,
         CancellationToken cancellationToken)
     {
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
+        if (connectionFactory.SupportsAmbientTransactionScope)
+        {
+            using (TransactionScope scope = new(
+                       TransactionScopeOption.Required,
+                       TransactionScopeAsyncFlowOption.Enabled))
+            {
+                await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+                scope.Complete();
+            }
+        }
+        else
+        {
+            await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken).ConfigureAwait(false);
+        }
+    }
 
+    private async Task PersistCommittedRunRowsAsync(
+        string runId,
+        IReadOnlyList<DecisionNode> decisionNodes,
+        DecisionMergeResult merge,
+        CancellationToken cancellationToken)
+    {
         await decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken).ConfigureAwait(false);
         await manifestRepository.CreateAsync(merge.Manifest, cancellationToken).ConfigureAwait(false);
         await decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken).ConfigureAwait(false);
@@ -730,7 +812,6 @@ public sealed class ArchitectureRunService(
             DateTime.UtcNow,
             cancellationToken,
             expectedStatus: ArchitectureRunStatus.ReadyForCommit).ConfigureAwait(false);
-        scope.Complete();
     }
 
     /// <summary>
