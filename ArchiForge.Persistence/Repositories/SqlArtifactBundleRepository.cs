@@ -131,7 +131,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
                         a.ArtifactType,
                         a.Name,
                         a.Format,
-                        Content = a.Content ?? string.Empty,
+                        a.Content,
                         a.ContentHash,
                     },
                     transaction,
@@ -156,7 +156,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
                             ArtifactSortOrder = i,
                             MetaSortOrder = metaOrder,
                             MetaKey = meta.Key,
-                            MetaValue = meta.Value ?? string.Empty,
+                            MetaValue = meta.Value,
                         },
                         transaction,
                         cancellationToken: ct));
@@ -282,7 +282,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
                     {
                         BundleId = bundleId,
                         SortOrder = n,
-                        NoteText = trace.Notes[n] ?? string.Empty,
+                        NoteText = trace.Notes[n],
                     },
                     transaction,
                     cancellationToken: ct));

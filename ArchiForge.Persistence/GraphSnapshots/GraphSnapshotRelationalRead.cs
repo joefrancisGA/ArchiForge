@@ -83,11 +83,11 @@ internal static class GraphSnapshotRelationalRead
 
         List<GraphEdge>? edgesOverride = null;
 
-        if (edgesCount > 0)
-        {
-            bool mergeEdgeMetadataFromJson = edgePropsCount == 0;
-            edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
-        }
+        if (edgesCount <= 0)
+            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
+        
+        bool mergeEdgeMetadataFromJson = edgePropsCount == 0;
+        edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
 
         return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
     }

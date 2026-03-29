@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
-using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -62,15 +61,13 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                 $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
         }
 
-        if (!_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work)))
-        {
-            _pendingJobs.Release();
-            _info.TryRemove(id, out _);
+        if (_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work))) return id;
+        
+        _pendingJobs.Release();
+        _info.TryRemove(id, out _);
 
-            throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
-        }
+        throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
 
-        return id;
     }
 
     public BackgroundJobInfo? GetInfo(string jobId)
@@ -140,7 +137,7 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
 
-                    if (!_pendingJobs.Wait(0))
+                    if (!await _pendingJobs.WaitAsync(0, stoppingToken))
                     {
                         logger.LogError(
                             "Background job {JobId} could not be re-queued; pending capacity exhausted.",

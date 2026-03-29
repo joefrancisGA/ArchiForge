@@ -128,7 +128,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                         SortOrder = i,
                         node.NodeId,
                         node.NodeType,
-                        Label = node.Label ?? string.Empty,
+                        node.Label,
                         node.Category,
                         node.SourceType,
                         node.SourceId,
@@ -258,10 +258,8 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 .OrderBy(kv => kv.Key, StringComparer.Ordinal)
                 .ToList();
 
-            for (int p = 0; p < orderedProps.Count; p++)
+            foreach (KeyValuePair<string, string> kv in orderedProps)
             {
-                KeyValuePair<string, string> kv = orderedProps[p];
-
                 await connection.ExecuteAsync(
                     new CommandDefinition(
                         insertEdgePropSql,

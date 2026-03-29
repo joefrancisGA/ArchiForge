@@ -19,7 +19,7 @@ internal static class Program
 
         if (!TryParseConnectionString(args, out string? connectionString) || string.IsNullOrWhiteSpace(connectionString))
         {
-            Console.Error.WriteLine(
+            await Console.Error.WriteLineAsync(
                 "Set ARCHIFORGE_SQL, or pass --connection \"...\", or a positional connection string. Use --help for scope flags.");
             return 1;
         }
@@ -134,33 +134,32 @@ internal static class Program
                 skipArtifact = true;
         }
 
-        if (!string.IsNullOrWhiteSpace(onlyList))
-        {
-            HashSet<string> stages = new(StringComparer.OrdinalIgnoreCase);
-            foreach (string part in onlyList.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            {
-                if (TryMapStage(part, out string key))
-                    stages.Add(key);
-            }
-
+        if (string.IsNullOrWhiteSpace(onlyList))
             return new SqlRelationalBackfillOptions
             {
-                ContextSnapshots = stages.Contains("context"),
-                GraphSnapshots = stages.Contains("graph"),
-                FindingsSnapshots = stages.Contains("findings"),
-                GoldenManifestsPhase1 = stages.Contains("golden"),
-                ArtifactBundles = stages.Contains("artifact"),
+                ContextSnapshots = !skipContext,
+                GraphSnapshots = !skipGraph,
+                FindingsSnapshots = !skipFindings,
+                GoldenManifestsPhase1 = !skipGolden,
+                ArtifactBundles = !skipArtifact,
             };
+        
+        HashSet<string> stages = new(StringComparer.OrdinalIgnoreCase);
+        foreach (string part in onlyList.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (TryMapStage(part, out string key))
+                stages.Add(key);
         }
 
         return new SqlRelationalBackfillOptions
         {
-            ContextSnapshots = !skipContext,
-            GraphSnapshots = !skipGraph,
-            FindingsSnapshots = !skipFindings,
-            GoldenManifestsPhase1 = !skipGolden,
-            ArtifactBundles = !skipArtifact,
+            ContextSnapshots = stages.Contains("context"),
+            GraphSnapshots = stages.Contains("graph"),
+            FindingsSnapshots = stages.Contains("findings"),
+            GoldenManifestsPhase1 = stages.Contains("golden"),
+            ArtifactBundles = stages.Contains("artifact"),
         };
+
     }
 
     private static bool TryMapStage(string token, out string key)

@@ -8,6 +8,7 @@ namespace ArchiForge.AgentSimulator.Services;
 /// </summary>
 public interface IAgentExecutor
 {
+    // ReSharper disable InvalidXmlDocComment
     /// <summary>
     /// Executes each task in <paramref name="tasks"/> in agent-type order and collects <see cref="AgentResult"/> rows.
     /// </summary>
@@ -18,6 +19,7 @@ public interface IAgentExecutor
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that resolves to ordered results (one per task).</returns>
     /// <exception cref="InvalidOperationException">Thrown when no <see cref="IAgentHandler"/> is registered for a task’s agent type.</exception>
+    // ReSharper enable InvalidXmlDocComment
     Task<IReadOnlyList<AgentResult>> ExecuteAsync(
         string runId,
         ArchitectureRequest request,
