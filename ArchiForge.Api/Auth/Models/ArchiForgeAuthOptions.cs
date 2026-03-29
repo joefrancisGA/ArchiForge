@@ -4,7 +4,7 @@ public class ArchiForgeAuthOptions
 {
     public const string SectionName = "ArchiForgeAuth";
 
-    /// <summary>DevelopmentBypass | JwtBearer</summary>
+    /// <summary>DevelopmentBypass | JwtBearer | ApiKey</summary>
     public string Mode { get; set; } = "DevelopmentBypass";
 
     public string Authority { get; set; } = string.Empty;

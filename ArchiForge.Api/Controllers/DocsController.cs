@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArchiForge.Api.Controllers;
@@ -5,10 +6,15 @@ namespace ArchiForge.Api.Controllers;
 /// <summary>
 /// Serves static developer-facing HTML documentation pages (excluded from OpenAPI/Swagger).
 /// </summary>
-/// <remarks>Intentionally hidden from the API explorer via <c>IgnoreApi = true</c>.</remarks>
+/// <remarks>
+/// Intentionally hidden from the API explorer via <c>IgnoreApi = true</c>.
+/// Marked <see cref="AllowAnonymousAttribute"/> because these are read-only recipe pages
+/// that do not expose sensitive data or mutate state.
+/// </remarks>
 [ApiController]
 [Route("[controller]")]
 [ApiExplorerSettings(IgnoreApi = true)]
+[AllowAnonymous]
 public sealed class DocsController : ControllerBase
 {
     /// <summary>Returns an HTML page with step-by-step comparison replay recipes.</summary>

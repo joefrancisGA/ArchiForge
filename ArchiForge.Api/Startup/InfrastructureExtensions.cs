@@ -1,12 +1,39 @@
+using ArchiForge.Api.Auth.Models;
+
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Startup;
 
 internal static class InfrastructureExtensions
 {
+    /// <summary>
+    /// Single registration point for all ArchiForge authorization policies:
+    /// role-based (ReadAuthority, ExecuteAuthority, AdminAuthority) and
+    /// claim-based (CanCommitRuns, CanSeedResults, etc.).
+    /// </summary>
     public static IServiceCollection AddArchiForgeAuthorization(this IServiceCollection services)
     {
         services.AddAuthorizationBuilder()
+            .AddPolicy(ArchiForgePolicies.ReadAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireRole(
+                    ArchiForgeRoles.Reader,
+                    ArchiForgeRoles.Operator,
+                    ArchiForgeRoles.Admin);
+            })
+            .AddPolicy(ArchiForgePolicies.ExecuteAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireRole(
+                    ArchiForgeRoles.Operator,
+                    ArchiForgeRoles.Admin);
+            })
+            .AddPolicy(ArchiForgePolicies.AdminAuthority, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireRole(ArchiForgeRoles.Admin);
+            })
             .AddPolicy("CanCommitRuns", policy =>
                 policy.RequireClaim("permission", "commit:run"))
             .AddPolicy("CanSeedResults", policy =>

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Authentication;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +11,9 @@ namespace ArchiForge.Api.Auth.Services;
 
 public static class AuthServiceCollectionExtensions
 {
+    /// <summary>Well-known scheme name used when <c>ArchiForgeAuth:Mode</c> is <c>ApiKey</c>.</summary>
+    public const string ApiKeySchemeName = "ApiKey";
+
     public static IServiceCollection AddArchiForgeAuth(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -42,6 +46,18 @@ public static class AuthServiceCollectionExtensions
                     };
                 });
         }
+        else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+        {
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = ApiKeySchemeName;
+                    options.DefaultChallengeScheme = ApiKeySchemeName;
+                })
+                .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
+                    ApiKeySchemeName,
+                    _ => { });
+        }
         else
         {
             services
@@ -56,28 +72,6 @@ public static class AuthServiceCollectionExtensions
         }
 
         services.AddScoped<IClaimsTransformation, ArchiForgeRoleClaimsTransformation>();
-
-        services.AddAuthorizationBuilder()
-            .AddPolicy(ArchiForgePolicies.ReadAuthority, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchiForgeRoles.Reader,
-                    ArchiForgeRoles.Operator,
-                    ArchiForgeRoles.Admin);
-            })
-            .AddPolicy(ArchiForgePolicies.ExecuteAuthority, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchiForgeRoles.Operator,
-                    ArchiForgeRoles.Admin);
-            })
-            .AddPolicy(ArchiForgePolicies.AdminAuthority, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole(ArchiForgeRoles.Admin);
-            });
 
         return services;
     }
