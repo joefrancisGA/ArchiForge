@@ -73,7 +73,6 @@ using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Retrieval.Queries;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -42,16 +40,15 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
     {
         base.Dispose(disposing);
 
-        if (disposing)
+        if (!disposing) return;
+        
+        try
         {
-            try
-            {
-                SqlServerTestDatabaseHelper.DropDatabaseIfExists(_connectionString);
-            }
-            catch
-            {
-                // Best-effort cleanup.
-            }
+            SqlServerTestDatabaseHelper.DropDatabaseIfExists(_connectionString);
+        }
+        catch
+        {
+            // Best-effort cleanup.
         }
     }
 }
