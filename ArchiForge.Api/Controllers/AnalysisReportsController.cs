@@ -44,6 +44,7 @@ public sealed class AnalysisReportsController(
     IArchitectureAnalysisConsultingDocxExportService architectureAnalysisConsultingDocxExportService,
     IConsultingDocxTemplateRecommendationService consultingDocxTemplateRecommendationService,
     AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
+    IRunExportAuditService runExportAuditService,
     IBackgroundJobQueue jobs,
     ILogger<AnalysisReportsController> logger)
     : ControllerBase
@@ -281,6 +282,27 @@ public sealed class AnalysisReportsController(
             byte[] bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
                 report,
                 cancellationToken);
+
+            ResolvedConsultingDocxExportProfile resolvedProfile = consultingDocxExportProfileSelector.Resolve(
+                request.TemplateProfile,
+                ConsultingDocxExportAuditMapper.ToRecommendationRequest(request));
+
+            PersistedAnalysisExportRequest persistedRequest = ConsultingDocxExportAuditMapper.ToPersistedRequest(request);
+
+            const string consultingDocxExportType = "analysis-report-consulting-docx";
+
+            await runExportAuditService.RecordAsync(
+                runId,
+                consultingDocxExportType,
+                format: "docx",
+                fileName: $"analysis-report-consulting-{runId}.docx",
+                templateProfile: resolvedProfile.SelectedProfileName,
+                templateProfileDisplayName: resolvedProfile.SelectedProfileDisplayName,
+                wasAutoSelected: resolvedProfile.WasAutoSelected,
+                resolutionReason: resolvedProfile.ResolutionReason,
+                manifestVersion: loaded.Detail!.Run.CurrentManifestVersion,
+                analysisRequest: persistedRequest,
+                cancellationToken: cancellationToken);
 
             return ApiFileResults.RangeBytes(
                 Request,

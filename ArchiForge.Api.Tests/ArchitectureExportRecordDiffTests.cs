@@ -26,8 +26,11 @@ public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory facto
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
+        HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        commitResponse.EnsureSuccessStatusCode();
 
         var executiveRequest = new
         {
@@ -75,13 +78,15 @@ public sealed class ArchitectureExportRecordDiffTests(ArchiForgeApiFactory facto
             compareRunId = (string?)null
         };
 
-        await Client.PostAsync(
+        HttpResponseMessage executiveExport = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
             JsonContent(executiveRequest));
+        executiveExport.EnsureSuccessStatusCode();
 
-        await Client.PostAsync(
+        HttpResponseMessage internalExport = await Client.PostAsync(
             $"/v1/architecture/run/{runId}/analysis-report/export/docx/consulting",
             JsonContent(internalRequest));
+        internalExport.EnsureSuccessStatusCode();
 
         HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/run/{runId}/exports");
         historyResponse.EnsureSuccessStatusCode();
