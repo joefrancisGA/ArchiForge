@@ -579,8 +579,10 @@ public sealed class ArchitectureRunService(
                 evaluations,
                 cancellationToken);
 
+            // ManifestVersion is the PK on GoldenManifestVersions (global, not per-run). A literal "v1" collides
+            // when multiple runs commit in the same database (e.g. integration tests sharing one factory).
             string manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-                ? "v1"
+                ? $"v1-{runId}"
                 : IncrementManifestVersion(run.CurrentManifestVersion);
 
             merge = decisionEngine.MergeResults(

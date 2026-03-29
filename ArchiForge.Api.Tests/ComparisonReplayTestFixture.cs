@@ -53,8 +53,15 @@ public static class ComparisonReplayTestFixture
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
 
-        await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
-        await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/run/{runId}/execute", null);
+        executeResponse.EnsureSuccessStatusCode();
+
+        HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/run/{runId}/commit", null);
+        commitResponse.EnsureSuccessStatusCode();
+
+        // GoldenManifestVersions.ManifestVersion is globally unique (PK). A fixed override collides when
+        // multiple tests share one WebApplicationFactory database (same test class).
+        string replayManifestVersion = $"v1r{Guid.NewGuid():N}";
 
         HttpResponseMessage replayResponse = await client.PostAsync(
             $"/v1/architecture/run/{runId}/replay",
@@ -62,7 +69,7 @@ public static class ComparisonReplayTestFixture
             {
                 commitReplay = true,
                 executionMode = "Current",
-                manifestVersionOverride = "v1-replay-fixture"
+                manifestVersionOverride = replayManifestVersion
             }));
         replayResponse.EnsureSuccessStatusCode();
         ReplayRunResponseDto? replayPayload = await replayResponse.Content.ReadFromJsonAsync<ReplayRunResponseDto>(jsonOptions);

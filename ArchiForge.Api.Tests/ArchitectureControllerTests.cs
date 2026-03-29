@@ -12,7 +12,7 @@ namespace ArchiForge.Api.Tests;
 
 /// <summary>
 /// Each test uses a new <see cref="ArchiForgeApiFactory"/> so the per-test database on <c>localhost</c> is isolated.
-/// Shared state would collide on <c>GoldenManifestVersions</c> (PK = ManifestVersion such as <c>v1</c>).
+/// Shared state would collide on <c>GoldenManifestVersions</c> (PK = ManifestVersion; production uses run-scoped first versions, e.g. <c>v1-</c> plus run id).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -212,9 +212,9 @@ public sealed class ArchitectureControllerTests
             commitPayload.Should().NotBeNull();
 
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
-            manifestVersion.Should().Be("v1");
+            manifestVersion.Should().Be($"v1-{runId}");
 
-            HttpResponseMessage manifestResponse = await client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
+            HttpResponseMessage manifestResponse = await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
             manifestResponse.EnsureSuccessStatusCode();
 
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);
@@ -260,9 +260,9 @@ public sealed class ArchitectureControllerTests
             commitPayload.Should().NotBeNull();
 
             string manifestVersion = commitPayload.Manifest.Metadata.ManifestVersion;
-            manifestVersion.Should().Be("v1");
+            manifestVersion.Should().Be($"v1-{runId}");
 
-            HttpResponseMessage manifestResponse = await client.GetAsync($"/v1/architecture/manifest/{manifestVersion}");
+            HttpResponseMessage manifestResponse = await client.GetAsync($"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
             manifestResponse.EnsureSuccessStatusCode();
 
             ManifestDto? manifestPayload = await manifestResponse.Content.ReadFromJsonAsync<ManifestDto>(JsonOptions);

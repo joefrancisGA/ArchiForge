@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchiForge.Api.Tests.TestDtos;
@@ -80,8 +81,12 @@ public class ArchitectureTests(ArchiForgeApiFactory factory) : IntegrationTestBa
 
         commit.EnsureSuccessStatusCode();
 
+        CommitRunResponseDto? commitPayload =
+            await commit.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
+        string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
+
         HttpResponseMessage manifest = await Client.GetAsync(
-            "/v1/architecture/manifest/v1");
+            $"/v1/architecture/manifest/{Uri.EscapeDataString(manifestVersion)}");
 
         manifest.EnsureSuccessStatusCode();
     }
