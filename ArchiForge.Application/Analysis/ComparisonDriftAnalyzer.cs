@@ -8,7 +8,9 @@ namespace ArchiForge.Application.Analysis;
 /// </summary>
 public sealed class ComparisonDriftAnalyzer : IComparisonDriftAnalyzer
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    // Use CLR property names in serialized JSON so drift paths match model members (e.g. $.Outer.Inner),
+    // not camelCase wire format. Both sides use the same options, so comparison stays consistent.
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = false
     };

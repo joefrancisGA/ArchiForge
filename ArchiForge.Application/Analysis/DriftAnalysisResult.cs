@@ -23,7 +23,7 @@ public sealed class DriftItem
     /// <summary>Broad category of change (e.g. <c>ValueChange</c>, <c>Added</c>, <c>Removed</c>, <c>TypeChange</c>, <c>ArrayLength</c>).</summary>
     public string Category { get; set; } = string.Empty;
 
-    /// <summary>JSON path to the differing field (e.g. <c>$.agentDeltas[0].leftConfidence</c>).</summary>
+    /// <summary>JSON path to the differing field (e.g. <c>$.AgentDeltas[0].LeftConfidence</c>).</summary>
     public string Path { get; set; } = string.Empty;
 
     /// <summary>Serialized value from the stored payload; <c>null</c> when the field was added.</summary>
