@@ -98,21 +98,24 @@ public sealed class SqlTransientDetectorTests
             args: null,
             culture: null)!;
 
+        // Microsoft.Data.SqlClient 6.x: internal ctor is
+        // (int infoNumber, byte state, byte errorClass, string server, string message, string procedure,
+        //  int lineNumber, int nativeError, Exception exception) — older builds used uint for native/win32.
         SqlError error = (SqlError)Activator.CreateInstance(
             typeof(SqlError),
             BindingFlags.NonPublic | BindingFlags.Instance,
             binder: null,
             args:
             [
-                number,        // infoNumber
-                (byte)0,       // errorState
-                (byte)0,       // errorClass
-                "server",      // server
-                "message",     // errorMessage
-                "procedure",   // procedure
-                0,             // lineNumber
-                (uint)0,       // win32ErrorCode
-                null           // exception
+                number,
+                (byte)0,
+                (byte)0,
+                "server",
+                "message",
+                "procedure",
+                0,
+                0,
+                null
             ],
             culture: null)!;
 
