@@ -1221,6 +1221,43 @@ BEGIN
 END;
 GO
 
+/* -- First-wave CHECK constraints (obvious status domains only) ----
+   dbo.Runs (authority UNIQUEIDENTIFIER run header) has no Status — API lifecycle is dbo.ArchitectureRuns.Status
+   (see ArchitectureRunStatus / repository ToString() values).
+   No dbo.RunQueue table in this schema.
+   No dbo.RecommendationActions table — workflow status is dbo.RecommendationRecords.Status (RecommendationStatus).
+   Other candidate columns (e.g. PolicyPacks.Status, AlertDeliveryAttempts.Status) left unguarded until a later pass.
+*/
+IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ArchitectureRuns_Status')
+    ALTER TABLE dbo.ArchitectureRuns ADD CONSTRAINT CK_ArchitectureRuns_Status
+        CHECK (Status IN (N'Created', N'TasksGenerated', N'WaitingForResults', N'ReadyForCommit', N'Committed', N'Failed'));
+GO
+
+IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_RecommendationRecords_Status')
+    ALTER TABLE dbo.RecommendationRecords ADD CONSTRAINT CK_RecommendationRecords_Status
+        CHECK (Status IN (N'Proposed', N'Accepted', N'Rejected', N'Deferred', N'Implemented'));
+GO
+
+IF OBJECT_ID(N'dbo.AdvisoryScanExecutions', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AdvisoryScanExecutions_Status')
+    ALTER TABLE dbo.AdvisoryScanExecutions ADD CONSTRAINT CK_AdvisoryScanExecutions_Status
+        CHECK (Status IN (N'Started', N'Completed', N'Failed'));
+GO
+
+IF OBJECT_ID(N'dbo.DigestDeliveryAttempts', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_DigestDeliveryAttempts_Status')
+    ALTER TABLE dbo.DigestDeliveryAttempts ADD CONSTRAINT CK_DigestDeliveryAttempts_Status
+        CHECK (Status IN (N'Started', N'Succeeded', N'Failed'));
+GO
+
+IF OBJECT_ID(N'dbo.AlertRecords', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_AlertRecords_Status')
+    ALTER TABLE dbo.AlertRecords ADD CONSTRAINT CK_AlertRecords_Status
+        CHECK (Status IN (N'Open', N'Acknowledged', N'Resolved', N'Suppressed'));
+GO
+
 /* ---- DbUp 019–021 parity (post-bootstrap migrations; idempotent add for brownfield / reference) ---- */
 
 IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'RetrievalIndexingOutbox' AND schema_id = SCHEMA_ID('dbo'))
