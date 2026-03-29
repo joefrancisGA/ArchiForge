@@ -727,6 +727,42 @@ BEGIN
 END;
 GO
 
+/* -- Critical uniqueness hardening for canonical runtime chain ----
+   One authority GoldenManifest per Run; one FindingsSnapshot per graph snapshot.
+   Not enforced below (see TODO): GraphSnapshots per ContextSnapshotId may be one-to-many
+   (SqlGraphSnapshotRepository.GetLatestByContextSnapshotIdAsync); ArtifactBundles per ManifestId
+   may be one-to-many (SqlArtifactBundleRepository.GetByManifestIdAsync uses TOP 1 by CreatedUtc).
+*/
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'UX_GoldenManifests_RunId'
+          AND object_id = OBJECT_ID(N'dbo.GoldenManifests'))
+        CREATE UNIQUE INDEX UX_GoldenManifests_RunId ON dbo.GoldenManifests (RunId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE name = N'UX_FindingsSnapshots_GraphSnapshotId'
+          AND object_id = OBJECT_ID(N'dbo.FindingsSnapshots'))
+        CREATE UNIQUE INDEX UX_FindingsSnapshots_GraphSnapshotId ON dbo.FindingsSnapshots (GraphSnapshotId);
+END;
+GO
+
+-- TODO: Repository pattern allows multiple graph snapshots per context (latest-by-date query).
+--       Confirm 1:1 authority semantics before enabling:
+-- CREATE UNIQUE INDEX UX_GraphSnapshots_ContextSnapshotId ON dbo.GraphSnapshots (ContextSnapshotId);
+
+-- TODO: Repository pattern allows multiple artifact bundles per manifest (latest-by-date query).
+--       Confirm 1:1 synthesis semantics before enabling:
+-- CREATE UNIQUE INDEX UX_ArtifactBundles_ManifestId ON dbo.ArtifactBundles (ManifestId);
+
 /* Append-only audit stream (no UPDATE/DELETE from application code). */
 IF OBJECT_ID('dbo.AuditEvents', 'U') IS NULL
 BEGIN
