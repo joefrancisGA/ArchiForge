@@ -1,5 +1,6 @@
 using ArchiForge.ContextIngestion.Connectors;
 using ArchiForge.ContextIngestion.Contracts;
+using ArchiForge.ContextIngestion.Infrastructure;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Parsing;
 
@@ -35,6 +36,26 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchiForgeApiFact
             typeof(TopologyHintsConnector),
             typeof(SecurityBaselineHintsConnector),
             typeof(InfrastructureDeclarationConnector));
+    }
+
+    /// <summary>
+    /// Catches accidental duplicate registrations (e.g. <c>AddSingleton&lt;IContextConnector, X&gt;</c>
+    /// alongside the pipeline factory) that would silently alter enumeration count or order.
+    /// </summary>
+    [Fact]
+    public void Services_Resolve_IEnumerable_IContextConnector_CountMatchesPipelineFactory()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        IEnumerable<IContextConnector> connectors = scope.ServiceProvider
+            .GetRequiredService<IEnumerable<IContextConnector>>();
+
+        int expected = ContextConnectorPipeline
+            .CreateOrderedContextConnectorPipeline(scope.ServiceProvider)
+            .Count;
+
+        connectors.Count().Should().Be(expected,
+            "IEnumerable<IContextConnector> must come only from CreateOrderedContextConnectorPipeline; " +
+            "a direct AddSingleton<IContextConnector, ...> would break this invariant");
     }
 
     [Fact]
