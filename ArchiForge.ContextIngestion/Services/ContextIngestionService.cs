@@ -1,4 +1,5 @@
 using ArchiForge.ContextIngestion.Canonicalization;
+using ArchiForge.ContextIngestion.Infrastructure;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.ContextIngestion.Summaries;
@@ -6,8 +7,9 @@ using ArchiForge.ContextIngestion.Summaries;
 namespace ArchiForge.ContextIngestion.Services;
 
 /// <summary>
-/// Orchestrates the context ingestion pipeline: collects raw objects from all registered
-/// <see cref="IContextConnector"/> implementations, canonicalizes and deduplicates them,
+/// Orchestrates the context ingestion pipeline: collects raw objects from
+/// <see cref="IContextConnector"/> instances in the order supplied by DI (the host uses
+/// <see cref="ContextConnectorPipeline.ResolveOrdered"/>), canonicalizes and deduplicates them,
 /// then persists the resulting <see cref="ContextSnapshot"/> for downstream pipeline stages.
 /// </summary>
 public class ContextIngestionService(

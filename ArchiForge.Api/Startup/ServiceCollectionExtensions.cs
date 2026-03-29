@@ -246,26 +246,18 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<IInfrastructureDeclarationParser, JsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();
 
-        // Concrete connectors (registered once each).
+        // Concrete connectors (registered once each). Order here matches pipeline order for readability only;
+        // execution order is defined solely in ContextConnectorPipeline.ResolveOrdered.
         services.AddSingleton<StaticRequestContextConnector>();
         services.AddSingleton<InlineRequirementsConnector>();
+        services.AddSingleton<DocumentConnector>();
         services.AddSingleton<PolicyReferenceConnector>();
         services.AddSingleton<TopologyHintsConnector>();
         services.AddSingleton<SecurityBaselineHintsConnector>();
-        services.AddSingleton<DocumentConnector>();
         services.AddSingleton<InfrastructureDeclarationConnector>();
 
-        // Fixed pipeline order (affects concatenated delta summaries and mental model). See docs/CONTEXT_INGESTION.md.
-        services.AddSingleton<IEnumerable<ContextConnector>>(sp =>
-        [
-            sp.GetRequiredService<StaticRequestContextConnector>(),
-            sp.GetRequiredService<InlineRequirementsConnector>(),
-            sp.GetRequiredService<DocumentConnector>(),
-            sp.GetRequiredService<PolicyReferenceConnector>(),
-            sp.GetRequiredService<TopologyHintsConnector>(),
-            sp.GetRequiredService<SecurityBaselineHintsConnector>(),
-            sp.GetRequiredService<InfrastructureDeclarationConnector>()
-        ]);
+        services.AddSingleton<IEnumerable<ContextConnector>>(static sp =>
+            ContextConnectorPipeline.ResolveOrdered(sp));
 
         services.AddSingleton<ICanonicalEnricher, CanonicalInfrastructureEnricher>();
         services.AddSingleton<ICanonicalDeduplicator, CanonicalDeduplicator>();

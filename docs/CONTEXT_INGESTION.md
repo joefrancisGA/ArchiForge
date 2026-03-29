@@ -31,7 +31,7 @@ When documenting connector deployments, treat **on-prem file shares** as **data-
 
 ## Connector pipeline (fixed order)
 
-Connectors implement **`IContextConnector`**. Registration order is explicit (see **`RegisterContextIngestionAndKnowledgeGraph`** in `ArchiForge.Api` startup):
+Connectors implement **`IContextConnector`**. **Code source of truth:** **`ContextConnectorPipeline.ResolveOrdered`** (`ArchiForge.ContextIngestion.Infrastructure`) — the API host registers **`IEnumerable<IContextConnector>`** only from that method, so execution order is never dependent on implicit multi-registration ordering. **`RegisterContextIngestionAndKnowledgeGraph`** (`ArchiForge.Api` startup) wires DI to that resolver; concrete connector types are listed below in pipeline order:
 
 1. **`StaticRequestContextConnector`** — primary description → one `Requirement` (“Primary Request”) with `SourceType=StaticRequest`.
 2. **`InlineRequirementsConnector`** — each inline string → `Requirement` (`SourceType=InlineRequirement`).

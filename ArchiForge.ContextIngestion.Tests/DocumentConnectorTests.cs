@@ -39,6 +39,7 @@ public sealed class DocumentConnectorTests
         batch.CanonicalObjects.Should().BeEmpty();
         batch.Warnings.Should().ContainSingle()
             .Which.Should().Contain("unknown.bin")
-            .And.Contain("application/octet-stream");
+            .And.Contain("application/octet-stream")
+            .And.Contain("SupportedContextDocumentContentTypes");
     }
 }

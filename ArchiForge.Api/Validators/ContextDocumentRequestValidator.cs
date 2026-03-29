@@ -9,6 +9,7 @@ namespace ArchiForge.Api.Validators;
 /// FluentValidation rules for <see cref="ContextDocumentRequest"/> items embedded in an
 /// <see cref="ArchiForge.Contracts.Requests.ArchitectureRequest.Documents"/> collection.
 /// Validates the document name, supported content type, and content size.
+/// Content types must match <see cref="SupportedContextDocumentContentTypes.IsSupported"/> (same rule as parsers).
 /// </summary>
 public sealed class ContextDocumentRequestValidator : AbstractValidator<ContextDocumentRequest>
 {

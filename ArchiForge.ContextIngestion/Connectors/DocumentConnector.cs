@@ -4,6 +4,11 @@ using ArchiForge.ContextIngestion.Models;
 
 namespace ArchiForge.ContextIngestion.Connectors;
 
+/// <summary>
+/// Normalizes inline <see cref="ContextDocumentReference"/> items using the first
+/// <see cref="IContextDocumentParser"/> where <see cref="IContextDocumentParser.CanParse"/> returns true
+/// (registration order of <see cref="IEnumerable{IContextDocumentParser}"/> in DI when multiple parsers match).
+/// </summary>
 public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IContextConnector
 {
     public string ConnectorType => "documents";
@@ -31,8 +36,11 @@ public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IC
             if (parser is null)
             {
                 batch.Warnings.Add(
-                    $"No context document parser for document '{document.Name}' " +
-                    $"(contentType='{document.ContentType}'). Document skipped.");
+                    $"No registered context document parser accepted '{document.Name}' " +
+                    $"(contentType='{document.ContentType}'). Document skipped. " +
+                    "For HTTP requests, ContentType is validated at the API; if you still see this, " +
+                    "align IContextDocumentParser registrations with SupportedContextDocumentContentTypes " +
+                    "or check non-API callers building ContextIngestionRequest.");
                 continue;
             }
 
