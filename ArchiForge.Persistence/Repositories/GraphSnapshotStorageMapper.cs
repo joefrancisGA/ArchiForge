@@ -13,19 +13,44 @@ public static class GraphSnapshotStorageMapper
     /// </summary>
     public static GraphSnapshot ToSnapshot(GraphSnapshotStorageRow row)
     {
+        return ToSnapshot(row, nodesOverride: null, edgesOverride: null, warningsOverride: null);
+    }
+
+    /// <summary>
+    /// Builds a <see cref="GraphSnapshot"/> from the header row. When an override list is non-null, that collection
+    /// is taken from the override instead of deserializing the matching JSON column (relational-first read path).
+    /// </summary>
+    public static GraphSnapshot ToSnapshot(
+        GraphSnapshotStorageRow row,
+        IReadOnlyList<GraphNode>? nodesOverride,
+        IReadOnlyList<GraphEdge>? edgesOverride,
+        IReadOnlyList<string>? warningsOverride)
+    {
         ArgumentNullException.ThrowIfNull(row);
 
         try
         {
+            List<GraphNode> nodes = nodesOverride is null
+                ? JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson)
+                : nodesOverride.ToList();
+
+            List<GraphEdge> edges = edgesOverride is null
+                ? JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson)
+                : edgesOverride.ToList();
+
+            List<string> warnings = warningsOverride is null
+                ? JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
+                : warningsOverride.ToList();
+
             return new GraphSnapshot
             {
                 GraphSnapshotId = row.GraphSnapshotId,
                 ContextSnapshotId = row.ContextSnapshotId,
                 RunId = row.RunId,
                 CreatedUtc = row.CreatedUtc,
-                Nodes = JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
-                Edges = JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
-                Warnings = JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson),
+                Nodes = nodes,
+                Edges = edges,
+                Warnings = warnings,
             };
         }
         catch (InvalidOperationException ex)

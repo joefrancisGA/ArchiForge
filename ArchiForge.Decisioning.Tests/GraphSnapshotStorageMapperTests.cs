@@ -52,6 +52,43 @@ public sealed class GraphSnapshotStorageMapperTests
     }
 
     [Fact]
+    public void ToSnapshot_WhenOverridesProvided_UsesOverridesInsteadOfJson()
+    {
+        Guid graphId = Guid.NewGuid();
+        GraphSnapshotStorageRow row = new()
+        {
+            GraphSnapshotId = graphId,
+            ContextSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            CreatedUtc = DateTime.UtcNow,
+            NodesJson = "{invalid nodes",
+            EdgesJson = "{invalid edges",
+            WarningsJson = "{invalid warnings",
+        };
+
+        List<GraphNode> nodes = [new GraphNode { NodeId = "n1", NodeType = "T", Label = "L" }];
+        List<GraphEdge> edges =
+        [
+            new GraphEdge
+            {
+                EdgeId = "e1",
+                FromNodeId = "a",
+                ToNodeId = "b",
+                EdgeType = "X",
+                Weight = 1d,
+            },
+        ];
+
+        List<string> warnings = ["from-relational"];
+
+        GraphSnapshot snapshot = GraphSnapshotStorageMapper.ToSnapshot(row, nodes, edges, warnings);
+
+        snapshot.Nodes.Should().ContainSingle(n => n.NodeId == "n1");
+        snapshot.Edges.Should().ContainSingle(e => e.EdgeId == "e1");
+        snapshot.Warnings.Should().Equal("from-relational");
+    }
+
+    [Fact]
     public void ToSnapshot_WhenNodesJsonInvalid_WrapsDeserializationFailure()
     {
         GraphSnapshotStorageRow row = new()
