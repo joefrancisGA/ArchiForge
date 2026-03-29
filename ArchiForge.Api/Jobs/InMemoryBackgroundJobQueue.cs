@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using System.Threading;
 
 using JetBrains.Annotations;
 
@@ -22,9 +23,10 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
     /// </summary>
     private const int MaxPendingJobs = 500;
 
-    private readonly Channel<WorkItem> _queue = Channel.CreateBounded<WorkItem>(new BoundedChannelOptions(MaxPendingJobs)
+    // Semaphore enforces backpressure: DropWrite bounded channels report success when full (they discard writes).
+    private readonly SemaphoreSlim _pendingJobs = new(MaxPendingJobs, MaxPendingJobs);
+    private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions
     {
-        FullMode = BoundedChannelFullMode.DropWrite,
         SingleReader = true,
         SingleWriter = false
     });
@@ -52,12 +54,23 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
             RetryCount: 0,
             MaxRetries: safeMaxRetries);
 
-        if (_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work))) return id;
+        if (!_pendingJobs.Wait(0))
+        {
+            _info.TryRemove(id, out _);
 
-        _info.TryRemove(id, out _);
+            throw new InvalidOperationException(
+                $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
+        }
 
-        throw new InvalidOperationException(
-            $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
+        if (!_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work)))
+        {
+            _pendingJobs.Release();
+            _info.TryRemove(id, out _);
+
+            throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
+        }
+
+        return id;
     }
 
     public BackgroundJobInfo? GetInfo(string jobId)
@@ -78,6 +91,8 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
     {
         await foreach (WorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
         {
+            _pendingJobs.Release();
+
             if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
                 continue;
 
@@ -125,7 +140,34 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
 
-                    _queue.Writer.TryWrite(item);
+                    if (!_pendingJobs.Wait(0))
+                    {
+                        logger.LogError(
+                            "Background job {JobId} could not be re-queued; pending capacity exhausted.",
+                            item.JobId);
+
+                        _info[item.JobId] = failed with
+                        {
+                            State = BackgroundJobState.Failed,
+                            CompletedUtc = DateTimeOffset.UtcNow,
+                            RetryCount = nextRetry,
+                            Error = "Retry skipped: job queue at capacity."
+                        };
+                    }
+                    else if (!_queue.Writer.TryWrite(item))
+                    {
+                        _pendingJobs.Release();
+
+                        logger.LogError("Background job {JobId} could not be re-queued; writer rejected item.", item.JobId);
+
+                        _info[item.JobId] = failed with
+                        {
+                            State = BackgroundJobState.Failed,
+                            CompletedUtc = DateTimeOffset.UtcNow,
+                            RetryCount = nextRetry,
+                            Error = "Retry skipped: queue writer not accepting jobs."
+                        };
+                    }
                 }
                 else
                 {

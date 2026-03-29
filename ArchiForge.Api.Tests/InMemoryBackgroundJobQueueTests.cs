@@ -31,6 +31,10 @@ public sealed class InMemoryBackgroundJobQueueTests
             return OkFile();
         });
 
+        // Let the worker dequeue "block" and release admission before filling the channel; otherwise
+        // block + 500 loop iterations consume 501 permits and the last loop Enqueue throws first.
+        await Task.Delay(100, CancellationToken.None);
+
         for (int i = 0; i < 500; i++)
         {
             _ = queue.Enqueue($"p{i}", "plain", async ct =>
