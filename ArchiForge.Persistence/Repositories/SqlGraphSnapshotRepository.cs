@@ -280,6 +280,17 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
 
     public async Task<GraphSnapshot?> GetByIdAsync(Guid graphSnapshotId, CancellationToken ct)
     {
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await GetByIdAsync(graphSnapshotId, connection, null, ct);
+    }
+
+    /// <inheritdoc cref="GetByIdAsync(System.Guid,System.Threading.CancellationToken)"/>
+    public async Task<GraphSnapshot?> GetByIdAsync(
+        Guid graphSnapshotId,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
         const string sql = """
             SELECT
                 GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
@@ -288,7 +299,6 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
             WHERE GraphSnapshotId = @GraphSnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
             new CommandDefinition(
                 sql,
@@ -296,12 +306,13 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                 {
                     GraphSnapshotId = graphSnapshotId,
                 },
+                transaction,
                 cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, transaction: null, row, ct);
+        return await HydrateAsync(connection, transaction, row, ct);
     }
 
     public async Task<GraphSnapshot?> GetLatestByContextSnapshotIdAsync(Guid contextSnapshotId, CancellationToken ct)
@@ -657,6 +668,75 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Inserts relational graph slices that are still empty while JSON columns contain data (idempotent per slice).
+    /// </summary>
+    internal static async Task BackfillRelationalSlicesAsync(
+        GraphSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(connection);
+
+        Guid graphSnapshotId = snapshot.GraphSnapshotId;
+
+        int nodesCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GraphSnapshotNodes WHERE GraphSnapshotId = @GraphSnapshotId",
+            new
+            {
+                GraphSnapshotId = graphSnapshotId,
+            },
+            ct);
+
+        int warningsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GraphSnapshotWarnings WHERE GraphSnapshotId = @GraphSnapshotId",
+            new
+            {
+                GraphSnapshotId = graphSnapshotId,
+            },
+            ct);
+
+        int edgesCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GraphSnapshotEdges WHERE GraphSnapshotId = @GraphSnapshotId",
+            new
+            {
+                GraphSnapshotId = graphSnapshotId,
+            },
+            ct);
+
+        int edgePropsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GraphSnapshotEdgeProperties WHERE GraphSnapshotId = @GraphSnapshotId",
+            new
+            {
+                GraphSnapshotId = graphSnapshotId,
+            },
+            ct);
+
+        if (nodesCount == 0 && snapshot.Nodes.Count > 0)
+            await InsertNodesAndPropertiesAsync(snapshot, connection, transaction, ct);
+
+        if (warningsCount == 0 && snapshot.Warnings.Count > 0)
+            await InsertWarningsAsync(snapshot, connection, transaction, ct);
+
+        if (edgesCount == 0 && snapshot.Edges.Count > 0)
+        {
+            await InsertIndexedEdgesAsync(connection, transaction, snapshot, ct);
+            await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct);
+        }
+        else if (edgesCount > 0 && edgePropsCount == 0 && snapshot.Edges.Count > 0)
+            await InsertEdgePropertiesAsync(snapshot, connection, transaction, ct);
     }
 
     private sealed class IndexedEdgeRow

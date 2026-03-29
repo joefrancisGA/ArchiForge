@@ -117,6 +117,20 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         IDbTransaction? transaction,
         CancellationToken ct)
     {
+        await InsertGoldenManifestAssumptionsRelationalAsync(manifest, connection, transaction, ct);
+        await InsertGoldenManifestWarningsRelationalAsync(manifest, connection, transaction, ct);
+        await InsertGoldenManifestProvSourceFindingsRelationalAsync(manifest, connection, transaction, ct);
+        await InsertGoldenManifestProvSourceGraphNodesRelationalAsync(manifest, connection, transaction, ct);
+        await InsertGoldenManifestProvAppliedRulesRelationalAsync(manifest, connection, transaction, ct);
+        await InsertGoldenManifestDecisionsRelationalAsync(manifest, connection, transaction, ct);
+    }
+
+    private static async Task InsertGoldenManifestAssumptionsRelationalAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
         Guid manifestId = manifest.ManifestId;
 
         const string insertAssumptionSql = """
@@ -138,6 +152,15 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                     transaction,
                     cancellationToken: ct));
         }
+    }
+
+    private static async Task InsertGoldenManifestWarningsRelationalAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        Guid manifestId = manifest.ManifestId;
 
         const string insertWarningSql = """
             INSERT INTO dbo.GoldenManifestWarnings (ManifestId, SortOrder, WarningText)
@@ -158,10 +181,16 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                     transaction,
                     cancellationToken: ct));
         }
+    }
 
+    private static async Task InsertGoldenManifestProvSourceFindingsRelationalAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        Guid manifestId = manifest.ManifestId;
         List<string> provFindingIds = manifest.Provenance.SourceFindingIds;
-        List<string> provNodeIds = manifest.Provenance.SourceGraphNodeIds;
-        List<string> provRuleIds = manifest.Provenance.AppliedRuleIds;
 
         const string insertProvFindingSql = """
             INSERT INTO dbo.GoldenManifestProvenanceSourceFindings (ManifestId, SortOrder, FindingId)
@@ -182,6 +211,16 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                     transaction,
                     cancellationToken: ct));
         }
+    }
+
+    private static async Task InsertGoldenManifestProvSourceGraphNodesRelationalAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        Guid manifestId = manifest.ManifestId;
+        List<string> provNodeIds = manifest.Provenance.SourceGraphNodeIds;
 
         const string insertProvNodeSql = """
             INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
@@ -202,6 +241,16 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                     transaction,
                     cancellationToken: ct));
         }
+    }
+
+    private static async Task InsertGoldenManifestProvAppliedRulesRelationalAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        Guid manifestId = manifest.ManifestId;
+        List<string> provRuleIds = manifest.Provenance.AppliedRuleIds;
 
         const string insertProvRuleSql = """
             INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
@@ -222,6 +271,15 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
                     transaction,
                     cancellationToken: ct));
         }
+    }
+
+    private static async Task InsertGoldenManifestDecisionsRelationalAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        Guid manifestId = manifest.ManifestId;
 
         const string insertDecisionSql = """
             INSERT INTO dbo.GoldenManifestDecisions
@@ -638,6 +696,17 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
     }
 
     private static async Task<int> ScalarCountAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        string sql,
+        object param,
+        CancellationToken ct)
+    {
+        int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct));
+        return count;
+    }
+
+    private static async Task<int> ScalarCountAsync(
         SqlConnection connection,
         string sql,
         object param,
@@ -650,6 +719,99 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
     private static ComplianceSection DeserializeCompliance(string? json)
     {
         return string.IsNullOrWhiteSpace(json) ? new ComplianceSection() : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
+    }
+
+    /// <summary>
+    /// Inserts phase-1 relational slices that are still empty while JSON columns contain data (idempotent per slice).
+    /// </summary>
+    internal static async Task BackfillPhase1RelationalSlicesAsync(
+        GoldenManifest manifest,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNull(connection);
+
+        Guid manifestId = manifest.ManifestId;
+
+        int assumptionsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GoldenManifestAssumptions WHERE ManifestId = @ManifestId",
+            new
+            {
+                ManifestId = manifestId,
+            },
+            ct);
+
+        int warningsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GoldenManifestWarnings WHERE ManifestId = @ManifestId",
+            new
+            {
+                ManifestId = manifestId,
+            },
+            ct);
+
+        int provFindingCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceFindings WHERE ManifestId = @ManifestId",
+            new
+            {
+                ManifestId = manifestId,
+            },
+            ct);
+
+        int provNodeCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceSourceGraphNodes WHERE ManifestId = @ManifestId",
+            new
+            {
+                ManifestId = manifestId,
+            },
+            ct);
+
+        int provRuleCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GoldenManifestProvenanceAppliedRules WHERE ManifestId = @ManifestId",
+            new
+            {
+                ManifestId = manifestId,
+            },
+            ct);
+
+        int decisionsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.GoldenManifestDecisions WHERE ManifestId = @ManifestId",
+            new
+            {
+                ManifestId = manifestId,
+            },
+            ct);
+
+        if (assumptionsCount == 0 && manifest.Assumptions.Count > 0)
+            await InsertGoldenManifestAssumptionsRelationalAsync(manifest, connection, transaction, ct);
+
+        if (warningsCount == 0 && manifest.Warnings.Count > 0)
+            await InsertGoldenManifestWarningsRelationalAsync(manifest, connection, transaction, ct);
+
+        if (provFindingCount == 0 && manifest.Provenance.SourceFindingIds.Count > 0)
+            await InsertGoldenManifestProvSourceFindingsRelationalAsync(manifest, connection, transaction, ct);
+
+        if (provNodeCount == 0 && manifest.Provenance.SourceGraphNodeIds.Count > 0)
+            await InsertGoldenManifestProvSourceGraphNodesRelationalAsync(manifest, connection, transaction, ct);
+
+        if (provRuleCount == 0 && manifest.Provenance.AppliedRuleIds.Count > 0)
+            await InsertGoldenManifestProvAppliedRulesRelationalAsync(manifest, connection, transaction, ct);
+
+        if (decisionsCount == 0 && manifest.Decisions.Count > 0)
+            await InsertGoldenManifestDecisionsRelationalAsync(manifest, connection, transaction, ct);
     }
 
     private sealed class GoldenManifestRow

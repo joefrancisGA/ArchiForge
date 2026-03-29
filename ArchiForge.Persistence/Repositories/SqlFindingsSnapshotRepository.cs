@@ -86,6 +86,15 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         await connection.ExecuteAsync(new CommandDefinition(headerSql, headerArgs, transaction, cancellationToken: ct))
             ;
 
+        await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);
+    }
+
+    internal static async Task InsertFindingsRelationalFromSnapshotAsync(
+        FindingsSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
         for (int i = 0; i < snapshot.Findings.Count; i++)
         {
             Finding finding = snapshot.Findings[i];
@@ -593,6 +602,35 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         int count = await connection.ExecuteScalarAsync<int>(new CommandDefinition(sql, param, transaction, cancellationToken: ct))
             ;
         return count;
+    }
+
+    /// <summary>
+    /// Inserts relational finding rows when <c>FindingRecords</c> is still empty (idempotent).
+    /// </summary>
+    internal static async Task BackfillRelationalSlicesAsync(
+        FindingsSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(connection);
+
+        int recordCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.FindingRecords WHERE FindingsSnapshotId = @FindingsSnapshotId",
+            new
+            {
+                snapshot.FindingsSnapshotId,
+            },
+            ct);
+
+        if (recordCount > 0 || snapshot.Findings.Count == 0)
+            return;
+
+        FindingsSnapshotMigrator.Apply(snapshot);
+        await InsertFindingsRelationalFromSnapshotAsync(snapshot, connection, transaction, ct);
     }
 
     private sealed class FindingsSnapshotHeaderRow

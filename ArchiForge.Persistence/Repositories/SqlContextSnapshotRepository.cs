@@ -53,6 +53,19 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
 
     public async Task<ContextSnapshot?> GetByIdAsync(Guid snapshotId, CancellationToken ct)
     {
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await GetByIdAsync(snapshotId, connection, null, ct);
+    }
+
+    /// <summary>
+    /// Loads a snapshot using an existing connection (e.g. one-time JSON→relational backfill in a transaction).
+    /// </summary>
+    public async Task<ContextSnapshot?> GetByIdAsync(
+        Guid snapshotId,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
         const string sql = """
             SELECT
                 SnapshotId,
@@ -68,17 +81,16 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             WHERE SnapshotId = @SnapshotId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         ContextSnapshotRow? row = await connection.QuerySingleOrDefaultAsync<ContextSnapshotRow>(
             new CommandDefinition(sql, new
             {
                 SnapshotId = snapshotId
-            }, cancellationToken: ct));
+            }, transaction, cancellationToken: ct));
 
         if (row is null)
             return null;
 
-        return await HydrateAsync(connection, transaction: null, row, ct);
+        return await HydrateAsync(connection, transaction, row, ct);
     }
 
     public async Task SaveAsync(
@@ -154,6 +166,18 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         IDbTransaction? transaction,
         CancellationToken ct)
     {
+        await InsertContextCanonicalRelationalAsync(snapshot, connection, transaction, ct);
+        await InsertContextWarningsRelationalAsync(snapshot, connection, transaction, ct);
+        await InsertContextErrorsRelationalAsync(snapshot, connection, transaction, ct);
+        await InsertContextSourceHashesRelationalAsync(snapshot, connection, transaction, ct);
+    }
+
+    private static async Task InsertContextCanonicalRelationalAsync(
+        ContextSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
         const string insertObjectSql = """
             INSERT INTO dbo.ContextSnapshotCanonicalObjects
             (
@@ -171,21 +195,6 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
             INSERT INTO dbo.ContextSnapshotCanonicalObjectProperties
             (CanonicalObjectRowId, PropertySortOrder, PropertyKey, PropertyValue)
             VALUES (@CanonicalObjectRowId, @PropertySortOrder, @PropertyKey, @PropertyValue);
-            """;
-
-        const string insertWarningSql = """
-            INSERT INTO dbo.ContextSnapshotWarnings (SnapshotId, SortOrder, WarningText)
-            VALUES (@SnapshotId, @SortOrder, @WarningText);
-            """;
-
-        const string insertErrorSql = """
-            INSERT INTO dbo.ContextSnapshotErrors (SnapshotId, SortOrder, ErrorText)
-            VALUES (@SnapshotId, @SortOrder, @ErrorText);
-            """;
-
-        const string insertHashSql = """
-            INSERT INTO dbo.ContextSnapshotSourceHashes (SnapshotId, SortOrder, SourceKey, HashValue)
-            VALUES (@SnapshotId, @SortOrder, @SourceKey, @HashValue);
             """;
 
         for (int i = 0; i < snapshot.CanonicalObjects.Count; i++)
@@ -232,6 +241,18 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                         cancellationToken: ct));
             }
         }
+    }
+
+    private static async Task InsertContextWarningsRelationalAsync(
+        ContextSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        const string insertWarningSql = """
+            INSERT INTO dbo.ContextSnapshotWarnings (SnapshotId, SortOrder, WarningText)
+            VALUES (@SnapshotId, @SortOrder, @WarningText);
+            """;
 
         for (int w = 0; w < snapshot.Warnings.Count; w++)
         {
@@ -247,6 +268,18 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     transaction,
                     cancellationToken: ct));
         }
+    }
+
+    private static async Task InsertContextErrorsRelationalAsync(
+        ContextSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        const string insertErrorSql = """
+            INSERT INTO dbo.ContextSnapshotErrors (SnapshotId, SortOrder, ErrorText)
+            VALUES (@SnapshotId, @SortOrder, @ErrorText);
+            """;
 
         for (int e = 0; e < snapshot.Errors.Count; e++)
         {
@@ -262,6 +295,18 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
                     transaction,
                     cancellationToken: ct));
         }
+    }
+
+    private static async Task InsertContextSourceHashesRelationalAsync(
+        ContextSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        const string insertHashSql = """
+            INSERT INTO dbo.ContextSnapshotSourceHashes (SnapshotId, SortOrder, SourceKey, HashValue)
+            VALUES (@SnapshotId, @SortOrder, @SourceKey, @HashValue);
+            """;
 
         List<KeyValuePair<string, string>> orderedHashes = snapshot.SourceHashes
             .OrderBy(kv => kv.Key, StringComparer.Ordinal)
@@ -534,6 +579,73 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Inserts relational slices that are still empty while JSON columns contain data (idempotent per slice).
+    /// </summary>
+    internal static async Task BackfillRelationalSlicesAsync(
+        ContextSnapshot snapshot,
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(connection);
+
+        Guid snapshotId = snapshot.SnapshotId;
+
+        int canonicalCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.ContextSnapshotCanonicalObjects WHERE SnapshotId = @SnapshotId",
+            new
+            {
+                SnapshotId = snapshotId,
+            },
+            ct);
+
+        int warningsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.ContextSnapshotWarnings WHERE SnapshotId = @SnapshotId",
+            new
+            {
+                SnapshotId = snapshotId,
+            },
+            ct);
+
+        int errorsCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.ContextSnapshotErrors WHERE SnapshotId = @SnapshotId",
+            new
+            {
+                SnapshotId = snapshotId,
+            },
+            ct);
+
+        int hashesCount = await ScalarCountAsync(
+            connection,
+            transaction,
+            "SELECT COUNT(1) FROM dbo.ContextSnapshotSourceHashes WHERE SnapshotId = @SnapshotId",
+            new
+            {
+                SnapshotId = snapshotId,
+            },
+            ct);
+
+        if (canonicalCount == 0 && snapshot.CanonicalObjects.Count > 0)
+            await InsertContextCanonicalRelationalAsync(snapshot, connection, transaction, ct);
+
+        if (warningsCount == 0 && snapshot.Warnings.Count > 0)
+            await InsertContextWarningsRelationalAsync(snapshot, connection, transaction, ct);
+
+        if (errorsCount == 0 && snapshot.Errors.Count > 0)
+            await InsertContextErrorsRelationalAsync(snapshot, connection, transaction, ct);
+
+        if (hashesCount == 0 && snapshot.SourceHashes.Count > 0)
+            await InsertContextSourceHashesRelationalAsync(snapshot, connection, transaction, ct);
     }
 
     private sealed class ContextSnapshotRow
