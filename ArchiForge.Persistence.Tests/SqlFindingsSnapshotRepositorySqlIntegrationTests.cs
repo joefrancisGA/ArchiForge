@@ -83,7 +83,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
 
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.FindingsSnapshotId.Should().Be(findingsId);
+        loaded.FindingsSnapshotId.Should().Be(findingsId);
         loaded.SchemaVersion.Should().Be(FindingsSchema.CurrentSnapshotVersion);
         loaded.Findings.Should().ContainSingle();
         Finding f = loaded.Findings[0];
@@ -161,7 +161,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     RunId = runId,
                     ContextSnapshotId = contextId,
                     GraphSnapshotId = graphId,
-                    CreatedUtc = original.CreatedUtc,
+                    original.CreatedUtc,
                     SchemaVersion = 1,
                     FindingsJson = findingsJson,
                 },
@@ -171,7 +171,7 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().ContainSingle(f => f.FindingId == "legacy");
+        loaded.Findings.Should().ContainSingle(f => f.FindingId == "legacy");
         loaded.Findings[0].Title.Should().Be("Legacy title");
     }
 
@@ -200,13 +200,13 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         };
 
         FindingsSnapshotMigrator.Apply(snapshot);
-        using SqlTransaction tx = connection.BeginTransaction();
+        await using SqlTransaction tx = connection.BeginTransaction();
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().BeEmpty();
+        loaded.Findings.Should().BeEmpty();
     }
 
     private static async Task SeedAuthorityParentsAsync(

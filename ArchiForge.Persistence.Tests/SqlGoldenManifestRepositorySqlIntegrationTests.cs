@@ -109,7 +109,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
 
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Assumptions.Should().Equal("assume-a");
+        loaded.Assumptions.Should().Equal("assume-a");
         loaded.Warnings.Should().Equal("warn-w");
         loaded.Provenance.SourceFindingIds.Should().Equal("pf1");
         loaded.Provenance.SourceGraphNodeIds.Should().Equal("pn1");
@@ -241,7 +241,7 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Assumptions.Should().Equal("from-json");
+        loaded.Assumptions.Should().Equal("from-json");
     }
 
     private static async Task SeedAuthorityChainAsync(
@@ -266,8 +266,8 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
                     RunId = runId,
                     ProjectId = "proj-gm",
                     CreatedUtc = DateTime.UtcNow,
-                    TenantId = TenantId,
-                    WorkspaceId = WorkspaceId,
+                    TenantId,
+                    WorkspaceId,
                     ScopeProjectId = ProjectId,
                 },
                 cancellationToken: ct));
@@ -405,9 +405,9 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
                     AcceptedFindingIdsJson = emptyList,
                     RejectedFindingIdsJson = emptyList,
                     NotesJson = emptyList,
-                    TenantId = TenantId,
-                    WorkspaceId = WorkspaceId,
-                    ProjectId = ProjectId,
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
                 },
                 cancellationToken: ct));
     }

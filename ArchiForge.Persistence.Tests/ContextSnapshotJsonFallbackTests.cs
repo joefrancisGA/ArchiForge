@@ -27,7 +27,7 @@ public sealed class ContextSnapshotJsonFallbackTests
     {
         List<CanonicalObject> original =
         [
-            new CanonicalObject
+            new()
             {
                 ObjectId = "o1",
                 ObjectType = "T",

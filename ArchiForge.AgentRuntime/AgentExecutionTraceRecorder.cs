@@ -4,12 +4,16 @@ using ArchiForge.Data.Repositories;
 
 namespace ArchiForge.AgentRuntime;
 
+/// <summary>
+/// <see cref="IAgentExecutionTraceRecorder"/> that inserts rows via <see cref="IAgentExecutionTraceRepository"/>, truncating large prompt/response fields.
+/// </summary>
 public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository repository)
     : IAgentExecutionTraceRecorder
 {
     /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
     private const int MaxContentLength = 8192;
 
+    /// <inheritdoc />
     public async Task RecordAsync(
         string runId,
         string taskId,

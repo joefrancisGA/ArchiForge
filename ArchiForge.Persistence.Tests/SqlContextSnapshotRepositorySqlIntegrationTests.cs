@@ -61,7 +61,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.SnapshotId.Should().Be(snapshotId);
+        loaded.SnapshotId.Should().Be(snapshotId);
         loaded.RunId.Should().Be(runId);
         loaded.ProjectId.Should().Be("proj-relational-1");
         loaded.DeltaSummary.Should().Be("delta");
@@ -86,7 +86,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         List<CanonicalObject> canonical =
         [
-            new CanonicalObject
+            new()
             {
                 ObjectId = "legacy-obj",
                 ObjectType = "Type",
@@ -135,7 +135,7 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "legacy-obj");
+        loaded.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "legacy-obj");
         loaded.Warnings.Should().Equal("jw");
         loaded.Errors.Should().BeEmpty();
         loaded.SourceHashes.Should().BeEmpty();
@@ -164,12 +164,12 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         };
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
-        using SqlTransaction tx = connection.BeginTransaction();
+        await using SqlTransaction tx = connection.BeginTransaction();
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
         ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Warnings.Should().Equal("tw");
+        loaded.Warnings.Should().Equal("tw");
     }
 }

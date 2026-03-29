@@ -6,6 +6,9 @@ using ArchiForge.Contracts.Common;
 
 namespace ArchiForge.AgentRuntime;
 
+/// <summary>
+/// JSON deserializer for <see cref="AgentResult"/> using web defaults and string enums; validates ids and agent type after parse.
+/// </summary>
 public sealed class AgentResultParser : IAgentResultParser
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
@@ -15,6 +18,7 @@ public sealed class AgentResultParser : IAgentResultParser
         Converters = { new JsonStringEnumConverter() }
     };
 
+    /// <inheritdoc />
     public AgentResult ParseAndValidate(
         string json,
         string expectedRunId,

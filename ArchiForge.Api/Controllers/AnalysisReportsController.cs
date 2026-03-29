@@ -22,6 +22,13 @@ using AppConsultingDocxProfileRecommendationRequest =
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Builds and exports consolidated analysis reports for a committed run (markdown, DOCX, consulting templates, async jobs).
+/// </summary>
+/// <remarks>
+/// Uses <see cref="IArchitectureAnalysisService"/> for report assembly and <see cref="IRunDetailQueryService"/> for run context.
+/// Base route <c>v1/architecture</c> with <see cref="ArchiForgePolicies.ExecuteAuthority"/>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
@@ -41,6 +48,9 @@ public sealed class AnalysisReportsController(
     ILogger<AnalysisReportsController> logger)
     : ControllerBase
 {
+    /// <summary>
+    /// Builds a structured <see cref="ArchiForge.Application.Analysis.ArchitectureAnalysisReport"/> for <paramref name="runId"/> using optional section flags in the body.
+    /// </summary>
     [HttpPost("run/{runId}/analysis-report")]
     [ProducesResponseType(typeof(ArchitectureAnalysisReportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -69,6 +79,9 @@ public sealed class AnalysisReportsController(
         }
     }
 
+    /// <summary>
+    /// Returns the same analysis content as <c>analysis-report</c> serialized to markdown in JSON (<see cref="ArchitectureAnalysisExportResponse"/>).
+    /// </summary>
     [HttpPost("run/{runId}/analysis-report/export")]
     [ProducesResponseType(typeof(ArchitectureAnalysisExportResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -31,6 +31,9 @@ public sealed class GraphController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
+    /// <summary>
+    /// Returns a <see cref="GraphViewModel"/> for <paramref name="runId"/> when a graph snapshot exists in the caller’s scope.
+    /// </summary>
     [HttpGet("runs/{runId:guid}")]
     [ProducesResponseType(typeof(GraphViewModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -37,7 +37,7 @@ public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connection
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        using SqlTransaction tx = owned.BeginTransaction();
+        await using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {

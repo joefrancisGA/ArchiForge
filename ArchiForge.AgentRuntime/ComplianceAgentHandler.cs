@@ -7,6 +7,9 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.AgentRuntime;
 
+/// <summary>
+/// <see cref="AgentType.Compliance"/> handler: evaluates policies and controls from the evidence package via the completion client.
+/// </summary>
 public sealed class ComplianceAgentHandler(
     IAgentCompletionClient completionClient,
     IAgentResultParser resultParser,

@@ -38,7 +38,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        using SqlTransaction tx = owned.BeginTransaction();
+        await using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {
@@ -80,7 +80,7 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             snapshot.ContextSnapshotId,
             snapshot.GraphSnapshotId,
             snapshot.CreatedUtc,
-            SchemaVersion = snapshot.SchemaVersion,
+            snapshot.SchemaVersion,
             FindingsJson = JsonEntitySerializer.Serialize(snapshot),
         };
 

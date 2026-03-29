@@ -109,7 +109,7 @@ public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectio
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        using SqlTransaction tx = owned.BeginTransaction();
+        await using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {

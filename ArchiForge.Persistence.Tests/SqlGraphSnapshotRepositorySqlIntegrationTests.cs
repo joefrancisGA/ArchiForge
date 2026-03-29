@@ -69,7 +69,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.GraphSnapshotId.Should().Be(graphId);
+        loaded.GraphSnapshotId.Should().Be(graphId);
         loaded.ContextSnapshotId.Should().Be(contextId);
         loaded.RunId.Should().Be(runId);
         loaded.CreatedUtc.Should().Be(created);
@@ -139,7 +139,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         List<GraphNode> nodes =
         [
-            new GraphNode
+            new()
             {
                 NodeId = "legacy-n",
                 NodeType = "T",
@@ -150,7 +150,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         List<GraphEdge> edges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e-legacy",
                 FromNodeId = "legacy-n",
@@ -217,7 +217,7 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Nodes.Should().ContainSingle(n => n.NodeId == "legacy-n");
+        loaded.Nodes.Should().ContainSingle(n => n.NodeId == "legacy-n");
         loaded.Warnings.Should().Equal("jw");
         loaded.Edges.Should().ContainSingle();
         loaded.Edges[0].Label.Should().Be("edge-label-from-json");
@@ -244,12 +244,12 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         };
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
-        using SqlTransaction tx = connection.BeginTransaction();
+        await using SqlTransaction tx = connection.BeginTransaction();
         await repository.SaveAsync(snapshot, CancellationToken.None, connection, tx);
         tx.Commit();
 
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.Warnings.Should().Equal("tw");
+        loaded.Warnings.Should().Equal("tw");
     }
 }

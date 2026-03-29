@@ -3,7 +3,6 @@ using System.Data;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.RelationalRead;
 using ArchiForge.Persistence.Repositories;
-using ArchiForge.Persistence.Serialization;
 
 using Dapper;
 
@@ -211,7 +210,7 @@ internal static class GraphSnapshotRelationalRead
                 edgesSql,
                 new
                 {
-                    GraphSnapshotId = row.GraphSnapshotId,
+                    row.GraphSnapshotId,
                 },
                 transaction,
                 cancellationToken: ct))).ToList();
@@ -229,7 +228,7 @@ internal static class GraphSnapshotRelationalRead
                 """,
                 new
                 {
-                    GraphSnapshotId = row.GraphSnapshotId,
+                    row.GraphSnapshotId,
                 },
                 transaction,
                 cancellationToken: ct))).ToList();

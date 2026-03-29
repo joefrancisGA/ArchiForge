@@ -33,7 +33,7 @@ public sealed class ArchitectureControllerTests
 
     private static async Task RunWithIsolatedFactory(Func<HttpClient, Task> act)
     {
-        using ArchiForgeApiFactory factory = new();
+        await using ArchiForgeApiFactory factory = new();
         HttpClient client = factory.CreateClient();
         await act(client);
     }

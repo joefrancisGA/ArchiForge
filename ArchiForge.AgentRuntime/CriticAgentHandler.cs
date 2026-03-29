@@ -7,6 +7,9 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.AgentRuntime;
 
+/// <summary>
+/// <see cref="AgentType.Critic"/> handler: cross-checks the implied architecture for gaps and contradictions.
+/// </summary>
 public sealed class CriticAgentHandler(
     IAgentCompletionClient completionClient,
     IAgentResultParser resultParser,

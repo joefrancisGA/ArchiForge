@@ -133,7 +133,7 @@ internal static class ContextSnapshotRelationalRead
                 transaction,
                 cancellationToken: ct));
 
-        Dictionary<string, string> sourceHashes = new Dictionary<string, string>(StringComparer.Ordinal);
+        Dictionary<string, string> sourceHashes = new(StringComparer.Ordinal);
 
         foreach (SourceHashRow hr in hashRows)
             sourceHashes[hr.SourceKey] = hr.HashValue;

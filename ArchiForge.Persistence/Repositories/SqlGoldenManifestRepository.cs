@@ -2,7 +2,6 @@ using System.Data;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.GoldenManifests;
@@ -37,7 +36,7 @@ public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connection
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        using SqlTransaction tx = owned.BeginTransaction();
+        await using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {

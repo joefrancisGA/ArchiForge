@@ -53,7 +53,7 @@ public sealed class SqlRelationalBackfillServiceSqlIntegrationTests(SqlServerPer
 
         List<CanonicalObject> objects =
         [
-            new CanonicalObject
+            new()
             {
                 ObjectId = "o1",
                 ObjectType = "Service",

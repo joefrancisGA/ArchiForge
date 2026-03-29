@@ -66,10 +66,10 @@ public sealed class GraphSnapshotStorageMapperTests
             WarningsJson = "{invalid warnings",
         };
 
-        List<GraphNode> nodes = [new GraphNode { NodeId = "n1", NodeType = "T", Label = "L" }];
+        List<GraphNode> nodes = [new() { NodeId = "n1", NodeType = "T", Label = "L" }];
         List<GraphEdge> edges =
         [
-            new GraphEdge
+            new()
             {
                 EdgeId = "e1",
                 FromNodeId = "a",

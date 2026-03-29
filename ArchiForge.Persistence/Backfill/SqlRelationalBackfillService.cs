@@ -1,5 +1,3 @@
-using System.Data;
-
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Scoping;
@@ -70,7 +68,7 @@ public sealed class SqlRelationalBackfillService(
             try
             {
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                using SqlTransaction tx = conn.BeginTransaction();
+                await using SqlTransaction tx = conn.BeginTransaction();
 
                 ContextSnapshot? snapshot = await contextSnapshotRepository.GetByIdAsync(snapshotId, conn, tx, ct);
                 if (snapshot is null)
@@ -118,7 +116,7 @@ public sealed class SqlRelationalBackfillService(
             try
             {
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                using SqlTransaction tx = conn.BeginTransaction();
+                await using SqlTransaction tx = conn.BeginTransaction();
 
                 GraphSnapshot? snapshot = await graphSnapshotRepository.GetByIdAsync(graphSnapshotId, conn, tx, ct);
                 if (snapshot is null)
@@ -170,7 +168,7 @@ public sealed class SqlRelationalBackfillService(
                     continue;
 
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                using SqlTransaction tx = conn.BeginTransaction();
+                await using SqlTransaction tx = conn.BeginTransaction();
 
                 int recordCount = await conn.ExecuteScalarAsync<int>(
                     new CommandDefinition(
@@ -181,7 +179,7 @@ public sealed class SqlRelationalBackfillService(
                         """,
                         new
                         {
-                            FindingsSnapshotId = snapshot.FindingsSnapshotId,
+                            snapshot.FindingsSnapshotId,
                         },
                         tx,
                         cancellationToken: ct));
@@ -243,7 +241,7 @@ public sealed class SqlRelationalBackfillService(
                     continue;
 
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                using SqlTransaction tx = conn.BeginTransaction();
+                await using SqlTransaction tx = conn.BeginTransaction();
 
                 await SqlGoldenManifestRepository.BackfillPhase1RelationalSlicesAsync(manifest, conn, tx, ct);
                 tx.Commit();
@@ -288,7 +286,7 @@ public sealed class SqlRelationalBackfillService(
                     continue;
 
                 await using SqlConnection conn = await connectionFactory.CreateOpenConnectionAsync(ct);
-                using SqlTransaction tx = conn.BeginTransaction();
+                await using SqlTransaction tx = conn.BeginTransaction();
 
                 await SqlArtifactBundleRepository.BackfillRelationalSlicesAsync(bundle, conn, tx, ct);
                 tx.Commit();

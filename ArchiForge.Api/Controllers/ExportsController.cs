@@ -19,6 +19,9 @@ using AppReplayExportRequest = ArchiForge.Application.Analysis.ReplayExportReque
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// Query and trigger run exports (history, diff, replay export) and audit comparisons tied to export records.
+/// </summary>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]

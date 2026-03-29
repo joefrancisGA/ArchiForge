@@ -22,6 +22,12 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
+/// <summary>
+/// HTTP API for architecture runs: submit <see cref="ArchitectureRequest"/>, execute agents, replay, commit manifests, and query evidence, traces, and decisions.
+/// </summary>
+/// <remarks>
+/// Base route <c>v1/architecture</c>. Mutating endpoints require <see cref="ArchiForgePolicies.ExecuteAuthority"/>; reads use <see cref="ArchiForgePolicies.ReadAuthority"/>.
+/// </remarks>
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
@@ -46,6 +52,10 @@ public sealed partial class RunsController(
 {
     // Required by LoggerMessage source generator (SYSLIB1019): concrete ILogger field named _logger.
 
+    /// <summary>
+    /// Creates a run, evidence bundle, and starter tasks from <paramref name="request"/>; supports <c>Idempotency-Key</c> replay semantics.
+    /// </summary>
+    /// <returns>201 with <see cref="CreateArchitectureRunResponse"/> for new runs, or 200 with <c>Idempotency-Replayed</c> header when the key matches a prior success.</returns>
     [HttpPost("request")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CreateArchitectureRunResponse), StatusCodes.Status201Created)]
@@ -129,6 +139,10 @@ public sealed partial class RunsController(
             ArchitectureRunIdempotencyHashing.FingerprintRequest(request));
     }
 
+    /// <summary>
+    /// Dispatches all pending tasks for <paramref name="runId"/> through the agent executor and persists results.
+    /// </summary>
+    /// <returns><see cref="ExecuteRunResponse"/> with agent results.</returns>
     [HttpPost("run/{runId}/execute")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ExecuteRunResponse), StatusCodes.Status200OK)]
@@ -163,6 +177,9 @@ public sealed partial class RunsController(
         }
     }
 
+    /// <summary>
+    /// Re-executes agents for <paramref name="runId"/> under <paramref name="request"/>.<see cref="ReplayRunRequest.ExecutionMode"/> and optionally commits a replay manifest.
+    /// </summary>
     [HttpPost("run/{runId}/replay")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(ReplayRunResponse), StatusCodes.Status200OK)]
@@ -212,6 +229,9 @@ public sealed partial class RunsController(
         }
     }
 
+    /// <summary>
+    /// Runs bounded replay iterations for <paramref name="runId"/> to compare agent results and manifest hashes against the baseline run.
+    /// </summary>
     [HttpPost("run/{runId}/determinism-check")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(DeterminismCheckResponse), StatusCodes.Status200OK)]
@@ -244,6 +264,9 @@ public sealed partial class RunsController(
         }
     }
 
+    /// <summary>
+    /// Merges agent results through the decision engine and persists the golden manifest and decision traces for <paramref name="runId"/>.
+    /// </summary>
     [HttpPost("run/{runId}/commit")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
@@ -291,6 +314,9 @@ public sealed partial class RunsController(
         }
     }
 
+    /// <summary>
+    /// Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId"/>.
+    /// </summary>
     [HttpGet("run/{runId}")]
     [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -317,6 +343,9 @@ public sealed partial class RunsController(
         return Ok(response);
     }
 
+    /// <summary>
+    /// Accepts one <see cref="ArchiForge.Contracts.Agents.AgentResult"/> for an in-progress run (custom agent integrations).
+    /// </summary>
     [HttpPost("run/{runId}/result")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(SubmitAgentResultResponse), StatusCodes.Status200OK)]
@@ -357,6 +386,9 @@ public sealed partial class RunsController(
         return Ok(new SeedFakeResultsResponse { ResultCount = result.ResultCount });
     }
 
+    /// <summary>
+    /// Returns decision-tree nodes materialized for <paramref name="runId"/> after commit (empty before commit yields 404).
+    /// </summary>
     [HttpGet("run/{runId}/decisions")]
     [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -384,6 +416,9 @@ public sealed partial class RunsController(
         });
     }
 
+    /// <summary>
+    /// Returns the hydrated <see cref="AgentEvidencePackage"/> used when agents ran for <paramref name="runId"/>.
+    /// </summary>
     [HttpGet("run/{runId}/evidence")]
     [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -408,6 +443,9 @@ public sealed partial class RunsController(
         });
     }
 
+    /// <summary>
+    /// Returns a page of <see cref="AgentExecutionTrace"/> rows for <paramref name="runId"/> (prompt/response audit trail).
+    /// </summary>
     [HttpGet("run/{runId}/traces")]
     [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -448,6 +486,9 @@ public sealed partial class RunsController(
         });
     }
 
+    /// <summary>
+    /// Lists recent runs visible in the current scope (summary rows for dashboards and pickers).
+    /// </summary>
     [HttpGet("runs")]
     [ProducesResponseType(typeof(List<RunListItemResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ListRuns(CancellationToken cancellationToken)

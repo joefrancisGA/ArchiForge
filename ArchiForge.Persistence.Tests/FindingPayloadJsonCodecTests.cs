@@ -23,7 +23,7 @@ public sealed class FindingPayloadJsonCodecTests
 
         object? restored = FindingPayloadJsonCodec.DeserializePayload(json, nameof(RequirementFindingPayload));
         restored.Should().BeOfType<RequirementFindingPayload>();
-        RequirementFindingPayload typed = (RequirementFindingPayload)restored!;
+        RequirementFindingPayload typed = (RequirementFindingPayload)restored;
         typed.RequirementName.Should().Be("TLS");
         typed.RequirementText.Should().Be("Must use TLS 1.2+");
         typed.IsMandatory.Should().BeTrue();

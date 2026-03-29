@@ -5,15 +5,21 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.AgentRuntime;
 
+/// <summary>
+/// Production <see cref="IAgentExecutor"/>: resolves <see cref="IAgentHandler"/> per <see cref="AgentTask.AgentType"/> and runs tasks sequentially.
+/// </summary>
 public sealed class RealAgentExecutor : IAgentExecutor
 {
     private readonly IReadOnlyDictionary<AgentType, IAgentHandler> _handlers;
 
+    /// <summary>Builds a lookup of handlers keyed by <see cref="IAgentHandler.AgentType"/> (duplicate types throw at construction).</summary>
+    /// <param name="handlers">All registered agent handlers.</param>
     public RealAgentExecutor(IEnumerable<IAgentHandler> handlers)
     {
         _handlers = handlers.ToDictionary(h => h.AgentType);
     }
 
+    /// <inheritdoc />
     public async Task<IReadOnlyList<AgentResult>> ExecuteAsync(
         string runId,
         ArchitectureRequest request,

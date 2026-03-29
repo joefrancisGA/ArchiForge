@@ -35,7 +35,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        using SqlTransaction tx = owned.BeginTransaction();
+        await using SqlTransaction tx = owned.BeginTransaction();
 
         try
         {
@@ -124,7 +124,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     new
                     {
                         GraphNodeRowId = rowId,
-                        GraphSnapshotId = snapshot.GraphSnapshotId,
+                        snapshot.GraphSnapshotId,
                         SortOrder = i,
                         node.NodeId,
                         node.NodeType,
@@ -178,7 +178,7 @@ public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionF
                     insertWarningSql,
                     new
                     {
-                        GraphSnapshotId = snapshot.GraphSnapshotId,
+                        snapshot.GraphSnapshotId,
                         SortOrder = w,
                         WarningText = snapshot.Warnings[w],
                     },

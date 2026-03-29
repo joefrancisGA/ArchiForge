@@ -7,6 +7,9 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.AgentRuntime;
 
+/// <summary>
+/// <see cref="AgentType.Topology"/> handler: prompts the model for service topology and manifest deltas, validates JSON, records traces.
+/// </summary>
 public sealed class TopologyAgentHandler(
     IAgentCompletionClient completionClient,
     IAgentResultParser resultParser,

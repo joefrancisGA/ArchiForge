@@ -83,7 +83,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         SqlGoldenManifestRepository manifestRepository = new(factory);
         await manifestRepository.SaveAsync(manifest, CancellationToken.None);
 
-        DateTime bundleCreated = new DateTime(2026, 8, 1, 12, 5, 0, DateTimeKind.Utc);
+        DateTime bundleCreated = new(2026, 8, 1, 12, 5, 0, DateTimeKind.Utc);
         Guid bundleId = Guid.NewGuid();
         Guid artifactId = Guid.NewGuid();
         Guid synthTraceId = Guid.NewGuid();
@@ -142,7 +142,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded!.BundleId.Should().Be(bundleId);
+        loaded.BundleId.Should().Be(bundleId);
         loaded.Artifacts.Should().ContainSingle();
         SynthesizedArtifact a = loaded.Artifacts[0];
         a.Content.Should().Be("Plain text body — not JSON-encoded.");
@@ -216,7 +216,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         List<SynthesizedArtifact> artifacts =
         [
-            new SynthesizedArtifact
+            new()
             {
                 ArtifactId = Guid.NewGuid(),
                 RunId = runId,
@@ -284,7 +284,7 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Artifacts.Should().ContainSingle();
+        loaded.Artifacts.Should().ContainSingle();
         loaded.Artifacts[0].Content.Should().Be("json-only path");
         loaded.Trace.GeneratorsUsed.Should().Equal("G");
     }
@@ -311,8 +311,8 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     RunId = runId,
                     ProjectId = "proj-ab",
                     CreatedUtc = DateTime.UtcNow,
-                    TenantId = TenantId,
-                    WorkspaceId = WorkspaceId,
+                    TenantId,
+                    WorkspaceId,
                     ScopeProjectId = ProjectId,
                 },
                 cancellationToken: ct));
@@ -450,9 +450,9 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
                     AcceptedFindingIdsJson = emptyList,
                     RejectedFindingIdsJson = emptyList,
                     NotesJson = emptyList,
-                    TenantId = TenantId,
-                    WorkspaceId = WorkspaceId,
-                    ProjectId = ProjectId,
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
                 },
                 cancellationToken: ct));
     }
