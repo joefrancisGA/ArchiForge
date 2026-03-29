@@ -35,6 +35,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ArchiForge.Decisioning.Tests" />
     <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
+    <InternalsVisibleTo Include="ArchiForge.Persistence.Tests" />
   </ItemGroup>
 
 </Project>
