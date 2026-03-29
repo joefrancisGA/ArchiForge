@@ -6,10 +6,11 @@ namespace ArchiForge.ContextIngestion.Connectors;
 
 /// <summary>
 /// Normalizes inline <see cref="ContextDocumentReference"/> items using the first
-/// <see cref="IContextDocumentParser"/> where <see cref="IContextDocumentParser.CanParse"/> returns true
-/// (registration order of <see cref="IEnumerable{IContextDocumentParser}"/> in DI when multiple parsers match).
+/// <see cref="IContextDocumentParser"/> in
+/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>
+/// order where <see cref="IContextDocumentParser.CanParse"/> returns true.
 /// </summary>
-public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IContextConnector
+public class DocumentConnector(IReadOnlyList<IContextDocumentParser> parsers) : IContextConnector
 {
     public string ConnectorType => "documents";
 
@@ -33,13 +34,14 @@ public class DocumentConnector(IEnumerable<IContextDocumentParser> parsers) : IC
         foreach (ContextDocumentReference document in payload.Documents)
         {
             IContextDocumentParser? parser = parsers.FirstOrDefault(x => x.CanParse(document.ContentType));
+
             if (parser is null)
             {
                 batch.Warnings.Add(
                     $"No registered context document parser accepted '{document.Name}' " +
                     $"(contentType='{document.ContentType}'). Document skipped. " +
                     "For HTTP requests, ContentType is validated at the API; if you still see this, " +
-                    "align IContextDocumentParser registrations with SupportedContextDocumentContentTypes " +
+                    "align parser registrations (see ContextDocumentParserPipeline / SupportedContextDocumentContentTypes) " +
                     "or check non-API callers building ContextIngestionRequest.");
                 continue;
             }

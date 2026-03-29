@@ -6,6 +6,8 @@ using FluentAssertions;
 
 using Moq;
 
+using Xunit;
+
 namespace ArchiForge.Decisioning.Tests;
 
 /// <summary>
@@ -136,7 +138,7 @@ public sealed class RecommendationWorkflowServiceTests
 
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 
-        result.Should().NotBeNull();
+        Assert.NotNull(result);
         result.Status.Should().Be(expectedStatus);
         result.ReviewedByUserId.Should().Be("user-1");
         result.ReviewedByUserName.Should().Be("User One");
@@ -206,7 +208,7 @@ public sealed class RecommendationWorkflowServiceTests
 
         RecommendationRecord? result = await _sut.ApplyActionAsync(recId, "user-1", "User One", request, CancellationToken.None);
 
-        result.Should().NotBeNull();
+        Assert.NotNull(result);
         result.Status.Should().Be(RecommendationStatus.Proposed);
     }
 

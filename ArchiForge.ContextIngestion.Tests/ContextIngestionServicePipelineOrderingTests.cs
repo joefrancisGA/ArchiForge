@@ -65,11 +65,15 @@ public sealed class ContextIngestionServicePipelineOrderingTests
     [Fact]
     public async Task IngestAsync_DeltaSummarySegments_FollowConnectorOrder()
     {
+        string markerA = $"SEG_{Guid.NewGuid():N}_A";
+        string markerB = $"SEG_{Guid.NewGuid():N}_B";
+        string markerC = $"SEG_{Guid.NewGuid():N}_C";
+
         IContextConnector[] connectors =
         [
-            new MarkerConnector("c-first", "__SEG_A__"),
-            new MarkerConnector("c-second", "__SEG_B__", warning: "WARN_FROM_SECOND_CONNECTOR"),
-            new MarkerConnector("c-third", "__SEG_C__")
+            new MarkerConnector("c-first", markerA),
+            new MarkerConnector("c-second", markerB, warning: "WARN_FROM_SECOND_CONNECTOR"),
+            new MarkerConnector("c-third", markerC)
         ];
 
         ContextIngestionService sut = new(
@@ -90,9 +94,9 @@ public sealed class ContextIngestionServicePipelineOrderingTests
         snapshot.DeltaSummary.Should().NotBeNull();
         string summary = snapshot.DeltaSummary!;
 
-        int indexA = summary.IndexOf("__SEG_A__", StringComparison.Ordinal);
-        int indexB = summary.IndexOf("__SEG_B__", StringComparison.Ordinal);
-        int indexC = summary.IndexOf("__SEG_C__", StringComparison.Ordinal);
+        int indexA = summary.IndexOf(markerA, StringComparison.Ordinal);
+        int indexB = summary.IndexOf(markerB, StringComparison.Ordinal);
+        int indexC = summary.IndexOf(markerC, StringComparison.Ordinal);
 
         indexA.Should().BeGreaterThanOrEqualTo(0);
         indexB.Should().BeGreaterThanOrEqualTo(0);
@@ -101,5 +105,33 @@ public sealed class ContextIngestionServicePipelineOrderingTests
         indexB.Should().BeLessThan(indexC);
 
         snapshot.Warnings.Should().ContainSingle().Which.Should().Be("WARN_FROM_SECOND_CONNECTOR");
+    }
+
+    [Fact]
+    public async Task IngestAsync_Warnings_FollowConnectorOrder()
+    {
+        IContextConnector[] connectors =
+        [
+            new MarkerConnector("w1", "S1", warning: "WARN_CONNECTOR_1"),
+            new MarkerConnector("w2", "S2", warning: "WARN_CONNECTOR_2"),
+            new MarkerConnector("w3", "S3", warning: "WARN_CONNECTOR_3")
+        ];
+
+        ContextIngestionService sut = new(
+            connectors,
+            new CanonicalInfrastructureEnricher(),
+            new CanonicalDeduplicator(),
+            new InMemoryContextSnapshotRepository(),
+            new DefaultContextDeltaSummaryBuilder());
+
+        ContextIngestionRequest request = new()
+        {
+            RunId = Guid.NewGuid(),
+            ProjectId = "proj-warnings-order"
+        };
+
+        ContextSnapshot snapshot = await sut.IngestAsync(request, CancellationToken.None);
+
+        snapshot.Warnings.Should().Equal("WARN_CONNECTOR_1", "WARN_CONNECTOR_2", "WARN_CONNECTOR_3");
     }
 }

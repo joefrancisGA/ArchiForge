@@ -42,6 +42,9 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
 
+      - name: Context ingestion DI guards
+        run: python scripts/assert_context_ingestion_di_guards.py
+
       - name: Test
         env:
           ARCHIFORGE_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests'

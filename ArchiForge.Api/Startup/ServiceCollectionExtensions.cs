@@ -241,7 +241,10 @@ internal static partial class ServiceCollectionExtensions
 
     private static void RegisterContextIngestionAndKnowledgeGraph(IServiceCollection services)
     {
-        services.AddSingleton<IContextDocumentParser, PlainTextContextDocumentParser>();
+        services.AddSingleton<PlainTextContextDocumentParser>();
+        services.AddSingleton<IContextDocumentParser>(static sp => sp.GetRequiredService<PlainTextContextDocumentParser>());
+        services.AddSingleton<IReadOnlyList<IContextDocumentParser>>(static sp =>
+            ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers(sp));
 
         services.AddSingleton<IInfrastructureDeclarationParser, JsonInfrastructureDeclarationParser>();
         services.AddSingleton<IInfrastructureDeclarationParser, SimpleTerraformDeclarationParser>();

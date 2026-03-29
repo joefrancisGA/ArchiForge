@@ -1,5 +1,7 @@
 using ArchiForge.ContextIngestion.Connectors;
+using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Interfaces;
+using ArchiForge.ContextIngestion.Parsing;
 
 using FluentAssertions;
 
@@ -9,7 +11,8 @@ namespace ArchiForge.Api.Tests;
 
 /// <summary>
 /// Locks DI registration for the context-ingestion connector pipeline to the order defined in
-/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>.
+/// <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextConnectorPipeline.CreateOrderedContextConnectorPipeline"/>
+/// and <see cref="ArchiForge.ContextIngestion.Infrastructure.ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers"/>.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class ContextIngestionConnectorRegistrationTests(ArchiForgeApiFactory factory)
@@ -32,5 +35,15 @@ public sealed class ContextIngestionConnectorRegistrationTests(ArchiForgeApiFact
             typeof(TopologyHintsConnector),
             typeof(SecurityBaselineHintsConnector),
             typeof(InfrastructureDeclarationConnector));
+    }
+
+    [Fact]
+    public void Services_Resolve_IReadOnlyList_IContextDocumentParser_InPipelineOrder()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        IReadOnlyList<IContextDocumentParser> parsers = scope.ServiceProvider
+            .GetRequiredService<IReadOnlyList<IContextDocumentParser>>();
+
+        parsers.Select(p => p.GetType()).Should().Equal(typeof(PlainTextContextDocumentParser));
     }
 }

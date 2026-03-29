@@ -13,7 +13,7 @@ HTTP clients send **`ArchitectureRequest`** (see `ArchiForge.Contracts.Requests`
 | `SystemName` | `ProjectId` | Same logical key used for “latest snapshot” lookups. |
 | `Description` | `Description` | Primary free-text description. |
 | `InlineRequirements` | `InlineRequirements` | Each line becomes a `Requirement` canonical object. |
-| `Documents` | `Documents` | Inline documents (`name`, `contentType`, `content`) — not multipart upload. |
+| `Documents` | `Documents` | Inline documents (`name`, `contentType`, `content`) — not multipart upload. **HTTP API:** `name` and `contentType` must be non-empty and not whitespace-only; `contentType` must be in **`SupportedContextDocumentContentTypes.All`**; `content` must not be null (`ContextDocumentRequestValidator`). See **`docs/API_CONTRACTS.md`**. |
 | `PolicyReferences` | `PolicyReferences` | Short strings → `PolicyControl` objects (`reference` + `status=referenced`). |
 | `TopologyHints` | `TopologyHints` | → `TopologyResource` objects. |
 | `SecurityBaselineHints` | `SecurityBaselineHints` | → `SecurityBaseline` objects. |
@@ -35,7 +35,7 @@ Connectors implement **`IContextConnector`**. **Code source of truth:** **`Conte
 
 1. **`StaticRequestContextConnector`** — primary description → one `Requirement` (“Primary Request”) with `SourceType=StaticRequest`.
 2. **`InlineRequirementsConnector`** — each inline string → `Requirement` (`SourceType=InlineRequirement`).
-3. **`DocumentConnector`** — parses each **`ContextDocumentReference`** with a matching **`IContextDocumentParser`**.
+3. **`DocumentConnector`** — parses each **`ContextDocumentReference`** with a matching **`IContextDocumentParser`**. Parser precedence is fixed in **`ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers`** (first parser in that list where **`CanParse`** is true wins).
 4. **`PolicyReferenceConnector`**
 5. **`TopologyHintsConnector`**
 6. **`SecurityBaselineHintsConnector`**
@@ -51,7 +51,7 @@ Connectors or parsers may set comma-separated graph **`NodeId`** values on **`Ca
 
 ## Supported document content types (single source of truth)
 
-The canonical MIME list for inline documents is **`ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. When adding a new parser for another type, extend **`All`** and implement **`IContextDocumentParser`**.
+The canonical MIME list for inline documents is **`ArchiForge.ContextIngestion.SupportedContextDocumentContentTypes.All`**. The API FluentValidation rule (**`ContextDocumentRequestValidator`**) and **`PlainTextContextDocumentParser.CanParse`** both use **`SupportedContextDocumentContentTypes.IsSupported`**. When adding a new parser for another type, extend **`All`**, implement **`IContextDocumentParser`**, register the concrete parser in DI, and append it to **`ContextDocumentParserPipeline.CreateOrderedContextDocumentParsers`** in the desired order.
 
 ---
 
