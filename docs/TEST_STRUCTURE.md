@@ -11,7 +11,7 @@
 | **ArchiForge.DecisionEngine.Tests** | Schema validation, manifest/decision JSON contracts. |
 | **ArchiForge.KnowledgeGraph.Tests** | Graph models, edge inference contracts. |
 | **ArchiForge.Retrieval.Tests** | `RetrievalQueryService`, `InMemoryVectorIndex` (empty index, ranking, scope filters), **`CircuitBreakerGateTests`**, **`CircuitBreakingOpenAiEmbeddingClientTests`** (OpenAI embedding circuit breaker). |
-| **ArchiForge.Persistence.Tests** | Dapper repositories against **real SQL Server** in Docker (`Testcontainers.MsSql`); schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). |
+| **ArchiForge.Persistence.Tests** | Dapper repositories against **real SQL Server** via **`ARCHIFORGE_SQL_TEST`** or Windows **LocalDB**; schema from **`DatabaseMigrator`** (same DbUp migrations as production SQL Server). |
 
 ## Projects
 

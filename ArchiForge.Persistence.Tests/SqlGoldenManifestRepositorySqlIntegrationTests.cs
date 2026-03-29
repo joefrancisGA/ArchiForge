@@ -26,9 +26,10 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
     private static readonly Guid WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
     private static readonly Guid ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_phase1_relational_slices()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -121,9 +122,10 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         d.RawDecisionJson.Should().Be("""{"x":1}""");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_phase1_rows_falls_back_to_json_columns()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

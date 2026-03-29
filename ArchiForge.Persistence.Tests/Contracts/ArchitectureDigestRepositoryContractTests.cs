@@ -7,12 +7,17 @@ namespace ArchiForge.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IArchitectureDigestRepository"/>.
-/// Subclass once with an InMemory implementation and once with Dapper + Testcontainers
+/// Subclass once with an InMemory implementation and once with Dapper + SQL Server
 /// to guarantee both behave identically.
 /// </summary>
 public abstract class ArchitectureDigestRepositoryContractTests
 {
     protected abstract IArchitectureDigestRepository CreateRepository();
+
+    /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
+    protected virtual void SkipIfSqlServerUnavailable()
+    {
+    }
 
     private static readonly Guid TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
     private static readonly Guid WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
@@ -36,9 +41,10 @@ public abstract class ArchitectureDigestRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_digest()
     {
+        SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
         ArchitectureDigest digest = CreateDigest();
 
@@ -58,9 +64,10 @@ public abstract class ArchitectureDigestRepositoryContractTests
         loaded.MetadataJson.Should().Be(digest.MetadataJson);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
+        SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
 
         ArchitectureDigest? result = await repo.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
@@ -68,9 +75,10 @@ public abstract class ArchitectureDigestRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_returns_only_matching_scope()
     {
+        SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
         ArchitectureDigest matching = CreateDigest();
         ArchitectureDigest otherProject = CreateDigest();
@@ -86,9 +94,10 @@ public abstract class ArchitectureDigestRepositoryContractTests
         result.Should().NotContain(d => d.DigestId == otherProject.DigestId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_orders_by_GeneratedUtc_descending()
     {
+        SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
         ArchitectureDigest older = CreateDigest(generatedUtc: new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         ArchitectureDigest newer = CreateDigest(generatedUtc: new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
@@ -107,9 +116,10 @@ public abstract class ArchitectureDigestRepositoryContractTests
         ours[1].DigestId.Should().Be(older.DigestId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_respects_take_limit()
     {
+        SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
 
         // Use a unique scope so only our data is counted.
@@ -128,9 +138,10 @@ public abstract class ArchitectureDigestRepositoryContractTests
         result.Should().HaveCount(3);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_empty_scope_returns_empty_list()
     {
+        SkipIfSqlServerUnavailable();
         IArchitectureDigestRepository repo = CreateRepository();
 
         IReadOnlyList<ArchitectureDigest> result = await repo.ListByScopeAsync(

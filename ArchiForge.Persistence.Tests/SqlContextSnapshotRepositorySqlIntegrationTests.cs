@@ -18,9 +18,10 @@ namespace ArchiForge.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory);
 
@@ -73,9 +74,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.SourceHashes["file.cs"].Should().Be("abc123");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_falls_back_to_json_when_no_relational_child_rows()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory);
 
@@ -139,9 +141,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.SourceHashes.Should().BeEmpty();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_header_and_children()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlContextSnapshotRepository repository = new(factory);
 

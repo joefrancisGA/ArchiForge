@@ -6,12 +6,17 @@ namespace ArchiForge.Persistence.Tests.Contracts;
 
 /// <summary>
 /// Shared contract assertions for <see cref="IAlertRuleRepository"/>.
-/// Subclass once with an InMemory implementation and once with Dapper + Testcontainers
+/// Subclass once with an InMemory implementation and once with Dapper + SQL Server
 /// to guarantee both behave identically.
 /// </summary>
 public abstract class AlertRuleRepositoryContractTests
 {
     protected abstract IAlertRuleRepository CreateRepository();
+
+    /// <summary>No-op for in-memory implementations; Dapper + SQL Server subclasses skip when no instance is available.</summary>
+    protected virtual void SkipIfSqlServerUnavailable()
+    {
+    }
 
     private static readonly Guid TenantId = Guid.Parse("a0a0a0a0-a0a0-a0a0-a0a0-a0a0a0a0a0a0");
     private static readonly Guid WorkspaceId = Guid.Parse("b0b0b0b0-b0b0-b0b0-b0b0-b0b0b0b0b0b0");
@@ -36,9 +41,10 @@ public abstract class AlertRuleRepositoryContractTests
         };
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Create_then_GetById_returns_same_rule()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
         AlertRule rule = CreateRule();
 
@@ -57,9 +63,10 @@ public abstract class AlertRuleRepositoryContractTests
         loaded.MetadataJson.Should().Be(rule.MetadataJson);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_nonexistent_returns_null()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
 
         AlertRule? result = await repo.GetByIdAsync(Guid.NewGuid(), CancellationToken.None);
@@ -67,9 +74,10 @@ public abstract class AlertRuleRepositoryContractTests
         result.Should().BeNull();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task Update_modifies_mutable_fields()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
         AlertRule rule = CreateRule();
 
@@ -89,9 +97,10 @@ public abstract class AlertRuleRepositoryContractTests
         after.IsEnabled.Should().BeFalse();
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_returns_only_matching_scope()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
         AlertRule matching = CreateRule();
         AlertRule otherProject = CreateRule();
@@ -107,9 +116,10 @@ public abstract class AlertRuleRepositoryContractTests
         result.Should().NotContain(r => r.RuleId == otherProject.RuleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListByScope_orders_by_CreatedUtc_descending()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
         AlertRule older = CreateRule(createdUtc: new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         AlertRule newer = CreateRule(createdUtc: new DateTime(2026, 6, 1, 0, 0, 0, DateTimeKind.Utc));
@@ -126,9 +136,10 @@ public abstract class AlertRuleRepositoryContractTests
         ours[1].RuleId.Should().Be(older.RuleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScope_excludes_disabled_rules()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
         AlertRule enabled = CreateRule(isEnabled: true);
         AlertRule disabled = CreateRule(isEnabled: false);
@@ -143,9 +154,10 @@ public abstract class AlertRuleRepositoryContractTests
         result.Should().NotContain(r => r.RuleId == disabled.RuleId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListEnabledByScope_returns_empty_when_none_enabled()
     {
+        SkipIfSqlServerUnavailable();
         IAlertRuleRepository repo = CreateRepository();
         // Use a unique scope so no prior data interferes.
         Guid uniqueProject = Guid.NewGuid();

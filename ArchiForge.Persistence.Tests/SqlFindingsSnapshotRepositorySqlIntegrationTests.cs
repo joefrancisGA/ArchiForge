@@ -22,9 +22,10 @@ namespace ArchiForge.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_relational_rows_and_payload_sidecar()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -99,9 +100,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         f.Trace.Notes.Should().Equal("note1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_falls_back_to_FindingsJson()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -173,9 +175,10 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
         loaded.Findings[0].Title.Should().Be("Legacy title");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

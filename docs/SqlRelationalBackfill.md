@@ -80,7 +80,7 @@ Call `ISqlRelationalBackfillService.RunAsync(options, cancellationToken)` and in
 
 ## Tests
 
-Integration tests: `ArchiForge.Persistence.Tests` → `SqlRelationalBackfillServiceSqlIntegrationTests` (requires Docker / SQL Server Testcontainers).
+Integration tests: `ArchiForge.Persistence.Tests` → `SqlRelationalBackfillServiceSqlIntegrationTests` (requires SQL Server: set **`ARCHIFORGE_SQL_TEST`** or use LocalDB on Windows; CI uses a SQL Server service container).
 
 Filter:
 

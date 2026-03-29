@@ -33,7 +33,7 @@ Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scra
 
 **ArchiForge.Api.Tests** integration tests host the real API with **`WebApplicationFactory`**. **`ArchiForgeApiFactory`** targets **SQL Server** on **`localhost`** (default), creates a **per-factory** database (`ArchiForgeTest_*`), and relies on **DbUp** at startup — same migration path as the running API.
 
-**CI / headless:** Ensure SQL Server is available (local install, named instance, or **Testcontainers.MsSql**). **`ArchiForge.Persistence.Tests`** already use **Testcontainers** for Dapper contract tests.
+**CI / headless:** **`ArchiForge.Persistence.Tests`** use **`ARCHIFORGE_SQL_TEST`** (full connection string) or, on Windows, **LocalDB** (`(localdb)\mssqllocaldb`) with catalog **`ArchiForgePersistenceTests`**. GitHub Actions **`.github/workflows/ci.yml`** starts a **SQL Server 2022** service container and sets that variable—no Docker requirement in the .NET test project.
 
 Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql` + **`ArchiForge.Data/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to the test database.
 

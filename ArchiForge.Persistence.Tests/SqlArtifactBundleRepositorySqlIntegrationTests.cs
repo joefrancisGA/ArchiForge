@@ -27,9 +27,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
     private static readonly Guid WorkspaceId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     private static readonly Guid ProjectId = Guid.Parse("66666666-6666-6666-6666-666666666666");
 
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetByManifestId_round_trips_relational_slices()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 
@@ -154,9 +155,10 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.TraceId.Should().Be(synthTraceId);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetByManifestId_when_no_relational_rows_falls_back_to_json_columns()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
 

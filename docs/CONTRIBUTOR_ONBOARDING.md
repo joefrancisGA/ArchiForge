@@ -25,7 +25,7 @@ See **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** for project layout and traits.
 
 ## Optional integration against SQL Server
 
-See **[BUILD.md](BUILD.md)** (SQL Server vs Testcontainers).
+See **[BUILD.md](BUILD.md)** (SQL Server for persistence tests: `ARCHIFORGE_SQL_TEST` or LocalDB).
 
 ## Where to start reading
 

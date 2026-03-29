@@ -18,9 +18,10 @@ namespace ArchiForge.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
-    [Fact]
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_relational_collections()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory);
 
@@ -82,9 +83,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Warnings.Should().Equal("w1");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task ListIndexedEdgesAsync_preserves_order_by_EdgeId_and_core_fields()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory);
 
@@ -124,9 +126,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         indexed[1].Weight.Should().Be(2d);
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task GetById_when_relational_children_absent_falls_back_to_json_for_nodes_and_warnings()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory);
 
@@ -221,9 +224,10 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Edges[0].Properties["k"].Should().Be("v");
     }
 
-    [Fact]
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
         SqlGraphSnapshotRepository repository = new(factory);
 
