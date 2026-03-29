@@ -54,15 +54,15 @@ public sealed class ReplayRunService(
         ArchitectureRun originalRun = sourceDetail.Run;
         List<AgentTask> tasks = sourceDetail.Tasks;
 
-        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
-                                      ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
-
         cancellationToken.ThrowIfCancellationRequested();
 
         if (tasks.Count == 0)
         {
             throw new InvalidOperationException($"No tasks found for run '{originalRunId}'.");
         }
+
+        ArchitectureRequest request = await requestRepository.GetByIdAsync(originalRun.RequestId, cancellationToken)
+                                      ?? throw new InvalidOperationException($"Request '{originalRun.RequestId}' not found.");
 
         AgentEvidencePackage evidence = await agentEvidencePackageRepository.GetByRunIdAsync(originalRunId, cancellationToken)
                                         ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
