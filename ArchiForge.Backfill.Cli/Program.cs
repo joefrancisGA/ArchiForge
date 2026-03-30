@@ -24,7 +24,7 @@ internal static class Program
             return 1;
         }
 
-        SqlRelationalBackfillOptions options = ParseBackfillOptions(args);
+        bool readinessMode = args.Any(static a => a.Equals("--readiness", StringComparison.OrdinalIgnoreCase));
 
         ServiceCollection services = new();
         services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
@@ -35,6 +35,8 @@ internal static class Program
         services.AddSingleton<SqlArtifactBundleRepository>();
         services.AddSingleton<SqlRelationalBackfillService>();
         services.AddSingleton<ISqlRelationalBackfillService>(sp => sp.GetRequiredService<SqlRelationalBackfillService>());
+        services.AddSingleton<SqlCutoverReadinessService>();
+        services.AddSingleton<ICutoverReadinessService>(sp => sp.GetRequiredService<SqlCutoverReadinessService>());
         services.AddLogging(
             builder =>
             {
@@ -43,6 +45,16 @@ internal static class Program
             });
 
         await using ServiceProvider provider = services.BuildServiceProvider();
+
+        if (readinessMode)
+            return await RunReadinessAsync(provider);
+
+        return await RunBackfillAsync(provider, args);
+    }
+
+    private static async Task<int> RunBackfillAsync(ServiceProvider provider, string[] args)
+    {
+        SqlRelationalBackfillOptions options = ParseBackfillOptions(args);
         ISqlRelationalBackfillService backfill = provider.GetRequiredService<ISqlRelationalBackfillService>();
 
         SqlRelationalBackfillReport report = await backfill.RunAsync(options, CancellationToken.None);
@@ -56,18 +68,58 @@ internal static class Program
         return report.FailureCount > 0 ? 2 : 0;
     }
 
+    private static async Task<int> RunReadinessAsync(ServiceProvider provider)
+    {
+        ICutoverReadinessService readiness = provider.GetRequiredService<ICutoverReadinessService>();
+        CutoverReadinessReport report = await readiness.AssessAsync(CancellationToken.None);
+
+        Console.WriteLine();
+        Console.WriteLine("=== Relational Cutover Readiness Report ===");
+        Console.WriteLine();
+        Console.WriteLine($"{"Slice",-45} {"Total",7} {"Ready",7} {"Missing",9} {"Status",10}");
+        Console.WriteLine(new string('-', 80));
+
+        foreach (CutoverSliceReadiness slice in report.Slices)
+        {
+            string status = slice.IsReady ? "READY" : "NOT READY";
+            Console.WriteLine($"{slice.SliceName,-45} {slice.TotalHeaderRows,7} {slice.HeadersWithRelationalRows,7} {slice.HeadersMissingRelationalRows,9} {status,10}");
+        }
+
+        Console.WriteLine(new string('-', 80));
+        Console.WriteLine();
+
+        if (report.IsFullyReady)
+        {
+            Console.WriteLine("All slices are READY. Safe to switch to PersistenceReadMode.RequireRelational.");
+        }
+        else
+        {
+            Console.WriteLine($"{report.SlicesNotReady.Count} slice(s) NOT READY. Run backfill before enabling RequireRelational.");
+        }
+
+        Console.WriteLine();
+
+        return report.IsFullyReady ? 0 : 3;
+    }
+
     private static void PrintHelp()
     {
         Console.WriteLine(
             """
-            ArchiForge.Backfill.Cli — one-time JSON → relational backfill (no schema changes).
+            ArchiForge.Backfill.Cli — one-time JSON → relational backfill and cutover readiness.
 
             Connection (first match wins):
               ARCHIFORGE_SQL environment variable
               --connection|-c "<ADO.NET connection string>"
               first positional argument (if not a flag)
 
-            Scope (default: all stages enabled):
+            Modes:
+              (default)       Run the backfill (JSON → relational child tables).
+              --readiness     Read-only assessment: per-slice coverage report.
+                              Shows how many header rows have relational children
+                              and whether each slice is ready for RequireRelational.
+
+            Backfill scope (default: all stages enabled, ignored when --readiness):
               --only <list>   Comma-separated: context, graph, findings, golden, artifact
                               Enables only those stages (others off).
               --skip-context|--skip-graph|--skip-findings|--skip-golden|--skip-artifact
@@ -75,7 +127,11 @@ internal static class Program
 
             If --only is present, --skip-* flags are ignored.
 
-            Exit: 0 success, 1 bad usage / no connection, 2 one or more entity failures.
+            Exit codes:
+              0  Success (backfill clean, or readiness = all ready)
+              1  Bad usage / no connection string
+              2  Backfill: one or more entity failures
+              3  Readiness: one or more slices not ready
             """);
     }
 

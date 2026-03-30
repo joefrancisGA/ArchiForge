@@ -69,7 +69,7 @@ Policy-aware overload accepts `JsonFallbackPolicy?`, `sliceName`, `emptyDefault`
 
 ## Files changed
 
-### Production (53R-1 + 53R-2 + 53R-3)
+### Production (53R-1 + 53R-2 + 53R-3 + 53R-4)
 
 | File | Change |
 |------|--------|
@@ -86,6 +86,11 @@ Policy-aware overload accepts `JsonFallbackPolicy?`, `sliceName`, `emptyDefault`
 | `ArchiForge.Persistence/Repositories/GraphSnapshotStorageMapper.cs` | `ToSnapshot` accepts optional `fallbackPolicy`; `ResolveOverrideOrFallback` passes `entityId` through |
 | `ArchiForge.Persistence/ArtifactBundles/ArtifactBundleRelationalRead.cs` | `HydrateBundleAsync` accepts optional `fallbackPolicy`; passes `entityType`+`entityId` |
 | `ArchiForge.Api/Configuration/ArchiForgeStorageServiceCollectionExtensions.cs` | Registers `JsonFallbackPolicy` singleton with `ILoggerFactory` |
+| `ArchiForge.Persistence/Backfill/CutoverSliceReadiness.cs` | **New** — per-slice readiness model with computed `IsReady` and `HeadersMissingRelationalRows` |
+| `ArchiForge.Persistence/Backfill/CutoverReadinessReport.cs` | **New** — aggregate report with `IsFullyReady`, `SlicesNotReady`, deduplicated `TotalHeaderRows` |
+| `ArchiForge.Persistence/Backfill/ICutoverReadinessService.cs` | **New** — interface for readiness assessment |
+| `ArchiForge.Persistence/Backfill/SqlCutoverReadinessService.cs` | **New** — SQL implementation using `WHERE EXISTS` correlated subqueries for efficient counting |
+| `ArchiForge.Backfill.Cli/Program.cs` | Added `--readiness` mode with tabular console output and exit code 3 |
 
 ### Tests
 
@@ -93,6 +98,7 @@ Policy-aware overload accepts `JsonFallbackPolicy?`, `sliceName`, `emptyDefault`
 |------|-------|
 | `ArchiForge.Persistence.Tests/JsonFallbackPolicyTests.cs` | 13 tests: default, allow/warn/require modes, `AllowFallback` property, `ShouldFallbackToJson` backward compat, warn logs, require throws with entity context, allow debug logging, no-log when relational exists |
 | `ArchiForge.Persistence.Tests/RelationalFirstReadTests.cs` | 6 tests: relational exists, allow/warn/require modes, null policy, backward-compat overload |
+| `ArchiForge.Persistence.Tests/CutoverReadinessReportTests.cs` | 11 tests: slice ready/not-ready/zero-header, report fully-ready/partial/empty, deduplication, full-pipeline scenario |
 
 ### Docs
 
@@ -170,9 +176,80 @@ When `persistence_json_fallback_used` counter shows zero over a sustained period
 
 ---
 
+## Cutover readiness report (53R-4)
+
+### What it does
+
+`SqlCutoverReadinessService` runs read-only aggregate SQL queries against each entity type's header and child tables. For every slice, it reports:
+
+| Field | Meaning |
+|-------|---------|
+| `TotalHeaderRows` | Count of rows in the parent table (e.g. `dbo.ContextSnapshots`). |
+| `HeadersWithRelationalRows` | How many of those have ≥1 row in the child table. |
+| `HeadersMissingRelationalRows` | `Total - WithRelational` — rows still depending on JSON fallback. |
+| `IsReady` | `true` when missing = 0. |
+
+`CutoverReadinessReport.IsFullyReady` is `true` only when **every** slice is ready.
+
+### Slices assessed
+
+| Entity type | Slices |
+|------------|--------|
+| ContextSnapshot | CanonicalObjects, Warnings, Errors, SourceHashes |
+| GraphSnapshot | Nodes, Edges, Warnings, EdgeProperties |
+| FindingsSnapshot | Findings |
+| GoldenManifest | Assumptions, Warnings, Decisions, Provenance (any of 3 sub-tables) |
+| ArtifactBundle | Artifacts |
+
+### CLI usage
+
+```bash
+# Run the readiness assessment (read-only, no schema changes)
+ArchiForge.Backfill.Cli --readiness --connection "Server=...;Database=ArchiForge;..."
+
+# Or use the ARCHIFORGE_SQL environment variable
+export ARCHIFORGE_SQL="Server=...;Database=ArchiForge;..."
+ArchiForge.Backfill.Cli --readiness
+```
+
+Example output:
+
+```
+=== Relational Cutover Readiness Report ===
+
+Slice                                          Total   Ready   Missing     Status
+--------------------------------------------------------------------------------
+ContextSnapshot.CanonicalObjects                 200     200         0      READY
+ContextSnapshot.Warnings                         200     200         0      READY
+ContextSnapshot.Errors                           200     200         0      READY
+ContextSnapshot.SourceHashes                     200     195         5  NOT READY
+GraphSnapshot.Nodes                              200     200         0      READY
+...
+--------------------------------------------------------------------------------
+
+1 slice(s) NOT READY. Run backfill before enabling RequireRelational.
+```
+
+Exit codes: `0` = all ready, `3` = one or more slices not ready.
+
+### Service usage (programmatic)
+
+```csharp
+ICutoverReadinessService readiness = provider.GetRequiredService<ICutoverReadinessService>();
+CutoverReadinessReport report = await readiness.AssessAsync(ct);
+
+if (report.IsFullyReady)
+    // safe to switch to PersistenceReadMode.RequireRelational
+else
+    // report.SlicesNotReady lists which slices need backfill
+```
+
+---
+
 ## How to cut over (future)
 
 1. Run `SqlRelationalBackfillService` across all environments.
-2. Change DI registration to `PersistenceReadMode.WarnOnJsonFallback`; deploy; monitor `persistence_json_fallback_used` counter and `Warning`-level logs for remaining fallback hits.
-3. When the counter is zero over a sustained period, change to `PersistenceReadMode.RequireRelational`; deploy; any un-backfilled rows throw `RelationalDataMissingException` with clear entity context and remediation advice.
-4. Delete `*JsonFallback.cs` helpers, remove the backward-compat `ReadSliceAsync` overload, remove the JSON column reads from `GraphSnapshotStorageMapper`, and retire the `persistence_json_fallback_used` counter.
+2. Run `ArchiForge.Backfill.Cli --readiness` to confirm all slices report READY.
+3. Change DI registration to `PersistenceReadMode.WarnOnJsonFallback`; deploy; monitor `persistence_json_fallback_used` counter and `Warning`-level logs for remaining fallback hits.
+4. When the counter is zero over a sustained period, run `--readiness` one more time to confirm, then change to `PersistenceReadMode.RequireRelational`; deploy; any un-backfilled rows throw `RelationalDataMissingException` with clear entity context and remediation advice.
+5. Delete `*JsonFallback.cs` helpers, remove the backward-compat `ReadSliceAsync` overload, remove the JSON column reads from `GraphSnapshotStorageMapper`, and retire the `persistence_json_fallback_used` counter.
