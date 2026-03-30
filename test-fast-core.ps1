@@ -1,4 +1,4 @@
-# 54R — Fast core: Suite=Core excluding Category=Slow and Category=Integration.
+# Fast core: Suite=Core, excluding Category=Slow and Category=Integration.
 # See docs/TEST_EXECUTION_MODEL.md
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
