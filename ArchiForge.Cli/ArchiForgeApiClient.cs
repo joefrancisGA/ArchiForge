@@ -127,6 +127,28 @@ namespace ArchiForge.Cli
         }
 
         /// <summary>
+        /// GET a health path (e.g. <c>/health/ready</c>) and return HTTP status plus response body for operator diagnostics.
+        /// </summary>
+        public async Task<(int StatusCode, string Body)> GetHealthProbeAsync(string path, CancellationToken ct = default)
+        {
+            string normalized = path.StartsWith("/", StringComparison.Ordinal) ? path : "/" + path;
+
+            try
+            {
+                HttpResponseMessage response = await _http.GetAsync(normalized, ct);
+                string body = await response.Content.ReadAsStringAsync(ct);
+
+                return ((int)response.StatusCode, body);
+            }
+            catch (Exception ex)
+            {
+                LogCliFailure($"GET {normalized}", ex);
+
+                return (0, ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Create an architecture run by submitting an ArchitectureRequest.
         /// </summary>
         public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CancellationToken ct = default)

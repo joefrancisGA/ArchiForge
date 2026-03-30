@@ -26,7 +26,7 @@ namespace ArchiForge.Cli
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check)");
                 return 1;
             }
 
@@ -88,6 +88,10 @@ namespace ArchiForge.Cli
 
                 case "health":
                     return await ArchiForge_HealthAsync();
+
+                case "doctor":
+                case "check":
+                    return await DoctorCommand.RunAsync(TryLoadConfigFromCwd());
 
                 default:
                     Console.WriteLine($"Unknown command: {command}");

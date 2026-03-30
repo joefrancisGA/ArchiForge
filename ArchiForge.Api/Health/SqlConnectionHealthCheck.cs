@@ -1,24 +1,33 @@
 using System.Data.Common;
 
+using ArchiForge.Api.Configuration;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Health;
 
 /// <summary>
-/// Probes the database via <see cref="IDbConnectionFactory"/>. Reports <see cref="HealthStatus.Degraded"/>
-/// for transient SQL errors (timeouts, transport failures) so load balancers do not immediately evict
-/// the instance, and <see cref="HealthStatus.Unhealthy"/> for permanent failures.
+/// Probes the database via <see cref="IDbConnectionFactory"/> when <see cref="ArchiForgeOptions.StorageProvider"/> is Sql.
+/// Skips (Healthy) for InMemory storage so readiness reflects the configured persistence mode.
 /// </summary>
-public sealed class SqlConnectionHealthCheck(IDbConnectionFactory connectionFactory) : IHealthCheck
+public sealed class SqlConnectionHealthCheck(
+    IDbConnectionFactory connectionFactory,
+    IOptions<ArchiForgeOptions> archiForgeOptions) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
+        if (string.Equals(archiForgeOptions.Value.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        {
+            return HealthCheckResult.Healthy(
+                "Database readiness skipped: ArchiForge:StorageProvider is InMemory (no SQL persistence).");
+        }
+
         try
         {
             DbConnection connection = (DbConnection)connectionFactory.CreateConnection();

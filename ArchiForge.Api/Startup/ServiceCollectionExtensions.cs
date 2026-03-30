@@ -106,6 +106,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services);
         RegisterRetrievalIndexingOutbox(services);
+        RegisterArchiForgeHealthChecks(services);
         return services;
     }
 
@@ -167,9 +168,22 @@ internal static partial class ServiceCollectionExtensions
     private static void RegisterDataInfrastructure(IServiceCollection services)
     {
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
+    }
 
+    private static void RegisterArchiForgeHealthChecks(IServiceCollection services)
+    {
         services.AddHealthChecks()
-            .AddCheck<SqlConnectionHealthCheck>("database", failureStatus: HealthStatus.Unhealthy);
+            .AddCheck(
+                "liveness",
+                () => HealthCheckResult.Healthy("ArchiForge API process is running."),
+                tags: [ReadinessTags.Live])
+            .AddCheck<SqlConnectionHealthCheck>(
+                "database",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])
+            .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
+            .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready]);
     }
 
     private static void RegisterBackgroundJobs(IServiceCollection services)

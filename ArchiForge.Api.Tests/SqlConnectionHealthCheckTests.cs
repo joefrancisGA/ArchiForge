@@ -1,11 +1,13 @@
 using System.Data.Common;
 
+using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Health;
 using ArchiForge.Data.Infrastructure;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -27,10 +29,23 @@ public sealed class SqlConnectionHealthCheckTests
         Mock<IDbConnectionFactory> factory = new();
         factory.Setup(f => f.CreateConnection()).Returns(mockConnection.Object);
 
-        SqlConnectionHealthCheck sut = new(factory.Object);
+        SqlConnectionHealthCheck sut = new(factory.Object, Options.Create(new ArchiForgeOptions { StorageProvider = "Sql" }));
         HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Status.Should().Be(HealthStatus.Healthy);
+    }
+
+    [Fact]
+    public async Task Healthy_WhenInMemoryStorage_SkipsDatabaseOpen()
+    {
+        Mock<IDbConnectionFactory> factory = new();
+        factory.Setup(f => f.CreateConnection()).Throws(new InvalidOperationException("should not open SQL"));
+
+        SqlConnectionHealthCheck sut = new(factory.Object, Options.Create(new ArchiForgeOptions { StorageProvider = "InMemory" }));
+        HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
+
+        result.Status.Should().Be(HealthStatus.Healthy);
+        result.Description!.ToLowerInvariant().Should().Contain("inmemory");
     }
 
     [Fact]
@@ -40,7 +55,7 @@ public sealed class SqlConnectionHealthCheckTests
         factory.Setup(f => f.CreateConnection())
             .Throws(new TimeoutException("Connection timed out"));
 
-        SqlConnectionHealthCheck sut = new(factory.Object);
+        SqlConnectionHealthCheck sut = new(factory.Object, Options.Create(new ArchiForgeOptions { StorageProvider = "Sql" }));
         HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Status.Should().Be(HealthStatus.Degraded);
@@ -54,7 +69,7 @@ public sealed class SqlConnectionHealthCheckTests
         factory.Setup(f => f.CreateConnection())
             .Throws(new InvalidOperationException("Connection string missing"));
 
-        SqlConnectionHealthCheck sut = new(factory.Object);
+        SqlConnectionHealthCheck sut = new(factory.Object, Options.Create(new ArchiForgeOptions { StorageProvider = "Sql" }));
         HealthCheckResult result = await sut.CheckHealthAsync(new HealthCheckContext(), CancellationToken.None);
 
         result.Status.Should().Be(HealthStatus.Unhealthy);

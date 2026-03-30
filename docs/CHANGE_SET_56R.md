@@ -20,9 +20,15 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **UI:** `resolveUpstreamApiBaseUrlForProxy()` returns **503** JSON problem from `/api/proxy/*` when the upstream base URL is empty, malformed, or non-http(s).
 - **Artifacts:** No separate on-disk artifact root in API config (exports are streams/DB-backed); **CLI** `archiforge run` already validates brief path and creates `outputs` from `archiforge.json` — unchanged.
 
+### Prompt 3 — startup readiness checks
+
+- **HTTP:** `GET /health/live` — process liveness only. `GET /health/ready` — database (skipped when `StorageProvider=InMemory`), JSON schema files, bundled compliance rule pack, writable temp directory. `GET /health` — all registered checks (live + ready).
+- **CLI:** `archiforge doctor` or `archiforge check` — local project checks + calls the three endpoints and prints JSON (truncated) with clear section headers.
+- **Tags:** `ArchiForge.Api.Health.ReadinessTags` (`live` / `ready`); no extra framework beyond `IHealthCheck`.
+
 ### Deferred to later prompts (56R backlog)
 
-- Health checks / readiness vs liveness split, dependency probes.
+- Structured log enrichers, version/commit in logs, OTLP defaults.
 - Structured logging enrichers (version, deployment slot) and log level profiles per environment.
 - Packaging: Dockerfile polish, version stamping, optional SBOM.
 - **Design-partner readiness workflow:** checklist doc, support bundle export, or operator runbook (pick one minimal slice per prompt).
@@ -33,6 +39,8 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchiForge.Api/Startup/Validation/ArchiForgeConfigurationRules.cs`
 - `ArchiForge.Api/Program.cs`
 - `ArchiForge.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
-- `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`
+- `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`
+- `ArchiForge.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
+- `ArchiForge.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`

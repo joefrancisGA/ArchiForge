@@ -1,7 +1,9 @@
+using ArchiForge.Api.Health;
 using ArchiForge.Api.Middleware;
 using ArchiForge.Api.ProblemDetails;
 
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace ArchiForge.Api.Startup;
 
@@ -61,6 +63,14 @@ internal static class PipelineExtensions
         app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
+        });
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+        });
         app.MapHealthChecks("/health");
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);

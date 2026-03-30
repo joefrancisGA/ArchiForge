@@ -24,7 +24,7 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 ## Operator quick start
 
-- **Health:** `GET /health` runs registered checks (including the database when a connection string is configured). See [docs/BUILD.md](docs/BUILD.md) for startup vs migration failure behavior.
+- **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/BUILD.md](docs/BUILD.md) for startup vs migration failure behavior.
 - **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md)).
 - **Auth:** Configure **`ArchiForgeAuth`** (`DevelopmentBypass` locally, `JwtBearer` in production). Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
 - **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
@@ -111,7 +111,7 @@ The API listens on the URLs configured for the project (default `http://localhos
 In Development:
 
 - **Swagger UI**: `/swagger`
-- **Health check**: `GET /health` — includes a database check; returns 200 when healthy and 503 (Unhealthy) when the DB check fails. Use for load balancers and runbooks.
+- **Health checks**: `GET /health/live` for process-only liveness; `GET /health/ready` for dependencies before taking traffic; `GET /health` for the full set. Returns 503 when any included check is Unhealthy. Use for load balancers and runbooks. CLI: `archiforge doctor`.
 
 **Rate limiting:** Applied to `/v1/architecture/*` endpoints. When a policy limit is exceeded, the API returns **429 Too Many Requests**.
 
@@ -225,7 +225,8 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
 | `commit <runId>` | Merge results and produce a versioned manifest |
 | `artifacts <runId>` | Fetch and display the committed manifest for a run |
 | `artifacts <runId> --save` | Same, and save the manifest to `outputs/manifest-{version}.json` (requires project dir) |
-| `health` | Check connectivity to the ArchiForge API (GET /health). Use to verify the API is running before run/status/commit/seed/artifacts. |
+| `health` | Check connectivity to the ArchiForge API (`GET /health`). Use to verify the API is running before run/status/commit/seed/artifacts. |
+| `doctor` / `check` | Run local project checks and print `GET /health/live`, `/health/ready`, and `/health` (readiness diagnostics). |
 
 ### Typical workflow
 
