@@ -1,3 +1,4 @@
+/** Outcome of simulating an alert rule against a single run (would it fire? be suppressed?). */
 export type SimulatedAlertOutcome = {
   runId?: string | null;
   comparedToRunId?: string | null;
@@ -13,6 +14,7 @@ export type SimulatedAlertOutcome = {
   notes: string[];
 };
 
+/** Aggregate simulation result: how many runs matched, would fire, would be suppressed. */
 export type RuleSimulationResult = {
   ruleKind: string;
   simulatedUtc: string;
@@ -24,6 +26,7 @@ export type RuleSimulationResult = {
   outcomes: SimulatedAlertOutcome[];
 };
 
+/** Side-by-side comparison of two alert rule candidates simulated against the same runs. */
 export type RuleCandidateComparisonResult = {
   candidateA: RuleSimulationResult;
   candidateB: RuleSimulationResult;

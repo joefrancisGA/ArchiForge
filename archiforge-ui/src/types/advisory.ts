@@ -1,3 +1,4 @@
+/** A single AI-generated improvement recommendation (part of an ImprovementPlan). */
 export type ImprovementRecommendation = {
   recommendationId: string;
   title: string;
@@ -9,6 +10,7 @@ export type ImprovementRecommendation = {
   priorityScore: number;
 };
 
+/** AI-generated improvement plan for a run, with prioritized recommendations. */
 export type ImprovementPlan = {
   runId: string;
   comparedToRunId?: string | null;

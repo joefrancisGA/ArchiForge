@@ -1,3 +1,4 @@
+/** Outcome statistics for a single category/urgency/signal-type bucket in a learning profile. */
 export type OutcomeStats = {
   key: string;
   proposedCount: number;
@@ -11,6 +12,7 @@ export type OutcomeStats = {
   implementationRate: number;
 };
 
+/** Aggregated learning profile built from historical recommendation governance outcomes. */
 export type LearningProfile = {
   tenantId: string;
   workspaceId: string;

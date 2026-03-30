@@ -1,3 +1,4 @@
+/** A subscription that routes fired alerts to a delivery channel (email, Slack, webhook, etc.). */
 export type AlertRoutingSubscription = {
   routingSubscriptionId: string;
   tenantId: string;
@@ -13,6 +14,7 @@ export type AlertRoutingSubscription = {
   metadataJson: string;
 };
 
+/** Record of a single attempt to deliver an alert to a routing subscription channel. */
 export type AlertRoutingDeliveryAttempt = {
   alertDeliveryAttemptId: string;
   alertId: string;

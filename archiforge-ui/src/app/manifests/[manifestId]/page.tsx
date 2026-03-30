@@ -11,6 +11,7 @@ import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/opera
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
+/** Server-rendered manifest detail page. Shows manifest summary, artifacts table, and download links. */
 export default async function ManifestDetailPage({
   params,
 }: {

@@ -72,6 +72,7 @@ export function classifyArtifactView(format: string, artifactType: string): Arti
   return "plain";
 }
 
+/** Returns a human-readable label for an artifact type (e.g. "Cost summary" for "CostSummary"). */
 export function getArtifactTypeLabel(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];
 
@@ -82,6 +83,7 @@ export function getArtifactTypeLabel(artifactType: string): string {
   return artifactType.replace(/([a-z])([A-Z])/g, "$1 $2").trim();
 }
 
+/** Returns a one-line description of what an artifact type represents, for the review panel header. */
 export function getArtifactTypeDescription(artifactType: string): string {
   const entry = ARTIFACT_TYPE_COPY[artifactType];
 

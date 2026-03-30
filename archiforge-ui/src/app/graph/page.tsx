@@ -17,12 +17,14 @@ import {
 } from "@/lib/graph-api";
 import type { GraphViewModel } from "@/types/graph";
 
+/** Graph visualization mode: which endpoint to query and what graph subset to display. */
 type GraphMode =
   | "provenance-full"
   | "decision-subgraph"
   | "node-neighborhood"
   | "architecture";
 
+/** Interactive graph viewer page. Operator picks a run, graph mode, and optional filters. */
 export default function GraphPage() {
   const [runId, setRunId] = useState("");
   const [decisionId, setDecisionId] = useState("");
@@ -41,6 +43,7 @@ export default function GraphPage() {
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [graph]);
 
+  /** Fetches the graph from the API based on the selected mode, then validates via coerce. */
   async function loadGraph() {
     setLoading(true);
     setLoadError(null);

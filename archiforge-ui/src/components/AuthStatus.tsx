@@ -1,5 +1,6 @@
 import { AUTH_MODE } from "@/lib/auth-config";
 
+/** Displays the current authentication mode at the top of the shell (dev bypass, JWT, etc.). */
 export function AuthStatus() {
   const label =
     AUTH_MODE === "development-bypass"

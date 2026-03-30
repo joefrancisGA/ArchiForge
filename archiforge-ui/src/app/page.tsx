@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 
+/** Operator shell home page: static quick links to runs, graph, compare, and replay. */
 export default function HomePage() {
   return (
     <main>

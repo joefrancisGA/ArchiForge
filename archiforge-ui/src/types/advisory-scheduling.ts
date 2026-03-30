@@ -1,3 +1,4 @@
+/** A cron-based schedule for periodic advisory scans. */
 export type AdvisoryScanSchedule = {
   scheduleId: string;
   tenantId: string;
@@ -12,6 +13,7 @@ export type AdvisoryScanSchedule = {
   nextRunUtc?: string | null;
 };
 
+/** A single execution of an advisory scan schedule (started, status, result). */
 export type AdvisoryScanExecution = {
   executionId: string;
   scheduleId: string;
@@ -22,6 +24,7 @@ export type AdvisoryScanExecution = {
   errorMessage?: string | null;
 };
 
+/** A periodic architecture digest (summary report with markdown content). */
 export type ArchitectureDigest = {
   digestId: string;
   tenantId: string;

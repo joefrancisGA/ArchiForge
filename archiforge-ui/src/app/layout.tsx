@@ -8,6 +8,7 @@ export const metadata = {
   description: "ArchiForge operator shell",
 };
 
+/** Root layout: renders the shell chrome (header, nav, auth status) and wraps all pages. */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">

@@ -4,6 +4,7 @@ import type { ArtifactDescriptor } from "@/types/authority";
 import { getArtifactDownloadUrl } from "@/lib/api";
 import { getArtifactTypeLabel } from "@/lib/artifact-review-helpers";
 
+/** Formats an ISO 8601 date string for display, falling back to the raw string on failure. */
 function formatDate(iso: string): string {
   try {
     return new Date(iso).toLocaleString();
@@ -12,6 +13,10 @@ function formatDate(iso: string): string {
   }
 }
 
+/**
+ * Builds the Review link URL: run-scoped (/runs/{runId}/artifacts/...) when runId is provided
+ * (redirects to manifest canonical), otherwise manifest-scoped (/manifests/{manifestId}/artifacts/...).
+ */
 function reviewHrefForArtifact(
   manifestId: string,
   artifactId: string,

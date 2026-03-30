@@ -1,3 +1,4 @@
+/** Lightweight summary of an architecture run (mirrors RunSummaryResponse in C#). */
 export type RunSummary = {
   runId: string;
   projectId: string;
@@ -18,6 +19,7 @@ export type RunSummary = {
   hasArtifactBundle?: boolean;
 };
 
+/** Golden manifest summary: decision/warning/issue counts and status (mirrors ManifestSummaryResponse). */
 export type ManifestSummary = {
   manifestId: string;
   runId: string;
@@ -36,6 +38,7 @@ export type ManifestSummary = {
   operatorSummary?: string;
 };
 
+/** A single diff entry from a run or manifest comparison (section/key/before/after). */
 export type DiffItem = {
   section: string;
   key: string;
@@ -45,6 +48,7 @@ export type DiffItem = {
   notes?: string | null;
 };
 
+/** Manifest-level comparison with added/removed/changed counts and flat diffs. */
 export type ManifestComparison = {
   leftManifestId: string;
   rightManifestId: string;
@@ -56,6 +60,7 @@ export type ManifestComparison = {
   diffs: DiffItem[];
 };
 
+/** Legacy flat-diff comparison between two runs (run-level diffs + optional manifest comparison). */
 export type RunComparison = {
   leftRunId: string;
   rightRunId: string;
@@ -65,6 +70,7 @@ export type RunComparison = {
   hasManifestComparison?: boolean;
 };
 
+/** Metadata for a synthesized artifact (file name, type, format, hash — no binary content). */
 export type ArtifactDescriptor = {
   artifactId: string;
   artifactType: string;
@@ -78,6 +84,7 @@ export type ArtifactDescriptor = {
   runId?: string;
 };
 
+/** Validation flags from an authority chain replay (presence checks + hash match). */
 export type ReplayValidation = {
   contextPresent: boolean;
   graphPresent: boolean;
@@ -92,6 +99,7 @@ export type ReplayValidation = {
   hasValidationNotes?: boolean;
 };
 
+/** Full replay response including mode, rebuilt IDs, and validation results. */
 export type ReplayResponse = {
   runId: string;
   mode: string;
@@ -104,6 +112,7 @@ export type ReplayResponse = {
   validationNoteCount?: number;
 };
 
+/** Full run detail envelope containing the run summary and optional snapshot/manifest/trace/bundle data. */
 export type RunDetail = {
   run: {
     runId: string;

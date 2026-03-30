@@ -1,3 +1,4 @@
+/** A simple alert rule with a metric type, severity, and threshold. */
 export type AlertRule = {
   ruleId: string;
   tenantId: string;
@@ -13,6 +14,7 @@ export type AlertRule = {
   createdUtc: string;
 };
 
+/** A fired alert record with lifecycle state (Active → Acknowledged → Resolved/Suppressed). */
 export type AlertRecord = {
   alertId: string;
   ruleId: string;

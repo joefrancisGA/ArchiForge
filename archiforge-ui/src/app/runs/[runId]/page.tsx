@@ -21,6 +21,7 @@ import {
 } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
+/** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, artifacts, and downloads. */
 export default async function RunDetailPage({
   params,
 }: {

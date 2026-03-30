@@ -15,6 +15,7 @@ import type { ReplayResponse } from "@/types/authority";
 /** Matches ArchiForge.Persistence.Replay.ReplayMode */
 const replayModes = ["ReconstructOnly", "RebuildManifest", "RebuildArtifacts"] as const;
 
+/** Replay form: operator enters a run ID, selects a mode, and triggers an authority chain replay. */
 function ReplayForm() {
   const searchParams = useSearchParams();
   const [runId, setRunId] = useState("");
@@ -198,6 +199,7 @@ function ReplayForm() {
   );
 }
 
+/** Suspense fallback shown while the ReplayForm client component is initializing. */
 function ReplaySuspenseFallback() {
   return (
     <main>
@@ -209,6 +211,7 @@ function ReplaySuspenseFallback() {
   );
 }
 
+/** Replay page entry point. Wraps ReplayForm in Suspense for useSearchParams hydration. */
 export default function ReplayPage() {
   return (
     <Suspense fallback={<ReplaySuspenseFallback />}>

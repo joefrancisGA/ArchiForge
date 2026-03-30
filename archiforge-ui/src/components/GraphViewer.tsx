@@ -14,6 +14,7 @@ import type { GraphNodeVm, GraphViewModel } from "@/types/graph";
 import { mapGraphToReactFlow } from "@/lib/graph-mapper";
 import { OperatorEmptyState } from "@/components/OperatorShellMessage";
 
+/** Filters a graph to only include nodes of the given type and edges between those nodes. */
 function filterGraphByType(
   graph: GraphViewModel,
   typeFilter: string,
@@ -25,6 +26,10 @@ function filterGraphByType(
   return { nodes, edges };
 }
 
+/**
+ * Interactive graph viewer wrapping React Flow. Supports node type filtering
+ * and a side panel for inspecting the selected node's metadata.
+ */
 export function GraphViewer({
   graph,
   typeFilter = "",

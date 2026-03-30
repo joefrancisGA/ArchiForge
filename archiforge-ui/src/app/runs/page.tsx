@@ -9,6 +9,7 @@ import { coerceRunSummaryList } from "@/lib/operator-response-guards";
 import { listRunsByProject } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
 
+/** Server-rendered run list page. Fetches runs for a project and validates via coerceRunSummaryList. */
 export default async function RunsPage({
   searchParams,
 }: {

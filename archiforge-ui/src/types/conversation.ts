@@ -1,3 +1,4 @@
+/** A conversation thread in the ArchiForge Ask system (scoped to tenant/workspace/project). */
 export type ConversationThread = {
   threadId: string;
   tenantId: string;
@@ -11,6 +12,7 @@ export type ConversationThread = {
   lastUpdatedUtc: string;
 };
 
+/** A single message in a conversation thread (user question or AI response). */
 export type ConversationMessage = {
   messageId: string;
   threadId: string;
@@ -20,6 +22,7 @@ export type ConversationMessage = {
   metadataJson: string;
 };
 
+/** Response from the /api/ask endpoint: answer text plus referenced decisions/findings/artifacts. */
 export type AskResponse = {
   threadId: string;
   answer: string;

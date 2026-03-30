@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+/** Bordered card with a title, used to visually group a section of page content. */
 export function SectionCard({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section

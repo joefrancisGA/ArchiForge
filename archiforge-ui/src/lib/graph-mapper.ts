@@ -1,6 +1,7 @@
 import type { Edge, Node } from "reactflow";
 import type { GraphViewModel } from "@/types/graph";
 
+/** Maps a graph node type to a background color for visual differentiation in React Flow. */
 function pickColor(type: string): string {
   switch (type) {
     case "Decision":
@@ -27,6 +28,10 @@ function pickColor(type: string): string {
   }
 }
 
+/**
+ * Converts ArchiForge graph nodes/edges into React Flow format.
+ * Nodes are laid out in a grid (5 columns, 240px wide, 140px tall) for a simple initial view.
+ */
 export function mapGraphToReactFlow(graph: GraphViewModel): {
   nodes: Node[];
   edges: Edge[];

@@ -1,3 +1,4 @@
+/** A policy pack containing compliance rules, alert rules, and advisory defaults. */
 export type PolicyPack = {
   policyPackId: string;
   tenantId: string;
@@ -12,6 +13,7 @@ export type PolicyPack = {
   currentVersion: string;
 };
 
+/** A published version of a policy pack with its content document. */
 export type PolicyPackVersion = {
   policyPackVersionId: string;
   policyPackId: string;
@@ -21,6 +23,7 @@ export type PolicyPackVersion = {
   isPublished: boolean;
 };
 
+/** Assignment of a policy pack version to a scope (project, workspace, or tenant). */
 export type PolicyPackAssignment = {
   assignmentId: string;
   tenantId: string;
@@ -34,6 +37,7 @@ export type PolicyPackAssignment = {
   assignedUtc: string;
 };
 
+/** A resolved (effective) policy pack with its content document JSON. */
 export type ResolvedPolicyPack = {
   policyPackId: string;
   name: string;
@@ -42,6 +46,7 @@ export type ResolvedPolicyPack = {
   contentJson: string;
 };
 
+/** The set of all effective (resolved) policy packs for the current scope. */
 export type EffectivePolicyPackSet = {
   tenantId: string;
   workspaceId: string;
@@ -49,6 +54,7 @@ export type EffectivePolicyPackSet = {
   packs: ResolvedPolicyPack[];
 };
 
+/** Merged content document from all effective policy packs (rules, defaults, metadata). */
 export type PolicyPackContentDocument = {
   complianceRuleIds: string[];
   complianceRuleKeys: string[];

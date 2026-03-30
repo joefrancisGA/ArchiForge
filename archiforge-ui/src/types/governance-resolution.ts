@@ -1,5 +1,6 @@
 import type { PolicyPackContentDocument } from "@/types/policy-packs";
 
+/** A candidate policy pack entry competing in governance resolution (with precedence rank). */
 export type GovernanceResolutionCandidate = {
   policyPackId: string;
   policyPackName: string;
@@ -12,6 +13,7 @@ export type GovernanceResolutionCandidate = {
   assignedUtc: string;
 };
 
+/** A single governance merge decision: which policy pack won for a given item. */
 export type GovernanceResolutionDecision = {
   itemType: string;
   itemKey: string;
@@ -23,6 +25,7 @@ export type GovernanceResolutionDecision = {
   candidates: GovernanceResolutionCandidate[];
 };
 
+/** A conflict detected during governance resolution (overlapping or contradictory policy packs). */
 export type GovernanceConflictRecord = {
   itemType: string;
   itemKey: string;
@@ -31,6 +34,7 @@ export type GovernanceConflictRecord = {
   candidates: GovernanceResolutionCandidate[];
 };
 
+/** Full governance resolution result: effective content, merge decisions, and any conflicts. */
 export type EffectiveGovernanceResolutionResult = {
   tenantId: string;
   workspaceId: string;

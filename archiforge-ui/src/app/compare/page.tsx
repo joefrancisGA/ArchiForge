@@ -22,6 +22,10 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
 import type { RunComparison } from "@/types/authority";
 
+/**
+ * Compare form: accepts two run IDs, fetches legacy + structured + AI comparisons in parallel,
+ * validates responses via coerce functions, and renders results in three sub-views.
+ */
 function CompareForm() {
   const searchParams = useSearchParams();
   const [leftRunId, setLeftRunId] = useState("");
@@ -237,6 +241,7 @@ function CompareForm() {
   );
 }
 
+/** Suspense fallback shown while the CompareForm client component is initializing (reading URL params). */
 function CompareSuspenseFallback() {
   return (
     <main>
@@ -248,6 +253,7 @@ function CompareSuspenseFallback() {
   );
 }
 
+/** Compare page entry point. Wraps CompareForm in Suspense for useSearchParams hydration. */
 export default function ComparePage() {
   return (
     <Suspense fallback={<CompareSuspenseFallback />}>

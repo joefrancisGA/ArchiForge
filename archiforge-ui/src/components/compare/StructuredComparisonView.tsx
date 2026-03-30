@@ -26,6 +26,7 @@ const sectionBox: CSSProperties = {
   background: "#fff",
 };
 
+/** Inline empty-state note for a comparison section with zero deltas. */
 function EmptySectionNote({ label }: { label: string }) {
   return (
     <OperatorEmptyState title={label}>

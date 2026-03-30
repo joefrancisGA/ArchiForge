@@ -43,18 +43,14 @@ import type {
 } from "@/types/policy-packs";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
+/** Returns true when executing in the browser (client component), false on the Node.js server (RSC). */
 function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
 /**
- * Resolve request URL and headers.
- * - Server (RSC): direct backend + optional ARCHIFORGE_API_KEY.
- * - Browser: same-origin `/api/proxy` (adds X-Api-Key on the server).
- */
-/**
- * Future: return an access token from secure storage / session when using JWT against the API.
- * The proxy can also forward an Authorization header from the browser when you set it on fetch.
+ * Returns a bearer token for JWT-based API auth when running in the browser.
+ * Stub: returns undefined until OIDC/JWT integration is wired.
  */
 function getBearerToken(): string | undefined {
   if (typeof window === "undefined") return undefined;
@@ -95,6 +91,11 @@ function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersI
   return { url, headers };
 }
 
+/**
+ * Builds URL + headers for a JSON GET/POST.
+ * Server (RSC): direct to backend with API key + scope headers.
+ * Browser: same-origin `/api/proxy` so secrets stay server-side.
+ */
 function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   if (isBrowser()) {
     const url = `/api/proxy${path.startsWith("/") ? path : `/${path}`}`;
@@ -117,6 +118,7 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   return { url, headers };
 }
 
+/** GETs JSON from the ArchiForge API. Throws on HTTP errors with a descriptive message. */
 export async function apiGet<T>(path: string): Promise<T> {
   const { url, headers } = resolveRequest(path);
   const response = await fetch(url, {
@@ -132,6 +134,7 @@ export async function apiGet<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+/** POSTs a JSON body to the ArchiForge API and returns the parsed response. Throws on HTTP errors. */
 export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   const { url, headers } = resolveRequest(path);
   const h = new Headers(headers);
@@ -156,24 +159,29 @@ export async function fetchArchiForgeJson<T>(path: string): Promise<T> {
   return apiGet<T>(path);
 }
 
+/** Lists recent runs for a project (GET /api/authority/projects/{id}/runs). */
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
   return apiGet<RunSummary[]>(
     `/api/authority/projects/${encodeURIComponent(projectId)}/runs?take=${take}`,
   );
 }
 
+/** Fetches the lightweight summary for a single run. */
 export async function getRunSummary(runId: string): Promise<RunSummary> {
   return apiGet<RunSummary>(`/api/authority/runs/${runId}/summary`);
 }
 
+/** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
 export async function getRunDetail(runId: string): Promise<RunDetail> {
   return apiGet<RunDetail>(`/api/authority/runs/${runId}`);
 }
 
+/** Fetches golden manifest summary (decision count, warnings, status, etc.). */
 export async function getManifestSummary(manifestId: string): Promise<ManifestSummary> {
   return apiGet<ManifestSummary>(`/api/authority/manifests/${manifestId}/summary`);
 }
 
+/** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
 export async function listArtifacts(manifestId: string): Promise<ArtifactDescriptor[]> {
   return apiGet<ArtifactDescriptor[]>(`/api/artifacts/manifests/${manifestId}`);
 }
@@ -188,8 +196,10 @@ export async function getArtifactDescriptor(
   );
 }
 
+/** In-shell preview cap; artifacts larger than this are truncated for the review panel. */
 const DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES = 2 * 1024 * 1024;
 
+/** Result of fetching artifact binary content and decoding it as UTF-8 for in-shell preview. */
 export type ArtifactContentFetchResult = {
   text: string;
   contentType: string;
@@ -239,12 +249,14 @@ export async function fetchArtifactContentUtf8(
   };
 }
 
+/** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
   return apiGet<RunComparison>(
     `/api/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
 
+/** Structured golden manifest comparison (decision/requirement/security/topology/cost deltas). */
 export async function compareGoldenManifestRuns(
   baseRunId: string,
   targetRunId: string,
@@ -254,6 +266,7 @@ export async function compareGoldenManifestRuns(
   );
 }
 
+/** Requests an AI-generated narrative explanation of the differences between two runs. */
 export async function explainComparisonRuns(
   baseRunId: string,
   targetRunId: string,
@@ -263,10 +276,12 @@ export async function explainComparisonRuns(
   );
 }
 
+/** Requests an AI-generated explanation of a single run's decisions and implications. */
 export async function explainRun(runId: string): Promise<RunExplanation> {
   return apiGet<RunExplanation>(`/api/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
+/** Sends a natural-language question to the ArchiForge conversational AI endpoint. */
 export async function askArchiForge(payload: {
   threadId?: string;
   runId?: string;
@@ -285,14 +300,17 @@ export async function askArchiForge(payload: {
   return apiPostJson<AskResponse>("/api/ask", body);
 }
 
+/** Lists recent conversation threads for the current scope. */
 export async function listConversationThreads(take = 50): Promise<ConversationThread[]> {
   return apiGet(`/api/conversations?take=${take}`);
 }
 
+/** Fetches messages for a conversation thread (most recent first). */
 export async function getConversationMessages(threadId: string, take = 200): Promise<ConversationMessage[]> {
   return apiGet(`/api/conversations/${encodeURIComponent(threadId)}/messages?take=${take}`);
 }
 
+/** Generates an AI-driven improvement plan for a run, optionally compared to another run. */
 export async function getImprovementPlan(runId: string, compareToRunId?: string): Promise<ImprovementPlan> {
   const params = new URLSearchParams();
   if (compareToRunId?.trim()) params.set("compareToRunId", compareToRunId.trim());
@@ -302,6 +320,7 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
   );
 }
 
+/** Fetches the most recent recommendation learning profile, or null if none exists (404). */
 export async function getLatestLearningProfile(): Promise<LearningProfile | null> {
   const { url, headers } = resolveRequest("/api/recommendation-learning/latest");
   const response = await fetch(url, { cache: "no-store", headers });
@@ -312,10 +331,12 @@ export async function getLatestLearningProfile(): Promise<LearningProfile | null
   return response.json() as Promise<LearningProfile>;
 }
 
+/** Lists all advisory scan schedules for the current scope. */
 export async function listAdvisorySchedules(): Promise<AdvisoryScanSchedule[]> {
   return apiGet<AdvisoryScanSchedule[]>("/api/advisory-scheduling/schedules");
 }
 
+/** Creates a new advisory scan schedule with a cron expression. */
 export async function createAdvisorySchedule(body: {
   name: string;
   cronExpression: string;
@@ -330,6 +351,7 @@ export async function createAdvisorySchedule(body: {
   });
 }
 
+/** Triggers an immediate execution of an advisory scan schedule. */
 export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> {
   const { url, headers } = resolveRequest(
     `/api/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
@@ -342,6 +364,7 @@ export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> 
   }
 }
 
+/** Lists recent executions for an advisory scan schedule. */
 export async function listScheduleExecutions(
   scheduleId: string,
   take = 30,
@@ -351,14 +374,17 @@ export async function listScheduleExecutions(
   );
 }
 
+/** Lists recent architecture digests (periodic summary reports). */
 export async function listArchitectureDigests(take = 20): Promise<ArchitectureDigest[]> {
   return apiGet<ArchitectureDigest[]>(`/api/advisory-scheduling/digests?take=${take}`);
 }
 
+/** Lists all digest delivery subscriptions (email, webhook, etc.). */
 export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
   return apiGet<DigestSubscription[]>(`/${ApiV1Routes.digestSubscriptions}`);
 }
 
+/** Creates a new digest delivery subscription. */
 export async function createDigestSubscription(body: {
   name: string;
   channelType: string;
@@ -375,6 +401,7 @@ export async function createDigestSubscription(body: {
   });
 }
 
+/** Toggles a digest subscription between enabled and disabled. */
 export async function toggleDigestSubscription(subscriptionId: string): Promise<DigestSubscription> {
   return apiPostJson<DigestSubscription>(
     `/api/digest-subscriptions/${encodeURIComponent(subscriptionId)}/toggle`,
@@ -382,6 +409,7 @@ export async function toggleDigestSubscription(subscriptionId: string): Promise<
   );
 }
 
+/** Lists delivery attempts for a specific digest subscription. */
 export async function listSubscriptionDeliveryAttempts(
   subscriptionId: string,
   take = 50,
@@ -391,22 +419,26 @@ export async function listSubscriptionDeliveryAttempts(
   );
 }
 
+/** Lists all delivery attempts for a specific digest. */
 export async function listDigestDeliveryAttempts(digestId: string): Promise<DigestDeliveryAttempt[]> {
   return apiGet<DigestDeliveryAttempt[]>(
     `/${ApiV1Routes.digestSubscriptions}/digests/${encodeURIComponent(digestId)}/attempts`,
   );
 }
 
+/** Fetches a single architecture digest by ID. */
 export async function getArchitectureDigest(digestId: string): Promise<ArchitectureDigest> {
   return apiGet<ArchitectureDigest>(
     `/api/advisory-scheduling/digests/${encodeURIComponent(digestId)}`,
   );
 }
 
+/** Lists all alert rules for the current scope. */
 export async function listAlertRules(): Promise<AlertRule[]> {
   return apiGet<AlertRule[]>(`/${ApiV1Routes.alertRules}`);
 }
 
+/** Creates a new simple alert rule with a severity and threshold. */
 export async function createAlertRule(body: {
   name: string;
   ruleType: string;
@@ -427,6 +459,7 @@ export async function createAlertRule(body: {
   });
 }
 
+/** Lists alert records, optionally filtered by status (Active, Acknowledged, Resolved, Suppressed). */
 export async function listAlerts(status: string | null, take = 100): Promise<AlertRecord[]> {
   const q = new URLSearchParams();
   if (status) q.set("status", status);
@@ -435,6 +468,7 @@ export async function listAlerts(status: string | null, take = 100): Promise<Ale
   return apiGet<AlertRecord[]>(`/v1/alerts${suffix ? `?${suffix}` : ""}`);
 }
 
+/** Applies a lifecycle action (Acknowledge, Resolve, Suppress) to an alert record. */
 export async function applyAlertAction(
   alertId: string,
   action: "Acknowledge" | "Resolve" | "Suppress",
@@ -446,10 +480,12 @@ export async function applyAlertAction(
   });
 }
 
+/** Lists all alert routing subscriptions (delivery channels for fired alerts). */
 export async function listAlertRoutingSubscriptions(): Promise<AlertRoutingSubscription[]> {
   return apiGet<AlertRoutingSubscription[]>("/v1/alert-routing-subscriptions");
 }
 
+/** Creates a new alert routing subscription (channel + severity filter). */
 export async function createAlertRoutingSubscription(body: {
   name: string;
   channelType: string;
@@ -468,6 +504,7 @@ export async function createAlertRoutingSubscription(body: {
   });
 }
 
+/** Toggles an alert routing subscription between enabled and disabled. */
 export async function toggleAlertRoutingSubscription(
   routingSubscriptionId: string,
 ): Promise<AlertRoutingSubscription> {
@@ -477,6 +514,7 @@ export async function toggleAlertRoutingSubscription(
   );
 }
 
+/** Lists delivery attempts for an alert routing subscription. */
 export async function listAlertRoutingDeliveryAttempts(
   routingSubscriptionId: string,
   take = 30,
@@ -486,10 +524,12 @@ export async function listAlertRoutingDeliveryAttempts(
   );
 }
 
+/** Lists all composite alert rules (multi-condition rules with AND/OR logic). */
 export async function listCompositeAlertRules(): Promise<CompositeAlertRule[]> {
   return apiGet<CompositeAlertRule[]>(`/${ApiV1Routes.compositeAlertRules}`);
 }
 
+/** Simulates an alert rule against recent runs to preview what alerts would fire. */
 export async function simulateAlertRule(body: {
   ruleKind: string;
   simpleRule?: Record<string, unknown> | null;
@@ -503,28 +543,34 @@ export async function simulateAlertRule(body: {
   return apiPostJson<RuleSimulationResult>("/v1/alert-simulation/simulate", body);
 }
 
+/** Lists all policy packs for the current scope. */
 export async function listPolicyPacks(): Promise<PolicyPack[]> {
   return apiGet<PolicyPack[]>(`/${ApiV1Routes.policyPacks}`);
 }
 
+/** Lists published versions for a policy pack. */
 export async function listPolicyPackVersions(policyPackId: string): Promise<PolicyPackVersion[]> {
   return apiGet<PolicyPackVersion[]>(
     `/${ApiV1Routes.policyPacks}/${encodeURIComponent(policyPackId)}/versions`,
   );
 }
 
+/** Fetches the effective (resolved) set of policy packs for the current scope. */
 export async function getEffectivePolicyPacks(): Promise<EffectivePolicyPackSet> {
   return apiGet<EffectivePolicyPackSet>(`/${ApiV1Routes.policyPacks}/effective`);
 }
 
+/** Fetches the merged content document from all effective policy packs. */
 export async function getEffectivePolicyContent(): Promise<PolicyPackContentDocument> {
   return apiGet<PolicyPackContentDocument>(`/${ApiV1Routes.policyPacks}/effective-content`);
 }
 
+/** Fetches the governance resolution result (merge decisions, conflicts, effective content). */
 export async function getGovernanceResolution(): Promise<EffectiveGovernanceResolutionResult> {
   return apiGet<EffectiveGovernanceResolutionResult>(`/${ApiV1Routes.governanceResolution}`);
 }
 
+/** Creates a new policy pack with an initial content document. */
 export async function createPolicyPack(body: {
   name: string;
   description?: string;
@@ -534,6 +580,7 @@ export async function createPolicyPack(body: {
   return apiPostJson<PolicyPack>(`/${ApiV1Routes.policyPacks}`, body);
 }
 
+/** Publishes a new version of a policy pack with optional updated content. */
 export async function publishPolicyPackVersion(
   policyPackId: string,
   body: { version: string; contentJson?: string },
@@ -544,6 +591,7 @@ export async function publishPolicyPackVersion(
   );
 }
 
+/** Assigns a specific policy pack version to the current scope (project/workspace/tenant). */
 export async function assignPolicyPack(
   policyPackId: string,
   body: { version: string; scopeLevel?: string; isPinned?: boolean },
@@ -554,6 +602,7 @@ export async function assignPolicyPack(
   );
 }
 
+/** Evaluates candidate thresholds and recommends the best one based on noise scoring. */
 export async function recommendAlertThreshold(body: {
   ruleKind: string;
   tunedMetricType: string;
@@ -568,6 +617,7 @@ export async function recommendAlertThreshold(body: {
   return apiPostJson<ThresholdRecommendationResult>("/v1/alert-tuning/recommend-threshold", body);
 }
 
+/** Compares two alert rule candidates side-by-side using simulation. */
 export async function compareAlertRuleCandidates(body: {
   ruleKind: string;
   candidateA_SimpleRule?: Record<string, unknown> | null;
@@ -583,6 +633,7 @@ export async function compareAlertRuleCandidates(body: {
   );
 }
 
+/** Creates a composite alert rule with multiple metric conditions and suppression/cooldown settings. */
 export async function createCompositeAlertRule(body: {
   name: string;
   severity: string;
@@ -613,6 +664,7 @@ export async function createCompositeAlertRule(body: {
   });
 }
 
+/** Triggers a full rebuild of the recommendation learning profile from historical outcomes. */
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
   const { url, headers } = resolveRequest("/api/recommendation-learning/rebuild");
   const h = new Headers(headers);
@@ -628,6 +680,7 @@ export async function rebuildLearningProfile(): Promise<LearningProfile> {
   return response.json() as Promise<LearningProfile>;
 }
 
+/** Replays an authority chain for a run using the specified mode (ReconstructOnly, RebuildManifest, RebuildArtifacts). */
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
   const { url, headers } = resolveRequest("/api/authority/replay");
   const h = new Headers(headers);
@@ -651,10 +704,12 @@ export function getArtifactDownloadUrl(manifestId: string, artifactId: string): 
   return `/api/proxy/api/artifacts/manifests/${manifestId}/artifact/${artifactId}`;
 }
 
+/** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
   return `/api/proxy/api/artifacts/manifests/${manifestId}/bundle`;
 }
 
+/** Returns the proxy URL for downloading the full run export ZIP. */
 export function getRunExportDownloadUrl(runId: string): string {
   return `/api/proxy/api/artifacts/runs/${runId}/export`;
 }
