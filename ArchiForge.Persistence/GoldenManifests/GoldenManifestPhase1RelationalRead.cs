@@ -9,13 +9,14 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.GoldenManifests;
 
-/// <summary>Phase-1 relational-first hydration for <see cref="GoldenManifest"/>.</summary>
+/// <summary>Phase-1 relational-first hydration for <see cref="GoldenManifest"/>; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class GoldenManifestPhase1RelationalRead
 {
     internal static async Task<GoldenManifest> HydrateAsync(
         SqlConnection connection,
         GoldenManifestStorageRow row,
-        CancellationToken ct)
+        CancellationToken ct,
+        JsonFallbackPolicy? fallbackPolicy = null)
     {
         Guid manifestId = row.ManifestId;
 
@@ -81,6 +82,7 @@ internal static class GoldenManifestPhase1RelationalRead
 
         List<string> assumptions = await RelationalFirstRead.ReadSliceAsync(
             assumptionsCount,
+            "GoldenManifest.Assumptions",
             () => LoadOrderedStringsAsync(
                 connection,
                 """
@@ -91,10 +93,13 @@ internal static class GoldenManifestPhase1RelationalRead
                 """,
                 manifestId,
                 ct),
-            () => GoldenManifestJsonFallback.DeserializeStringList(row.AssumptionsJson));
+            () => GoldenManifestJsonFallback.DeserializeStringList(row.AssumptionsJson),
+            () => [],
+            fallbackPolicy);
 
         List<string> warnings = await RelationalFirstRead.ReadSliceAsync(
             warningsCount,
+            "GoldenManifest.Warnings",
             () => LoadOrderedStringsAsync(
                 connection,
                 """
@@ -105,10 +110,14 @@ internal static class GoldenManifestPhase1RelationalRead
                 """,
                 manifestId,
                 ct),
-            () => GoldenManifestJsonFallback.DeserializeStringList(row.WarningsJson));
+            () => GoldenManifestJsonFallback.DeserializeStringList(row.WarningsJson),
+            () => [],
+            fallbackPolicy);
 
+        int totalProvCount = provFindingCount + provNodeCount + provRuleCount;
         ManifestProvenance provenance;
-        if (provFindingCount + provNodeCount + provRuleCount > 0)
+
+        if (totalProvCount > 0)
         {
             List<string> sourceFindings = provFindingCount > 0
                 ? await LoadOrderedStringsAsync(
@@ -156,16 +165,22 @@ internal static class GoldenManifestPhase1RelationalRead
                 AppliedRuleIds = appliedRules,
             };
         }
+        else if (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(totalProvCount, "GoldenManifest.Provenance"))
+        {
+            provenance = GoldenManifestJsonFallback.DeserializeProvenance(row.ProvenanceJson);
+        }
         else
         {
-            // TODO: remove JSON fallback after relational migration complete.
-            provenance = GoldenManifestJsonFallback.DeserializeProvenance(row.ProvenanceJson);
+            provenance = new ManifestProvenance();
         }
 
         List<ResolvedArchitectureDecision> decisions = await RelationalFirstRead.ReadSliceAsync(
             decisionsCount,
+            "GoldenManifest.Decisions",
             () => LoadDecisionsRelationalAsync(connection, manifestId, ct),
-            () => GoldenManifestJsonFallback.DeserializeDecisions(row.DecisionsJson));
+            () => GoldenManifestJsonFallback.DeserializeDecisions(row.DecisionsJson),
+            () => [],
+            fallbackPolicy);
 
         return new GoldenManifest
         {

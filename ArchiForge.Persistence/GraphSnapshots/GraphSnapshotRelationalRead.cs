@@ -8,14 +8,15 @@ using Dapper;
 
 namespace ArchiForge.Persistence.GraphSnapshots;
 
-/// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables.</summary>
+/// <summary>Loads graph snapshot nodes, warnings, and indexed edges from relational tables; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class GraphSnapshotRelationalRead
 {
     public static async Task<GraphSnapshot> HydrateAsync(
         IDbConnection connection,
         IDbTransaction? transaction,
         GraphSnapshotStorageRow row,
-        CancellationToken ct)
+        CancellationToken ct,
+        JsonFallbackPolicy? fallbackPolicy = null)
     {
         Guid graphSnapshotId = row.GraphSnapshotId;
 
@@ -84,12 +85,13 @@ internal static class GraphSnapshotRelationalRead
         List<GraphEdge>? edgesOverride = null;
 
         if (edgesCount <= 0)
-            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
-        
-        bool mergeEdgeMetadataFromJson = edgePropsCount == 0;
+            return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride, fallbackPolicy);
+
+        bool mergeEdgeMetadataFromJson = edgePropsCount == 0
+            && (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(edgePropsCount, "GraphSnapshot.EdgeProperties"));
         edgesOverride = await LoadEdgesRelationalAsync(connection, transaction, row, mergeEdgeMetadataFromJson, ct);
 
-        return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride);
+        return GraphSnapshotStorageMapper.ToSnapshot(row, nodesOverride, edgesOverride, warningsOverride, fallbackPolicy);
     }
 
     private static async Task<List<string>> LoadStringColumnRelationalAsync(

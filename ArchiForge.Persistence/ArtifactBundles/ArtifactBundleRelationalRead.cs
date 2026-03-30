@@ -7,13 +7,14 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.ArtifactBundles;
 
-/// <summary>Relational-first hydration for <see cref="ArtifactBundle"/> reads.</summary>
+/// <summary>Relational-first hydration for <see cref="ArtifactBundle"/> reads; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class ArtifactBundleRelationalRead
 {
     internal static async Task<ArtifactBundle> HydrateBundleAsync(
         SqlConnection connection,
         ArtifactBundleStorageRow row,
-        CancellationToken ct)
+        CancellationToken ct,
+        JsonFallbackPolicy? fallbackPolicy = null)
     {
         Guid bundleId = row.BundleId;
 
@@ -59,9 +60,15 @@ internal static class ArtifactBundleRelationalRead
 
         List<SynthesizedArtifact> artifacts = await RelationalFirstRead.ReadSliceAsync(
             artifactCount,
+            "ArtifactBundle.Artifacts",
             () => LoadArtifactsRelationalAsync(connection, bundleId, ct),
-            () => ArtifactBundleJsonFallback.DeserializeArtifacts(row.ArtifactsJson));
+            () => ArtifactBundleJsonFallback.DeserializeArtifacts(row.ArtifactsJson),
+            () => [],
+            fallbackPolicy);
 
+        // Trace base is always deserialized from JSON (scalar header fields); list sub-properties
+        // are overwritten from relational tables when available. The JSON-base read is intentional
+        // and not governed by fallback policy (it holds non-list scalar fields not yet relational).
         SynthesisTrace trace = ArtifactBundleJsonFallback.DeserializeTraceBase(row.TraceJson);
 
         if (genCount > 0)

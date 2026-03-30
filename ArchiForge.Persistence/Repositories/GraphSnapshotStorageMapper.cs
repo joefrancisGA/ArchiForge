@@ -1,4 +1,5 @@
 using ArchiForge.KnowledgeGraph.Models;
+using ArchiForge.Persistence.RelationalRead;
 using ArchiForge.Persistence.Serialization;
 
 namespace ArchiForge.Persistence.Repositories;
@@ -13,35 +14,42 @@ public static class GraphSnapshotStorageMapper
     /// </summary>
     public static GraphSnapshot ToSnapshot(GraphSnapshotStorageRow row)
     {
-        return ToSnapshot(row, nodesOverride: null, edgesOverride: null, warningsOverride: null);
+        return ToSnapshot(row, nodesOverride: null, edgesOverride: null, warningsOverride: null, fallbackPolicy: null);
     }
 
     /// <summary>
     /// Builds a <see cref="GraphSnapshot"/> from the header row. When an override list is non-null, that collection
     /// is taken from the override instead of deserializing the matching JSON column (relational-first read path).
+    /// When override is null, <paramref name="fallbackPolicy"/> governs whether JSON columns are read.
     /// </summary>
     public static GraphSnapshot ToSnapshot(
         GraphSnapshotStorageRow row,
         IReadOnlyList<GraphNode>? nodesOverride,
         IReadOnlyList<GraphEdge>? edgesOverride,
-        IReadOnlyList<string>? warningsOverride)
+        IReadOnlyList<string>? warningsOverride,
+        JsonFallbackPolicy? fallbackPolicy = null)
     {
         ArgumentNullException.ThrowIfNull(row);
 
         try
         {
-            // TODO: remove JSON fallback branches after relational migration complete (override-null path).
-            List<GraphNode> nodes = nodesOverride is null
-                ? JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson)
-                : nodesOverride.ToList();
+            List<GraphNode> nodes = ResolveOverrideOrFallback(
+                nodesOverride,
+                () => JsonEntitySerializer.Deserialize<List<GraphNode>>(row.NodesJson),
+                fallbackPolicy,
+                "GraphSnapshot.Nodes");
 
-            List<GraphEdge> edges = edgesOverride is null
-                ? JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson)
-                : edgesOverride.ToList();
+            List<GraphEdge> edges = ResolveOverrideOrFallback(
+                edgesOverride,
+                () => JsonEntitySerializer.Deserialize<List<GraphEdge>>(row.EdgesJson),
+                fallbackPolicy,
+                "GraphSnapshot.Edges");
 
-            List<string> warnings = warningsOverride is null
-                ? JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson)
-                : warningsOverride.ToList();
+            List<string> warnings = ResolveOverrideOrFallback(
+                warningsOverride,
+                () => JsonEntitySerializer.Deserialize<List<string>>(row.WarningsJson),
+                fallbackPolicy,
+                "GraphSnapshot.Warnings");
 
             return new GraphSnapshot
             {
@@ -61,5 +69,20 @@ public static class GraphSnapshotStorageMapper
                 "The stored JSON may be corrupt or from an incompatible schema version.",
                 ex);
         }
+    }
+
+    private static List<T> ResolveOverrideOrFallback<T>(
+        IReadOnlyList<T>? relationalOverride,
+        Func<List<T>> deserializeJson,
+        JsonFallbackPolicy? policy,
+        string sliceName)
+    {
+        if (relationalOverride is not null)
+            return relationalOverride.ToList();
+
+        if (policy is null || policy.ShouldFallbackToJson(0, sliceName))
+            return deserializeJson();
+
+        return [];
     }
 }

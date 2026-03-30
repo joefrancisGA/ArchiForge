@@ -1,4 +1,5 @@
 using ArchiForge.Decisioning.Models;
+using ArchiForge.Persistence.RelationalRead;
 
 using Dapper;
 
@@ -6,13 +7,14 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Findings;
 
-/// <summary>Builds <see cref="FindingsSnapshot"/> from relational tables; defers to <see cref="FindingsSnapshotJsonFallback"/> when empty.</summary>
+/// <summary>Builds <see cref="FindingsSnapshot"/> from relational tables; JSON fallback governed by <see cref="JsonFallbackPolicy"/>.</summary>
 internal static class FindingsSnapshotRelationalRead
 {
     internal static async Task<FindingsSnapshot> LoadRelationalSnapshotAsync(
         SqlConnection connection,
         FindingsSnapshotStorageRow row,
-        CancellationToken ct)
+        CancellationToken ct,
+        JsonFallbackPolicy? fallbackPolicy = null)
     {
         const string recordsSql = """
             SELECT
@@ -34,8 +36,19 @@ internal static class FindingsSnapshotRelationalRead
 
         if (records.Count == 0)
         {
-            // TODO: remove JSON fallback after relational migration complete.
-            return FindingsSnapshotJsonFallback.FromHeaderRow(row);
+            if (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(0, "FindingsSnapshot.Findings"))
+                return FindingsSnapshotJsonFallback.FromHeaderRow(row);
+
+            return new FindingsSnapshot
+            {
+                FindingsSnapshotId = row.FindingsSnapshotId,
+                RunId = row.RunId,
+                ContextSnapshotId = row.ContextSnapshotId,
+                GraphSnapshotId = row.GraphSnapshotId,
+                CreatedUtc = row.CreatedUtc,
+                SchemaVersion = row.SchemaVersion,
+                Findings = [],
+            };
         }
 
         List<Guid> recordIds = records.Select(r => r.FindingRecordId).ToList();

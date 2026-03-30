@@ -21,7 +21,9 @@ namespace ArchiForge.Persistence.Repositories;
 /// fields and trace lists are relational with stable <c>SortOrder</c>. <see cref="FindingsSnapshotMigrator"/> runs on
 /// save and after load so schema versioning stays consistent.
 /// </summary>
-public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connectionFactory) : IFindingsSnapshotRepository
+public sealed class SqlFindingsSnapshotRepository(
+    ISqlConnectionFactory connectionFactory,
+    JsonFallbackPolicy? fallbackPolicy = null) : IFindingsSnapshotRepository
 {
     public async Task SaveAsync(
         FindingsSnapshot snapshot,
@@ -346,9 +348,24 @@ public sealed class SqlFindingsSnapshotRepository(ISqlConnectionFactory connecti
             ct);
 
         if (recordCount == 0)
-            return FindingsSnapshotJsonFallback.FromHeaderRow(row);
+        {
+            if (fallbackPolicy is null || fallbackPolicy.ShouldFallbackToJson(0, "FindingsSnapshot.Findings"))
+                return FindingsSnapshotJsonFallback.FromHeaderRow(row);
 
-        FindingsSnapshot snapshot = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, row, ct);
+            return new FindingsSnapshot
+            {
+                FindingsSnapshotId = row.FindingsSnapshotId,
+                RunId = row.RunId,
+                ContextSnapshotId = row.ContextSnapshotId,
+                GraphSnapshotId = row.GraphSnapshotId,
+                CreatedUtc = row.CreatedUtc,
+                SchemaVersion = row.SchemaVersion,
+                Findings = [],
+            };
+        }
+
+        FindingsSnapshot snapshot = await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(
+            connection, row, ct, fallbackPolicy);
         FindingsSnapshotMigrator.Apply(snapshot);
         return snapshot;
     }

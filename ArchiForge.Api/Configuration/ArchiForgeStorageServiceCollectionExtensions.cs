@@ -92,6 +92,12 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             return services;
         }
 
+        // Singleton: one policy governs all read-time JSON fallback decisions.
+        services.AddSingleton(new ArchiForge.Persistence.RelationalRead.JsonFallbackPolicy
+        {
+            AllowFallback = true,
+        });
+
         string connectionString = configuration.GetConnectionString("ArchiForge")
                                   ?? throw new InvalidOperationException("Missing connection string 'ArchiForge'.");
 
