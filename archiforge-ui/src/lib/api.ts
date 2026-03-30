@@ -1,3 +1,4 @@
+import { readApiFailureMessage } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { AUTH_MODE } from "@/lib/auth-config";
@@ -91,7 +92,8 @@ export async function apiGet<T>(path: string): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    const message = await readApiFailureMessage(response);
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;
@@ -109,14 +111,8 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   });
 
   if (!response.ok) {
-    let detail = "";
-    try {
-      const err = (await response.json()) as { error?: string };
-      if (err?.error) detail = `: ${err.error}`;
-    } catch {
-      /* ignore */
-    }
-    throw new Error(`Request failed: ${response.status} ${response.statusText}${detail}`);
+    const message = await readApiFailureMessage(response);
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;

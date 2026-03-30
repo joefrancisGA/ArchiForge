@@ -1,4 +1,10 @@
 import Link from "next/link";
+
+import {
+  OperatorEmptyState,
+  OperatorErrorCallout,
+  OperatorWarningCallout,
+} from "@/components/OperatorShellMessage";
 import {
   getArtifactDownloadUrl,
   getBundleDownloadUrl,
@@ -7,6 +13,7 @@ import {
   getRunExportDownloadUrl,
   listArtifacts,
 } from "@/lib/api";
+import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
 
 export default async function RunDetailPage({
   params,
@@ -17,6 +24,7 @@ export default async function RunDetailPage({
 
   let detail: Awaited<ReturnType<typeof getRunDetail>> | null = null;
   let loadError: string | null = null;
+
   try {
     detail = await getRunDetail(runId);
   } catch (e) {
@@ -26,29 +34,45 @@ export default async function RunDetailPage({
   if (loadError || !detail) {
     return (
       <main>
-        <h2>Run Detail</h2>
-        <p style={{ color: "crimson" }}>{loadError ?? "Run not found."}</p>
-        <Link href="/runs?projectId=default">Back to runs</Link>
+        <h2>Run detail</h2>
+        <OperatorErrorCallout>
+          <strong>Run unavailable.</strong>
+          <p style={{ margin: "8px 0 0" }}>
+            {loadError ?? "Run not found or could not be loaded."}
+          </p>
+        </OperatorErrorCallout>
+        <p>
+          <Link href="/runs?projectId=default">← Back to runs</Link>
+        </p>
       </main>
     );
   }
 
   const manifestId = detail.run.goldenManifestId;
 
-  let manifestSummary: Awaited<ReturnType<typeof getManifestSummary>> | null = null;
-  let artifacts: Awaited<ReturnType<typeof listArtifacts>> = [];
-  try {
-    if (manifestId) {
+  let manifestSummary: ManifestSummary | null = null;
+  let artifacts: ArtifactDescriptor[] = [];
+  let manifestSummaryError: string | null = null;
+  let artifactsError: string | null = null;
+
+  if (manifestId) {
+    try {
       manifestSummary = await getManifestSummary(manifestId);
-      artifacts = await listArtifacts(manifestId);
+    } catch (e) {
+      manifestSummaryError =
+        e instanceof Error ? e.message : "Could not load manifest summary.";
     }
-  } catch {
-    /* manifest / artifacts optional */
+
+    try {
+      artifacts = await listArtifacts(manifestId);
+    } catch (e) {
+      artifactsError = e instanceof Error ? e.message : "Could not load artifact list.";
+    }
   }
 
   return (
     <main>
-      <h2>Run Detail</h2>
+      <h2>Run detail</h2>
       <p>
         <Link href="/runs?projectId=default">← Runs</Link>
       </p>
@@ -72,21 +96,38 @@ export default async function RunDetailPage({
       <section style={{ marginBottom: 24 }}>
         <h3>Authority chain</h3>
         <ul>
-          <li>Context Snapshot: {detail.run.contextSnapshotId ?? "N/A"}</li>
-          <li>Graph Snapshot: {detail.run.graphSnapshotId ?? "N/A"}</li>
-          <li>Findings Snapshot: {detail.run.findingsSnapshotId ?? "N/A"}</li>
+          <li>Context Snapshot: {detail.run.contextSnapshotId ?? "—"}</li>
+          <li>Graph Snapshot: {detail.run.graphSnapshotId ?? "—"}</li>
+          <li>Findings Snapshot: {detail.run.findingsSnapshotId ?? "—"}</li>
           <li>
             Golden Manifest:{" "}
             {manifestId ? (
               <Link href={`/manifests/${manifestId}`}>{manifestId}</Link>
             ) : (
-              "N/A"
+              "—"
             )}
           </li>
-          <li>Decision Trace: {detail.run.decisionTraceId ?? "N/A"}</li>
-          <li>Artifact Bundle: {detail.run.artifactBundleId ?? "N/A"}</li>
+          <li>Decision Trace: {detail.run.decisionTraceId ?? "—"}</li>
+          <li>Artifact Bundle: {detail.run.artifactBundleId ?? "—"}</li>
         </ul>
       </section>
+
+      {!manifestId && (
+        <OperatorEmptyState title="Manifest review not available yet">
+          <p style={{ margin: 0 }}>
+            This run has no <strong>golden manifest</strong> (typically before commit). Commit the run
+            through the API or CLI to attach a manifest, then reload for summary, artifacts, and
+            downloads.
+          </p>
+        </OperatorEmptyState>
+      )}
+
+      {manifestSummaryError && (
+        <OperatorWarningCallout>
+          <strong>Manifest summary could not be loaded.</strong>
+          <p style={{ margin: "8px 0 0" }}>{manifestSummaryError}</p>
+        </OperatorWarningCallout>
+      )}
 
       {manifestSummary && (
         <section style={{ marginBottom: 24 }}>
@@ -112,14 +153,33 @@ export default async function RunDetailPage({
       {manifestId && (
         <section style={{ marginBottom: 24 }}>
           <h3>Artifacts</h3>
-          <ul>
-            {artifacts.map((artifact) => (
-              <li key={artifact.artifactId}>
-                {artifact.name} ({artifact.artifactType}) —{" "}
-                <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
-              </li>
-            ))}
-          </ul>
+
+          {artifactsError && (
+            <OperatorWarningCallout>
+              <strong>Artifact list could not be loaded.</strong>
+              <p style={{ margin: "8px 0 0" }}>{artifactsError}</p>
+            </OperatorWarningCallout>
+          )}
+
+          {!artifactsError && artifacts.length === 0 && (
+            <OperatorEmptyState title="No artifacts for this manifest">
+              <p style={{ margin: 0 }}>
+                The manifest exists but no artifact descriptors were returned. Bundle/export links may
+                still be available below if the API recorded a bundle.
+              </p>
+            </OperatorEmptyState>
+          )}
+
+          {artifacts.length > 0 && (
+            <ul>
+              {artifacts.map((artifact) => (
+                <li key={artifact.artifactId}>
+                  {artifact.name} ({artifact.artifactType}) —{" "}
+                  <a href={getArtifactDownloadUrl(manifestId, artifact.artifactId)}>Download</a>
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
             <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
