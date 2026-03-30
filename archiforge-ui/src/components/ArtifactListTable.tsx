@@ -12,6 +12,18 @@ function formatDate(iso: string): string {
   }
 }
 
+function reviewHrefForArtifact(
+  manifestId: string,
+  artifactId: string,
+  runId: string | undefined,
+): string {
+  if (runId) {
+    return `/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`;
+  }
+
+  return `/manifests/${encodeURIComponent(manifestId)}/artifacts/${encodeURIComponent(artifactId)}`;
+}
+
 /**
  * Deterministic artifact list for run and manifest pages (review + download).
  */
@@ -20,8 +32,13 @@ export function ArtifactListTable(props: {
   artifacts: ArtifactDescriptor[];
   /** When set, the matching row is visually emphasized (e.g. on artifact review page). */
   currentArtifactId?: string;
+  /**
+   * When set, Review links use /runs/.../artifacts/... (redirects to manifest-scoped review).
+   * Improves run-centric navigation from run detail.
+   */
+  runId?: string;
 }) {
-  const { manifestId, artifacts, currentArtifactId } = props;
+  const { manifestId, artifacts, currentArtifactId, runId } = props;
   const sorted = [...artifacts].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
   return (
@@ -39,7 +56,7 @@ export function ArtifactListTable(props: {
         </thead>
         <tbody>
           {sorted.map((artifact) => {
-            const reviewHref = `/manifests/${encodeURIComponent(manifestId)}/artifacts/${encodeURIComponent(artifact.artifactId)}`;
+            const reviewHref = reviewHrefForArtifact(manifestId, artifact.artifactId, runId);
             const hashShort =
               artifact.contentHash.length > 12
                 ? `${artifact.contentHash.slice(0, 8)}…`

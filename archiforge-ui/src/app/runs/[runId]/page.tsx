@@ -246,7 +246,11 @@ export default async function RunDetailPage({
           )}
 
           {!artifactsError && !artifactsMalformed && artifacts.length > 0 && (
-            <ArtifactListTable manifestId={manifestId} artifacts={artifacts} />
+            <ArtifactListTable
+              manifestId={manifestId}
+              artifacts={artifacts}
+              runId={resolvedDetail.run.runId}
+            />
           )}
 
           <div style={{ display: "flex", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
