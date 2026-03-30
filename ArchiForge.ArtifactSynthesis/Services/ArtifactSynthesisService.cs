@@ -2,6 +2,8 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Decisioning.Models;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.ArtifactSynthesis.Services;
 
 /// <summary>
@@ -14,7 +16,8 @@ namespace ArchiForge.ArtifactSynthesis.Services;
 /// </remarks>
 public class ArtifactSynthesisService(
     IEnumerable<IArtifactGenerator> generators,
-    IArtifactBundleValidator validator)
+    IArtifactBundleValidator validator,
+    ILogger<ArtifactSynthesisService> logger)
     : IArtifactSynthesisService
 {
     private const string NoArtifactsNote = "No artifacts were generated.";
@@ -23,6 +26,16 @@ public class ArtifactSynthesisService(
         CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(manifest);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Artifact synthesis starting: RunId={RunId}, ManifestId={ManifestId}, GeneratorCount={GeneratorCount}",
+                manifest.RunId,
+                manifest.ManifestId,
+                generators.Count());
+        }
+
         ArtifactBundle bundle = new()
         {
             TenantId = manifest.TenantId,
@@ -54,9 +67,31 @@ public class ArtifactSynthesisService(
         }
 
         if (bundle.Artifacts.Count == 0)
+        {
             bundle.Trace.Notes.Add(NoArtifactsNote);
 
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    "Artifact synthesis produced zero artifacts: RunId={RunId}, ManifestId={ManifestId}, TraceId={TraceId}",
+                    manifest.RunId,
+                    manifest.ManifestId,
+                    bundle.Trace.TraceId);
+            }
+        }
+
         validator.Validate(bundle);
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Artifact synthesis completed: RunId={RunId}, ManifestId={ManifestId}, TraceId={TraceId}, ArtifactCount={ArtifactCount}, GeneratorsUsed={GeneratorsUsed}",
+                manifest.RunId,
+                manifest.ManifestId,
+                bundle.Trace.TraceId,
+                bundle.Artifacts.Count,
+                string.Join(',', bundle.Trace.GeneratorsUsed));
+        }
 
         return bundle;
     }

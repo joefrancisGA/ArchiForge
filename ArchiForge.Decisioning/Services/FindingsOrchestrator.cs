@@ -49,20 +49,20 @@ public partial class FindingsOrchestrator(
     [LoggerMessage(
         EventId = 1,
         Level = LogLevel.Error,
-        Message = "Finding engine failed: EngineType={EngineType} Category={Category} DurationMs={DurationMs}")]
-    private partial void LogEngineFailed(Exception ex, string engineType, string category, long durationMs);
+        Message = "Finding engine failed: RunId={RunId} EngineType={EngineType} Category={Category} DurationMs={DurationMs}")]
+    private partial void LogEngineFailed(Exception ex, Guid runId, string engineType, string category, long durationMs);
 
     [LoggerMessage(
         EventId = 2,
         Level = LogLevel.Information,
-        Message = "Finding engine completed: EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}")]
-    private partial void LogEngineCompleted(string engineType, string category, long durationMs, int count);
+        Message = "Finding engine completed: RunId={RunId} EngineType={EngineType} Category={Category} DurationMs={DurationMs} FindingsCount={Count}")]
+    private partial void LogEngineCompleted(Guid runId, string engineType, string category, long durationMs, int count);
 
     [LoggerMessage(
         EventId = 3,
         Level = LogLevel.Information,
-        Message = "Findings snapshot built: FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}")]
-    private partial void LogSnapshotBuilt(Guid snapshotId, int total, int schemaVersion);
+        Message = "Findings snapshot built: RunId={RunId} FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}")]
+    private partial void LogSnapshotBuilt(Guid runId, Guid snapshotId, int total, int schemaVersion);
 
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
@@ -90,12 +90,12 @@ public partial class FindingsOrchestrator(
             catch (Exception ex)
             {
                 sw.Stop();
-                LogEngineFailed(ex, engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
+                LogEngineFailed(ex, runId, engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
                 throw;
             }
 
             sw.Stop();
-            LogEngineCompleted(engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
+            LogEngineCompleted(runId, engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
 
             foreach (Finding finding in findings)
             {
@@ -132,7 +132,7 @@ public partial class FindingsOrchestrator(
 
         FindingsSnapshotMigrator.Apply(snapshot);
 
-        LogSnapshotBuilt(snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
+        LogSnapshotBuilt(runId, snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 
         return snapshot;
     }

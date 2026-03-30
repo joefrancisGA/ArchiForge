@@ -20,6 +20,11 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
   return h;
 }
 
+/** One-line JSON for operators scraping UI server logs (no response bodies). */
+function logProxyDiagnostic(event: string, fields: Record<string, string | number>): void {
+  console.warn(JSON.stringify({ component: "archiforge-ui-proxy", event, ...fields }));
+}
+
 /** Forwards a request to the upstream ArchiForge API, preserving query string and method. */
 async function forward(
   request: NextRequest,
@@ -29,6 +34,7 @@ async function forward(
   const resolved = resolveUpstreamApiBaseUrlForProxy();
 
   if (!resolved.ok) {
+    logProxyDiagnostic("upstream_config_invalid", { detail: resolved.detail });
     return NextResponse.json(
       {
         type: "about:blank",
@@ -44,26 +50,66 @@ async function forward(
   const path = pathSegments.length > 0 ? pathSegments.join("/") : "";
   const search = request.nextUrl.search;
   const targetUrl = `${base}/${path}${search}`;
+  const pathForLog = path.length > 0 ? path : "_";
 
   const headers = buildUpstreamHeaders(request);
   if (method === "POST") {
     const contentType = request.headers.get("content-type");
     if (contentType) headers.set("Content-Type", contentType);
     const body = await request.text();
-    const res = await fetch(targetUrl, {
-      method: "POST",
-      headers,
-      body,
-      cache: "no-store",
-    });
+
+    let res: Response;
+    try {
+      res = await fetch(targetUrl, {
+        method: "POST",
+        headers,
+        body,
+        cache: "no-store",
+      });
+    } catch (err) {
+      logProxyDiagnostic("upstream_fetch_failed", {
+        method,
+        path: pathForLog,
+        message: err instanceof Error ? err.message : String(err),
+      });
+      throw err;
+    }
+
+    if (!res.ok) {
+      logProxyDiagnostic("upstream_non_success", {
+        method,
+        path: pathForLog,
+        status: res.status,
+      });
+    }
+
     return passThrough(res);
   }
 
-  const res = await fetch(targetUrl, {
-    method: "GET",
-    headers,
-    cache: "no-store",
-  });
+  let res: Response;
+  try {
+    res = await fetch(targetUrl, {
+      method: "GET",
+      headers,
+      cache: "no-store",
+    });
+  } catch (err) {
+    logProxyDiagnostic("upstream_fetch_failed", {
+      method,
+      path: pathForLog,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    throw err;
+  }
+
+  if (!res.ok) {
+    logProxyDiagnostic("upstream_non_success", {
+      method,
+      path: pathForLog,
+      status: res.status,
+    });
+  }
+
   return passThrough(res);
 }
 

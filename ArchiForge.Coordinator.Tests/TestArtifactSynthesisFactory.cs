@@ -3,6 +3,8 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Renderers;
 using ArchiForge.ArtifactSynthesis.Services;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchiForge.Coordinator.Tests;
 
 internal static class TestArtifactSynthesisFactory
@@ -24,6 +26,7 @@ internal static class TestArtifactSynthesisFactory
         ];
         return new ArtifactSynthesisService(
             generators,
-            new ArtifactBundleValidator());
+            new ArtifactBundleValidator(),
+            NullLogger<ArtifactSynthesisService>.Instance);
     }
 }

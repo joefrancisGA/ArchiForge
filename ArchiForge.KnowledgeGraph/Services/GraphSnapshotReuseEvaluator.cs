@@ -14,7 +14,7 @@ public static class GraphSnapshotReuseEvaluator
     /// Returns a cloned graph when <paramref name="priorCommittedContext"/> is equivalent to
     /// <paramref name="contextSnapshot"/> and a graph exists for the prior context; otherwise builds fresh.
     /// </summary>
-    public static async Task<GraphSnapshot> ResolveAsync(
+    public static async Task<GraphSnapshotResolutionResult> ResolveAsync(
         ContextSnapshot? priorCommittedContext,
         ContextSnapshot contextSnapshot,
         Guid runId,
@@ -27,14 +27,24 @@ public static class GraphSnapshotReuseEvaluator
         ArgumentNullException.ThrowIfNull(graphSnapshotRepository);
 
         if (!GraphSnapshotCanonicalFingerprint.AreEquivalent(priorCommittedContext, contextSnapshot))
-            return await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
+        {
+            GraphSnapshot built = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
+
+            return new GraphSnapshotResolutionResult(built, "fresh_canonical_change");
+        }
 
         GraphSnapshot? priorGraph = await graphSnapshotRepository
             .GetLatestByContextSnapshotIdAsync(priorCommittedContext!.SnapshotId, ct);
 
         if (priorGraph is null)
-            return await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
+        {
+            GraphSnapshot built = await knowledgeGraphService.BuildSnapshotAsync(contextSnapshot, ct);
 
-        return GraphSnapshotCloner.CloneForNewRun(priorGraph, contextSnapshot, runId);
+            return new GraphSnapshotResolutionResult(built, "fresh_no_stored_graph");
+        }
+
+        GraphSnapshot cloned = GraphSnapshotCloner.CloneForNewRun(priorGraph, contextSnapshot, runId);
+
+        return new GraphSnapshotResolutionResult(cloned, "cloned_from_prior_graph");
     }
 }

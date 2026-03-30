@@ -44,7 +44,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestrator());
+        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestrator(), NullLogger<CoordinatorService>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         coordination.Success.Should().BeTrue();
@@ -91,7 +91,7 @@ public sealed class DeterministicAgentSimulatorTests
             ]
         };
 
-        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestrator());
+        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestrator(), NullLogger<CoordinatorService>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         DeterministicAgentSimulator simulator = new();

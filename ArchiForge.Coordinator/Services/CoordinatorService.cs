@@ -6,12 +6,16 @@ using ArchiForge.Contracts.Requests;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Orchestration;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchiForge.Coordinator.Services;
 
 /// <summary>
 /// Validates <see cref="ArchitectureRequest"/> input, delegates persistence to <see cref="IAuthorityRunOrchestrator"/>, and assembles <see cref="CoordinationResult"/> (run, evidence bundle, starter tasks, graph shell).
 /// </summary>
-public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrchestrator) : ICoordinatorService
+public sealed class CoordinatorService(
+    IAuthorityRunOrchestrator authorityRunOrchestrator,
+    ILogger<CoordinatorService> logger) : ICoordinatorService
 {
     // Policy pack references injected into every evidence bundle.
     private const string PolicyPackEnterpriseDefault = "policy-pack:enterprise-default";
@@ -53,6 +57,16 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
         if (validationErrors.Count > 0)
         {
             output.Errors.AddRange(validationErrors);
+
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    "Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}",
+                    request.RequestId,
+                    request.SystemName,
+                    string.Join("; ", validationErrors));
+            }
+
             return output;
         }
 
@@ -70,6 +84,16 @@ public sealed class CoordinatorService(IAuthorityRunOrchestrator authorityRunOrc
         output.Run = run;
         output.EvidenceBundle = evidenceBundle;
         output.Tasks = tasks;
+
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation(
+                "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}",
+                run.RunId,
+                request.RequestId,
+                tasks.Count,
+                evidenceBundle.EvidenceBundleId);
+        }
 
         return output;
     }

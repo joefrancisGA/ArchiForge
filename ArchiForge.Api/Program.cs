@@ -10,6 +10,8 @@ using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
 
+using System.Reflection;
+
 using Serilog;
 
 namespace ArchiForge.Api;
@@ -20,10 +22,22 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        builder.Host.UseSerilog((context, services, configuration) => configuration
-            .ReadFrom.Configuration(context.Configuration)
-            .ReadFrom.Services(services)
-            .Enrich.FromLogContext());
+        builder.Host.UseSerilog((context, services, configuration) =>
+        {
+            Assembly entryAssembly = typeof(Program).Assembly;
+            string? informationalVersion = entryAssembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion;
+
+            configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .Enrich.WithProperty("Application", "ArchiForge.Api")
+                .Enrich.WithProperty(
+                    "AssemblyInformationalVersion",
+                    informationalVersion ?? entryAssembly.GetName().Version?.ToString() ?? "unknown");
+        });
 
         // Add services to the container.
 

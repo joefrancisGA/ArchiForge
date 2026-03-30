@@ -1,6 +1,8 @@
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchiForge.Coordinator.Tests;
 
 /// <summary>
@@ -20,7 +22,7 @@ public sealed class CoordinatorServiceTests
             Description = "Design a secure Azure system."
         };
 
-        CoordinatorService service = new(new FakeAuthorityRunOrchestrator());
+        CoordinatorService service = new(new FakeAuthorityRunOrchestrator(), NullLogger<CoordinatorService>.Instance);
 
         CoordinationResult result = await service.CreateRunAsync(request);
 

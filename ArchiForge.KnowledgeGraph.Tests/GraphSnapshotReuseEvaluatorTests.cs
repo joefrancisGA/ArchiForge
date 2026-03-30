@@ -34,7 +34,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         InMemoryGraphSnapshotRepository graphs = new();
         ContextSnapshot current = CreateSnapshot("p1", [new CanonicalObject { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
 
-        GraphSnapshot result = await GraphSnapshotReuseEvaluator.ResolveAsync(
+        GraphSnapshotResolutionResult result = await GraphSnapshotReuseEvaluator.ResolveAsync(
             null,
             current,
             Guid.NewGuid(),
@@ -42,7 +42,8 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             graphs,
             CancellationToken.None);
 
-        result.Should().BeSameAs(built);
+        result.Snapshot.Should().BeSameAs(built);
+        result.ResolutionMode.Should().Be("fresh_canonical_change");
         kg.Verify(x => x.BuildSnapshotAsync(current, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -63,7 +64,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         ContextSnapshot prior = CreateSnapshot("p1", [new CanonicalObject { ObjectId = "a", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
         ContextSnapshot current = CreateSnapshot("p1", [new CanonicalObject { ObjectId = "b", ObjectType = "t", Name = "n", SourceType = "s", SourceId = "1" }]);
 
-        _ = await GraphSnapshotReuseEvaluator.ResolveAsync(
+        GraphSnapshotResolutionResult diff = await GraphSnapshotReuseEvaluator.ResolveAsync(
             prior,
             current,
             Guid.NewGuid(),
@@ -71,6 +72,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             graphs,
             CancellationToken.None);
 
+        diff.ResolutionMode.Should().Be("fresh_canonical_change");
         kg.Verify(x => x.BuildSnapshotAsync(current, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -94,7 +96,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         ContextSnapshot prior = CreateSnapshot("p1", objects);
         ContextSnapshot current = CreateSnapshot("p1", objects);
 
-        _ = await GraphSnapshotReuseEvaluator.ResolveAsync(
+        GraphSnapshotResolutionResult noGraph = await GraphSnapshotReuseEvaluator.ResolveAsync(
             prior,
             current,
             Guid.NewGuid(),
@@ -102,6 +104,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             new InMemoryGraphSnapshotRepository(),
             CancellationToken.None);
 
+        noGraph.ResolutionMode.Should().Be("fresh_no_stored_graph");
         kg.Verify(x => x.BuildSnapshotAsync(current, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -133,7 +136,7 @@ public sealed class GraphSnapshotReuseEvaluatorTests
         await graphs.SaveAsync(priorGraph, CancellationToken.None);
 
         Guid runId = Guid.NewGuid();
-        GraphSnapshot result = await GraphSnapshotReuseEvaluator.ResolveAsync(
+        GraphSnapshotResolutionResult resolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
             prior,
             current,
             runId,
@@ -142,6 +145,8 @@ public sealed class GraphSnapshotReuseEvaluatorTests
             CancellationToken.None);
 
         kg.Verify(x => x.BuildSnapshotAsync(It.IsAny<ContextSnapshot>(), It.IsAny<CancellationToken>()), Times.Never);
+        resolution.ResolutionMode.Should().Be("cloned_from_prior_graph");
+        GraphSnapshot result = resolution.Snapshot;
         result.ContextSnapshotId.Should().Be(current.SnapshotId);
         result.RunId.Should().Be(runId);
         result.GraphSnapshotId.Should().NotBe(priorGraph.GraphSnapshotId);

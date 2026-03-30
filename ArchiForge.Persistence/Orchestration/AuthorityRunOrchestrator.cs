@@ -14,6 +14,8 @@ using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Interfaces;
+
+using Microsoft.Extensions.Logging;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Serialization;
 using ArchiForge.Persistence.Transactions;
@@ -46,7 +48,8 @@ public sealed class AuthorityRunOrchestrator(
     IGoldenManifestRepository goldenManifestRepository,
     IArtifactSynthesisService artifactSynthesisService,
     IArtifactBundleRepository artifactBundleRepository,
-    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox)
+    IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
+    ILogger<AuthorityRunOrchestrator> logger)
     : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />
@@ -58,6 +61,8 @@ public sealed class AuthorityRunOrchestrator(
         CancellationToken ct)
     {
         await using IArchiForgeUnitOfWork uow = await unitOfWorkFactory.CreateAsync(ct);
+
+        Guid? pipelineRunIdForDiagnostics = null;
 
         try
         {
@@ -81,6 +86,18 @@ public sealed class AuthorityRunOrchestrator(
 
             await SaveRunAsync(run, uow, ct);
 
+            pipelineRunIdForDiagnostics = run.RunId;
+
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Authority pipeline started: RunId={RunId}, ProjectId={ProjectId}, TenantId={TenantId}, WorkspaceId={WorkspaceId}",
+                    run.RunId,
+                    request.ProjectId,
+                    scope.TenantId,
+                    scope.WorkspaceId);
+            }
+
             request.RunId = run.RunId;
 
             ContextSnapshot? priorCommittedContext = await contextSnapshotRepository
@@ -92,13 +109,25 @@ public sealed class AuthorityRunOrchestrator(
             run.ContextSnapshotId = contextSnapshot.SnapshotId;
             await UpdateRunAsync(run, uow, ct);
 
-            GraphSnapshot graphSnapshot = await GraphSnapshotReuseEvaluator.ResolveAsync(
+            GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
                 priorCommittedContext,
                 contextSnapshot,
                 run.RunId,
                 knowledgeGraphService,
                 graphSnapshotRepository,
                 ct);
+
+            GraphSnapshot graphSnapshot = graphResolution.Snapshot;
+
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Authority pipeline graph resolved: RunId={RunId}, GraphResolutionMode={GraphResolutionMode}, GraphSnapshotId={GraphSnapshotId}",
+                    run.RunId,
+                    graphResolution.ResolutionMode,
+                    graphSnapshot.GraphSnapshotId);
+            }
+
             await SaveGraphAsync(graphSnapshot, uow, ct);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
@@ -150,6 +179,17 @@ public sealed class AuthorityRunOrchestrator(
             await UpdateRunAsync(run, uow, ct);
 
             ArtifactBundle artifactBundle = await artifactSynthesisService.SynthesizeAsync(manifest, ct);
+
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Authority pipeline artifacts synthesized: RunId={RunId}, BundleId={BundleId}, ArtifactCount={ArtifactCount}, SynthesisTraceId={SynthesisTraceId}",
+                    run.RunId,
+                    artifactBundle.BundleId,
+                    artifactBundle.Artifacts.Count,
+                    artifactBundle.Trace.TraceId);
+            }
+
             await SaveArtifactBundleAsync(artifactBundle, uow, ct);
 
             await auditService.LogAsync(
@@ -194,11 +234,28 @@ public sealed class AuthorityRunOrchestrator(
                 .EnqueueAsync(run.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
                 ;
 
+            if (logger.IsEnabled(LogLevel.Information))
+            {
+                logger.LogInformation(
+                    "Authority pipeline completed: RunId={RunId}, ManifestId={ManifestId}, ContextSnapshotId={ContextSnapshotId}, FindingsSnapshotId={FindingsSnapshotId}, DecisionTraceId={DecisionTraceId}",
+                    run.RunId,
+                    manifest.ManifestId,
+                    contextSnapshot.SnapshotId,
+                    findingsSnapshot.FindingsSnapshotId,
+                    trace.DecisionTraceId);
+            }
+
             return run;
         }
-        catch
+        catch (Exception ex)
         {
             await uow.RollbackAsync(ct);
+
+            logger.LogError(
+                ex,
+                "Authority pipeline failed; transaction rolled back. RunId={RunId}",
+                pipelineRunIdForDiagnostics);
+
             throw;
         }
     }

@@ -207,7 +207,8 @@ public sealed class RealRuntimeMixedModeTests
             complianceHandler,
             costHandler,
             criticHandler
-        ]);
+        ],
+        NullLogger<RealAgentExecutor>.Instance);
 
         ArchitectureRequest request = new()
         {
@@ -230,7 +231,9 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
-        CoordinatorService coordinator = new(new FakeAuthorityRunOrchestratorForRuntimeTests());
+        CoordinatorService coordinator = new(
+            new FakeAuthorityRunOrchestratorForRuntimeTests(),
+            NullLogger<CoordinatorService>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 
         // Force known IDs used in stub payloads

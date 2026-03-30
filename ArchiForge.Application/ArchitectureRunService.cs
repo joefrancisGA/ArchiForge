@@ -394,6 +394,12 @@ public sealed class ArchitectureRunService(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            logger.LogWarning(
+                ex,
+                "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
+                runId,
+                ex.GetType().Name);
+
             await baselineMutationAudit
                 .RecordAsync(
                     AuditEventTypes.Architecture.RunFailed,
