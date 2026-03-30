@@ -1,5 +1,11 @@
-# Build, test, and fail on known vulnerable NuGet packages (NEXT_REFACTORINGS §220).
-# Test suites: docs/TEST_EXECUTION_MODEL.md (54R). CI gate = full solution regression + SQL Server for Persistence tests.
+# Tiered CI (see docs/TEST_EXECUTION_MODEL.md):
+#   Tier 1 — .NET fast core (fail-fast, no SQL)
+#   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
+#   Tier 3a — Operator UI unit (Vitest / jsdom)
+#   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
+#
+# Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
+# archiforge-ui: npm test / npm run test:e2e.
 name: CI
 
 on:
@@ -9,14 +15,42 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
+  dotnet-fast-core:
+    name: ".NET: fast core (corset)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Vulnerable package audit
+        run: dotnet list package --vulnerable --include-transitive --output-format json
+
+      - name: Build (Release)
+        run: dotnet build --no-restore -c Release
+
+      - name: Context ingestion DI guards
+        run: python scripts/assert_context_ingestion_di_guards.py
+
+      - name: Test — fast core
+        run: dotnet test ArchiForge.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration"
+
+  dotnet-full-regression:
+    name: ".NET: full regression (SQL)"
+    needs: dotnet-fast-core
     runs-on: ubuntu-latest
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
         env:
           ACCEPT_EULA: Y
-          MSSQL_SA_PASSWORD: 'LocalTesting123!'
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
         ports:
           - 1433:1433
         options: >-
@@ -36,25 +70,16 @@ jobs:
       - name: Restore
         run: dotnet restore
 
-      - name: Vulnerable package audit
-        run: dotnet list package --vulnerable --include-transitive --output-format json
-        # Non-zero exit when any vulnerable package is reported (SDK 6+).
-
-      - name: Build
+      - name: Build (Release)
         run: dotnet build --no-restore -c Release
 
-      - name: Context ingestion DI guards
-        run: python scripts/assert_context_ingestion_di_guards.py
-
-      - name: Test (54R fast core — fail-fast gate, no SQL container dependency)
-        run: dotnet test ArchiForge.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration"
-
-      - name: Test (54R full regression — entire solution, SQL for Dapper persistence)
+      - name: Test — full solution
         env:
-          ARCHIFORGE_SQL_TEST: 'Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests'
+          ARCHIFORGE_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests"
         run: dotnet test ArchiForge.sln --no-build -c Release
 
-  operator-ui-smoke:
+  ui-unit:
+    name: "Operator UI: unit (Vitest)"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,8 +88,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
+          cache-dependency-path: archiforge-ui/package-lock.json
 
-      - name: Install dependencies & run Playwright smoke (54R)
+      - name: Install & run unit tests
+        working-directory: archiforge-ui
+        run: |
+          npm ci
+          npm run test
+
+  ui-e2e-smoke:
+    name: "Operator UI: e2e smoke (Playwright)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archiforge-ui/package-lock.json
+
+      - name: Install dependencies & run Playwright smoke
         working-directory: archiforge-ui
         env:
           CI: true

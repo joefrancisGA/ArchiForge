@@ -8,7 +8,7 @@ This document is the **canonical reference** for how ArchiForge classifies and r
 
 ## Objectives
 
-- **Predictable gates:** Everyone uses the same names (`Core`, `Fast core`, `Integration`, `SQL Server integration`, `Full regression`, `Operator UI smoke`).
+- **Predictable gates:** Everyone uses the same names (`Core`, `Fast core`, `Integration`, `SQL Server integration`, `Full regression`, `Operator UI unit`, `Operator UI e2e smoke`).
 - **Fail-fast locally:** Run the smallest meaningful subset before pushing.
 - **Authoritative CI:** The pipeline enforces **full regression** against SQL Server (Dapper / real DB), not ORMs.
 - **No product churn:** This change set only defines execution and documentation unless a test must be stabilized.
@@ -124,9 +124,27 @@ dotnet test ArchiForge.sln
 
 ---
 
-### 6. Operator shell smoke (Next.js + Playwright)
+### 6. Operator shell unit (Next.js + Vitest)
 
-**Meaning:** A **minimal** browser check that the **archiforge-ui** app builds and the home route renders expected headings. Not a replacement for manual UX review.
+**Meaning:** **Fast, deterministic** component and pure-function tests for **archiforge-ui** (React Testing Library + jsdom). No browser install; suitable for every PR and local iteration.
+
+| Mechanism | Location |
+|-----------|----------|
+| Runner | **Vitest** |
+| Config | `archiforge-ui/vitest.config.ts`, `archiforge-ui/vitest.setup.ts` |
+| Specs | `archiforge-ui/src/**/*.test.{ts,tsx}` (and `*.spec.{ts,tsx}` under `src/`) |
+
+**Run (from `archiforge-ui/`):**
+
+```bash
+npm ci
+npm test                 # one-shot (CI)
+npm run test:watch       # local loop
+```
+
+### 7. Operator shell e2e smoke (Next.js + Playwright)
+
+**Meaning:** A **minimal** browser check that the **archiforge-ui** app builds and the home route renders expected headings. Slower than Vitest; not a replacement for manual UX review.
 
 | Mechanism | Location |
 |-----------|----------|
@@ -160,14 +178,18 @@ The config’s `webServer` runs `npm run build && npm run start` (production ser
 
 ## CI mapping (54R)
 
-| Job / stage | What runs |
-|-------------|-----------|
-| **`build`** | Restore, vulnerable package audit, `dotnet build -c Release`, context-ingestion DI guards. |
-| **Test — fast core** | `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration` (**fail-fast**, no SQL service required for this filter). |
-| **Test — full regression** | `dotnet test ArchiForge.sln` with `ARCHIFORGE_SQL_TEST` → SQL Server service container. |
-| **`operator-ui-smoke`** | `archiforge-ui`: `npm install`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). |
+Workflow: `.github/workflows/ci.yml` — **four jobs**, tiered for clarity and fail-fast behavior.
 
-PRs must pass **both** jobs. Fast core runs before full regression in the same job so obvious breaks fail without waiting for SQL-heavy suites.
+| Tier | Job | What runs |
+|------|-----|-----------|
+| **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
+| **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchiForge.sln` with `ARCHIFORGE_SQL_TEST` (entire solution). |
+| **3a** | **`ui-unit`** | `archiforge-ui`: `npm ci`, `npm run test` (Vitest / jsdom). **Parallel** with Tier 1 on the same workflow event. |
+| **3b** | **`ui-e2e-smoke`** | `archiforge-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). **Parallel** with other jobs; browser-heavy. |
+
+PRs must pass **all four** jobs. Tier 2 is skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up and full-suite time on obvious breaks.
+
+**Follow-on / re-run:** Use the Actions tab to **re-run failed jobs** only (e.g. retry e2e after a flake) without redefining workflows.
 
 **Class-level hygiene:** New test classes should declare **`[Trait("Category", "Unit")]`**, **`Integration`**, **`SqlServerContainer`**, or **`Slow`** as appropriate so Fast core / integration filters stay meaningful.
 
@@ -176,8 +198,9 @@ Optional **local** sequence before a PR:
 1. `test-fast-core.cmd`
 2. `test-sqlserver-integration.cmd` (if you touched Persistence / SQL)
 3. `test-integration.cmd` (if you touched API / HTTP)
-4. `test-ui-smoke.cmd` (if you touched `archiforge-ui`)
-5. `test-full.cmd` before merge (or rely on CI)
+4. `npm test` in `archiforge-ui/` (if you touched `archiforge-ui` logic/components)
+5. `test-ui-smoke.cmd` (if you touched `archiforge-ui` routes/build/e2e-relevant behavior)
+6. `test-full.cmd` before merge (or rely on CI)
 
 ---
 
@@ -187,7 +210,7 @@ Optional **local** sequence before a PR:
 |------|--------|
 | **Expand Playwright** coverage (navigation, critical flows, a11y) | Add specs under `archiforge-ui/e2e/`. |
 | **Pin Node dependency graph further** (e.g. `npm audit fix`, Renovate) | `package-lock.json` is committed for `npm ci` in CI. |
-| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Optional latency win; current workflow is two jobs (`build` + `operator-ui-smoke`). |
+| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `dotnet-fast-core` + `dotnet-full-regression` + `ui-unit` + `ui-e2e-smoke`. |
 
 ---
 

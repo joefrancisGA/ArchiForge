@@ -18,6 +18,8 @@ dotnet build
 
 See **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** for project layout and traits, and **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / SQL / Full scripts at repo root.
 
+- **Operator UI (`archiforge-ui/`):** `npm ci` then `npm test` (Vitest) for fast checks; `npm run test:e2e` for Playwright smoke (see **TEST_EXECUTION_MODEL.md**).
+
 ## Configuration
 
 - **Local API:** Use **`appsettings.Development.json`** patterns; never commit secrets. Prefer **user secrets** or environment variables for connection strings.

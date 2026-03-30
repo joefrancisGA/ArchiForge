@@ -14,7 +14,7 @@ dotnet build
 dotnet test
 ```
 
-**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** §220). Run the same command locally after dependency changes.
+**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** §220). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archiforge-ui`); see **`TEST_EXECUTION_MODEL.md`**.
 
 ## OpenTelemetry metrics (`ArchiForge` meter)
 
@@ -40,7 +40,7 @@ Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTe
 1. Set **`ARCHIFORGE_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
 2. On **Windows**, omit it and use **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchiForgePersistenceTests`**) when LocalDB is installed.
 
-**CI:** **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container.
+**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL).
 
 ### API integration tests (`ArchiForge.Api.Tests`)
 

@@ -37,7 +37,7 @@ Run the **core suite** (all tagged tests across the solution):
 dotnet test ArchiForge.sln --filter "Suite=Core"
 ```
 
-From the repo root, **`test-core.cmd`** / **`test-fast-core.cmd`** (and `.ps1` equivalents) wrap the same filters. For **integration**, **SQL Server persistence**, **full regression**, and **operator UI smoke**, use **`test-integration`**, **`test-sqlserver-integration`**, **`test-full`**, and **`test-ui-smoke`** (see **TEST_EXECUTION_MODEL.md**). Prefer **`[Trait("Category", "…")]`** on every new `*Tests` class (`Unit`, `Integration`, `SqlServerContainer`, or `Slow`) so suite filters stay accurate.
+From the repo root, **`test-core.cmd`** / **`test-fast-core.cmd`** (and `.ps1` equivalents) wrap the same filters. For **integration**, **SQL Server persistence**, **full regression**, **operator UI unit** (`npm test` in **`archiforge-ui/`**), and **operator UI e2e smoke**, use **`test-integration`**, **`test-sqlserver-integration`**, **`test-full`**, and **`test-ui-smoke`** (see **TEST_EXECUTION_MODEL.md**). Prefer **`[Trait("Category", "…")]`** on every new `*Tests` class (`Unit`, `Integration`, `SqlServerContainer`, or `Slow`) so suite filters stay accurate.
 
 **Fast core** — Core tests that are neither **Slow** nor **Integration** (useful for quick feedback; skips API integration and other heavy cases):
 
