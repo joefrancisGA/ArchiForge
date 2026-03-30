@@ -10,6 +10,23 @@
   - `docs/ARCHITECTURE_COMPONENTS.md`
 - **Key flows** – run, export, comparison, replay sequences  
   - `docs/ARCHITECTURE_FLOWS.md`
+
+### Operator shell (front end)
+
+- **Architecture** – context, containers, components, data flow, security model, operational concerns  
+  - `archiforge-ui/docs/ARCHITECTURE.md`
+- **Tutorial** – Next.js/React concepts for back-end developers  
+  - `archiforge-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
+- **Component reference** – every component, prop, and helper library  
+  - `archiforge-ui/docs/COMPONENT_REFERENCE.md`
+- **Data flow and state** – data flow diagrams, state patterns, templates for new pages  
+  - `archiforge-ui/docs/DATA_FLOW_AND_STATE.md`
+- **C# to React Rosetta Stone** – side-by-side code for every pattern  
+  - `archiforge-ui/docs/CSHARP_TO_REACT_ROSETTA.md`
+- **Annotated walkthrough** – line-by-line reading of a real page  
+  - `archiforge-ui/docs/ANNOTATED_PAGE_WALKTHROUGH.md`
+- **Testing and troubleshooting** – tests, debugging, common issues  
+  - `archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md`
 - **Data model** – core tables/records and relationships  
   - `docs/DATA_MODEL.md`
 - **SQL scripts** – migrations, consolidated SQL Server DDL, DbUp vs Persistence bootstrap  

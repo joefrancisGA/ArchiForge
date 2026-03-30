@@ -6,7 +6,8 @@ Thin Next.js App Router UI for runs, manifest summary, artifacts, compare, repla
 
 | Document | What it covers |
 |----------|---------------|
-| [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | **Start here.** Full tutorial for back-end developers new to React/Next.js. Covers concepts, architecture, every route, and common tasks. |
+| [Architecture](docs/ARCHITECTURE.md) | **Architecture document.** System context, container view, component breakdown, data flow, security model, operational considerations, and architectural decisions with trade-offs. |
+| [Operator Shell Tutorial](docs/OPERATOR_SHELL_TUTORIAL.md) | **Start here for learning.** Full tutorial for back-end developers new to React/Next.js. Covers concepts, architecture, every route, and common tasks. |
 | [C# to React Rosetta Stone](docs/CSHARP_TO_REACT_ROSETTA.md) | **Read second.** Side-by-side C# and React/TypeScript code for every pattern used in the codebase. |
 | [Annotated Page Walkthrough](docs/ANNOTATED_PAGE_WALKTHROUGH.md) | **Read third.** Every line of `runs/page.tsx` explained, with C# equivalents and reasoning. |
 | [Component Reference](docs/COMPONENT_REFERENCE.md) | Detailed reference for every React component, prop, and helper library. |
