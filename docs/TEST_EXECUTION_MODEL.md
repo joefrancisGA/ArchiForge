@@ -102,7 +102,7 @@ dotnet test ArchiForge.Persistence.Tests --filter "Category=SqlServerContainer"
 
 **Scripts:** `test-sqlserver-integration.cmd` / `test-sqlserver-integration.ps1`
 
-**Requires:** `ARCHIFORGE_SQL_TEST` set to a full ADO.NET connection string (see [BUILD.md](BUILD.md)). If SQL is unavailable, tests **skip** via `SkippableFact` / fixture checks where implemented.
+**Requires:** `ARCHIFORGE_SQL_TEST` set to a full ADO.NET connection string (see [BUILD.md](BUILD.md)), or Windows LocalDB. Resolution is centralized in **`ArchiForge.TestSupport`**. If SQL is unavailable, tests **skip** via `SkippableFact` / fixture checks where implemented.
 
 This path is the **default** for “did we break Dapper + SQL DDL + migrations?” without spinning the full API host.
 

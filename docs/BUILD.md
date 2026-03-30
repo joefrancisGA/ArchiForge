@@ -29,13 +29,33 @@ The API registers meter **`ArchiForge`** (`ArchiForgeInstrumentation.MeterName`)
 
 Enable **`Observability:Prometheus:Enabled`** (and exporters) as needed for scraping.
 
-## SQL Server for API integration tests (contributors)
+## SQL Server for integration tests (Dapper + API)
 
-**ArchiForge.Api.Tests** integration tests host the real API with **`WebApplicationFactory`**. **`ArchiForgeApiFactory`** targets **SQL Server** on **`localhost`** (default), creates a **per-factory** database (`ArchiForgeTest_*`), and relies on **DbUp** at startup — same migration path as the running API.
+There is **no SQLite** test provider: DB-facing tests use **SQL Server** only (`Microsoft.Data.SqlClient`). Pure unit tests stay in-memory / mocked.
 
-**CI / headless:** **`ArchiForge.Persistence.Tests`** use **`ARCHIFORGE_SQL_TEST`** (full connection string) or, on Windows, **LocalDB** (`(localdb)\mssqllocaldb`) with catalog **`ArchiForgePersistenceTests`**. GitHub Actions **`.github/workflows/ci.yml`** starts a **SQL Server 2022** service container and sets that variable—no Docker requirement in the .NET test project.
+Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTestConnections`, `SqlServerTestCatalogCommands`, `TestDatabaseEnvironment`).
 
-Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql` + **`ArchiForge.Data/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to the test database.
+### Persistence tests (`ArchiForge.Persistence.Tests`)
+
+1. Set **`ARCHIFORGE_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
+2. On **Windows**, omit it and use **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchiForgePersistenceTests`**) when LocalDB is installed.
+
+**CI:** **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container.
+
+### API integration tests (`ArchiForge.Api.Tests`)
+
+**`ArchiForgeApiFactory`** creates an ephemeral database per factory (`ArchiForgeTest_*` or `ArchiForgeAlertTest_*`) on the **same SQL Server instance** you configure:
+
+| Priority | Variable | Value |
+|----------|----------|--------|
+| 1 | **`ARCHIFORGE_API_TEST_SQL`** | Connection string for server + auth; **`Initial Catalog`** is replaced per factory. |
+| 2 | **`ARCHIFORGE_SQL_TEST`** | Reuses server and credentials; catalog name is replaced per factory (works well with CI’s single container). |
+| 3 | *(Windows only)* | **`localhost`** + integrated security if neither variable is set. |
+| — | Linux / macOS | **Must** set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** (e.g. Docker SQL Server on `127.0.0.1,1433`). |
+
+**Docker (local):** run SQL Server 2022 (or Azure SQL edge) and point **`ARCHIFORGE_SQL_TEST`** at it; API tests will piggyback the same server for ephemeral DBs.
+
+Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql` + **`ArchiForge.Data/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
 
 ## Central Package Management (CPM)
 

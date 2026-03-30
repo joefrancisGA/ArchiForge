@@ -1,4 +1,5 @@
 using ArchiForge.Data.Infrastructure;
+using ArchiForge.TestSupport;
 
 using Microsoft.Data.SqlClient;
 
@@ -9,7 +10,7 @@ namespace ArchiForge.Persistence.Tests;
 /// and applies embedded <see cref="DatabaseMigrator"/> scripts (same path as API startup on SQL Server).
 /// </summary>
 /// <remarks>
-/// No Docker/Testcontainers dependency. When <see cref="EnvironmentConnectionStringVariable"/> is unset and LocalDB
+/// No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable"/> is unset and LocalDB
 /// is unavailable, <see cref="IsSqlServerAvailable"/> is false and SQL integration tests should skip
 /// (see <c>Xunit.SkippableFact</c>). You can still filter with <c>dotnet test --filter "Category!=SqlServerContainer"</c>.
 /// </remarks>
@@ -19,7 +20,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     public const string DefaultTestDatabaseName = "ArchiForgePersistenceTests";
 
     /// <summary>Full SQL Server connection string; when set, this is the only source tried and failures fail the fixture.</summary>
-    public const string EnvironmentConnectionStringVariable = "ARCHIFORGE_SQL_TEST";
+    public const string EnvironmentConnectionStringVariable = TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable;
 
     /// <summary>Message passed to Xunit.SkippableFact <c>Skip</c> when no SQL Server could be reached without an explicit env connection string.</summary>
     public const string SqlServerUnavailableSkipReason =
@@ -38,7 +39,9 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
         if (!string.IsNullOrWhiteSpace(fromEnv))
         {
-            await InitializeFromExplicitConnectionStringOrThrowAsync(NormalizeConnectionString(fromEnv.Trim()));
+            await InitializeFromExplicitConnectionStringOrThrowAsync(
+                SqlServerIntegrationTestConnections.NormalizePersistenceConnectionString(fromEnv.Trim(), DefaultTestDatabaseName));
+
             return;
         }
 
@@ -55,7 +58,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
     {
         try
         {
-            await TryEnsureDatabaseExistsAsync(connectionString, CancellationToken.None);
+            await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
             if (!DatabaseMigrator.Run(connectionString))
             {
@@ -89,7 +92,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             string connectionString = localDb.ConnectionString;
 
-            await TryEnsureDatabaseExistsAsync(connectionString, CancellationToken.None);
+            await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
             if (!DatabaseMigrator.Run(connectionString))
                 return false;
@@ -102,60 +105,6 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         catch (Exception)
         {
             return false;
-        }
-    }
-
-    private static string NormalizeConnectionString(string raw)
-    {
-        SqlConnectionStringBuilder builder = new(raw)
-        {
-            TrustServerCertificate = true
-        };
-
-        if (string.IsNullOrWhiteSpace(builder.InitialCatalog))
-            builder.InitialCatalog = DefaultTestDatabaseName;
-
-        return builder.ConnectionString;
-    }
-
-    /// <summary>
-    /// Creates the target catalog on the instance when missing. Skips safely when the login cannot create databases
-    /// (e.g. Azure SQL); migrations then fail with a clear error if the catalog does not exist.
-    /// </summary>
-    private static async Task TryEnsureDatabaseExistsAsync(string targetConnectionString, CancellationToken cancellationToken)
-    {
-        SqlConnectionStringBuilder target = new(targetConnectionString);
-
-        if (string.IsNullOrWhiteSpace(target.InitialCatalog))
-            throw new InvalidOperationException("Connection string must specify Initial Catalog after normalization.");
-
-        string databaseName = target.InitialCatalog;
-        target.InitialCatalog = "master";
-
-        await using SqlConnection connection = new(target.ConnectionString);
-        await connection.OpenAsync(cancellationToken);
-
-        await using SqlCommand command = new(
-            """
-            DECLARE @name sysname = @db;
-            IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = @name)
-            BEGIN
-              DECLARE @sql nvarchar(max) = N'CREATE DATABASE ' + QUOTENAME(@name);
-              EXEC sys.sp_executesql @sql;
-            END
-            """,
-            connection);
-
-        SqlParameter dbParameter = command.Parameters.Add("@db", System.Data.SqlDbType.NVarChar, 128);
-        dbParameter.Value = databaseName;
-
-        try
-        {
-            await command.ExecuteNonQueryAsync(cancellationToken);
-        }
-        catch (SqlException)
-        {
-            // Caller may still connect if the catalog was created out-of-band (Azure / restricted roles).
         }
     }
 }

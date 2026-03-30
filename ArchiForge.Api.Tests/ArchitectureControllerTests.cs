@@ -11,7 +11,7 @@ using FluentAssertions;
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// Each test uses a new <see cref="ArchiForgeApiFactory"/> so the per-test database on <c>localhost</c> is isolated.
+/// Each test uses a new <see cref="ArchiForgeApiFactory"/> so the per-test SQL Server database is isolated (see <c>docs/BUILD.md</c> for connection resolution).
 /// Shared state would collide on <c>GoldenManifestVersions</c> (PK = ManifestVersion; production uses run-scoped first versions, e.g. <c>v1-</c> plus run id).
 /// </summary>
 [Trait("Suite", "Core")]

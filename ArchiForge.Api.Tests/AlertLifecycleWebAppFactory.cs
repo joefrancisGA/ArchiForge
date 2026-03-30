@@ -1,3 +1,5 @@
+using ArchiForge.TestSupport;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -14,9 +16,8 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
     public AlertLifecycleWebAppFactory()
     {
         string databaseName = "ArchiForgeAlertTest_" + Guid.NewGuid().ToString("N");
-        _connectionString =
-            $"Server=localhost;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True";
-        SqlServerTestDatabaseHelper.EnsureDatabaseExists(_connectionString);
+        _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+        SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -41,10 +42,10 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
         base.Dispose(disposing);
 
         if (!disposing) return;
-        
+
         try
         {
-            SqlServerTestDatabaseHelper.DropDatabaseIfExists(_connectionString);
+            SqlServerTestCatalogCommands.DropCatalogIfExists(_connectionString);
         }
         catch
         {

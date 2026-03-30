@@ -1,3 +1,5 @@
+using ArchiForge.TestSupport;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -8,9 +10,15 @@ namespace ArchiForge.Api.Tests;
 /// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchiForge</c> plus in-memory auxiliary storage.
 /// </summary>
 /// <remarks>
-/// Disposed with the test class; drops the database best-effort. Requires SQL Server on <c>localhost</c>.
+/// <para>
+/// SQL Server connectivity is resolved by <see cref="SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString"/>:
+/// <see cref="TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable"/>, then <see cref="TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable"/>,
+/// then Windows <c>localhost</c> integrated security.
+/// </para>
+/// <para>
 /// In-memory configuration forces <c>AgentExecution:Mode=Simulator</c>, clears <c>AzureOpenAI:*</c> so user secrets
 /// cannot enable real completion clients (503 from circuit breaker), and raises rate limits for stable CI/local runs.
+/// </para>
 /// </remarks>
 public class ArchiForgeApiFactory : WebApplicationFactory<Program>
 {
@@ -20,13 +28,12 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
     public ArchiForgeApiFactory()
     {
         string databaseName = "ArchiForgeTest_" + Guid.NewGuid().ToString("N");
-        _connectionString =
-            $"Server=localhost;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True";
-        SqlServerTestDatabaseHelper.EnsureDatabaseExists(_connectionString);
+        _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+        SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
     }
 
     /// <summary>
-    /// Connection string for this factory’s SQL Server database (per-test database on <c>localhost</c>).
+    /// Connection string for this factory’s SQL Server database (per-test database).
     /// Tests that open <see cref="Microsoft.Data.SqlClient.SqlConnection"/> must use this instance property so they hit the same DB as the hosted API.
     /// </summary>
     public string SqlConnectionString => _connectionString;
@@ -71,13 +78,10 @@ public class ArchiForgeApiFactory : WebApplicationFactory<Program>
         base.Dispose(disposing);
 
         if (!disposing) return;
-        
-        // Dispose the database when the factory is disposed.
-        // Note: The factory is disposed when the test host is disposed.
-        // This typically happens at the end of a test class or method.
+
         try
         {
-            SqlServerTestDatabaseHelper.DropDatabaseIfExists(_connectionString);
+            SqlServerTestCatalogCommands.DropCatalogIfExists(_connectionString);
         }
         catch
         {
