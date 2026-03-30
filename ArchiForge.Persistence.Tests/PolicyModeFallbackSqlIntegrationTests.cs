@@ -62,7 +62,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         ContextSnapshot? row = await LoadContextSnapshotWithPolicyAsync(connection, snapshotId, policy, CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "json-obj");
+        row.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "json-obj");
         logger.WarningCount.Should().BeGreaterOrEqualTo(1);
     }
 
@@ -122,7 +122,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         ContextSnapshot? loaded = await LoadContextSnapshotWithPolicyAsync(connection, snapshotId, policy, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "strict-obj");
+        loaded.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "strict-obj");
         loaded.Warnings.Should().Equal("w");
         loaded.Errors.Should().Equal("e");
         loaded.SourceHashes["f"].Should().Be("h");
@@ -142,7 +142,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().ContainSingle(f => f.FindingId == "json-finding");
+        loaded.Findings.Should().ContainSingle(f => f.FindingId == "json-finding");
     }
 
     [SkippableFact]
@@ -160,7 +160,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Findings.Should().ContainSingle(f => f.FindingId == "json-finding");
+        loaded.Findings.Should().ContainSingle(f => f.FindingId == "json-finding");
         logger.WarningCount.Should().BeGreaterOrEqualTo(1);
     }
 
@@ -195,7 +195,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Nodes.Should().ContainSingle(n => n.NodeId == "json-node");
+        loaded.Nodes.Should().ContainSingle(n => n.NodeId == "json-node");
         loaded.Warnings.Should().Equal("json-gw");
     }
 
@@ -263,7 +263,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Edges.Should().ContainSingle();
+        loaded.Edges.Should().ContainSingle();
         loaded.Edges[0].Label.Should().Be("json-label");
         loaded.Edges[0].Properties["proto"].Should().Be("grpc");
     }
@@ -283,7 +283,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Assumptions.Should().Equal("json-assumption");
+        loaded.Assumptions.Should().Equal("json-assumption");
     }
 
     [SkippableFact]
@@ -292,14 +292,14 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
         SqlConnectionFactory factory = new(fixture.ConnectionString);
 
-        (Guid manifestId, Guid runId) = await SeedRelationalGoldenManifestAsync(factory);
+        (Guid manifestId, Guid _) = await SeedRelationalGoldenManifestAsync(factory);
 
         ScopeContext scope = new() { TenantId = TenantId, WorkspaceId = WorkspaceId, ProjectId = ProjectId };
         SqlGoldenManifestRepository repository = new(factory);
         GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Assumptions.Should().Equal("relational-assumption");
+        loaded.Assumptions.Should().Equal("relational-assumption");
         loaded.Warnings.Should().Equal("relational-warn");
         loaded.Provenance.SourceFindingIds.Should().Equal("pf-rel");
         loaded.Decisions.Should().ContainSingle();
@@ -748,7 +748,7 @@ public sealed class PolicyModeFallbackSqlIntegrationTests(SqlServerPersistenceFi
     {
         public int WarningCount { get; private set; }
 
-        public int TotalLogCount { get; private set; }
+        private int TotalLogCount { get; set; }
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
 

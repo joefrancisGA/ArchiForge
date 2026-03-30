@@ -63,10 +63,7 @@ public sealed class AuthorityQueryController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunSummaryDto? result = await queryService.GetRunSummaryAsync(scope, runId, ct);
-        if (result is null)
-            return this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-        return Ok(ToRunSummaryResponse(result));
+        return result is null ? this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound) : Ok(ToRunSummaryResponse(result));
     }
 
     /// <summary>Loads full run detail including hydrated snapshots and golden manifest when available.</summary>

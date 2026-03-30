@@ -1,6 +1,7 @@
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
+using ArchiForge.Api.Startup.Diagnostics;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
@@ -47,6 +48,8 @@ public partial class Program
             "ArchiForge API host built. Environment={Environment}, ContentRoot={ContentRoot}",
             app.Environment.EnvironmentName,
             app.Environment.ContentRootPath);
+
+        StartupConfigurationDiagnostics.LogIfEnabled(app.Logger, app.Configuration, app.Environment);
 
         // 1) Optional: Persistence layer applies bundled ArchiForge.sql batches when StorageProvider=Sql (authority / extended tables).
         using (IServiceScope scope = app.Services.CreateScope())

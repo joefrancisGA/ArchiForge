@@ -16,6 +16,14 @@ public sealed class ConfigurationValidator(
             errors.Add("ConnectionStrings:ArchiForge is missing or empty.");
         }
 
+        string? storageProvider = configuration["ArchiForge:StorageProvider"];
+        if (!string.IsNullOrWhiteSpace(storageProvider) &&
+            !string.Equals(storageProvider, "InMemory", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(storageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add("ArchiForge:StorageProvider must be 'InMemory' or 'Sql' when set.");
+        }
+
         bool apiKeyEnabled = configuration.GetValue("Authentication:ApiKey:Enabled", false);
         if (apiKeyEnabled)
         {
@@ -48,8 +56,40 @@ public sealed class ConfigurationValidator(
             }
         }
 
+        if (environment.IsProduction())
+        {
+            string? authMode = configuration["ArchiForgeAuth:Mode"];
+            if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
+            {
+                errors.Add("ArchiForgeAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
+            }
+
+            if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.IsNullOrWhiteSpace(configuration["ArchiForgeAuth:Authority"]))
+                {
+                    errors.Add("ArchiForgeAuth:Authority is required when ArchiForgeAuth:Mode is JwtBearer in Production.");
+                }
+            }
+
+            if (string.Equals(authMode, "ApiKey", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
+                {
+                    errors.Add("Authentication:ApiKey:Enabled must be true when ArchiForgeAuth:Mode is ApiKey in Production.");
+                }
+
+                string? adminKey = configuration["Authentication:ApiKey:AdminKey"];
+                string? readerKey = configuration["Authentication:ApiKey:ReadOnlyKey"];
+                if (string.IsNullOrWhiteSpace(adminKey) && string.IsNullOrWhiteSpace(readerKey))
+                {
+                    errors.Add("Production ApiKey auth requires at least one of Authentication:ApiKey:AdminKey or Authentication:ApiKey:ReadOnlyKey.");
+                }
+            }
+        }
+
         if (errors.Count <= 0) return Task.CompletedTask;
-        
+
         foreach (string error in errors)
         {
             logger.LogError("Configuration validation error: {Error}", error);

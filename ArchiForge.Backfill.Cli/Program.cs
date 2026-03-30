@@ -88,14 +88,9 @@ internal static class Program
         Console.WriteLine(new string('-', 80));
         Console.WriteLine();
 
-        if (report.IsFullyReady)
-        {
-            Console.WriteLine("All slices are READY. Safe to switch to PersistenceReadMode.RequireRelational.");
-        }
-        else
-        {
-            Console.WriteLine($"{report.SlicesNotReady.Count} slice(s) NOT READY. Run backfill before enabling RequireRelational.");
-        }
+        Console.WriteLine(report.IsFullyReady
+            ? "All slices are READY. Safe to switch to PersistenceReadMode.RequireRelational."
+            : $"{report.SlicesNotReady.Count} slice(s) NOT READY. Run backfill before enabling RequireRelational.");
 
         Console.WriteLine();
 

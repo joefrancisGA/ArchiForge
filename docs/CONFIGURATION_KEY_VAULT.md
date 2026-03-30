@@ -10,7 +10,7 @@ Production and shared environments should **not** store SQL connection strings, 
 
    - `ConnectionStrings__ArchiForge` → `@Microsoft.KeyVault(VaultName=...;SecretName=archiforge-sql-connection-string)`
    - `AzureOpenAI__ApiKey` → `@Microsoft.KeyVault(...)`
-   - `Authentication__ApiKey__Key` → `@Microsoft.KeyVault(...)` (if API key auth is enabled)
+   - `Authentication__ApiKey__AdminKey` / `Authentication__ApiKey__ReadOnlyKey` → `@Microsoft.KeyVault(...)` (when `ArchiForgeAuth:Mode` is `ApiKey` and API key auth is enabled)
 
 Double underscores (`__`) map to nested JSON sections in ASP.NET Core configuration.
 

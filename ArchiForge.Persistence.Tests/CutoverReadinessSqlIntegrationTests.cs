@@ -44,7 +44,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             .FirstOrDefault(s => s.SliceName == "ContextSnapshot.CanonicalObjects");
 
         canonicalSlice.Should().NotBeNull();
-        canonicalSlice!.TotalHeaderRows.Should().BeGreaterOrEqualTo(2);
+        canonicalSlice.TotalHeaderRows.Should().BeGreaterOrEqualTo(2);
         canonicalSlice.HeadersWithRelationalRows.Should().BeGreaterOrEqualTo(1);
 
         // At least one header is JSON-only (the one we seeded without relational children)

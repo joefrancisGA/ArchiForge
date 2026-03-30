@@ -177,11 +177,9 @@ public sealed class JsonFallbackPolicyTests
                 LastWarningMessage = message;
             }
 
-            if (logLevel == LogLevel.Debug)
-            {
-                DebugCount++;
-                LastDebugMessage = message;
-            }
+            if (logLevel != LogLevel.Debug) return;
+            DebugCount++;
+            LastDebugMessage = message;
         }
     }
 }

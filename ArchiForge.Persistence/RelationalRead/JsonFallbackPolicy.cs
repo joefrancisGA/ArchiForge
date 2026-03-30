@@ -18,22 +18,14 @@ namespace ArchiForge.Persistence.RelationalRead;
 /// structured log at <c>Debug</c> (allow) or <c>Warning</c> (warn) level.</para>
 /// <para>Wire as singleton in DI; the backfill tooling and repositories share one instance.</para>
 /// </remarks>
-public sealed class JsonFallbackPolicy
+public sealed class JsonFallbackPolicy(PersistenceReadMode mode, ILogger logger)
 {
-    private readonly ILogger _logger;
-
     public JsonFallbackPolicy()
         : this(PersistenceReadMode.AllowJsonFallback, NullLogger.Instance)
     {
     }
 
-    public JsonFallbackPolicy(PersistenceReadMode mode, ILogger logger)
-    {
-        Mode = mode;
-        _logger = logger ?? NullLogger.Instance;
-    }
-
-    public PersistenceReadMode Mode { get; }
+    public PersistenceReadMode Mode { get; } = mode;
 
     /// <summary>
     /// Backward-compatible property; <c>true</c> when mode is not <see cref="PersistenceReadMode.RequireRelational"/>.
@@ -95,7 +87,7 @@ public sealed class JsonFallbackPolicy
             new KeyValuePair<string, object?>("slice", sliceName),
             new KeyValuePair<string, object?>("read_mode", modeLabel));
 
-        _logger.Log(
+        logger.Log(
             level,
             "JSON fallback used — slice={SliceName}, entityType={EntityType}, entityId={EntityId}, " +
             "readMode={ReadMode}. Run SqlRelationalBackfillService to eliminate fallback reads.",

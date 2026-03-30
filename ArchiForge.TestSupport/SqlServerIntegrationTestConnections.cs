@@ -34,26 +34,25 @@ public static class SqlServerIntegrationTestConnections
         if (!string.IsNullOrWhiteSpace(persistence))
             return WithDatabaseName(persistence.Trim(), databaseName);
 
-        if (OperatingSystem.IsWindows())
+        if (!OperatingSystem.IsWindows())
+            throw new InvalidOperationException(
+                "API integration tests require SQL Server. On Linux or macOS set environment variable "
+                + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
+                + " or "
+                + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
+                + " to a reachable instance (see docs/BUILD.md).");
+        
+        SqlConnectionStringBuilder windowsLocal = new()
         {
-            SqlConnectionStringBuilder windowsLocal = new()
-            {
-                DataSource = "localhost",
-                InitialCatalog = databaseName,
-                IntegratedSecurity = true,
-                TrustServerCertificate = true,
-                MultipleActiveResultSets = true,
-            };
+            DataSource = "localhost",
+            InitialCatalog = databaseName,
+            IntegratedSecurity = true,
+            TrustServerCertificate = true,
+            MultipleActiveResultSets = true,
+        };
 
-            return windowsLocal.ConnectionString;
-        }
+        return windowsLocal.ConnectionString;
 
-        throw new InvalidOperationException(
-            "API integration tests require SQL Server. On Linux or macOS set environment variable "
-            + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
-            + " or "
-            + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
-            + " to a reachable instance (see docs/BUILD.md).");
     }
 
     /// <summary>
