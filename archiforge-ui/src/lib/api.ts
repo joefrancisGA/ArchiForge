@@ -145,6 +145,16 @@ export async function listArtifacts(manifestId: string): Promise<ArtifactDescrip
   return apiGet<ArtifactDescriptor[]>(`/api/artifacts/manifests/${manifestId}`);
 }
 
+/** JSON metadata for one artifact (no binary download). */
+export async function getArtifactDescriptor(
+  manifestId: string,
+  artifactId: string,
+): Promise<ArtifactDescriptor> {
+  return apiGet<ArtifactDescriptor>(
+    `/api/artifacts/manifests/${manifestId}/artifact/${artifactId}/descriptor`,
+  );
+}
+
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
   return apiGet<RunComparison>(
     `/api/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,

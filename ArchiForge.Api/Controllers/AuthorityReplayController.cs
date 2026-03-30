@@ -68,6 +68,19 @@ public sealed class AuthorityReplayController(
             },
             ct);
 
+        var validation = new ReplayValidationResponse
+        {
+            ContextPresent = result.Validation.ContextPresent,
+            GraphPresent = result.Validation.GraphPresent,
+            FindingsPresent = result.Validation.FindingsPresent,
+            ManifestPresent = result.Validation.ManifestPresent,
+            TracePresent = result.Validation.TracePresent,
+            ArtifactsPresent = result.Validation.ArtifactsPresent,
+            ManifestHashMatches = result.Validation.ManifestHashMatches,
+            ArtifactBundlePresentAfterReplay = result.Validation.ArtifactBundlePresentAfterReplay,
+            Notes = result.Validation.Notes,
+        };
+
         return Ok(new ReplayResponse
         {
             RunId = result.RunId,
@@ -76,18 +89,9 @@ public sealed class AuthorityReplayController(
             RebuiltManifestId = result.RebuiltManifest?.ManifestId,
             RebuiltManifestHash = result.RebuiltManifest?.ManifestHash,
             RebuiltArtifactBundleId = result.RebuiltArtifactBundle?.BundleId,
-            Validation = new ReplayValidationResponse
-            {
-                ContextPresent = result.Validation.ContextPresent,
-                GraphPresent = result.Validation.GraphPresent,
-                FindingsPresent = result.Validation.FindingsPresent,
-                ManifestPresent = result.Validation.ManifestPresent,
-                TracePresent = result.Validation.TracePresent,
-                ArtifactsPresent = result.Validation.ArtifactsPresent,
-                ManifestHashMatches = result.Validation.ManifestHashMatches,
-                ArtifactBundlePresentAfterReplay = result.Validation.ArtifactBundlePresentAfterReplay,
-                Notes = result.Validation.Notes
-            }
+            Validation = validation,
+            HasRebuildOutput = result.RebuiltManifest is not null || result.RebuiltArtifactBundle is not null,
+            ValidationNoteCount = validation.Notes.Count,
         });
     }
 }

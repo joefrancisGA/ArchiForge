@@ -5,6 +5,15 @@ public class GraphViewModel
 {
     public List<GraphNodeVm> Nodes { get; set; } = [];
     public List<GraphEdgeVm> Edges { get; set; } = [];
+
+    /// <summary>Serialized for JSON clients (provenance and architecture graph endpoints).</summary>
+    public int NodeCount => Nodes.Count;
+
+    /// <summary>Serialized edge count for empty-state and layout hints in operator UIs.</summary>
+    public int EdgeCount => Edges.Count;
+
+    /// <summary>True when there are no nodes (explicit empty graph).</summary>
+    public bool IsEmpty => Nodes.Count == 0;
 }
 
 public class GraphNodeVm

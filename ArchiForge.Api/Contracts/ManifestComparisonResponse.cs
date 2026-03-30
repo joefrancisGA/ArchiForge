@@ -27,4 +27,7 @@ public class ManifestComparisonResponse
 
     /// <inheritdoc cref="ArchiForge.Persistence.Compare.ManifestComparisonResult.Diffs"/>
     public List<DiffItemResponse> Diffs { get; set; } = [];
+
+    /// <summary>Count of <see cref="Diffs"/>.</summary>
+    public int DiffCount { get; set; }
 }

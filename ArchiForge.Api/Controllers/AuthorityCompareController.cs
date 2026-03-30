@@ -75,7 +75,9 @@ public sealed class AuthorityCompareController(
             RunLevelDiffs = result.RunLevelDiffs.Select(MapDiff).ToList(),
             ManifestComparison = result.ManifestComparison is null
                 ? null
-                : MapManifest(result.ManifestComparison)
+                : MapManifest(result.ManifestComparison),
+            RunLevelDiffCount = result.RunLevelDiffs.Count,
+            HasManifestComparison = result.ManifestComparison is not null,
         });
     }
 
@@ -90,7 +92,8 @@ public sealed class AuthorityCompareController(
             AddedCount = result.AddedCount,
             RemovedCount = result.RemovedCount,
             ChangedCount = result.ChangedCount,
-            Diffs = result.Diffs.Select(MapDiff).ToList()
+            Diffs = result.Diffs.Select(MapDiff).ToList(),
+            DiffCount = result.Diffs.Count,
         };
     }
 

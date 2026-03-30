@@ -9,6 +9,13 @@ export type RunSummary = {
   goldenManifestId?: string | null;
   decisionTraceId?: string | null;
   artifactBundleId?: string | null;
+  /** API 55R+: explicit flags (camelCase from JSON). */
+  hasContextSnapshot?: boolean;
+  hasGraphSnapshot?: boolean;
+  hasFindingsSnapshot?: boolean;
+  hasGoldenManifest?: boolean;
+  hasDecisionTrace?: boolean;
+  hasArtifactBundle?: boolean;
 };
 
 export type ManifestSummary = {
@@ -22,6 +29,9 @@ export type ManifestSummary = {
   warningCount: number;
   unresolvedIssueCount: number;
   status: string;
+  /** API 55R+ */
+  hasWarnings?: boolean;
+  hasUnresolvedIssues?: boolean;
 };
 
 export type DiffItem = {
@@ -49,6 +59,8 @@ export type RunComparison = {
   rightRunId: string;
   runLevelDiffs: DiffItem[];
   manifestComparison?: ManifestComparison | null;
+  runLevelDiffCount?: number;
+  hasManifestComparison?: boolean;
 };
 
 export type ArtifactDescriptor = {
@@ -80,6 +92,8 @@ export type ReplayResponse = {
   rebuiltManifestHash?: string | null;
   rebuiltArtifactBundleId?: string | null;
   validation: ReplayValidation;
+  hasRebuildOutput?: boolean;
+  validationNoteCount?: number;
 };
 
 export type RunDetail = {

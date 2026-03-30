@@ -31,6 +31,11 @@ public class ComparisonResult
 
     /// <summary>High-level counts/messages built by <c>ArchiForge.Decisioning.Comparison.ComparisonService</c>.</summary>
     public List<string> SummaryHighlights { get; set; } = [];
+
+    /// <summary>
+    /// Sum of decision, requirement, security, topology, and cost delta row counts (set by <c>ComparisonService</c> for operator UIs).
+    /// </summary>
+    public int TotalDeltaCount { get; set; }
 }
 
 /// <summary>One decision key that was added, removed, or had a different selected option.</summary>

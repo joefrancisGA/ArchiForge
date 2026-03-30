@@ -46,22 +46,54 @@ public sealed class ArtifactExportController(
 
     [HttpGet("manifests/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<ArtifactDescriptorResponse>>> ListArtifacts(
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> ListArtifacts(
         Guid manifestId,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        {
+            return this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.",
+                ProblemTypes.ManifestNotFound);
+        }
+
         IReadOnlyList<ArtifactDescriptor> artifacts = await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
-        return Ok(artifacts.Select(x => new ArtifactDescriptorResponse
+        return Ok(artifacts.Select(ArtifactDescriptorResponse.From).ToList());
+    }
+
+    /// <summary>JSON metadata for a single artifact (operator review without downloading bytes).</summary>
+    [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
+    [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GetArtifactDescriptor(
+        Guid manifestId,
+        Guid artifactId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
         {
-            ArtifactId = x.ArtifactId,
-            ArtifactType = x.ArtifactType,
-            Name = x.Name,
-            Format = x.Format,
-            CreatedUtc = x.CreatedUtc,
-            ContentHash = x.ContentHash
-        }).ToList());
+            return this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.",
+                ProblemTypes.ManifestNotFound);
+        }
+
+        SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
+        if (artifact is null)
+        {
+            return this.NotFoundProblem(
+                $"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(ArtifactDescriptorResponse.From(artifact));
     }
 
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}")]

@@ -49,19 +49,7 @@ public sealed class AuthorityQueryController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         IReadOnlyList<RunSummaryDto> results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
 
-        return Ok(results.Select(x => new RunSummaryResponse
-        {
-            RunId = x.RunId,
-            ProjectId = x.ProjectId,
-            Description = x.Description,
-            CreatedUtc = x.CreatedUtc,
-            ContextSnapshotId = x.ContextSnapshotId,
-            GraphSnapshotId = x.GraphSnapshotId,
-            FindingsSnapshotId = x.FindingsSnapshotId,
-            GoldenManifestId = x.GoldenManifestId,
-            DecisionTraceId = x.DecisionTraceId,
-            ArtifactBundleId = x.ArtifactBundleId
-        }).ToList());
+        return Ok(results.Select(ToRunSummaryResponse).ToList());
     }
 
     [HttpGet("runs/{runId:guid}/summary")]
@@ -140,7 +128,30 @@ public sealed class AuthorityQueryController(
             DecisionCount = result.DecisionCount,
             WarningCount = result.WarningCount,
             UnresolvedIssueCount = result.UnresolvedIssueCount,
-            Status = result.Status
+            Status = result.Status,
+            HasWarnings = result.WarningCount > 0,
+            HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
         });
     }
+
+    private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x) =>
+        new()
+        {
+            RunId = x.RunId,
+            ProjectId = x.ProjectId,
+            Description = x.Description,
+            CreatedUtc = x.CreatedUtc,
+            ContextSnapshotId = x.ContextSnapshotId,
+            GraphSnapshotId = x.GraphSnapshotId,
+            FindingsSnapshotId = x.FindingsSnapshotId,
+            GoldenManifestId = x.GoldenManifestId,
+            DecisionTraceId = x.DecisionTraceId,
+            ArtifactBundleId = x.ArtifactBundleId,
+            HasContextSnapshot = x.HasContextSnapshot,
+            HasGraphSnapshot = x.HasGraphSnapshot,
+            HasFindingsSnapshot = x.HasFindingsSnapshot,
+            HasGoldenManifest = x.HasGoldenManifest,
+            HasDecisionTrace = x.HasDecisionTrace,
+            HasArtifactBundle = x.HasArtifactBundle,
+        };
 }

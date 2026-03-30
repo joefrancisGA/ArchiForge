@@ -33,4 +33,10 @@ public class ManifestSummaryResponse
 
     /// <inheritdoc cref="ArchiForge.Persistence.Queries.ManifestSummaryDto.Status"/>
     public string Status { get; set; } = null!;
+
+    /// <summary>True when <see cref="WarningCount"/> is greater than zero.</summary>
+    public bool HasWarnings { get; set; }
+
+    /// <summary>True when <see cref="UnresolvedIssueCount"/> is greater than zero.</summary>
+    public bool HasUnresolvedIssues { get; set; }
 }

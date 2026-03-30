@@ -16,4 +16,10 @@ public class RunComparisonResponse
 
     /// <inheritdoc cref="ArchiForge.Persistence.Compare.RunComparisonResult.ManifestComparison"/>
     public ManifestComparisonResponse? ManifestComparison { get; set; }
+
+    /// <summary>Count of <see cref="RunLevelDiffs"/> (operator-facing aggregate).</summary>
+    public int RunLevelDiffCount { get; set; }
+
+    /// <summary>True when a manifest-level comparison payload is present.</summary>
+    public bool HasManifestComparison { get; set; }
 }

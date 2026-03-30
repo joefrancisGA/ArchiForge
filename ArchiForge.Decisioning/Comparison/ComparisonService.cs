@@ -30,6 +30,12 @@ public sealed class ComparisonService : IComparisonService
         CompareTopology(baseM, targetM, result);
         CompareCost(baseM, targetM, result);
         BuildSummary(result);
+        result.TotalDeltaCount =
+            result.DecisionChanges.Count
+            + result.RequirementChanges.Count
+            + result.SecurityChanges.Count
+            + result.TopologyChanges.Count
+            + result.CostChanges.Count;
 
         return result;
     }

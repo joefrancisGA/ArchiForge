@@ -25,4 +25,10 @@ public class ReplayResponse
 
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayResult.Validation"/>
     public ReplayValidationResponse Validation { get; set; } = new();
+
+    /// <summary>True when replay produced a rebuilt manifest or artifact bundle reference.</summary>
+    public bool HasRebuildOutput { get; set; }
+
+    /// <summary>Number of entries in <see cref="ReplayValidationResponse.Notes"/>.</summary>
+    public int ValidationNoteCount { get; set; }
 }

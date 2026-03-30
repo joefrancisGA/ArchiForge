@@ -27,6 +27,7 @@ public sealed class ComparisonServiceTests
 
         result.BaseRunId.Should().Be(baseRun);
         result.TargetRunId.Should().Be(targetRun);
+        result.TotalDeltaCount.Should().Be(0);
     }
 
     [Fact]
@@ -82,6 +83,12 @@ public sealed class ComparisonServiceTests
             && d.DecisionKey == "both"
             && d.BaseValue == "old"
             && d.TargetValue == "new");
+        result.TotalDeltaCount.Should().Be(
+            result.DecisionChanges.Count
+                + result.RequirementChanges.Count
+                + result.SecurityChanges.Count
+                + result.TopologyChanges.Count
+                + result.CostChanges.Count);
     }
 
     [Fact]

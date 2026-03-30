@@ -35,4 +35,6 @@ export type GoldenManifestComparison = {
   topologyChanges: TopologyDelta[];
   costChanges: CostDelta[];
   summaryHighlights: string[];
+  /** API 55R+: sum of section delta counts from GET api/compare. */
+  totalDeltaCount?: number;
 };

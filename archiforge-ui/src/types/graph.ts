@@ -14,4 +14,8 @@ export type GraphEdgeVm = {
 export type GraphViewModel = {
   nodes: GraphNodeVm[];
   edges: GraphEdgeVm[];
+  /** API 55R+: graph endpoints include counts for empty-state UX. */
+  nodeCount?: number;
+  edgeCount?: number;
+  isEmpty?: boolean;
 };
