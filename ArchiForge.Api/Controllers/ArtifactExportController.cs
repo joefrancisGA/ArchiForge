@@ -44,7 +44,10 @@ public sealed class ArtifactExportController(
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    /// <summary>Lists descriptors for the manifest. Returns <c>200 OK</c> with a JSON array (possibly empty) when the manifest exists.</summary>
+    /// <summary>
+    /// Lists artifact descriptors for a golden manifest. Returns <c>200 OK</c> with a JSON array (possibly empty)
+    /// sorted by name then id; <c>404</c> when the manifest is missing in the current scope.
+    /// </summary>
     [HttpGet("manifests/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -67,7 +70,9 @@ public sealed class ArtifactExportController(
         return Ok(artifacts.Select(a => ArtifactDescriptorResponse.From(a, manifestId)).ToList());
     }
 
-    /// <summary>JSON metadata for a single artifact (operator review without downloading bytes).</summary>
+    /// <summary>
+    /// JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is not in that manifest’s bundle.
+    /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -97,6 +102,7 @@ public sealed class ArtifactExportController(
         return Ok(ArtifactDescriptorResponse.From(artifact));
     }
 
+    /// <summary>Downloads one synthesized artifact file. Requires manifest in scope; same 404 semantics as the descriptor endpoint.</summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}")]
     [Produces("application/octet-stream")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -109,6 +115,13 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        {
+            return this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.",
+                ProblemTypes.ManifestNotFound);
+        }
+
         SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
             return this.NotFoundProblem($"Artifact '{artifactId}' was not found for manifest '{manifestId}'.", ProblemTypes.ResourceNotFound);
@@ -127,6 +140,10 @@ public sealed class ArtifactExportController(
         return File(file.Content, file.ContentType, file.FileName);
     }
 
+    /// <summary>
+    /// ZIP of all artifacts for the manifest (stable entry order: name then id). <c>404</c> with manifest-not-found when
+    /// the manifest is missing; <c>404</c> with resource-not-found when the manifest exists but has no bundle or zero artifacts.
+    /// </summary>
     [HttpGet("manifests/{manifestId:guid}/bundle")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -138,9 +155,21 @@ public sealed class ArtifactExportController(
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
+        {
+            return this.NotFoundProblem(
+                $"Manifest '{manifestId}' was not found in the current scope.",
+                ProblemTypes.ManifestNotFound);
+        }
+
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
-            return this.NotFoundProblem($"No artifacts were found for manifest '{manifestId}'.", ProblemTypes.ManifestNotFound);
+        {
+            return this.NotFoundProblem(
+                $"Manifest '{manifestId}' has no artifact bundle or the bundle contains no artifacts. " +
+                $"The list endpoint GET api/artifacts/manifests/{manifestId} returns an empty JSON array when there are no artifact rows.",
+                ProblemTypes.ResourceNotFound);
+        }
 
         ArtifactPackage package = artifactPackagingService.BuildBundlePackage(manifestId, artifacts);
 
@@ -155,6 +184,7 @@ public sealed class ArtifactExportController(
         return File(package.Content, package.ContentType, package.PackageFileName);
     }
 
+    /// <summary>ZIP export of run manifest, trace, and artifacts when the run is committed; artifacts ordered like the manifest bundle list.</summary>
     [HttpGet("runs/{runId:guid}/export")]
     [Produces("application/zip")]
     [ProducesResponseType(StatusCodes.Status200OK)]

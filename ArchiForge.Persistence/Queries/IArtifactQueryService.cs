@@ -13,7 +13,7 @@ namespace ArchiForge.Persistence.Queries;
 /// </remarks>
 public interface IArtifactQueryService
 {
-    /// <summary>Lightweight descriptors sorted by name (no full content load beyond bundle read).</summary>
+    /// <summary>Lightweight descriptors sorted by name then artifact id (no full content load beyond bundle read).</summary>
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
     /// <param name="manifestId">Golden manifest whose artifacts to list.</param>
     /// <param name="ct">Cancellation token.</param>
@@ -39,7 +39,7 @@ public interface IArtifactQueryService
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
     /// <param name="manifestId">Golden manifest id.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Full artifact list (may be empty).</returns>
+    /// <returns>Full artifact list (may be empty); same name/type ordering as list descriptors (name, then id).</returns>
     Task<IReadOnlyList<SynthesizedArtifact>> GetArtifactsByManifestIdAsync(
         ScopeContext scope,
         Guid manifestId,

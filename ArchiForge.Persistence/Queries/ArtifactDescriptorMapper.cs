@@ -27,12 +27,20 @@ internal static class ArtifactDescriptorMapper
 
     /// <summary>
     /// Projects and orders a collection of <see cref="SynthesizedArtifact"/> instances to a
-    /// read-only list of <see cref="ArtifactDescriptor"/> records sorted by name ascending.
+    /// read-only list of <see cref="ArtifactDescriptor"/> records sorted by name (ordinal ignore case),
+    /// then <see cref="SynthesizedArtifact.ArtifactId"/> for deterministic UI and export ordering.
     /// </summary>
     internal static IReadOnlyList<ArtifactDescriptor> ToDescriptorList(
         IEnumerable<SynthesizedArtifact> artifacts) =>
+        OrderSynthesizedArtifacts(artifacts).Select(ToDescriptor).ToList();
+
+    /// <summary>
+    /// Stable ordering for bundle exports and any consumer that iterates full <see cref="SynthesizedArtifact"/> rows.
+    /// </summary>
+    internal static IReadOnlyList<SynthesizedArtifact> OrderSynthesizedArtifacts(
+        IEnumerable<SynthesizedArtifact> artifacts) =>
         artifacts
             .OrderBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
-            .Select(ToDescriptor)
+            .ThenBy(x => x.ArtifactId)
             .ToList();
 }

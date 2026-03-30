@@ -40,6 +40,8 @@ public sealed class DapperArtifactQueryService(IArtifactBundleRepository artifac
         CancellationToken ct)
     {
         ArtifactBundle? bundle = await artifactBundleRepository.GetByManifestIdAsync(scope, manifestId, ct);
-        return bundle?.Artifacts ?? [];
+        IReadOnlyList<SynthesizedArtifact> raw = bundle?.Artifacts ?? [];
+
+        return ArtifactDescriptorMapper.OrderSynthesizedArtifacts(raw);
     }
 }
