@@ -26,6 +26,11 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **CLI:** `archiforge doctor` or `archiforge check` — local project checks + calls the three endpoints and prints JSON (truncated) with clear section headers.
 - **Tags:** `ArchiForge.Api.Health.ReadinessTags` (`live` / `ready`); no extra framework beyond `IHealthCheck`.
 
+### Prompt 5 — packaging and local release scripts
+
+- **Scripts (repo root):** `build-release`, `package-release`, `run-readiness-check` (`.cmd` + `.ps1`) — Release build, `dotnet publish` to `artifacts/release/api/`, optional Next.js production build when Node is available, RC-style gate (Release + fast core + Vitest).
+- **Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md) — handoff workflow, run published API, UI dev/build, CI notes, scope limits (no SBOM/container in-script).
+
 ### Deferred to later prompts (56R backlog)
 
 - Structured log enrichers, version/commit in logs, OTLP defaults.
@@ -44,3 +49,5 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchiForge.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
+- `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
+- `docs/RELEASE_LOCAL.md`

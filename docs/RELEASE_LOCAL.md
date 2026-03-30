@@ -1,0 +1,86 @@
+# Local release candidate packaging (Change Set 56R)
+
+Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc).
+
+**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchiForge:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [BUILD.md](BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
+
+---
+
+## Scripts (repo root)
+
+| Script | Purpose |
+|--------|---------|
+| `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchiForge.sln -c Release` |
+| `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archiforge-ui/` |
+| `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archiforge-ui/` when Node is available |
+| `test-core.cmd` / `test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
+| `test-fast-core.cmd` / `test-fast-core.ps1` | Core excluding Slow + Integration (default configuration) |
+| `test-ui-unit.cmd` / `test-ui-unit.ps1` | `npm ci` + `npm run test` (Vitest) |
+
+**PowerShell extras**
+
+- `package-release.ps1 -SkipUiBuild` — publish API only; no Next.js production build.
+- `run-readiness-check.ps1 -SkipUi` — skip UI unit tests even if Node is installed.
+
+**Output folder:** `artifacts/release/` is **gitignored**. Only the **API** publish output is copied there (`artifacts/release/api/`). The operator UI remains developed from `archiforge-ui/` in the repo (or deploy via your host’s Node/Next workflow).
+
+---
+
+## Typical pilot workflow
+
+1. **Verify:** `run-readiness-check.cmd` (or `.ps1`) from repo root.
+2. **Package:** `package-release.cmd` (or `.ps1`).
+3. **Hand off:** Share the **repository** (or archive) plus the published API folder if you only ship binaries.
+
+---
+
+## Run the published API locally
+
+From `artifacts/release/api/` (after `package-release`):
+
+```powershell
+# Requires .NET 10 runtime (ASP.NET Core hosting bundle on Windows servers if needed).
+$env:ASPNETCORE_ENVIRONMENT = 'Production'
+# Example: SQL (adjust for your server; use User Secrets or env vars — do not commit secrets)
+$env:ConnectionStrings__ArchiForge = 'Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=...;TrustServerCertificate=True;'
+dotnet .\ArchiForge.Api.dll
+```
+
+Defaults for URLs are in `ArchiForge.Api/Properties/launchSettings.json` when developing; for published runs, set `ASPNETCORE_URLS` (e.g. `http://localhost:5128`) if you need a fixed binding.
+
+**Health:** `GET /health/live`, `GET /health/ready`, `GET /health` (see root [README.md](../README.md)).
+
+**Configuration:** [README.md](../README.md) (secrets, auth modes), [demo-quickstart.md](demo-quickstart.md) for optional demo seed.
+
+---
+
+## Run the operator UI locally
+
+From repo `archiforge-ui/`:
+
+```bash
+npm ci
+npm run dev
+```
+
+For a **production-style** check (matches `package-release` UI step):
+
+```bash
+npm run build
+npm start
+```
+
+Point the UI at the API using `archiforge-ui` env conventions (e.g. upstream base URL for the proxy — see [archiforge-ui/README.md](../archiforge-ui/README.md) and [operator-shell.md](operator-shell.md)).
+
+---
+
+## CI alignment
+
+GitHub Actions uses **`-c Release`** for .NET jobs. Daily `test-fast-core` scripts use the **default** test configuration unless you use **`run-readiness-check`**, which runs fast core in **Release** after a Release build.
+
+---
+
+## Scope limits (56R)
+
+- **No** self-contained RID packaging in these scripts (keeps scripts small). To publish self-contained for a specific OS, add `-r win-x64` (or your RID) to `dotnet publish` in a local one-off or fork of `package-release.ps1`.
+- **No** SBOM, container build, or signing in this change set.

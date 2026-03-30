@@ -1,6 +1,6 @@
 # Build & project hygiene
 
-See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering, and **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment.
+See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment, and **[RELEASE_LOCAL.md](RELEASE_LOCAL.md)** (56R) for `build-release` / `package-release` / `run-readiness-check`.
 
 **API controllers:** Keep all MVC controllers under **`ArchiForge.Api/Controllers/`** (single folder). On Windows, tools may show the same path with `\` or `/`; on Linux, Git is case-sensitive—do not introduce a second `Controllers` directory that differs only by casing or path style, or you risk duplicate types and confusing diffs.
 

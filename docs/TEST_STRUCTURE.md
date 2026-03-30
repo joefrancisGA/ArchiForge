@@ -38,6 +38,10 @@ dotnet test ArchiForge.sln
 
 **Windows (same filters):** `test-core.cmd`, `test-fast-core.cmd`, `test-integration.cmd`, `test-slow.cmd`, `test-full.cmd` (and `.ps1` where present).
 
+### Release candidate packaging (56R)
+
+**Doc:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md). **Scripts:** `build-release`, `package-release`, `run-readiness-check` (`.cmd` / `.ps1` at repo root). `run-readiness-check` runs a **Release** build, **fast core** tests with `-c Release`, then **Vitest** when Node is on `PATH`.
+
 ### SQL Server–first (Persistence Dapper)
 
 Persistence integration against a **real** SQL Server (Dapper + DbUp migrations; **no EF**):
