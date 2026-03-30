@@ -115,6 +115,9 @@ export default async function ManifestDetailPage({
       <p>
         <strong>Status:</strong> {summary.status}
       </p>
+      {summary.operatorSummary && (
+        <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.5 }}>{summary.operatorSummary}</p>
+      )}
       <p>
         <strong>Rule set:</strong> {summary.ruleSetId} {summary.ruleSetVersion}
       </p>

@@ -135,6 +135,13 @@ export function coerceReplayResponse(
     }
   }
 
+  if (validation.hasValidationNotes !== undefined && typeof validation.hasValidationNotes !== "boolean") {
+    return {
+      ok: false,
+      message: 'Replay validation has invalid "hasValidationNotes".',
+    };
+  }
+
   return { ok: true, value: data as ReplayResponse };
 }
 
@@ -199,6 +206,10 @@ export function coerceManifestSummary(
     }
   }
 
+  if (data.operatorSummary !== undefined && typeof data.operatorSummary !== "string") {
+    return { ok: false, message: 'Manifest summary has invalid "operatorSummary" (expected string).' };
+  }
+
   return { ok: true, value: data as ManifestSummary };
 }
 
@@ -255,6 +266,14 @@ export function coerceArtifactDescriptor(
     if (typeof data[key] !== "string") {
       return { ok: false, message: `Artifact descriptor is missing or invalid "${key}".` };
     }
+  }
+
+  if (data.manifestId !== undefined && typeof data.manifestId !== "string") {
+    return { ok: false, message: 'Artifact descriptor has invalid "manifestId".' };
+  }
+
+  if (data.runId !== undefined && typeof data.runId !== "string") {
+    return { ok: false, message: 'Artifact descriptor has invalid "runId".' };
   }
 
   return { ok: true, value: data as ArtifactDescriptor };

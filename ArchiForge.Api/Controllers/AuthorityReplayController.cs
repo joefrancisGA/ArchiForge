@@ -79,6 +79,7 @@ public sealed class AuthorityReplayController(
             ManifestHashMatches = result.Validation.ManifestHashMatches,
             ArtifactBundlePresentAfterReplay = result.Validation.ArtifactBundlePresentAfterReplay,
             Notes = result.Validation.Notes,
+            HasValidationNotes = result.Validation.Notes.Count > 0,
         };
 
         return Ok(new ReplayResponse

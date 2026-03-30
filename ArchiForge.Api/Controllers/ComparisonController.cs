@@ -35,7 +35,10 @@ public sealed class ComparisonController(
     /// <param name="baseRunId">Earlier or baseline run.</param>
     /// <param name="targetRunId">Later or candidate run.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ComparisonResult"/> when both runs exist in scope and each has a golden manifest; otherwise 404.</returns>
+    /// <returns>
+    /// <see cref="ComparisonResult"/> when both runs exist in scope and each has a golden manifest; otherwise 404.
+    /// Delta collections are non-null JSON arrays (empty when no changes). <see cref="ComparisonResult.TotalDeltaCount"/> is the sum of row counts across sections.
+    /// </returns>
     [HttpGet]
     [ProducesResponseType(typeof(ComparisonResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

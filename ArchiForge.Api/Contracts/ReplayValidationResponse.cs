@@ -30,4 +30,7 @@ public class ReplayValidationResponse
 
     /// <inheritdoc cref="ArchiForge.Persistence.Replay.ReplayValidationResult.Notes"/>
     public List<string> Notes { get; set; } = [];
+
+    /// <summary>True when <see cref="Notes"/> contains at least one entry.</summary>
+    public bool HasValidationNotes { get; set; }
 }

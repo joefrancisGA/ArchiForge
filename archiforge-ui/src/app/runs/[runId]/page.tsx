@@ -168,6 +168,11 @@ export default async function RunDetailPage({
       {manifestSummary && (
         <section style={{ marginBottom: 24 }}>
           <h3>Manifest summary</h3>
+          {manifestSummary.operatorSummary && (
+            <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569", lineHeight: 1.5 }}>
+              {manifestSummary.operatorSummary}
+            </p>
+          )}
           <p>
             <strong>Status:</strong> {manifestSummary.status}
           </p>

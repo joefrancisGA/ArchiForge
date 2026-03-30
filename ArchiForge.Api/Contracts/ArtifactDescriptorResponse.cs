@@ -15,7 +15,14 @@ public sealed class ArtifactDescriptorResponse
     public DateTime CreatedUtc { get; set; }
     public string ContentHash { get; set; } = null!;
 
-    public static ArtifactDescriptorResponse From(ArtifactDescriptor descriptor) =>
+    /// <summary>Golden manifest that produced this artifact (set on list and descriptor responses).</summary>
+    public Guid? ManifestId { get; set; }
+
+    /// <summary>Authority run when known from stored artifact rows (descriptor from synthesis).</summary>
+    public Guid? RunId { get; set; }
+
+    /// <summary>List projection: correlates each row with the manifest id from the route.</summary>
+    public static ArtifactDescriptorResponse From(ArtifactDescriptor descriptor, Guid manifestId) =>
         new()
         {
             ArtifactId = descriptor.ArtifactId,
@@ -24,8 +31,11 @@ public sealed class ArtifactDescriptorResponse
             Format = descriptor.Format,
             CreatedUtc = descriptor.CreatedUtc,
             ContentHash = descriptor.ContentHash,
+            ManifestId = manifestId,
+            RunId = null,
         };
 
+    /// <summary>Single-artifact descriptor including scope ids from the synthesized record.</summary>
     public static ArtifactDescriptorResponse From(SynthesizedArtifact artifact) =>
         new()
         {
@@ -35,5 +45,7 @@ public sealed class ArtifactDescriptorResponse
             Format = artifact.Format,
             CreatedUtc = artifact.CreatedUtc,
             ContentHash = artifact.ContentHash,
+            ManifestId = artifact.ManifestId,
+            RunId = artifact.RunId,
         };
 }

@@ -32,6 +32,8 @@ export type ManifestSummary = {
   /** API 55R+ */
   hasWarnings?: boolean;
   hasUnresolvedIssues?: boolean;
+  /** API 55R+: deterministic one-line summary from API (counts + status). */
+  operatorSummary?: string;
 };
 
 export type DiffItem = {
@@ -70,6 +72,10 @@ export type ArtifactDescriptor = {
   format: string;
   createdUtc: string;
   contentHash: string;
+  /** API 55R+: set on list and descriptor responses. */
+  manifestId?: string;
+  /** API 55R+: set when returned from full artifact row (descriptor endpoint). */
+  runId?: string;
 };
 
 export type ReplayValidation = {
@@ -82,6 +88,8 @@ export type ReplayValidation = {
   manifestHashMatches: boolean;
   artifactBundlePresentAfterReplay: boolean;
   notes: string[];
+  /** API 55R+ */
+  hasValidationNotes?: boolean;
 };
 
 export type ReplayResponse = {

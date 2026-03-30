@@ -39,4 +39,9 @@ public class ManifestSummaryResponse
 
     /// <summary>True when <see cref="UnresolvedIssueCount"/> is greater than zero.</summary>
     public bool HasUnresolvedIssues { get; set; }
+
+    /// <summary>
+    /// Single-line summary for operator shells (deterministic composition from counts and <see cref="Status"/>).
+    /// </summary>
+    public string OperatorSummary { get; set; } = "";
 }

@@ -31,7 +31,7 @@ public sealed class AuthorityQueryController(
     /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
     /// <param name="take">Maximum runs (default 20).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="RunSummaryResponse"/> items newest-first.</returns>
+    /// <returns><see cref="RunSummaryResponse"/> items newest-first. Returns <c>200 OK</c> with an empty JSON array when the project has no runs.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -66,19 +66,7 @@ public sealed class AuthorityQueryController(
         if (result is null)
             return this.NotFoundProblem($"Run summary '{runId}' was not found.", ProblemTypes.RunNotFound);
 
-        return Ok(new RunSummaryResponse
-        {
-            RunId = result.RunId,
-            ProjectId = result.ProjectId,
-            Description = result.Description,
-            CreatedUtc = result.CreatedUtc,
-            ContextSnapshotId = result.ContextSnapshotId,
-            GraphSnapshotId = result.GraphSnapshotId,
-            FindingsSnapshotId = result.FindingsSnapshotId,
-            GoldenManifestId = result.GoldenManifestId,
-            DecisionTraceId = result.DecisionTraceId,
-            ArtifactBundleId = result.ArtifactBundleId
-        });
+        return Ok(ToRunSummaryResponse(result));
     }
 
     /// <summary>Loads full run detail including hydrated snapshots and golden manifest when available.</summary>
@@ -131,6 +119,8 @@ public sealed class AuthorityQueryController(
             Status = result.Status,
             HasWarnings = result.WarningCount > 0,
             HasUnresolvedIssues = result.UnresolvedIssueCount > 0,
+            OperatorSummary =
+                $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
         });
     }
 

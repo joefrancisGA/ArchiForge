@@ -4,7 +4,7 @@ namespace ArchiForge.Persistence.Queries;
 /// Lightweight projection of a <see cref="ArchiForge.Persistence.Models.RunRecord"/> for lists and cards (ids only for linked artifacts).
 /// </summary>
 /// <remarks>
-/// Mapped by <see cref="IAuthorityQueryService"/> from runs; HTTP exposure as <c>ArchiForge.Api.Contracts.RunSummaryResponse</c> (without the <c>Has*</c> helpers).
+/// Mapped by <see cref="IAuthorityQueryService"/> from runs; HTTP exposure as <see cref="ArchiForge.Api.Contracts.RunSummaryResponse"/> including derived <c>Has*</c> flags.
 /// </remarks>
 public class RunSummaryDto
 {

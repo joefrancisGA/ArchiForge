@@ -44,6 +44,7 @@ public sealed class ArtifactExportController(
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
+    /// <summary>Lists descriptors for the manifest. Returns <c>200 OK</c> with a JSON array (possibly empty) when the manifest exists.</summary>
     [HttpGet("manifests/{manifestId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ArtifactDescriptorResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
@@ -63,7 +64,7 @@ public sealed class ArtifactExportController(
 
         IReadOnlyList<ArtifactDescriptor> artifacts = await artifactQueryService.ListArtifactsByManifestIdAsync(scope, manifestId, ct);
 
-        return Ok(artifacts.Select(ArtifactDescriptorResponse.From).ToList());
+        return Ok(artifacts.Select(a => ArtifactDescriptorResponse.From(a, manifestId)).ToList());
     }
 
     /// <summary>JSON metadata for a single artifact (operator review without downloading bytes).</summary>
