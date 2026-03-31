@@ -1,11 +1,12 @@
 import Link from "next/link";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
-  OperatorErrorCallout,
   OperatorMalformedCallout,
-  OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   coerceArtifactDescriptorList,
   coerceManifestSummary,
@@ -30,27 +31,29 @@ export default async function RunDetailPage({
   const { runId } = await params;
 
   let detail: Awaited<ReturnType<typeof getRunDetail>> | null = null;
-  let loadError: string | null = null;
+  let loadFailure: ApiLoadFailureState | null = null;
 
   try {
     detail = await getRunDetail(runId);
   } catch (e) {
-    loadError = e instanceof Error ? e.message : "Failed to load run.";
+    loadFailure = toApiLoadFailure(e);
   }
 
-  if (loadError || !detail) {
+  if (loadFailure || !detail) {
+    const fallback =
+      loadFailure?.message ?? "Run not found or could not be loaded.";
+
     return (
       <main>
         <h2>Run detail</h2>
-        <OperatorErrorCallout>
-          <strong>Run unavailable.</strong>
-          <p style={{ margin: "8px 0 0" }}>
-            {loadError ?? "Run not found or could not be loaded."}
-          </p>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-            This indicates a failed request or missing run (HTTP / transport), not a JSON shape issue.
-          </p>
-        </OperatorErrorCallout>
+        <OperatorApiProblem
+          problem={loadFailure?.problem ?? null}
+          fallbackMessage={fallback}
+          correlationId={loadFailure?.correlationId ?? null}
+        />
+        <p style={{ margin: "12px 0 0", fontSize: 14 }}>
+          This indicates a failed request or missing run (HTTP / transport), not a JSON shape issue.
+        </p>
         <p>
           <Link href="/runs?projectId=default">← Back to runs</Link>
         </p>
@@ -84,9 +87,9 @@ export default async function RunDetailPage({
 
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
-  let manifestSummaryError: string | null = null;
+  let manifestSummaryFailure: ApiLoadFailureState | null = null;
   let manifestSummaryMalformed: string | null = null;
-  let artifactsError: string | null = null;
+  let artifactsFailure: ApiLoadFailureState | null = null;
   let artifactsMalformed: string | null = null;
 
   if (manifestId) {
@@ -100,8 +103,7 @@ export default async function RunDetailPage({
         manifestSummary = coercedSummary.value;
       }
     } catch (e) {
-      manifestSummaryError =
-        e instanceof Error ? e.message : "Could not load manifest summary.";
+      manifestSummaryFailure = toApiLoadFailure(e);
     }
 
     try {
@@ -115,7 +117,7 @@ export default async function RunDetailPage({
         artifacts = coercedArtifacts.items;
       }
     } catch (e) {
-      artifactsError = e instanceof Error ? e.message : "Could not load artifact list.";
+      artifactsFailure = toApiLoadFailure(e);
     }
   }
 
@@ -180,14 +182,21 @@ export default async function RunDetailPage({
         </OperatorEmptyState>
       )}
 
-      {manifestSummaryError && (
-        <OperatorWarningCallout>
-          <strong>Manifest summary could not be loaded.</strong>
-          <p style={{ margin: "8px 0 0" }}>{manifestSummaryError}</p>
+      {manifestSummaryFailure && (
+        <>
+          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+            Manifest summary could not be loaded.
+          </p>
+          <OperatorApiProblem
+            problem={manifestSummaryFailure.problem}
+            fallbackMessage={manifestSummaryFailure.message}
+            correlationId={manifestSummaryFailure.correlationId}
+            variant="warning"
+          />
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
             This is a failed request (HTTP / transport / 404), not a malformed JSON body.
           </p>
-        </OperatorWarningCallout>
+        </>
       )}
 
       {manifestSummaryMalformed && (
@@ -227,25 +236,32 @@ export default async function RunDetailPage({
         <section style={{ marginBottom: 24 }}>
           <h3>Artifacts</h3>
 
-          {artifactsError && (
-            <OperatorWarningCallout>
-              <strong>Artifact list could not be loaded.</strong>
-              <p style={{ margin: "8px 0 0" }}>{artifactsError}</p>
+          {artifactsFailure && (
+            <>
+              <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+                Artifact list could not be loaded.
+              </p>
+              <OperatorApiProblem
+                problem={artifactsFailure.problem}
+                fallbackMessage={artifactsFailure.message}
+                correlationId={artifactsFailure.correlationId}
+                variant="warning"
+              />
               <p style={{ margin: "8px 0 0", fontSize: 14 }}>
                 The artifacts request failed (network, 404, or server error)—distinct from an empty
                 list or malformed JSON.
               </p>
-            </OperatorWarningCallout>
+            </>
           )}
 
-          {!artifactsError && artifactsMalformed && (
+          {!artifactsFailure && artifactsMalformed && (
             <OperatorMalformedCallout>
               <strong>Artifact list response was not usable.</strong>
               <p style={{ margin: "8px 0 0" }}>{artifactsMalformed}</p>
             </OperatorMalformedCallout>
           )}
 
-          {!artifactsError && !artifactsMalformed && artifacts.length === 0 && (
+          {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (
             <OperatorEmptyState title="No artifacts for this manifest">
               <p style={{ margin: 0 }}>
                 The manifest exists but the artifact descriptor list is empty (valid empty result).
@@ -255,7 +271,7 @@ export default async function RunDetailPage({
             </OperatorEmptyState>
           )}
 
-          {!artifactsError && !artifactsMalformed && artifacts.length > 0 && (
+          {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 && (
             <ArtifactListTable
               manifestId={manifestId}
               artifacts={artifacts}

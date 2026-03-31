@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createDigestSubscription,
   listDigestSubscriptions,
@@ -13,7 +16,7 @@ export default function DigestSubscriptionsPage() {
   const [items, setItems] = useState<DigestSubscription[]>([]);
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, DigestDeliveryAttempt[]>>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Digest Subscription");
   const [channelType, setChannelType] = useState("Email");
@@ -21,12 +24,12 @@ export default function DigestSubscriptionsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await listDigestSubscriptions();
       setItems(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -38,7 +41,7 @@ export default function DigestSubscriptionsPage() {
 
   async function onCreate() {
     if (!destination.trim()) return;
-    setError(null);
+    setFailure(null);
     try {
       await createDigestSubscription({
         name: name.trim() || "Digest Subscription",
@@ -50,17 +53,17 @@ export default function DigestSubscriptionsPage() {
       setDestination("");
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Create failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
   async function onToggle(subscriptionId: string) {
-    setError(null);
+    setFailure(null);
     try {
       await toggleDigestSubscription(subscriptionId);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Toggle failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -81,10 +84,14 @@ export default function DigestSubscriptionsPage() {
         a delivery attempt. Dev uses fake email/webhook loggers — check API logs for output.
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>

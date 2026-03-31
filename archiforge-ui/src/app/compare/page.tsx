@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
-  OperatorErrorCallout,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   coerceComparisonExplanation,
   coerceGoldenManifestComparison,
@@ -27,10 +29,10 @@ type ComparedPair = { left: string; right: string };
 
 function outcomeLabel(params: {
   hasValue: boolean;
-  error: string | null;
+  failure: ApiLoadFailureState | null;
   malformed: string | null;
 }): string {
-  if (params.error !== null) {
+  if (params.failure !== null) {
     return "Request failed";
   }
 
@@ -57,13 +59,13 @@ function CompareForm() {
   const [rightRunId, setRightRunId] = useState("");
   const [result, setResult] = useState<RunComparison | null>(null);
   const [golden, setGolden] = useState<GoldenManifestComparison | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [goldenError, setGoldenError] = useState<string | null>(null);
+  const [legacyFailure, setLegacyFailure] = useState<ApiLoadFailureState | null>(null);
+  const [goldenFailure, setGoldenFailure] = useState<ApiLoadFailureState | null>(null);
   const [legacyMalformed, setLegacyMalformed] = useState<string | null>(null);
   const [goldenMalformed, setGoldenMalformed] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<ComparisonExplanation | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiFailure, setAiFailure] = useState<ApiLoadFailureState | null>(null);
   const [aiMalformed, setAiMalformed] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
@@ -86,12 +88,12 @@ function CompareForm() {
     lastComparedPair !== null &&
     (result !== null ||
       golden !== null ||
-      error !== null ||
-      goldenError !== null ||
+      legacyFailure !== null ||
+      goldenFailure !== null ||
       legacyMalformed !== null ||
       goldenMalformed !== null ||
       aiExplanation !== null ||
-      aiError !== null ||
+      aiFailure !== null ||
       aiMalformed !== null);
 
   async function onCompare() {
@@ -100,14 +102,14 @@ function CompareForm() {
     const gen = ++compareGenerationRef.current;
 
     setLoading(true);
-    setError(null);
-    setGoldenError(null);
+    setLegacyFailure(null);
+    setGoldenFailure(null);
     setLegacyMalformed(null);
     setGoldenMalformed(null);
     setResult(null);
     setGolden(null);
     setAiExplanation(null);
-    setAiError(null);
+    setAiFailure(null);
     setAiMalformed(null);
     setLastComparedPair(null);
 
@@ -131,7 +133,7 @@ function CompareForm() {
         return;
       }
 
-      setError(err instanceof Error ? err.message : "Run comparison failed.");
+      setLegacyFailure(toApiLoadFailure(err));
       setResult(null);
     }
 
@@ -155,9 +157,7 @@ function CompareForm() {
         return;
       }
 
-      setGoldenError(
-        err instanceof Error ? err.message : "Structured manifest comparison failed.",
-      );
+      setGoldenFailure(toApiLoadFailure(err));
       setGolden(null);
     } finally {
       if (gen === compareGenerationRef.current) {
@@ -175,7 +175,7 @@ function CompareForm() {
     const gen = ++aiGenerationRef.current;
 
     setAiLoading(true);
-    setAiError(null);
+    setAiFailure(null);
     setAiExplanation(null);
     setAiMalformed(null);
 
@@ -199,7 +199,7 @@ function CompareForm() {
         return;
       }
 
-      setAiError(err instanceof Error ? err.message : "AI explanation failed.");
+      setAiFailure(toApiLoadFailure(err));
       setAiExplanation(null);
     } finally {
       if (gen === aiGenerationRef.current) {
@@ -299,11 +299,17 @@ function CompareForm() {
         </OperatorLoadingNotice>
       )}
 
-      {error && (
-        <OperatorErrorCallout>
-          <strong>Legacy run comparison failed.</strong>
-          <p style={{ margin: "8px 0 0" }}>{error}</p>
-        </OperatorErrorCallout>
+      {legacyFailure && (
+        <>
+          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+            Legacy run comparison failed.
+          </p>
+          <OperatorApiProblem
+            problem={legacyFailure.problem}
+            fallbackMessage={legacyFailure.message}
+            correlationId={legacyFailure.correlationId}
+          />
+        </>
       )}
 
       {legacyMalformed && (
@@ -313,14 +319,21 @@ function CompareForm() {
         </OperatorMalformedCallout>
       )}
 
-      {goldenError && (
-        <OperatorWarningCallout>
-          <strong>Structured manifest comparison request failed.</strong>
-          <p style={{ margin: "8px 0 0" }}>{goldenError}</p>
+      {goldenFailure && (
+        <>
+          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+            Structured manifest comparison request failed.
+          </p>
+          <OperatorApiProblem
+            problem={goldenFailure.problem}
+            fallbackMessage={goldenFailure.message}
+            correlationId={goldenFailure.correlationId}
+            variant="warning"
+          />
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
             The legacy comparison may still have succeeded; check the sections below.
           </p>
-        </OperatorWarningCallout>
+        </>
       )}
 
       {goldenMalformed && (
@@ -330,11 +343,18 @@ function CompareForm() {
         </OperatorMalformedCallout>
       )}
 
-      {aiError && (
-        <OperatorWarningCallout>
-          <strong>AI explanation request failed.</strong>
-          <p style={{ margin: "8px 0 0" }}>{aiError}</p>
-        </OperatorWarningCallout>
+      {aiFailure && (
+        <>
+          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+            AI explanation request failed.
+          </p>
+          <OperatorApiProblem
+            problem={aiFailure.problem}
+            fallbackMessage={aiFailure.message}
+            correlationId={aiFailure.correlationId}
+            variant="warning"
+          />
+        </>
       )}
 
       {aiMalformed && (
@@ -375,7 +395,7 @@ function CompareForm() {
             <dd style={{ margin: 0 }}>
               {outcomeLabel({
                 hasValue: golden !== null,
-                error: goldenError,
+                failure: goldenFailure,
                 malformed: goldenMalformed,
               })}
             </dd>
@@ -383,7 +403,7 @@ function CompareForm() {
             <dd style={{ margin: 0 }}>
               {outcomeLabel({
                 hasValue: result !== null,
-                error,
+                failure: legacyFailure,
                 malformed: legacyMalformed,
               })}
             </dd>

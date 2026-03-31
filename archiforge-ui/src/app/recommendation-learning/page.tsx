@@ -1,22 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getLatestLearningProfile, rebuildLearningProfile } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { LearningProfile } from "@/types/recommendation-learning";
 
 export default function RecommendationLearningPage() {
   const [profile, setProfile] = useState<LearningProfile | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   async function loadLatest() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await getLatestLearningProfile();
       setProfile(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Request failed");
+      setFailure(toApiLoadFailure(e));
       setProfile(null);
     } finally {
       setLoading(false);
@@ -25,12 +28,12 @@ export default function RecommendationLearningPage() {
 
   async function rebuild() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await rebuildLearningProfile();
       setProfile(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Rebuild failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -53,10 +56,14 @@ export default function RecommendationLearningPage() {
         </button>
       </div>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       {profile ? (
@@ -98,7 +105,7 @@ export default function RecommendationLearningPage() {
             ))}
           </ul>
         </>
-      ) : !loading && !error ? (
+      ) : !loading && failure === null ? (
         <p style={{ color: "#666" }}>No profile loaded. Use the buttons above.</p>
       ) : null}
     </main>

@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  CORRELATION_ID_HEADER,
+  generateCorrelationId,
+  isSafeCorrelationId,
+} from "@/lib/correlation";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/proxy-body-read";
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
@@ -20,6 +25,16 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
     const incoming = request.headers.get(k);
     h.set(k, incoming && incoming.trim().length > 0 ? incoming : v);
   }
+
+  const incomingCorrelation = request.headers.get(CORRELATION_ID_HEADER);
+  const correlationId =
+    incomingCorrelation !== null &&
+    incomingCorrelation !== undefined &&
+    isSafeCorrelationId(incomingCorrelation)
+      ? incomingCorrelation.trim()
+      : generateCorrelationId();
+  h.set(CORRELATION_ID_HEADER, correlationId);
+
   return h;
 }
 
@@ -190,6 +205,11 @@ function passThrough(res: Response): NextResponse {
 
   const disposition = res.headers.get("content-disposition");
   if (disposition) out.headers.set("Content-Disposition", disposition);
+
+  const correlation = res.headers.get(CORRELATION_ID_HEADER);
+  if (correlation && correlation.trim().length > 0) {
+    out.headers.set(CORRELATION_ID_HEADER, correlation.trim());
+  }
 
   return out;
 }

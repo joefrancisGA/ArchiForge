@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -13,7 +16,7 @@ export default function AlertRoutingPage() {
   const [items, setItems] = useState<AlertRoutingSubscription[]>([]);
   const [attemptsBySub, setAttemptsBySub] = useState<Record<string, AlertRoutingDeliveryAttempt[]>>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Alert Routing");
   const [channelType, setChannelType] = useState("Email");
@@ -22,12 +25,12 @@ export default function AlertRoutingPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await listAlertRoutingSubscriptions();
       setItems(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -39,7 +42,7 @@ export default function AlertRoutingPage() {
 
   async function onCreate() {
     if (!destination.trim()) return;
-    setError(null);
+    setFailure(null);
     try {
       await createAlertRoutingSubscription({
         name: name.trim() || "Alert Routing",
@@ -51,17 +54,17 @@ export default function AlertRoutingPage() {
       setDestination("");
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Create failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
   async function onToggle(id: string) {
-    setError(null);
+    setFailure(null);
     try {
       await toggleAlertRoutingSubscription(id);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Toggle failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -82,10 +85,14 @@ export default function AlertRoutingPage() {
         <strong>minimum severity</strong> is met receive the alert. Dev uses fake email/webhook loggers.
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>

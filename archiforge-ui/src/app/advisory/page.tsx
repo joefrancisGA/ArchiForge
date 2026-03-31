@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getImprovementPlan } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { applyRecommendationAction, listRecommendations } from "@/lib/advisory-api";
 import type { ImprovementPlan, RecommendationRecord } from "@/types/advisory";
 
@@ -11,13 +14,13 @@ export default function AdvisoryPage() {
   const [planSummary, setPlanSummary] = useState<ImprovementPlan | null>(null);
   const [recommendations, setRecommendations] = useState<RecommendationRecord[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   async function takeAction(recommendationId: string, action: string) {
     const comment = window.prompt(`Optional comment for ${action}:`) ?? "";
     const rationale = window.prompt(`Optional rationale for ${action}:`) ?? "";
 
-    setError(null);
+    setFailure(null);
     try {
       await applyRecommendationAction(recommendationId, action, comment, rationale);
       const rid = runId.trim();
@@ -26,7 +29,7 @@ export default function AdvisoryPage() {
         setRecommendations(refreshed);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Action failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -35,14 +38,14 @@ export default function AdvisoryPage() {
     if (!rid) return;
 
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await getImprovementPlan(rid, compareToRunId.trim() || undefined);
       setPlanSummary(data);
       const persisted = await listRecommendations(rid);
       setRecommendations(persisted);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Request failed");
+      setFailure(toApiLoadFailure(e));
       setPlanSummary(null);
       setRecommendations([]);
     } finally {
@@ -54,12 +57,12 @@ export default function AdvisoryPage() {
     const rid = runId.trim();
     if (!rid) return;
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const persisted = await listRecommendations(rid);
       setRecommendations(persisted);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Request failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -96,10 +99,14 @@ export default function AdvisoryPage() {
         </div>
       </div>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       {planSummary ? (

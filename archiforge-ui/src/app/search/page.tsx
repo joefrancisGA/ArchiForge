@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { apiGet } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 type RetrievalHit = {
   chunkId: string;
@@ -18,14 +21,14 @@ export default function SearchPage() {
   const [runId, setRunId] = useState("");
   const [results, setResults] = useState<RetrievalHit[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   async function onSearch() {
     const q = query.trim();
     if (!q) return;
 
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const params = new URLSearchParams();
       params.set("q", q);
@@ -33,7 +36,7 @@ export default function SearchPage() {
       const data = await apiGet<RetrievalHit[]>(`/api/retrieval/search?${params.toString()}`);
       setResults(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Search failed");
+      setFailure(toApiLoadFailure(e));
       setResults([]);
     } finally {
       setLoading(false);
@@ -66,10 +69,14 @@ export default function SearchPage() {
         </button>
       </div>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gap: 12 }}>

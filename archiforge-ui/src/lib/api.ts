@@ -1,5 +1,6 @@
-import { readApiFailureMessage } from "@/lib/api-error";
+import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
+import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { getScopeHeaders } from "@/lib/scope";
@@ -118,26 +119,34 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   return { url, headers };
 }
 
-/** GETs JSON from the ArchiForge API. Throws on HTTP errors with a descriptive message. */
+function withCorrelationHeaders(headers: HeadersInit): Headers {
+  const h = new Headers(headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+
+  return h;
+}
+
+/** GETs JSON from the ArchiForge API. Throws {@link ApiRequestError} on HTTP errors. */
 export async function apiGet<T>(path: string): Promise<T> {
   const { url, headers } = resolveRequest(path);
+  const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {
     cache: "no-store",
-    headers,
+    headers: h,
   });
+  const text = await response.text();
 
   if (!response.ok) {
-    const message = await readApiFailureMessage(response);
-    throw new Error(message);
+    throw buildApiRequestErrorFromParts(response, text);
   }
 
-  return response.json() as Promise<T>;
+  return JSON.parse(text) as T;
 }
 
 /** POSTs a JSON body to the ArchiForge API and returns the parsed response. Throws on HTTP errors. */
 export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
   const { url, headers } = resolveRequest(path);
-  const h = new Headers(headers);
+  const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {
     method: "POST",
@@ -145,13 +154,13 @@ export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
     cache: "no-store",
     body: JSON.stringify(body),
   });
+  const text = await response.text();
 
   if (!response.ok) {
-    const message = await readApiFailureMessage(response);
-    throw new Error(message);
+    throw buildApiRequestErrorFromParts(response, text);
   }
 
-  return response.json() as Promise<T>;
+  return JSON.parse(text) as T;
 }
 
 /** Same proxy/scope/API-key behavior as other UI API calls; for graph modules, etc. */
@@ -218,14 +227,15 @@ export async function fetchArtifactContentUtf8(
 ): Promise<ArtifactContentFetchResult> {
   const path = `/api/artifacts/manifests/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = resolveBinaryGetRequest(path);
+  const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {
     cache: "no-store",
-    headers,
+    headers: h,
   });
 
   if (!response.ok) {
-    const message = await readApiFailureMessage(response);
-    throw new Error(message);
+    const text = await response.text();
+    throw buildApiRequestErrorFromParts(response, text);
   }
 
   const contentType = response.headers.get("content-type") ?? "application/octet-stream";
@@ -323,12 +333,19 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
 /** Fetches the most recent recommendation learning profile, or null if none exists (404). */
 export async function getLatestLearningProfile(): Promise<LearningProfile | null> {
   const { url, headers } = resolveRequest("/api/recommendation-learning/latest");
-  const response = await fetch(url, { cache: "no-store", headers });
-  if (response.status === 404) return null;
-  if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+  const h = withCorrelationHeaders(headers);
+  const response = await fetch(url, { cache: "no-store", headers: h });
+  const text = await response.text();
+
+  if (response.status === 404) {
+    return null;
   }
-  return response.json() as Promise<LearningProfile>;
+
+  if (!response.ok) {
+    throw buildApiRequestErrorFromParts(response, text);
+  }
+
+  return JSON.parse(text) as LearningProfile;
 }
 
 /** Lists all advisory scan schedules for the current scope. */
@@ -356,11 +373,13 @@ export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> 
   const { url, headers } = resolveRequest(
     `/api/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
   );
-  const h = new Headers(headers);
+  const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, { method: "POST", headers: h, cache: "no-store" });
+  const text = await response.text();
+
   if (!response.ok) {
-    throw new Error(`Run now failed: ${response.status} ${response.statusText}`);
+    throw buildApiRequestErrorFromParts(response, text);
   }
 }
 
@@ -667,23 +686,26 @@ export async function createCompositeAlertRule(body: {
 /** Triggers a full rebuild of the recommendation learning profile from historical outcomes. */
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
   const { url, headers } = resolveRequest("/api/recommendation-learning/rebuild");
-  const h = new Headers(headers);
+  const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {
     method: "POST",
     headers: h,
     cache: "no-store",
   });
+  const text = await response.text();
+
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+    throw buildApiRequestErrorFromParts(response, text);
   }
-  return response.json() as Promise<LearningProfile>;
+
+  return JSON.parse(text) as LearningProfile;
 }
 
 /** Replays an authority chain for a run using the specified mode (ReconstructOnly, RebuildManifest, RebuildArtifacts). */
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
   const { url, headers } = resolveRequest("/api/authority/replay");
-  const h = new Headers(headers);
+  const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {
     method: "POST",
@@ -691,12 +713,13 @@ export async function replayRun(runId: string, mode: string): Promise<ReplayResp
     cache: "no-store",
     body: JSON.stringify({ runId, mode }),
   });
+  const text = await response.text();
 
   if (!response.ok) {
-    throw new Error(`Replay failed: ${response.status} ${response.statusText}`);
+    throw buildApiRequestErrorFromParts(response, text);
   }
 
-  return response.json() as Promise<ReplayResponse>;
+  return JSON.parse(text) as ReplayResponse;
 }
 
 /** Use same-origin proxy so browser downloads work with API key auth. */

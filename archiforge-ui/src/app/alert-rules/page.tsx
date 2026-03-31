@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createAlertRule, listAlertRules } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [
@@ -18,7 +21,7 @@ const SEVERITIES = ["Info", "Warning", "High", "Critical"];
 export default function AlertRulesPage() {
   const [items, setItems] = useState<AlertRule[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Architecture alert rule");
   const [ruleType, setRuleType] = useState("CriticalRecommendationCount");
@@ -27,12 +30,12 @@ export default function AlertRulesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await listAlertRules();
       setItems(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -43,7 +46,7 @@ export default function AlertRulesPage() {
   }, [load]);
 
   async function onCreate() {
-    setError(null);
+    setFailure(null);
     try {
       await createAlertRule({
         name: name.trim() || "Rule",
@@ -54,7 +57,7 @@ export default function AlertRulesPage() {
       });
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Create failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -66,10 +69,14 @@ export default function AlertRulesPage() {
         (count, percent, or days).
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>

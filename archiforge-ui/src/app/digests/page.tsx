@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   getArchitectureDigest,
   listArchitectureDigests,
@@ -14,7 +17,7 @@ export default function DigestsPage() {
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   useEffect(() => {
     void loadDigests();
@@ -22,25 +25,27 @@ export default function DigestsPage() {
 
   async function loadDigests() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await listArchitectureDigests(40);
       setDigests(data);
       setSelected(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load digests");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
   }
 
   async function selectDigest(d: ArchitectureDigest) {
-    setError(null);
+    setFailure(null);
     try {
       const full = await getArchitectureDigest(d.digestId);
       setSelected(full);
+      const attempts = await listDigestDeliveryAttempts(d.digestId);
+      setDeliveryAttempts(attempts);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load digest");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -57,10 +62,14 @@ export default function DigestsPage() {
         </button>
       </div>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gridTemplateColumns: "minmax(280px, 320px) 1fr", gap: 16 }}>

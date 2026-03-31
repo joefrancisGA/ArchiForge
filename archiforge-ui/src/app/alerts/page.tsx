@@ -1,23 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { applyAlertAction, listAlerts } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AlertRecord } from "@/types/alerts";
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [status, setStatus] = useState<string>("Open");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await listAlerts(status || null, 100);
       setAlerts(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -29,12 +32,12 @@ export default function AlertsPage() {
 
   async function act(alertId: string, action: "Acknowledge" | "Resolve" | "Suppress") {
     const comment = typeof window !== "undefined" ? window.prompt(`Optional comment for ${action}:`) ?? "" : "";
-    setError(null);
+    setFailure(null);
     try {
       await applyAlertAction(alertId, action, comment);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Action failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -45,10 +48,14 @@ export default function AlertsPage() {
         Architecture risk alerts from scheduled scans. Open + acknowledged rows dedupe new triggers with the same key.
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ marginBottom: 16 }}>

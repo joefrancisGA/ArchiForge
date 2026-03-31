@@ -1,22 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getGovernanceResolution } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 export default function GovernanceResolutionPage() {
   const [data, setData] = useState<EffectiveGovernanceResolutionResult | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const r = await getGovernanceResolution();
       setData(r);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -40,10 +43,14 @@ export default function GovernanceResolutionPage() {
           {loading ? "Loading…" : "Refresh"}
         </button>
       </p>
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <section style={{ marginBottom: 28 }}>

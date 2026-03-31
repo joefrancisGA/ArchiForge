@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [
@@ -37,7 +40,7 @@ const DEDUPE = [
 export default function CompositeAlertRulesPage() {
   const [items, setItems] = useState<CompositeAlertRule[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Cost + compliance composite");
   const [severity, setSeverity] = useState("High");
@@ -57,12 +60,12 @@ export default function CompositeAlertRulesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const data = await listCompositeAlertRules();
       setItems(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -73,7 +76,7 @@ export default function CompositeAlertRulesPage() {
   }, [load]);
 
   async function onCreate() {
-    setError(null);
+    setFailure(null);
     try {
       await createCompositeAlertRule({
         name: name.trim() || "Composite rule",
@@ -90,7 +93,7 @@ export default function CompositeAlertRulesPage() {
       });
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Create failed");
+      setFailure(toApiLoadFailure(e));
     }
   }
 
@@ -103,10 +106,14 @@ export default function CompositeAlertRulesPage() {
         same dedupe key are cleared.
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <h3>Create rule (2 conditions)</h3>

@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
   OperatorErrorCallout,
   OperatorMalformedCallout,
-  OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceArtifactDescriptorList, coerceManifestSummary } from "@/lib/operator-response-guards";
 import { getBundleDownloadUrl, getManifestSummary, listArtifacts } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
@@ -21,8 +23,8 @@ export default async function ManifestDetailPage({
 
   let summary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
-  let summaryError: string | null = null;
-  let artifactsError: string | null = null;
+  let summaryFailure: ApiLoadFailureState | null = null;
+  let artifactsFailure: ApiLoadFailureState | null = null;
   let summaryMalformed: string | null = null;
   let artifactsMalformed: string | null = null;
 
@@ -36,7 +38,7 @@ export default async function ManifestDetailPage({
       summary = coercedSummary.value;
     }
   } catch (e) {
-    summaryError = e instanceof Error ? e.message : "Failed to load manifest summary.";
+    summaryFailure = toApiLoadFailure(e);
   }
 
   try {
@@ -50,21 +52,25 @@ export default async function ManifestDetailPage({
       artifacts = coercedArtifacts.items;
     }
   } catch (e) {
-    artifactsError = e instanceof Error ? e.message : "Failed to load artifact list.";
+    artifactsFailure = toApiLoadFailure(e);
   }
 
-  if (summaryError) {
+  if (summaryFailure) {
     return (
       <main>
         <h2>Manifest</h2>
-        <OperatorErrorCallout>
-          <strong>Manifest summary could not be loaded.</strong>
-          <p style={{ margin: "8px 0 0" }}>{summaryError}</p>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-            Typical causes: unknown manifest ID (404), auth, or API unavailability. This is not an
-            empty artifact list.
-          </p>
-        </OperatorErrorCallout>
+        <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+          Manifest summary could not be loaded.
+        </p>
+        <OperatorApiProblem
+          problem={summaryFailure.problem}
+          fallbackMessage={summaryFailure.message}
+          correlationId={summaryFailure.correlationId}
+        />
+        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          Typical causes: unknown manifest ID (404), auth, or API unavailability. This is not an
+          empty artifact list.
+        </p>
         <p style={{ fontSize: 14 }}>
           <Link href="/">Home</Link>
           {" · "}
@@ -156,25 +162,32 @@ export default async function ManifestDetailPage({
           <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
         </p>
 
-        {artifactsError && (
-          <OperatorWarningCallout>
-            <strong>Artifact list could not be loaded.</strong>
-            <p style={{ margin: "8px 0 0" }}>{artifactsError}</p>
+        {artifactsFailure && (
+          <>
+            <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+              Artifact list could not be loaded.
+            </p>
+            <OperatorApiProblem
+              problem={artifactsFailure.problem}
+              fallbackMessage={artifactsFailure.message}
+              correlationId={artifactsFailure.correlationId}
+              variant="warning"
+            />
             <p style={{ margin: "8px 0 0", fontSize: 14 }}>
               The artifacts request failed (network, 404, or server error)—distinct from an empty
               list or malformed JSON.
             </p>
-          </OperatorWarningCallout>
+          </>
         )}
 
-        {!artifactsError && artifactsMalformed && (
+        {!artifactsFailure && artifactsMalformed && (
           <OperatorMalformedCallout>
             <strong>Artifact list response was not usable.</strong>
             <p style={{ margin: "8px 0 0" }}>{artifactsMalformed}</p>
           </OperatorMalformedCallout>
         )}
 
-        {!artifactsError && !artifactsMalformed && artifacts.length === 0 && (
+        {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (
           <OperatorEmptyState title="No artifacts listed for this manifest">
             <p style={{ margin: 0 }}>
               The summary loaded, but the artifact descriptor list is empty (valid empty result).
@@ -183,7 +196,7 @@ export default async function ManifestDetailPage({
           </OperatorEmptyState>
         )}
 
-        {!artifactsError && !artifactsMalformed && artifacts.length > 0 && (
+        {!artifactsFailure && !artifactsMalformed && artifacts.length > 0 && (
           <ArtifactListTable manifestId={manifestId} artifacts={artifacts} />
         )}
       </section>

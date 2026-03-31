@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
-  OperatorErrorCallout,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryList } from "@/lib/operator-response-guards";
 import { listRunsByProject } from "@/lib/api";
 import type { RunSummary } from "@/types/authority";
@@ -25,7 +27,7 @@ export default async function RunsPage({
   const take = Number(resolved.take ?? "20");
 
   let runs: RunSummary[] = [];
-  let loadError: string | null = null;
+  let loadFailure: ApiLoadFailureState | null = null;
   let malformedMessage: string | null = null;
 
   try {
@@ -39,7 +41,7 @@ export default async function RunsPage({
       runs = coerced.items;
     }
   } catch (e) {
-    loadError = e instanceof Error ? e.message : "Failed to load runs.";
+    loadFailure = toApiLoadFailure(e);
   }
 
   return (
@@ -57,18 +59,21 @@ export default async function RunsPage({
         <Link href="/compare">Compare runs</Link>
       </p>
 
-      {loadError && (
-        <OperatorErrorCallout>
-          <strong>Could not load runs.</strong>
-          <p style={{ margin: "8px 0 0" }}>{loadError}</p>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+      {loadFailure && (
+        <>
+          <OperatorApiProblem
+            problem={loadFailure.problem}
+            fallbackMessage={loadFailure.message}
+            correlationId={loadFailure.correlationId}
+          />
+          <p style={{ margin: "12px 0 0", fontSize: 14 }}>
             Check that the API is running, <code>ARCHIFORGE_API_BASE_URL</code> / proxy is correct, and
             credentials (if any) are set for server-side fetches.
           </p>
-        </OperatorErrorCallout>
+        </>
       )}
 
-      {!loadError && malformedMessage && (
+      {!loadFailure && malformedMessage && (
         <OperatorMalformedCallout>
           <strong>Runs list response was not usable.</strong>
           <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
@@ -79,7 +84,7 @@ export default async function RunsPage({
         </OperatorMalformedCallout>
       )}
 
-      {!loadError && !malformedMessage && runs.length === 0 && (
+      {loadFailure === null && !malformedMessage && runs.length === 0 && (
         <OperatorEmptyState title="No runs in this project">
           <p style={{ margin: 0 }}>
             There are no runs for this project and query yet (valid empty result). Create a run via
@@ -89,7 +94,7 @@ export default async function RunsPage({
         </OperatorEmptyState>
       )}
 
-      {!loadError && !malformedMessage && runs.length > 0 && (
+      {!loadFailure && !malformedMessage && runs.length > 0 && (
         <table style={{ borderCollapse: "collapse", width: "100%", marginTop: 16 }}>
           <thead>
             <tr>

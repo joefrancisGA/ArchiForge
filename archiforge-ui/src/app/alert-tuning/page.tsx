@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -100,11 +103,11 @@ export default function AlertTuningPage() {
   const [cV2, setCV2] = useState(1);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [result, setResult] = useState<ThresholdRecommendationResult | null>(null);
 
   async function recommend() {
-    setError(null);
+    setFailure(null);
     setResult(null);
     const thresholds = candidateThresholdsStr
       .split(",")
@@ -112,7 +115,7 @@ export default function AlertTuningPage() {
       .filter((x) => !Number.isNaN(x));
 
     if (thresholds.length === 0) {
-      setError("Enter at least one numeric candidate threshold (comma-separated).");
+      setFailure(uiFailureFromMessage("Enter at least one numeric candidate threshold (comma-separated)."));
       return;
     }
 
@@ -147,7 +150,9 @@ export default function AlertTuningPage() {
         setResult(data);
       } else {
         if (cM1 !== tunedMetricComposite && cM2 !== tunedMetricComposite) {
-          setError('Set "Metric to tune" to match condition 1 or condition 2 metric.');
+          setFailure(
+            uiFailureFromMessage('Set "Metric to tune" to match condition 1 or condition 2 metric.'),
+          );
           setLoading(false);
           return;
         }
@@ -183,7 +188,7 @@ export default function AlertTuningPage() {
         setResult(data);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Recommendation failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -199,10 +204,14 @@ export default function AlertTuningPage() {
         balances coverage, alert volume, suppression load, and per-run density against your target created-alert band.
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 24 }}>

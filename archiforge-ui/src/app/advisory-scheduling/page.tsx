@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   createAdvisorySchedule,
   listAdvisorySchedules,
@@ -15,7 +18,7 @@ export default function AdvisorySchedulingPage() {
     {},
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Daily Advisory Scan");
   const [cronExpression, setCronExpression] = useState("0 7 * * *");
@@ -23,12 +26,12 @@ export default function AdvisorySchedulingPage() {
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const list = await listAdvisorySchedules();
       setSchedules(list);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load schedules");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -49,7 +52,7 @@ export default function AdvisorySchedulingPage() {
 
   async function onCreate(e: FormEvent) {
     e.preventDefault();
-    setError(null);
+    setFailure(null);
     try {
       await createAdvisorySchedule({
         name: name.trim() || "Daily Advisory Scan",
@@ -59,18 +62,18 @@ export default function AdvisorySchedulingPage() {
       });
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Create failed");
+      setFailure(toApiLoadFailure(err));
     }
   }
 
   async function onRunNow(scheduleId: string) {
-    setError(null);
+    setFailure(null);
     try {
       await runAdvisoryScheduleNow(scheduleId);
       await loadExecutions(scheduleId);
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Run failed");
+      setFailure(toApiLoadFailure(err));
     }
   }
 
@@ -82,10 +85,14 @@ export default function AdvisorySchedulingPage() {
         (same as Runs list, often <code>default</code>) so recent runs are discovered.
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <section style={{ marginBottom: 32, padding: 16, border: "1px solid #ddd", borderRadius: 8 }}>

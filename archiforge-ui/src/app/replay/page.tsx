@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
-  OperatorErrorCallout,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceReplayResponse } from "@/lib/operator-response-guards";
 import { replayRun } from "@/lib/api";
 import { replayModeLabel, sortReplayNotes } from "@/lib/replay-display";
@@ -23,7 +25,7 @@ function ReplayForm() {
   const [runId, setRunId] = useState("");
   const [mode, setMode] = useState<string>(replayModes[0]);
   const [result, setResult] = useState<ReplayResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -34,7 +36,7 @@ function ReplayForm() {
 
   async function onReplay() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     setMalformedMessage(null);
     setResult(null);
 
@@ -49,7 +51,7 @@ function ReplayForm() {
         setResult(coerced.value);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Replay failed.");
+      setFailure(toApiLoadFailure(err));
       setResult(null);
     } finally {
       setLoading(false);
@@ -107,11 +109,12 @@ function ReplayForm() {
         </OperatorLoadingNotice>
       )}
 
-      {error && (
-        <OperatorErrorCallout>
-          <strong>Replay request failed.</strong>
-          <p style={{ margin: "8px 0 0" }}>{error}</p>
-        </OperatorErrorCallout>
+      {failure !== null && (
+        <OperatorApiProblem
+          problem={failure.problem}
+          fallbackMessage={failure.message}
+          correlationId={failure.correlationId}
+        />
       )}
 
       {malformedMessage && (

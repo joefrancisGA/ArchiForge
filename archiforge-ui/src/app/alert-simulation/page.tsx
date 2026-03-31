@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
@@ -122,7 +125,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
 export default function AlertSimulationPage() {
   const [tab, setTab] = useState<Tab>("simple");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [simpleResult, setSimpleResult] = useState<RuleSimulationResult | null>(null);
   const [compositeResult, setCompositeResult] = useState<RuleSimulationResult | null>(null);
   const [compareResult, setCompareResult] = useState<RuleCandidateComparisonResult | null>(null);
@@ -171,7 +174,7 @@ export default function AlertSimulationPage() {
 
   async function runSimple() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     setSimpleResult(null);
     try {
       const runId = parseOptionalGuid(sRunId);
@@ -200,7 +203,7 @@ export default function AlertSimulationPage() {
       });
       setSimpleResult(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Simulation failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -208,7 +211,7 @@ export default function AlertSimulationPage() {
 
   async function runComposite() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     setCompositeResult(null);
     try {
       const res = await simulateAlertRule({
@@ -239,7 +242,7 @@ export default function AlertSimulationPage() {
       });
       setCompositeResult(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Simulation failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -247,7 +250,7 @@ export default function AlertSimulationPage() {
 
   async function runCompare() {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     setCompareResult(null);
     try {
       const base = {
@@ -272,7 +275,7 @@ export default function AlertSimulationPage() {
       });
       setCompareResult(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Comparison failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -306,10 +309,14 @@ export default function AlertSimulationPage() {
         ))}
       </div>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       {tab === "simple" ? (

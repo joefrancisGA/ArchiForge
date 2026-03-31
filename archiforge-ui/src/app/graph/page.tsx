@@ -4,12 +4,14 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
   OperatorEmptyState,
-  OperatorErrorCallout,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
 } from "@/components/OperatorShellMessage";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 
 const GraphViewer = dynamic(
   () => import("@/components/GraphViewer").then((m) => m.GraphViewer),
@@ -44,7 +46,7 @@ export default function GraphPage() {
   const [depth, setDepth] = useState(1);
   const [mode, setMode] = useState<GraphMode>("provenance-full");
   const [graph, setGraph] = useState<GraphViewModel | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(null);
   const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
@@ -58,7 +60,7 @@ export default function GraphPage() {
   /** Fetches the graph from the API based on the selected mode, then validates via coerce. */
   async function loadGraph() {
     setLoading(true);
-    setLoadError(null);
+    setLoadFailure(null);
     setMalformedMessage(null);
 
     try {
@@ -93,7 +95,7 @@ export default function GraphPage() {
       setGraph(coerced.value);
       setTypeFilter("");
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : "Failed to load graph.");
+      setLoadFailure(toApiLoadFailure(err));
       setGraph(null);
     } finally {
       setLoading(false);
@@ -189,15 +191,18 @@ export default function GraphPage() {
         </OperatorLoadingNotice>
       )}
 
-      {loadError && (
-        <OperatorErrorCallout>
-          <strong>Could not load graph.</strong>
-          <p style={{ margin: "8px 0 0" }}>{loadError}</p>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+      {loadFailure !== null && (
+        <>
+          <OperatorApiProblem
+            problem={loadFailure.problem}
+            fallbackMessage={loadFailure.message}
+            correlationId={loadFailure.correlationId}
+          />
+          <p style={{ margin: "12px 0 0", fontSize: 14 }}>
             This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed
             JSON body.
           </p>
-        </OperatorErrorCallout>
+        </>
       )}
 
       {malformedMessage && (
@@ -211,7 +216,7 @@ export default function GraphPage() {
         </OperatorMalformedCallout>
       )}
 
-      {!graph && !loading && !loadError && !malformedMessage && (
+      {!graph && !loading && loadFailure === null && !malformedMessage && (
         <OperatorEmptyState title="No graph loaded yet">
           <p style={{ margin: 0 }}>
             Enter a run ID, choose a graph mode, then use <strong>Load graph</strong>. An empty node

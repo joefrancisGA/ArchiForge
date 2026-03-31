@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
   askArchiForge,
   getConversationMessages,
@@ -17,16 +20,16 @@ export default function AskPage() {
   const [targetRunId, setTargetRunId] = useState("");
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
-  const [listError, setListError] = useState<string | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const [listFailure, setListFailure] = useState<ApiLoadFailureState | null>(null);
+  const [actionFailure, setActionFailure] = useState<ApiLoadFailureState | null>(null);
 
   const loadThreads = useCallback(async () => {
-    setListError(null);
+    setListFailure(null);
     try {
       const data = await listConversationThreads();
       setThreads(data);
     } catch (e) {
-      setListError(e instanceof Error ? e.message : "Failed to load threads");
+      setListFailure(toApiLoadFailure(e));
     }
   }, []);
 
@@ -35,24 +38,26 @@ export default function AskPage() {
   }, [loadThreads]);
 
   async function loadMessages(threadId: string) {
-    setActionError(null);
+    setActionFailure(null);
     try {
       const data = await getConversationMessages(threadId);
       setMessages(data);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : "Failed to load messages");
+      setActionFailure(toApiLoadFailure(e));
     }
   }
 
   async function onAsk() {
-    setActionError(null);
+    setActionFailure(null);
     const q = question.trim();
     if (!q) return;
 
     const rid = runId.trim();
     const tid = selectedThreadId.trim();
     if (!tid && !rid) {
-      setActionError("Enter a run ID for a new conversation, or select an existing thread.");
+      setActionFailure(
+        uiFailureFromMessage("Enter a run ID for a new conversation, or select an existing thread."),
+      );
       return;
     }
 
@@ -60,7 +65,9 @@ export default function AskPage() {
     const target = targetRunId.trim();
     const useCompare = base.length > 0 && target.length > 0;
     if ((base.length > 0) !== (target.length > 0)) {
-      setActionError("Provide both base and target run IDs for comparison, or leave both empty.");
+      setActionFailure(
+        uiFailureFromMessage("Provide both base and target run IDs for comparison, or leave both empty."),
+      );
       return;
     }
 
@@ -79,7 +86,7 @@ export default function AskPage() {
       await loadThreads();
       await loadMessages(result.threadId);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : "Ask failed");
+      setActionFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -98,10 +105,14 @@ export default function AskPage() {
         follow-ups can use the same thread without resending it.
       </p>
 
-      {listError ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {listError}
-        </p>
+      {listFailure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={listFailure.problem}
+            fallbackMessage={listFailure.message}
+            correlationId={listFailure.correlationId}
+          />
+        </div>
       ) : null}
 
       <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 16 }}>
@@ -186,10 +197,14 @@ export default function AskPage() {
             </button>
           </div>
 
-          {actionError ? (
-            <p style={{ color: "crimson", marginBottom: 16 }} role="alert">
-              {actionError}
-            </p>
+          {actionFailure !== null ? (
+            <div style={{ marginBottom: 16 }} role="alert">
+              <OperatorApiProblem
+                problem={actionFailure.problem}
+                fallbackMessage={actionFailure.message}
+                correlationId={actionFailure.correlationId}
+              />
+            </div>
           ) : null}
 
           <h3 style={{ marginTop: 0 }}>Conversation</h3>

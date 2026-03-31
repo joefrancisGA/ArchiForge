@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
+import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import {
   assignPolicyPack,
   createPolicyPack,
@@ -33,7 +36,7 @@ export default function PolicyPacksPage() {
   const [effective, setEffective] = useState<EffectivePolicyPackSet | null>(null);
   const [effectiveContent, setEffectiveContent] = useState<PolicyPackContentDocument | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const [name, setName] = useState("Baseline governance");
   const [description, setDescription] = useState("");
@@ -50,7 +53,7 @@ export default function PolicyPacksPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setFailure(null);
     try {
       const [p, eff, doc] = await Promise.all([
         listPolicyPacks(),
@@ -61,7 +64,7 @@ export default function PolicyPacksPage() {
       setEffective(eff);
       setEffectiveContent(doc);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -95,11 +98,11 @@ export default function PolicyPacksPage() {
   }, [selectedPackId]);
 
   async function onCreate() {
-    setError(null);
+    setFailure(null);
     try {
       JSON.parse(createJson);
     } catch {
-      setError("Create: JSON content is invalid.");
+      setFailure(uiFailureFromMessage("Create: JSON content is invalid."));
       return;
     }
     setLoading(true);
@@ -112,7 +115,7 @@ export default function PolicyPacksPage() {
       });
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Create failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -120,14 +123,14 @@ export default function PolicyPacksPage() {
 
   async function onPublish() {
     if (!selectedPackId) {
-      setError("Select a pack to publish.");
+      setFailure(uiFailureFromMessage("Select a pack to publish."));
       return;
     }
-    setError(null);
+    setFailure(null);
     try {
       JSON.parse(publishJson);
     } catch {
-      setError("Publish: JSON content is invalid.");
+      setFailure(uiFailureFromMessage("Publish: JSON content is invalid."));
       return;
     }
     setLoading(true);
@@ -138,7 +141,7 @@ export default function PolicyPacksPage() {
       });
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Publish failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -146,10 +149,10 @@ export default function PolicyPacksPage() {
 
   async function onAssign() {
     if (!selectedPackId) {
-      setError("Select a pack to assign.");
+      setFailure(uiFailureFromMessage("Select a pack to assign."));
       return;
     }
-    setError(null);
+    setFailure(null);
     setLoading(true);
     try {
       await assignPolicyPack(selectedPackId, {
@@ -159,7 +162,7 @@ export default function PolicyPacksPage() {
       });
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Assign failed");
+      setFailure(toApiLoadFailure(e));
     } finally {
       setLoading(false);
     }
@@ -181,10 +184,14 @@ export default function PolicyPacksPage() {
         </button>
       </p>
 
-      {error ? (
-        <p style={{ color: "crimson" }} role="alert">
-          {error}
-        </p>
+      {failure !== null ? (
+        <div role="alert">
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+        </div>
       ) : null}
 
       <section style={{ marginBottom: 32 }}>
