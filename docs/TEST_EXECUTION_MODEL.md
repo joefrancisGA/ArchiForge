@@ -181,16 +181,17 @@ The config’s `webServer` runs `npm run build && npm run start` (production ser
 
 ## CI mapping (54R)
 
-Workflow: `.github/workflows/ci.yml` — **four jobs**, tiered for clarity and fail-fast behavior.
+Workflow: `.github/workflows/ci.yml` — **five jobs**, tiered for clarity and fail-fast behavior.
 
 | Tier | Job | What runs |
 |------|-----|-----------|
-| **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
+| **0** | **`gitleaks`** | Full-history secret scan (`gitleaks/gitleaks-action`, **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
+| **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchiForge.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
 | **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchiForge.sln` with `ARCHIFORGE_SQL_TEST` (entire solution). |
-| **3a** | **`ui-unit`** | `archiforge-ui`: `npm ci`, `npm run test` (Vitest / jsdom). **Parallel** with Tier 1 on the same workflow event. |
-| **3b** | **`ui-e2e-smoke`** | `archiforge-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). **Parallel** with other jobs; browser-heavy. |
+| **3a** | **`ui-unit`** | `archiforge-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
+| **3b** | **`ui-e2e-smoke`** | `archiforge-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
 
-PRs must pass **all four** jobs. Tier 2 is skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up and full-suite time on obvious breaks.
+PRs must pass **all five** jobs. Tier 2 is skipped automatically if Tier 1 fails (`needs: dotnet-fast-core`), saving SQL spin-up and full-suite time on obvious breaks.
 
 **Follow-on / re-run:** Use the Actions tab to **re-run failed jobs** only (e.g. retry e2e after a flake) without redefining workflows.
 
@@ -213,7 +214,7 @@ Optional **local** sequence before a PR:
 |------|--------|
 | **Expand Playwright** coverage (navigation, critical flows, a11y) | Add specs under `archiforge-ui/e2e/`. |
 | **Pin Node dependency graph further** (e.g. `npm audit fix`, Renovate) | `package-lock.json` is committed for `npm ci` in CI. |
-| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `dotnet-fast-core` + `dotnet-full-regression` + `ui-unit` + `ui-e2e-smoke`. |
+| **Split .NET CI jobs** (parallel `build` vs `test` matrix) | Done: `gitleaks` + `dotnet-fast-core` + `dotnet-full-regression` + `ui-unit` + `ui-e2e-smoke`. |
 
 ---
 

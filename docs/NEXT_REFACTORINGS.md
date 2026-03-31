@@ -1838,11 +1838,15 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`docs/CONFIGURATION_KEY_VAULT.md`**: App Service / Terraform guidance and `__` nested key mapping.
 - [ ] 217. Private Link for SQL, storage, AI Search (Terraform).
 - [ ] 218. WAF / APIM in front of API.
-- [ ] 219. SBOM (CycloneDX) in CI.
+- [x] 219. SBOM (CycloneDX) in CI.
+  - **`.github/workflows/ci.yml`**: after **`dotnet-fast-core`** build, **`dotnet tool install CycloneDX`** → BOM for **`ArchiForge.Api/ArchiForge.Api.csproj`** → artifact **`sbom-dotnet`**; after **`ui-unit`** **`npm ci`**, **`npx @cyclonedx/cyclonedx-npm@4.2.1`** → artifact **`sbom-npm`**.
+  - Local commands: **`docs/BUILD.md`** (SBOM subsection).
 - [x] 220. `dotnet list package --vulnerable` gate.
   - **`.github/workflows/ci.yml`**: `dotnet list package --vulnerable --include-transitive` after restore (fails build when the SDK reports vulnerable packages).
   - **`docs/BUILD.md`**: local/CI reminder.
-- [ ] 221. Secret scanning in CI.
+- [x] 221. Secret scanning in CI.
+  - **`.github/workflows/ci.yml`**: job **`gitleaks`** (`gitleaks/gitleaks-action@v2.3.9`, **`fetch-depth: 0`**); all other jobs **`needs: gitleaks`**.
+  - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchiForge_Dev_Pass123!`**, **`LocalTesting123!`**).
 - [ ] 222. Row-level security design for multi-tenant SQL.
 - [ ] 223. PII classification + retention for conversations.
 - [ ] 224. Threat model update for Ask/RAG.
@@ -1912,7 +1916,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`ArchiForge.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
 - [ ] 249. Migration rollback documentation.
 
-### UI & developer experience (250–254)
+### UI & developer experience (250–256)
 
 - [ ] 250. UI feature flags for experimental advisory panels.
 - [ ] 251. Map ProblemDetails `type` → operator-facing copy.
@@ -1925,10 +1929,14 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`.dockerignore`** (repo root) + **`archiforge-ui/.dockerignore`**: exclude build artifacts, secrets, test data.
   - **`docker-compose.yml`**: `--profile full-stack` adds `api` + `ui` containers alongside SQL/Azurite/Redis; default profile unchanged (dependencies only, hot-reload dev).
   - **`docs/CONTAINERIZATION.md`**: build/run commands, security posture, WAF alignment, layer caching, future Azure notes.
+- [x] 256. **Operator UI route boundaries (404 + loading).**
+  - **`archiforge-ui/src/app/not-found.tsx`**: custom 404 with **`OperatorEmptyState`**, links to Home / Runs / Compare (WAF RE:05 / SE:01).
+  - **Route `loading.tsx`**: advisory, advisory-scheduling, alert-routing, alert-rules, alert-simulation, alert-tuning, alerts, ask, composite-alert-rules, digest-subscriptions, digests, governance-resolution, policy-packs, recommendation-learning, search (context-specific copy; **`OperatorLoadingNotice`**).
+  - **`not-found.test.tsx`**: Vitest render gate for 404 copy and links.
 
 ---
 
-## Checklist (§155–254 progress)
+## Checklist (items 155–256 progress)
 
 Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls up major themes only.
 
@@ -1936,8 +1944,8 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
 - [ ] Observability & reliability (205–214): partial (205–213 done; 214 still open).
-- [ ] Security (215–226): partial (**220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **215–219, 221–224** still open).
+- [ ] Security (215–226): partial (**219–221** CycloneDX SBOM + gitleaks; **220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **215–218, 222–224** still open).
 - [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
 - [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 238–239, 241 open).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
-- [ ] UI & DX (250–255): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; 250–253 open).
+- [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; 250–253 open).

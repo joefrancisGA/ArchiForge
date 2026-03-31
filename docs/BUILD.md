@@ -14,7 +14,21 @@ dotnet build
 dotnet test
 ```
 
-**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** §220). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archiforge-ui`); see **`TEST_EXECUTION_MODEL.md`**.
+**CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** item **220**). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archiforge-ui`); see **`TEST_EXECUTION_MODEL.md`**.
+
+**Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gitleaks/gitleaks-action`** and **`.gitleaks.toml`** (extends default rules; allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.
+
+**SBOM (CycloneDX):** CI uploads **`sbom-dotnet`** (JSON for **`ArchiForge.Api/ArchiForge.Api.csproj`**, matching the API container surface) and **`sbom-npm`** (JSON for **`archiforge-ui`**). Regenerate locally:
+
+```bash
+dotnet tool install CycloneDX --tool-path ./.tools-cdx
+./.tools-cdx/dotnet-cyclonedx ArchiForge.Api/ArchiForge.Api.csproj -o sbom-dotnet.json
+# On Windows the shim may be dotnet-CycloneDX.exe instead of dotnet-cyclonedx.
+
+cd archiforge-ui && npx @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
+```
+
+Add **`.tools-cdx/`** (or your chosen tool path) to your local ignore habits; do not commit generated BOMs unless your release process requires it.
 
 ## OpenTelemetry metrics (`ArchiForge` meter)
 

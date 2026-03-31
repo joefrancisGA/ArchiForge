@@ -32,3 +32,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# CycloneDX SBOM (generated locally; CI builds in workspace)
+sbom-npm.json

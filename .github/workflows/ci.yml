@@ -1,7 +1,8 @@
 # Tiered CI (see docs/TEST_EXECUTION_MODEL.md):
-#   Tier 1 — .NET fast core (fail-fast, no SQL)
+#   Tier 0 — Secret scan (gitleaks; full clone)
+#   Tier 1 — .NET fast core (fail-fast, no SQL) + CycloneDX SBOM artifact
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
-#   Tier 3a — Operator UI unit (Vitest / jsdom)
+#   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
 # Re-run failed jobs from the Actions tab. Local equivalents: test-fast-core.*, test-full.*,
@@ -15,8 +16,21 @@ on:
     branches: [main, master]
 
 jobs:
+  gitleaks:
+    name: "Security: gitleaks (secret scan)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
+    needs: gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +48,18 @@ jobs:
 
       - name: Build (Release)
         run: dotnet build --no-restore -c Release
+
+      - name: Generate .NET SBOM (CycloneDX)
+        run: |
+          dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet
+          CDX="${RUNNER_TEMP}/cdx/dotnet-cyclonedx"
+          test -x "$CDX" || CDX="${RUNNER_TEMP}/cdx/dotnet-CycloneDX"
+          "$CDX" ArchiForge.Api/ArchiForge.Api.csproj -o sbom-dotnet.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-dotnet
+          path: sbom-dotnet.json
 
       - name: Context ingestion DI guards
         run: python scripts/assert_context_ingestion_di_guards.py
@@ -80,6 +106,7 @@ jobs:
 
   ui-unit:
     name: "Operator UI: unit (Vitest)"
+    needs: gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -97,8 +124,18 @@ jobs:
           npm ci
           npm run test
 
+      - name: Generate npm SBOM (CycloneDX)
+        working-directory: archiforge-ui
+        run: npx --yes @cyclonedx/cyclonedx-npm@4.2.1 --output-file sbom-npm.json --ignore-npm-errors
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-npm
+          path: archiforge-ui/sbom-npm.json
+
   ui-e2e-smoke:
     name: "Operator UI: e2e smoke (Playwright)"
+    needs: gitleaks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
