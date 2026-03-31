@@ -1,6 +1,6 @@
 # Next refactorings
 
-**Last updated:** March 2026.
+**Last updated:** 31 March 2026.
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
@@ -1919,7 +1919,11 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### UI & developer experience (250–256)
 
 - [ ] 250. UI feature flags for experimental advisory panels.
-- [ ] 251. Map ProblemDetails `type` → operator-facing copy.
+- [x] 251. Operator UI: Problem Details + **X-Correlation-ID** + Vitest coverage.
+  - **ProblemDetails in the shell:** `archiforge-ui/src/lib/api-problem.ts` (`tryParseApiProblemDetails`), `api-problem-copy.ts` (`operatorCopyForProblem` maps `extensions.errorCode` + prefers `supportHint`), `api-request-error.ts` / `api-error.ts` (`buildApiRequestErrorFromParts`, `readApiFailureMessage`), `api-load-failure.ts` (`toApiLoadFailure`, `uiFailureFromMessage`).
+  - **Correlation:** `archiforge-ui/src/lib/correlation.ts` (`CORRELATION_ID_HEADER`, `generateCorrelationId`, `isSafeCorrelationId`); browser `api.ts` sends the header; `archiforge-ui/src/app/api/proxy/[...path]/route.ts` forwards safe inbound ids or generates, and `passThrough` echoes upstream **X-Correlation-ID** on responses.
+  - **Rendering:** `OperatorApiProblem` on server pages (runs, run detail, manifests, compare) and client operator pages (alerts, advisory, ask, graph, replay, policy packs, etc.).
+  - **Tests (Vitest):** `src/lib/api-problem.test.ts`, `api-problem-copy.test.ts`, `correlation.test.ts`, `api-request-error.test.ts`, `api-load-failure.test.ts`, extended `api-error.test.ts`, `src/components/OperatorApiProblem.test.tsx`, `src/app/api/proxy/proxy-route-correlation.test.ts` (plus existing `proxy-route-post-body.test.ts`).
 - [ ] 252. Dev container (SQL + Azurite + fakes).
 - [ ] 253. `dotnet new` template for finding engine + tests.
 - [x] 254. Contributor onboarding checklist (build, test filters, integration opt-in).
@@ -1948,4 +1952,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
 - [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 238–239, 241 open).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
-- [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; 250–253 open).
+- [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; **251** Problem Details + correlation + UI tests; 250, 252–253 open).
