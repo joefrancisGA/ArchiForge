@@ -49,7 +49,7 @@ public sealed class OpenApiContractSnapshotTests : IClassFixture<OpenApiContract
             return;
         }
 
-        string snapshotOnDisk = Path.Combine(AppContext.BaseDirectory, "Contracts", "openapi-v1.swagger.snapshot.json");
+        string snapshotOnDisk = Path.Combine(AppContext.BaseDirectory, "Contracts", SnapshotFileName);
         Assert.True(
             File.Exists(snapshotOnDisk),
             $"Missing snapshot at {snapshotOnDisk}. Run once with ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 to generate.");

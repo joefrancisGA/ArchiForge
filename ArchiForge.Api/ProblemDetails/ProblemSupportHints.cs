@@ -87,6 +87,11 @@ public static class ProblemSupportHints
             return "Review drift fields in the response. Regenerate or verify replay inputs against stored artifacts if you need a passing comparison.";
         }
 
+        if (typeUri == ProblemTypes.BatchReplayAllFailed)
+        {
+            return "Every comparisonRecordId in the batch failed to replay. Fix IDs or replay parameters (or inspect API logs with correlation ID); successful batches include batch-replay-manifest.json with per-id errors when some fail.";
+        }
+
         if (typeUri == ProblemTypes.PolicyPackVersionNotFound)
         {
             return "Confirm the policy pack version exists and is deployed to the environment; check governance configuration.";

@@ -1,6 +1,8 @@
+using System.Globalization;
 using System.IO.Compression;
 
 using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Http;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
@@ -391,9 +393,11 @@ public sealed class ComparisonsController(
     [HttpPost("comparisons/replay/batch")]
     [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
     [Authorize(Policy = ArchiForgePolicies.CanReplayComparisons)]
+    [EnableRateLimiting("replay")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
     public async Task<IActionResult> ReplayComparisonsBatch(
         [FromBody] BatchReplayComparisonRequest? request,
         CancellationToken cancellationToken)
@@ -401,60 +405,107 @@ public sealed class ComparisonsController(
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
-        if (request.ComparisonRecordIds.Count == 0)
+        List<string> processedIds = [];
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string id in request.ComparisonRecordIds)
         {
-            return this.BadRequestProblem(
-                "comparisonRecordIds is required.",
-                ProblemTypes.ValidationFailed);
+            if (seen.Add(id))
+            {
+                processedIds.Add(id);
+            }
         }
 
-        if (request.ComparisonRecordIds.Count > 50)
+        List<(string Id, ReplayComparisonResult Result)> successes = [];
+        List<BatchReplayManifestFailureEntry> failed = [];
+
+        foreach (string id in processedIds)
         {
-            return this.BadRequestProblem(
-                "comparisonRecordIds max is 50.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        List<string> blankIds = request.ComparisonRecordIds
-            .Where(string.IsNullOrWhiteSpace)
-            .ToList();
-        if (blankIds.Count > 0)
-        {
-            return this.BadRequestProblem(
-                "comparisonRecordIds must not contain blank or whitespace-only entries.",
-                ProblemTypes.ValidationFailed);
-        }
-
-        string format = request.Format;
-        string mode = request.ReplayMode;
-
-        MemoryStream ms = new();
-
-        await using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
-        {
-            foreach (string id in request.ComparisonRecordIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            try
             {
                 ReplayComparisonResult result = await comparisonReplayApiService.ReplayAsync(
                     ReplayComparisonRequestMapper.ToApplicationForBatchEntry(
                         id,
-                        format,
-                        mode,
+                        request.Format,
+                        request.ReplayMode,
                         request.Profile,
                         request.PersistReplay),
                     metadataOnly: false,
                     cancellationToken);
 
+                successes.Add((id, result));
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                failed.Add(new BatchReplayManifestFailureEntry
+                {
+                    ComparisonRecordId = id,
+                    Reason = ex.Message,
+                    ExceptionType = ex.GetType().Name
+                });
+            }
+        }
+
+        if (successes.Count == 0 && processedIds.Count > 0)
+        {
+            return this.UnprocessableEntityProblem(
+                "No comparison replays succeeded for the requested comparisonRecordIds. Adjust IDs or replay parameters and retry.",
+                ProblemTypes.BatchReplayAllFailed);
+        }
+
+        List<BatchReplayManifestSuccessEntry> succeededManifest = [];
+
+        MemoryStream ms = new();
+
+        await using (ZipArchive zip = new(ms, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach ((string id, ReplayComparisonResult result) in successes)
+            {
                 string entryName = result.FileName;
+
                 if (string.IsNullOrWhiteSpace(entryName))
                 {
                     entryName = $"comparison_{id}.{result.Format}";
                 }
 
-                ZipArchiveEntry entry = zip.CreateEntry(entryName, CompressionLevel.Fastest);
+                string folder = BatchReplayZipPathSanitizer.FolderForComparisonRecordId(id);
+                string zipEntryPath = $"{folder}/{entryName}";
+                ZipArchiveEntry entry = zip.CreateEntry(zipEntryPath, CompressionLevel.Fastest);
                 await using Stream entryStream = await entry.OpenAsync(cancellationToken);
                 byte[] payload = ReplayArtifactResponseFactory.GetComparisonReplayEntryBytes(result);
                 await entryStream.WriteAsync(payload, cancellationToken);
+
+                succeededManifest.Add(new BatchReplayManifestSuccessEntry
+                {
+                    ComparisonRecordId = id,
+                    ZipEntryPath = zipEntryPath
+                });
             }
+
+            BatchReplayManifestDocument manifest = new()
+            {
+                GeneratedUtc = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
+                ProcessedComparisonRecordIds = processedIds,
+                Succeeded = succeededManifest,
+                Failed = failed
+            };
+
+            byte[] manifestBytes = BatchReplayManifestSerializer.ToUtf8Bytes(manifest);
+            ZipArchiveEntry manifestEntry =
+                zip.CreateEntry(BatchReplayManifestSerializer.ManifestEntryName, CompressionLevel.Fastest);
+            await using (Stream manifestStream = await manifestEntry.OpenAsync(cancellationToken))
+            {
+                await manifestStream.WriteAsync(manifestBytes, cancellationToken);
+            }
+        }
+
+        if (failed.Count > 0 && successes.Count > 0)
+        {
+            Response.Headers[ArchiForgeHttpHeaders.BatchReplayPartial] = "true";
         }
 
         ms.Position = 0;

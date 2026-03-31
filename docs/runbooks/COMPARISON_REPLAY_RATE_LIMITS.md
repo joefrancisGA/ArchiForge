@@ -7,6 +7,8 @@
 - **Light** (default formats): higher permit count per window.
 - **Heavy** (e.g. **`docx`**, **`pdf`** query): lower permit count per longer window.
 
+**Batch replay** (`POST .../comparisons/replay/batch`) also uses the **`replay`** rate limiter; each request can trigger multiple replays internally, so operators should keep **`ComparisonReplay:Batch:MaxComparisonRecordIds`** aligned with **`RateLimiting:Replay:*`** windows.
+
 Partition key combines the authenticated user (if any) or remote IP with **`light`** vs **`heavy`**.
 
 ## Operator actions

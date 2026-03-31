@@ -87,6 +87,32 @@ public static class ProblemDetailsExtensions
     }
 
     /// <summary>
+    /// Returns 422 Unprocessable Entity with a Problem Details body (e.g. batch replay where every ID failed).
+    /// </summary>
+    public static IActionResult UnprocessableEntityProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = type ?? ProblemTypes.ValidationFailed,
+            Title = "Unprocessable Entity",
+            Status = StatusCodes.Status422UnprocessableEntity,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path
+        };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status,
+            ContentTypes = { ProblemJsonMediaType }
+        };
+    }
+
+    /// <summary>
     /// Returns 503 Service Unavailable with a Problem Details body (e.g. database timeout, transient downstream failure).
     /// </summary>
     public static IActionResult ServiceUnavailableProblem(

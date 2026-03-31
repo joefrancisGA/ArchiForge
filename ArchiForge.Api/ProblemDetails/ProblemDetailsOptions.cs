@@ -38,4 +38,7 @@ public static class ProblemTypes
 
     /// <summary>Azure OpenAI (or embedding) calls are blocked by the circuit breaker after repeated failures.</summary>
     public const string CircuitBreakerOpen = Base + "#circuit-breaker-open";
+
+    /// <summary>Batch comparison replay had no successful replays for any requested record ID.</summary>
+    public const string BatchReplayAllFailed = Base + "#batch-replay-all-failed";
 }

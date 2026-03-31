@@ -1,19 +1,23 @@
+using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Models;
 
 using FluentValidation;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Validators;
 
 public sealed class BatchReplayComparisonRequestValidator : AbstractValidator<BatchReplayComparisonRequest>
 {
-    public BatchReplayComparisonRequestValidator()
+    public BatchReplayComparisonRequestValidator(IOptionsMonitor<BatchReplayOptions> batchOptions)
     {
         RuleFor(x => x.ComparisonRecordIds)
             .NotEmpty().WithMessage("At least one comparison record ID is required.")
             .Must(ids => ids == null || ids.All(id => !string.IsNullOrWhiteSpace(id)))
                 .WithMessage("comparisonRecordIds must not contain blank or whitespace-only entries.")
-            .Must(ids => ids == null || ids.Count <= 50)
-                .WithMessage("comparisonRecordIds may contain at most 50 entries.");
+            .Must(ids => ids is null || ids.Count <= batchOptions.CurrentValue.MaxComparisonRecordIds)
+                .WithMessage(_ =>
+                    $"comparisonRecordIds may contain at most {batchOptions.CurrentValue.MaxComparisonRecordIds} entries.");
 
         RuleFor(x => x.Format)
             .NotEmpty().WithMessage("Format is required.")

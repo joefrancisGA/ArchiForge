@@ -73,6 +73,7 @@ using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Retrieval.Queries;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
@@ -88,10 +89,12 @@ internal static partial class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
+        services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
+        services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services);
-        RegisterDigestDelivery(services);
+        RegisterDigestDelivery(services, configuration);
         RegisterAlerts(services);
         RegisterDataInfrastructure(services);
         RegisterBackgroundJobs(services);
@@ -125,10 +128,24 @@ internal static partial class ServiceCollectionExtensions
         services.AddHostedService<AdvisoryScanHostedService>();
     }
 
-    private static void RegisterDigestDelivery(IServiceCollection services)
+    private static void RegisterDigestDelivery(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<WebhookDeliveryOptions>(configuration.GetSection(WebhookDeliveryOptions.SectionName));
         services.AddSingleton<IEmailSender, FakeEmailSender>();
-        services.AddSingleton<IWebhookPoster, FakeWebhookPoster>();
+        services
+            .AddHttpClient(
+                "ArchiForgeWebhooks",
+                static client => client.Timeout = TimeSpan.FromSeconds(60));
+        services.AddSingleton<HttpWebhookPoster>();
+        services.AddSingleton<FakeWebhookPoster>();
+        services.AddSingleton<IWebhookPoster>(static sp =>
+        {
+            IOptionsMonitor<WebhookDeliveryOptions> monitor = sp.GetRequiredService<IOptionsMonitor<WebhookDeliveryOptions>>();
+            IWebhookPoster impl = monitor.CurrentValue.UseHttpClient
+                ? sp.GetRequiredService<HttpWebhookPoster>()
+                : sp.GetRequiredService<FakeWebhookPoster>();
+            return new WebhookHmacEnvelopePoster(monitor, impl);
+        });
         services.AddScoped<IDigestDeliveryChannel, DigestEmailDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestTeamsWebhookDeliveryChannel>();
         services.AddScoped<IDigestDeliveryChannel, DigestSlackWebhookDeliveryChannel>();

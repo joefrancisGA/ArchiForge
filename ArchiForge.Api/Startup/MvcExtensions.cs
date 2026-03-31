@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchiForge.Api.OpenApi;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Validators;
 
@@ -39,7 +40,11 @@ internal static class MvcExtensions
         });
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<ArchitectureRequestValidator>();
-        services.AddOpenApi();
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer<MicrosoftOpenApiAuthDocumentTransformer>();
+            options.AddOperationTransformer<MicrosoftOpenApiAnonymousSecurityOperationTransformer>();
+        });
         services.AddEndpointsApiExplorer();
         services.AddArchiForgeSwagger();
         return services;

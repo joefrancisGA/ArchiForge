@@ -13,6 +13,7 @@ internal static class PipelineExtensions
     {
         app.UseMiddleware<CorrelationIdMiddleware>();
         app.UseMiddleware<SecurityHeadersMiddleware>();
+        app.UseMiddleware<ApiDeprecationHeadersMiddleware>();
         app.UseExceptionHandler(exceptionHandlerApp =>
         {
             exceptionHandlerApp.Run(async context =>

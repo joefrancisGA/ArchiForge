@@ -36,7 +36,9 @@ public sealed class ArchitectureSummaryEvidenceTests(ArchiForgeApiFactory factor
         CommitRunResponseDto? commitPayload = await commitResponse.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
         string manifestVersion = commitPayload!.Manifest.Metadata.ManifestVersion;
 
-        HttpResponseMessage summaryResponse = await Client.GetAsync($"/v1/architecture/manifest/{manifestVersion}/summary");
+        // Evidence is appended on the dedicated endpoint; the default markdown summary is options-driven and evidence-agnostic.
+        HttpResponseMessage summaryResponse = await Client.GetAsync(
+            $"/v1/architecture/manifest/{manifestVersion}/summary/evidence");
 
         summaryResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 

@@ -1828,7 +1828,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **ProblemDetails**: `ApplicationProblemMapper` maps to 503 `ProblemTypes.CircuitBreakerOpen` with `extensions.retryAfterUtc` when set; filter tests in `ApiProblemDetailsExceptionFilterTests`.
   - **Tests**: `CircuitBreakerGateTests`, `CircuitBreakingOpenAiEmbeddingClientTests` (`ArchiForge.Retrieval.Tests`); `CircuitBreakingAgentCompletionClientTests` (`ArchiForge.Api.Tests` + `AgentRuntime` reference).
 - [x] 213. Graceful shutdown: advisory poller + host — `AdvisoryScanHostedServiceShutdownTests` (clean exit on cancellation during delay, continues after non-cancellation exception, handles OCE during processing).
-- [ ] 214. SLO dashboards (Grafana + Prometheus).
+- [x] 214. SLO dashboards (Grafana + Prometheus).
+  - **`docs/runbooks/SLO_PROMETHEUS_GRAFANA.md`**: enable **`Observability:Prometheus:Enabled`**, metric inventory from **`ArchiForgeInstrumentation`**, example recording rule, Grafana panel outline, burn-rate note.
 
 ### Security (215–226)
 
@@ -1851,9 +1852,12 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 221. Secret scanning in CI.
   - **`.github/workflows/ci.yml`**: job **`gitleaks`** (`gitleaks/gitleaks-action@v2.3.9`, **`fetch-depth: 0`**); all other jobs **`needs: gitleaks`**.
   - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchiForge_Dev_Pass123!`**, **`LocalTesting123!`**).
-- [ ] 222. Row-level security design for multi-tenant SQL.
-- [ ] 223. PII classification + retention for conversations.
-- [ ] 224. Threat model update for Ask/RAG.
+- [x] 222. Row-level security design for multi-tenant SQL.
+  - **`docs/security/MULTI_TENANT_RLS.md`**: SESSION_CONTEXT / policy sketch, defense-in-depth vs app authZ, ops + Terraform alignment.
+- [x] 223. PII classification + retention for conversations.
+  - **`docs/security/PII_RETENTION_CONVERSATIONS.md`**: classification, retention, backups/indexers, evolution.
+- [x] 224. Threat model update for Ask/RAG.
+  - **`docs/security/ASK_RAG_THREAT_MODEL.md`**: STRIDE-style table, scope isolation, prompt injection, ops logging.
 - [x] 225. CORS regression test (disallowed origin).
 - [x] 226. Security headers review (HSTS for non-dev + baseline headers; CSP for Swagger UI remains host-dependent).
 
@@ -1877,7 +1881,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### API & contracts (235–242)
 
-- [ ] 235. Deprecation: `Sunset` + versioned routes policy.
+- [x] 235. Deprecation: `Sunset` + versioned routes policy.
+  - **`ApiDeprecationOptions`** + **`ApiDeprecationHeadersMiddleware`**: optional **`Deprecation`**, **`Sunset`**, **`Link`** headers; config **`ApiDeprecation:*`**; validated **`SunsetHttpDate`** when enabled; URL versioning remains **`v{version}`** (see **`Asp.Versioning`** on controllers).
 - [x] 236. Standard list pagination (`page`/`pageSize` or cursor) — `PagedResponse<T>`, `PaginationDefaults`, `PagedResponseBuilder` in `ArchiForge.Core.Pagination`; `AlertsController.List` and `ConversationController.ListThreads` accept optional `page`/`pageSize` (backward-compatible with `take`-only).
 - [x] 237. ProblemDetails `extensions` machine codes on all 4xx/5xx.
   - **`ProblemErrorCodes`**: stable `UNSPECIFIED`, `CONFLICT`, `RUN_NOT_FOUND`, `DATABASE_TIMEOUT`, `CIRCUIT_BREAKER_OPEN`, etc.; `ResolveFromProblemType` maps `ProblemTypes` URIs.
@@ -1895,7 +1900,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`RunsController`**: header **`Idempotency-Key`**, **200** + **`Idempotency-Replayed`** on replay; **`ConflictException`** before **`InvalidOperationException`** catch.
   - **`docs/API_CONTRACTS.md`**: contract table + cross-store limitation note.
   - **Tests**: `ArchitectureControllerTests` idempotency cases.
-- [ ] 241. Bulk endpoint limits + partial success model.
+- [x] 241. Bulk endpoint limits + partial success model.
+  - **Batch comparison replay:** **`ComparisonReplay:Batch:MaxComparisonRecordIds`**, per-ID try/catch, **`batch-replay-manifest.json`**, **`X-ArchiForge-Batch-Partial`**, **422** when all fail; **`docs/API_CONTRACTS.md`**.
 - [x] 242. JSON camelCase audit on public DTOs.
   - **`AddArchiForgeMvc`**: `AddJsonOptions` sets `PropertyNamingPolicy` and `DictionaryKeyPolicy` to **camelCase** for controller JSON.
   - **`docs/JSON_PUBLIC_CONTRACTS.md`**: documents policy and Problem Details extensions.
@@ -1954,9 +1960,9 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Documentation & ADRs (155–169): complete (155 XML doc pieces 12–21 done; 156–169 largely addressed via `docs/adr`, runbooks, `API_CONTRACTS`, `ALERTS`, `BUILD`, `TEST_STRUCTURE`, `CONTRIBUTOR_ONBOARDING`, `terraform-azure-variables`, `CONTEXT_INGESTION` SMB note).
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
-- [ ] Observability & reliability (205–214): partial (205–213 done; 214 still open).
-- [ ] Security (215–226): partial (**215** Entra Terraform + API JWT sample; **217** private SQL/Blob Terraform; **218** APIM + **terraform-edge** WAF; **219–221** CycloneDX SBOM + gitleaks; **220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **222–224** still open).
+- [x] Observability & reliability (205–214): complete (205–214; **214** SLO runbook).
+- [x] Security (215–226): complete for backlog scope (**215–226** including **222–224** design docs; remaining continuous hardening is outside this checklist).
 - [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
-- [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **238** OpenAPI security schemes; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 239, 241 open).
+- [x] API & contracts (235–242): complete (235 deprecation headers; 236–242 as listed, including **239** webhook HMAC and **241** batch replay partial success).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
 - [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; **251** Problem Details + correlation + UI tests; 250, 252–253 open).

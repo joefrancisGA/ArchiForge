@@ -1,7 +1,3 @@
-using System.Reflection;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi;
 
@@ -17,9 +13,7 @@ public sealed class OpenApiAuthSecurityOperationFilter(IConfiguration configurat
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        string? schemeId = SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration);
-
-        if (string.IsNullOrEmpty(schemeId))
+        if (string.IsNullOrEmpty(SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration)))
         {
             return;
         }
@@ -29,34 +23,11 @@ public sealed class OpenApiAuthSecurityOperationFilter(IConfiguration configurat
             return;
         }
 
-        if (!AllowsAnonymous(cad))
+        if (!OpenApiAuthAnonymousDetection.AllowsAnonymous(cad))
         {
             return;
         }
 
-        // OpenAPI 3: empty array = no auth for this operation (overrides root security).
         operation.Security = [];
-    }
-
-    private static bool AllowsAnonymous(ControllerActionDescriptor cad)
-    {
-        IList<Microsoft.AspNetCore.Mvc.Filters.FilterDescriptor>? filters = cad.FilterDescriptors;
-
-        if (filters != null && filters.Any(static f => f.Filter is IAllowAnonymousFilter))
-        {
-            return true;
-        }
-
-        if (cad.EndpointMetadata.Any(static m => m is AllowAnonymousAttribute))
-        {
-            return true;
-        }
-
-        if (cad.MethodInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) != null)
-        {
-            return true;
-        }
-
-        return cad.ControllerTypeInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) != null;
     }
 }

@@ -45,4 +45,10 @@ public static class ArchiForgeHttpHeaders
 
     /// <summary>Optional — persisted replay record identifier attached to replay responses.</summary>
     public const string PersistedReplayRecordId = "X-ArchiForge-PersistedReplayRecordId";
+
+    /// <summary>
+    /// Set on batch comparison replay ZIP responses when at least one ID failed and at least one succeeded.
+    /// Value is <c>true</c>.
+    /// </summary>
+    public const string BatchReplayPartial = "X-ArchiForge-Batch-Partial";
 }

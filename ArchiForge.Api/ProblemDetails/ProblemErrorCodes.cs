@@ -45,6 +45,8 @@ public static class ProblemErrorCodes
 
     public const string CircuitBreakerOpen = "CIRCUIT_BREAKER_OPEN";
 
+    public const string BatchReplayAllFailed = "BATCH_REPLAY_ALL_FAILED";
+
     /// <summary>Maps a <see cref="ProblemTypes"/> URI to <see cref="ProblemErrorCodes"/>; returns <see cref="Unspecified"/> when unknown.</summary>
     public static string ResolveFromProblemType(string? problemTypeUri)
     {
@@ -104,6 +106,9 @@ public static class ProblemErrorCodes
 
         if (problemTypeUri == ProblemTypes.DatabaseUnavailable)
             return DatabaseUnavailable;
+
+        if (problemTypeUri == ProblemTypes.BatchReplayAllFailed)
+            return BatchReplayAllFailed;
 
         return problemTypeUri == ProblemTypes.CircuitBreakerOpen ? CircuitBreakerOpen : Unspecified;
     }
