@@ -149,6 +149,22 @@ public sealed class ArchiForgeApiClientHttpTests
     }
 
     [Fact]
+    public async Task CommitRunAsync_On409_ReturnsFailureWithHttpStatusCode()
+    {
+        string json = JsonSerializer.Serialize(new { detail = "Conflict with current state." });
+        HttpResponseMessage response = new(HttpStatusCode.Conflict) { Content = new StringContent(json) };
+        response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        ArchiForgeApiClient client = CreateClient(response);
+        ArchiForgeApiClient.CommitRunResult? result = await client.CommitRunAsync("run-1");
+
+        result.Should().NotBeNull();
+        result!.Success.Should().BeFalse();
+        result.HttpStatusCode.Should().Be(409);
+        result.Error!.ToLowerInvariant().Should().Contain("conflict");
+    }
+
+    [Fact]
     public async Task CheckHealthAsync_On200_ReturnsTrue()
     {
         HttpResponseMessage response = new(HttpStatusCode.OK);

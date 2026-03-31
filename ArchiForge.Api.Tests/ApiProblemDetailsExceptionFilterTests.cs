@@ -44,6 +44,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         problem.Extensions["driftDetected"].Should().Be(true);
         problem.Extensions["driftSummary"].Should().Be("payload mismatch");
         problem.Extensions["errorCode"].Should().Be(ProblemErrorCodes.ComparisonVerificationFailed);
+        problem.Extensions.Should().ContainKey("supportHint");
+        ((string)problem.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("drift");
     }
 
     [Fact]
@@ -59,6 +61,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);
         p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.Conflict);
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("idempotency");
     }
 
     [Fact]
@@ -74,6 +78,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.RunNotFound);
         p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.RunNotFound);
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("scope");
     }
 
     [Fact]
@@ -88,6 +94,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.BadRequest);
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("swagger");
     }
 
     [Fact]
@@ -101,6 +109,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         ObjectResult result = context.Result.Should().BeOfType<ObjectResult>().Subject;
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.ValidationFailed);
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("validation");
     }
 
     [Fact]
@@ -128,6 +138,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseTimeout);
         p.Title.Should().Be("Request Timeout");
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("health/ready");
     }
 
     [Fact]
@@ -155,6 +167,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("health/ready");
     }
 
     [Fact]
@@ -176,6 +190,8 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         p.Extensions["errorCode"].Should().Be(ProblemErrorCodes.CircuitBreakerOpen);
         p.Extensions.Should().ContainKey("retryAfterUtc");
         p.Extensions["retryAfterUtc"].Should().Be(retryAfter);
+        p.Extensions.Should().ContainKey("supportHint");
+        ((string)p.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("azure openai");
     }
 
     [Fact]
