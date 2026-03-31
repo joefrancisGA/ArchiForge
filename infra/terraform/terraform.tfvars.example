@@ -1,0 +1,27 @@
+# Copy to terraform.tfvars (gitignored) and adjust. Leave enable_api_management = false on a laptop
+# when you are not targeting Azure.
+
+enable_api_management = true
+create_resource_group = true
+resource_group_name   = "rg-archiforge-dev"
+location              = "eastus2"
+
+# Must be globally unique in Azure.
+apim_name = "archiforge-dev-apim"
+
+apim_publisher_name  = "ArchiForge"
+apim_publisher_email = "you@yourorg.example"
+
+# HTTPS URL the Consumption APIM instance can reach (public App Service URL is typical on this SKU).
+archiforge_api_backend_url = "https://archiforge-api-dev.azurewebsites.net"
+
+# Gateway path: https://<apim-name>.azure-api.net/<apim_api_path_suffix>/...
+apim_api_path_suffix = "v1"
+
+# After the API is deployed, point at real Swagger to import all operations (optional but recommended).
+# apim_openapi_spec_url = "https://archiforge-api-dev.azurewebsites.net/swagger/v1/swagger.json"
+
+tags = {
+  workload = "archiforge"
+  tier     = "dev"
+}

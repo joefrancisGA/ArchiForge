@@ -1837,7 +1837,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`ArchiForge.Api/appsettings.KeyVault.sample.json`**: example `@Microsoft.KeyVault(...)` values for SQL, Azure OpenAI, API key auth.
   - **`docs/CONFIGURATION_KEY_VAULT.md`**: App Service / Terraform guidance and `__` nested key mapping.
 - [ ] 217. Private Link for SQL, storage, AI Search (Terraform).
-- [ ] 218. WAF / APIM in front of API.
+- [x] 218. **APIM (Consumption) in front of API** — Terraform `infra/terraform/` with **`enable_api_management`** (default **false** for laptop-only work); **`sku_name = Consumption_0`**; optional OpenAPI import from **`swagger/v1/swagger.json`**; outputs gateway URL + managed identity. **WAF / Front Door** at the edge remains a separate optional module (not in this root).
 - [x] 219. SBOM (CycloneDX) in CI.
   - **`.github/workflows/ci.yml`**: after **`dotnet-fast-core`** build, **`dotnet tool install CycloneDX`** → BOM for **`ArchiForge.Api/ArchiForge.Api.csproj`** → artifact **`sbom-dotnet`**; after **`ui-unit`** **`npm ci`**, **`npx @cyclonedx/cyclonedx-npm@4.2.1`** → artifact **`sbom-npm`**.
   - Local commands: **`docs/BUILD.md`** (SBOM subsection).
@@ -1948,7 +1948,7 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Unit tests (170–194): complete for 170–190, 191–194 (170–171 Persistence.Tests; 183–185, 190 as listed above; 189 UTC calculator documented).
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
 - [ ] Observability & reliability (205–214): partial (205–213 done; 214 still open).
-- [ ] Security (215–226): partial (**219–221** CycloneDX SBOM + gitleaks; **220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **215–218, 222–224** still open).
+- [ ] Security (215–226): partial (**219–221** CycloneDX SBOM + gitleaks; **220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **218** APIM Consumption Terraform; **215–217, 222–224** still open).
 - [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
 - [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 238–239, 241 open).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).

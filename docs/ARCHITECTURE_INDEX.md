@@ -70,6 +70,7 @@
 - **Comparison replay rate limits** – `docs/runbooks/COMPARISON_REPLAY_RATE_LIMITS.md`
 - **Provenance / retrieval indexing** – `docs/runbooks/PROVENANCE_INDEXING.md`
 - **Terraform variable sketch (Azure)** – `docs/terraform-azure-variables.md`
+- **Azure API Management (Consumption), optional** – `infra/terraform/README.md`
 - **Rate limiting / CORS / auth** – see `README.md` and `docs/BUILD.md` (cross-links from backlog `docs/NEXT_REFACTORINGS.md`)
 
 ### Contributing and process

@@ -1,0 +1,17 @@
+openapi: 3.0.1
+info:
+  title: ArchiForge API (bootstrap)
+  description: >
+    Minimal spec so APIM can be created before a full Swagger import.
+    Set apim_openapi_spec_url to https://<your-api-host>/swagger/v1/swagger.json and re-apply to replace operations.
+  version: "1.0.0"
+servers:
+  - url: https://placeholder.invalid
+paths:
+  /health/live:
+    get:
+      summary: Liveness probe
+      operationId: HealthLiveGet
+      responses:
+        "200":
+          description: OK
