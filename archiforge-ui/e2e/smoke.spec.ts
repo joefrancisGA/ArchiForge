@@ -4,7 +4,7 @@ test.describe("operator shell smoke", () => {
   test("home renders shell headings", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.getByRole("heading", { name: "ArchiForge" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Operator Shell" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "ArchiForge", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Start here", level: 2 })).toBeVisible();
   });
 });
