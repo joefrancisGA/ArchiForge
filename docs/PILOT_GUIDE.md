@@ -124,6 +124,8 @@ Or PowerShell:
 
 This builds **Release**, runs **fast core** .NET tests, and runs **Vitest** if Node is installed. Details: [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
 
+**Deeper single-path smoke** (starts a temporary API, runs **`archiforge run --quick`**, checks synthesized artifacts): set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** — [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
+
 ---
 
 ## Core tests (deeper regression)

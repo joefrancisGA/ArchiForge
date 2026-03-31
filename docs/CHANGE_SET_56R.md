@@ -38,6 +38,11 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **New:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — common failure modes, triage table, log search tokens, UI proxy notes.
 - **Updated:** [README.md](../README.md) — pilot onboarding section + doc table rows.
 
+### Prompt 7 — end-to-end release readiness smoke
+
+- **New:** `release-smoke.ps1`, `release-smoke.cmd` — Release build, fast core (+ optional `-FullCore`), optional UI Vitest + `next build`, temporary **ArchiForge.Api** process, **`GET /health/ready`** + **`/health/live`**, CLI **`new` + `run --quick`**, assert **≥ 1** artifact via **`GET /api/artifacts/manifests/{goldenManifestId}`**.
+- **New:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) — prerequisites, env vars, switches, relation to `run-readiness-check` / `package-release`.
+
 ### Deferred to later prompts (56R backlog)
 
 - Structured log enrichers, version/commit in logs, OTLP defaults.
@@ -59,3 +64,4 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
 - `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`
+- `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`

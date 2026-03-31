@@ -13,6 +13,7 @@ Practical steps to produce a **Release**-configuration build, run a **lightweigh
 | `build-release.cmd` / `build-release.ps1` | `dotnet restore` + `dotnet build ArchiForge.sln -c Release` |
 | `package-release.cmd` / `package-release.ps1` | Runs release build, then **`dotnet publish`** API to `artifacts/release/api/`; if **Node** is on `PATH`, also runs `npm ci` + `npm run build` in `archiforge-ui/` |
 | `run-readiness-check.cmd` / `run-readiness-check.ps1` | Release build → **fast core** tests (`-c Release --no-build`) → **Vitest** in `archiforge-ui/` when Node is available |
+| `release-smoke.cmd` / `release-smoke.ps1` | **E2E smoke:** build + fast core (+ optional `-FullCore`) + optional UI build + temporary API + CLI **`run --quick`** + artifact API check — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | `test-core.cmd` / `test-core.ps1` | Full Core suite (default configuration, usually Debug). See [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) |
 | `test-fast-core.cmd` / `test-fast-core.ps1` | Core excluding Slow + Integration (default configuration) |
 | `test-ui-unit.cmd` / `test-ui-unit.ps1` | `npm ci` + `npm run test` (Vitest) |

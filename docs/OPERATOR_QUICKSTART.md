@@ -93,6 +93,17 @@ run-readiness-check.cmd
 .\run-readiness-check.ps1
 ```
 
+**Full E2E release smoke** (needs `ARCHIFORGE_SMOKE_SQL` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)):
+
+```powershell
+$env:ARCHIFORGE_SMOKE_SQL = 'Server=...;Database=...;...'
+.\release-smoke.ps1
+```
+
+```bat
+release-smoke.cmd
+```
+
 ```bash
 dotnet test ArchiForge.sln --filter "Suite=Core&Category!=Slow&Category!=Integration"
 ```

@@ -53,4 +53,5 @@ See [operator-shell.md](operator-shell.md) and [API_CONTRACTS.md](API_CONTRACTS.
 
 1. Run **`dotnet run --project ArchiForge.Cli -- doctor`** with the API up.
 2. Run **`run-readiness-check.cmd`** (or `.ps1`) to confirm build + fast core + UI unit tests on your machine.
-3. Open **[PILOT_GUIDE.md](PILOT_GUIDE.md)** for the full first-run narrative.
+3. For an automated **API + CLI + artifact** check, see **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** (`release-smoke` — requires SQL for the E2E block unless `-SkipE2E`).
+4. Open **[PILOT_GUIDE.md](PILOT_GUIDE.md)** for the full first-run narrative.
