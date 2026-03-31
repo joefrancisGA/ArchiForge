@@ -1,4 +1,9 @@
+using ArchiForge.Api.Swagger;
+
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.OpenApi;
+
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchiForge.Api.Startup;
 
@@ -8,10 +13,13 @@ internal static class SwaggerExtensions
     {
         services.AddSwaggerGen(c =>
         {
+            // Disambiguate types that share a short name (e.g. Decisioning vs Contracts DecisionTrace).
+            c.CustomSchemaIds(type => type.FullName?.Replace("+", ".", StringComparison.Ordinal) ?? type.Name);
+
             c.TagActionsBy(api =>
             {
                 if (api.ActionDescriptor is not ControllerActionDescriptor cad) return [api.GroupName ?? "API"];
-                
+
                 string tag = cad.ControllerName switch
                 {
                     "PolicyPacks" or "Governance" or "GovernancePreview" or "GovernanceResolution" => "Governance",
@@ -32,7 +40,6 @@ internal static class SwaggerExtensions
                     _ => cad.ControllerName,
                 };
                 return [tag];
-
             });
 
             c.SwaggerDoc("v1", new()
@@ -48,6 +55,8 @@ internal static class SwaggerExtensions
             c.OperationFilter<Swagger.PolicyPackExamplesOperationFilter>();
             c.OperationFilter<Swagger.AlertExamplesOperationFilter>();
             c.SchemaFilter<Swagger.PolicyPackContentDocumentSchemaFilter>();
+            c.DocumentFilter<OpenApiAuthSecurityDocumentFilter>();
+            c.OperationFilter<OpenApiAuthSecurityOperationFilter>();
         });
         return services;
     }

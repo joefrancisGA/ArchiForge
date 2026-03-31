@@ -81,6 +81,6 @@ flowchart LR
 - **Correlation:** Send **`X-Correlation-ID`** from clients; it flows through Front Door and the API for support and incident alignment.
 - **Cutover:** Apply private endpoints, validate connectivity from integrated compute, then **disable public** SQL/storage access per runbook.
 - **Entra:** After Terraform registers the API app, assign roles to users or service principals; update **`ArchiForgeAuth`** and redeploy the API.
-- **Backlog:** OpenAPI **`securitySchemes`** for Entra (**`docs/NEXT_REFACTORINGS.md`** item **238**) and optional **AI Search** private endpoints remain future enhancements.
+- **Backlog:** Optional **AI Search** private endpoints remain a future enhancement. OpenAPI **`securitySchemes`** for Entra is implemented when **`ArchiForgeAuth:Mode`** is **`JwtBearer`** (see **`docs/API_CONTRACTS.md`**).
 
 For variable-level checklists, see **`docs/terraform-azure-variables.md`**.

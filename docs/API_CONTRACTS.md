@@ -53,6 +53,10 @@ The **batch replay** endpoint body (`comparisonRecordIds`, `format`, `replayMode
 
 Swagger documents the comparison replay **422** response, **404** with `#run-not-found` on run/compare and comparisons routes, and **409** with `#conflict` on commit. The codebase does not use deprecated `WithOpenApi`; use operation filters / transformers for per-operation docs.
 
+### Security schemes (Swashbuckle)
+
+When **`ArchiForgeAuth:Mode`** is **`JwtBearer`**, **`/swagger/v1/swagger.json`** includes **`components.securitySchemes.Bearer`** (HTTP bearer, JWT) and **document-level `security`** defaulting to that scheme, with text derived from **`ArchiForgeAuth:Audience`** and **`ArchiForgeAuth:Authority`** where set (Microsoft Entra). When **`ArchiForgeAuth:Mode`** is **`ApiKey`**, the document includes **`ApiKey`** (**`X-Api-Key`** header). **`DevelopmentBypass`** does not add these schemes (local ergonomics). Schema **ids** use the CLR **full type name** so colliding short names (e.g. two `DecisionTrace` types) do not break generation.
+
 ## Create run — `ArchitectureRequest` (context ingestion fields)
 
 `POST` routes that accept **`ArchitectureRequest`** (e.g. create run) may include optional ingestion fields in addition to **`Description`** / **`SystemName`**:

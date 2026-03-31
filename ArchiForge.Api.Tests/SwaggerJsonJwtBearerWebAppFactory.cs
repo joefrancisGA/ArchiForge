@@ -5,10 +5,9 @@ using Microsoft.Extensions.Configuration;
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// Minimal API host for OpenAPI contract checks: in-memory authority storage, no SQL, Development pipeline
-/// (Swagger + <c>/swagger/v1/swagger.json</c>; generation uses <c>CustomSchemaIds</c> and optional auth security filters).
+/// Test host with <c>ArchiForgeAuth:Mode = JwtBearer</c> so Swashbuckle emits Entra-oriented <c>securitySchemes</c>.
 /// </summary>
-public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
+public sealed class SwaggerJsonJwtBearerWebAppFactory : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -32,6 +31,9 @@ public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program
                     ["RateLimiting:Expensive:WindowMinutes"] = "1",
                     ["RateLimiting:Replay:Light:PermitLimit"] = "100000",
                     ["RateLimiting:Replay:Heavy:PermitLimit"] = "100000",
+                    ["ArchiForgeAuth:Mode"] = "JwtBearer",
+                    ["ArchiForgeAuth:Authority"] = "https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/v2.0",
+                    ["ArchiForgeAuth:Audience"] = "api://archiforge-swagger-test",
                 });
         });
     }

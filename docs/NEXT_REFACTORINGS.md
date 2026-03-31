@@ -1835,7 +1835,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 215. Entra ID app roles migration from long-lived API keys.
   - **`infra/terraform-entra/`**: optional **`azuread_application`** with **Admin / Operator / Reader** roles; **`enable_entra_api_app`** default **false**.
   - **`ArchiForge.Api`**: **`ArchiForgeAuth:NameClaimType`** (e.g. **`preferred_username`**); JWT **`RoleClaimType = "roles"`**; **`appsettings.Entra.sample.json`**.
-  - **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**: customer narrative and cutover notes. **OpenAPI `securitySchemes`** for Entra remains item **238**.
+  - **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**: customer narrative and cutover notes (includes OpenAPI auth summary; **238**).
 - [x] 216. Key Vault references for all secrets in config samples.
   - **`ArchiForge.Api/appsettings.KeyVault.sample.json`**: example `@Microsoft.KeyVault(...)` values for SQL, Azure OpenAI, API key auth.
   - **`docs/CONFIGURATION_KEY_VAULT.md`**: App Service / Terraform guidance and `__` nested key mapping.
@@ -1884,7 +1884,10 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`ApplicationProblemMapper.CreateProblemResult`**: always sets `extensions.errorCode`; optional post-build `extend` action (e.g. circuit breaker `retryAfterUtc`).
   - **`MapComparisonVerificationFailed`**, **`ProblemDetailsExtensions`** (BadRequest/NotFound/Conflict/503), **`PipelineExtensions`** (500): attach `errorCode`.
   - **Tests**: `ApiProblemDetailsExceptionFilterTests` asserts `errorCode` on conflict, run-not-found, comparison verification, circuit breaker.
-- [ ] 238. OpenAPI `securitySchemes` for Entra when enabled.
+- [x] 238. OpenAPI `securitySchemes` for Entra when enabled.
+  - **`OpenApiAuthSecurityDocumentFilter`** / **`OpenApiAuthSecurityOperationFilter`**: **`Bearer`** (JWT) when **`ArchiForgeAuth:Mode`** is **`JwtBearer`**; **`ApiKey`** (**`X-Api-Key`**) when **`ApiKey`**; document-level **`security`** + optional **`security: []`** for **`AllowAnonymous`** (explored actions only). Filters read **`IConfiguration` at document generation** so **`WebApplicationFactory`** overrides apply.
+  - **`CustomSchemaIds`**: full type name fixes Swashbuckle clash (**`DecisionTrace`** in Decisioning vs Contracts).
+  - **Tests**: **`SwaggerOpenApiAuthTests`**, **`SwaggerJsonSecuritySchemesIntegrationTests`**, **`SwaggerDocumentGenerationSmokeTests`**.
 - [ ] 239. Webhook HMAC for digest/alert channels.
 - [x] 240. Optional `Idempotency-Key` on create run.
   - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchiForge.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
@@ -1954,6 +1957,6 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [ ] Observability & reliability (205–214): partial (205–213 done; 214 still open).
 - [ ] Security (215–226): partial (**215** Entra Terraform + API JWT sample; **217** private SQL/Blob Terraform; **218** APIM + **terraform-edge** WAF; **219–221** CycloneDX SBOM + gitleaks; **220** vulnerable-package CI gate; **225–226** CORS + HSTS/headers; **222–224** still open).
 - [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
-- [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 238–239, 241 open).
+- [ ] API & contracts (235–242): partial (236 pagination; **237** errorCode; **238** OpenAPI security schemes; **240** create-run idempotency; **242** camelCase JSON + doc; 235, 239, 241 open).
 - [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
 - [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; **251** Problem Details + correlation + UI tests; 250, 252–253 open).

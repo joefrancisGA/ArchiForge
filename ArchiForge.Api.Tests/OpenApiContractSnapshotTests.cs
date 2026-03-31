@@ -7,7 +7,7 @@ namespace ArchiForge.Api.Tests;
 
 /// <summary>
 /// Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed snapshot.
-/// Swashbuckle <c>/swagger/v1/swagger.json</c> can throw in the test host; the Microsoft document is stable for contract diffing.
+/// Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft OpenAPI document for stable contract diffing.
 /// Regenerate: <c>ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root.
 /// </summary>
 [Trait("Suite", "Core")]
