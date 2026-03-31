@@ -66,4 +66,10 @@ public interface IRunRepository
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
+
+    /// <summary>
+    /// Sets <see cref="RunRecord.ArchivedUtc"/> for runs with <c>CreatedUtc</c> strictly before <paramref name="cutoffUtc"/>
+    /// that are not yet archived. Returns the number of rows updated.
+    /// </summary>
+    Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 }

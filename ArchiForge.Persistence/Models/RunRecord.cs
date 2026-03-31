@@ -16,4 +16,7 @@ public sealed class RunRecord
     public Guid? GoldenManifestId { get; set; }
     public Guid? DecisionTraceId { get; set; }
     public Guid? ArtifactBundleId { get; set; }
+
+    /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
+    public DateTime? ArchivedUtc { get; set; }
 }

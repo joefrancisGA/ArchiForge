@@ -43,9 +43,10 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
         const string sql = """
             SELECT ThreadId, TenantId, WorkspaceId, ProjectId,
                    RunId, BaseRunId, TargetRunId,
-                   Title, CreatedUtc, LastUpdatedUtc
+                   Title, CreatedUtc, LastUpdatedUtc, ArchivedUtc
             FROM dbo.ConversationThreads
-            WHERE ThreadId = @ThreadId;
+            WHERE ThreadId = @ThreadId
+              AND ArchivedUtc IS NULL;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -69,11 +70,12 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             SELECT TOP (@Take)
                 ThreadId, TenantId, WorkspaceId, ProjectId,
                 RunId, BaseRunId, TargetRunId,
-                Title, CreatedUtc, LastUpdatedUtc
+                Title, CreatedUtc, LastUpdatedUtc, ArchivedUtc
             FROM dbo.ConversationThreads
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
+              AND ArchivedUtc IS NULL
             ORDER BY LastUpdatedUtc DESC;
             """;
 
@@ -109,18 +111,20 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
             FROM dbo.ConversationThreads
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
-              AND ProjectId = @ProjectId;
+              AND ProjectId = @ProjectId
+              AND ArchivedUtc IS NULL;
             """;
 
         const string pageSql = """
             SELECT
                 ThreadId, TenantId, WorkspaceId, ProjectId,
                 RunId, BaseRunId, TargetRunId,
-                Title, CreatedUtc, LastUpdatedUtc
+                Title, CreatedUtc, LastUpdatedUtc, ArchivedUtc
             FROM dbo.ConversationThreads
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
+              AND ArchivedUtc IS NULL
             ORDER BY LastUpdatedUtc DESC
             OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
             """;
@@ -159,5 +163,19 @@ public sealed class DapperConversationThreadRepository(ISqlConnectionFactory con
                 ThreadId = threadId,
                 UpdatedUtc = updatedUtc
             }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<int> ArchiveThreadsLastUpdatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.ConversationThreads
+            SET ArchivedUtc = SYSUTCDATETIME()
+            WHERE ArchivedUtc IS NULL AND LastUpdatedUtc < @Cutoff;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct));
     }
 }

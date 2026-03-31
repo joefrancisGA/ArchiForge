@@ -24,6 +24,7 @@ using ArchiForge.Persistence.Conversation;
 using ArchiForge.Persistence.Governance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Orchestration;
+using ArchiForge.Persistence.Archival;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Persistence.Replay;
@@ -89,6 +90,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();
             services.AddSingleton<IConversationMessageRepository, InMemoryConversationMessageRepository>();
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
+            services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
             return services;
         }
 
@@ -155,6 +157,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
         services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
+        services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
 
         return services;
     }

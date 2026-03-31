@@ -34,6 +34,12 @@ public interface IConversationThreadRepository
         int take,
         CancellationToken ct);
 
+    /// <summary>
+    /// Sets <see cref="ConversationThread.ArchivedUtc"/> for threads with <c>LastUpdatedUtc</c> strictly before
+    /// <paramref name="cutoffUtc"/> that are not yet archived. Returns rows updated.
+    /// </summary>
+    Task<int> ArchiveThreadsLastUpdatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
+
     /// <summary>Sets <see cref="ConversationThread.LastUpdatedUtc"/> after a message append.</summary>
     Task UpdateLastUpdatedAsync(Guid threadId, DateTime updatedUtc, CancellationToken ct);
 }

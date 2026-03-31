@@ -1874,7 +1874,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`RequestScopedCachingEffectiveGovernanceLoader`**: scoped decorator over **`EffectiveGovernanceLoader`**; first **`LoadEffectiveContentAsync`** for a `(tenant, workspace, project)` triple wins, subsequent calls on the same request reuse the document.
   - **DI**: `ServiceCollectionExtensions` registers concrete **`EffectiveGovernanceLoader`** + **`IEffectiveGovernanceLoader`** → decorator.
   - **Tests**: `RequestScopedCachingEffectiveGovernanceLoaderTests` (`ArchiForge.Decisioning.Tests`).
-- [ ] 231. Graph snapshot pagination API design.
+- [x] 231. Graph snapshot pagination API design.
+  - **`GET /api/graph/runs/{runId}/nodes`**: `page` / `pageSize` (see **`PaginationDefaults`**); response **`GraphNodesPageResponse`** (nodes + edges with both endpoints on the page). **`GraphSnapshotPagination`** + **`GraphSnapshotNodesPage`** in **`ArchiForge.KnowledgeGraph`**.
 - [ ] 232. Embedding batching cost caps.
 - [ ] 233. AI Search SKU guidance (dev vs prod).
 - [ ] 234. Cold-start profiling + trimming options.
@@ -1908,7 +1909,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Data & persistence (243–249)
 
-- [ ] 243. Archival for old runs / digests / conversations.
+- [x] 243. Archival for old runs / digests / conversations.
+  - **`ArchivedUtc`** on **`dbo.Runs`**, **`dbo.ArchitectureDigests`**, **`dbo.ConversationThreads`** (migration **`028_ArchivalSoftFlags.sql`**, **`ArchiForge.sql`** CREATE + parity). List/get SQL and in-memory repos exclude archived rows. **`DataArchivalOptions`** (`DataArchival:*`), **`IDataArchivalCoordinator`** / **`DataArchivalCoordinator`**, **`DataArchivalHostedService`** (scoped coordinator + retention days). Default **`DataArchival:Enabled`** false.
 - [ ] 244. Soft-delete policy for governance assignments.
 - [x] 245. Connection resilience (retry + backoff).
   - **`SqlTransientDetector`** (`ArchiForge.Persistence.Connections`): shared classifier for transient SQL Server error numbers (-2 timeout, 40613 Azure SQL unavailable, 40197 service error, 49918–49920 throttling) and `TimeoutException`. Used by both the health check and the resilient factory.
@@ -1927,7 +1929,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 248. Single DDL file discipline audit.
   - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchiForge.sql`**, DbUp migration pairing, inventory **019–021**.
   - **`ArchiForge.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
-- [ ] 249. Migration rollback documentation.
+- [x] 249. Migration rollback documentation.
+  - **`docs/runbooks/MIGRATION_ROLLBACK.md`**: restore-first, forward-fix vs manual DDL, **028** column-drop note, journal alignment warning.
 
 ### UI & developer experience (250–256)
 
@@ -1962,7 +1965,7 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [ ] Integration / E2E (195–204): partial (195–199 done; 200–204 open).
 - [x] Observability & reliability (205–214): complete (205–214; **214** SLO runbook).
 - [x] Security (215–226): complete for backlog scope (**215–226** including **222–224** design docs; remaining continuous hardening is outside this checklist).
-- [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; 231–234 open).
+- [ ] Performance & cost (227–234): partial (**227** Runs list index; **228** list paging + run detail parallel fetch; **230** governance request cache; 229 response compression; **231** graph node pagination; 232–234 open).
 - [x] API & contracts (235–242): complete (235 deprecation headers; 236–242 as listed, including **239** webhook HMAC and **241** batch replay partial success).
-- [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc; 243–244, 246, 249 open).
+- [ ] Data & persistence (243–249): partial (245 resilient connection, 247 shared contract tests, **248** DDL discipline doc, **243** soft archival + **249** rollback runbook; 244, 246 open).
 - [ ] UI & DX (250–256): partial (254 onboarding doc; **255** Dockerfiles + compose full-stack profile; **256** not-found + route loading; **251** Problem Details + correlation + UI tests; 250, 252–253 open).

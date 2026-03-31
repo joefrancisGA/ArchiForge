@@ -31,7 +31,10 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_threads.FirstOrDefault(x => x.ThreadId == threadId));
+        {
+            ConversationThread? t = _threads.FirstOrDefault(x => x.ThreadId == threadId);
+            return Task.FromResult(t is { ArchivedUtc: not null } ? null : t);
+        }
     }
 
     /// <inheritdoc />
@@ -49,7 +52,8 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
             List<ConversationThread> result = _threads
                 .Where(x => x.TenantId == tenantId &&
                             x.WorkspaceId == workspaceId &&
-                            x.ProjectId == projectId)
+                            x.ProjectId == projectId &&
+                            !x.ArchivedUtc.HasValue)
                 .OrderByDescending(x => x.LastUpdatedUtc)
                 .Take(take)
                 .ToList();
@@ -75,7 +79,8 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
             List<ConversationThread> ordered = _threads
                 .Where(x => x.TenantId == tenantId &&
                             x.WorkspaceId == workspaceId &&
-                            x.ProjectId == projectId)
+                            x.ProjectId == projectId &&
+                            !x.ArchivedUtc.HasValue)
                 .OrderByDescending(x => x.LastUpdatedUtc)
                 .ToList();
             int total = ordered.Count;
@@ -91,10 +96,36 @@ public sealed class InMemoryConversationThreadRepository : IConversationThreadRe
         lock (_gate)
         {
             ConversationThread? thread = _threads.FirstOrDefault(x => x.ThreadId == threadId);
-            if (thread is not null)
+            if (thread is { ArchivedUtc: null })
+            {
                 thread.LastUpdatedUtc = updatedUtc;
+            }
         }
 
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<int> ArchiveThreadsLastUpdatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        DateTime cutoff = cutoffUtc.UtcDateTime;
+        DateTime stamp = DateTime.UtcNow;
+        int count = 0;
+        lock (_gate)
+        {
+            foreach (ConversationThread t in _threads)
+            {
+                if (t.ArchivedUtc.HasValue || t.LastUpdatedUtc >= cutoff)
+                {
+                    continue;
+                }
+
+                t.ArchivedUtc = stamp;
+                count++;
+            }
+        }
+
+        return Task.FromResult(count);
     }
 }

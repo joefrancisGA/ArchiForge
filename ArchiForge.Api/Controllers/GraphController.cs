@@ -1,5 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Core.Pagination;
 using ArchiForge.Core.Scoping;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Queries;
@@ -50,6 +51,30 @@ public sealed class GraphController(
         return Ok(vm);
     }
 
+    /// <summary>
+    /// Returns a page of graph nodes (stable snapshot order) and edges whose endpoints both appear on that page.
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/nodes")]
+    [ProducesResponseType(typeof(GraphNodesPageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetArchitectureGraphNodesPage(
+        Guid runId,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runId, ct);
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        if (detail.GraphSnapshot is null)
+            return this.NotFoundProblem($"Run '{runId}' does not have a graph snapshot.", ProblemTypes.ResourceNotFound);
+
+        GraphSnapshotNodesPage slice = GraphSnapshotPagination.CreatePage(detail.GraphSnapshot, page, pageSize);
+        GraphNodesPageResponse body = MapArchitectureGraphPage(slice);
+        return Ok(body);
+    }
+
     private static GraphViewModel MapArchitectureGraph(GraphSnapshot snapshot)
     {
         List<GraphNodeVm> nodes = snapshot.Nodes.Select(MapNode).ToList();
@@ -61,6 +86,29 @@ public sealed class GraphController(
         }).ToList();
 
         return new GraphViewModel { Nodes = nodes, Edges = edges };
+    }
+
+    private static GraphNodesPageResponse MapArchitectureGraphPage(GraphSnapshotNodesPage slice)
+    {
+        List<GraphNodeVm> nodes = slice.Nodes.Select(MapNode).ToList();
+        List<GraphEdgeVm> edges = slice.Edges.Select(
+                e => new GraphEdgeVm
+                {
+                    Source = e.FromNodeId,
+                    Target = e.ToNodeId,
+                    Type = e.EdgeType
+                })
+            .ToList();
+
+        return new GraphNodesPageResponse
+        {
+            Page = slice.Page,
+            PageSize = slice.PageSize,
+            TotalNodes = slice.TotalNodes,
+            HasMore = slice.HasMore,
+            Nodes = nodes,
+            Edges = edges
+        };
     }
 
     private static GraphNodeVm MapNode(GraphNode x)

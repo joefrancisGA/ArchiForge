@@ -258,4 +258,23 @@ public sealed class ArchiForgeConfigurationRulesTests
 
         errors.Should().Contain(e => e.Contains("ApiDeprecation:SunsetHttpDate", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenDataArchivalIntervalInvalid_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["DataArchival:IntervalHours"] = "0",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("DataArchival:IntervalHours", StringComparison.OrdinalIgnoreCase));
+    }
 }

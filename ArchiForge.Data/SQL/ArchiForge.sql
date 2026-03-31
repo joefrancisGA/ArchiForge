@@ -459,6 +459,7 @@ BEGIN
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
+        ArchivedUtc DATETIME2 NULL,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
 END;
@@ -1469,6 +1470,7 @@ BEGIN
         Title NVARCHAR(300) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         LastUpdatedUtc DATETIME2 NOT NULL,
+        ArchivedUtc DATETIME2 NULL,
         INDEX IX_ConversationThreads_Scope NONCLUSTERED (TenantId, WorkspaceId, ProjectId, LastUpdatedUtc DESC)
     );
 END;
@@ -1598,6 +1600,7 @@ BEGIN
         Summary NVARCHAR(MAX) NOT NULL,
         ContentMarkdown NVARCHAR(MAX) NOT NULL,
         MetadataJson NVARCHAR(MAX) NOT NULL,
+        ArchivedUtc DATETIME2 NULL,
         INDEX IX_ArchitectureDigests_Scope_GeneratedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, GeneratedUtc DESC)
     );
 END;
@@ -1913,4 +1916,20 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_Scope_Project_CreatedUtc
         ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, ProjectId, CreatedUtc DESC);
 END;
+GO
+
+/* ---- DbUp 028 parity: soft archival flags (retention job sets ArchivedUtc; reads filter active rows) ---- */
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH('dbo.Runs', 'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.Runs ADD ArchivedUtc DATETIME2 NULL;
+
+IF OBJECT_ID(N'dbo.ArchitectureDigests', N'U') IS NOT NULL
+   AND COL_LENGTH('dbo.ArchitectureDigests', 'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.ArchitectureDigests ADD ArchivedUtc DATETIME2 NULL;
+
+IF OBJECT_ID(N'dbo.ConversationThreads', N'U') IS NOT NULL
+   AND COL_LENGTH('dbo.ConversationThreads', 'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.ConversationThreads ADD ArchivedUtc DATETIME2 NULL;
+
 GO

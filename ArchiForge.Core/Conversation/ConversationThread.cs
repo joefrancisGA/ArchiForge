@@ -35,4 +35,7 @@ public class ConversationThread
 
     /// <summary>Updated when messages are appended.</summary>
     public DateTime LastUpdatedUtc { get; set; } = DateTime.UtcNow;
+
+    /// <summary>When set, thread list/get hide this row (soft archival by retention job).</summary>
+    public DateTime? ArchivedUtc { get; set; }
 }

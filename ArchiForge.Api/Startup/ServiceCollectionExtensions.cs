@@ -65,6 +65,7 @@ using ArchiForge.KnowledgeGraph.Mapping;
 using ArchiForge.KnowledgeGraph.Services;
 using ArchiForge.Persistence.Advisory;
 using ArchiForge.Persistence.Alerts;
+using ArchiForge.Persistence.Archival;
 using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Alerts.Simulation;
 using ArchiForge.Retrieval.Chunking;
@@ -91,6 +92,7 @@ internal static partial class ServiceCollectionExtensions
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
+        services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services);
@@ -109,8 +111,14 @@ internal static partial class ServiceCollectionExtensions
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services);
         RegisterRetrievalIndexingOutbox(services);
+        RegisterDataArchivalHostedService(services);
         RegisterArchiForgeHealthChecks(services);
         return services;
+    }
+
+    private static void RegisterDataArchivalHostedService(IServiceCollection services)
+    {
+        services.AddHostedService<DataArchivalHostedService>();
     }
 
     private static void RegisterRetrievalIndexingOutbox(IServiceCollection services)

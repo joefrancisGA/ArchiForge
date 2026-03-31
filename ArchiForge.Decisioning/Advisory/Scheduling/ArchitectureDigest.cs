@@ -20,4 +20,7 @@ public class ArchitectureDigest
     public string Summary { get; set; } = null!;
     public string ContentMarkdown { get; set; } = null!;
     public string MetadataJson { get; set; } = "{}";
+
+    /// <summary>When set, digest list/get APIs treat the row as archived (soft delete from operator views).</summary>
+    public DateTime? ArchivedUtc { get; set; }
 }

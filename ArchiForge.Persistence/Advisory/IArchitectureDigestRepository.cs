@@ -31,4 +31,10 @@ public interface IArchitectureDigestRepository
     /// <summary>Loads a digest by primary key (any scope — caller must enforce authorization).</summary>
     /// <returns>The digest, or <c>null</c> if missing.</returns>
     Task<ArchitectureDigest?> GetByIdAsync(Guid digestId, CancellationToken ct);
+
+    /// <summary>
+    /// Sets <see cref="ArchitectureDigest.ArchivedUtc"/> for digests with <c>GeneratedUtc</c> strictly before
+    /// <paramref name="cutoffUtc"/> that are not yet archived. Returns rows updated.
+    /// </summary>
+    Task<int> ArchiveDigestsGeneratedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 }

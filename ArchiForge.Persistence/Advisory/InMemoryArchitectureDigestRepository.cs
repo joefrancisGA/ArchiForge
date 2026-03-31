@@ -41,7 +41,8 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
                 .Where(d =>
                     d.TenantId == tenantId &&
                     d.WorkspaceId == workspaceId &&
-                    d.ProjectId == projectId)
+                    d.ProjectId == projectId &&
+                    !d.ArchivedUtc.HasValue)
                 .OrderByDescending(d => d.GeneratedUtc)
                 .Take(n)
                 .ToList();
@@ -55,6 +56,33 @@ public sealed class InMemoryArchitectureDigestRepository : IArchitectureDigestRe
     {
         ct.ThrowIfCancellationRequested();
         lock (_gate)
-            return Task.FromResult(_items.FirstOrDefault(x => x.DigestId == digestId));
+        {
+            ArchitectureDigest? d = _items.FirstOrDefault(x => x.DigestId == digestId);
+            return Task.FromResult(d is { ArchivedUtc: not null } ? null : d);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<int> ArchiveDigestsGeneratedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        DateTime cutoff = cutoffUtc.UtcDateTime;
+        DateTime stamp = DateTime.UtcNow;
+        int count = 0;
+        lock (_gate)
+        {
+            foreach (ArchitectureDigest d in _items)
+            {
+                if (d.ArchivedUtc.HasValue || d.GeneratedUtc >= cutoff)
+                {
+                    continue;
+                }
+
+                d.ArchivedUtc = stamp;
+                count++;
+            }
+        }
+
+        return Task.FromResult(count);
     }
 }

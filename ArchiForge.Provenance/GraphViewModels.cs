@@ -32,3 +32,21 @@ public class GraphEdgeVm
     public string Target { get; set; } = null!;
     public string Type { get; set; } = null!;
 }
+
+/// <summary>
+/// Paginated architecture graph (same node/edge VM shapes as <see cref="GraphViewModel"/>).
+/// </summary>
+public sealed class GraphNodesPageResponse
+{
+    public int Page { get; set; }
+
+    public int PageSize { get; set; }
+
+    public int TotalNodes { get; set; }
+
+    public bool HasMore { get; set; }
+
+    public List<GraphNodeVm> Nodes { get; set; } = [];
+
+    public List<GraphEdgeVm> Edges { get; set; } = [];
+}

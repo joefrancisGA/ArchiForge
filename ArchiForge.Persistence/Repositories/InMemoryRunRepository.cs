@@ -44,7 +44,13 @@ public sealed class InMemoryRunRepository : IRunRepository
     public Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
-        return !_store.TryGetValue(runId, out RunRecord? r) ? Task.FromResult<RunRecord?>(null) : Task.FromResult(MatchesScope(r, scope) ? r : null);
+
+        if (!_store.TryGetValue(runId, out RunRecord? r) || !MatchesScope(r, scope) || r.ArchivedUtc.HasValue)
+        {
+            return Task.FromResult<RunRecord?>(null);
+        }
+
+        return Task.FromResult<RunRecord?>(r);
     }
 
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct)
@@ -54,6 +60,7 @@ public sealed class InMemoryRunRepository : IRunRepository
         List<RunRecord> list = _store.Values
             .Where(r =>
                 MatchesScope(r, scope) &&
+                !r.ArchivedUtc.HasValue &&
                 string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
             .OrderByDescending(r => r.CreatedUtc)
             .Take(n)
@@ -78,5 +85,30 @@ public sealed class InMemoryRunRepository : IRunRepository
         _ = transaction;
         _store[run.RunId] = run;
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        DateTime cutoff = cutoffUtc.UtcDateTime;
+        DateTime stamp = DateTime.UtcNow;
+        int count = 0;
+
+        foreach (KeyValuePair<Guid, RunRecord> kv in _store.ToArray())
+        {
+            RunRecord r = kv.Value;
+
+            if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
+            {
+                continue;
+            }
+
+            r.ArchivedUtc = stamp;
+            _store[kv.Key] = r;
+            count++;
+        }
+
+        return Task.FromResult(count);
     }
 }

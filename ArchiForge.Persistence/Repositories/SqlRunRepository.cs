@@ -31,13 +31,13 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             (
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
             )
             VALUES
             (
                 @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
                 @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
-                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId
+                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc
             );
             """;
 
@@ -59,12 +59,13 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             SELECT
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
             FROM dbo.Runs
             WHERE RunId = @RunId
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
-              AND ScopeProjectId = @ScopeProjectId;
+              AND ScopeProjectId = @ScopeProjectId
+              AND ArchivedUtc IS NULL;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -93,12 +94,13 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
             SELECT TOP (@Take)
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
             FROM dbo.Runs
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ScopeProjectId = @ScopeProjectId
+              AND ArchivedUtc IS NULL
             ORDER BY CreatedUtc DESC;
             """;
 
@@ -140,7 +142,8 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
                 FindingsSnapshotId = @FindingsSnapshotId,
                 GoldenManifestId = @GoldenManifestId,
                 DecisionTraceId = @DecisionTraceId,
-                ArtifactBundleId = @ArtifactBundleId
+                ArtifactBundleId = @ArtifactBundleId,
+                ArchivedUtc = @ArchivedUtc
             WHERE RunId = @RunId;
             """;
 
@@ -152,5 +155,19 @@ public sealed class SqlRunRepository(ISqlConnectionFactory connectionFactory) : 
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
         await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.Runs
+            SET ArchivedUtc = SYSUTCDATETIME()
+            WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct));
     }
 }

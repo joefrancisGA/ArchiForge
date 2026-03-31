@@ -47,11 +47,12 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             SELECT TOP (@Take)
                 DigestId, TenantId, WorkspaceId, ProjectId,
                 RunId, ComparedToRunId, GeneratedUtc,
-                Title, Summary, ContentMarkdown, MetadataJson
+                Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
             FROM dbo.ArchitectureDigests
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
+              AND ArchivedUtc IS NULL
             ORDER BY GeneratedUtc DESC;
             """;
 
@@ -78,9 +79,10 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             SELECT
                 DigestId, TenantId, WorkspaceId, ProjectId,
                 RunId, ComparedToRunId, GeneratedUtc,
-                Title, Summary, ContentMarkdown, MetadataJson
+                Title, Summary, ContentMarkdown, MetadataJson, ArchivedUtc
             FROM dbo.ArchitectureDigests
-            WHERE DigestId = @DigestId;
+            WHERE DigestId = @DigestId
+              AND ArchivedUtc IS NULL;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -89,5 +91,19 @@ public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory con
             {
                 DigestId = digestId
             }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<int> ArchiveDigestsGeneratedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.ArchitectureDigests
+            SET ArchivedUtc = SYSUTCDATETIME()
+            WHERE ArchivedUtc IS NULL AND GeneratedUtc < @Cutoff;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct));
     }
 }

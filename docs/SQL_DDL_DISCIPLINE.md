@@ -41,13 +41,13 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 ## Operational considerations
 
 - **Drift detection:** Compare migration list to sections appended in **`ArchiForge.sql`** when reviewing PRs (this document’s inventory below).
-- **Rollback:** DbUp does not auto-generate down scripts; document manual rollback in runbooks if needed (**`NEXT_REFACTORINGS.md`** §249).
+- **Rollback:** DbUp does not auto-generate down scripts; use **`docs/runbooks/MIGRATION_ROLLBACK.md`** and **`NEXT_REFACTORINGS.md`** item **249**.
 
 ## Migration inventory (SQL Server, embedded)
 
 | Script | Purpose |
 |--------|---------|
-| `001_InitialSchema.sql` – `022_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). |
+| `001_InitialSchema.sql` – `028_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). **`028_ArchivalSoftFlags.sql`**: nullable **`ArchivedUtc`** on **`Runs`**, **`ArchitectureDigests`**, **`ConversationThreads`** (skipped when table absent). |
 
 **Consolidated script parity:** **`ArchiForge.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
