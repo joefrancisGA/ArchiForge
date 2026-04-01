@@ -77,4 +77,16 @@ public sealed class CliOperatorHintsTests
         text.ToLowerInvariant().Should().Contain("health/ready");
         text.ToLowerInvariant().Should().Contain("doctor");
     }
+
+    [Fact]
+    public void WriteAfterApiFailure_When500_writes_correlation_and_logs_hint()
+    {
+        StringWriter stderr = new();
+
+        CliOperatorHints.WriteAfterApiFailure(500, "internal", stderr);
+
+        string text = stderr.ToString().ToLowerInvariant();
+        text.Should().Contain("correlation");
+        text.Should().Contain("runid");
+    }
 }

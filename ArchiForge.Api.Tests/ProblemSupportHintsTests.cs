@@ -73,4 +73,28 @@ public sealed class ProblemSupportHintsTests
         string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
         hint.ToLowerInvariant().Should().Contain("health/ready");
     }
+
+    [Fact]
+    public void AttachForProblemType_WhenValidationFailed_adds_swagger_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ValidationFailed };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("swagger");
+    }
+
+    [Fact]
+    public void AttachForProblemType_WhenComparisonVerificationFailed_adds_drift_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ComparisonVerificationFailed };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("drift");
+    }
 }

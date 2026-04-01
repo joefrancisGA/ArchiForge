@@ -59,5 +59,7 @@ public sealed class VersionControllerTests
         root.TryGetProperty("assemblyVersion", out _).Should().BeTrue();
         root.TryGetProperty("runtimeFramework", out _).Should().BeTrue();
         root.TryGetProperty("environment", out _).Should().BeTrue();
+        root.TryGetProperty("commitSha", out _).Should().BeTrue();
+        root.TryGetProperty("fileVersion", out _).Should().BeTrue();
     }
 }

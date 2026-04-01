@@ -80,4 +80,34 @@ public sealed class DetailedHealthCheckResponseWriterTests
 
         doc.RootElement.GetProperty("status").GetString().Should().Be("Healthy");
     }
+
+    [Fact]
+    public async Task WriteAsync_unhealthy_entry_includes_operator_triage_fields()
+    {
+        Dictionary<string, HealthReportEntry> entries = new()
+        {
+            ["database"] = new HealthReportEntry(
+                HealthStatus.Unhealthy,
+                "SQL probe failed.",
+                TimeSpan.FromMilliseconds(12),
+                exception: new InvalidOperationException("timeout"),
+                data: null),
+        };
+
+        HealthReport report = new(entries, TimeSpan.FromMilliseconds(15));
+        DefaultHttpContext httpContext = new();
+        httpContext.Response.Body = new MemoryStream();
+
+        await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
+
+        httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        using JsonDocument doc = await JsonDocument.ParseAsync(httpContext.Response.Body);
+        JsonElement first = doc.RootElement.GetProperty("entries")[0];
+
+        first.GetProperty("name").GetString().Should().Be("database");
+        first.GetProperty("status").GetString().Should().Be("Unhealthy");
+        first.GetProperty("description").GetString().Should().Contain("SQL");
+        first.GetProperty("error").GetString().Should().Contain("timeout");
+        first.TryGetProperty("durationMs", out _).Should().BeTrue();
+    }
 }
