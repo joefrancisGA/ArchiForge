@@ -28,7 +28,7 @@ The CLI talks to the ArchiForge API over HTTP. Resolution order:
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
 
-The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifacts`, `health`, and `doctor` / `check`. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
+The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifacts`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
 ---
 
@@ -48,6 +48,7 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
 | `doctor` / `check` | Readiness diagnostics: CLI build info, local `archiforge.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness is not 2xx. |
+| `support-bundle` | Writes a **pilot/support** folder of JSON files (and optional `--zip`): build/version, health probes, non-secret `archiforge.json` summary, safe `ARCHIFORGE_*` / `DOTNET_*` env snapshot, outputs folder stats, doc references. No connection strings or API key **values**. Default folder name `support-bundle-<utc-timestamp>Z` in the current directory. Flags: `--output <dir>`, `--zip`. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
 | `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |

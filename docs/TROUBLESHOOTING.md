@@ -63,9 +63,22 @@ See [operator-shell.md](operator-shell.md) and [API_CONTRACTS.md](API_CONTRACTS.
 
 ---
 
+## Support bundle (attach to tickets)
+
+From a project directory (or any directory with valid `ARCHIFORGE_API_URL` / default localhost), with the API reachable:
+
+```bash
+dotnet run --project ArchiForge.Cli -- support-bundle --zip
+```
+
+This creates a timestamped folder plus an optional `.zip` of **reviewable JSON** only: `manifest.json`, `build.json` (CLI + `GET /version`), `health.json`, `config-summary.json`, `environment.json`, `workspace.json`, `references.json`, `logs.json`. Sensitive environment variables appear as **`(set)`** / **`(not set)`** only; `ARCHIFORGE_*` keys containing **`SQL`** never expose values. **Review** the folder before sending it externally.
+
+---
+
 ## Still stuck?
 
 1. Run **`dotnet run --project ArchiForge.Cli -- doctor`** with the API up.
-2. Run **`run-readiness-check.cmd`** (or `.ps1`) to confirm build + fast core + UI unit tests on your machine.
-3. For an automated **API + CLI + artifact** check, see **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** (`release-smoke` — requires SQL for the E2E block unless `-SkipE2E`).
-4. Open **[PILOT_GUIDE.md](PILOT_GUIDE.md)** for the full first-run narrative.
+2. Run **`support-bundle --zip`** (above) and attach the archive after redacting anything your policy still forbids.
+3. Run **`run-readiness-check.cmd`** (or `.ps1`) to confirm build + fast core + UI unit tests on your machine.
+4. For an automated **API + CLI + artifact** check, see **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** (`release-smoke` — requires SQL for the E2E block unless `-SkipE2E`).
+5. Open **[PILOT_GUIDE.md](PILOT_GUIDE.md)** for the full first-run narrative.

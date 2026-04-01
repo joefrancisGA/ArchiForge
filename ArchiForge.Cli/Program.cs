@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 
+using ArchiForge.Cli.Support;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
@@ -26,7 +27,7 @@ namespace ArchiForge.Cli
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check)");
+                Console.WriteLine("Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip]");
                 return 1;
             }
 
@@ -92,6 +93,9 @@ namespace ArchiForge.Cli
                 case "doctor":
                 case "check":
                     return await DoctorCommand.RunAsync(TryLoadConfigFromCwd());
+
+                case "support-bundle":
+                    return await SupportBundleCommand.RunAsync(args.Skip(1).ToArray());
 
                 default:
                     Console.WriteLine($"Unknown command: {command}");

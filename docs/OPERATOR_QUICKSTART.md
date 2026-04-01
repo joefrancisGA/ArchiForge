@@ -43,6 +43,14 @@ dotnet run --project ArchiForge.Cli -- doctor
 
 `doctor` now prints CLI build info and calls `GET /version` to display the API's build identity before running health probes.
 
+**Support bundle (attach to support tickets):**
+
+```bash
+dotnet run --project ArchiForge.Cli -- support-bundle --zip
+```
+
+Creates a timestamped folder (and zip) of JSON diagnostics without secrets — see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
+
 ---
 
 ## Pilot run (CLI, fastest)

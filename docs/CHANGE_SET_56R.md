@@ -96,7 +96,15 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **Tests:** `BuildProvenanceTests` — `ParseCommitSha` theory tests, `BuildInfoResponse.FromProvenance` mapping/null tests. `VersionControllerTests` — controller returns expected fields and JSON shape. `DetailedHealthCheckResponseWriterTests` — healthy/unhealthy reports produce correct JSON payload.
 - **Docs:** `OPERATOR_QUICKSTART.md` updated with `/version`, `/health/ready` enrichment, `SourceRevisionId` guidance. `CLI_USAGE.md` — `doctor` description updated.
 
-**Still for later regen prompts:** support bundle export, further pilot supportability.
+### Prompt 3 (regen) — CLI support bundle export
+
+- **CLI:** `archiforge support-bundle` — writes a UTC-stamped folder (default `support-bundle-<yyyyMMdd-HHmmss>Z`) with explicit JSON sections; **`--output <dir>`** and **`--zip`** supported.
+- **Modules (reviewable):** `SupportBundleRedactor`, `SupportBundleCollector`, `SupportBundleArchiveWriter`, `SupportBundleCommand`, and one file per bundle DTO under `ArchiForge.Cli/Support/`.
+- **Contents:** `manifest.json`, `build.json` (CLI build + raw `GET /version` JSON), `health.json` (`/health/live`, `/health/ready`, `/health` with truncated bodies), `config-summary.json` (non-secret `archiforge.json` fields + redacted API base URL), `environment.json` (machine/OS/runtime + filtered env: `ARCHIFORGE_*` / `DOTNET_*` only; secrets as `(set)`; SQL-related ArchiForge keys never show values; `ARCHIFORGE_API_URL` userinfo stripped), `workspace.json` (outputs dir file count/size + sample names), `references.json` (endpoint/doc hints), `logs.json` (guidance + optional small `outputs/last-run.log` excerpt).
+- **Tests:** `ArchiForge.Cli.Tests/SupportBundleTests.cs` — redactor, mock HTTP collect, directory and zip writers.
+- **Docs:** `CLI_USAGE.md`, `TROUBLESHOOTING.md`.
+
+**Still for later regen prompts:** further pilot supportability (e.g. API-hosted bundle), readiness/smoke script refinement.
 
 ---
 
@@ -110,7 +118,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchiForge.Api/Startup/PipelineExtensions.cs` (`/health/live`, `/health/ready`, `/health`)
 - `ArchiForge.Api/Program.cs`
 - `ArchiForge.Api/appsettings.json`, `appsettings.KeyVault.sample.json`
-- `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`
+- `ArchiForge.Cli/ArchiForgeApiClient.cs`, `ArchiForge.Cli/Program.cs`, `ArchiForge.Cli/DoctorCommand.cs`, `ArchiForge.Cli/Support/*` (support bundle)
 - `ArchiForge.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
