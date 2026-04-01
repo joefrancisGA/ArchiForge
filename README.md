@@ -30,9 +30,11 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 
 ## Pilot onboarding (56R)
 
-**Unsupervised start path:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative) and [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands only). **Problems:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **RC packaging:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
+**Start here:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative), [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
-**Before a handoff or demo:** from repo root run `run-readiness-check.cmd` (or `.\run-readiness-check.ps1`). For a **single full product smoke** (API health + CLI quick run + synthesized artifacts), set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** (see [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)). To append **mock-backed** operator UI Playwright smoke after that path, use **`.\release-smoke.ps1 -RunPlaywright`** (see [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) and [archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)). **Support:** ask pilots to send the **`X-Correlation-ID`** response header (if present) and the first error line from API console logs.
+**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archiforge-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
+
+**Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchiForge.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchiForge.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
 
 ## Operator quick start
 

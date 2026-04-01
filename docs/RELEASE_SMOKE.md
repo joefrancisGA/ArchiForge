@@ -2,6 +2,8 @@
 
 One **deterministic** end-to-end check for **pilot / commercial confidence** (not full coverage). Implemented as **`release-smoke.ps1`** / **`release-smoke.cmd`** at the repo root.
 
+**For pilots:** Use **`run-readiness-check`** first (faster — no temporary API). Use **`release-smoke`** when you have **SQL** and want one scripted path that also runs **CLI `run --quick`** and checks **artifacts**. If the script fails, copy the **`--- FAILURE (triage) ---`** block (**Stage**, **Category**, **Next:**) into your report — see [PILOT_GUIDE.md](PILOT_GUIDE.md#when-you-report-an-issue).
+
 **What it verifies**
 
 1. **Release build** — whole solution (`build-release`).

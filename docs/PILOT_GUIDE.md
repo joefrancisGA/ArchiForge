@@ -4,7 +4,7 @@
 
 **CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchiForge.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
 
-**Support:** When something fails, capture **approximate time**, **what you ran**, **`X-Correlation-ID`** from the API response (if any), and the **first error line** from logs. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+**Support:** See **[When you report an issue](#when-you-report-an-issue)** below and [TROUBLESHOOTING.md](TROUBLESHOOTING.md). Prefer a **support bundle** (sanitized JSON) plus **build/version** identity so we can reproduce quickly.
 
 ---
 
@@ -52,6 +52,22 @@ Default base URL is often **`http://localhost:5128`** (see `ArchiForge.Api/Prope
 ```bash
 curl -s http://localhost:5128/health/live
 ```
+
+**Identify the running API build** (for tickets and handoff):
+
+```bash
+curl -s http://localhost:5128/version
+```
+
+Returns JSON: informational version, commit suffix (when the build was stamped), environment, runtime. Readiness responses (`/health/ready`, `/health`) also include **`version`** and **`commitSha`** in the JSON body.
+
+**CLI** (from repo root, API reachable):
+
+```bash
+dotnet run --project ArchiForge.Cli -- doctor
+```
+
+Prints local CLI build info, **`GET /version`** from the API, then **`/health/live`**, **`/health/ready`**, and **`/health`**.
 
 ---
 
@@ -112,21 +128,41 @@ Authoritative artifact content lives in the **database** (and streams through th
 
 ## Readiness checks (before a demo or handoff)
 
-From the **repository root** (Windows):
+| Goal | Command (repo root) | Notes |
+|------|---------------------|--------|
+| **Quick gate** — Release build + fast core tests + Vitest (if Node installed) | `run-readiness-check.cmd` or `.\run-readiness-check.ps1` | On failure, the script prints a **triage** block (**Stage**, **Category**, **Next:** hints). [RELEASE_LOCAL.md](RELEASE_LOCAL.md) |
+| **Skip UI tests** | `.\run-readiness-check.ps1 -SkipUi` | |
+| **Deep smoke** — above + temporary API + CLI **`run --quick`** + artifact check | Set `ARCHIFORGE_SMOKE_SQL`, then `release-smoke.cmd` or `.\release-smoke.ps1` | Needs SQL and port **5128** (or `-ApiBaseUrl`). [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
+| **Smoke without E2E** (no SQL for the script) | `.\release-smoke.ps1 -SkipE2E` | Build + tests (+ UI if Node present) only |
 
-```bat
-run-readiness-check.cmd
+---
+
+## Support bundle (for support tickets)
+
+From a machine where the **API is reachable** (set `ARCHIFORGE_API_URL` if not `http://localhost:5128`):
+
+```bash
+dotnet run --project ArchiForge.Cli -- support-bundle --zip
 ```
 
-Or PowerShell:
+Creates a UTC-stamped folder and a **zip** of JSON sections (build/version, health, non-secret config summary, filtered environment, workspace summary). **No secrets** in normal use — still **review** before sending externally. Optional: `--output <dir>` for a fixed folder name.
 
-```powershell
-.\run-readiness-check.ps1
-```
+Details: [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [CLI_USAGE.md](CLI_USAGE.md).
 
-This builds **Release**, runs **fast core** .NET tests, and runs **Vitest** if Node is installed. Details: [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
+---
 
-**Deeper single-path smoke** (starts a temporary API, runs **`archiforge run --quick`**, checks synthesized artifacts): set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** — [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
+## When you report an issue
+
+Send as much of this as you can (plain text is fine):
+
+1. **Build / version** — output of **`GET /version`** (or paste **`informationalVersion`** / **`commitSha`** from **`metadata.json`** if you used `package-release`).
+2. **What you ran** — exact command or Swagger operation; **approximate time** (UTC if possible).
+3. **Correlation** — **`X-Correlation-ID`** response header (or the value you sent on the request).
+4. **First error** — first meaningful line from API **console** logs or CLI **stderr** (not a full stack dump unless asked).
+5. **Health** — if the API is up: paste the **`status`** and any **unhealthy** `entries[]` from **`GET /health/ready`** JSON, or attach CLI **`doctor`** output.
+6. **Support bundle** — zip from **`support-bundle --zip`** after redacting anything your policy forbids.
+
+First steps before escalating: [TROUBLESHOOTING.md](TROUBLESHOOTING.md) (**Quick matrix** + **Still stuck?**).
 
 ---
 

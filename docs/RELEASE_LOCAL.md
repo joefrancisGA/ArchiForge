@@ -43,6 +43,11 @@ The operator UI remains developed from `archiforge-ui/` in the repo (or deploy v
 2. **Package:** `package-release.cmd` (or `.ps1`).
 3. **Hand off:** Share the **repository** (or archive) plus **`artifacts/release/`** (include **`PACKAGE-HANDOFF.txt`** and **`metadata.json`** for support). Verify file integrity with **`checksums-sha256.txt`** after copy when present.
 
+### Support-friendly handoff
+
+- **`metadata.json`** — paste **`informationalVersion`** and **`commitSha`** into support tickets (matches **`GET /version`** when the same bits are running).
+- After deploy, pilots should confirm **`GET /version`** or run **`dotnet run --project ArchiForge.Cli -- doctor`** and attach **`support-bundle --zip`** if something fails — see [PILOT_GUIDE.md](PILOT_GUIDE.md) and [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
 ---
 
 ## Run the published API locally

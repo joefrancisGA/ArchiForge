@@ -122,6 +122,14 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **`PACKAGE-HANDOFF.txt`**: concise pilot-facing blurb and pointers to docs.
 - **`docs/RELEASE_LOCAL.md`** — handoff table and **`-SkipChecksums`** note.
 
+### Prompt 6 (regen) — docs for supportability and handoff
+
+- **PILOT_GUIDE.md** — `GET /version`, **`doctor`**, readiness/smoke table, **support bundle** commands, **When you report an issue** checklist.
+- **TROUBLESHOOTING.md** — **First-line steps** (health, version, doctor, bundle, readiness/smoke); expanded support bundle (`--output`, contents); link to pilot reporting section.
+- **RELEASE_LOCAL.md** — **Support-friendly handoff** (`metadata.json` vs `/version`, bundle + doc pointers).
+- **RELEASE_SMOKE.md** — Pilot note: readiness vs smoke, what to paste from triage output.
+- **README.md** — Pilot onboarding tightened: version, doctor, support-bundle, reporting anchor.
+
 ---
 
 ## Related files
