@@ -34,7 +34,8 @@ This document zooms into the most important components inside each container/lib
 
 - **Logging**: Serilog configuration in `appsettings.json`.
 - **Tracing/Metrics**: OpenTelemetry wired in `Program.cs`, exporters controlled by config.
-- **Replay diagnostics**: `IReplayDiagnosticsRecorder` stores a ring buffer of recent replay operations and is exposed through the diagnostics endpoint.
+- **Replay diagnostics**: `IReplayDiagnosticsRecorder` stores a ring buffer of recent replay operations and is exposed through the diagnostics endpoint. Retention and sampling are driven by **`ReplayDiagnosticsOptions`** (configuration section **`ReplayDiagnostics`**).
+- **Data archival readiness**: **`DataArchivalHostHealthState`** (singleton) captures the last **`DataArchivalHostedService`** iteration outcome; **`DataArchivalHostHealthCheck`** registers as **`data_archival`** on the readiness probe (**Healthy** when archival is off or succeeding; **Degraded** when enabled and the last pass failed). Operator notes: **`docs/runbooks/DATA_ARCHIVAL_HEALTH.md`**.
 
 ---
 
@@ -51,6 +52,9 @@ This document zooms into the most important components inside each container/lib
   - Exports the replayed artifact (Markdown/HTML/DOCX/PDF, depending on comparison type).
   - Supports `ReplayMode` (`artifact`, `regenerate`, `verify`) and drift analysis.
   - Supports `PersistReplay` to create a new comparison record for the replay.
+
+- **`IComparisonReplayCostEstimator` / `ComparisonReplayCostEstimator`**
+  - Lightweight heuristic for **`GET/POST …/comparisons/{id}/replay/cost-estimate`**: uses comparison type, format, replay mode, optional **`PersistReplay`**, and stored payload size to produce a relative score and band (`low` / `medium` / `high`) without executing replay.
 
 - **`ComparisonRecordPayloadRehydrator`**
   - Deserializes `PayloadJson` into:
@@ -118,6 +122,10 @@ This document zooms into the most important components inside each container/lib
 - Create and read comparison records.
 - Query comparison history by run ID, export record ID, or search filters.
 - Supports JSON tag filtering via SQL Server **`OPENJSON`** on stored tag arrays.
+
+#### `InMemoryComparisonRecordRepository`
+
+- Used when the API is configured with **`ArchiForge:StorageProvider=InMemory`**: same **`IComparisonRecordRepository`** contract as Dapper/SQL without a database (singleton registration alongside other in-memory repositories).
 
 ---
 

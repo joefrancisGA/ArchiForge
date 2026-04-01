@@ -246,7 +246,20 @@ internal static partial class ServiceCollectionExtensions
     private static void RegisterComparisonReplayAndDrift(IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<ReplayDiagnosticsOptions>(configuration.GetSection(ReplayDiagnosticsOptions.SectionName));
-        services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
+
+        ArchiForgeOptions storageMode = configuration
+                                            .GetSection(ArchiForgeOptions.SectionName)
+                                            .Get<ArchiForgeOptions>()
+                                        ?? new ArchiForgeOptions();
+
+        if (string.Equals(storageMode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddSingleton<IComparisonRecordRepository, InMemoryComparisonRecordRepository>();
+        }
+        else
+        {
+            services.AddScoped<IComparisonRecordRepository, ComparisonRecordRepository>();
+        }
         services.AddScoped<IComparisonAuditService, ComparisonAuditService>();
         services.AddScoped<IComparisonDriftAnalyzer, ComparisonDriftAnalyzer>();
         services.AddScoped<IComparisonReplayService, ComparisonReplayService>();

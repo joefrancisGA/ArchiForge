@@ -28,6 +28,25 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  terraform-validate-private:
+    name: "Terraform: validate private stack (no backend)"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: terraform init (no backend)
+        working-directory: infra/terraform-private
+        run: terraform init -backend=false
+
+      - name: terraform validate
+        working-directory: infra/terraform-private
+        run: terraform validate
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs: gitleaks

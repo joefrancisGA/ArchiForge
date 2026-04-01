@@ -1966,6 +1966,27 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Route `loading.tsx`**: advisory, advisory-scheduling, alert-routing, alert-rules, alert-simulation, alert-tuning, alerts, ask, composite-alert-rules, digest-subscriptions, digests, governance-resolution, policy-packs, recommendation-learning, search (context-specific copy; **`OperatorLoadingNotice`**).
   - **`not-found.test.tsx`**: Vitest render gate for 404 copy and links.
 
+### Archival, replay diagnostics, contracts & IaC (257–274)
+
+- [x] 257. **Data archival hosted iteration + health state** — `DataArchivalHostIteration` outcome wiring in `DataArchivalHostedService`; `DataArchivalHostHealthState` records last success/failure.
+- [x] 258. **`DataArchivalHostHealthCheck`** — readiness tag **`data_archival`**; **Healthy** when disabled, enabled with no attempt yet, or last success; **Degraded** when enabled and last iteration failed (`failureStatus: Degraded` in `RegisterArchiForgeHealthChecks`).
+- [x] 259. **`ReplayDiagnosticsOptions`** — config section, recorder retention for replay diagnostics endpoint.
+- [x] 260. **`InMemoryComparisonRecordRepository`** — thread-safe in-memory implementation in **ArchiForge.Data**; parity with Dapper via contract tests.
+- [x] 261. **Comparison record contract tests** — abstract base + InMemory + Dapper (`ComparisonRecordRepositoryContractTests`).
+- [x] 262. **`TestSqlDbConnectionFactory`** (and SQL integration helpers) for persistence tests against real SQL.
+- [x] 263. **RLS / session context** — integration coverage for tenant-scoped SQL access where applicable.
+- [x] 264. **Terraform App Service** — private stack / VNet-related alignment (see `infra/terraform-private`).
+- [x] 265. **Stryker manifest / workflow** + **`docs/OPENAPI_CONTRACT_DRIFT.md`** (or equivalent contract drift doc) as completed in the same delivery batch.
+- [x] 266. **In-memory DI for comparison records** — when **`ArchiForge:StorageProvider=InMemory`**, register **`InMemoryComparisonRecordRepository`** for **`IComparisonRecordRepository`** in **`RegisterComparisonReplayAndDrift`** (singleton; avoids SQL **`ComparisonRecordRepository`** on in-memory hosts).
+- [x] 267. **`SessionContextSqlConnectionFactoryTests`** — when **`IRlsSessionContextApplicator.ApplyAsync`** throws, the opened **`SqlConnection`** is disposed and the exception propagates.
+- [x] 268. **`DataArchivalHostHealthCheckTests`** — disabled → Healthy; enabled + no attempt → Healthy; enabled + last failure → Degraded; enabled + last success → Healthy.
+- [x] 269. **Runbook** — **`docs/runbooks/DATA_ARCHIVAL_HEALTH.md`**: degraded meaning, triage, recovery.
+- [x] 270. **CI** — **`.github/workflows/ci.yml`**: job **`terraform-validate-private`** runs **`terraform init -backend=false`** and **`terraform validate`** under **`infra/terraform-private`**.
+- [x] 271. **`ComparisonReplayCostEstimator` tests** — **`persistReplay`** score/factor; large payload factor (**`PayloadJson`** > 500k chars).
+- [x] 272. **`RunRepositoryContractTests`** — abstract base + **`InMemoryRunRepositoryContractTests`** + **`DapperRunRepositoryContractTests`** (archive case only on in-memory: global SQL `ArchiveRunsCreatedBeforeAsync`).
+- [x] 273. **This file** — §257–274 recorded so backlog matches delivery.
+- [x] 274. **`docs/ARCHITECTURE_COMPONENTS.md`** — archival readiness, replay diagnostics, cost estimator, in-memory comparison repository.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -1981,3 +2002,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] API & contracts (235–242): complete (235 deprecation headers; 236–242 as listed, including **239** webhook HMAC and **241** batch replay partial success).
 - [x] Data & persistence (243–249): complete for backlog scope (**243–249** including **244** assignment archival, **246** read-replica list routing).
 - [x] UI & DX (250–256): complete for backlog scope (**250** feature flags; **252–253** devcontainer + template; **251**, **254–256** as listed).
+- [x] Archival, replay diagnostics, contracts & IaC (257–274): complete (**257–265** prior batch; **266–274** in-repo: in-memory comparison DI, session-context dispose test, archival health unit tests, **`DATA_ARCHIVAL_HEALTH`** runbook, Terraform validate job, cost-estimator tests, run repository contracts, component doc updates).
