@@ -111,6 +111,18 @@ With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use 
 
 ---
 
+## Failure triage (script output)
+
+Both **`release-smoke.ps1`** and **`run-readiness-check.ps1`** use shared helpers in **`scripts/OperatorDiagnostics.ps1`**.
+
+- **Phases** are labeled **`[step/total]`** in the log (e.g. **`[5/6]`**) so you can see **which gate failed first**.
+- On failure, a **`--- FAILURE (triage) ---`** block prints **`Stage`**, **`Category`** (e.g. `ReadinessTimeout`, `Misconfiguration`, `TestFailure`), and **`Next:`** bullet hints.
+- **`ReadinessTimeout`:** after the triage block, a **readiness probe snapshot** runs: **`GET /health/ready`** and **`GET /health`** with HTTP status and the **first unhealthy check** (alphabetically among failing entries), matching the API’s detailed health JSON (`entries[].name`, `status`, `description`, `error`).
+
+Deterministic behavior is unchanged: same step order, same filters, same timeouts; diagnostics are **additive**.
+
+---
+
 ## Troubleshooting
 
 - **API exits before ready:** wrong SQL string, migrations failing, or port in use — watch for a separate console if you run API manually; the smoke script starts a **hidden** `dotnet run` (stdout not shown). Re-run with **`-SkipE2E`** and start the API yourself to read logs, or temporarily change the script to use a visible window for debugging.

@@ -104,7 +104,14 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - **Tests:** `ArchiForge.Cli.Tests/SupportBundleTests.cs` — redactor, mock HTTP collect, directory and zip writers.
 - **Docs:** `CLI_USAGE.md`, `TROUBLESHOOTING.md`.
 
-**Still for later regen prompts:** further pilot supportability (e.g. API-hosted bundle), readiness/smoke script refinement.
+### Prompt 4 (regen) — readiness and smoke diagnostics for failure triage
+
+- **Shared:** `scripts/OperatorDiagnostics.ps1` — phase headers, **`--- FAILURE (triage) ---`** blocks (**Stage**, **Category**, **Next:** hints), HTTP probe helper, readiness JSON parser (**first unhealthy check** among `entries[]`, then others sorted by **name** for deterministic output).
+- **`run-readiness-check.ps1`:** Numbered phases (`[1/n]`…`[3/n]` when UI runs); triage on build, fast core, `npm ci`, Vitest failures; dynamic `n` when UI skipped or Node missing.
+- **`release-smoke.ps1`:** Triage on each gate (build, core, optional full core, UI, SQL misconfig, API start/early exit, readiness **timeout** + post-timeout `/health/ready` + `/health` snapshot, liveness, CLI `new` / `run --quick`, artifacts API, Playwright); readiness wait uses **`Get-ArchiForgeHttpProbe`** (captures non-200 bodies without throwing away JSON).
+- **Docs:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) — “Failure triage (script output)”; [RELEASE_LOCAL.md](RELEASE_LOCAL.md) — readiness script triage note.
+
+**Still for later regen prompts:** further pilot supportability (e.g. API-hosted bundle).
 
 ---
 
@@ -122,7 +129,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 - `ArchiForge.Api/Health/*` (readiness tags, schema/compliance/temp checks, SQL check behavior)
 - `archiforge-ui/src/lib/config.ts`, `archiforge-ui/src/app/api/proxy/[...path]/route.ts`
 - `docs/CONFIGURATION_KEY_VAULT.md`
-- `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
+- `scripts/OperatorDiagnostics.ps1`, `build-release.cmd`, `build-release.ps1`, `package-release.cmd`, `package-release.ps1`, `run-readiness-check.cmd`, `run-readiness-check.ps1`
 - `docs/RELEASE_LOCAL.md`
 - `docs/PILOT_GUIDE.md`, `docs/OPERATOR_QUICKSTART.md`, `docs/TROUBLESHOOTING.md`, `docs/CLI_USAGE.md`
 - `release-smoke.ps1`, `release-smoke.cmd`, `docs/RELEASE_SMOKE.md`
