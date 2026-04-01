@@ -100,4 +100,151 @@ public sealed class InMemoryProductLearningPilotSignalRepositoryTests
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
+
+    [Fact]
+    public async Task ListRunFeedbackAggregatesAsync_groups_by_pattern_key_and_counts_dispositions()
+    {
+        InMemoryProductLearningPilotSignalRepository repo = new();
+
+        await repo.InsertAsync(
+            Signal(
+                ProductLearningDispositionValues.Trusted,
+                patternKey: "cost.section",
+                runId: "run-a",
+                comment: null),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(
+                ProductLearningDispositionValues.Rejected,
+                patternKey: "cost.section",
+                runId: "run-b",
+                comment: "too vague"),
+            CancellationToken.None);
+
+        IReadOnlyList<FeedbackAggregate> agg =
+            await repo.ListRunFeedbackAggregatesAsync(TenantId, WorkspaceId, ProjectId, sinceUtc: null, 50, CancellationToken.None);
+
+        agg.Should().ContainSingle();
+        agg[0].AggregateKey.Should().Be("cost.section");
+        agg[0].TotalSignalCount.Should().Be(2);
+        agg[0].DistinctRunCount.Should().Be(2);
+        agg[0].TrustedCount.Should().Be(1);
+        agg[0].RejectedCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ListTopRejectedRevisedArtifactRollupsAsync_prefers_high_reject_plus_revised()
+    {
+        InMemoryProductLearningPilotSignalRepository repo = new();
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Rejected, patternKey: "a", runId: "r1"),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Revised, patternKey: "a", runId: "r2"),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Rejected, patternKey: "b", runId: "r3"),
+            CancellationToken.None);
+
+        IReadOnlyList<FeedbackAggregate> top =
+            await repo.ListTopRejectedRevisedArtifactRollupsAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                sinceUtc: null,
+                take: 5,
+                CancellationToken.None);
+
+        top.Should().HaveCount(2);
+
+        int score0 = top[0].RejectedCount + top[0].RevisedCount;
+        int score1 = top[1].RejectedCount + top[1].RevisedCount;
+        score0.Should().BeGreaterThan(score1);
+    }
+
+    [Fact]
+    public async Task ListRepeatedCommentThemesAsync_groups_trimmed_prefix_deterministically()
+    {
+        InMemoryProductLearningPilotSignalRepository repo = new();
+
+        string longComment = new string('x', 250);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Trusted, patternKey: "p1", runId: "r1", comment: longComment),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Trusted, patternKey: "p2", runId: "r2", comment: longComment + "tail"),
+            CancellationToken.None);
+
+        IReadOnlyList<RepeatedCommentTheme> themes =
+            await repo.ListRepeatedCommentThemesAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                sinceUtc: null,
+                minOccurrences: 2,
+                take: 10,
+                CancellationToken.None);
+
+        themes.Should().ContainSingle();
+        themes[0].OccurrenceCount.Should().Be(2);
+        themes[0].ThemeKey.Length.Should().Be(ProductLearningSignalAggregations.CommentThemePrefixLength);
+    }
+
+    [Fact]
+    public async Task ListImprovementOpportunityCandidatesAsync_respects_poor_outcome_threshold()
+    {
+        InMemoryProductLearningPilotSignalRepository repo = new();
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Trusted, patternKey: "ok", runId: "r1"),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Rejected, patternKey: "bad", runId: "r2"),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.NeedsFollowUp, patternKey: "bad", runId: "r3"),
+            CancellationToken.None);
+
+        IReadOnlyList<ImprovementOpportunity> opps =
+            await repo.ListImprovementOpportunityCandidatesAsync(
+                TenantId,
+                WorkspaceId,
+                ProjectId,
+                sinceUtc: null,
+                minPoorOutcomeSignals: 2,
+                minRevisedSignals: 5,
+                take: 10,
+                CancellationToken.None);
+
+        opps.Should().ContainSingle();
+        opps[0].SourceAggregateKey.Should().Be("bad");
+    }
+
+    private ProductLearningPilotSignalRecord Signal(
+        string disposition,
+        string patternKey,
+        string runId,
+        string? comment = null)
+    {
+        return new ProductLearningPilotSignalRecord
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            SubjectType = ProductLearningSubjectTypeValues.RunOutput,
+            Disposition = disposition,
+            PatternKey = patternKey,
+            ArchitectureRunId = runId,
+            CommentShort = comment,
+            RecordedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+        };
+    }
 }

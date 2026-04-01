@@ -67,3 +67,10 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 
 - **Added** explicit DTO classes (no logic): `FeedbackAggregate`, `ArtifactOutcomeTrend`, `ImprovementOpportunity`, `LearningDashboardSummary`, `TriageQueueItem` under `ArchiForge.Contracts/ProductLearning/`.
 - **Next:** repository/query methods and application service to populate these models from `ProductLearningPilotSignals` (and optional joins).
+
+### Prompt 3 — SQL/Dapper aggregation queries
+
+- **Extended** `IProductLearningPilotSignalRepository` with aggregation methods over **`ProductLearningPilotSignals`** (no new tables).
+- **Dapper:** explicit CTE/grouped SQL + internal row DTOs (`ProductLearningPilotSignalSqlRows.cs`); in-memory path uses shared **`ProductLearningSignalAggregations`** rules so behavior matches SQL.
+- **Added** `RepeatedCommentTheme` contract for deterministic comment-prefix rollups.
+- **Tests:** in-memory repository coverage for aggregates, top reject/revise, comment themes, opportunity thresholds.

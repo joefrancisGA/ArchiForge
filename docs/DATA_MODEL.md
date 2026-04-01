@@ -139,6 +139,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 - **Optional links**: `ArchitectureRunId` (FK to `ArchitectureRuns`), `AuthorityRunId` (correlation only; no FK), `ManifestVersion`, `ArtifactHint`, `PatternKey` (normalized bucket for rollups), `DetailJson` for structured notes.
 - **Triage**: `TriageStatus` supports a lightweight internal backlog (`Open`, `Triaged`, `Backlog`, `Done`, `WontFix`).
 - **Access**: `ArchiForge.Persistence.ProductLearning.IProductLearningPilotSignalRepository` (Dapper SQL / in-memory).
+- **Rollups (58R Prompt 3):** same repository exposes scoped aggregations (run feedback rollups, artifact outcome trends, repeated comment prefixes, improvement-opportunity candidates) built with explicit SQL / deterministic in-memory equivalents — see `ProductLearningSignalAggregations`.
 
 ---
 
