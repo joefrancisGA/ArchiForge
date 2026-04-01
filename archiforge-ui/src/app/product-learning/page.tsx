@@ -24,6 +24,29 @@ function sinceIsoForRange(key: TimeRangeKey): string | null {
   return d.toISOString();
 }
 
+/** Same-origin proxy download / view; keeps `since` aligned with the dashboard time range. */
+function buildProductLearningReportFileUrl(format: "markdown" | "json", since: string | null): string {
+  const params = new URLSearchParams();
+  params.set("format", format);
+
+  if (since) {
+    params.set("since", since);
+  }
+
+  return `/api/proxy/v1/product-learning/report/file?${params.toString()}`;
+}
+
+function buildProductLearningReportJsonUrl(since: string | null): string {
+  const params = new URLSearchParams();
+  params.set("format", "json");
+
+  if (since) {
+    params.set("since", since);
+  }
+
+  return `/api/proxy/v1/product-learning/report?${params.toString()}`;
+}
+
 function formatUtc(iso: string): string {
   try {
     return `${new Date(iso).toLocaleString(undefined, { timeZone: "UTC" })} UTC`;
@@ -53,7 +76,7 @@ const tableStyle: CSSProperties = {
   marginTop: 8,
 };
 
-const thTd: React.CSSProperties = {
+const thTd: CSSProperties = {
   border: "1px solid #e2e8f0",
   padding: "8px 10px",
   textAlign: "left",
@@ -132,6 +155,32 @@ export default function ProductLearningPage() {
           Refresh
         </button>
       </div>
+
+      <section style={{ marginBottom: 22 }} aria-labelledby="pl-export-heading">
+        <h3 id="pl-export-heading" style={{ fontSize: 15, margin: "0 0 6px", color: "#334155" }}>
+          Export for triage
+        </h3>
+        <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: 720 }}>
+          Human-readable summary for architecture / product review. Raw pilot comments are omitted. Uses the same scope and
+          time range as the dashboard above.
+        </p>
+        <p style={{ margin: "10px 0 0", fontSize: 14 }}>
+          <a
+            href={buildProductLearningReportFileUrl("markdown", sinceIsoForRange(range))}
+            download
+          >
+            Download Markdown
+          </a>
+          {" · "}
+          <a href={buildProductLearningReportFileUrl("json", sinceIsoForRange(range))} download>
+            Download JSON
+          </a>
+          {" · "}
+          <a href={buildProductLearningReportJsonUrl(sinceIsoForRange(range))} target="_blank" rel="noopener noreferrer">
+            Open JSON in new tab
+          </a>
+        </p>
+      </section>
 
       {loading && bundle === null ? (
         <OperatorLoadingNotice>

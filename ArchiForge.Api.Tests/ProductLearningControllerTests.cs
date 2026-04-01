@@ -85,4 +85,54 @@ public sealed class ProductLearningControllerTests(ArchiForgeApiFactory factory)
         body.Should().NotBeNull();
         body!.Items.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task GetReport_FormatJson_ReturnsStructuredDocument()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ProductLearningTriageReportDocument? doc =
+            await response.Content.ReadFromJsonAsync<ProductLearningTriageReportDocument>(JsonOptions);
+
+        doc.Should().NotBeNull();
+        doc!.TopProblemAreas.Should().NotBeNull();
+        doc.ArtifactOutcomes.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetReport_FormatMarkdown_ReturnsExportWrapper()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=markdown");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        ProductLearningReportExportResponse? body =
+            await response.Content.ReadFromJsonAsync<ProductLearningReportExportResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Format.Should().Be("markdown");
+        body.Content.Should().Contain("Pilot feedback");
+        body.FileName.Should().EndWith(".md");
+    }
+
+    [Fact]
+    public async Task GetReport_InvalidFormat_Returns400()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report?format=xml");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetReportFile_Markdown_ReturnsMarkdownContentType()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/product-learning/report/file?format=markdown");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("text/markdown");
+        string text = await response.Content.ReadAsStringAsync();
+        text.Should().Contain("# Pilot feedback");
+    }
 }
