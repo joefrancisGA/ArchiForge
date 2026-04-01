@@ -21,7 +21,7 @@ public abstract class GovernanceEnvironmentActivationRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IGovernanceEnvironmentActivationRepository repo = CreateRepository();
-        string env = "dev-" + Guid.NewGuid().ToString("N");
+        string env = "dev-" + Guid.NewGuid().ToString("N")[..8];
         DateTime older = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
         DateTime newer = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
 

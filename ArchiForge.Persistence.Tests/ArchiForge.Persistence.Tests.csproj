@@ -27,6 +27,15 @@
     <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
   </ItemGroup>
 
+  <!-- Persistence-layer tables (AuditEvents, ConversationThreads, etc.) are defined in ArchiForge.sql,
+       not in the DbUp migration scripts. The fixture must run this script after DatabaseMigrator.Run(). -->
+  <ItemGroup>
+    <None Include="..\ArchiForge.Data\SQL\ArchiForge.sql">
+      <Link>Scripts\ArchiForge.sql</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Sql;
 using ArchiForge.TestSupport;
 
 using Microsoft.Data.SqlClient;
@@ -7,7 +8,8 @@ namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
 /// Resolves a SQL Server connection (environment variable or Windows LocalDB), ensures the test catalog exists,
-/// and applies embedded <see cref="DatabaseMigrator"/> scripts (same path as API startup on SQL Server).
+/// applies embedded <see cref="DatabaseMigrator"/> scripts (core Data-layer tables) and the <c>ArchiForge.sql</c>
+/// schema bootstrap (Persistence-layer tables such as AuditEvents, ConversationThreads, ProvenanceSnapshots).
 /// </summary>
 /// <remarks>
 /// No Docker/Testcontainers dependency in this fixture. When <see cref="EnvironmentConnectionStringVariable"/> is unset and LocalDB
@@ -66,6 +68,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
                     "DbUp failed against SQL Server; see test output for script errors.");
             }
 
+            await RunSchemaBootstrapAsync(connectionString);
+
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
         }
@@ -97,6 +101,8 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
             if (!DatabaseMigrator.Run(connectionString))
                 return false;
 
+            await RunSchemaBootstrapAsync(connectionString);
+
             ConnectionString = connectionString;
             IsSqlServerAvailable = true;
 
@@ -106,5 +112,29 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             return false;
         }
+    }
+
+    /// <summary>
+    /// Applies the <c>ArchiForge.sql</c> schema bootstrap script which creates Persistence-layer
+    /// tables (AuditEvents, ConversationThreads, ProvenanceSnapshots, etc.) not covered by DbUp migrations.
+    /// All statements use <c>IF NOT EXISTS</c> so the script is idempotent.
+    /// </summary>
+    private static async Task RunSchemaBootstrapAsync(string connectionString)
+    {
+        string assemblyDir = Path.GetDirectoryName(typeof(SqlServerPersistenceFixture).Assembly.Location)!;
+        string scriptPath = Path.Combine(assemblyDir, "Scripts", "ArchiForge.sql");
+
+        if (!File.Exists(scriptPath))
+        {
+            throw new FileNotFoundException(
+                "ArchiForge.sql schema bootstrap script not found. Ensure the test project copies it to the output directory.",
+                scriptPath);
+        }
+
+        SqlSchemaBootstrapper bootstrapper = new(
+            new TestSqlConnectionFactory(connectionString),
+            scriptPath);
+
+        await bootstrapper.EnsureSchemaAsync(CancellationToken.None);
     }
 }
