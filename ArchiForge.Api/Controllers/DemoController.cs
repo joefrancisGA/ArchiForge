@@ -7,6 +7,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Controllers;
@@ -15,6 +16,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/demo")]
+[EnableRateLimiting("expensive")]
 public sealed class DemoController(
     IDemoSeedService demoSeedService,
     IOptions<DemoOptions> demoOptions,

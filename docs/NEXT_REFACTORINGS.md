@@ -1999,6 +1999,18 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 282. **`docs/runbooks/SECRET_AND_CERT_ROTATION.md`** — secrets, SQL, JWT, webhooks, TLS.
 - [x] 283. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §275–283 recorded; connection bridge and dual-repository note.
 
+### Audit, provenance, rate limits & ops polish (284–292)
+
+- [x] 284. **`AuditRepositoryContractTests`** — abstract base + **`InMemoryAuditRepositoryContractTests`** + **`DapperAuditRepositoryContractTests`** (`AppendAsync`, scoped **`GetByScopeAsync`**, ordering).
+- [x] 285. **`ProvenanceSnapshotRepositoryContractTests`** — abstract base + InMemory + Dapper (`SaveAsync`, **`GetByRunIdAsync`**, scope isolation, latest-wins read semantics).
+- [x] 286. **Controller rate limiting** — **`[EnableRateLimiting("fixed")]`** on **`JobsController`**, **`ScopeDebugController`**; **`[EnableRateLimiting("expensive")]`** on **`DemoController`**; XML remarks on **`AuthDebugController`** / **`DocsController`** explaining intentional omission.
+- [x] 287. **`DataArchivalHostedServiceTests`** — cancellation during delay; coordinator failure records **`DataArchivalHostHealthState`** attempt.
+- [x] 288. **`docker-compose.yml`** — Azurite **`healthcheck`** (Node HTTP probe); **`api`** **`depends_on`** Azurite **`service_healthy`** (full-stack profile).
+- [x] 289. **`ArchiForgeConfigurationRules.CollectRateLimitingErrors`** — **`PermitLimit` ≥ 1, `WindowMinutes` ≥ 1, `QueueLimit` ≥ 0** for Fixed/Expensive/Replay light & heavy when sections exist; **`ArchiForgeConfigurationRulesTests`** cases.
+- [x] 290. **`docs/CONSULTING_DOCX_TEMPLATE.md`** — **`ConsultingDocxTemplate`** / **`ConsultingDocxTemplateProfiles`** reference.
+- [x] 291. **CI** — **`dotnet test`** for **`templates/archiforge-finding-engine/...Tests.csproj`** in **`dotnet-fast-core`** (project stays outside main solution).
+- [x] 292. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §284–292 recorded.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -2016,3 +2028,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] UI & DX (250–256): complete for backlog scope (**250** feature flags; **252–253** devcontainer + template; **251**, **254–256** as listed).
 - [x] Archival, replay diagnostics, contracts & IaC (257–274): complete (**257–265** prior batch; **266–274** in-repo: in-memory comparison DI, session-context dispose test, archival health unit tests, **`DATA_ARCHIVAL_HEALTH`** runbook, Terraform validate job, cost-estimator tests, run repository contracts, component doc updates).
 - [x] Data access clarity & test depth (275–283): complete (**275–276** dual manifest/trace contracts + **`SqlScopedResolutionDbConnectionFactory`**; **277–278** middleware + outbox host tests; **279–280** CI coverage + **`terraform fmt`**, **281** conversation contracts, **282** secret/cert runbook, **283** docs).
+- [x] Audit, provenance, rate limits & ops polish (284–292): complete (**284–285** audit + provenance contract tests; **286** controller rate limits + debug/docs remarks; **287** archival host tests; **288** compose Azurite health; **289** rate-limit validation; **290** consulting DOCX doc; **291** template CI test; **292** docs).

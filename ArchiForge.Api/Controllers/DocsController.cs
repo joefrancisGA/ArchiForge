@@ -10,6 +10,7 @@ namespace ArchiForge.Api.Controllers;
 /// Intentionally hidden from the API explorer via <c>IgnoreApi = true</c>.
 /// Marked <see cref="AllowAnonymousAttribute"/> because these are read-only recipe pages
 /// that do not expose sensitive data or mutate state.
+/// Intentionally does not use <c>[EnableRateLimiting]</c>: static HTML only, excluded from OpenAPI, expected low volume.
 /// </remarks>
 [ApiController]
 [Route("[controller]")]

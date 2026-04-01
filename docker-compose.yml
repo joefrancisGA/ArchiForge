@@ -46,6 +46,18 @@ services:
     volumes:
       - azurite-data:/data
     command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:10000/',r=>process.exit(r.statusCode?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   redis:
     image: redis:7-alpine
@@ -74,6 +86,8 @@ services:
       ArchiForge__Auth__Mode: "DevelopmentBypass"
     depends_on:
       sqlserver:
+        condition: service_healthy
+      azurite:
         condition: service_healthy
 
   ui:

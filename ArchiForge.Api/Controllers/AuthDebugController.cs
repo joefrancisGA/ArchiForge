@@ -9,7 +9,11 @@ namespace ArchiForge.Api.Controllers;
 /// <summary>
 /// Diagnostic endpoint for inspecting the caller's authenticated identity and claims.
 /// </summary>
-/// <remarks>Requires <see cref="ArchiForgePolicies.ReadAuthority"/>. Useful for debugging token claims in development and staging.</remarks>
+/// <remarks>
+/// Requires <see cref="ArchiForgePolicies.ReadAuthority"/>. Useful for debugging token claims in development and staging.
+/// Intentionally does not use <c>[EnableRateLimiting]</c>: unversioned <c>api/auth</c> diagnostic with minimal payload;
+/// use API gateway or reverse-proxy throttling in shared environments if abuse is a concern.
+/// </remarks>
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiController]
 [Route("api/auth")]

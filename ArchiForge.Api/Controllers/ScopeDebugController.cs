@@ -5,6 +5,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -18,6 +19,7 @@ namespace ArchiForge.Api.Controllers;
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
 [Route("api/scope")]
+[EnableRateLimiting("fixed")]
 public sealed class ScopeDebugController(IScopeContextProvider scopeProvider) : ControllerBase
 {
     /// <summary>GET current tenant, workspace, and project ids.</summary>

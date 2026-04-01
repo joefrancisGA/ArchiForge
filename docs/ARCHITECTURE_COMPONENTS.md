@@ -15,6 +15,13 @@ This document zooms into the most important components inside each container/lib
 - **`ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: authority-oriented contracts (`SaveAsync`, scoped `GetByIdAsync`). Implemented by **`SqlGoldenManifestRepository`**, **`SqlDecisionTraceRepository`**, and in-memory counterparts; registered in **`AddArchiForgeStorage`**.
 - **`ArchiForge.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces.
 
+#### Rate limiting on controllers
+
+- Most versioned controllers use **`[EnableRateLimiting("fixed")]`** or **`"expensive"`** / **`"replay"`** where appropriate.
+- **`JobsController`**, **`ScopeDebugController`**: **`fixed`** window (job status polling and scope debug).
+- **`DemoController`**: **`expensive`** (demo seed mutates data).
+- **`AuthDebugController`** (`api/auth/*`) and **`DocsController`** (static HTML): **no** class-level rate limiter — documented in XML remarks; use edge throttling in production if needed.
+
 #### `ArchitectureController`
 
 - **Role**: Single controller that exposes most `/v1/architecture/*` endpoints.
@@ -126,6 +133,10 @@ This document zooms into the most important components inside each container/lib
 - **Role**: Persistence for runs, tasks, results, manifests, export records, comparison records, traces, evidence.
 - **Pattern**: Each aggregate has an `I*Repository` + `*Repository` implementation; queries are explicit SQL strings.
 - **SQL connectivity**: repositories take **`IDbConnectionFactory`**; on the API host with **`ArchiForge:StorageProvider`** = SQL, the registered factory is **`SqlScopedResolutionDbConnectionFactory`**, which delegates async opens to scoped **`ISqlConnectionFactory`** (see Api components above).
+
+#### Contract test coverage (persistence)
+
+- Shared suites under **`ArchiForge.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, and **provenance snapshots** (each with InMemory + Dapper/SQL subclasses where applicable).
 
 #### `ComparisonRecordRepository`
 

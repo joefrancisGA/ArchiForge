@@ -6,6 +6,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Controllers;
 
@@ -19,6 +20,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiVersion("1.0")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[EnableRateLimiting("fixed")]
 public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
 {
     /// <summary>Returns the current status of a background job.</summary>

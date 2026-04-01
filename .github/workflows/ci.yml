@@ -97,6 +97,9 @@ jobs:
           path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
           if-no-files-found: warn
 
+      - name: Test — finding-engine template (not in main solution)
+        run: dotnet test templates/archiforge-finding-engine/ArchiForgeFindingEngine.Tests/ArchiForgeFindingEngine.Tests.csproj -c Release
+
   dotnet-full-regression:
     name: ".NET: full regression (SQL)"
     needs: dotnet-fast-core

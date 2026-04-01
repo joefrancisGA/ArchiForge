@@ -80,6 +80,7 @@ public static class ArchiForgeConfigurationRules
         CollectApiDeprecationErrors(configuration, errors);
         CollectDataArchivalErrors(configuration, errors);
         CollectRetrievalEmbeddingCapErrors(configuration, errors);
+        CollectRateLimitingErrors(configuration, errors);
 
         if (!environment.IsProduction()) return errors;
         
@@ -190,6 +191,61 @@ public static class ArchiForgeConfigurationRules
         if (opts.IntervalHours < 1 || opts.IntervalHours > 168)
         {
             errors.Add("DataArchival:IntervalHours must be between 1 and 168.");
+        }
+    }
+
+    private static void CollectRateLimitingErrors(IConfiguration configuration, List<string> errors)
+    {
+        void AddIfInvalid(string path, int permitLimit, int windowMinutes, int queueLimit)
+        {
+            if (permitLimit < 1)
+            {
+                errors.Add($"{path}:PermitLimit must be at least 1.");
+            }
+
+            if (windowMinutes < 1)
+            {
+                errors.Add($"{path}:WindowMinutes must be at least 1.");
+            }
+
+            if (queueLimit < 0)
+            {
+                errors.Add($"{path}:QueueLimit must be 0 or greater.");
+            }
+        }
+
+        IConfigurationSection fixedSection = configuration.GetSection("RateLimiting:FixedWindow");
+        if (fixedSection.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:FixedWindow:PermitLimit", 100);
+            int window = configuration.GetValue("RateLimiting:FixedWindow:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:FixedWindow:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:FixedWindow", permit, window, queue);
+        }
+
+        IConfigurationSection expensiveSection = configuration.GetSection("RateLimiting:Expensive");
+        if (expensiveSection.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:Expensive:PermitLimit", 20);
+            int window = configuration.GetValue("RateLimiting:Expensive:WindowMinutes", 1);
+            int queue = configuration.GetValue("RateLimiting:Expensive:QueueLimit", 0);
+            AddIfInvalid("RateLimiting:Expensive", permit, window, queue);
+        }
+
+        IConfigurationSection replayLight = configuration.GetSection("RateLimiting:Replay:Light");
+        if (replayLight.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:Replay:Light:PermitLimit", 60);
+            int window = configuration.GetValue("RateLimiting:Replay:Light:WindowMinutes", 1);
+            AddIfInvalid("RateLimiting:Replay:Light", permit, window, 0);
+        }
+
+        IConfigurationSection replayHeavy = configuration.GetSection("RateLimiting:Replay:Heavy");
+        if (replayHeavy.Exists())
+        {
+            int permit = configuration.GetValue("RateLimiting:Replay:Heavy:PermitLimit", 15);
+            int window = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
+            AddIfInvalid("RateLimiting:Replay:Heavy", permit, window, 0);
         }
     }
 
