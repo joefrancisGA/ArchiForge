@@ -96,7 +96,7 @@ jobs:
         run: dotnet restore
 
       - name: Vulnerable package audit
-        run: dotnet list package --vulnerable --include-transitive --output-format json
+        run: dotnet list ArchiForge.sln package --vulnerable --include-transitive --format json
 
       - name: Build (Release)
         run: dotnet build --no-restore -c Release
