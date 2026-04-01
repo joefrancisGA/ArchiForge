@@ -1987,6 +1987,18 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 273. **This file** — §257–274 recorded so backlog matches delivery.
 - [x] 274. **`docs/ARCHITECTURE_COMPONENTS.md`** — archival readiness, replay diagnostics, cost estimator, in-memory comparison repository.
 
+### Data access clarity & test depth (275–283)
+
+- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchiForge.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchiForge.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchiForgeStorage`**.
+- [x] 276. **`SqlScopedResolutionDbConnectionFactory`** — singleton **`IDbConnectionFactory`** for SQL storage that opens connections via a **short scope** resolving scoped **`ISqlConnectionFactory`** (resilience + optional RLS) for **`CreateOpenConnectionAsync`**, while **`CreateConnection`** stays an unopened **`SqlConnection`** for readiness probes. **`RegisterDataInfrastructure`** registers **`Data.SqlConnectionFactory`** only when **`StorageProvider=InMemory`**; SQL mode registers this bridge inside **`AddArchiForgeStorage`**.
+- [x] 277. **`CorrelationIdMiddlewareTests`** + **`ApiDeprecationHeadersMiddlewareTests`** (Core suite).
+- [x] 278. **`RetrievalIndexingOutboxHostedServiceTests`** — clean shutdown and continue-after-failure loop behavior.
+- [x] 279. **CI coverage artifacts** — **`dotnet test`** with **`--collect:"XPlat Code Coverage"`** on fast-core and full-regression jobs; upload Cobertura XML artifacts.
+- [x] 280. **`terraform fmt -check`** in **`terraform-validate-private`**.
+- [x] 281. **Conversation repository contract tests** — thread + message abstract bases with InMemory and Dapper subclasses (archive case skipped on shared SQL for threads).
+- [x] 282. **`docs/runbooks/SECRET_AND_CERT_ROTATION.md`** — secrets, SQL, JWT, webhooks, TLS.
+- [x] 283. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §275–283 recorded; connection bridge and dual-repository note.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -2003,3 +2015,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Data & persistence (243–249): complete for backlog scope (**243–249** including **244** assignment archival, **246** read-replica list routing).
 - [x] UI & DX (250–256): complete for backlog scope (**250** feature flags; **252–253** devcontainer + template; **251**, **254–256** as listed).
 - [x] Archival, replay diagnostics, contracts & IaC (257–274): complete (**257–265** prior batch; **266–274** in-repo: in-memory comparison DI, session-context dispose test, archival health unit tests, **`DATA_ARCHIVAL_HEALTH`** runbook, Terraform validate job, cost-estimator tests, run repository contracts, component doc updates).
+- [x] Data access clarity & test depth (275–283): complete (**275–276** dual manifest/trace contracts + **`SqlScopedResolutionDbConnectionFactory`**; **277–278** middleware + outbox host tests; **279–280** CI coverage + **`terraform fmt`**, **281** conversation contracts, **282** secret/cert runbook, **283** docs).

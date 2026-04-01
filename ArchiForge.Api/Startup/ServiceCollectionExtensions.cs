@@ -98,7 +98,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterAdvisoryScheduling(services);
         RegisterDigestDelivery(services, configuration);
         RegisterAlerts(services);
-        RegisterDataInfrastructure(services);
+        RegisterDataInfrastructure(services, configuration);
         RegisterBackgroundJobs(services);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
         RegisterComparisonReplayAndDrift(services, configuration);
@@ -191,8 +191,18 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
     }
 
-    private static void RegisterDataInfrastructure(IServiceCollection services)
+    private static void RegisterDataInfrastructure(IServiceCollection services, IConfiguration configuration)
     {
+        ArchiForgeOptions mode = configuration
+                                     .GetSection(ArchiForgeOptions.SectionName)
+                                     .Get<ArchiForgeOptions>()
+                                 ?? new ArchiForgeOptions();
+
+        if (!string.Equals(mode.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
     }
 
@@ -360,9 +370,11 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
         services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
         services.AddScoped<IAgentResultRepository, AgentResultRepository>();
-        services.AddScoped<IGoldenManifestRepository, GoldenManifestRepository>();
-        services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
-        services.AddScoped<IDecisionTraceRepository, DecisionTraceRepository>();
+        // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
+        // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchiForgeStorage.
+        services.AddScoped<ArchiForge.Data.Repositories.IGoldenManifestRepository, GoldenManifestRepository>();
+        services.AddScoped<ArchiForge.Data.Repositories.IEvidenceBundleRepository, EvidenceBundleRepository>();
+        services.AddScoped<ArchiForge.Data.Repositories.IDecisionTraceRepository, DecisionTraceRepository>();
         services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();
         services.AddScoped<IAgentExecutionTraceRepository, AgentExecutionTraceRepository>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();

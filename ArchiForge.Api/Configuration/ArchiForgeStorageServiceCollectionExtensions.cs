@@ -1,5 +1,6 @@
 using System.Reflection;
 
+using ArchiForge.Api.DataAccess;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
@@ -34,6 +35,7 @@ using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Configuration;
@@ -108,10 +110,11 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.Configure<SqlRowLevelSecurityOptions>(configuration.GetSection(SqlRowLevelSecurityOptions.SectionName));
         services.Configure<ReadReplicaOptions>(configuration.GetSection(ReadReplicaOptions.SectionName));
 
-        services.AddSingleton<SqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+        services.AddSingleton<ArchiForge.Persistence.Connections.SqlConnectionFactory>(
+            _ => new ArchiForge.Persistence.Connections.SqlConnectionFactory(connectionString));
         services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
             new ResilientSqlConnectionFactory(
-                sp.GetRequiredService<SqlConnectionFactory>(),
+                sp.GetRequiredService<ArchiForge.Persistence.Connections.SqlConnectionFactory>(),
                 sp.GetRequiredService<ILogger<ResilientSqlConnectionFactory>>()));
 
         services.AddScoped<IRlsSessionContextApplicator, RlsSessionContextApplicator>();
@@ -179,6 +182,11 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
+
+        services.AddSingleton<ArchiForge.Data.Infrastructure.IDbConnectionFactory>(_ =>
+            new SqlScopedResolutionDbConnectionFactory(
+                _.GetRequiredService<IServiceScopeFactory>(),
+                connectionString));
 
         return services;
     }

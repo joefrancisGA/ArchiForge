@@ -6,6 +6,15 @@ This document zooms into the most important components inside each container/lib
 
 ### `ArchiForge.Api` components
 
+#### Connection bridging (SQL)
+
+- **`SqlScopedResolutionDbConnectionFactory`** (`ArchiForge.Api.DataAccess`): implements **`ArchiForge.Data.Infrastructure.IDbConnectionFactory`** for the SQL storage path. **`CreateOpenConnectionAsync`** resolves scoped **`ISqlConnectionFactory`** ( **`ResilientSqlConnectionFactory`** and optional **`SessionContextSqlConnectionFactory`** ) so Dapper repositories under **`ArchiForge.Data.Repositories`** share the same resilience/RLS path as **`ArchiForge.Persistence`** without registering **`IDbConnectionFactory`** as scoped (hosted health checks resolve from the root provider). **`CreateConnection`** returns an unopened **`SqlConnection`** for lightweight probes that open explicitly.
+
+#### Dual manifest / trace repository interfaces
+
+- **`ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: authority-oriented contracts (`SaveAsync`, scoped `GetByIdAsync`). Implemented by **`SqlGoldenManifestRepository`**, **`SqlDecisionTraceRepository`**, and in-memory counterparts; registered in **`AddArchiForgeStorage`**.
+- **`ArchiForge.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces.
+
 #### `ArchitectureController`
 
 - **Role**: Single controller that exposes most `/v1/architecture/*` endpoints.
@@ -116,6 +125,7 @@ This document zooms into the most important components inside each container/lib
 
 - **Role**: Persistence for runs, tasks, results, manifests, export records, comparison records, traces, evidence.
 - **Pattern**: Each aggregate has an `I*Repository` + `*Repository` implementation; queries are explicit SQL strings.
+- **SQL connectivity**: repositories take **`IDbConnectionFactory`**; on the API host with **`ArchiForge:StorageProvider`** = SQL, the registered factory is **`SqlScopedResolutionDbConnectionFactory`**, which delegates async opens to scoped **`ISqlConnectionFactory`** (see Api components above).
 
 #### `ComparisonRecordRepository`
 

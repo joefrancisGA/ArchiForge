@@ -5,8 +5,8 @@ variable "enable_private_data_plane" {
 }
 
 variable "create_resource_group" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "resource_group_name" {
@@ -16,8 +16,8 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "virtual_network_name" {
@@ -27,13 +27,13 @@ variable "virtual_network_name" {
 }
 
 variable "vnet_address_space" {
-  type        = list(string)
-  default     = ["10.40.0.0/16"]
+  type    = list(string)
+  default = ["10.40.0.0/16"]
 }
 
 variable "private_endpoints_subnet_name" {
-  type        = string
-  default     = "snet-private-endpoints"
+  type    = string
+  default = "snet-private-endpoints"
 }
 
 variable "private_endpoints_subnet_prefix" {

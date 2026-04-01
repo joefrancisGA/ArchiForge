@@ -47,6 +47,10 @@ jobs:
         working-directory: infra/terraform-private
         run: terraform validate
 
+      - name: terraform fmt (check only)
+        working-directory: infra/terraform-private
+        run: terraform fmt -check -recursive
+
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
     needs: gitleaks
@@ -85,7 +89,13 @@ jobs:
 
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
       - name: Test — fast core
-        run: dotnet test ArchiForge.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration"
+        run: dotnet test ArchiForge.sln --no-build -c Release --filter "Suite=Core&Category!=Slow&Category!=Integration" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-fast-core
+          path: ${{ runner.temp }}/coverage-fast-core/**/coverage.cobertura.xml
+          if-no-files-found: warn
 
   dotnet-full-regression:
     name: ".NET: full regression (SQL)"
@@ -122,7 +132,13 @@ jobs:
       - name: Test — full solution
         env:
           ARCHIFORGE_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests"
-        run: dotnet test ArchiForge.sln --no-build -c Release
+        run: dotnet test ArchiForge.sln --no-build -c Release --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-full"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-full-regression
+          path: ${{ runner.temp }}/coverage-full/**/coverage.cobertura.xml
+          if-no-files-found: warn
 
   ui-unit:
     name: "Operator UI: unit (Vitest)"
