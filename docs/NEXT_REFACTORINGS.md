@@ -1,6 +1,6 @@
 # Next refactorings
 
-**Last updated:** 31 March 2026.
+**Last updated:** 1 April 2026.
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
@@ -2035,6 +2035,17 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 309. **`docs/ARCHITECTURE_COMPONENTS.md`** — contract list extended (idempotency, agent results, advisory schedules, alert attempts, **`ArchitectureCommitTestSeed`**).
 - [x] 310. **This file** — §303–310 recorded.
 
+### Application execute/commit, DecisionEngineV2 depth, Data contracts, config & runbooks (311–318)
+
+- [x] 311. **`ArchiForge.Application.Tests`** — **`ArchitectureRunServiceExecuteCommitTests`**: execute happy path + idempotent replay + **`RunNotFoundException`** + terminal **`ConflictException`**; commit happy path + wrong-status **`ConflictException`** + run missing.
+- [x] 312. **`DecisionEngineV2Tests`** — empty topology pair; three topics when topology present; security promotion from **strengthen** + “private”; complexity prefers reduce under **caution**.
+- [x] 313. **In-memory Data repositories** — **`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** (optional request lookup for **`ListAsync`**), **`InMemoryEvidenceBundleRepository`**, **`InMemoryAgentEvidencePackageRepository`**, **`InMemoryAgentExecutionTraceRepository`**.
+- [x] 314. **Persistence contract tests** — request, evidence bundle, architecture run (incl. **`ListAsync`** system name), agent evidence package, agent execution trace (incl. paging); Dapper subclasses + **`ArchitectureCommitTestSeed.InsertArchitectureRequestOnlyAsync`**.
+- [x] 315. **`ArchiForgeConfigurationRulesTests`** — ApiKey enabled without keys; embedding caps; **`DataArchival:RunsRetentionDays`**; batch replay **> 500**; empty schema path; Production ApiKey both keys missing.
+- [x] 316. **Runbooks** — **`docs/runbooks/AGENT_EXECUTION_FAILURES.md`**, **`ALERT_DELIVERY_FAILURES.md`**; **`docs/runbooks/README.md`** index rows.
+- [x] 317. **`docs/ARCHITECTURE_COMPONENTS.md`** — contract list + new in-memory Data repositories note.
+- [x] 318. **This file** — §311–318 recorded.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -2055,3 +2066,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Audit, provenance, rate limits & ops polish (284–292): complete (**284–285** audit + provenance contract tests; **286** controller rate limits + debug/docs remarks; **287** archival host tests; **288** compose Azurite health; **289** rate-limit validation; **290** consulting DOCX doc; **291** template CI test; **292** docs).
 - [x] Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302): complete (**293–295** ArtifactSynthesis + AgentRuntime + Application test projects; **296** authority manifest/trace/policy pack contracts + **`AuthorityRunChainTestSeed`**; **297–298** Terraform matrix job + compose API/UI health; **299** production CORS/webhook validation; **300–302** containers doc, runbooks index + infra/redis ops, backlog + components).
 - [x] Persistence contracts, app idempotency, config, synthesis, CI gate (303–310): complete (**303** agent result + advisory + alert delivery contracts; **304** **`ArchitectureRunService`** idempotency unit tests; **305** VectorIndex + webhook secret length + replay rate-limit **`QueueLimit`**; **306** inventory generator + bundle validator negatives; **307–308** BUILD/CONTRIBUTOR + CI **`needs`** Terraform; **309–310** components doc + backlog).
+- [x] Application execute/commit, DecisionEngineV2 depth, Data contracts, config & runbooks (311–318): complete (**311–312** Application.Tests execute/commit + **`DecisionEngineV2`** edges; **313–314** five in-memory Data repos + matching persistence contracts + request-only SQL seed; **315** configuration rule tests; **316** agent/alert delivery runbooks; **317–318** components doc + backlog).

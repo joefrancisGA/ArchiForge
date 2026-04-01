@@ -11,6 +11,34 @@ namespace ArchiForge.Persistence.Tests.Support;
 /// </summary>
 public static class ArchitectureCommitTestSeed
 {
+    /// <summary>Inserts <c>dbo.ArchitectureRequests</c> only (idempotent on <paramref name="requestId"/>).</summary>
+    public static async Task InsertArchitectureRequestOnlyAsync(
+        SqlConnection connection,
+        string requestId,
+        string systemName,
+        CancellationToken ct)
+    {
+        const string insertRequest = """
+            IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRequests WHERE RequestId = @RequestId)
+            INSERT INTO dbo.ArchitectureRequests
+            (RequestId, SystemName, Environment, CloudProvider, RequestJson, CreatedUtc)
+            VALUES (@RequestId, @SystemName, @Environment, @CloudProvider, @RequestJson, SYSUTCDATETIME());
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertRequest,
+                new
+                {
+                    RequestId = requestId,
+                    SystemName = systemName,
+                    Environment = "prod",
+                    CloudProvider = "Azure",
+                    RequestJson = "{}",
+                },
+                cancellationToken: ct));
+    }
+
     /// <summary>Inserts request + run (idempotent on <paramref name="requestId"/> / <paramref name="runId"/>).</summary>
     public static async Task InsertRequestAndRunAsync(
         SqlConnection connection,
