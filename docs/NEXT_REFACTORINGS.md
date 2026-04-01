@@ -2011,6 +2011,19 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 291. **CI** — **`dotnet test`** for **`templates/archiforge-finding-engine/...Tests.csproj`** in **`dotnet-fast-core`** (project stays outside main solution).
 - [x] 292. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §284–292 recorded.
 
+### Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302)
+
+- [x] 293. **`ArchiForge.ArtifactSynthesis.Tests`** — `ArtifactSynthesisService` ordering + empty generators, `MermaidDiagramArtifactGenerator`, `ArtifactPackagingService` (single-file + ZIP); **`Suite=Core`** on test classes.
+- [x] 294. **`RealAgentExecutor` + `AgentResultParser` tests** in **`ArchiForge.AgentRuntime.Tests`** (duplicate handler type, dispatch order by enum, missing handler, JSON validation paths).
+- [x] 295. **`ArchiForge.Application.Tests`** — **`ArchitectureRunIdempotencyHashing`** (hash stability, null guard, fingerprint equality / inequality).
+- [x] 296. **Persistence contract tests** — **`GoldenManifestRepositoryContractTests`** + InMemory + SQL; **`DecisionTraceRepositoryContractTests`** + InMemory + SQL (run FK seed); **`PolicyPackRepositoryContractTests`** + InMemory + Dapper; shared **`AuthorityRunChainTestSeed`** extracted from **`SqlGoldenManifestRepositorySqlIntegrationTests`**.
+- [x] 297. **CI** — **`.github/workflows/ci.yml`**: job **`terraform-validate-public-stacks`** matrix **`infra/terraform`**, **`infra/terraform-edge`**, **`infra/terraform-entra`** (`init -backend=false`, `validate`, `fmt -check`).
+- [x] 298. **`docker-compose.yml` (full-stack)** — explicit **`healthcheck`** for **`api`** and **`ui`**; **`ui`** **`depends_on`** **`api`** **`condition: service_healthy`**.
+- [x] 299. **`CollectProductionSafetyErrors`** — Production CORS allow-list + webhook HMAC when HTTP delivery enabled; **`ArchiForgeConfigurationRulesTests`** (existing Production cases updated with valid CORS/webhook stubs + new failure cases).
+- [x] 300. **`docs/ARCHITECTURE_CONTAINERS.md`** — Decisioning, Persistence, KnowledgeGraph, ContextIngestion, Retrieval, ArtifactSynthesis; updated API/Application dependency bullets.
+- [x] 301. **Runbooks** — **`docs/runbooks/README.md`**, **`INFRASTRUCTURE_OPS.md`**, **`REDIS_HEALTH.md`**.
+- [x] 302. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §293–302 recorded; component doc: contract coverage + production safety note.
+
 ---
 
 ## Checklist (items 155–256 progress)
@@ -2029,3 +2042,4 @@ Use the per-item `[x]` / `[ ]` markers in the sections above; this summary rolls
 - [x] Archival, replay diagnostics, contracts & IaC (257–274): complete (**257–265** prior batch; **266–274** in-repo: in-memory comparison DI, session-context dispose test, archival health unit tests, **`DATA_ARCHIVAL_HEALTH`** runbook, Terraform validate job, cost-estimator tests, run repository contracts, component doc updates).
 - [x] Data access clarity & test depth (275–283): complete (**275–276** dual manifest/trace contracts + **`SqlScopedResolutionDbConnectionFactory`**; **277–278** middleware + outbox host tests; **279–280** CI coverage + **`terraform fmt`**, **281** conversation contracts, **282** secret/cert runbook, **283** docs).
 - [x] Audit, provenance, rate limits & ops polish (284–292): complete (**284–285** audit + provenance contract tests; **286** controller rate limits + debug/docs remarks; **287** archival host tests; **288** compose Azurite health; **289** rate-limit validation; **290** consulting DOCX doc; **291** template CI test; **292** docs).
+- [x] Synthesis tests, CI Terraform breadth, production safety & ops docs (293–302): complete (**293–295** ArtifactSynthesis + AgentRuntime + Application test projects; **296** authority manifest/trace/policy pack contracts + **`AuthorityRunChainTestSeed`**; **297–298** Terraform matrix job + compose API/UI health; **299** production CORS/webhook validation; **300–302** containers doc, runbooks index + infra/redis ops, backlog + components).

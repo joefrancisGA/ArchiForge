@@ -82,8 +82,13 @@ public static class ArchiForgeConfigurationRules
         CollectRetrievalEmbeddingCapErrors(configuration, errors);
         CollectRateLimitingErrors(configuration, errors);
 
-        if (!environment.IsProduction()) return errors;
-        
+        if (!environment.IsProduction())
+        {
+            return errors;
+        }
+
+        CollectProductionSafetyErrors(configuration, errors);
+
         {
             string? authMode = configuration["ArchiForgeAuth:Mode"];
             if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
@@ -118,6 +123,45 @@ public static class ArchiForgeConfigurationRules
         }
 
         return errors;
+    }
+
+    /// <summary>
+    /// Fail-fast checks for CORS and outbound webhook HMAC in Production only.
+    /// </summary>
+    private static void CollectProductionSafetyErrors(IConfiguration configuration, List<string> errors)
+    {
+        string[]? origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+        if (origins is null || origins.Length == 0)
+        {
+            errors.Add("Production requires at least one Cors:AllowedOrigins entry.");
+        }
+        else
+        {
+            foreach (string? origin in origins)
+            {
+                if (string.IsNullOrWhiteSpace(origin))
+                {
+                    continue;
+                }
+
+                string trimmed = origin.Trim();
+
+                if (string.Equals(trimmed, "*", StringComparison.Ordinal))
+                {
+                    errors.Add("Cors:AllowedOrigins must not use a wildcard '*' in Production.");
+                }
+            }
+        }
+
+        WebhookDeliveryOptions webhook =
+            configuration.GetSection(WebhookDeliveryOptions.SectionName).Get<WebhookDeliveryOptions>() ??
+            new WebhookDeliveryOptions();
+
+        if (webhook.UseHttpClient && string.IsNullOrWhiteSpace(webhook.HmacSha256SharedSecret))
+        {
+            errors.Add(
+                "WebhookDelivery:HmacSha256SharedSecret is required in Production when WebhookDelivery:UseHttpClient is true.");
+        }
     }
 
     private static void CollectBatchReplayErrors(IConfiguration configuration, List<string> errors)

@@ -22,6 +22,10 @@ This document zooms into the most important components inside each container/lib
 - **`DemoController`**: **`expensive`** (demo seed mutates data).
 - **`AuthDebugController`** (`api/auth/*`) and **`DocsController`** (static HTML): **no** class-level rate limiter — documented in XML remarks; use edge throttling in production if needed.
 
+#### Production configuration safety
+
+- **`ArchiForgeConfigurationRules.CollectProductionSafetyErrors`**: when **`IWebHostEnvironment.IsProduction()`**, fails startup if **`Cors:AllowedOrigins`** is empty or contains a **`*`** wildcard, or if **`WebhookDelivery:UseHttpClient`** is true without **`WebhookDelivery:HmacSha256SharedSecret`**.
+
 #### `ArchitectureController`
 
 - **Role**: Single controller that exposes most `/v1/architecture/*` endpoints.
@@ -136,7 +140,7 @@ This document zooms into the most important components inside each container/lib
 
 #### Contract test coverage (persistence)
 
-- Shared suites under **`ArchiForge.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, and **provenance snapshots** (each with InMemory + Dapper/SQL subclasses where applicable).
+- Shared suites under **`ArchiForge.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, **provenance snapshots**, **authority golden manifests**, **decision traces**, and **policy packs** (each with InMemory + Dapper/SQL subclasses where applicable). SQL golden-manifest tests reuse **`AuthorityRunChainTestSeed`** for FK chain setup.
 
 #### `ComparisonRecordRepository`
 

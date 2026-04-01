@@ -17,7 +17,9 @@ COPY ArchiForge.Api/*.csproj                ArchiForge.Api/
 COPY ArchiForge.AgentRuntime/*.csproj       ArchiForge.AgentRuntime/
 COPY ArchiForge.AgentSimulator/*.csproj     ArchiForge.AgentSimulator/
 COPY ArchiForge.Application/*.csproj        ArchiForge.Application/
+COPY ArchiForge.Application.Tests/*.csproj    ArchiForge.Application.Tests/
 COPY ArchiForge.ArtifactSynthesis/*.csproj  ArchiForge.ArtifactSynthesis/
+COPY ArchiForge.ArtifactSynthesis.Tests/*.csproj ArchiForge.ArtifactSynthesis.Tests/
 COPY ArchiForge.Contracts/*.csproj          ArchiForge.Contracts/
 COPY ArchiForge.ContextIngestion/*.csproj   ArchiForge.ContextIngestion/
 COPY ArchiForge.Coordinator/*.csproj        ArchiForge.Coordinator/

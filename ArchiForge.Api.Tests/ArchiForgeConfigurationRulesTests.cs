@@ -19,6 +19,8 @@ public sealed class ArchiForgeConfigurationRulesTests
         {
             ["ArchiForge:StorageProvider"] = "InMemory",
             ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -38,6 +40,8 @@ public sealed class ArchiForgeConfigurationRulesTests
             ["ArchiForge:StorageProvider"] = "InMemory",
             ["ArchiForgeAuth:Mode"] = "JwtBearer",
             ["ArchiForgeAuth:Authority"] = "",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -58,6 +62,8 @@ public sealed class ArchiForgeConfigurationRulesTests
             ["ArchiForgeAuth:Mode"] = "ApiKey",
             ["Authentication:ApiKey:Enabled"] = "false",
             ["Authentication:ApiKey:AdminKey"] = "k",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -316,5 +322,68 @@ public sealed class ArchiForgeConfigurationRulesTests
 
         errors.Should().Contain(e => e.Contains("RateLimiting:Expensive", StringComparison.OrdinalIgnoreCase)
             && e.Contains("WindowMinutes", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndCorsOriginsEmpty_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("Cors:AllowedOrigins", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndCorsWildcard_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "*",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("wildcard", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndWebhookHttpWithoutSecret_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "true",
+            ["WebhookDelivery:HmacSha256SharedSecret"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("WebhookDelivery:HmacSha256SharedSecret", StringComparison.OrdinalIgnoreCase));
     }
 }

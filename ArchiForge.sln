@@ -99,6 +99,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Backfill.Cli", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.TestSupport", "ArchiForge.TestSupport\ArchiForge.TestSupport.csproj", "{99449A88-AF64-48D2-803A-1EA348474812}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.ArtifactSynthesis.Tests", "ArchiForge.ArtifactSynthesis.Tests\ArchiForge.ArtifactSynthesis.Tests.csproj", "{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Application.Tests", "ArchiForge.Application.Tests\ArchiForge.Application.Tests.csproj", "{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -469,6 +473,30 @@ Global
 		{99449A88-AF64-48D2-803A-1EA348474812}.Release|x64.Build.0 = Release|Any CPU
 		{99449A88-AF64-48D2-803A-1EA348474812}.Release|x86.ActiveCfg = Release|Any CPU
 		{99449A88-AF64-48D2-803A-1EA348474812}.Release|x86.Build.0 = Release|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Debug|x64.Build.0 = Debug|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Debug|x86.Build.0 = Debug|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Release|x64.ActiveCfg = Release|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Release|x64.Build.0 = Release|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Release|x86.ActiveCfg = Release|Any CPU
+		{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}.Release|x86.Build.0 = Release|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Debug|x64.Build.0 = Debug|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Debug|x86.Build.0 = Debug|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Release|x64.ActiveCfg = Release|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Release|x64.Build.0 = Release|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Release|x86.ActiveCfg = Release|Any CPU
+		{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

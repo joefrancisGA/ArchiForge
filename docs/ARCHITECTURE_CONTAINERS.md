@@ -10,7 +10,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 - HTTP surface for all run/execution/export/compare/replay workflows.
 - API versioning (`/v1/...`), rate limiting, and API-key auth.
-- Wires up DI for Application/Data/DecisionEngine services.
+- Wires up DI for Application, Data, DecisionEngine, Decisioning, Persistence, Retrieval, ContextIngestion, and related services.
 - Provides Swagger/OpenAPI docs (with small operation filters for replay examples).
 
 **Key concerns**
@@ -26,8 +26,10 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 **Depends on**
 
 - `ArchiForge.Application` (core orchestration + analysis/export/replay services)
-- `ArchiForge.Data` (repositories, migrations, DB connection factory)
+- `ArchiForge.Data` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
+- `ArchiForge.Persistence` (SQL authority repositories, RLS-aware connection factories, queries, advisory/alert persistence)
 - `ArchiForge.DecisionEngine` (merge agent results into manifests)
+- `ArchiForge.Decisioning` (governance, advisory, alerts, manifest/decision models used by persistence and application)
 - `ArchiForge.Contracts` (DTOs / domain contracts)
 
 ---
@@ -70,7 +72,75 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 - `ArchiForge.Data` for repositories
 - `ArchiForge.DecisionEngine` (sometimes indirectly via other services)
+- `ArchiForge.Decisioning` (governance, previews, advisory surfaces)
 - `ArchiForge.Contracts` for shared models
+
+---
+
+### Library: `ArchiForge.Decisioning` (governance, advisory, domain models)
+
+**Responsibility**
+
+- Policy packs, effective governance resolution, advisory scanning, digest/alert domain logic.
+- Authority-path interfaces such as `IGoldenManifestRepository` / `IDecisionTraceRepository` (SQL implementations live in `ArchiForge.Persistence`).
+- Manifest sections, findings, and decision-trace models shared with the decision engine and API.
+
+**Depends on**
+
+- `ArchiForge.Contracts`, `ArchiForge.Core`, and (where applicable) persistence ports implemented in `ArchiForge.Persistence`.
+
+---
+
+### Library: `ArchiForge.Persistence` (SQL Server authority + operational data)
+
+**Responsibility**
+
+- `SqlGoldenManifestRepository`, `SqlDecisionTraceRepository`, Dapper governance/advisory/alert repositories, and health/resilience around `ISqlConnectionFactory`.
+- Row-level security session context application and read-replica routing for heavy list queries.
+
+**Depends on**
+
+- `ArchiForge.Decisioning`, `ArchiForge.ContextIngestion`, `ArchiForge.KnowledgeGraph`, `ArchiForge.ArtifactSynthesis`, `ArchiForge.Retrieval` (as needed for types and orchestration hooks).
+
+---
+
+### Library: `ArchiForge.KnowledgeGraph` (graph snapshots)
+
+**Responsibility**
+
+- Builds typed `GraphSnapshot` from persisted context; validates nodes/edges; supports operator graph views and pagination models.
+
+**Depends on**
+
+- `ArchiForge.ContextIngestion` / contracts for snapshot shapes.
+
+---
+
+### Library: `ArchiForge.ContextIngestion` (context pipeline)
+
+**Responsibility**
+
+- Ingestion connectors, delta summaries, and canonical object models feeding runs and graph construction.
+
+---
+
+### Library: `ArchiForge.Retrieval` (RAG / indexing)
+
+**Responsibility**
+
+- Embedding batches, indexing outbox, vector/search integration (configuration-driven).
+
+---
+
+### Library: `ArchiForge.ArtifactSynthesis` (bundle synthesis + packaging)
+
+**Responsibility**
+
+- `ArtifactSynthesisService` runs registered `IArtifactGenerator` implementations into an `ArtifactBundle`, validates bundles, and supports ZIP packaging / exports (`ArtifactPackagingService`).
+
+**Depends on**
+
+- `ArchiForge.Decisioning` (manifest model), `ArchiForge.Core`.
 
 ---
 
@@ -132,8 +202,9 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 ### Container relationships (high-level)
 
 - `ArchiForge.Cli` → (HTTP) → `ArchiForge.Api`
-- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Data`
+- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Data` / `ArchiForge.Persistence` / `ArchiForge.Decisioning`
 - `ArchiForge.Api` → `ArchiForge.DecisionEngine` (merge/commit)
+- Optional paths: Context ingestion, knowledge graph, retrieval, artifact synthesis (all invoked from application/API layers as configured)
 - All projects share models from `ArchiForge.Contracts`
 
 ---

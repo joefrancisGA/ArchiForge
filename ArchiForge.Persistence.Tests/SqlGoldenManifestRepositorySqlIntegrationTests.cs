@@ -1,11 +1,10 @@
-using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
-using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Repositories;
 using ArchiForge.Persistence.Serialization;
+using ArchiForge.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -40,13 +39,17 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         Guid traceId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
 
-        await SeedAuthorityChainAsync(
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
             connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
             runId,
             contextId,
             graphId,
             findingsId,
             traceId,
+            "proj-gm",
             CancellationToken.None);
 
         ScopeContext scope = new()
@@ -136,13 +139,17 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         Guid traceId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
 
-        await SeedAuthorityChainAsync(
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
             connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
             runId,
             contextId,
             graphId,
             findingsId,
             traceId,
+            "proj-gm",
             CancellationToken.None);
 
         GoldenManifest original = new()
@@ -244,171 +251,4 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         loaded.Assumptions.Should().Equal("from-json");
     }
 
-    private static async Task SeedAuthorityChainAsync(
-        SqlConnection connection,
-        Guid runId,
-        Guid contextSnapshotId,
-        Guid graphSnapshotId,
-        Guid findingsSnapshotId,
-        Guid decisionTraceId,
-        CancellationToken ct)
-    {
-        const string insertRun = """
-            INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
-            VALUES (@RunId, @ProjectId, @CreatedUtc, @TenantId, @WorkspaceId, @ScopeProjectId);
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertRun,
-                new
-                {
-                    RunId = runId,
-                    ProjectId = "proj-gm",
-                    CreatedUtc = DateTime.UtcNow,
-                    TenantId,
-                    WorkspaceId,
-                    ScopeProjectId = ProjectId,
-                },
-                cancellationToken: ct));
-
-        string emptyCanonical = JsonEntitySerializer.Serialize(new List<CanonicalObject>());
-        string emptyList = JsonEntitySerializer.Serialize(new List<string>());
-
-        const string insertContext = """
-            INSERT INTO dbo.ContextSnapshots
-            (
-                SnapshotId, RunId, ProjectId, CreatedUtc,
-                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
-            )
-            VALUES
-            (
-                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
-                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
-            );
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertContext,
-                new
-                {
-                    SnapshotId = contextSnapshotId,
-                    RunId = runId,
-                    ProjectId = "proj-gm",
-                    CreatedUtc = DateTime.UtcNow,
-                    CanonicalObjectsJson = emptyCanonical,
-                    DeltaSummary = (string?)null,
-                    WarningsJson = emptyList,
-                    ErrorsJson = emptyList,
-                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
-                },
-                cancellationToken: ct));
-
-        string emptyNodes = JsonEntitySerializer.Serialize(new List<GraphNode>());
-        string emptyEdges = JsonEntitySerializer.Serialize(new List<GraphEdge>());
-        string emptyGraphWarnings = JsonEntitySerializer.Serialize(new List<string>());
-
-        const string insertGraph = """
-            INSERT INTO dbo.GraphSnapshots
-            (
-                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
-                NodesJson, EdgesJson, WarningsJson
-            )
-            VALUES
-            (
-                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
-                @NodesJson, @EdgesJson, @WarningsJson
-            );
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertGraph,
-                new
-                {
-                    GraphSnapshotId = graphSnapshotId,
-                    ContextSnapshotId = contextSnapshotId,
-                    RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
-                    NodesJson = emptyNodes,
-                    EdgesJson = emptyEdges,
-                    WarningsJson = emptyGraphWarnings,
-                },
-                cancellationToken: ct));
-
-        const string insertFindings = """
-            INSERT INTO dbo.FindingsSnapshots
-            (
-                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
-                SchemaVersion, FindingsJson
-            )
-            VALUES
-            (
-                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
-                @SchemaVersion, @FindingsJson
-            );
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertFindings,
-                new
-                {
-                    FindingsSnapshotId = findingsSnapshotId,
-                    RunId = runId,
-                    ContextSnapshotId = contextSnapshotId,
-                    GraphSnapshotId = graphSnapshotId,
-                    CreatedUtc = DateTime.UtcNow,
-                    SchemaVersion = 1,
-                    FindingsJson = JsonEntitySerializer.Serialize(new FindingsSnapshot
-                    {
-                        FindingsSnapshotId = findingsSnapshotId,
-                        RunId = runId,
-                        ContextSnapshotId = contextSnapshotId,
-                        GraphSnapshotId = graphSnapshotId,
-                        CreatedUtc = DateTime.UtcNow,
-                        Findings = [],
-                    }),
-                },
-                cancellationToken: ct));
-
-        const string insertTrace = """
-            INSERT INTO dbo.DecisioningTraces
-            (
-                DecisionTraceId, RunId, CreatedUtc,
-                RuleSetId, RuleSetVersion, RuleSetHash,
-                AppliedRuleIdsJson, AcceptedFindingIdsJson, RejectedFindingIdsJson, NotesJson,
-                TenantId, WorkspaceId, ProjectId
-            )
-            VALUES
-            (
-                @DecisionTraceId, @RunId, @CreatedUtc,
-                @RuleSetId, @RuleSetVersion, @RuleSetHash,
-                @AppliedRuleIdsJson, @AcceptedFindingIdsJson, @RejectedFindingIdsJson, @NotesJson,
-                @TenantId, @WorkspaceId, @ProjectId
-            );
-            """;
-
-        await connection.ExecuteAsync(
-            new CommandDefinition(
-                insertTrace,
-                new
-                {
-                    DecisionTraceId = decisionTraceId,
-                    RunId = runId,
-                    CreatedUtc = DateTime.UtcNow,
-                    RuleSetId = "rs",
-                    RuleSetVersion = "1",
-                    RuleSetHash = "h",
-                    AppliedRuleIdsJson = emptyList,
-                    AcceptedFindingIdsJson = emptyList,
-                    RejectedFindingIdsJson = emptyList,
-                    NotesJson = emptyList,
-                    TenantId,
-                    WorkspaceId,
-                    ProjectId,
-                },
-                cancellationToken: ct));
-    }
 }

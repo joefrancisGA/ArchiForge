@@ -140,6 +140,8 @@ The `standalone` output mode copies only the required subset of `node_modules` i
 
 Docker's `HEALTHCHECK` instruction uses the liveness endpoint. Orchestrators (App Service, AKS) should map readiness probes to `/health/ready`.
 
+The **`docker-compose.yml` full-stack profile** also defines **`healthcheck`** blocks for **`api`** and **`ui`** (mirroring the image probes) so **`ui`** can **`depends_on`** **`api`** with **`condition: service_healthy`**, reducing startup races when both containers start together.
+
 ### Environment variables
 
 Runtime configuration is injected via environment variables. The `docker-compose.yml` full-stack profile shows the development defaults. For Azure, these come from App Service configuration, Key Vault references, or Kubernetes secrets.
