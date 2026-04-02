@@ -95,3 +95,10 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 
 - **Added** [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) (capture, dashboard, opportunities, export, owner guidance).
 - **Updated** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md), [README.md](../README.md), [archiforge-ui/README.md](../archiforge-ui/README.md), this file (overview §4–§7, component table, prompt log).
+
+### Coherence / cleanup pass (post–Prompt 9)
+
+- **Aggregation:** `GetSnapshotAsync` no longer calls `ListTopRejectedRevisedArtifactRollupsAsync` — that slice was never consumed by dashboard, opportunities, or export (extra SQL work only). `TopRejectedRevisedRollups` on the snapshot stays **empty** until a future feature uses it; documented on the contract and in [DATA_MODEL.md](DATA_MODEL.md).
+- **Dashboard notes:** Removed the summary line that duplicated KPI chip counts (less noise in the expandable “How to read” list).
+- **Naming:** Clarified `ProductLearningTriageReportDocument.DistinctRunsReviewed` ↔ `LearningDashboardSummary.DistinctRunsTouched` in XML; `TopRejectedRevisedTake` option documented as unused by aggregation today.
+- **Docs:** [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) states the UI issues **four** aligned GETs per refresh.

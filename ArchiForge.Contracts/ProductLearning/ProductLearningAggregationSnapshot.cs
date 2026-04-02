@@ -13,6 +13,10 @@ public sealed class ProductLearningAggregationSnapshot
 
     public IReadOnlyList<ArtifactOutcomeTrend> ArtifactTrends { get; init; } = Array.Empty<ArtifactOutcomeTrend>();
 
+    /// <summary>
+    /// Reserved: reject/revise-focused rollups are not merged into the dashboard or report pipeline in 58R
+    /// (always empty from <see cref="IProductLearningFeedbackAggregationService.GetSnapshotAsync"/> to avoid an extra query).
+    /// </summary>
     public IReadOnlyList<FeedbackAggregate> TopRejectedRevisedRollups { get; init; } = Array.Empty<FeedbackAggregate>();
 
     public IReadOnlyList<RepeatedCommentTheme> RepeatedCommentThemes { get; init; } = Array.Empty<RepeatedCommentTheme>();

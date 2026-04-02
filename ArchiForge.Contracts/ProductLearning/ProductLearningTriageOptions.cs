@@ -38,7 +38,10 @@ public sealed class ProductLearningTriageOptions
     /// <summary>Max artifact trends fetched.</summary>
     public int MaxArtifactTrends { get; init; } = 100;
 
-    /// <summary>Top rejected/revised rollups to retain for the dashboard panel.</summary>
+    /// <summary>
+    /// Take size for reject/revised rollup queries on the repository. Not used by
+    /// <see cref="IProductLearningFeedbackAggregationService.GetSnapshotAsync"/> in 58R (property reserved for a future panel or caller).
+    /// </summary>
     public int TopRejectedRevisedTake { get; init; } = 25;
 
     /// <summary>Max repeated-comment themes.</summary>

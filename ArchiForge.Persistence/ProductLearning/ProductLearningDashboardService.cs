@@ -193,7 +193,6 @@ public sealed class ProductLearningDashboardService(
             "Artifact trends require at least " + options.MinNegativeOutcomesOnArtifactTrend + " negative outcomes (reject/revise/follow-up) and sufficient total signals.",
             "Improvement opportunities ranked by weighted bad-score (rejects > follow-ups > revisions) with a small bonus when no trusted signals exist on a multi-signal rollup.",
             "Repeated comments use the first " + ProductLearningSignalAggregations.CommentThemePrefixLength + " characters after trim (deterministic, not semantic).",
-            "Ranked opportunities returned: " + opportunities.Count + "; rollups in snapshot: " + snapshot.FeedbackRollups.Count + "; artifact trends: " + snapshot.ArtifactTrends.Count + ".",
         };
 
         return lines;

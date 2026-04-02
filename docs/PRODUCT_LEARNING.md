@@ -23,6 +23,8 @@
 2. Open **http://localhost:3000** → nav **Q&A & advisory** → **Pilot feedback** (`/product-learning`).
 3. Choose **Time range** (all time, 30 days, 7 days) and **Refresh** if needed.
 
+Each full load issues **four** read requests to the API (summary, opportunities, trends, triage) with the same `since` filter so panels stay aligned.
+
 You will see:
 
 | Section | Purpose |

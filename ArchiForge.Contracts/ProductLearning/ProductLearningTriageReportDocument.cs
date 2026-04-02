@@ -19,7 +19,7 @@ public sealed class ProductLearningTriageReportDocument
 
     public int TotalSignalsInScope { get; init; }
 
-    /// <summary>Distinct architecture runs that have at least one signal in scope (same as dashboard).</summary>
+    /// <summary>Same count as <see cref="LearningDashboardSummary.DistinctRunsTouched"/> (export naming).</summary>
     public int DistinctRunsReviewed { get; init; }
 
     public IReadOnlyList<ProductLearningTriageReportArtifactRow> ArtifactOutcomes { get; init; } =

@@ -73,14 +73,51 @@ public sealed class ProductLearningFeedbackAggregationServiceTests
         snap.SinceUtc.Should().Be(options.SinceUtc);
     }
 
+    [Fact]
+    public async Task GetSnapshotAsync_does_not_query_top_rejected_revised_slice()
+    {
+        InMemoryProductLearningPilotSignalRepository repo = new();
+        DateTime utc = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Rejected, "pat", utc, "run-1"),
+            CancellationToken.None);
+
+        await repo.InsertAsync(
+            Signal(ProductLearningDispositionValues.Revised, "pat", utc, "run-2"),
+            CancellationToken.None);
+
+        ProductLearningFeedbackAggregationService svc = new(repo);
+        ProductLearningTriageOptions options = new()
+        {
+            MinSignalsPerAggregate = 1,
+            MaxFeedbackRollups = 50,
+            MaxArtifactTrends = 50,
+            MinNegativeOutcomesOnArtifactTrend = 99,
+        };
+
+        ProductLearningAggregationSnapshot snap =
+            await svc.GetSnapshotAsync(Scope(), options, CancellationToken.None);
+
+        snap.FeedbackRollups.Should().NotBeEmpty();
+        snap.TopRejectedRevisedRollups.Should().BeEmpty();
+    }
+
     private static ProductLearningPilotSignalRecord Signal(string patternKey, DateTime recordedUtc, string runId) =>
+        Signal(ProductLearningDispositionValues.Trusted, patternKey, recordedUtc, runId);
+
+    private static ProductLearningPilotSignalRecord Signal(
+        string disposition,
+        string patternKey,
+        DateTime recordedUtc,
+        string runId) =>
         new()
         {
             TenantId = TenantId,
             WorkspaceId = WorkspaceId,
             ProjectId = ProjectId,
             SubjectType = ProductLearningSubjectTypeValues.RunOutput,
-            Disposition = ProductLearningDispositionValues.Trusted,
+            Disposition = disposition,
             PatternKey = patternKey,
             ArchitectureRunId = runId,
             RecordedUtc = recordedUtc,
