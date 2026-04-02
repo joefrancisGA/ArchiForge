@@ -1,0 +1,58 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 15
+
+  - package-ecosystem: nuget
+    directory: "/templates/archiforge-finding-engine"
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: npm
+    directory: "/archiforge-ui"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-private"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-edge"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-entra"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/ArchiForge.Api"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/archiforge-ui"
+    schedule:
+      interval: weekly

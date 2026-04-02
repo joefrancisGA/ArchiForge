@@ -10,6 +10,8 @@
 #
 # .NET coverage: each test job writes a collapsible report to the job summary; download
 # coverage-report-*-html artifacts for browsable index.html (ReportGenerator).
+# Also: Dependabot (.github/dependabot.yml), CodeQL (.github/workflows/codeql.yml),
+# Docker build smoke, NuGet cache on setup-dotnet, PR sticky coverage comment.
 name: CI
 
 on:
@@ -99,6 +101,11 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
 
       - name: Restore
         run: dotnet restore
@@ -183,6 +190,11 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
 
       - name: Restore
         run: dotnet restore
@@ -207,6 +219,14 @@ jobs:
             "-reporttypes:Html;TextSummary;MarkdownSummaryGithub" \
             -verbosity:Info
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
+          head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
+
+      - uses: actions/upload-artifact@v6
+        if: success()
+        with:
+          name: coverage-metrics
+          path: ${{ runner.temp }}/coverage-metrics.txt
+          if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
         with:
@@ -220,6 +240,84 @@ jobs:
           name: coverage-report-full-regression-html
           path: ${{ runner.temp }}/coverage-report-full/**
           if-no-files-found: warn
+
+  coverage-pr-comment:
+    # Runs on every green full regression so the check can be required on the default branch;
+    # comment steps are gated to same-repo pull_request only.
+    name: "PR: coverage comment"
+    needs: dotnet-full-regression
+    if: needs.dotnet-full-regression.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Decide whether to post PR comment
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "post=false" >> "$GITHUB_OUTPUT"
+            echo "Not a pull request; skipping sticky comment."
+          elif [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "post=false" >> "$GITHUB_OUTPUT"
+            echo "Fork PR; skipping sticky comment (token scope)."
+          else
+            echo "post=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v5
+        if: steps.gate.outputs.post == 'true'
+
+      - uses: actions/download-artifact@v6
+        if: steps.gate.outputs.post == 'true'
+        with:
+          name: coverage-metrics
+          path: head-metrics
+
+      - name: Download base branch coverage metrics (optional)
+        continue-on-error: true
+        if: steps.gate.outputs.post == 'true'
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ github.token }}
+          workflow: ci.yml
+          workflow_conclusion: success
+          branch: ${{ github.event.pull_request.base.ref }}
+          name: coverage-metrics
+          path: base-metrics
+          search_artifacts: true
+          if_no_artifact_found: warn
+
+      - name: Build comment body
+        id: cov
+        if: steps.gate.outputs.post == 'true'
+        env:
+          HEAD_FILE: head-metrics/coverage-metrics.txt
+          BASE_FILE: base-metrics/coverage-metrics.txt
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 scripts/ci/build_coverage_pr_comment.py
+
+      - uses: marocchino/sticky-pull-request-comment@v3
+        if: steps.gate.outputs.post == 'true'
+        with:
+          header: archiforge-coverage
+          recreate: true
+          number: ${{ github.event.pull_request.number }}
+          message: ${{ steps.cov.outputs.body }}
+
+  docker-build-smoke:
+    name: "Containers: Docker build smoke"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build API image
+        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:ci .
+
+      - name: Build Operator UI image
+        run: docker build -f archiforge-ui/Dockerfile -t archiforge-ui:ci archiforge-ui
 
   ui-unit:
     name: "Operator UI: unit (Vitest)"
