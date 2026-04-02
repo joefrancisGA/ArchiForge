@@ -10,12 +10,17 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
 - **Compare / replay:** Two-run diff vs single-run authority replay — see [docs/operator-shell.md](../docs/operator-shell.md) in the repo root.
 
+## Pilot feedback (58R)
+
+**Nav:** **Pilot feedback** (not **Learning**, which is recommendation learning). Scoped dashboard, improvement opportunities, triage queue, Markdown/JSON export. Workflow: [docs/PRODUCT_LEARNING.md](../docs/PRODUCT_LEARNING.md).
+
 ## Documentation
 
 | Document | What it covers |
 |----------|---------------|
 | [Pilot guide (56R)](../docs/PILOT_GUIDE.md) | **Pilots / design partners:** first run, artifacts, logs, readiness checks. |
 | [Operator quickstart (56R)](../docs/OPERATOR_QUICKSTART.md) | Copy-paste commands (API, CLI, UI, tests). |
+| [Product learning (58R)](../docs/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
 | [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
 | [Operator shell guide (55R)](../docs/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |
 | [Architecture](docs/ARCHITECTURE.md) | System context, components, data flow, security, operations. |

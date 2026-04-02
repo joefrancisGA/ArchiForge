@@ -19,8 +19,8 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 
 ## 4. Architecture overview
 
-**Nodes:** API (future prompts), **product-learning repository**, SQL table **`ProductLearningPilotSignals`**, optional UI dashboard (later).  
-**Edges:** Human judgment → persisted signal → read APIs / views → triage UI.  
+**Nodes:** **Product-learning repository**, SQL table **`ProductLearningPilotSignals`**, **read APIs** (`/v1/product-learning/...`), **operator UI** (**Pilot feedback** page), optional future HTTP write for pilots.  
+**Edges:** Human judgment → persisted signal → aggregation services → dashboard / export → triage discussion.  
 **Boundaries:** Distinct from **advisory `RecommendationRecords`** / **`RecommendationLearningProfiles`** (those score advisory outputs). 58R targets **cross-cutting pilot feedback** on manifests, artifacts, and runs.
 
 ## 5. Component breakdown
@@ -30,17 +30,19 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 | **Contracts** (`ArchiForge.Contracts.ProductLearning`) | Stable strings + `ProductLearningPilotSignalRecord` DTO. |
 | **Persistence** | `IProductLearningPilotSignalRepository`, Dapper + in-memory implementations. |
 | **SQL** | DbUp `031_*.sql` + `ArchiForge.sql` parity. |
-| **API / UI** | *Prompt 2+* — REST surface, aggregation queries, dashboard page. |
+| **API** | `ProductLearningController`: summary, opportunities, trends, triage queue, triage report (`markdown` / `json`). |
+| **UI** | Operator shell **Pilot feedback** (`/product-learning`), export links; nav distinct from **Learning** (recommendation learning). |
+| **Docs** | [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) — operator & product-owner workflow. |
 
 ## 6. Data flow
 
-1. **Write (future):** authenticated caller supplies scope + disposition + subject + optional pattern key → `InsertAsync`.
-2. **Read:** `ListRecentForScopeAsync` returns the latest N rows for triage (cap 500).
-3. **Rollups (future):** SQL view or grouped query on `PatternKey` × `Disposition` for “repeat patterns.”
+1. **Write:** Integrators insert rows via **`IProductLearningPilotSignalRepository`** (scope, disposition, subject, optional pattern key, comment, run link). A first-party **HTTP POST** for pilots may follow in a later change.
+2. **Aggregate:** Repository methods + **`IProductLearningFeedbackAggregationService`** / **`IProductLearningDashboardService`** build rollups, trends, ranked opportunities, triage queue (deterministic ordering).
+3. **Expose:** **`GET /v1/product-learning/*`** and operator **Pilot feedback** page; **report** endpoints emit concise Markdown/JSON triage summaries (not full raw comments).
 
 ## 7. Security model
 
-- Rows are **scope-scoped**; API endpoints (when added) must enforce the same **tenant/workspace/project** as existing governance APIs.
+- Rows are **scope-scoped**; read/report endpoints use the same **tenant/workspace/project** resolution as other operator APIs (`ReadAuthority`).
 - **No secrets** in `DetailJson` by convention; operators should not paste credentials.
 - Optional `ArchitectureRunId` FK ensures referential integrity when a string run id is supplied.
 
@@ -82,3 +84,14 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 - **Repository:** `CountSignalsInScopeAsync`, `CountDistinctArchitectureRunsWithSignalsAsync` for accurate dashboard totals.
 - **DI:** registered scoped (SQL) / singleton (in-memory) alongside `IProductLearningPilotSignalRepository`.
 - **Tests:** dashboard + count smoke tests.
+
+### Prompts 5–8 (summary)
+
+- **HTTP API** for dashboard slices (`summary`, `improvement-opportunities`, `artifact-outcome-trends`, `triage-queue`) with query validation.
+- **Operator UI** dashboard + **export** (`report`, `report/file`).
+- **Focused tests** (`ChangeSet=58R` / `ProductLearning` filters): aggregation, ranking, parser, API, report builder, URL helpers.
+
+### Prompt 9 — documentation
+
+- **Added** [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) (capture, dashboard, opportunities, export, owner guidance).
+- **Updated** [PILOT_GUIDE.md](PILOT_GUIDE.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md), [README.md](../README.md), [archiforge-ui/README.md](../archiforge-ui/README.md), this file (overview §4–§7, component table, prompt log).

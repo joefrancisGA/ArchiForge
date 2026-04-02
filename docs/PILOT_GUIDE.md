@@ -126,6 +126,14 @@ Authoritative artifact content lives in the **database** (and streams through th
 
 ---
 
+## Pilot feedback (product learning, 58R)
+
+If your program records **human judgments** on outputs (trusted / rejected / revised, etc.), you can **review rollups** in the operator UI and export a short **triage summary** for product/architecture discussions. This is separate from **Recommendation learning** (advisory weights).
+
+**Practical guide:** [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) (dashboard, opportunities, exports, how owners should use the data).
+
+---
+
 ## Readiness checks (before a demo or handoff)
 
 | Goal | Command (repo root) | Notes |
@@ -199,6 +207,7 @@ Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TE
 ## Next steps
 
 - **Operator cheat sheet (commands only):** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)  
+- **Pilot feedback dashboard (58R):** [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md)  
 - **Problems and fixes:** [TROUBLESHOOTING.md](TROUBLESHOOTING.md)  
 - **Packaging an RC build:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md)  
 - **Demo seed (optional):** [demo-quickstart.md](demo-quickstart.md)

@@ -104,6 +104,14 @@ npm run dev
 
 Open **http://localhost:3000** → **Runs** → open run → **Artifacts**.
 
+**Pilot feedback (58R):** Nav **Pilot feedback** → scoped dashboard, opportunities, triage queue, and export links. Details: [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md).
+
+```bash
+curl -s "http://localhost:5128/v1/product-learning/summary"
+```
+
+*(Use the same scope headers your UI uses if you override defaults.)*
+
 ---
 
 ## Readiness + tests
@@ -158,6 +166,7 @@ Also creates **`artifacts/release/PACKAGE-HANDOFF.txt`**, **`metadata.json`**, *
 | Doc | Use |
 |-----|-----|
 | [PILOT_GUIDE.md](PILOT_GUIDE.md) | Context, first run, where logs live |
+| [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export (58R) |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common failures |
 | [operator-shell.md](operator-shell.md) | UI workflow detail |
 | [RELEASE_LOCAL.md](RELEASE_LOCAL.md) | RC build scripts |
