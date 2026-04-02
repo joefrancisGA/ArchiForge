@@ -1,4 +1,5 @@
 using System.ClientModel;
+using System.Diagnostics.CodeAnalysis;
 
 using Azure.AI.OpenAI;
 
@@ -9,6 +10,7 @@ namespace ArchiForge.AgentRuntime;
 /// <summary>
 /// Azure OpenAI chat client using JSON object response format and low temperature for deterministic structured outputs.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 {
     private readonly ChatClient _chatClient;

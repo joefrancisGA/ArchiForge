@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Decisioning.Findings.Serialization;
 using ArchiForge.Decisioning.Interfaces;
@@ -21,6 +22,7 @@ namespace ArchiForge.Persistence.Repositories;
 /// fields and trace lists are relational with stable <c>SortOrder</c>. <see cref="FindingsSnapshotMigrator"/> runs on
 /// save and after load so schema versioning stays consistent.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlFindingsSnapshotRepository(
     ISqlConnectionFactory connectionFactory,
     JsonFallbackPolicy? fallbackPolicy = null) : IFindingsSnapshotRepository

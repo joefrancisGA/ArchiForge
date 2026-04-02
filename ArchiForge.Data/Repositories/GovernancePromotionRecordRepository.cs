@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Data.Infrastructure;
@@ -7,6 +8,7 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class GovernancePromotionRecordRepository(IDbConnectionFactory connectionFactory)
     : IGovernancePromotionRecordRepository
 {

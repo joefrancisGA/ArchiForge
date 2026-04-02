@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Core.Audit;
 using ArchiForge.Persistence.Connections;
 
@@ -12,6 +14,7 @@ namespace ArchiForge.Persistence.Audit;
 /// Appends <see cref="AuditEvent"/> rows to <c>dbo.AuditEvents</c> and retrieves them
 /// scoped to tenant/workspace/project with a configurable paged cap.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactory) : IAuditRepository
 {
     public async Task AppendAsync(AuditEvent auditEvent, CancellationToken ct)

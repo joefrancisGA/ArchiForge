@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
@@ -5,6 +7,7 @@ namespace ArchiForge.Retrieval.Indexing;
 /// <summary>
 /// <see cref="IVectorIndex"/> implementation that delegates to <see cref="IAzureSearchClient"/> (Azure AI Search vector index).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Passthrough adapter; all logic lives in IAzureSearchClient which is tested via its interface.")]
 public sealed class AzureAiSearchVectorIndex(IAzureSearchClient client) : IVectorIndex
 {
     /// <inheritdoc />

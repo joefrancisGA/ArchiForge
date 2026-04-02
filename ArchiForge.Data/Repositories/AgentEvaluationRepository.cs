@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -12,6 +13,7 @@ namespace ArchiForge.Data.Repositories;
 /// <summary>
 /// Dapper-backed persistence for <see cref="IAgentEvaluationRepository"/>; writes and reads agent evaluation records from the <c>AgentEvaluations</c> table.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFactory) : IAgentEvaluationRepository
 {
     public async Task CreateManyAsync(

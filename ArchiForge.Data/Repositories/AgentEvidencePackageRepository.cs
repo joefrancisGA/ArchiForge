@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -9,6 +10,7 @@ using Dapper;
 
 namespace ArchiForge.Data.Repositories;
 
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connectionFactory)
     : IAgentEvidencePackageRepository
 {

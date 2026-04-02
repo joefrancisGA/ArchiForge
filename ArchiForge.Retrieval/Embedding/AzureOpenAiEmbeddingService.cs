@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Retrieval.Embedding;
 
 /// <summary>
 /// <see cref="IEmbeddingService"/> adapter over <see cref="IOpenAiEmbeddingClient"/> for DI composition.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Passthrough adapter; all logic lives in IOpenAiEmbeddingClient which is tested via its interface.")]
 public sealed class AzureOpenAiEmbeddingService(IOpenAiEmbeddingClient client) : IEmbeddingService
 {
     /// <inheritdoc />

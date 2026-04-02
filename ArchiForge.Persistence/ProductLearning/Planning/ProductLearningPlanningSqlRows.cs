@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.ProductLearning.Planning;
 
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ProductLearningScopeSqlRow
 {
     public Guid TenantId { get; init; }
@@ -48,6 +51,7 @@ internal sealed class ProductLearningImprovementThemeSqlRow
     public string? CreatedByUserId { get; init; }
 }
 
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ProductLearningImprovementPlanSqlRow
 {
     public Guid PlanId { get; init; }
@@ -86,6 +90,7 @@ internal sealed class ProductLearningImprovementPlanSignalLinkSqlRow
     public string? TriageStatusSnapshot { get; init; }
 }
 
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ProductLearningImprovementPlanArtifactLinkSqlRow
 {
     public Guid LinkId { get; init; }

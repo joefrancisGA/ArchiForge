@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Connections;
 
@@ -14,6 +16,7 @@ namespace ArchiForge.Persistence.Governance;
 /// Version column is quoted as <c>[Version]</c> in T-SQL. Used by publish, assign preflight (<c>PolicyPacksAppService.TryAssignAsync</c>),
 /// and <c>PolicyPacksController.ListVersions</c>.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory connectionFactory)
     : IPolicyPackVersionRepository
 {

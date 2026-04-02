@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.ContextSnapshots;
 
 /// <summary>Dapper projection for <c>dbo.ContextSnapshots</c> header + legacy JSON columns.</summary>
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ContextSnapshotStorageRow
 {
     public Guid SnapshotId { get; init; }

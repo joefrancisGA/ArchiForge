@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.ArtifactBundles;
 
 /// <summary>Dapper projection for <c>dbo.ArtifactBundles</c> including legacy JSON columns.</summary>
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ArtifactBundleStorageRow
 {
     public Guid TenantId { get; init; }

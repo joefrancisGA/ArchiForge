@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Connections;
@@ -16,6 +17,7 @@ namespace ArchiForge.Persistence.Repositories;
 /// Persists and retrieves <see cref="RunRecord"/> rows from the <c>dbo.Runs</c> table.
 /// All read operations are scoped to the caller's tenant, workspace, and project.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlRunRepository(
     ISqlConnectionFactory connectionFactory,
     IAuthorityRunListConnectionFactory authorityRunListConnectionFactory) : IRunRepository

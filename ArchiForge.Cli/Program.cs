@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchiForge.Cli.Support;
@@ -8,6 +9,7 @@ using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.Cli
 {
+    [ExcludeFromCodeCoverage(Justification = "CLI dispatch and console I/O; tested via CLI integration tests.")]
     public static class Program
     {
         private static readonly JsonSerializerOptions SJsonWriteIndented = new() { WriteIndented = true };

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Scoping;
@@ -17,6 +19,7 @@ namespace ArchiForge.Persistence.Backfill;
 /// Scans authority tables for JSON-only rows, hydrates domain models (same paths as repositories), and inserts
 /// missing relational slices. Safe to re-run: each slice insert is skipped when child rows already exist.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Entirely SQL-dependent; every method runs Dapper queries and transactions against live SQL Server.")]
 public sealed class SqlRelationalBackfillService(
     ISqlConnectionFactory connectionFactory,
     SqlContextSnapshotRepository contextSnapshotRepository,

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Advisory.Workflow;
 using ArchiForge.Persistence.Connections;
 
@@ -9,6 +11,7 @@ namespace ArchiForge.Persistence.Advisory;
 
 /// <inheritdoc cref="IRecommendationRepository" />
 /// <remarks>Uses a single <c>MERGE</c> statement keyed on <see cref="RecommendationRecord.RecommendationId"/>.</remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperRecommendationRepository(ISqlConnectionFactory connectionFactory) : IRecommendationRepository
 {
     /// <inheritdoc />

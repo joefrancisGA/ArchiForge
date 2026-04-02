@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Connections;
 
@@ -11,6 +13,7 @@ namespace ArchiForge.Persistence.Advisory;
 /// SQL Server implementation of <see cref="IAdvisoryScanExecutionRepository"/> against <c>dbo.AdvisoryScanExecutions</c>.
 /// </summary>
 /// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAdvisoryScanExecutionRepository(ISqlConnectionFactory connectionFactory)
     : IAdvisoryScanExecutionRepository
 {

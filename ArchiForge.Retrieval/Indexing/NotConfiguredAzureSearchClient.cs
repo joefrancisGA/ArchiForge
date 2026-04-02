@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Retrieval.Models;
 
 namespace ArchiForge.Retrieval.Indexing;
@@ -5,6 +7,7 @@ namespace ArchiForge.Retrieval.Indexing;
 /// <summary>
 /// Default <see cref="IAzureSearchClient"/> registration when Azure AI Search is not configured; fails fast with an actionable message.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Sentinel class; every method throws InvalidOperationException with no branching logic.")]
 public sealed class NotConfiguredAzureSearchClient : IAzureSearchClient
 {
     /// <inheritdoc />

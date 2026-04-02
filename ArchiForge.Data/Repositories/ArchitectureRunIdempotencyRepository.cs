@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Data.Infrastructure;
 
@@ -11,6 +12,7 @@ namespace ArchiForge.Data.Repositories;
 /// <summary>
 /// Dapper implementation for <see cref="IArchitectureRunIdempotencyRepository"/> (SQL Server).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory connectionFactory)
     : IArchitectureRunIdempotencyRepository
 {

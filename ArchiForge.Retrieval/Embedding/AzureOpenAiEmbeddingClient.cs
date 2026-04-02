@@ -1,4 +1,5 @@
 using System.ClientModel;
+using System.Diagnostics.CodeAnalysis;
 
 using Azure.AI.OpenAI;
 
@@ -10,6 +11,7 @@ namespace ArchiForge.Retrieval.Embedding;
 /// Azure OpenAI text embeddings for a named embedding deployment on the resource.
 /// </summary>
 /// <remarks>Uses synchronous SDK calls wrapped in <see cref="Task"/>; suitable for app startup registration as singleton.</remarks>
+[ExcludeFromCodeCoverage(Justification = "Thin wrapper around Azure OpenAI SDK; requires live Azure endpoint to exercise.")]
 public sealed class AzureOpenAiEmbeddingClient : IOpenAiEmbeddingClient
 {
     private readonly EmbeddingClient _embeddingClient;

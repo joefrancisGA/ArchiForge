@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Core.Conversation;
 using ArchiForge.Core.Pagination;
 using ArchiForge.Persistence.Connections;
@@ -11,6 +13,7 @@ namespace ArchiForge.Persistence.Conversation;
 /// <summary>
 /// SQL Server <see cref="IConversationThreadRepository"/> for <c>dbo.ConversationThreads</c>.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperConversationThreadRepository(ISqlConnectionFactory connectionFactory)
     : IConversationThreadRepository
 {

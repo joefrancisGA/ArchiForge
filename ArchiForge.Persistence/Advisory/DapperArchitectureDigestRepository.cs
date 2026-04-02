@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Advisory.Scheduling;
 using ArchiForge.Persistence.Connections;
 
@@ -8,6 +10,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchiForge.Persistence.Advisory;
 
 /// <inheritdoc cref="IArchitectureDigestRepository" />
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperArchitectureDigestRepository(ISqlConnectionFactory connectionFactory)
     : IArchitectureDigestRepository
 {

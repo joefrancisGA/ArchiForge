@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.Connections;
 
 /// <summary>
@@ -6,6 +8,7 @@ namespace ArchiForge.Persistence.Connections;
 /// <remarks>
 /// DDL for the pilot <c>dbo.Runs</c> policy ships in DbUp <strong>030</strong> with <c>STATE = OFF</c>; operators enable the policy after verifying app behavior.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class SqlRowLevelSecurityOptions
 {
     public const string SectionName = "SqlServer:RowLevelSecurity";

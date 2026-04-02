@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Core.Conversation;
 using ArchiForge.Persistence.Connections;
 
@@ -10,6 +12,7 @@ namespace ArchiForge.Persistence.Conversation;
 /// <summary>
 /// SQL Server <see cref="IConversationMessageRepository"/> for <c>dbo.ConversationMessages</c>.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperConversationMessageRepository(ISqlConnectionFactory connectionFactory)
     : IConversationMessageRepository
 {

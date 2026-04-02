@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Core.Pagination;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Persistence.Connections;
@@ -15,6 +17,7 @@ namespace ArchiForge.Persistence.Alerts;
 /// <remarks>
 /// <see cref="GetOpenByDeduplicationKeyAsync"/> matches SQL status filter <c>Open</c>/<c>Acknowledged</c> (see <see cref="AlertStatus"/> constants).
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAlertRecordRepository(ISqlConnectionFactory connectionFactory) : IAlertRecordRepository
 {
     /// <inheritdoc />

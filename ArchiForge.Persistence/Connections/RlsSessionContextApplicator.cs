@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Core.Scoping;
 
 using Microsoft.Data.SqlClient;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.Options;
 namespace ArchiForge.Persistence.Connections;
 
 /// <inheritdoc cref="IRlsSessionContextApplicator" />
+[ExcludeFromCodeCoverage(Justification = "Executes sp_set_session_context via SqlCommand; requires live SQL Server connection.")]
 public sealed class RlsSessionContextApplicator(
     IScopeContextProvider scopeContextProvider,
     IOptionsMonitor<SqlRowLevelSecurityOptions> optionsMonitor) : IRlsSessionContextApplicator

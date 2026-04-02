@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
@@ -18,6 +19,7 @@ namespace ArchiForge.Persistence.Repositories;
 /// Dual-writes legacy JSON on <c>dbo.GraphSnapshots</c> plus relational children; reads prefer child rows per collection.
 /// <c>dbo.GraphSnapshotEdges</c> remains authoritative for <see cref="IGraphSnapshotRepository.ListIndexedEdgesAsync"/> (same query and ordering).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGraphSnapshotRepository(ISqlConnectionFactory connectionFactory) : IGraphSnapshotRepository
 {
     public async Task SaveAsync(

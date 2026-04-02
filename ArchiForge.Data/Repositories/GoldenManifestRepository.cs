@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
@@ -12,6 +13,7 @@ namespace ArchiForge.Data.Repositories;
 /// <summary>
 /// Dapper-backed persistence for <see cref="GoldenManifest"/> versions, serialising manifest state as JSON.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class GoldenManifestRepository(IDbConnectionFactory connectionFactory) : IGoldenManifestRepository
 {
     public async Task CreateAsync(GoldenManifest manifest, CancellationToken cancellationToken = default)

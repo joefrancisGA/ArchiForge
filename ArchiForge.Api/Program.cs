@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Startup;
@@ -11,12 +14,11 @@ using ArchiForge.Core.Scoping;
 using ArchiForge.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
 
-using System.Reflection;
-
 using Serilog;
 
 namespace ArchiForge.Api;
 
+[ExcludeFromCodeCoverage(Justification = "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
 public partial class Program
 {
     public static void Main(string[] args)

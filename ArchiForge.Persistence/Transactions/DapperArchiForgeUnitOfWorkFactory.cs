@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;
@@ -7,6 +9,7 @@ namespace ArchiForge.Persistence.Transactions;
 /// <summary>
 /// Opens a connection via <see cref="ISqlConnectionFactory"/> and begins a transaction for <see cref="DapperArchiForgeUnitOfWork"/>.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Opens SQL connection and begins transaction; requires live SQL Server.")]
 public sealed class DapperArchiForgeUnitOfWorkFactory(ISqlConnectionFactory connectionFactory)
     : IArchiForgeUnitOfWorkFactory
 {

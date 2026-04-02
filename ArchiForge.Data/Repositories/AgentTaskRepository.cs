@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
@@ -11,6 +12,7 @@ namespace ArchiForge.Data.Repositories;
 /// <summary>
 /// Dapper-backed persistence for <see cref="AgentTask"/> entities.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) : IAgentTaskRepository
 {
     public async Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default)

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Governance.Resolution;
 using ArchiForge.Persistence.Connections;
@@ -22,6 +24,7 @@ namespace ArchiForge.Persistence.Governance;
 /// assignment writes from <c>PolicyPackManagementService</c>.
 /// </para>
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory connectionFactory)
     : IPolicyPackAssignmentRepository
 {

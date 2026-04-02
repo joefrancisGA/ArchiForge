@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using Microsoft.Data.SqlClient;
 
 using Microsoft.Extensions.Logging;
@@ -7,6 +9,7 @@ namespace ArchiForge.Persistence.Connections;
 /// <summary>
 /// Decorates <see cref="ResilientSqlConnectionFactory"/> by applying RLS <c>SESSION_CONTEXT</c> after the connection opens.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Decorator over live SQL connection factory; tested via integration tests.")]
 public sealed class SessionContextSqlConnectionFactory(
     ResilientSqlConnectionFactory inner,
     IRlsSessionContextApplicator applicator,

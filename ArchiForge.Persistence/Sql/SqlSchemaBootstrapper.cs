@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Persistence.Connections;
 
 using Dapper;
@@ -15,6 +17,7 @@ public sealed class SqlSchemaBootstrapper(
     string scriptPath)
     : ISchemaBootstrapper
 {
+    [ExcludeFromCodeCoverage(Justification = "Reads file and executes SQL batches; requires live SQL Server. SplitGoBatches is tested separately.")]
     public async Task EnsureSchemaAsync(CancellationToken ct)
     {
         if (!File.Exists(scriptPath))

@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
@@ -17,6 +18,7 @@ namespace ArchiForge.Persistence.Repositories;
 /// SQL Server-backed <see cref="IContextSnapshotRepository"/> with dual-write to legacy JSON columns
 /// and relational child tables; reads prefer child rows per collection when any exist, else JSON.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlContextSnapshotRepository(ISqlConnectionFactory connectionFactory) : IContextSnapshotRepository
 {
     public async Task<ContextSnapshot?> GetLatestAsync(string projectId, CancellationToken ct)

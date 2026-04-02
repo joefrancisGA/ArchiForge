@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
@@ -20,6 +21,7 @@ namespace ArchiForge.Persistence.Repositories;
 /// and trace lists. Reads prefer relational slices when rows exist; trace scalars (TraceId, etc.) remain
 /// sourced from <c>TraceJson</c> when present.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlArtifactBundleRepository(ISqlConnectionFactory connectionFactory) : IArtifactBundleRepository
 {
     public async Task SaveAsync(

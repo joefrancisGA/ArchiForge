@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Persistence.Connections;
 
@@ -14,6 +16,7 @@ namespace ArchiForge.Persistence.Governance;
 /// <strong>ListByScopeAsync</strong> filters by exact tenant/workspace/project triple—these are <em>pack authoring</em> coordinates, not assignment tiers.
 /// Called from <c>PolicyPacksController.List</c> and from management flows when updating pack metadata after publish.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionFactory) : IPolicyPackRepository
 {
     /// <inheritdoc />

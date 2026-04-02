@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Persistence.Connections;
 
 using Dapper;
@@ -11,6 +13,7 @@ namespace ArchiForge.Persistence.Backfill;
 /// Runs aggregate read-only SQL queries to determine per-slice relational coverage.
 /// Uses set-based <c>COUNT / WHERE EXISTS</c> correlated subqueries — no row-by-row iteration.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Entirely SQL-dependent; every method runs Dapper queries against live SQL Server.")]
 public sealed class SqlCutoverReadinessService(
     ISqlConnectionFactory connectionFactory,
     ILogger<SqlCutoverReadinessService> logger) : ICutoverReadinessService

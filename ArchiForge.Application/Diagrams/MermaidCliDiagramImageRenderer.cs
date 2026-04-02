@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ namespace ArchiForge.Application.Diagrams;
 /// Writes the diagram to a temporary file, runs <c>mmdc</c>, reads the output PNG, and cleans up.
 /// Register <see cref="NullDiagramImageRenderer"/> in environments where <c>mmdc</c> is not installed.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Requires external mmdc CLI tool installed on the host; tested manually.")]
 public sealed class MermaidCliDiagramImageRenderer(
     ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {

@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.Findings;
 
 /// <summary>Dapper projection for <c>dbo.FindingsSnapshots</c> header + <c>FindingsJson</c>.</summary>
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class FindingsSnapshotStorageRow
 {
     public Guid FindingsSnapshotId { get; init; }

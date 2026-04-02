@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.ProductLearning;
 
 /// <summary>Dapper row shapes for product-learning aggregation queries (explicit, auditable projections).</summary>
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class FeedbackAggregateSqlRow
 {
     public string AggregateKey { get; init; } = string.Empty;
@@ -28,6 +31,7 @@ internal sealed class FeedbackAggregateSqlRow
     public DateTime LastSignalRecordedUtc { get; init; }
 }
 
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class ArtifactOutcomeTrendSqlRow
 {
     public string TrendKey { get; init; } = string.Empty;
@@ -51,6 +55,7 @@ internal sealed class ArtifactOutcomeTrendSqlRow
     public DateTime LastSeenUtc { get; init; }
 }
 
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class RepeatedCommentThemeSqlRow
 {
     public string ThemeKey { get; init; } = string.Empty;

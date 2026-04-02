@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace ArchiForge.Api.Authentication;
 
+[ExcludeFromCodeCoverage(Justification = "ASP.NET authentication handler; tested via integration/E2E tests against the HTTP pipeline.")]
 public sealed class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,

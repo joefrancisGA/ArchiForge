@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.Persistence.GoldenManifests;
 
 /// <summary>Dapper projection for <c>dbo.GoldenManifests</c> including legacy JSON columns.</summary>
+[ExcludeFromCodeCoverage(Justification = "Dapper row-mapping DTO with no logic.")]
 internal sealed class GoldenManifestStorageRow
 {
     public Guid TenantId { get; init; }

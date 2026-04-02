@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -12,6 +13,7 @@ namespace ArchiForge.Data.Repositories;
 /// <summary>
 /// Dapper-backed persistence for <see cref="IEvidenceBundleRepository"/>; writes and reads evidence bundle records from the <c>EvidenceBundles</c> table.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFactory) : IEvidenceBundleRepository
 {
     public async Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)

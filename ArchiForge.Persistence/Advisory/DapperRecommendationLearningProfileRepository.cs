@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Persistence.Connections;
@@ -14,6 +15,7 @@ namespace ArchiForge.Persistence.Advisory;
 /// Profiles are serialized to JSON on write and deserialized on read; dictionary comparers are normalized to <see cref="StringComparer.OrdinalIgnoreCase"/> after deserialization.
 /// </summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperRecommendationLearningProfileRepository(ISqlConnectionFactory connectionFactory)
     : IRecommendationLearningProfileRepository
 {

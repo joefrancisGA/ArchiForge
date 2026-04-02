@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
@@ -19,6 +20,7 @@ namespace ArchiForge.Persistence.Repositories;
 /// phase-1 relational tables for assumptions, warnings, decisions (+ evidence/node links + RawDecisionJson),
 /// and provenance reference lists. Reads prefer relational slices per collection when rows exist.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGoldenManifestRepository(ISqlConnectionFactory connectionFactory) : IGoldenManifestRepository
 {
     public async Task SaveAsync(

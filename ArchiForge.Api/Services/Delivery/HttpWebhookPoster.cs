@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +9,7 @@ using ArchiForge.Decisioning.Advisory.Delivery;
 namespace ArchiForge.Api.Services.Delivery;
 
 /// <summary>POSTs JSON to external webhook URLs (Teams, Slack, on-call receivers).</summary>
+[ExcludeFromCodeCoverage(Justification = "Requires live HTTP endpoint; tested via integration tests and delivery-channel unit tests that mock IWebhookPoster.")]
 public sealed class HttpWebhookPoster(IHttpClientFactory httpClientFactory) : IWebhookPoster
 {
     private const string ClientName = "ArchiForgeWebhooks";

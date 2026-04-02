@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Connections;
@@ -15,6 +16,7 @@ namespace ArchiForge.Persistence.Provenance;
 /// Persists and retrieves <see cref="DecisionProvenanceSnapshot"/> records from the
 /// <c>dbo.ProvenanceSnapshots</c> table.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlProvenanceSnapshotRepository(ISqlConnectionFactory connectionFactory)
     : IProvenanceSnapshotRepository
 {

@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchiForge.AgentRuntime;
 
+[ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class AzureOpenAiOptions
 {
     public const string SectionName = "AzureOpenAI";

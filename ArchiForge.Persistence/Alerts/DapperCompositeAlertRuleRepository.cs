@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Persistence.Connections;
@@ -16,6 +17,7 @@ namespace ArchiForge.Persistence.Alerts;
 /// <remarks>
 /// List methods hydrate <see cref="CompositeAlertRule.Conditions"/> from <c>dbo.CompositeAlertRuleConditions</c>.
 /// </remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperCompositeAlertRuleRepository(ISqlConnectionFactory connectionFactory)
     : ICompositeAlertRuleRepository
 {

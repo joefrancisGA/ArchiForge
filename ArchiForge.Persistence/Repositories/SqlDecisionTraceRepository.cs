@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
@@ -13,6 +14,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchiForge.Persistence.Repositories;
 
 /// <summary>Persists <see cref="DecisionTrace"/> from decisioning (not API <c>DecisionTraces</c> table).</summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
     public async Task SaveAsync(

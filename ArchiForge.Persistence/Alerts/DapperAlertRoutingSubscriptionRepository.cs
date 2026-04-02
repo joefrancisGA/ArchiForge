@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Persistence.Connections;
 
@@ -9,6 +11,7 @@ namespace ArchiForge.Persistence.Alerts;
 
 /// <summary>Dapper implementation of <see cref="IAlertRoutingSubscriptionRepository"/> over <c>dbo.AlertRoutingSubscriptions</c>.</summary>
 /// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFactory connectionFactory)
     : IAlertRoutingSubscriptionRepository
 {

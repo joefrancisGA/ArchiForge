@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
@@ -11,6 +12,7 @@ namespace ArchiForge.Data.Repositories;
 /// <summary>
 /// Dapper-backed persistence for <see cref="ArchitectureRun"/> entities.
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFactory) : IArchitectureRunRepository
 {
     public async Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default)
