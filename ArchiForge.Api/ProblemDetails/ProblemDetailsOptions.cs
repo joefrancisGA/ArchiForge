@@ -18,6 +18,9 @@ public static class ProblemTypes
     public const string BadRequest = Base + "#bad-request";
     public const string ResourceNotFound = Base + "#resource-not-found";
 
+    /// <summary>59R learning plan not found for the current scope.</summary>
+    public const string LearningImprovementPlanNotFound = Base + "#learning-improvement-plan-not-found";
+
     public const string InvalidRunState = Base + "#invalid-run-state";
     public const string DeterminismFailed = Base + "#determinism-failed";
     public const string ExportFailed = Base + "#export-failed";
