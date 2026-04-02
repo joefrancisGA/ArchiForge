@@ -119,6 +119,7 @@ They are **different domains**; names overlap conceptually but not at the databa
 | **022_GraphSnapshotEdges_IndexKeyLength.sql** | Index shape fix for **`GraphSnapshotEdges`** (1700-byte key limit). |
 | **023–030** | Relational snapshot children, performance indexes, idempotency, retrieval outbox, governance workflow extras, archival flags, RLS pilot on **`dbo.Runs`**, etc. |
 | **031_ProductLearningPilotSignals.sql** | **58R:** Scoped pilot/product signals (trust / reject / revise / follow-up) with optional **`PatternKey`** for aggregation. |
+| **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
 
 **Note:** Authority-chain tables also appear in **`ArchiForge.sql`** for Persistence bootstrap parity.
 

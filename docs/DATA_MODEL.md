@@ -143,6 +143,13 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 - **Triage services (58R Prompt 4):** `IProductLearningDashboardService` composes `LearningDashboardSummary` (counts, rollups, trends, ranked opportunities, merged triage queue) using threshold options in `ProductLearningTriageOptions` — no LLM.
 - **Snapshot field `TopRejectedRevisedRollups`:** reserved; aggregation does **not** populate it in 58R (avoids an extra query unused by dashboard/report). Repository method `ListTopRejectedRevisedArtifactRollupsAsync` remains for direct callers or future UI.
 
+### Learning → planning bridge (59R) — themes, plans, links
+
+- **Tables**: `ProductLearningImprovementThemes`, `ProductLearningImprovementPlans`, `ProductLearningImprovementPlanArchitectureRuns`, `ProductLearningImprovementPlanSignalLinks`, `ProductLearningImprovementPlanArtifactLinks`.
+- **Scope**: same `TenantId` / `WorkspaceId` / `ProjectId` as pilot signals. **Theme** rows carry a scope-unique **`ThemeKey`** (deterministic idempotency token for future derivation from 58R aggregates). **Plan** rows reference **`ThemeId`** and store a bounded JSON action list (**`BoundedActionsJson`**, max length enforced in application code).
+- **Links**: plans attach to legacy **`ArchitectureRuns.RunId`**, to **`ProductLearningPilotSignals`** (optional **`TriageStatusSnapshot`** for explainability), and to authority **`ArtifactBundleArtifacts`** (when present) or free-text **`PilotArtifactHint`**.
+- **Access**: `ArchiForge.Persistence.ProductLearning.Planning.IProductLearningPlanningRepository` (Dapper + in-memory). No autonomous mutation of generation or evaluation pipelines in this change set.
+
 ---
 
 ### Common IDs and relationships (mental model)

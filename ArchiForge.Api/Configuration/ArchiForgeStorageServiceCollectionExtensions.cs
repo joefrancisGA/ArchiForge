@@ -28,6 +28,7 @@ using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Archival;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Persistence.ProductLearning;
+using ArchiForge.Persistence.ProductLearning.Planning;
 using ArchiForge.Persistence.Provenance;
 using ArchiForge.Persistence.Queries;
 using ArchiForge.Persistence.Replay;
@@ -94,6 +95,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IArchiForgeUnitOfWorkFactory, InMemoryArchiForgeUnitOfWorkFactory>();
             services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
             services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();
+            services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();
             services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
             services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
             services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();
@@ -164,6 +166,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IArchiForgeUnitOfWorkFactory, DapperArchiForgeUnitOfWorkFactory>();
         services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
+        services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
