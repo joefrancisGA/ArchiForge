@@ -4,16 +4,27 @@ namespace ArchiForge.Persistence.Serialization;
 
 public static class JsonEntitySerializer
 {
-    private static readonly JsonSerializerOptions Options = new()
+    /// <summary>Shared options (read-only) for entity JSON round-trip; used by distributed hot-path cache and persistence serializers.</summary>
+    public static JsonSerializerOptions EntityJsonOptions { get; } = CreateEntityJsonOptions();
+
+    private static readonly JsonSerializerOptions Options = EntityJsonOptions;
+
+    private static JsonSerializerOptions CreateEntityJsonOptions()
     {
-        PropertyNameCaseInsensitive = true,
-        WriteIndented = false,
-        Converters =
+        JsonSerializerOptions o = new()
         {
-            new GraphNodeJsonConverter(),
-            new GraphEdgeJsonConverter()
-        }
-    };
+            PropertyNameCaseInsensitive = true,
+            WriteIndented = false,
+            Converters =
+            {
+                new GraphNodeJsonConverter(),
+                new GraphEdgeJsonConverter()
+            }
+        };
+
+        o.MakeReadOnly();
+        return o;
+    }
 
     public static string Serialize<T>(T value)
     {

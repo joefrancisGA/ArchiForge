@@ -26,6 +26,7 @@ using ArchiForge.Persistence.Alerts;
 using ArchiForge.Persistence.Archival;
 using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.BlobStore;
+using ArchiForge.Persistence.Caching;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Conversation;
@@ -48,6 +49,7 @@ using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Api.Configuration;
@@ -137,6 +139,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
         RegisterArtifactLargePayloadBlobStore(services, configuration);
 
+        RegisterHotPathReadCaching(services, configuration);
+
         services.AddSingleton<SqlConnectionFactory>(
             _ => new SqlConnectionFactory(connectionString));
         services.AddSingleton<ResilientSqlConnectionFactory>(sp =>
@@ -175,9 +179,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
         services.AddScoped<IFindingsSnapshotRepository, SqlFindingsSnapshotRepository>();
         services.AddScoped<IDecisionTraceRepository, SqlDecisionTraceRepository>();
-        services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
+        RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);
+
         services.AddScoped<IArtifactBundleRepository, SqlArtifactBundleRepository>();
-        services.AddScoped<IRunRepository, SqlRunRepository>();
         services.AddScoped<IAuthorityQueryService, DapperAuthorityQueryService>();
         services.AddScoped<IArtifactQueryService, DapperArtifactQueryService>();
         services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
@@ -218,7 +222,6 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IAlertRoutingSubscriptionRepository, DapperAlertRoutingSubscriptionRepository>();
         services.AddScoped<IAlertDeliveryAttemptRepository, DapperAlertDeliveryAttemptRepository>();
         services.AddScoped<ICompositeAlertRuleRepository, DapperCompositeAlertRuleRepository>();
-        services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
         services.AddScoped<IPolicyPackVersionRepository, DapperPolicyPackVersionRepository>();
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
@@ -229,6 +232,73 @@ public static class ArchiForgeStorageServiceCollectionExtensions
                 connectionString));
 
         return services;
+    }
+
+    private static void RegisterHotPathReadCaching(IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<HotPathCacheOptions>(
+            configuration.GetSection(HotPathCacheOptions.SectionName));
+
+        HotPathCacheOptions snapshot = configuration
+                                           .GetSection(HotPathCacheOptions.SectionName)
+                                           .Get<HotPathCacheOptions>()
+                                       ?? new HotPathCacheOptions();
+
+        if (!snapshot.Enabled)
+            return;
+
+        string provider = snapshot.Provider ?? "Memory";
+
+        if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
+        {
+            string redis = snapshot.RedisConnectionString?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrEmpty(redis))
+            {
+                throw new InvalidOperationException(
+                    "HotPathCache:RedisConnectionString is required when HotPathCache:Provider is Redis.");
+            }
+
+            services.AddStackExchangeRedisCache(o => o.Configuration = redis);
+            services.AddSingleton<IHotPathReadCache, DistributedHotPathReadCache>();
+            return;
+        }
+
+        services.AddMemoryCache();
+        services.AddSingleton<IHotPathReadCache, MemoryHotPathReadCache>();
+    }
+
+    private static void RegisterGoldenManifestRunAndPolicyPackRepositories(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        HotPathCacheOptions hotPath = configuration
+                                          .GetSection(HotPathCacheOptions.SectionName)
+                                          .Get<HotPathCacheOptions>()
+                                      ?? new HotPathCacheOptions();
+
+        if (!hotPath.Enabled)
+        {
+            services.AddScoped<IGoldenManifestRepository, SqlGoldenManifestRepository>();
+            services.AddScoped<IRunRepository, SqlRunRepository>();
+            services.AddScoped<IPolicyPackRepository, DapperPolicyPackRepository>();
+            return;
+        }
+
+        services.AddScoped<SqlGoldenManifestRepository>();
+        services.AddScoped<IGoldenManifestRepository>(sp => new CachingGoldenManifestRepository(
+            sp.GetRequiredService<SqlGoldenManifestRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<SqlRunRepository>();
+        services.AddScoped<IRunRepository>(sp => new CachingRunRepository(
+            sp.GetRequiredService<SqlRunRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
+
+        services.AddScoped<DapperPolicyPackRepository>();
+        services.AddScoped<IPolicyPackRepository>(sp => new CachingPolicyPackRepository(
+            sp.GetRequiredService<DapperPolicyPackRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
     }
 
     private static void RegisterArtifactLargePayloadBlobStore(IServiceCollection services, IConfiguration configuration)

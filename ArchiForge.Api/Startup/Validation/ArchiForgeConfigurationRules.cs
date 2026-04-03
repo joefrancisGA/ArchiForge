@@ -3,6 +3,7 @@ using System.Globalization;
 using ArchiForge.Api.Configuration;
 
 using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Persistence.Caching;
 using ArchiForge.Persistence.Archival;
 using ArchiForge.Retrieval.Indexing;
 
@@ -82,6 +83,7 @@ public static class ArchiForgeConfigurationRules
         CollectRetrievalEmbeddingCapErrors(configuration, errors);
         CollectRetrievalVectorIndexErrors(configuration, errors);
         CollectRateLimitingErrors(configuration, errors);
+        CollectHotPathCacheErrors(configuration, errors);
 
         if (!environment.IsProduction())
         
@@ -305,6 +307,35 @@ public static class ArchiForgeConfigurationRules
             int window = configuration.GetValue("RateLimiting:Replay:Heavy:WindowMinutes", 1);
             int queue = configuration.GetValue("RateLimiting:Replay:Heavy:QueueLimit", 0);
             AddIfInvalid("RateLimiting:Replay:Heavy", permit, window, queue);
+        }
+    }
+
+    private static void CollectHotPathCacheErrors(IConfiguration configuration, List<string> errors)
+    {
+        HotPathCacheOptions opts =
+            configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
+            new HotPathCacheOptions();
+
+        if (!opts.Enabled)
+            return;
+
+        string provider = opts.Provider ?? "Memory";
+
+        if (!string.Equals(provider, "Memory", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add("HotPathCache:Provider must be 'Memory' or 'Redis' when HotPathCache:Enabled is true.");
+        }
+
+        if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase) &&
+            string.IsNullOrWhiteSpace(opts.RedisConnectionString))
+        {
+            errors.Add("HotPathCache:RedisConnectionString is required when HotPathCache:Provider is Redis.");
+        }
+
+        if (opts.AbsoluteExpirationSeconds > 3600)
+        {
+            errors.Add("HotPathCache:AbsoluteExpirationSeconds cannot exceed 3600.");
         }
     }
 

@@ -574,4 +574,65 @@ public sealed class ArchiForgeConfigurationRulesTests
 
         errors.Should().Contain(e => e.Contains("Production ApiKey auth requires", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenHotPathCacheEnabledWithInvalidProvider_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "CosmosDb",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("HotPathCache:Provider", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenHotPathCacheRedisWithoutConnectionString_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:Provider"] = "Redis",
+            ["HotPathCache:RedisConnectionString"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("HotPathCache:RedisConnectionString", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenHotPathCacheTtlAbove3600_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["HotPathCache:Enabled"] = "true",
+            ["HotPathCache:AbsoluteExpirationSeconds"] = "4000",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("HotPathCache:AbsoluteExpirationSeconds", StringComparison.OrdinalIgnoreCase));
+    }
 }
