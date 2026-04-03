@@ -254,6 +254,7 @@ internal static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureAnalysisService, ArchitectureAnalysisService>();
         services.AddScoped<ISimulationEngine, SimulationEngine>();
         services.AddScoped<IShadowExecutionService, ShadowExecutionService>();
+        services.AddScoped<ISimulationEvaluationService, SimulationEvaluationService>();
         services.AddScoped<IArchitectureAnalysisExportService, MarkdownArchitectureAnalysisExportService>();
         services.AddScoped<IDiagramImageRenderer, NullDiagramImageRenderer>();
         services.AddScoped<IArchitectureAnalysisDocxExportService, DocxArchitectureAnalysisExportService>();
