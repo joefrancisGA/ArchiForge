@@ -41,14 +41,15 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 ## Background services and replicas
 
-The API runs **hosted background jobs** (advisory scans, archival, retrieval outbox, etc.). With **multiple API replicas**, each instance runs those jobs unless you add **leader election** or a **dedicated worker** revision. For most pilots, keep **`api_min_replicas = 1`** until that design is in place.
+The API runs **hosted background jobs** (advisory scans, archival, retrieval outbox, etc.). With **multiple API replicas**, each instance runs those jobs unless you add **leader election** or a **dedicated worker** revision.
+
+**Default `api_min_replicas` is 2** for **staging and production** availability (Container Apps keeps at least two API instances). For **local or pilot** stacks where duplicate background work is unacceptable until leader election exists, set **`api_min_replicas = 1`** in your `terraform.tfvars`.
 
 ## Hot-path cache (SQL mode)
 
 When **`ArchiForge:StorageProvider`** is **Sql**, the API can cache hot reads (manifests, runs, policy packs) via **`HotPathCache`** in `appsettings` / environment variables.
 
-- Set **`HotPathCache__ExpectedApiReplicaCount`** to your API **`max_replicas`** (or any value &gt; 1 if you scale out).
-- When **`HotPathCache__Provider`** is **`Auto`** and **`ExpectedApiReplicaCount` &gt; 1**, configure **`HotPathCache__RedisConnectionString`** (e.g. Azure Cache for Redis) in **non-Development** environments so all replicas share the same cache. Otherwise the app uses **per-replica memory** only.
+- With **default `api_min_replicas = 2`**, you typically run **multiple API instances**. Set **`HotPathCache__ExpectedApiReplicaCount`** to **2** (or your **`max_replicas`**) **and** **`HotPathCache__RedisConnectionString`** (e.g. Azure Cache for Redis) in **non-Development** environments when **`HotPathCache__Provider`** is **`Auto`**. Startup validation **requires** Redis when `ExpectedApiReplicaCount` &gt; 1 outside Development; without Redis, either keep **`ExpectedApiReplicaCount` at 1** (per-replica memory cache only, possible cross-replica staleness) or set **`HotPathCache__Provider`** to **`Memory`** explicitly.
 - **Development** profile disables hot-path cache in `appsettings.Development.json` by default.
 
 ## Private images (ACR)

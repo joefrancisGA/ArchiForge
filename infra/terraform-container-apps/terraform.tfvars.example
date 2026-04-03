@@ -12,7 +12,8 @@ api_container_image = "<your-acr>.azurecr.io/archiforge-api:2026.04.1"
 ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:2026.04.1"
 
 # Replica bounds (HTTP concurrent-request scale rules apply between min and max).
-api_min_replicas = 1
+# Default module value is 2 (staging/production). Use 1 only for pilots where duplicate background jobs are OK to avoid.
+api_min_replicas = 2
 api_max_replicas = 5
 ui_min_replicas  = 1
 ui_max_replicas  = 3
