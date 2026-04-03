@@ -44,6 +44,12 @@ import type {
 } from "@/types/policy-packs";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 import type { ProductLearningDashboardBundle } from "@/types/product-learning";
+import type {
+  LearningPlanDetailResponse,
+  LearningPlansListResponse,
+  LearningSummaryResponse,
+  LearningThemesListResponse,
+} from "@/types/learning";
 
 /** Returns true when executing in the browser (client component), false on the Node.js server (RSC). */
 function isBrowser(): boolean {
@@ -382,6 +388,74 @@ export async function fetchProductLearningDashboard(options?: {
     trends: trends as ProductLearningDashboardBundle["trends"],
     triage: triage as ProductLearningDashboardBundle["triage"],
   };
+}
+
+function learningMaxQuery(param: "maxThemes" | "maxPlans", value: number | undefined): string {
+  if (value === undefined) {
+    return "";
+  }
+
+  return `?${param}=${encodeURIComponent(String(value))}`;
+}
+
+/** Lists improvement themes for the current scope (newest first). */
+export async function fetchLearningThemes(maxThemes?: number): Promise<LearningThemesListResponse> {
+  const q = learningMaxQuery("maxThemes", maxThemes);
+  return apiGet<LearningThemesListResponse>(`/${ApiV1Routes.learning}/themes${q}`);
+}
+
+/** Lists improvement plans for the current scope (newest first). */
+export async function fetchLearningPlans(maxPlans?: number): Promise<LearningPlansListResponse> {
+  const q = learningMaxQuery("maxPlans", maxPlans);
+  return apiGet<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`);
+}
+
+/** Loads one improvement plan with steps, link counts, and optional parent theme. */
+export async function fetchLearningPlanDetail(planId: string): Promise<LearningPlanDetailResponse> {
+  const id = planId.trim();
+  return apiGet<LearningPlanDetailResponse>(`/${ApiV1Routes.learning}/plans/${encodeURIComponent(id)}`);
+}
+
+/** Aggregated planning KPIs for the current scope. */
+export async function fetchLearningSummary(options?: {
+  maxThemes?: number;
+  maxPlans?: number;
+}): Promise<LearningSummaryResponse> {
+  const params = new URLSearchParams();
+  if (options?.maxThemes !== undefined) {
+    params.set("maxThemes", String(options.maxThemes));
+  }
+  if (options?.maxPlans !== undefined) {
+    params.set("maxPlans", String(options.maxPlans));
+  }
+
+  const q = params.toString();
+  const suffix = q ? `?${q}` : "";
+
+  return apiGet<LearningSummaryResponse>(`/${ApiV1Routes.learning}/summary${suffix}`);
+}
+
+/**
+ * Loads summary, themes, and plans together (consistent refresh for the planning list view).
+ */
+export async function fetchLearningPlanningListBundle(options?: {
+  maxThemes?: number;
+  maxPlans?: number;
+}): Promise<{
+  summary: LearningSummaryResponse;
+  themes: LearningThemesListResponse;
+  plans: LearningPlansListResponse;
+}> {
+  const maxThemes = options?.maxThemes;
+  const maxPlans = options?.maxPlans;
+
+  const [summary, themes, plans] = await Promise.all([
+    fetchLearningSummary({ maxThemes, maxPlans }),
+    fetchLearningThemes(maxThemes),
+    fetchLearningPlans(maxPlans),
+  ]);
+
+  return { summary, themes, plans };
 }
 
 /** Lists all advisory scan schedules for the current scope. */

@@ -39,7 +39,8 @@ export default function HomePage() {
       </section>
 
       <p style={{ marginTop: 24, fontSize: 14, color: "#64748b", maxWidth: 720 }}>
-        Ask, search, advisory, alerts, and policy tools live in the header groups above.
+        Ask, search, advisory, <Link href="/planning">planning</Link> (59R themes and plans), pilot feedback, alerts, and
+        policy tools live in the header groups above.
       </p>
     </main>
   );

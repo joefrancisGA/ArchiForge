@@ -63,6 +63,9 @@ export function ShellNav() {
           <Link href="/product-learning" title="Pilot feedback rollups and triage (58R)">
             Pilot feedback
           </Link>
+          <Link href="/planning" title="Improvement themes and prioritized plans (59R)">
+            Planning
+          </Link>
           <Link href="/advisory-scheduling">Schedules</Link>
           <Link href="/digests">Digests</Link>
           <Link href="/digest-subscriptions">Subscriptions</Link>

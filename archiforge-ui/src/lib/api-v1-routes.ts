@@ -14,4 +14,6 @@ export const ApiV1Routes = {
   digestSubscriptions: "v1/digest-subscriptions",
   /** Pilot / product feedback rollups (58R). */
   productLearning: "v1/product-learning",
+  /** 59R improvement themes and plans (read-only planning bridge). */
+  learning: "v1/learning",
 } as const;
