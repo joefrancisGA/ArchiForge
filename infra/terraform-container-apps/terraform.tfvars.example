@@ -1,0 +1,30 @@
+# Copy to terraform.tfvars (gitignored). Leave enable_container_apps = false until you target Azure.
+
+enable_container_apps = true
+create_resource_group   = true
+resource_group_name     = "rg-archiforge-ca-dev"
+location                = "eastus2"
+
+# Build and push images first (repo root for API, archiforge-ui/ for UI):
+#   docker build -f ArchiForge.Api/Dockerfile -t <acr>.azurecr.io/archiforge-api:2026.04.1 .
+#   docker build -t <acr>.azurecr.io/archiforge-ui:2026.04.1 archiforge-ui/
+api_container_image = "<your-acr>.azurecr.io/archiforge-api:2026.04.1"
+ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:2026.04.1"
+
+# Replica bounds (HTTP concurrent-request scale rules apply between min and max).
+api_min_replicas = 1
+api_max_replicas = 5
+ui_min_replicas  = 1
+ui_max_replicas  = 3
+
+api_scale_concurrent_requests = 10
+ui_scale_concurrent_requests  = 20
+
+# Optional: VNet-integrated environment (subnet must be delegated to Microsoft.App/environments).
+# container_apps_subnet_id                 = "/subscriptions/.../subnets/snet-container-apps"
+# container_apps_internal_load_balancer    = true
+
+tags = {
+  workload = "archiforge"
+  tier     = "dev"
+}
