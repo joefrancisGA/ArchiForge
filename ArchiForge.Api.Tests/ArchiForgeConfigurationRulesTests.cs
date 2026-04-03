@@ -187,6 +187,54 @@ public sealed class ArchiForgeConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenRealModeAndMaxCompletionTokensNegative_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["AgentExecution:Mode"] = "Real",
+            ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
+            ["AzureOpenAI:ApiKey"] = "key",
+            ["AzureOpenAI:DeploymentName"] = "dep",
+            ["AzureOpenAI:MaxCompletionTokens"] = "-1",
+            ["LlmCompletionCache:Enabled"] = "false",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("MaxCompletionTokens", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenLlmCompletionCacheMaxEntriesZero_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["LlmCompletionCache:Enabled"] = "true",
+            ["LlmCompletionCache:MaxEntries"] = "0",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("LlmCompletionCache:MaxEntries", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenSchemaPathIsRooted_contains_error()
     {
         Dictionary<string, string?> data = new()

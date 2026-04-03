@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 using ArchiForge.AgentRuntime;
 using ArchiForge.AgentRuntime.Explanation;
+using ArchiForge.Core.Scoping;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Host.Core.Ask;
 using ArchiForge.Host.Core.Configuration;
@@ -569,11 +570,43 @@ public static partial class ServiceCollectionExtensions
                                     ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
                     string deploymentName = config["AzureOpenAI:DeploymentName"]
                                             ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
-                    AzureOpenAiCompletionClient inner = new(endpoint, apiKey, deploymentName);
+                    int maxTokens = config.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
+
+                    if (maxTokens <= 0)
+                    {
+                        maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
+                    }
+
+                    LlmCompletionResponseCacheOptions cacheOptions = config
+                                                                       .GetSection(LlmCompletionResponseCacheOptions.SectionName)
+                                                                       .Get<LlmCompletionResponseCacheOptions>()
+                                                                   ?? new LlmCompletionResponseCacheOptions();
+
+                    AzureOpenAiCompletionClient azureInner = new(endpoint, apiKey, deploymentName, maxTokens);
+                    IAgentCompletionClient completionPipeline = azureInner;
+
+                    if (cacheOptions.Enabled)
+                    {
+                        TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
+                        int maxEntries = Math.Max(1, cacheOptions.MaxEntries);
+                        IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
+                        ILogger<CachingAgentCompletionClient> cacheLogger =
+                            sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
+                        completionPipeline = new CachingAgentCompletionClient(
+                            azureInner,
+                            deploymentName,
+                            enabled: true,
+                            partitionByScope: cacheOptions.PartitionByScope,
+                            absoluteExpiration: ttl,
+                            maxEntries: maxEntries,
+                            scopeProvider: scopeProvider,
+                            logger: cacheLogger);
+                    }
+
                     CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
                     ILogger<CircuitBreakingAgentCompletionClient> logger =
                         sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
-                    return new CircuitBreakingAgentCompletionClient(inner, gate, logger);
+                    return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, logger);
                 });
             }
             else

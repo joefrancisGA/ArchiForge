@@ -11,8 +11,8 @@ namespace ArchiForge.Host.Core.Auth.Services;
 /// </summary>
 /// <param name="httpContextAccessor">Current HTTP context when the call is on the request thread.</param>
 /// <remarks>
-/// Registered scoped in the API host. Consumers such as <c>PolicyFilteredComplianceRulePackProvider</c> and authority controllers
-/// depend on consistent scope for governance and row-level filtering.
+/// Register as <strong>singleton</strong>: each <see cref="GetCurrentScope"/> call reads <see cref="IHttpContextAccessor.HttpContext"/> (or <see cref="AmbientScopeContext"/>),
+/// so there is no per-request instance state. Singleton registration allows singleton <c>IAgentCompletionClient</c> decorators (LLM response cache) to resolve this interface from the root provider.
 /// </remarks>
 public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAccessor) : IScopeContextProvider
 {

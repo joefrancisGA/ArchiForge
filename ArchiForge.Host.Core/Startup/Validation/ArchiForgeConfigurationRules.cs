@@ -76,7 +76,17 @@ public static class ArchiForgeConfigurationRules
                 errors.Add(
                     "AgentExecution:Mode is 'Real' but one or more AzureOpenAI settings (Endpoint, ApiKey, DeploymentName) are missing.");
             
+
+            int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
+
+            if (maxCompletionTokens < 0 || maxCompletionTokens > 262_144)
+            {
+                errors.Add(
+                    "AzureOpenAI:MaxCompletionTokens must be between 1 and 262144 inclusive, or 0 / omitted to use the built-in default (4096).");
+            }
         }
+
+        CollectLlmCompletionCacheErrors(configuration, errors);
 
         CollectSchemaFileErrors(configuration, errors);
         CollectBatchReplayErrors(configuration, errors);
@@ -489,5 +499,31 @@ public static class ArchiForgeConfigurationRules
             errors.Add(
                 $"Schema file for {logicalName} was not found at '{fullPath}' (SchemaValidation:*SchemaPath). Ensure content is copied to output (e.g. schemas in project output).");
         
+    }
+
+    private static void CollectLlmCompletionCacheErrors(IConfiguration configuration, List<string> errors)
+    {
+        bool enabled = configuration.GetValue("LlmCompletionCache:Enabled", true);
+
+        if (!enabled)
+        {
+            return;
+        }
+
+        int maxEntries = configuration.GetValue("LlmCompletionCache:MaxEntries", 256);
+
+        if (maxEntries < 1 || maxEntries > 100_000)
+        {
+            errors.Add(
+                "LlmCompletionCache:MaxEntries must be between 1 and 100000 when LlmCompletionCache:Enabled is true.");
+        }
+
+        int ttlSeconds = configuration.GetValue("LlmCompletionCache:AbsoluteExpirationSeconds", 600);
+
+        if (ttlSeconds < 1 || ttlSeconds > 604_800)
+        {
+            errors.Add(
+                "LlmCompletionCache:AbsoluteExpirationSeconds must be between 1 and 604800 when LlmCompletionCache:Enabled is true.");
+        }
     }
 }

@@ -31,7 +31,8 @@ public partial class Program
         builder.Services.AddArchiForgeMvc();
 
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IScopeContextProvider, HttpScopeContextProvider>();
+        // Singleton: stateless per-call resolution via IHttpContextAccessor; required so singleton IAgentCompletionClient (LLM cache) can resolve scope without capturing a scoped service from the root provider.
+        builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
         builder.Services.AddArchiForgeAuth(builder.Configuration);

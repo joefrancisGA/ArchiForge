@@ -5,7 +5,7 @@ namespace ArchiForge.AgentRuntime;
 /// </summary>
 /// <remarks>
 /// Implementations should return a single assistant message body suitable for JSON parsing by callers (e.g. <see cref="ArchiForge.AgentRuntime.Explanation.ExplanationService"/>, <c>ArchiForge.Api.Services.Ask.AskService</c>).
-/// Production: <see cref="AzureOpenAiCompletionClient"/>; tests/dev: <see cref="FakeAgentCompletionClient"/>.
+/// Production: <see cref="AzureOpenAiCompletionClient"/> (optionally wrapped by <see cref="CachingAgentCompletionClient"/> and <see cref="CircuitBreakingAgentCompletionClient"/>); tests/dev: <see cref="FakeAgentCompletionClient"/>.
 /// </remarks>
 public interface IAgentCompletionClient
 {

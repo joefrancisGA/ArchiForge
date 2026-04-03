@@ -18,7 +18,8 @@ public static class Program
         ArchiForgeSerilogConfiguration.Configure(builder, "ArchiForge.Worker");
 
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IScopeContextProvider, HttpScopeContextProvider>();
+        // Singleton: matches Api registration; LLM completion cache (singleton) resolves partition scope per call.
+        builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
         builder.Services.AddArchiForgeOpenTelemetry(

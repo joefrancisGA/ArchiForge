@@ -10,7 +10,7 @@ namespace ArchiForge.AgentRuntime;
 public sealed class CircuitBreakingAgentCompletionClient(
     IAgentCompletionClient inner,
     CircuitBreakerGate gate,
-    ILogger<CircuitBreakingAgentCompletionClient> logger) : IAgentCompletionClient
+    ILogger<CircuitBreakingAgentCompletionClient> logger) : IAgentCompletionClient, IDisposable
 {
     private readonly IAgentCompletionClient _inner = inner ?? throw new ArgumentNullException(nameof(inner));
     private readonly CircuitBreakerGate _gate = gate ?? throw new ArgumentNullException(nameof(gate));
@@ -42,6 +42,15 @@ public sealed class CircuitBreakingAgentCompletionClient(
             _gate.RecordFailure();
             _logger.LogWarning(ex, "Azure OpenAI completion call failed; circuit breaker recorded failure.");
             throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (_inner is IDisposable disposableInner)
+        {
+            disposableInner.Dispose();
         }
     }
 }
