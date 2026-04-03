@@ -21,6 +21,9 @@ public static class ProblemTypes
     /// <summary>59R learning plan not found for the current scope.</summary>
     public const string LearningImprovementPlanNotFound = Base + "#learning-improvement-plan-not-found";
 
+    /// <summary>60R evolution candidate change set not found for the current scope.</summary>
+    public const string EvolutionCandidateChangeSetNotFound = Base + "#evolution-candidate-change-set-not-found";
+
     public const string InvalidRunState = Base + "#invalid-run-state";
     public const string DeterminismFailed = Base + "#determinism-failed";
     public const string ExportFailed = Base + "#export-failed";

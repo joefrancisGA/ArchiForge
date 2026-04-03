@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchiForge.Api.DataAccess;
+using ArchiForge.Api.Services.Evolution;
 using ArchiForge.Api.Services.Learning;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
@@ -26,6 +27,7 @@ using ArchiForge.Persistence.Audit;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Conversation;
+using ArchiForge.Persistence.Evolution;
 using ArchiForge.Persistence.Governance;
 using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Orchestration;
@@ -104,6 +106,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
             services.AddSingleton<IProductLearningDashboardService, ProductLearningDashboardService>();
             services.AddSingleton<Api.Services.Learning.ILearningPlanningReadService, Api.Services.Learning.LearningPlanningReadService>();
+            services.AddSingleton<IEvolutionCandidateChangeSetRepository, InMemoryEvolutionCandidateChangeSetRepository>();
+            services.AddSingleton<IEvolutionSimulationRunRepository, InMemoryEvolutionSimulationRunRepository>();
+            services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();
             services.AddSingleton<IConversationThreadRepository, InMemoryConversationThreadRepository>();
             services.AddSingleton<IConversationMessageRepository, InMemoryConversationMessageRepository>();
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
@@ -179,6 +184,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
         services.AddScoped<IProductLearningDashboardService, ProductLearningDashboardService>();
         services.AddScoped<ILearningPlanningReadService, LearningPlanningReadService>();
+        services.AddScoped<IEvolutionCandidateChangeSetRepository, DapperEvolutionCandidateChangeSetRepository>();
+        services.AddScoped<IEvolutionSimulationRunRepository, DapperEvolutionSimulationRunRepository>();
+        services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IAuditRepository, DapperAuditRepository>();
         services.AddScoped<IProvenanceSnapshotRepository, SqlProvenanceSnapshotRepository>();
