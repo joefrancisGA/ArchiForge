@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ArchiForge.Application.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="DocumentFormat.OpenXml" />
     <PackageReference Include="QuestPDF" />
