@@ -11,6 +11,7 @@ ASP.NET Core Web API surface for ArchiForge.
   - rate limiting
   - OpenAPI/Swagger
   - health checks and observability (Serilog + OpenTelemetry)
+- **Hosting role** (`Hosting:Role`, env `Hosting__Role`): **`Combined`** (default, local dev), **`Api`** (HTTP + in-process job queue only; use with **`ArchiForge.Worker`** in Azure), or **`Worker`** (background loops only; see **`ArchiForge.Worker`** project).
 
 When changing API behavior, prefer to:
 

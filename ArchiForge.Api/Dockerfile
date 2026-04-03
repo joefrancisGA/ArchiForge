@@ -3,6 +3,8 @@
 # Build context MUST be the repository root so project references resolve.
 #
 #   docker build -f ArchiForge.Api/Dockerfile -t archiforge-api .
+# Publishes ArchiForge.Worker (pulls ArchiForge.Api); image contains ArchiForge.Api.dll + ArchiForge.Worker.dll.
+# Default ENTRYPOINT runs the API; Container Apps worker revision sets command ["dotnet","ArchiForge.Worker.dll"].
 # ────────────────────────────────────────────────────────────────────
 
 # ── Stage 1: restore (layer-cached independently of source changes) ─
@@ -48,14 +50,15 @@ COPY ArchiForge.KnowledgeGraph.Tests/*.csproj ArchiForge.KnowledgeGraph.Tests/
 COPY ArchiForge.Persistence.Tests/*.csproj  ArchiForge.Persistence.Tests/
 COPY ArchiForge.Retrieval.Tests/*.csproj    ArchiForge.Retrieval.Tests/
 COPY ArchiForge.TestSupport/*.csproj        ArchiForge.TestSupport/
+COPY ArchiForge.Worker/*.csproj             ArchiForge.Worker/
 
-RUN dotnet restore ArchiForge.Api/ArchiForge.Api.csproj
+RUN dotnet restore ArchiForge.Worker/ArchiForge.Worker.csproj
 
 # ── Stage 2: publish ────────────────────────────────────────────────
 FROM restore AS publish
 
 COPY . .
-RUN dotnet publish ArchiForge.Api/ArchiForge.Api.csproj \
+RUN dotnet publish ArchiForge.Worker/ArchiForge.Worker.csproj \
         -c Release \
         -o /app \
         --no-restore

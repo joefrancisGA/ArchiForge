@@ -64,6 +64,42 @@ variable "ui_container_app_name" {
   default     = "archiforge-ui"
 }
 
+variable "worker_container_app_name" {
+  type        = string
+  description = "Name of the background worker container app (advisory scan, archival, retrieval outbox)."
+  default     = "archiforge-worker"
+}
+
+variable "worker_container_image" {
+  type        = string
+  description = "Image for ArchiForge.Worker (must include ArchiForge.Worker.dll; same build as API is typical). Leave empty to reuse api_container_image."
+  default     = ""
+}
+
+variable "worker_min_replicas" {
+  type        = number
+  description = "Minimum worker replicas (use 1 so hosted background loops run in a single instance)."
+  default     = 1
+}
+
+variable "worker_max_replicas" {
+  type        = number
+  description = "Maximum worker replicas (use 1 until leader election exists for duplicate-safe scaling)."
+  default     = 1
+}
+
+variable "worker_cpu" {
+  type        = number
+  description = "Worker container vCPU."
+  default     = 0.25
+}
+
+variable "worker_memory" {
+  type        = string
+  description = "Worker container memory."
+  default     = "0.5Gi"
+}
+
 variable "api_container_image" {
   type        = string
   description = "Full image reference for ArchiForge.Api (e.g. myregistry.azurecr.io/archiforge-api:2026.04.1). Required when enable_container_apps = true."

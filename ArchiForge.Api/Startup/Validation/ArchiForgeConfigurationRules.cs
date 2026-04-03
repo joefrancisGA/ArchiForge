@@ -1,6 +1,7 @@
 using System.Globalization;
 
 using ArchiForge.Api.Configuration;
+using ArchiForge.Api.Hosting;
 
 using ArchiForge.DecisionEngine.Validation;
 using ArchiForge.Persistence.Caching;
@@ -90,7 +91,17 @@ public static class ArchiForgeConfigurationRules
             return errors;
         
 
-        CollectProductionSafetyErrors(configuration, errors);
+        ArchiForgeHostingRole hostingRole = HostingRoleResolver.Resolve(configuration);
+
+        if (hostingRole == ArchiForgeHostingRole.Worker)
+        {
+            CollectProductionWebhookSecretErrors(configuration, errors);
+
+            return errors;
+        }
+
+        CollectProductionCorsErrors(configuration, errors);
+        CollectProductionWebhookSecretErrors(configuration, errors);
 
         string? authMode = configuration["ArchiForgeAuth:Mode"];
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
@@ -125,10 +136,8 @@ public static class ArchiForgeConfigurationRules
         return errors;
     }
 
-    /// <summary>
-    /// Fail-fast checks for CORS and outbound webhook HMAC in Production only.
-    /// </summary>
-    private static void CollectProductionSafetyErrors(IConfiguration configuration, List<string> errors)
+    /// <summary>Fail-fast CORS checks in Production for API-facing hosts only.</summary>
+    private static void CollectProductionCorsErrors(IConfiguration configuration, List<string> errors)
     {
         string[]? origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
         if (origins is null || origins.Length == 0)
@@ -152,7 +161,11 @@ public static class ArchiForgeConfigurationRules
                 
             }
         
+    }
 
+    /// <summary>Outbound webhook HMAC when HTTP delivery is enabled (API and Worker).</summary>
+    private static void CollectProductionWebhookSecretErrors(IConfiguration configuration, List<string> errors)
+    {
         WebhookDeliveryOptions webhook =
             configuration.GetSection(WebhookDeliveryOptions.SectionName).Get<WebhookDeliveryOptions>() ??
             new WebhookDeliveryOptions();

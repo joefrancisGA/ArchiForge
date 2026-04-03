@@ -28,6 +28,16 @@ output "api_system_assigned_principal_id" {
   value       = try(azurerm_container_app.api[0].identity[0].principal_id, null)
 }
 
+output "worker_system_assigned_principal_id" {
+  description = "Object ID of the worker container app system-assigned managed identity."
+  value       = try(azurerm_container_app.worker[0].identity[0].principal_id, null)
+}
+
+output "worker_container_app_fqdn" {
+  description = "FQDN of the latest worker revision when ingress is enabled (null if internal-only without public hostname)."
+  value       = try(azurerm_container_app.worker[0].latest_revision_fqdn, null)
+}
+
 output "ui_container_app_fqdn" {
   description = "FQDN of the latest Operator UI revision."
   value       = try(azurerm_container_app.ui[0].latest_revision_fqdn, null)

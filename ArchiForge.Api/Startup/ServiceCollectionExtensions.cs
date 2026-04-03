@@ -7,6 +7,7 @@ using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Api.Ask;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Health;
+using ArchiForge.Api.Hosting;
 using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Jobs;
 using ArchiForge.Api.Resilience;
@@ -89,7 +90,8 @@ internal static partial class ServiceCollectionExtensions
 {
     public static IServiceCollection AddArchiForgeApplicationServices(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ArchiForgeHostingRole hostingRole)
     {
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
@@ -97,11 +99,11 @@ internal static partial class ServiceCollectionExtensions
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchiForgeStorage(configuration);
-        RegisterAdvisoryScheduling(services);
+        RegisterAdvisoryScheduling(services, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterAlerts(services);
         RegisterDataInfrastructure(services, configuration);
-        RegisterBackgroundJobs(services);
+        RegisterBackgroundJobs(services, hostingRole);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
         RegisterComparisonReplayAndDrift(services, configuration);
         RegisterRunReplayManifestAndDiffs(services);
@@ -112,31 +114,38 @@ internal static partial class ServiceCollectionExtensions
         RegisterAgentExecution(services, configuration);
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
-        RegisterRetrievalIndexingOutbox(services);
-        RegisterDataArchivalHostedService(services);
-        RegisterArchiForgeHealthChecks(services);
+        RegisterRetrievalIndexingOutbox(services, hostingRole);
+        RegisterDataArchivalHostedService(services, hostingRole);
+        RegisterArchiForgeHealthChecks(services, hostingRole);
         return services;
     }
 
-    private static void RegisterDataArchivalHostedService(IServiceCollection services)
+    private static void RegisterDataArchivalHostedService(IServiceCollection services, ArchiForgeHostingRole hostingRole)
     {
+        if (hostingRole is not ArchiForgeHostingRole.Combined and not ArchiForgeHostingRole.Worker)
+            return;
+
         services.AddSingleton<DataArchivalHostHealthState>();
         services.AddHostedService<DataArchivalHostedService>();
     }
 
-    private static void RegisterRetrievalIndexingOutbox(IServiceCollection services)
+    private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchiForgeHostingRole hostingRole)
     {
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
-        services.AddHostedService<RetrievalIndexingOutboxHostedService>();
+
+        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+            services.AddHostedService<RetrievalIndexingOutboxHostedService>();
     }
 
-    private static void RegisterAdvisoryScheduling(IServiceCollection services)
+    private static void RegisterAdvisoryScheduling(IServiceCollection services, ArchiForgeHostingRole hostingRole)
     {
         services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
-        services.AddHostedService<AdvisoryScanHostedService>();
+
+        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+            services.AddHostedService<AdvisoryScanHostedService>();
     }
 
     private static void RegisterDigestDelivery(IServiceCollection services, IConfiguration configuration)
@@ -208,9 +217,9 @@ internal static partial class ServiceCollectionExtensions
         services.AddSingleton<IDbConnectionFactory, SqlConnectionFactory>();
     }
 
-    private static void RegisterArchiForgeHealthChecks(IServiceCollection services)
+    private static void RegisterArchiForgeHealthChecks(IServiceCollection services, ArchiForgeHostingRole hostingRole)
     {
-        services.AddHealthChecks()
+        IHealthChecksBuilder builder = services.AddHealthChecks()
             .AddCheck(
                 "liveness",
                 () => HealthCheckResult.Healthy("ArchiForge API process is running."),
@@ -222,17 +231,26 @@ internal static partial class ServiceCollectionExtensions
             .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])
             .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
             .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])
-            .AddCheck<DataArchivalHostHealthCheck>(
+            .AddCheck<BlobStorageHealthCheck>("blob_storage", tags: [ReadinessTags.Ready]);
+
+        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
+        {
+            builder.AddCheck<DataArchivalHostHealthCheck>(
                 "data_archival",
                 failureStatus: HealthStatus.Degraded,
-                tags: [ReadinessTags.Ready])
-            .AddCheck<BlobStorageHealthCheck>("blob_storage", tags: [ReadinessTags.Ready]);
+                tags: [ReadinessTags.Ready]);
+        }
     }
 
-    private static void RegisterBackgroundJobs(IServiceCollection services)
+    private static void RegisterBackgroundJobs(IServiceCollection services, ArchiForgeHostingRole hostingRole)
     {
+        if (hostingRole == ArchiForgeHostingRole.Worker)
+            return;
+
         services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
-        services.AddHostedService(sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
+
+        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Api)
+            services.AddHostedService(sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
     }
 
     private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)

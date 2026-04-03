@@ -1,10 +1,11 @@
-# Terraform: Azure Container Apps (ArchiForge API + Operator UI)
+# Terraform: Azure Container Apps (ArchiForge API + Worker + Operator UI)
 
 Optional root that deploys:
 
 - **Log Analytics** workspace (required by Container Apps Environment)
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
-- **`azurerm_container_app`** for **ArchiForge.Api** (port **8080**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
+- **`azurerm_container_app`** for **ArchiForge.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
+- **`azurerm_container_app`** for **ArchiForge.Worker** (same image by default, **`command` = `dotnet ArchiForge.Worker.dll`**, **`Hosting__Role=Worker`**, fixed **min/max replicas = 1**, health probes on **8080**; no HTTP scale rule)
 - **`azurerm_container_app`** for **archiforge-ui** (port **3000**, probes on `/`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets.
@@ -21,7 +22,7 @@ Use this root when you want **per-app replica scaling** and a **container-native
 
 - **`enable_container_apps = false`** — no resources; safe for `terraform validate` in CI.
 - When **`true`**, you must set **`api_container_image`** and **`ui_container_image`** (full ACR or registry references).
-- When **`true`**, you must set **`artifact_blob_service_uri`** and **`artifact_storage_account_id`** (from **`infra/terraform-storage`** outputs) so the API enables **`ArtifactLargePayload`** with **Azure Blob** and receives **Storage Blob Data Contributor** on that account via the API’s **system-assigned managed identity**.
+- When **`true`**, you must set **`artifact_blob_service_uri`** and **`artifact_storage_account_id`** (from **`infra/terraform-storage`** outputs) so the **API** and **Worker** enable **`ArtifactLargePayload`** with **Azure Blob**; each app’s **system-assigned managed identity** receives **Storage Blob Data Contributor** on that account.
 
 ## Large artifact blob offload (staging / production)
 
@@ -41,9 +42,11 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 ## Background services and replicas
 
-The API runs **hosted background jobs** (advisory scans, archival, retrieval outbox, etc.). With **multiple API replicas**, each instance runs those jobs unless you add **leader election** or a **dedicated worker** revision.
+**Terraform** provisions a dedicated **`archiforge-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 1**) that runs **advisory scan polling**, **data archival**, and **retrieval indexing outbox** processing. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops; it still runs the **in-process background job queue** used for export jobs (`IBackgroundJobQueue`).
 
-**Default `api_min_replicas` is 2** for **staging and production** availability (Container Apps keeps at least two API instances). For **local or pilot** stacks where duplicate background work is unacceptable until leader election exists, set **`api_min_replicas = 1`** in your `terraform.tfvars`.
+**Default `api_min_replicas` is 2** for **staging and production** API availability. For **local or pilot** stacks, set **`api_min_replicas = 1`** in `terraform.tfvars` if you prefer a single API instance.
+
+**Do not scale the worker above 1** until **leader election** or equivalent prevents duplicate advisory/archival/outbox work across instances.
 
 ## Hot-path cache (SQL mode)
 

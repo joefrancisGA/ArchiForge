@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ArchiForge.Worker": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Hosting__Role": "Worker"
+      }
+    }
+  }
+}

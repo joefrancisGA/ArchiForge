@@ -5,11 +5,15 @@ create_resource_group   = true
 resource_group_name     = "rg-archiforge-ca-dev"
 location                = "eastus2"
 
-# Build and push images first (repo root for API, archiforge-ui/ for UI):
-#   docker build -f ArchiForge.Api/Dockerfile -t <acr>.azurecr.io/archiforge-api:2026.04.1 .
+# Build and push images (repo root). Dockerfile publishes ArchiForge.Worker + ArchiForge.Api into one image; default entrypoint is the API.
+#   docker build -f ArchiForge.Api/Dockerfile -t <acr>.azurecr.io/archiforge:2026.04.1 .
+# Worker container app runs: dotnet ArchiForge.Worker.dll (same image as API unless you set worker_container_image).
 #   docker build -t <acr>.azurecr.io/archiforge-ui:2026.04.1 archiforge-ui/
-api_container_image = "<your-acr>.azurecr.io/archiforge-api:2026.04.1"
+api_container_image = "<your-acr>.azurecr.io/archiforge:2026.04.1"
 ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:2026.04.1"
+
+# Optional: use a different image for the worker (default: same as api_container_image).
+# worker_container_image = "<your-acr>.azurecr.io/archiforge-worker:2026.04.1"
 
 # Replica bounds (HTTP concurrent-request scale rules apply between min and max).
 # Default module value is 2 (staging/production). Use 1 only for pilots where duplicate background jobs are OK to avoid.
@@ -17,6 +21,10 @@ api_min_replicas = 2
 api_max_replicas = 5
 ui_min_replicas  = 1
 ui_max_replicas  = 3
+
+# Background worker (advisory scan, archival, retrieval outbox). Keep 1/1 until leader election supports scale-out.
+worker_min_replicas = 1
+worker_max_replicas = 1
 
 api_scale_concurrent_requests = 10
 ui_scale_concurrent_requests  = 20

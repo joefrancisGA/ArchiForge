@@ -345,6 +345,27 @@ public sealed class ArchiForgeConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenProductionAndHostingRoleWorker_does_not_require_cors_origins()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Hosting:Role"] = "Worker",
+            ["ArchiForge:StorageProvider"] = "InMemory",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("Cors:AllowedOrigins", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenProductionAndCorsWildcard_contains_error()
     {
         Dictionary<string, string?> data = new()

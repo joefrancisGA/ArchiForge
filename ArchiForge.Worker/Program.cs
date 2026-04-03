@@ -1,44 +1,28 @@
-using System.Diagnostics.CodeAnalysis;
-
 using ArchiForge.Api.Auth.Services;
 using ArchiForge.Api.Hosting;
 using ArchiForge.Api.Startup;
 using ArchiForge.Api.Startup.Diagnostics;
 using ArchiForge.Api.Startup.Validation;
-using ArchiForge.Application.Governance.Preview;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Scoping;
 
-namespace ArchiForge.Api;
+namespace ArchiForge.Worker;
 
-[ExcludeFromCodeCoverage(Justification = "Application startup wiring; tested via integration tests against WebApplicationFactory.")]
-public partial class Program
+/// <summary>Background worker host: advisory scans, data archival, retrieval indexing outbox (no public HTTP API).</summary>
+public static class Program
 {
     public static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        ArchiForgeSerilogConfiguration.Configure(builder, "ArchiForge.Api");
-
-        ArchiForgeHostingRole hostingRole = HostingRoleResolver.Resolve(builder.Configuration);
-
-        // Add services to the container.
-
-        builder.Services.AddArchiForgeMvc();
+        ArchiForgeSerilogConfiguration.Configure(builder, "ArchiForge.Worker");
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IScopeContextProvider, HttpScopeContextProvider>();
         builder.Services.AddScoped<IAuditService, AuditService>();
 
-        builder.Services.AddArchiForgeAuth(builder.Configuration);
-        builder.Services.AddArchiForgeAuthorization();
-
         builder.Services.AddArchiForgeOpenTelemetry(builder.Configuration, builder.Environment);
-        builder.Services.AddArchiForgeRateLimiting(builder.Configuration);
-        builder.Services.AddArchiForgeCors(builder.Configuration);
-        builder.Services.AddArchiForgeResponseCompression();
-        builder.Services.AddArchiForgeApplicationServices(builder.Configuration, hostingRole);
-        builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
+        builder.Services.AddArchiForgeApplicationServices(builder.Configuration, ArchiForgeHostingRole.Worker);
 
         WebApplication app = builder.Build();
 
@@ -61,14 +45,12 @@ public partial class Program
             app.Logger,
             app.Configuration,
             app.Environment,
-            typeof(Program).Assembly);
+            typeof(ArchiForgeSerilogConfiguration).Assembly);
 
         ArchiForgePersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
-        app.Logger.LogInformation("ArchiForge API starting request pipeline.");
-        app.UseArchiForgePipeline();
+        app.Logger.LogInformation("ArchiForge Worker starting (hosted background services only).");
+        app.UseArchiForgeWorkerPipeline();
         app.Run();
     }
 }
-
-public partial class Program;

@@ -2,6 +2,9 @@ locals {
   enabled = var.enable_container_apps
 
   subnet_integrated = local.enabled && length(trimspace(var.container_apps_subnet_id)) > 0
+
+  # Single image: publish ArchiForge.Worker (includes Api.dll). Override worker_container_image to use a different tag if needed.
+  worker_effective_image = trimspace(var.worker_container_image) != "" ? var.worker_container_image : var.api_container_image
 }
 
 data "azurerm_resource_group" "target" {
@@ -81,6 +84,11 @@ resource "azurerm_container_app" "api" {
       }
 
       env {
+        name  = "Hosting__Role"
+        value = "Api"
+      }
+
+      env {
         name  = "ArtifactLargePayload__Enabled"
         value = "true"
       }
@@ -133,6 +141,77 @@ resource "azurerm_role_assignment" "api_blob_data_contributor" {
   scope                = var.artifact_storage_account_id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_container_app.api[0].identity[0].principal_id
+}
+
+resource "azurerm_container_app" "worker" {
+  count = local.enabled ? 1 : 0
+
+  name                         = var.worker_container_app_name
+  container_app_environment_id = azurerm_container_app_environment.main[0].id
+  resource_group_name          = local.resource_group_name
+  revision_mode                = "Single"
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  template {
+    min_replicas = var.worker_min_replicas
+    max_replicas = var.worker_max_replicas
+
+    container {
+      name    = "archiforge-worker"
+      image   = local.worker_effective_image
+      cpu     = var.worker_cpu
+      memory  = var.worker_memory
+      command = ["dotnet", "ArchiForge.Worker.dll"]
+
+      env {
+        name  = "ASPNETCORE_URLS"
+        value = "http://0.0.0.0:8080"
+      }
+
+      env {
+        name  = "Hosting__Role"
+        value = "Worker"
+      }
+
+      env {
+        name  = "ArtifactLargePayload__Enabled"
+        value = "true"
+      }
+
+      env {
+        name  = "ArtifactLargePayload__BlobProvider"
+        value = "AzureBlob"
+      }
+
+      env {
+        name  = "ArtifactLargePayload__AzureBlobServiceUri"
+        value = var.artifact_blob_service_uri
+      }
+
+      liveness_probe {
+        transport = "HTTP"
+        port      = 8080
+        path      = "/health/live"
+      }
+
+      readiness_probe {
+        transport = "HTTP"
+        port      = 8080
+        path      = "/health/ready"
+      }
+    }
+  }
+}
+
+resource "azurerm_role_assignment" "worker_blob_data_contributor" {
+  count = local.enabled ? 1 : 0
+
+  scope                = var.artifact_storage_account_id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_container_app.worker[0].identity[0].principal_id
 }
 
 resource "azurerm_container_app" "ui" {

@@ -18,9 +18,12 @@ check "container_apps_replica_bounds" {
       var.api_min_replicas <= var.api_max_replicas &&
       var.ui_min_replicas >= 0 &&
       var.ui_max_replicas >= 1 &&
-      var.ui_min_replicas <= var.ui_max_replicas
+      var.ui_min_replicas <= var.ui_max_replicas &&
+      var.worker_min_replicas >= 0 &&
+      var.worker_max_replicas >= 1 &&
+      var.worker_min_replicas <= var.worker_max_replicas
     )
-    error_message = "Replica counts must be non-negative (min), max at least 1, and min must not exceed max for API and UI."
+    error_message = "Replica counts must be non-negative (min), max at least 1, and min must not exceed max for API, UI, and worker."
   }
 }
 

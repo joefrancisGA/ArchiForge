@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ArchiForge.Api.Tests" />
+    <InternalsVisibleTo Include="ArchiForge.Worker" />
   </ItemGroup>
 
   <ItemGroup>
