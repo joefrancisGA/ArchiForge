@@ -1,5 +1,6 @@
 using ArchiForge.Api.Models.Learning;
 using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning.Planning;
 
 namespace ArchiForge.Api.Services.Learning;
 
@@ -25,5 +26,10 @@ public interface ILearningPlanningReadService
         ProductLearningScope scope,
         int maxThemes,
         int maxPlans,
+        CancellationToken cancellationToken);
+
+    Task<LearningPlanningReportDocument> GetPlanningReportAsync(
+        ProductLearningScope scope,
+        LearningPlanningReportLimits limits,
         CancellationToken cancellationToken);
 }

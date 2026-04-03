@@ -148,6 +148,12 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         };
     }
 
+    public Task<LearningPlanningReportDocument> GetPlanningReportAsync(
+        ProductLearningScope scope,
+        LearningPlanningReportLimits limits,
+        CancellationToken cancellationToken) =>
+        LearningPlanningReportBuilder.BuildAsync(planningRepository, scope, limits, cancellationToken);
+
     private static LearningThemeResponse MapTheme(ProductLearningImprovementThemeRecord t) =>
         new()
         {

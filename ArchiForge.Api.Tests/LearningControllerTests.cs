@@ -1,8 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 using ArchiForge.Api.Models.Learning;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Contracts.ProductLearning;
+using ArchiForge.Contracts.ProductLearning.Planning;
 
 using FluentAssertions;
 
@@ -108,5 +111,74 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
         problem!.Detail.Should().Contain("maxPlans");
+    }
+
+    [Fact]
+    public async Task GetPlanningReport_Json_ReturnsOk_WithDocumentShape()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        LearningPlanningReportDocument? doc =
+            await response.Content.ReadFromJsonAsync<LearningPlanningReportDocument>(JsonOptions);
+
+        doc.Should().NotBeNull();
+        doc!.Summary.ThemeCount.Should().Be(0);
+        doc.Themes.Should().BeEmpty();
+        doc.Plans.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetPlanningReport_Markdown_ReturnsOk_WithWrapper()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=markdown");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        LearningPlanningReportExportResponse? body =
+            await response.Content.ReadFromJsonAsync<LearningPlanningReportExportResponse>(JsonOptions);
+
+        body.Should().NotBeNull();
+        body!.Format.Should().Be("markdown");
+        body.FileName.Should().Be("learning-planning-report-59r.md");
+        body.Content.Should().Contain("ArchiForge planning report (59R)");
+    }
+
+    [Fact]
+    public async Task GetPlanningReport_InvalidFormat_Returns400Problem()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report?format=xml");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
+        problem.Should().NotBeNull();
+        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+    }
+
+    [Fact]
+    public async Task DownloadPlanningReport_File_Markdown_ReturnsMarkdownContentType()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=markdown");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("text/markdown");
+
+        string text = await response.Content.ReadAsStringAsync();
+        text.Should().Contain("ArchiForge planning report (59R)");
+    }
+
+    [Fact]
+    public async Task DownloadPlanningReport_File_Json_IsIndentedObject()
+    {
+        HttpResponseMessage response = await Client.GetAsync("/v1/learning/report/file?format=json");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+
+        string text = await response.Content.ReadAsStringAsync();
+        using JsonDocument doc = JsonDocument.Parse(text);
+        doc.RootElement.GetProperty("summary").GetProperty("themeCount").GetInt32().Should().Be(0);
     }
 }

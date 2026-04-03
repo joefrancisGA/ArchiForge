@@ -1,5 +1,7 @@
 using System.Globalization;
 
+using ArchiForge.Api.ProductLearning;
+
 namespace ArchiForge.Api.Learning;
 
 /// <summary>Parses bounded list parameters for <c>/v1/learning/*</c> GET endpoints.</summary>
@@ -11,6 +13,12 @@ internal static class LearningPlanningQueryParser
 
     public const int MaxMaxItems = 100;
 
+    public const int DefaultMaxReportEvidenceRefsPerPlan = 100;
+
+    public const int MinMaxReportEvidenceRefsPerPlan = 1;
+
+    public const int MaxMaxReportEvidenceRefsPerPlan = 500;
+
     public static bool TryParseMaxItems(string? raw, string queryParameterName, out int value, out string? error) =>
         TryParseBoundedInt(
             raw,
@@ -18,6 +26,40 @@ internal static class LearningPlanningQueryParser
             MinMaxItems,
             MaxMaxItems,
             queryParameterName,
+            out value,
+            out error);
+
+    /// <summary>Reuses product-learning format rules (<c>markdown</c> / <c>json</c>).</summary>
+    public static bool TryParseReportFormat(string? raw, out string formatNormalized, out string? error) =>
+        ProductLearningQueryParser.TryParseReportFormat(raw, out formatNormalized, out error);
+
+    public static bool TryParseMaxReportSignalLinksPerPlan(string? raw, out int value, out string? error) =>
+        TryParseBoundedInt(
+            raw,
+            DefaultMaxReportEvidenceRefsPerPlan,
+            MinMaxReportEvidenceRefsPerPlan,
+            MaxMaxReportEvidenceRefsPerPlan,
+            "maxReportSignalLinks",
+            out value,
+            out error);
+
+    public static bool TryParseMaxReportArtifactLinksPerPlan(string? raw, out int value, out string? error) =>
+        TryParseBoundedInt(
+            raw,
+            DefaultMaxReportEvidenceRefsPerPlan,
+            MinMaxReportEvidenceRefsPerPlan,
+            MaxMaxReportEvidenceRefsPerPlan,
+            "maxReportArtifactLinks",
+            out value,
+            out error);
+
+    public static bool TryParseMaxReportRunLinksPerPlan(string? raw, out int value, out string? error) =>
+        TryParseBoundedInt(
+            raw,
+            DefaultMaxReportEvidenceRefsPerPlan,
+            MinMaxReportEvidenceRefsPerPlan,
+            MaxMaxReportEvidenceRefsPerPlan,
+            "maxReportRunLinks",
             out value,
             out error);
 
