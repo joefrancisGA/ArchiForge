@@ -195,3 +195,26 @@ variable "artifact_storage_account_id" {
   description = "Resource ID of the storage account that holds golden-manifests / artifact-bundles / artifact-contents containers. Used to grant the API container app Storage Blob Data Contributor."
   default     = ""
 }
+
+variable "background_jobs_mode" {
+  type        = string
+  description = "InMemory keeps export jobs in the API process. Durable uses SQL + Azure Storage Queue + the worker container app (requires Sql storage, AzureBlob artifacts, and queue RBAC)."
+  default     = "InMemory"
+
+  validation {
+    condition     = contains(["InMemory", "Durable"], var.background_jobs_mode)
+    error_message = "background_jobs_mode must be InMemory or Durable."
+  }
+}
+
+variable "background_jobs_queue_name" {
+  type        = string
+  description = "Azure Storage Queue name for durable export jobs (lowercase alphanumeric and hyphens, 3–63 chars)."
+  default     = "archiforge-export-jobs"
+}
+
+variable "background_jobs_results_container" {
+  type        = string
+  description = "Blob container for completed export job binaries (created on first upload if missing)."
+  default     = "background-job-results"
+}

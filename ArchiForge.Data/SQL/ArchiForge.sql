@@ -2261,3 +2261,31 @@ IF OBJECT_ID(N'dbo.ArtifactBundleArtifacts', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.ArtifactBundleArtifacts', N'ContentBlobUri') IS NULL
     ALTER TABLE dbo.ArtifactBundleArtifacts ADD ContentBlobUri NVARCHAR(2000) NULL;
 GO
+
+/* ---- Durable background export jobs (queue + worker) ---- */
+IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.BackgroundJobs
+    (
+        JobId           NVARCHAR(32)  NOT NULL CONSTRAINT PK_BackgroundJobs PRIMARY KEY,
+        WorkUnitJson    NVARCHAR(MAX) NOT NULL,
+        State           NVARCHAR(16)  NOT NULL,
+        CreatedUtc      DATETIME2     NOT NULL,
+        StartedUtc      DATETIME2     NULL,
+        CompletedUtc    DATETIME2     NULL,
+        Error           NVARCHAR(MAX) NULL,
+        FileName        NVARCHAR(512) NULL,
+        ContentType     NVARCHAR(256) NULL,
+        RetryCount      INT           NOT NULL CONSTRAINT DF_BackgroundJobs_RetryCount DEFAULT (0),
+        MaxRetries      INT           NOT NULL CONSTRAINT DF_BackgroundJobs_MaxRetries DEFAULT (0),
+        ResultBlobName  NVARCHAR(1024) NULL,
+        INDEX IX_BackgroundJobs_State_CreatedUtc NONCLUSTERED (State, CreatedUtc)
+    );
+END;
+GO
+
+IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_BackgroundJobs_State')
+    ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_State
+        CHECK (State IN (N'Pending', N'Running', N'Succeeded', N'Failed'));
+GO

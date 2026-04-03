@@ -1,28 +1,27 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
 
-using JetBrains.Annotations;
+using ArchiForge.Application.Jobs;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchiForge.Api.Jobs;
 
-public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueue> logger) : BackgroundService, IBackgroundJobQueue
+public sealed class InMemoryBackgroundJobQueue(
+    ILogger<InMemoryBackgroundJobQueue> logger,
+    IServiceScopeFactory scopeFactory) : BackgroundService, IBackgroundJobQueue
 {
-    private sealed record WorkItem(
-        string JobId,
-        [UsedImplicitly] string? FileNameHint,
-        string? ContentTypeHint,
-        Func<CancellationToken, Task<BackgroundJobFile>> Work);
+    private sealed record WorkItem(string JobId, BackgroundJobWorkUnit WorkUnit, int MaxRetries);
 
     /// <summary>Maximum number of terminal jobs (Succeeded/Failed) retained in memory before evicting the oldest.</summary>
     private const int MaxRetainedTerminalJobs = 200;
 
     /// <summary>
-    /// Maximum number of jobs that may wait in the channel before <see cref="Enqueue"/> throws.
+    /// Maximum number of jobs that may wait in the channel before <see cref="EnqueueAsync"/> throws.
     /// Prevents unbounded memory growth under sustained load; callers should back off and retry on failure.
     /// </summary>
     private const int MaxPendingJobs = 500;
 
-    // Semaphore enforces backpressure: DropWrite bounded channels report success when full (they discard writes).
     private readonly SemaphoreSlim _pendingJobs = new(MaxPendingJobs, MaxPendingJobs);
     private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions
     {
@@ -33,9 +32,12 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
     private readonly ConcurrentDictionary<string, BackgroundJobInfo> _info = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, BackgroundJobFile> _files = new(StringComparer.Ordinal);
 
-    public string Enqueue(string? fileNameHint, string? contentTypeHint, Func<CancellationToken, Task<BackgroundJobFile>> work, int maxRetries = 0)
+    public async Task<string> EnqueueAsync(
+        BackgroundJobWorkUnit workUnit,
+        int maxRetries = 0,
+        CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(work);
+        ArgumentNullException.ThrowIfNull(workUnit);
 
         string id = Guid.NewGuid().ToString("n");
         DateTimeOffset now = DateTimeOffset.UtcNow;
@@ -48,12 +50,12 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
             StartedUtc: null,
             CompletedUtc: null,
             Error: null,
-            FileName: fileNameHint,
-            ContentType: contentTypeHint,
+            FileName: null,
+            ContentType: null,
             RetryCount: 0,
             MaxRetries: safeMaxRetries);
 
-        if (!_pendingJobs.Wait(0))
+        if (!await _pendingJobs.WaitAsync(0, cancellationToken))
         {
             _info.TryRemove(id, out _);
 
@@ -61,27 +63,29 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                 $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
         }
 
-        if (_queue.Writer.TryWrite(new WorkItem(id, fileNameHint, contentTypeHint, work))) return id;
-        
+        if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
+            return id;
+
         _pendingJobs.Release();
         _info.TryRemove(id, out _);
 
         throw new InvalidOperationException("The background job queue writer is not accepting jobs.");
-
     }
 
-    public BackgroundJobInfo? GetInfo(string jobId)
+    public Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(jobId))
-            return null;
-        return _info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null;
+            return Task.FromResult<BackgroundJobInfo?>(null);
+
+        return Task.FromResult(_info.TryGetValue(jobId, out BackgroundJobInfo? info) ? info : null);
     }
 
-    public BackgroundJobFile? GetFile(string jobId)
+    public Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(jobId))
-            return null;
-        return _files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null;
+            return Task.FromResult<BackgroundJobFile?>(null);
+
+        return Task.FromResult(_files.TryGetValue(jobId, out BackgroundJobFile? file) ? file : null);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -101,7 +105,10 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
 
             try
             {
-                BackgroundJobFile file = await item.Work(stoppingToken);
+                await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+                IBackgroundJobWorkUnitExecutor executor = scope.ServiceProvider.GetRequiredService<IBackgroundJobWorkUnitExecutor>();
+
+                BackgroundJobFile file = await executor.ExecuteAsync(item.WorkUnit, stoppingToken);
                 _files[item.JobId] = file;
 
                 BackgroundJobInfo done = _info[item.JobId];
@@ -124,7 +131,9 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                     logger.LogWarning(
                         ex,
                         "Background job {JobId} failed (attempt {Attempt}/{Max}); scheduling retry.",
-                        item.JobId, nextRetry, failed.MaxRetries);
+                        item.JobId,
+                        nextRetry,
+                        failed.MaxRetries);
 
                     _info[item.JobId] = failed with
                     {
@@ -133,7 +142,6 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                         Error = ex.Message
                     };
 
-                    // Exponential backoff before re-enqueue: 1s, 2s, 4s, ...
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
 
@@ -171,7 +179,8 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
                     logger.LogError(
                         ex,
                         "Background job {JobId} failed after {Attempts} attempt(s); moving to DLQ.",
-                        item.JobId, nextRetry);
+                        item.JobId,
+                        nextRetry);
 
                     _info[item.JobId] = failed with
                     {
@@ -187,10 +196,6 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
         }
     }
 
-    /// <summary>
-    /// Removes the oldest terminal-state jobs when the retained count exceeds <see cref="MaxRetainedTerminalJobs"/>.
-    /// This prevents unbounded memory growth for long-running server instances.
-    /// </summary>
     private void EvictOldTerminalJobs()
     {
         List<BackgroundJobInfo> terminal = _info.Values
@@ -208,4 +213,3 @@ public sealed class InMemoryBackgroundJobQueue(ILogger<InMemoryBackgroundJobQueu
         }
     }
 }
-

@@ -11,7 +11,8 @@ ASP.NET Core Web API surface for ArchiForge.
   - rate limiting
   - OpenAPI/Swagger
   - health checks and observability (Serilog + OpenTelemetry)
-- **Hosting role** (`Hosting:Role`, env `Hosting__Role`): **`Combined`** (default, local dev), **`Api`** (HTTP + in-process job queue only; use with **`ArchiForge.Worker`** in Azure), or **`Worker`** (background loops only; see **`ArchiForge.Worker`** project).
+- **Hosting role** (`Hosting:Role`, env `Hosting__Role`): **`Combined`** (default, local dev), **`Api`** (HTTP; background export jobs depend on **`BackgroundJobs:Mode`**), or **`Worker`** (advisory/archival/outbox + optional durable export queue processor; see **`ArchiForge.Worker`**).
+- **Background jobs** (`BackgroundJobs:Mode`, env `BackgroundJobs__Mode`): **`InMemory`** (default) processes async export jobs inside the Api/Combined process. **`Durable`** stores work in **SQL** (`dbo.BackgroundJobs`), enqueues **job ids** to **Azure Storage Queue**, writes results to **blob** (`BackgroundJobs:ResultsContainerName`), and runs work on the **Worker** (`BackgroundJobQueueProcessorHostedService`). Requires **`ArchiForge:StorageProvider=Sql`**, **`ArtifactLargePayload:BlobProvider=AzureBlob`**, and either **`BackgroundJobs:QueueServiceUri`** or a derivable **`ArtifactLargePayload:AzureBlobServiceUri`** (`.blob.` → `.queue.`).
 
 When changing API behavior, prefer to:
 

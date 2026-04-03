@@ -34,6 +34,11 @@ ui_scale_concurrent_requests  = 20
 artifact_blob_service_uri     = "https://<storage-account>.blob.core.windows.net/"
 artifact_storage_account_id   = "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
 
+# Optional: durable async export jobs (SQL + Storage Queue + worker). Requires Sql + AzureBlob + ConnectionStrings:ArchiForge in app config.
+# background_jobs_mode             = "Durable"
+# background_jobs_queue_name       = "archiforge-export-jobs"
+# background_jobs_results_container = "background-job-results"
+
 # Optional: VNet-integrated environment (subnet must be delegated to Microsoft.App/environments).
 # container_apps_subnet_id                 = "/subscriptions/.../subnets/snet-container-apps"
 # container_apps_internal_load_balancer    = true

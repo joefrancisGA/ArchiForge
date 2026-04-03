@@ -1,12 +1,4 @@
-namespace ArchiForge.Api.Jobs;
-
-public enum BackgroundJobState
-{
-    Pending = 0,
-    Running = 1,
-    Succeeded = 2,
-    Failed = 3
-}
+namespace ArchiForge.Application.Jobs;
 
 public sealed record BackgroundJobInfo(
     string JobId,
@@ -19,9 +11,3 @@ public sealed record BackgroundJobInfo(
     string? ContentType,
     int RetryCount = 0,
     int MaxRetries = 0);
-
-public sealed record BackgroundJobFile(
-    string FileName,
-    string ContentType,
-    byte[] Bytes);
-

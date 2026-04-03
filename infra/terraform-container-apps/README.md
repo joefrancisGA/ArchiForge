@@ -42,7 +42,9 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 ## Background services and replicas
 
-**Terraform** provisions a dedicated **`archiforge-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 1**) that runs **advisory scan polling**, **data archival**, and **retrieval indexing outbox** processing. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops; it still runs the **in-process background job queue** used for export jobs (`IBackgroundJobQueue`).
+**Terraform** provisions a dedicated **`archiforge-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 1**) that runs **advisory scan polling**, **data archival**, and **retrieval indexing outbox** processing. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops.
+
+**Export async jobs** (`IBackgroundJobQueue`): default **`background_jobs_mode = "InMemory"`** keeps the **in-process** queue on the API (or Combined host). Set **`background_jobs_mode = "Durable"`** to use **SQL** (`dbo.BackgroundJobs`), **Azure Storage Queue** (Terraform creates **`azurerm_storage_queue`** when the blob URI parses a storage account name), and **worker-side processing** (`BackgroundJobQueueProcessorHostedService`). The module then sets **`BackgroundJobs__Mode`**, **`BackgroundJobs__QueueName`**, **`BackgroundJobs__ResultsContainerName`**, grants the API **Storage Queue Data Message Sender** and the worker **Storage Queue Data Message Processor** (blob contributor was already required). **Durable** requires **`ArchiForge:StorageProvider=Sql`**, **Azure Blob** artifacts, and matching app configuration (validated at startup).
 
 **Default `api_min_replicas` is 2** for **staging and production** API availability. For **local or pilot** stacks, set **`api_min_replicas = 1`** in `terraform.tfvars` if you prefer a single API instance.
 

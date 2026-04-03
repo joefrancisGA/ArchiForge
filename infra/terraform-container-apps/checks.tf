@@ -55,3 +55,14 @@ check "container_apps_artifact_blob_for_api" {
     error_message = "With enable_container_apps = true, set artifact_blob_service_uri and artifact_storage_account_id (from terraform-storage outputs) so the API can offload large payloads to Azure Blob with managed identity."
   }
 }
+
+check "container_apps_durable_jobs_require_parseable_blob_host" {
+  assert {
+    condition = !var.enable_container_apps || var.background_jobs_mode != "Durable" || (
+      length(trimspace(var.artifact_blob_service_uri)) > 0 && can(
+        regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)
+      )
+    )
+    error_message = "background_jobs_mode = Durable requires artifact_blob_service_uri in the form https://{account}.blob.core.windows.net/ so Terraform can create azurerm_storage_queue on that storage account."
+  }
+}

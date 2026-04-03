@@ -5,6 +5,13 @@ locals {
 
   # Single image: publish ArchiForge.Worker (includes Api.dll). Override worker_container_image to use a different tag if needed.
   worker_effective_image = trimspace(var.worker_container_image) != "" ? var.worker_container_image : var.api_container_image
+
+  background_jobs_durable = local.enabled && var.background_jobs_mode == "Durable"
+
+  # Parse storage account name from blob endpoint (https://{acct}.blob.core.windows.net) for queue resource + RBAC scope alignment.
+  artifact_storage_account_name_from_blob = local.enabled && length(trimspace(var.artifact_blob_service_uri)) > 0 && can(
+    regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)
+  ) ? regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)[0] : ""
 }
 
 data "azurerm_resource_group" "target" {
@@ -103,6 +110,30 @@ resource "azurerm_container_app" "api" {
         value = var.artifact_blob_service_uri
       }
 
+      dynamic "env" {
+        for_each = local.background_jobs_durable ? [1] : []
+        content {
+          name  = "BackgroundJobs__Mode"
+          value = "Durable"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.background_jobs_durable ? [1] : []
+        content {
+          name  = "BackgroundJobs__QueueName"
+          value = var.background_jobs_queue_name
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.background_jobs_durable ? [1] : []
+        content {
+          name  = "BackgroundJobs__ResultsContainerName"
+          value = var.background_jobs_results_container
+        }
+      }
+
       liveness_probe {
         transport = "HTTP"
         port      = 8080
@@ -140,6 +171,21 @@ resource "azurerm_role_assignment" "api_blob_data_contributor" {
 
   scope                = var.artifact_storage_account_id
   role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_container_app.api[0].identity[0].principal_id
+}
+
+resource "azurerm_storage_queue" "background_jobs" {
+  count = local.background_jobs_durable && local.artifact_storage_account_name_from_blob != "" ? 1 : 0
+
+  name                 = var.background_jobs_queue_name
+  storage_account_name = local.artifact_storage_account_name_from_blob
+}
+
+resource "azurerm_role_assignment" "api_queue_data_message_sender" {
+  count = local.background_jobs_durable && trimspace(var.artifact_storage_account_id) != "" ? 1 : 0
+
+  scope                = var.artifact_storage_account_id
+  role_definition_name = "Storage Queue Data Message Sender"
   principal_id         = azurerm_container_app.api[0].identity[0].principal_id
 }
 
@@ -191,6 +237,30 @@ resource "azurerm_container_app" "worker" {
         value = var.artifact_blob_service_uri
       }
 
+      dynamic "env" {
+        for_each = local.background_jobs_durable ? [1] : []
+        content {
+          name  = "BackgroundJobs__Mode"
+          value = "Durable"
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.background_jobs_durable ? [1] : []
+        content {
+          name  = "BackgroundJobs__QueueName"
+          value = var.background_jobs_queue_name
+        }
+      }
+
+      dynamic "env" {
+        for_each = local.background_jobs_durable ? [1] : []
+        content {
+          name  = "BackgroundJobs__ResultsContainerName"
+          value = var.background_jobs_results_container
+        }
+      }
+
       liveness_probe {
         transport = "HTTP"
         port      = 8080
@@ -211,6 +281,14 @@ resource "azurerm_role_assignment" "worker_blob_data_contributor" {
 
   scope                = var.artifact_storage_account_id
   role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_container_app.worker[0].identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "worker_queue_data_message_processor" {
+  count = local.background_jobs_durable && trimspace(var.artifact_storage_account_id) != "" ? 1 : 0
+
+  scope                = var.artifact_storage_account_id
+  role_definition_name = "Storage Queue Data Message Processor"
   principal_id         = azurerm_container_app.worker[0].identity[0].principal_id
 }
 

@@ -1,9 +1,15 @@
+using ArchiForge.Application.Jobs;
+
 namespace ArchiForge.Api.Jobs;
 
 public interface IBackgroundJobQueue
 {
-    string Enqueue(string? fileNameHint, string? contentTypeHint, Func<CancellationToken, Task<BackgroundJobFile>> work, int maxRetries = 0);
-    BackgroundJobInfo? GetInfo(string jobId);
-    BackgroundJobFile? GetFile(string jobId);
-}
+    Task<string> EnqueueAsync(
+        BackgroundJobWorkUnit workUnit,
+        int maxRetries = 0,
+        CancellationToken cancellationToken = default);
 
+    Task<BackgroundJobInfo?> GetInfoAsync(string jobId, CancellationToken cancellationToken = default);
+
+    Task<BackgroundJobFile?> GetFileAsync(string jobId, CancellationToken cancellationToken = default);
+}

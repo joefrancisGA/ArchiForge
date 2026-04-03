@@ -10,6 +10,13 @@ using ArchiForge.Api.Health;
 using ArchiForge.Api.Hosting;
 using ArchiForge.Api.Hosted;
 using ArchiForge.Api.Jobs;
+
+using ArchiForge.Application.Jobs;
+
+using Azure.Core;
+using Azure.Storage.Queues;
+
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Api.Resilience;
 using ArchiForge.Api.Services;
 using ArchiForge.Api.Services.Ask;
@@ -103,7 +110,7 @@ internal static partial class ServiceCollectionExtensions
         RegisterDigestDelivery(services, configuration);
         RegisterAlerts(services);
         RegisterDataInfrastructure(services, configuration);
-        RegisterBackgroundJobs(services, hostingRole);
+        RegisterBackgroundJobs(services, configuration, hostingRole);
         RegisterRunExportAndArchitectureAnalysis(services, configuration);
         RegisterComparisonReplayAndDrift(services, configuration);
         RegisterRunReplayManifestAndDiffs(services);
@@ -242,15 +249,77 @@ internal static partial class ServiceCollectionExtensions
         }
     }
 
-    private static void RegisterBackgroundJobs(IServiceCollection services, ArchiForgeHostingRole hostingRole)
+    private static void RegisterBackgroundJobs(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchiForgeHostingRole hostingRole)
     {
+        services.Configure<BackgroundJobsOptions>(configuration.GetSection(BackgroundJobsOptions.SectionName));
+
+        BackgroundJobsOptions jobsSnapshot =
+            configuration.GetSection(BackgroundJobsOptions.SectionName).Get<BackgroundJobsOptions>() ??
+            new BackgroundJobsOptions();
+
+        bool durable = string.Equals(jobsSnapshot.Mode, "Durable", StringComparison.OrdinalIgnoreCase);
+
+        services.AddScoped<IBackgroundJobWorkUnitExecutor, BackgroundJobWorkUnitExecutor>();
+
         if (hostingRole == ArchiForgeHostingRole.Worker)
+        {
+            if (durable)
+            {
+                RegisterDurableBackgroundJobInfrastructure(services);
+                services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
+            }
+
+            return;
+        }
+
+        if (hostingRole is not (ArchiForgeHostingRole.Api or ArchiForgeHostingRole.Combined))
             return;
 
-        services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
+        if (durable)
+        {
+            RegisterDurableBackgroundJobInfrastructure(services);
+            services.AddSingleton<IBackgroundJobQueueNotifySender, AzureStorageQueueBackgroundJobNotifySender>();
+            services.AddSingleton<IBackgroundJobQueue, DurableBackgroundJobQueue>();
+        }
+        else
+        {
+            services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
 
-        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Api)
-            services.AddHostedService(sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
+            services.AddHostedService(static sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
+        }
+    }
+
+    private static void RegisterDurableBackgroundJobInfrastructure(IServiceCollection services)
+    {
+        services.AddScoped<IBackgroundJobRepository, BackgroundJobRepository>();
+        services.AddSingleton<IBackgroundJobResultBlobAccessor, AzureBlobBackgroundJobResultBlobAccessor>();
+        services.AddSingleton(static sp => CreateBackgroundJobsQueueClient(sp));
+    }
+
+    private static QueueClient CreateBackgroundJobsQueueClient(IServiceProvider serviceProvider)
+    {
+        BackgroundJobsOptions jobsOptions =
+            serviceProvider.GetRequiredService<IOptions<BackgroundJobsOptions>>().Value;
+
+        ArtifactLargePayloadOptions? largePayload =
+            serviceProvider.GetService<IOptions<ArtifactLargePayloadOptions>>()?.Value;
+
+        TokenCredential credential = serviceProvider.GetRequiredService<TokenCredential>();
+        Uri? queueUri = BackgroundJobQueueAddress.ResolveQueueServiceUri(jobsOptions, largePayload);
+
+        if (queueUri is null)
+            throw new InvalidOperationException(
+                "BackgroundJobs:QueueServiceUri is missing and could not be derived from ArtifactLargePayload:AzureBlobServiceUri. Configure a queue endpoint for durable jobs.");
+
+        if (string.IsNullOrWhiteSpace(jobsOptions.QueueName))
+            throw new InvalidOperationException("BackgroundJobs:QueueName is required when BackgroundJobs:Mode is Durable.");
+
+        QueueServiceClient serviceClient = new(queueUri, credential);
+
+        return serviceClient.GetQueueClient(jobsOptions.QueueName);
     }
 
     private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection services, IConfiguration configuration)

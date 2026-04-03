@@ -4,6 +4,7 @@ using ArchiForge.Api.Configuration;
 using ArchiForge.Api.Hosting;
 
 using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.Caching;
 using ArchiForge.Persistence.Archival;
 using ArchiForge.Retrieval.Indexing;
@@ -85,6 +86,7 @@ public static class ArchiForgeConfigurationRules
         CollectRetrievalVectorIndexErrors(configuration, errors);
         CollectRateLimitingErrors(configuration, errors);
         CollectHotPathCacheErrors(configuration, environment, errors);
+        CollectBackgroundJobsErrors(configuration, errors);
 
         if (!environment.IsProduction())
         
@@ -403,6 +405,37 @@ public static class ArchiForgeConfigurationRules
 
         errors.Add(
             "Retrieval:VectorIndex must be 'InMemory', 'AzureSearch', or omitted (defaults to InMemory).");
+    }
+
+    private static void CollectBackgroundJobsErrors(IConfiguration configuration, List<string> errors)
+    {
+        BackgroundJobsOptions jobs =
+            configuration.GetSection(BackgroundJobsOptions.SectionName).Get<BackgroundJobsOptions>() ??
+            new BackgroundJobsOptions();
+
+        if (!string.Equals(jobs.Mode, "Durable", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        ArchiForgeOptions archi =
+            configuration.GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>() ?? new ArchiForgeOptions();
+
+        if (!string.Equals(archi.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+            errors.Add("BackgroundJobs:Mode Durable requires ArchiForge:StorageProvider Sql (shared job state in SQL).");
+
+        ArtifactLargePayloadOptions large =
+            configuration.GetSection(ArtifactLargePayloadOptions.SectionName).Get<ArtifactLargePayloadOptions>() ??
+            new ArtifactLargePayloadOptions();
+
+        if (!string.Equals(large.BlobProvider, "AzureBlob", StringComparison.OrdinalIgnoreCase))
+            errors.Add(
+                "BackgroundJobs:Mode Durable requires ArtifactLargePayload:BlobProvider AzureBlob (queue + result blobs via managed identity).");
+
+        if (string.IsNullOrWhiteSpace(large.AzureBlobServiceUri) && string.IsNullOrWhiteSpace(jobs.QueueServiceUri))
+            errors.Add(
+                "BackgroundJobs:Mode Durable requires BackgroundJobs:QueueServiceUri or ArtifactLargePayload:AzureBlobServiceUri.");
+
+        if (string.IsNullOrWhiteSpace(jobs.ResultsContainerName))
+            errors.Add("BackgroundJobs:ResultsContainerName must be set when BackgroundJobs:Mode is Durable.");
     }
 
     private static void CollectSchemaFileErrors(IConfiguration configuration, List<string> errors)

@@ -5,6 +5,7 @@ using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
+using ArchiForge.Application.Jobs;
 using ArchiForge.Contracts.Architecture;
 
 using Asp.Versioning;
@@ -197,19 +198,12 @@ public sealed class AnalysisReportsController(
         if (runDetail.Error is not null) return runDetail.Error;
         request.PreloadedRunDetail = runDetail.Detail;
 
-        string jobId = jobs.Enqueue(
-            fileNameHint: $"analysis-report-{runId}.docx",
-            contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            work: async ct =>
-            {
-                byte[] bytes = await docxExportService.GenerateDocxAsync(
-                    await architectureAnalysisService.BuildAsync(request, ct),
-                    ct);
-                return new BackgroundJobFile(
-                    FileName: $"analysis-report-{runId}.docx",
-                    ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    Bytes: bytes);
-            });
+        AnalysisReportDocxWorkUnit workUnit = new(
+            AnalysisReportDocxJobPayload.FromAnalysisRequest(request),
+            FileName: $"analysis-report-{runId}.docx",
+            ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+        string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
 
         return Accepted(new AsyncJobResponse { JobId = jobId });
     }
@@ -331,26 +325,12 @@ public sealed class AnalysisReportsController(
         RunDetailLookup loaded = await LoadRunDetailOrNotFoundAsync(runId, cancellationToken);
         if (loaded.Error is not null) return loaded.Error;
 
-        string jobId = jobs.Enqueue(
-            fileNameHint: $"analysis-report-consulting-{runId}.docx",
-            contentTypeHint: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            work: async ct =>
-            {
-                ArchitectureAnalysisRequest analysisRequest = ConsultingDocxAnalysisRequestFactory.Create(runId, request);
-                analysisRequest.PreloadedRunDetail = loaded.Detail;
+        ConsultingDocxWorkUnit workUnit = new(
+            ConsultingDocxJobPayloadMapper.ToPayload(runId, request),
+            FileName: $"analysis-report-consulting-{runId}.docx",
+            ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
-                ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(
-                    analysisRequest,
-                    ct);
-
-                byte[] bytes = await architectureAnalysisConsultingDocxExportService.GenerateDocxAsync(
-                    report,
-                    ct);
-                return new BackgroundJobFile(
-                    FileName: $"analysis-report-consulting-{runId}.docx",
-                    ContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    Bytes: bytes);
-            });
+        string jobId = await jobs.EnqueueAsync(workUnit, cancellationToken: cancellationToken);
 
         return Accepted(new AsyncJobResponse { JobId = jobId });
     }

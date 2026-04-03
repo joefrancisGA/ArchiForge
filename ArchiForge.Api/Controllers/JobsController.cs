@@ -1,6 +1,7 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Jobs;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.Application.Jobs;
 
 using Asp.Versioning;
 
@@ -30,12 +31,12 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
-    public IActionResult GetJob([FromRoute] string jobId)
+    public async Task<IActionResult> GetJob([FromRoute] string jobId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(jobId))
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
-        BackgroundJobInfo? info = jobs.GetInfo(jobId);
+        BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
         return info is null ? this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(info);
     }
 
@@ -51,19 +52,19 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BackgroundJobInfo), StatusCodes.Status409Conflict)]
-    public IActionResult DownloadJobFile([FromRoute] string jobId)
+    public async Task<IActionResult> DownloadJobFile([FromRoute] string jobId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(jobId))
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
-        BackgroundJobInfo? info = jobs.GetInfo(jobId);
+        BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
         if (info is null)
             return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
         if (info.State != BackgroundJobState.Succeeded)
             return Conflict(info);
 
-        BackgroundJobFile? file = jobs.GetFile(jobId);
+        BackgroundJobFile? file = await jobs.GetFileAsync(jobId, cancellationToken);
         if (file is null)
             return Conflict(info);
 
