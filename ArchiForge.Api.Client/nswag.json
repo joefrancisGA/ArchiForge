@@ -1,0 +1,33 @@
+{
+  "runtime": "Net90",
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "../ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json",
+      "newLineBehavior": "Auto"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "className": "ArchiForgeApiClient",
+      "namespace": "ArchiForge.Api.Client.Generated",
+      "output": "Generated/ArchiForgeApiClient.g.cs",
+      "generateClientClasses": true,
+      "generateClientInterfaces": true,
+      "injectHttpClient": true,
+      "disposeHttpClient": false,
+      "httpClientType": "System.Net.Http.HttpClient",
+      "useHttpClientCreationMethod": false,
+      "useHttpRequestMessageCreationMethod": false,
+      "generateExceptionClasses": true,
+      "exceptionClass": "ArchiForgeApiException",
+      "wrapDtoExceptions": true,
+      "useBaseUrl": true,
+      "generateBaseUrlProperty": true,
+      "generateSyncMethods": false,
+      "exposeJsonSerializerSettings": false,
+      "clientClassAccessModifier": "public",
+      "generateContractsOutput": false,
+      "newLineBehavior": "Auto"
+    }
+  }
+}

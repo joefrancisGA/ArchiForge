@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ArchiForge.Api.Client</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageId>ArchiForge.Api.Client</PackageId>
+    <Version>$(ArchiForgeApiClientPackageVersion)</Version>
+    <AssemblyVersion>$(ArchiForgeApiClientPackageVersion)</AssemblyVersion>
+    <FileVersion>$(ArchiForgeApiClientPackageVersion)</FileVersion>
+    <Title>ArchiForge API HTTP client (OpenAPI v1)</Title>
+    <Description>NSwag-generated HTTP client for ArchiForge API v1. Built from the same OpenAPI document as contract tests (ArchiForge.Api.Tests Contracts/openapi-v1.contract.snapshot.json). Set BaseUrl on the client to your API host.</Description>
+    <PackageTags>ArchiForge;OpenAPI;NSwag;HttpClient</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="NSwag.MSBuild">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="nswag.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="ArchiForgeApiClientPackage.cs" />
+  </ItemGroup>
+
+  <Target Name="GenerateArchiForgeOpenApiClient" BeforeTargets="BeforeCompile" DependsOnTargets="PrepareForBuild">
+    <MakeDir Directories="$(MSBuildProjectDirectory)\Generated" />
+    <Exec Command="$(NSwagExe_Net90) run &quot;$(MSBuildProjectDirectory)\nswag.json&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <ItemGroup>
+      <Compile Include="$(MSBuildProjectDirectory)\Generated\ArchiForgeApiClient.g.cs" />
+    </ItemGroup>
+  </Target>
+
+</Project>

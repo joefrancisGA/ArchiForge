@@ -362,5 +362,11 @@ MigrationBackup/
 # Local CycloneDX tool install (see docs/BUILD.md)
 .tools-cdx/
 
+# Local tool experiments (e.g. NSwag.ConsoleCore scratch installs)
+.tools/
+
+# NSwag client output (regenerated each build from OpenAPI snapshot)
+ArchiForge.Api.Client/Generated/
+
 # Fody - auto-generated XML schema
 FodyWeavers.xsd

@@ -132,6 +132,7 @@ jobs:
         run: python scripts/assert_context_ingestion_di_guards.py
 
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
+      # ArchiForge.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
       - name: Test — fast core
         run: dotnet test ArchiForge.sln --no-build -c Release --settings coverage.runsettings --filter "Suite=Core&Category!=Slow&Category!=Integration" --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-fast-core"

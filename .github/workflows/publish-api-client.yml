@@ -1,0 +1,54 @@
+# Pack and optionally push ArchiForge.Api.Client to a NuGet-compatible feed.
+# Configure repository secret NUGET_API_KEY (NuGet.org or Azure Artifacts PAT) to enable push.
+name: Publish API client (NuGet)
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_version:
+        description: "SemVer for the package (overrides Directory.Build.props for this run)"
+        required: true
+        default: "1.0.0"
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Pack
+        run: |
+          dotnet pack ArchiForge.Api.Client/ArchiForge.Api.Client.csproj \
+            --no-restore \
+            -c Release \
+            -o "${RUNNER_TEMP}/nuget" \
+            /p:ArchiForgeApiClientPackageVersion=${{ inputs.package_version }}
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: archiforge-api-client-nupkg
+          path: ${{ runner.temp }}/nuget/*.nupkg
+
+      - name: Push (NuGet.org)
+        if: ${{ secrets.NUGET_API_KEY != '' }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

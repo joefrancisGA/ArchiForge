@@ -1,5 +1,7 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- NuGet semver for ArchiForge.Api.Client; bump when releasing a new SDK drop. -->
+    <ArchiForgeApiClientPackageVersion>1.0.0</ArchiForgeApiClientPackageVersion>
   </PropertyGroup>
 </Project>
