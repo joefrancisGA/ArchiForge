@@ -43,11 +43,15 @@ jobs:
           name: archiforge-api-client-nupkg
           path: ${{ runner.temp }}/nuget/*.nupkg
 
+      # secrets cannot be used in step `if:` in this workflow validator; branch in the shell instead.
       - name: Push (NuGet.org)
-        if: ${{ secrets.NUGET_API_KEY != '' }}
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
+          if [ -z "${NUGET_API_KEY}" ]; then
+            echo "NUGET_API_KEY is not set; skipping NuGet push (artifact upload still contains the .nupkg)."
+            exit 0
+          fi
           dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \
             --api-key "$NUGET_API_KEY" \
             --source https://api.nuget.org/v3/index.json \
