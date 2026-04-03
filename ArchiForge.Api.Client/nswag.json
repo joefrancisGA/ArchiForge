@@ -24,6 +24,7 @@
       "useBaseUrl": true,
       "generateBaseUrlProperty": true,
       "generateSyncMethods": false,
+      "jsonLibrary": "SystemTextJson",
       "exposeJsonSerializerSettings": false,
       "clientClassAccessModifier": "public",
       "generateContractsOutput": false,
