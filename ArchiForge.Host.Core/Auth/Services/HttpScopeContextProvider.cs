@@ -7,7 +7,7 @@ using Microsoft.Extensions.Primitives;
 namespace ArchiForge.Host.Core.Auth.Services;
 
 /// <summary>
-/// Resolves <see cref="ScopeContext"/> from optional ambient override, then JWT claims, then <c>x-*-id</c> headers, with dev fallbacks.
+/// Resolves <see cref="ScopeContext"/> from optional ambient override, then JWT claims, then <c>x-*-id</c> headers (headers only when the claim is absent or not a valid GUID), with dev fallbacks.
 /// </summary>
 /// <param name="httpContextAccessor">Current HTTP context when the call is on the request thread.</param>
 /// <remarks>
@@ -18,8 +18,9 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
 {
     /// <inheritdoc />
     /// <remarks>
-    /// Order: <see cref="AmbientScopeContext.CurrentOverride"/> (background jobs), then headers <c>x-tenant-id</c> / <c>x-workspace-id</c> / <c>x-project-id</c>,
-    /// then claims <c>tenant_id</c>, <c>workspace_id</c>, <c>project_id</c>, else <see cref="ScopeIds"/> defaults.
+    /// Order per dimension: <see cref="AmbientScopeContext.CurrentOverride"/> (background jobs), then JWT claims
+    /// <c>tenant_id</c> / <c>workspace_id</c> / <c>project_id</c> when they parse as GUIDs, then <c>x-*-id</c> headers,
+    /// else <see cref="ScopeIds"/> defaults. Claims win over headers so callers cannot override token-bound scope via headers (IDOR mitigation).
     /// </remarks>
     public ScopeContext GetCurrentScope()
     {
@@ -31,28 +32,37 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
         ClaimsPrincipal? user = http?.User;
         IHeaderDictionary? headers = http?.Request.Headers;
 
-        Guid tenant = TryHeader("x-tenant-id", TryGetClaim("tenant_id", ScopeIds.DefaultTenant));
-        Guid workspace = TryHeader("x-workspace-id", TryGetClaim("workspace_id", ScopeIds.DefaultWorkspace));
-        Guid project = TryHeader("x-project-id", TryGetClaim("project_id", ScopeIds.DefaultProject));
-
         return new ScopeContext
         {
-            TenantId = tenant,
-            WorkspaceId = workspace,
-            ProjectId = project
+            TenantId = ResolveScopeId(user, headers, "tenant_id", "x-tenant-id", ScopeIds.DefaultTenant),
+            WorkspaceId = ResolveScopeId(user, headers, "workspace_id", "x-workspace-id", ScopeIds.DefaultWorkspace),
+            ProjectId = ResolveScopeId(user, headers, "project_id", "x-project-id", ScopeIds.DefaultProject)
         };
+    }
 
-        Guid TryGetClaim(string claim, Guid fallback)
-        {
-            string? value = user?.FindFirst(claim)?.Value;
-            return Guid.TryParse(value, out Guid parsed) ? parsed : fallback;
-        }
+    /// <summary>
+    /// Prefers a well-formed JWT claim over the matching header so scope stays bound to the token when both are present.
+    /// </summary>
+    private static Guid ResolveScopeId(
+        ClaimsPrincipal? user,
+        IHeaderDictionary? headers,
+        string claimType,
+        string headerName,
+        Guid defaultId)
+    {
+        string? claimValue = user?.FindFirst(claimType)?.Value;
 
-        Guid TryHeader(string key, Guid fallback)
-        {
-            if (headers is null || !headers.TryGetValue(key, out StringValues value))
-                return fallback;
-            return Guid.TryParse(value.ToString(), out Guid parsed) ? parsed : fallback;
-        }
+        if (!string.IsNullOrWhiteSpace(claimValue) && Guid.TryParse(claimValue, out Guid fromClaim))
+            return fromClaim;
+
+        if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
+            return defaultId;
+
+        string? headerText = headerRaw.ToString();
+
+        if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader))
+            return defaultId;
+
+        return fromHeader;
     }
 }

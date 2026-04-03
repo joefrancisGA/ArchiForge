@@ -5,7 +5,8 @@ namespace ArchiForge.Core.Scoping;
 /// </summary>
 /// <remarks>
 /// Default host implementation: <c>ArchiForge.Host.Core.Auth.Services.HttpScopeContextProvider</c>, which prefers
-/// <see cref="AmbientScopeContext.CurrentOverride"/> when set (e.g. advisory scan) so scoped services see the job’s scope without an HTTP request.
+/// <see cref="AmbientScopeContext.CurrentOverride"/> when set (e.g. advisory scan), then JWT scope claims over <c>x-*-id</c> headers
+/// so token-bound scope cannot be overridden by headers.
 /// </remarks>
 public interface IScopeContextProvider
 {
