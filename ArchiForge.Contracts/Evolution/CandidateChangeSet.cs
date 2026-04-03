@@ -11,6 +11,10 @@ public sealed class CandidateChangeSet
 
     public IReadOnlyList<CandidateChangeSetStep> ProposedActions { get; init; } = [];
 
+    public IReadOnlyList<ChangeSetAffectedComponent> AffectedComponents { get; init; } = [];
+
+    public ExpectedImpact ExpectedImpact { get; init; } = new();
+
     public double? SimulationScore { get; init; }
 
     public double? DeterminismScore { get; init; }

@@ -7,6 +7,7 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Repositories;
+using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 using ArchiForge.Decisioning.Advisory.Delivery;
@@ -101,6 +102,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IProductLearningPlanningRepository, InMemoryProductLearningPlanningRepository>();
             services.AddSingleton<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
             services.AddSingleton<IImprovementPlanningService, ImprovementPlanningService>();
+            services.AddSingleton<ICandidateChangeSetService, CandidateChangeSetService>();
             services.AddSingleton<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
             services.AddSingleton<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
             services.AddSingleton<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
@@ -179,6 +181,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
         services.AddScoped<IImprovementThemeExtractionService, ImprovementThemeExtractionService>();
         services.AddScoped<IImprovementPlanningService, ImprovementPlanningService>();
+        services.AddScoped<ICandidateChangeSetService, CandidateChangeSetService>();
         services.AddScoped<IImprovementPlanPrioritizationService, ImprovementPlanPrioritizationService>();
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
         services.AddScoped<IProductLearningImprovementOpportunityService, ProductLearningImprovementOpportunityService>();
