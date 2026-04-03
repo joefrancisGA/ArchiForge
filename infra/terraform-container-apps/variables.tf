@@ -84,8 +84,8 @@ variable "worker_min_replicas" {
 
 variable "worker_max_replicas" {
   type        = number
-  description = "Maximum worker replicas (use 1 until leader election exists for duplicate-safe scaling)."
-  default     = 1
+  description = "Maximum worker replicas. Raise when using durable background jobs + queue-depth scaling; workers coordinate via SQL row locks and batch dequeue."
+  default     = 20
 }
 
 variable "worker_cpu" {
@@ -217,4 +217,28 @@ variable "background_jobs_results_container" {
   type        = string
   description = "Blob container for completed export job binaries (created on first upload if missing)."
   default     = "background-job-results"
+}
+
+variable "worker_enable_queue_depth_scaling" {
+  type        = bool
+  description = "When true and background_jobs_mode is Durable, add an azure-queue custom scale rule (KEDA) to the worker. Requires worker_queue_scale_connection_string (storage connection string used only as a Container App secret for the scaler)."
+  default     = false
+}
+
+variable "worker_queue_scale_connection_string" {
+  type        = string
+  description = "Azure Storage connection string for the queue scaler (same account as artifact_blob_service_uri). Sensitive; leave empty to omit queue scaling. Prefer Key Vault references at the deployment layer rather than committing this value."
+  default     = ""
+  sensitive   = true
+}
+
+variable "worker_queue_depth_target_messages_per_revision" {
+  type        = number
+  description = "KEDA azure-queue rule: approximate messages per worker revision before scaling out (queue length threshold)."
+  default     = 10
+
+  validation {
+    condition     = var.worker_queue_depth_target_messages_per_revision >= 1
+    error_message = "worker_queue_depth_target_messages_per_revision must be at least 1."
+  }
 }

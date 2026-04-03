@@ -25,6 +25,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         BackgroundJobsOptions snapshot = options.Value;
         TimeSpan visibility = TimeSpan.FromMinutes(Math.Clamp(snapshot.ProcessorVisibilityMinutes, 1, 120));
         int idleMs = Math.Clamp(snapshot.ProcessorIdlePollMilliseconds, 100, 60_000);
+        int batchSize = Math.Clamp(snapshot.ProcessorReceiveBatchSize, 1, 32);
 
         await queueClient.CreateIfNotExistsAsync(cancellationToken: stoppingToken);
 
@@ -33,7 +34,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             try
             {
                 QueueMessage[] messages = await queueClient.ReceiveMessagesAsync(
-                    maxMessages: 1,
+                    maxMessages: batchSize,
                     visibilityTimeout: visibility,
                     cancellationToken: stoppingToken);
 
@@ -44,17 +45,24 @@ public sealed class BackgroundJobQueueProcessorHostedService(
                     continue;
                 }
 
-                QueueMessage message = messages[0];
-                string? jobId = message.MessageText?.Trim();
-
-                if (string.IsNullOrWhiteSpace(jobId))
+                foreach (QueueMessage message in messages)
                 {
-                    await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+                    if (stoppingToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
 
-                    continue;
+                    string? jobId = message.MessageText?.Trim();
+
+                    if (string.IsNullOrWhiteSpace(jobId))
+                    {
+                        await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+                        continue;
+                    }
+
+                    await ProcessOneMessageAsync(jobId, message, stoppingToken);
                 }
-
-                await ProcessOneMessageAsync(jobId, message, stoppingToken);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -70,40 +78,40 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
     private async Task ProcessOneMessageAsync(string jobId, QueueMessage message, CancellationToken stoppingToken)
     {
-        BackgroundJobsOptions snapshot = options.Value;
+        QueuedBackgroundJobPrepareResult prepared =
+            await repository.TryPrepareQueuedJobAsync(jobId, stoppingToken);
 
-        BackgroundJobRow? row = await repository.GetAsync(jobId, stoppingToken);
-
-        if (row is null)
+        if (prepared.ShouldDeleteQueueMessageImmediately)
         {
-            logger.LogWarning("Queue message for unknown job id {JobId}; deleting stale message.", jobId);
-            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-            return;
-        }
-
-        if (string.Equals(row.State, nameof(BackgroundJobState.Succeeded), StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(row.State, nameof(BackgroundJobState.Failed), StringComparison.OrdinalIgnoreCase))
-        {
-            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
-
-            return;
-        }
-
-        int claimed = await repository.TryMarkRunningAsync(jobId, stoppingToken);
-
-        if (claimed == 0)
-        {
-            BackgroundJobRow? current = await repository.GetAsync(jobId, stoppingToken);
-
-            if (current is not null &&
-                string.Equals(current.State, nameof(BackgroundJobState.Running), StringComparison.OrdinalIgnoreCase))
+            if (prepared.WasUnknownJobId)
             {
-                logger.LogDebug("Job {JobId} already running elsewhere; leaving message for retry visibility.", jobId);
+                logger.LogWarning("Queue message for unknown job id {JobId}; deleting stale message.", jobId);
+            }
+            else if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(
+                    "Queue message for job {JobId} resolved without execution; deleting notification.",
+                    jobId);
+            }
+
+            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
+
+            return;
+        }
+
+        if (!prepared.ShouldRunExecutor || prepared.RowWhenRunnable is null)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(
+                    "Job {JobId} not claimable in this poll; leaving message for visibility retry.",
+                    jobId);
             }
 
             return;
         }
+
+        BackgroundJobRow row = prepared.RowWhenRunnable;
 
         BackgroundJobWorkUnit? workUnit = BackgroundJobWorkUnitJson.Deserialize(row.WorkUnitJson);
 

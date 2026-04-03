@@ -101,6 +101,139 @@ public sealed class BackgroundJobRepository(IDbConnectionFactory connectionFacto
             new CommandDefinition(sql, new { JobId = jobId }, cancellationToken: cancellationToken));
     }
 
+    /// <inheritdoc />
+    public async Task<QueuedBackgroundJobPrepareResult> TryPrepareQueuedJobAsync(
+        string jobId,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(jobId))
+        {
+            return new QueuedBackgroundJobPrepareResult(false, true, false, null);
+        }
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.ReadCommitted);
+
+        try
+        {
+            const string selectSql = """
+                SELECT
+                    JobId,
+                    WorkUnitJson,
+                    State,
+                    CreatedUtc,
+                    StartedUtc,
+                    CompletedUtc,
+                    Error,
+                    FileName,
+                    ContentType,
+                    RetryCount,
+                    MaxRetries,
+                    ResultBlobName
+                FROM dbo.BackgroundJobs WITH (UPDLOCK, ROWLOCK)
+                WHERE JobId = @JobId
+                """;
+
+            BackgroundJobRow? row = await connection.QuerySingleOrDefaultAsync<BackgroundJobRow>(
+                new CommandDefinition(
+                    selectSql,
+                    new { JobId = jobId },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+
+            if (row is null)
+            {
+                transaction.Commit();
+
+                return new QueuedBackgroundJobPrepareResult(false, true, true, null);
+            }
+
+            if (IsTerminalJobState(row.State))
+            {
+                transaction.Commit();
+
+                return new QueuedBackgroundJobPrepareResult(false, true, false, null);
+            }
+
+            if (string.Equals(row.State, "Running", StringComparison.OrdinalIgnoreCase))
+            {
+                transaction.Commit();
+
+                return new QueuedBackgroundJobPrepareResult(false, true, false, null);
+            }
+
+            if (!string.Equals(row.State, "Pending", StringComparison.OrdinalIgnoreCase))
+            {
+                transaction.Commit();
+
+                return new QueuedBackgroundJobPrepareResult(false, true, false, null);
+            }
+
+            const string updateSql = """
+                UPDATE dbo.BackgroundJobs
+                SET State = N'Running',
+                    StartedUtc = COALESCE(StartedUtc, SYSUTCDATETIME())
+                WHERE JobId = @JobId
+                  AND State = N'Pending'
+                """;
+
+            int affected = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    updateSql,
+                    new { JobId = jobId },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+
+            if (affected == 0)
+            {
+                transaction.Commit();
+
+                return new QueuedBackgroundJobPrepareResult(false, false, false, null);
+            }
+
+            BackgroundJobRow runningRow = new()
+            {
+                JobId = row.JobId,
+                WorkUnitJson = row.WorkUnitJson,
+                State = "Running",
+                CreatedUtc = row.CreatedUtc,
+                StartedUtc = DateTimeOffset.UtcNow,
+                CompletedUtc = row.CompletedUtc,
+                Error = row.Error,
+                FileName = row.FileName,
+                ContentType = row.ContentType,
+                RetryCount = row.RetryCount,
+                MaxRetries = row.MaxRetries,
+                ResultBlobName = row.ResultBlobName
+            };
+
+            transaction.Commit();
+
+            return new QueuedBackgroundJobPrepareResult(true, false, false, runningRow);
+        }
+        catch
+        {
+            transaction.Rollback();
+
+            throw;
+        }
+    }
+
+    private static bool IsTerminalJobState(string state)
+    {
+        if (string.Equals(state, "Succeeded", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        if (string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     public async Task MarkSucceededAsync(
         string jobId,
         string resultBlobName,

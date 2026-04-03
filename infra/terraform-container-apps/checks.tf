@@ -66,3 +66,12 @@ check "container_apps_durable_jobs_require_parseable_blob_host" {
     error_message = "background_jobs_mode = Durable requires artifact_blob_service_uri in the form https://{account}.blob.core.windows.net/ so Terraform can create azurerm_storage_queue on that storage account."
   }
 }
+
+check "worker_queue_scale_requires_connection_string" {
+  assert {
+    condition = !var.enable_container_apps || !var.worker_enable_queue_depth_scaling || var.background_jobs_mode != "Durable" || length(
+      trimspace(var.worker_queue_scale_connection_string)
+    ) > 0
+    error_message = "worker_enable_queue_depth_scaling = true with background_jobs_mode = Durable requires worker_queue_scale_connection_string for the Container Apps azure-queue scaler."
+  }
+}

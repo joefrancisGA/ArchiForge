@@ -446,6 +446,14 @@ public static class ArchiForgeConfigurationRules
 
         if (string.IsNullOrWhiteSpace(jobs.ResultsContainerName))
             errors.Add("BackgroundJobs:ResultsContainerName must be set when BackgroundJobs:Mode is Durable.");
+
+        int receiveBatch = configuration.GetValue("BackgroundJobs:ProcessorReceiveBatchSize", 16);
+
+        if (receiveBatch < 1 || receiveBatch > 32)
+        {
+            errors.Add(
+                "BackgroundJobs:ProcessorReceiveBatchSize must be between 1 and 32 when BackgroundJobs:Mode is Durable.");
+        }
     }
 
     private static void CollectSchemaFileErrors(IConfiguration configuration, List<string> errors)

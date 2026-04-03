@@ -22,9 +22,14 @@ api_max_replicas = 5
 ui_min_replicas  = 1
 ui_max_replicas  = 3
 
-# Background worker (advisory scan, archival, retrieval outbox). Keep 1/1 until leader election supports scale-out.
+# Background worker (advisory scan, archival, retrieval outbox, durable export jobs). Scale-out is safe for durable jobs (SQL row lock + batch dequeue); advisory/archival still run per replica.
 worker_min_replicas = 1
-worker_max_replicas = 1
+worker_max_replicas = 20
+
+# Optional: KEDA-style queue depth scaling for the worker (requires background_jobs_mode = "Durable" and a storage connection string for the scaler secret only).
+# worker_enable_queue_depth_scaling              = true
+# worker_queue_scale_connection_string           = "DefaultEndpointsProtocol=..." # sensitive; prefer TF_VAR_ or Key Vault–backed pipeline secret
+# worker_queue_depth_target_messages_per_revision = 10
 
 api_scale_concurrent_requests = 10
 ui_scale_concurrent_requests  = 20

@@ -20,4 +20,7 @@ public sealed class BackgroundJobsOptions
     public int ProcessorVisibilityMinutes { get; set; } = 15;
 
     public int ProcessorIdlePollMilliseconds { get; set; } = 750;
+
+    /// <summary>Azure Storage Queue receive batch size per poll (1–32). Larger batches improve throughput when multiple workers scale out.</summary>
+    public int ProcessorReceiveBatchSize { get; set; } = 16;
 }

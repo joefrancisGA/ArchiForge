@@ -8,6 +8,11 @@ locals {
 
   background_jobs_durable = local.enabled && var.background_jobs_mode == "Durable"
 
+  # KEDA-style azure-queue scale rule (Container Apps): requires a storage connection string secret (see variables).
+  worker_queue_scale_enabled = local.background_jobs_durable && var.worker_enable_queue_depth_scaling && length(
+    trimspace(var.worker_queue_scale_connection_string)
+  ) > 0
+
   # Parse storage account name from blob endpoint (https://{acct}.blob.core.windows.net) for queue resource + RBAC scope alignment.
   artifact_storage_account_name_from_blob = local.enabled && length(trimspace(var.artifact_blob_service_uri)) > 0 && can(
     regex("^https://([^.]+)\\.blob\\.core\\.windows\\.net/?$", var.artifact_blob_service_uri)
@@ -197,6 +202,14 @@ resource "azurerm_container_app" "worker" {
   resource_group_name          = local.resource_group_name
   revision_mode                = "Single"
 
+  dynamic "secret" {
+    for_each = local.worker_queue_scale_enabled ? [1] : []
+    content {
+      name  = "queue-scale-connection"
+      value = var.worker_queue_scale_connection_string
+    }
+  }
+
   identity {
     type = "SystemAssigned"
   }
@@ -271,6 +284,23 @@ resource "azurerm_container_app" "worker" {
         transport = "HTTP"
         port      = 8080
         path      = "/health/ready"
+      }
+    }
+
+    dynamic "custom_scale_rule" {
+      for_each = local.worker_queue_scale_enabled ? [1] : []
+      content {
+        name             = "background-jobs-queue-depth"
+        custom_rule_type = "azure-queue"
+        metadata = {
+          queueName   = var.background_jobs_queue_name
+          queueLength = tostring(var.worker_queue_depth_target_messages_per_revision)
+        }
+
+        authentication {
+          secret_name       = "queue-scale-connection"
+          trigger_parameter = "connection"
+        }
       }
     }
   }

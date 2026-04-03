@@ -5,7 +5,7 @@ Optional root that deploys:
 - **Log Analytics** workspace (required by Container Apps Environment)
 - **Container Apps Environment** (consumption; optional **VNet integration** + internal load balancer)
 - **`azurerm_container_app`** for **ArchiForge.Api** (port **8080**, **`Hosting__Role=Api`**, liveness `/health/live`, readiness `/health/ready`, `ASPNETCORE_URLS`)
-- **`azurerm_container_app`** for **ArchiForge.Worker** (same image by default, **`command` = `dotnet ArchiForge.Worker.dll`**, **`Hosting__Role=Worker`**, fixed **min/max replicas = 1**, health probes on **8080**; no HTTP scale rule)
+- **`azurerm_container_app`** for **ArchiForge.Worker** (same image by default, **`command` = `dotnet ArchiForge.Worker.dll`**, **`Hosting__Role=Worker`**, configurable **min/max replicas**, health probes on **8080**; optional **azure-queue** scale rule when **`worker_enable_queue_depth_scaling`** and a **queue connection string** secret are set)
 - **`azurerm_container_app`** for **archiforge-ui** (port **3000**, probes on `/`)
 
 HTTP **KEDA-style** scale rules scale each app between **min/max replicas** using **concurrent request** targets.
@@ -42,13 +42,17 @@ The UI calls the backend via same-origin **`/api/proxy`** in dev. In Container A
 
 ## Background services and replicas
 
-**Terraform** provisions a dedicated **`archiforge-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 1**) that runs **advisory scan polling**, **data archival**, and **retrieval indexing outbox** processing. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops.
+**Terraform** provisions a dedicated **`archiforge-worker`** container app (**`worker_min_replicas` / `worker_max_replicas`**, default **1 / 20**) that runs **advisory scan polling**, **data archival**, **retrieval indexing outbox** processing, and (when durable) **background export jobs** from Azure Storage Queue. The **API** app uses **`Hosting__Role=Api`**, so it does **not** run those loops.
 
 **Export async jobs** (`IBackgroundJobQueue`): default **`background_jobs_mode = "InMemory"`** keeps the **in-process** queue on the API (or Combined host). Set **`background_jobs_mode = "Durable"`** to use **SQL** (`dbo.BackgroundJobs`), **Azure Storage Queue** (Terraform creates **`azurerm_storage_queue`** when the blob URI parses a storage account name), and **worker-side processing** (`BackgroundJobQueueProcessorHostedService`). The module then sets **`BackgroundJobs__Mode`**, **`BackgroundJobs__QueueName`**, **`BackgroundJobs__ResultsContainerName`**, grants the API **Storage Queue Data Message Sender** and the worker **Storage Queue Data Message Processor** (blob contributor was already required). **Durable** requires **`ArchiForge:StorageProvider=Sql`**, **Azure Blob** artifacts, and matching app configuration (validated at startup).
 
 **Default `api_min_replicas` is 2** for **staging and production** API availability. For **local or pilot** stacks, set **`api_min_replicas = 1`** in `terraform.tfvars` if you prefer a single API instance.
 
-**Do not scale the worker above 1** until **leader election** or equivalent prevents duplicate advisory/archival/outbox work across instances.
+**Durable export jobs** use **SQL row locks** (`UPDLOCK` + transactional claim) and **batch dequeue** (`BackgroundJobs:ProcessorReceiveBatchSize`, default **16**) so multiple workers do not execute the same job twice; duplicate queue notifications while a job is **Running** are deleted idempotently.
+
+**Advisory scan, archival, and retrieval outbox** loops still run on every worker replica. If duplicate side effects are unacceptable for those features, keep **`worker_max_replicas = 1`** or introduce **leader election** / split workloads in a later iteration.
+
+**Queue-depth scaling (KEDA in Container Apps):** set **`worker_enable_queue_depth_scaling = true`**, **`worker_queue_scale_connection_string`** (sensitive; same storage account as the jobs queue), and optionally **`worker_queue_depth_target_messages_per_revision`**. Terraform adds a **`custom_scale_rule`** of type **`azure-queue`** on the worker. **Managed identity** is used for runtime queue access; the connection string is **only** for the scaler secret as required by the platform.
 
 ## Hot-path cache (SQL mode)
 

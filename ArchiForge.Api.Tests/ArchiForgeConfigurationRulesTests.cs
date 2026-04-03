@@ -235,6 +235,32 @@ public sealed class ArchiForgeConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenDurableJobsAndProcessorReceiveBatchSizeInvalid_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["BackgroundJobs:Mode"] = "Durable",
+            ["BackgroundJobs:ResultsContainerName"] = "background-job-results",
+            ["BackgroundJobs:ProcessorReceiveBatchSize"] = "99",
+            ["ArtifactLargePayload:BlobProvider"] = "AzureBlob",
+            ["ArtifactLargePayload:AzureBlobServiceUri"] = "https://st.blob.core.windows.net",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("ProcessorReceiveBatchSize", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenSchemaPathIsRooted_contains_error()
     {
         Dictionary<string, string?> data = new()
