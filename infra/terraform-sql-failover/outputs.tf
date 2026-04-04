@@ -27,3 +27,8 @@ output "partner_sql_server_resource_id" {
   description = "Partner server resource ID when the failover group is enabled; otherwise null."
   value       = local.enabled ? var.partner_sql_server_resource_id : null
 }
+
+output "sql_consumption_budget_id" {
+  description = "Resource id of the SQL resource group consumption budget when enable_sql_consumption_budget is true; otherwise null."
+  value       = try(azurerm_consumption_budget_resource_group.sql[0].id, null)
+}

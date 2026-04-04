@@ -168,7 +168,7 @@ The repository root `.dockerignore` is used by the API build context (which is t
 | Item | Status | Notes |
 |------|--------|-------|
 | Azure Container Registry (ACR) | Operator-owned | Create per environment; Terraform variables reference registry URL / identity |
-| Terraform roots | Available | `infra/terraform-container-apps`, `infra/terraform-storage`, `infra/terraform-private`, `infra/terraform-edge`, `infra/terraform-monitoring`, `infra/terraform-entra`, optional `infra/terraform` (APIM) — see **`docs/DEPLOYMENT_TERRAFORM.md`** |
+| Terraform roots | Available | `infra/terraform-container-apps`, `infra/terraform-storage`, `infra/terraform-private`, `infra/terraform-edge`, `infra/terraform-monitoring`, `infra/terraform-entra`, `infra/terraform-sql-failover`, `infra/terraform-openai`, optional `infra/terraform` (APIM) — see **`docs/DEPLOYMENT_TERRAFORM.md`** |
 | CI/CD image build + push | Partial | `.github/workflows/ci.yml` builds images and can be extended to push to ACR |
 | VNet / private endpoints | Terraform | `infra/terraform-private` and related modules (landing-zone dependent) |
 | Managed Identity | Terraform / host | Wire in Container Apps / App Service modules per environment |

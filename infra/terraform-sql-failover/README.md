@@ -39,12 +39,17 @@ Optional root that manages **`azurerm_mssql_failover_group`** so the **read/writ
 
 **Suggested order:** provision servers + geo replication outside or alongside this repo, optionally **`terraform-private/`** for private endpoints, then apply this stack **before** cutting app traffic to the listener if you are migrating from a single-server hostname.
 
+## Optional consumption budget
+
+Set **`enable_sql_consumption_budget = true`** to create **`azurerm_consumption_budget_resource_group`** scoped to **`Microsoft.Sql/servers`** and **`Microsoft.Sql/servers/databases`** in the target resource group. Supply **`sql_consumption_budget_resource_group_id`**, or omit it and derive the group from **`primary_sql_server_resource_id`** (must not be the default placeholder when the budget is enabled). Notifications fire at **80% actual** and **100% forecasted** spend.
+
 ## Outputs
 
 | Output | Use |
 |--------|-----|
 | **`read_write_listener_fqdn`** | Preferred SQL host in connection strings. |
 | **`failover_group_id`** | Auditing, RBAC, or downstream automation. |
+| **`sql_consumption_budget_id`** | Present when the optional SQL consumption budget is enabled. |
 
 ## Security
 

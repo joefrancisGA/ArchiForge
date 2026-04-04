@@ -75,3 +75,20 @@ check "worker_queue_scale_requires_connection_string" {
     error_message = "worker_enable_queue_depth_scaling = true with background_jobs_mode = Durable requires worker_queue_scale_connection_string for the Container Apps azure-queue scaler."
   }
 }
+
+check "container_apps_consumption_budget_requires_stack" {
+  assert {
+    condition     = !var.enable_container_apps_consumption_budget || var.enable_container_apps
+    error_message = "enable_container_apps_consumption_budget = true requires enable_container_apps = true."
+  }
+}
+
+check "container_apps_consumption_budget_contact_channel" {
+  assert {
+    condition = !var.enable_container_apps || !var.enable_container_apps_consumption_budget || (
+      length(var.container_apps_consumption_budget_contact_emails) > 0 ||
+      length(var.container_apps_consumption_budget_contact_roles) > 0
+    )
+    error_message = "With enable_container_apps_consumption_budget = true, set container_apps_consumption_budget_contact_emails and/or a non-empty container_apps_consumption_budget_contact_roles list."
+  }
+}

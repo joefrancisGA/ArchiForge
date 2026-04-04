@@ -1,0 +1,12 @@
+# Copy to terraform.tfvars (untracked). This root only manages a Cost Management consumption budget for Azure OpenAI (Cognitive Services).
+
+enable_openai_consumption_budget = false
+
+# openai_consumption_budget_resource_group_id = "/subscriptions/.../resourceGroups/rg-openai"
+# openai_consumption_budget_amount            = 300
+# openai_consumption_budget_contact_emails    = ["finops@example.com"]
+
+# Optional: scope the budget to specific accounts (full ARM ids). When omitted, all Microsoft.CognitiveServices/accounts in the RG are included.
+# openai_consumption_budget_account_resource_ids = [
+#   "/subscriptions/.../resourceGroups/rg-openai/providers/Microsoft.CognitiveServices/accounts/my-openai",
+# ]

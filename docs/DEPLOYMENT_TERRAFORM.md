@@ -49,6 +49,8 @@ flowchart LR
 | `infra/terraform-edge` | Front Door (or edge) entry, TLS termination, routing to backends. |
 | `infra/terraform-monitoring` | Log Analytics, diagnostics, Grafana/Prometheus hooks as defined in that root. |
 | `infra/terraform-entra` | Entra app registrations / service principals **as code**, where used. |
+| `infra/terraform-sql-failover` | SQL geo **failover group** (listener FQDN); optional **resource-group consumption budget** for SQL servers/databases (`enable_sql_consumption_budget`). |
+| `infra/terraform-openai` | Optional **resource-group consumption budget** for **Azure OpenAI** / Cognitive Services accounts (`enable_openai_consumption_budget`). Does not create the OpenAI resource. |
 | `infra/terraform` | Optional **API Management (Consumption)** in front of a public HTTPS backend — see `infra/terraform/README.md`. |
 
 ## Data flow
@@ -66,6 +68,7 @@ flowchart LR
 
 - **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
 - **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchiForge`** label on created resources for Azure Cost Management filters.
+- **Consumption budgets:** Enable **`enable_container_apps_consumption_budget`** in `infra/terraform-container-apps`, **`enable_sql_consumption_budget`** in `infra/terraform-sql-failover`, and/or **`enable_openai_consumption_budget`** in `infra/terraform-openai` to emit **`azurerm_consumption_budget_resource_group`** resources with Cost Management notifications (amounts and `*_time_period_start` are variables per root).
 - **Plan/apply:** Run `terraform init` / `plan` / `apply` per root; compose order is usually **network → data → compute → edge → monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
 - **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchiForge.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.

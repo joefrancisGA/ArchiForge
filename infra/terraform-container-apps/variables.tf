@@ -254,3 +254,49 @@ variable "worker_queue_depth_target_messages_per_revision" {
     error_message = "worker_queue_depth_target_messages_per_revision must be at least 1."
   }
 }
+
+variable "enable_container_apps_consumption_budget" {
+  type        = bool
+  description = "When true and enable_container_apps is true, create an azurerm_consumption_budget_resource_group filtered to Microsoft.App/containerApps and managedEnvironments in the stack resource group."
+  default     = false
+}
+
+variable "container_apps_consumption_budget_name" {
+  type        = string
+  description = "Budget name (unique within the resource group scope in Cost Management)."
+  default     = "archiforge-container-apps-monthly"
+
+  validation {
+    condition     = length(var.container_apps_consumption_budget_name) >= 1 && length(var.container_apps_consumption_budget_name) <= 63
+    error_message = "container_apps_consumption_budget_name must be 1-63 characters."
+  }
+}
+
+variable "container_apps_consumption_budget_amount" {
+  type        = number
+  description = "Monthly budget amount in the subscription billing currency (e.g. USD)."
+  default     = 500
+
+  validation {
+    condition     = var.container_apps_consumption_budget_amount > 0
+    error_message = "container_apps_consumption_budget_amount must be positive."
+  }
+}
+
+variable "container_apps_consumption_budget_time_period_start" {
+  type        = string
+  description = "Budget period start (RFC3339, first day of a month UTC). Azure requires month boundaries."
+  default     = "2026-01-01T00:00:00Z"
+}
+
+variable "container_apps_consumption_budget_contact_emails" {
+  type        = list(string)
+  description = "Email addresses for budget alerts. When empty, contact_roles is used instead."
+  default     = []
+}
+
+variable "container_apps_consumption_budget_contact_roles" {
+  type        = list(string)
+  description = "RBAC roles to notify when container_apps_consumption_budget_contact_emails is empty."
+  default     = ["Owner"]
+}

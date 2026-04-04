@@ -17,3 +17,9 @@ enable_sql_failover_group = false
 #   Environment = "production"
 #   Workload    = "archi-forge"
 # }
+
+# Optional: resource-group consumption budget filtered to Microsoft.Sql/servers + databases (Cost Management).
+# enable_sql_consumption_budget = true
+# sql_consumption_budget_resource_group_id = "/subscriptions/.../resourceGroups/rg-sql" # or omit to derive from primary_sql_server_resource_id
+# sql_consumption_budget_amount            = 500
+# sql_consumption_budget_contact_emails    = ["finops@example.com"]

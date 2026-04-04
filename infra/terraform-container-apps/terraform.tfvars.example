@@ -56,3 +56,8 @@ tags = {
 # Optional FinOps keys (merged with tags and Application = ArchiForge on resources).
 # finops_environment  = "dev"
 # finops_cost_center  = "engineering"
+
+# Optional: resource-group consumption budget for Container Apps + managed environments (requires enable_container_apps = true).
+# enable_container_apps_consumption_budget     = true
+# container_apps_consumption_budget_amount     = 500
+# container_apps_consumption_budget_contact_emails = ["finops@example.com"]

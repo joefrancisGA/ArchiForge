@@ -47,3 +47,8 @@ output "ui_https_url" {
   description = "HTTPS URL for the Operator UI."
   value       = try("https://${azurerm_container_app.ui[0].latest_revision_fqdn}", null)
 }
+
+output "container_apps_consumption_budget_id" {
+  description = "Resource id of the Container Apps consumption budget when enable_container_apps_consumption_budget is true; otherwise null."
+  value       = try(azurerm_consumption_budget_resource_group.container_apps[0].id, null)
+}

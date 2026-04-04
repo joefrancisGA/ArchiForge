@@ -25,3 +25,25 @@ check "sql_failover_automatic_uses_grace" {
     error_message = "Automatic read/write failover requires read_write_grace_minutes >= 60."
   }
 }
+
+check "sql_consumption_budget_requires_scope" {
+  assert {
+    condition = !var.enable_sql_consumption_budget || (
+      length(trimspace(local.sql_consumption_budget_resource_group_id)) > 0 && (
+        length(trimspace(var.sql_consumption_budget_resource_group_id)) > 0 ||
+        !strcontains(var.primary_sql_server_resource_id, "placeholder-primary")
+      )
+    )
+    error_message = "With enable_sql_consumption_budget = true, set sql_consumption_budget_resource_group_id to the SQL resource group ARM id, or set primary_sql_server_resource_id to a real Microsoft.Sql/servers id (not the default placeholder) so the group id can be derived."
+  }
+}
+
+check "sql_consumption_budget_contact_channel" {
+  assert {
+    condition = !var.enable_sql_consumption_budget || (
+      length(var.sql_consumption_budget_contact_emails) > 0 ||
+      length(var.sql_consumption_budget_contact_roles) > 0
+    )
+    error_message = "With enable_sql_consumption_budget = true, set sql_consumption_budget_contact_emails and/or a non-empty sql_consumption_budget_contact_roles list so Azure Cost Management can deliver notifications."
+  }
+}
