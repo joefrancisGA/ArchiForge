@@ -370,3 +370,6 @@ ArchiForge.Api.Client/Generated/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Terraform local provider cache (never commit; stacks also use infra/terraform-*/.gitignore)
+infra/**/.terraform/
