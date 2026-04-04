@@ -33,6 +33,8 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: csharp
+          # Required for advanced setup: explicit mode avoids "build-mode is undefined" / overlay-base fallback warnings.
+          build-mode: manual
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
