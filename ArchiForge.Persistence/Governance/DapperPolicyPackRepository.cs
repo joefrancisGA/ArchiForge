@@ -17,7 +17,9 @@ namespace ArchiForge.Persistence.Governance;
 /// Called from <c>PolicyPacksController.List</c> and from management flows when updating pack metadata after publish.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionFactory) : IPolicyPackRepository
+public sealed class DapperPolicyPackRepository(
+    ISqlConnectionFactory connectionFactory,
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory) : IPolicyPackRepository
 {
     /// <inheritdoc />
     public async Task CreateAsync(PolicyPack pack, CancellationToken ct)
@@ -104,7 +106,7 @@ public sealed class DapperPolicyPackRepository(ISqlConnectionFactory connectionF
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<PolicyPack> rows = await connection.QueryAsync<PolicyPack>(
             new CommandDefinition(
                 sql,

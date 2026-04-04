@@ -17,6 +17,10 @@
  *   ARCHIFORGE_PROJECT_ID   x-project-id GUID
  *   ARCHIFORGE_COMPARE_BASE_RUN_ID / ARCHIFORGE_COMPARE_TARGET_RUN_ID  (for compare scenario)
  *   ARCHIFORGE_RUN_ID       run GUID for run-detail + advisory scenarios
+ *
+ * Write path (opt-in — creates runs; use Simulator mode + non-prod data):
+ *   ARCHIFORGE_LOAD_TEST_WRITES=true  → adds POST /v1/architecture/request (requires ExecuteAuthority on the key).
+ *   K6_ARCH_REQUEST_VUS / K6_ARCH_REQUEST_DURATION tune the write scenario.
  */
 
 import http from "k6/http";
@@ -31,6 +35,20 @@ const project = __ENV.ARCHIFORGE_PROJECT_ID || "33333333-3333-3333-3333-33333333
 const compareBase = __ENV.ARCHIFORGE_COMPARE_BASE_RUN_ID || "00000000-0000-0000-0000-000000000001";
 const compareTarget = __ENV.ARCHIFORGE_COMPARE_TARGET_RUN_ID || "00000000-0000-0000-0000-000000000002";
 const runId = __ENV.ARCHIFORGE_RUN_ID || "00000000-0000-0000-0000-000000000001";
+
+const loadTestWrites = __ENV.ARCHIFORGE_LOAD_TEST_WRITES === "true";
+
+const architectureRequestScenario = loadTestWrites
+  ? {
+      architecture_request: {
+        executor: "constant-vus",
+        vus: Number(__ENV.K6_ARCH_REQUEST_VUS || 2),
+        duration: __ENV.K6_ARCH_REQUEST_DURATION || "20s",
+        exec: "postArchitectureRequest",
+        startTime: "15s",
+      },
+    }
+  : {};
 
 function headers() {
   const h = {
@@ -77,6 +95,7 @@ export const options = {
       exec: "advisoryRecommendations",
       startTime: "10s",
     },
+    ...architectureRequestScenario,
   },
   thresholds: {
     http_req_failed: ["rate<0.99"],
@@ -102,4 +121,39 @@ export function advisoryRecommendations() {
   const res = http.get(url, { headers: headers() });
   check(res, { "advisory list 2xx/404/401/429": (r) => okRead(r) });
   sleep(0.05);
+}
+
+export function postArchitectureRequest() {
+  const url = `${base}/v1/architecture/request`;
+  const payload = JSON.stringify({
+    requestId: `k6-${__VU}-${__ITER}-${Date.now()}`,
+    description:
+      "Simulator-mode k6 write load: gated by ARCHIFORGE_LOAD_TEST_WRITES; POST /v1/architecture/request.",
+    systemName: "K6SimulatorWrites",
+    environment: "loadtest",
+    cloudProvider: "Azure",
+    constraints: [],
+    requiredCapabilities: [],
+    assumptions: [],
+    inlineRequirements: [],
+    documents: [],
+    policyReferences: [],
+    topologyHints: [],
+    securityBaselineHints: [],
+    infrastructureDeclarations: [],
+  });
+  const h = headers();
+  h["Content-Type"] = "application/json";
+  const res = http.post(url, payload, { headers: h });
+  check(res, {
+    "architecture request acceptable status": (r) =>
+      (r.status >= 200 && r.status < 300) ||
+      r.status === 400 ||
+      r.status === 409 ||
+      r.status === 401 ||
+      r.status === 403 ||
+      r.status === 429 ||
+      r.status === 503,
+  });
+  sleep(0.2);
 }

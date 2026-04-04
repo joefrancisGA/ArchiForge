@@ -12,8 +12,9 @@ using Moq;
 namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
-/// <see cref="AuthorityRunListConnectionFactory"/> opens via <see cref="ResilientSqlConnectionFactory"/> when no replica
-/// string is set, then applies <see cref="IRlsSessionContextApplicator"/> once.
+/// <see cref="ReadReplicaRoutedConnectionFactory"/> for <see cref="ReadReplicaQueryRoute.AuthorityRunList"/> opens via
+/// <see cref="ResilientSqlConnectionFactory"/> when no replica string is set, then applies
+/// <see cref="IRlsSessionContextApplicator"/> once.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class AuthorityRunListConnectionFactoryTests
@@ -27,7 +28,7 @@ public sealed class AuthorityRunListConnectionFactoryTests
 
         ResilientSqlConnectionFactory resilient = new(
             inner.Object,
-            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 0));
+            SqlOpenResilienceDefaults.BuildSqlOpenRetryPipeline(maxRetryAttempts: 1));
 
         Mock<IOptionsMonitor<SqlServerOptions>> options = new();
         options.Setup(o => o.CurrentValue).Returns(new SqlServerOptions());
@@ -37,7 +38,11 @@ public sealed class AuthorityRunListConnectionFactoryTests
             .Setup(a => a.ApplyAsync(expected, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        AuthorityRunListConnectionFactory sut = new(resilient, options.Object, applicator.Object);
+        ReadReplicaRoutedConnectionFactory sut = new(
+            resilient,
+            options.Object,
+            applicator.Object,
+            ReadReplicaQueryRoute.AuthorityRunList);
 
         SqlConnection actual = await sut.CreateOpenConnectionAsync(CancellationToken.None);
 

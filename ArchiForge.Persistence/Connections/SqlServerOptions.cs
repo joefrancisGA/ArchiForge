@@ -32,6 +32,12 @@ public sealed class SqlRowLevelSecuritySettings
 [ExcludeFromCodeCoverage(Justification = "Configuration binding DTO with no logic.")]
 public sealed class SqlReadReplicaSettings
 {
-    /// <summary>When set, authority run list reads may use this connection instead of the primary.</summary>
+    /// <summary>
+    /// Azure SQL failover group <strong>read-only listener</strong> (secondary replica). Used for governance-resolution and
+    /// golden-manifest lookup reads when set; also used for authority run lists when <see cref="AuthorityRunListReadsConnectionString"/> is unset.
+    /// </summary>
+    public string? FailoverGroupReadOnlyListenerConnectionString { get; set; }
+
+    /// <summary>When set, authority run list reads prefer this connection over <see cref="FailoverGroupReadOnlyListenerConnectionString"/>.</summary>
     public string? AuthorityRunListReadsConnectionString { get; set; }
 }

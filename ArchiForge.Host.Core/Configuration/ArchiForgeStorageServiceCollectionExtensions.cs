@@ -179,7 +179,23 @@ public static class ArchiForgeStorageServiceCollectionExtensions
                 sp.GetRequiredService<ILogger<SessionContextSqlConnectionFactory>>());
         });
 
-        services.AddScoped<IAuthorityRunListConnectionFactory, AuthorityRunListConnectionFactory>();
+        services.AddScoped<IAuthorityRunListConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
+            sp.GetRequiredService<ResilientSqlConnectionFactory>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
+            sp.GetRequiredService<IRlsSessionContextApplicator>(),
+            ReadReplicaQueryRoute.AuthorityRunList));
+
+        services.AddScoped<IGovernanceResolutionReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
+            sp.GetRequiredService<ResilientSqlConnectionFactory>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
+            sp.GetRequiredService<IRlsSessionContextApplicator>(),
+            ReadReplicaQueryRoute.GovernanceResolution));
+
+        services.AddScoped<IGoldenManifestLookupReadConnectionFactory>(sp => new ReadReplicaRoutedConnectionFactory(
+            sp.GetRequiredService<ResilientSqlConnectionFactory>(),
+            sp.GetRequiredService<IOptionsMonitor<SqlServerOptions>>(),
+            sp.GetRequiredService<IRlsSessionContextApplicator>(),
+            ReadReplicaQueryRoute.GoldenManifestLookup));
 
         Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
         string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;

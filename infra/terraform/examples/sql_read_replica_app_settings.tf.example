@@ -1,13 +1,18 @@
-# Example App Service settings for optional read replica routing (authority run lists).
-# Wire SqlServer:ReadReplica:AuthorityRunListReadsConnectionString to a secondary SQL endpoint
-# (Azure SQL read scale-out, geo-replica, or route-separated connection string).
+# Example App Service settings for optional read routing to an Azure SQL failover group read-only listener
+# (or legacy per-route replica strings).
+#
+# - SqlServer__ReadReplica__FailoverGroupReadOnlyListenerConnectionString → secondary read-only FQDN (preferred for
+#   governance-resolution reads, golden manifest lookups, and authority run lists when AuthorityRunListReads is unset).
+# - SqlServer__ReadReplica__AuthorityRunListReadsConnectionString → optional override: when set, authority run list
+#   queries use this string instead of the failover listener (backward compatibility).
 # Do not expose SMB/file shares for SQL connectivity; use private endpoints per environment policy.
 
 # locals {
 #   primary_sql    = azurerm_mssql_server.main.fully_qualified_domain_name
-#   replica_sql    = azurerm_mssql_server.replica.fully_qualified_domain_name
-#   sql_admin_user = var.sql_admin_login
-#   sql_admin_pass = var.sql_admin_password
+#   # Failover group read-only routing endpoint: {failover_group_name}.secondary.database.windows.net
+#   failover_ro_sql = "${azurerm_mssql_failover_group.main.name}.secondary.database.windows.net"
+#   sql_admin_user  = var.sql_admin_login
+#   sql_admin_pass  = var.sql_admin_password
 # }
 
 # resource "azurerm_linux_web_app" "api" {
@@ -15,7 +20,7 @@
 #   app_settings = {
 #     "ConnectionStrings__ArchiForge" =
 #       "Server=tcp:${local.primary_sql},1433;Database=ArchiForge;User ID=${local.sql_admin_user};Password=${local.sql_admin_pass};Encrypt=True;TrustServerCertificate=False;"
-#     "SqlServer__ReadReplica__AuthorityRunListReadsConnectionString" =
-#       "Server=tcp:${local.replica_sql},1433;Database=ArchiForge;User ID=${local.sql_admin_user};Password=${local.sql_admin_pass};Encrypt=True;TrustServerCertificate=False;"
+#     "SqlServer__ReadReplica__FailoverGroupReadOnlyListenerConnectionString" =
+#       "Server=tcp:${local.failover_ro_sql},1433;Database=ArchiForge;User ID=${local.sql_admin_user};Password=${local.sql_admin_pass};Encrypt=True;TrustServerCertificate=False;ApplicationIntent=ReadOnly;"
 #   }
 # }

@@ -14,8 +14,11 @@ internal static class SqlPersistenceRepositoryFactory
     private static readonly IOptionsMonitor<ArtifactLargePayloadOptions> DisabledLargePayloadOptions =
         CreateDisabledLargePayloadOptions();
 
-    internal static SqlGoldenManifestRepository CreateGoldenManifestRepository(ISqlConnectionFactory factory) =>
-        new(factory, new NullArtifactBlobStore(), DisabledLargePayloadOptions);
+    internal static SqlGoldenManifestRepository CreateGoldenManifestRepository(ISqlConnectionFactory factory)
+    {
+        SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(factory);
+        return new SqlGoldenManifestRepository(factory, readMirror, new NullArtifactBlobStore(), DisabledLargePayloadOptions);
+    }
 
     internal static SqlArtifactBundleRepository CreateArtifactBundleRepository(ISqlConnectionFactory factory) =>
         new(factory, new NullArtifactBlobStore(), DisabledLargePayloadOptions);

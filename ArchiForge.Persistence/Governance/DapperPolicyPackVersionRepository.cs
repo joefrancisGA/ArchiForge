@@ -17,7 +17,9 @@ namespace ArchiForge.Persistence.Governance;
 /// and <c>PolicyPacksController.ListVersions</c>.
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperPolicyPackVersionRepository(
+    ISqlConnectionFactory connectionFactory,
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory)
     : IPolicyPackVersionRepository
 {
     /// <inheritdoc />
@@ -88,7 +90,7 @@ public sealed class DapperPolicyPackVersionRepository(ISqlConnectionFactory conn
             ORDER BY CreatedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<PolicyPackVersion> rows = await connection.QueryAsync<PolicyPackVersion>(
             new CommandDefinition(sql, new
             {

@@ -25,6 +25,7 @@ namespace ArchiForge.Persistence.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlGoldenManifestRepository(
     ISqlConnectionFactory connectionFactory,
+    IGoldenManifestLookupReadConnectionFactory manifestLookupReadConnectionFactory,
     IArtifactBlobStore blobStore,
     IOptionsMonitor<ArtifactLargePayloadOptions> largePayloadOptions) : IGoldenManifestRepository
 {
@@ -437,7 +438,7 @@ public sealed class SqlGoldenManifestRepository(
               AND ManifestId = @ManifestId;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
             new CommandDefinition(
                 sql,

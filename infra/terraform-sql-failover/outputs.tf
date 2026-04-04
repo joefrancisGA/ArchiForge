@@ -8,6 +8,11 @@ output "read_write_listener_fqdn" {
   value       = local.enabled ? "${azurerm_mssql_failover_group.this[0].name}.database.windows.net" : null
 }
 
+output "read_only_listener_fqdn" {
+  description = "Read-only listener hostname for routing read-heavy queries to the failover group secondary. Format: {failover_group_name}.secondary.database.windows.net"
+  value       = local.enabled ? "${azurerm_mssql_failover_group.this[0].name}.secondary.database.windows.net" : null
+}
+
 output "failover_group_name" {
   description = "Failover group name (same as listener label before .database.windows.net) when enabled; otherwise null."
   value       = local.enabled ? azurerm_mssql_failover_group.this[0].name : null

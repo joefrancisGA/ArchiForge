@@ -1,5 +1,5 @@
 using ArchiForge.Decisioning.Governance.PolicyPacks;
-
+using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Governance;
 
 namespace ArchiForge.Persistence.Tests.Contracts;
@@ -19,6 +19,8 @@ public sealed class DapperPolicyPackRepositoryContractTests(SqlServerPersistence
 
     protected override IPolicyPackRepository CreateRepository()
     {
-        return new DapperPolicyPackRepository(new TestSqlConnectionFactory(fixture.ConnectionString));
+        TestSqlConnectionFactory sql = new(fixture.ConnectionString);
+        SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
+        return new DapperPolicyPackRepository(sql, readMirror);
     }
 }

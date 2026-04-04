@@ -25,7 +25,9 @@ namespace ArchiForge.Persistence.Governance;
 /// </para>
 /// </remarks>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
-public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory connectionFactory)
+public sealed class DapperPolicyPackAssignmentRepository(
+    ISqlConnectionFactory connectionFactory,
+    IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory)
     : IPolicyPackAssignmentRepository
 {
     /// <inheritdoc />
@@ -93,7 +95,7 @@ public sealed class DapperPolicyPackAssignmentRepository(ISqlConnectionFactory c
             ORDER BY AssignedUtc DESC;
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlConnection connection = await governanceResolutionReadConnectionFactory.CreateOpenConnectionAsync(ct);
         IEnumerable<PolicyPackAssignment> rows = await connection.QueryAsync<PolicyPackAssignment>(
             new CommandDefinition(
                 sql,

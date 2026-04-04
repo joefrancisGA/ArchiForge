@@ -96,7 +96,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 **Responsibility**
 
 - `SqlGoldenManifestRepository`, `SqlDecisionTraceRepository`, Dapper governance/advisory/alert repositories, and health/resilience around `ISqlConnectionFactory`.
-- Row-level security session context application and read-replica routing for heavy list queries.
+- Row-level security session context application and optional read routing to the Azure SQL failover group read-only listener for authority run lists, governance-resolution reads (assignments / packs / versions), and golden manifest lookup by id.
 
 **Depends on**
 

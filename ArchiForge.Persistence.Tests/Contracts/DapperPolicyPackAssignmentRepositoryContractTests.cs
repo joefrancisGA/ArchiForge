@@ -19,6 +19,8 @@ public sealed class DapperPolicyPackAssignmentRepositoryContractTests(SqlServerP
 
     protected override IPolicyPackAssignmentRepository CreateRepository()
     {
-        return new DapperPolicyPackAssignmentRepository(new SqlConnectionFactory(fixture.ConnectionString));
+        SqlConnectionFactory sql = new(fixture.ConnectionString);
+        SqlPrimaryMirroredReadReplicaConnectionFactory readMirror = new(sql);
+        return new DapperPolicyPackAssignmentRepository(sql, readMirror);
     }
 }

@@ -31,6 +31,10 @@ internal static class Program
 
         ServiceCollection services = new();
         services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+        services.AddSingleton<SqlPrimaryMirroredReadReplicaConnectionFactory>(sp =>
+            new SqlPrimaryMirroredReadReplicaConnectionFactory(sp.GetRequiredService<ISqlConnectionFactory>()));
+        services.AddSingleton<IGoldenManifestLookupReadConnectionFactory>(sp =>
+            sp.GetRequiredService<SqlPrimaryMirroredReadReplicaConnectionFactory>());
         services.AddSingleton<IArtifactBlobStore, NullArtifactBlobStore>();
         services.AddSingleton<IOptionsMonitor<ArtifactLargePayloadOptions>>(
             new FixedOptionsMonitor<ArtifactLargePayloadOptions>(new ArtifactLargePayloadOptions()));
