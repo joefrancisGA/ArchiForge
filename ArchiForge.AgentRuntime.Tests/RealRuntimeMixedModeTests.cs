@@ -2,6 +2,7 @@ using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Core.Configuration;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
@@ -208,7 +209,8 @@ public sealed class RealRuntimeMixedModeTests
             costHandler,
             criticHandler
         ],
-        NullLogger<RealAgentExecutor>.Instance);
+        NullLogger<RealAgentExecutor>.Instance,
+        new MixedModePromptMonitor(new AgentPromptCatalogOptions()));
 
         ArchitectureRequest request = new()
         {
@@ -294,6 +296,15 @@ public sealed class RealRuntimeMixedModeTests
         merge.Manifest.Governance.RequiredControls.Should().Contain("Managed Identity");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Private Endpoints");
         merge.Manifest.Governance.RequiredControls.Should().Contain("Diagnostic Logging");
+    }
+
+    private sealed class MixedModePromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    {
+        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+
+        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
     }
 
     private sealed class FakeAuthorityRunOrchestratorForRuntimeTests : IAuthorityRunOrchestrator

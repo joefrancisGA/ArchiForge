@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchiForge.Persistence.Retrieval;
 
 /// <summary>In-memory <see cref="IRetrievalIndexingOutboxRepository"/> for tests and <c>StorageProvider=InMemory</c>.</summary>
@@ -9,6 +11,32 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
 
     /// <inheritdoc />
     public Task EnqueueAsync(
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        return EnqueueCoreAsync(runId, tenantId, workspaceId, projectId, ct);
+    }
+
+    /// <inheritdoc />
+    public Task EnqueueAsync(
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken ct)
+    {
+        _ = connection;
+        _ = transaction;
+
+        return EnqueueCoreAsync(runId, tenantId, workspaceId, projectId, ct);
+    }
+
+    private Task EnqueueCoreAsync(
         Guid runId,
         Guid tenantId,
         Guid workspaceId,
@@ -56,5 +84,16 @@ public sealed class InMemoryRetrievalIndexingOutboxRepository : IRetrievalIndexi
             _pending.RemoveAll(x => x.OutboxId == outboxId);
 
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<long> CountPendingAsync(CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            return Task.FromResult((long)_pending.Count);
+        }
     }
 }

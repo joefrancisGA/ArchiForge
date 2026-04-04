@@ -67,4 +67,28 @@ public static class ArchiForgeInstrumentation
         AppMeter.CreateCounter<long>(
             "persistence_json_fallback_used",
             description: "Count of persistence reads that fell back to JSON columns.");
+
+    /// <summary>Authority runs that finished the synchronous pipeline successfully (post-commit).</summary>
+    public static readonly Counter<long> AuthorityRunsCompletedTotal =
+        AppMeter.CreateCounter<long>(
+            "archiforge_authority_runs_completed_total",
+            description: "Authority runs completed through FinalizeCommittedPipelineAsync.");
+
+    /// <summary>Production agent handler completions (label: <c>agent_type_key</c>, <c>outcome</c>=success|error).</summary>
+    public static readonly Counter<long> AgentHandlerInvocationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archiforge_agent_handler_invocations_total",
+            description: "Agent handler invocations by type and outcome.");
+
+    /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
+    public static readonly Counter<long> LlmPromptTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archiforge_llm_prompt_tokens_total",
+            description: "Cumulative prompt tokens reported by Azure OpenAI completions.");
+
+    /// <summary>Azure OpenAI chat completion output tokens.</summary>
+    public static readonly Counter<long> LlmCompletionTokensTotal =
+        AppMeter.CreateCounter<long>(
+            "archiforge_llm_completion_tokens_total",
+            description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 }

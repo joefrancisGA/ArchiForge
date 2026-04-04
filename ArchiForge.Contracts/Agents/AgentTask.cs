@@ -23,6 +23,11 @@ public sealed class AgentTask
     [Required]
     public AgentType AgentType { get; set; }
 
+    /// <summary>
+    /// Optional override for handler dispatch (e.g. <c>custom-risk</c>). When null or empty, <see cref="AgentType"/> maps via <see cref="Common.AgentTypeKeys.FromEnum"/>.
+    /// </summary>
+    public string? AgentTypeKey { get; set; }
+
     /// <summary>Human-readable description of what the agent must analyse or propose.</summary>
     [Required]
     public string Objective { get; set; } = string.Empty;

@@ -3,11 +3,13 @@ using System.Diagnostics;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Diagnostics;
 
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace ArchiForge.AgentRuntime.Tests;
 
@@ -15,6 +17,21 @@ namespace ArchiForge.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class RealAgentExecutorTests
 {
+    private sealed class StubPromptMonitor(AgentPromptCatalogOptions value) : IOptionsMonitor<AgentPromptCatalogOptions>
+    {
+        public AgentPromptCatalogOptions CurrentValue { get; } = value;
+
+        public AgentPromptCatalogOptions Get(string? name) => CurrentValue;
+
+        public IDisposable? OnChange(Action<AgentPromptCatalogOptions, string?> listener) => null;
+    }
+
+    private static RealAgentExecutor CreateSut(params IAgentHandler[] handlers) =>
+        new(
+            handlers,
+            NullLogger<RealAgentExecutor>.Instance,
+            new StubPromptMonitor(new AgentPromptCatalogOptions()));
+
     [Fact]
     public void Constructor_when_duplicate_agent_types_throws()
     {
@@ -24,7 +41,7 @@ public sealed class RealAgentExecutorTests
             new StubAgentHandler(AgentType.Topology),
         ];
 
-        Action act = () => _ = new RealAgentExecutor(handlers, NullLogger<RealAgentExecutor>.Instance);
+        Action act = () => _ = CreateSut(handlers);
 
         act.Should().Throw<ArgumentException>();
     }
@@ -35,7 +52,7 @@ public sealed class RealAgentExecutorTests
         List<AgentType> observed = [];
         IAgentHandler topology = new OrderingStubHandler(AgentType.Topology, observed);
         IAgentHandler compliance = new OrderingStubHandler(AgentType.Compliance, observed);
-        RealAgentExecutor sut = new([topology, compliance], NullLogger<RealAgentExecutor>.Instance);
+        RealAgentExecutor sut = CreateSut(topology, compliance);
         ArchitectureRequest request = new()
         {
             RequestId = "r1",
@@ -61,18 +78,17 @@ public sealed class RealAgentExecutorTests
         IReadOnlyList<AgentResult> results =
             await sut.ExecuteAsync(runId, request, evidence, [taskZ, taskC], CancellationToken.None);
 
-        // <see cref="RealAgentExecutor"/> orders by enum value (not alphabetical name).
-        observed.Should().Equal(AgentType.Topology, AgentType.Compliance);
+        // <see cref="RealAgentExecutor"/> orders by <see cref="AgentTypeKeys"/> (lexicographic on dispatch keys).
+        observed.Should().Equal(AgentType.Compliance, AgentType.Topology);
         results.Should().HaveCount(2);
-        results[0].AgentType.Should().Be(AgentType.Topology);
+        results[0].AgentType.Should().Be(AgentType.Compliance);
+        results[1].AgentType.Should().Be(AgentType.Topology);
     }
 
     [Fact]
     public async Task ExecuteAsync_when_handler_missing_throws()
     {
-        RealAgentExecutor sut = new(
-            [],
-            NullLogger<RealAgentExecutor>.Instance);
+        RealAgentExecutor sut = CreateSut();
         ArchitectureRequest request = new()
         {
             RequestId = "r1",
@@ -90,7 +106,7 @@ public sealed class RealAgentExecutorTests
             await sut.ExecuteAsync("run", request, new AgentEvidencePackage(), [task], CancellationToken.None);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Cost*");
+            .WithMessage("*cost*");
     }
 
     [Fact]
@@ -111,7 +127,7 @@ public sealed class RealAgentExecutorTests
         {
             IAgentHandler topology = new StubAgentHandler(AgentType.Topology);
             IAgentHandler compliance = new StubAgentHandler(AgentType.Compliance);
-            RealAgentExecutor sut = new([topology, compliance], NullLogger<RealAgentExecutor>.Instance);
+            RealAgentExecutor sut = CreateSut(topology, compliance);
             ArchitectureRequest request = new()
             {
                 RequestId = "r1",
@@ -143,13 +159,15 @@ public sealed class RealAgentExecutorTests
 
         completed.Should().HaveCount(2);
         completed.Should().OnlyContain(a => a.OperationName == "archiforge.agent.handle");
-        completed[0].GetTagItem("archiforge.agent.type").Should().Be(AgentType.Topology.ToString());
-        completed[1].GetTagItem("archiforge.agent.type").Should().Be(AgentType.Compliance.ToString());
+        completed[0].GetTagItem("archiforge.agent.type").Should().Be(AgentTypeKeys.Compliance);
+        completed[1].GetTagItem("archiforge.agent.type").Should().Be(AgentTypeKeys.Topology);
     }
 
     private sealed class StubAgentHandler(AgentType agentType) : IAgentHandler
     {
         public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
 
         public Task<AgentResult> ExecuteAsync(
             string runId,
@@ -171,6 +189,8 @@ public sealed class RealAgentExecutorTests
     private sealed class OrderingStubHandler(AgentType agentType, List<AgentType> observed) : IAgentHandler
     {
         public AgentType AgentType => agentType;
+
+        public string AgentTypeKey => AgentTypeKeys.FromEnum(agentType);
 
         public Task<AgentResult> ExecuteAsync(
             string runId,

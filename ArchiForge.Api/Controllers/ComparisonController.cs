@@ -23,7 +23,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/compare")]
+[Route("v{version:apiVersion}/compare")]
 [EnableRateLimiting("fixed")]
 public sealed class ComparisonController(
     IAuthorityQueryService query,

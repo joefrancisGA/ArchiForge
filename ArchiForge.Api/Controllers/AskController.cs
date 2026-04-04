@@ -18,7 +18,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/ask")]
+[Route("v{version:apiVersion}/ask")]
 [EnableRateLimiting("fixed")]
 public sealed class AskController(
     IAskService ask,

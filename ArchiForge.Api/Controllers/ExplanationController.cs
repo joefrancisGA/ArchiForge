@@ -1,4 +1,4 @@
-﻿using ArchiForge.AgentRuntime.Explanation;
+using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Comparison;
@@ -24,7 +24,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/explain")]
+[Route("v{version:apiVersion}/explain")]
 [EnableRateLimiting("fixed")]
 public sealed class ExplanationController(
     IAuthorityQueryService query,
@@ -35,7 +35,7 @@ public sealed class ExplanationController(
     ILogger<ExplanationController> logger)
     : ControllerBase
 {
-    /// <summary>Stakeholder explanation for one run’s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
+    /// <summary>Stakeholder explanation for one run�s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
     /// <param name="runId">Run to load.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns><see cref="ExplanationResult"/> JSON, or 404 when the run or manifest is missing in scope.</returns>
@@ -69,7 +69,7 @@ public sealed class ExplanationController(
         return Ok(result);
     }
 
-    /// <summary>AI narrative for manifest delta between two runs (base → target).</summary>
+    /// <summary>AI narrative for manifest delta between two runs (base ? target).</summary>
     /// <param name="baseRunId">Baseline run.</param>
     /// <param name="targetRunId">Target run.</param>
     /// <param name="ct">Cancellation token.</param>

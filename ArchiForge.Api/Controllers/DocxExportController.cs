@@ -28,7 +28,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/docx")]
+[Route("v{version:apiVersion}/docx")]
 [EnableRateLimiting("fixed")]
 public sealed class DocxExportController(
     IAuthorityQueryService authorityQueryService,

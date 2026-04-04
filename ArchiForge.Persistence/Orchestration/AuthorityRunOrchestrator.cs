@@ -223,6 +223,27 @@ public sealed class AuthorityRunOrchestrator(
         IArchiForgeUnitOfWork uow,
         CancellationToken ct)
     {
+        if (uow.SupportsExternalTransaction)
+        {
+            await retrievalIndexingOutbox.EnqueueAsync(
+                run.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                uow.Connection,
+                uow.Transaction,
+                ct);
+        }
+        else
+        {
+            await retrievalIndexingOutbox.EnqueueAsync(
+                run.RunId,
+                scope.TenantId,
+                scope.WorkspaceId,
+                scope.ProjectId,
+                ct);
+        }
+
         await uow.CommitAsync(ct);
 
         await auditService.LogAsync(
@@ -242,10 +263,6 @@ public sealed class AuthorityRunOrchestrator(
             },
             ct);
 
-        await retrievalIndexingOutbox
-            .EnqueueAsync(run.RunId, scope.TenantId, scope.WorkspaceId, scope.ProjectId, ct)
-            ;
-
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation(
@@ -256,6 +273,8 @@ public sealed class AuthorityRunOrchestrator(
                 findingsSnapshot.FindingsSnapshotId,
                 trace.DecisionTraceId);
         }
+
+        ArchiForgeInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
         return run;
     }

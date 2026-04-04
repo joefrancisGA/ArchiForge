@@ -12,6 +12,9 @@ public sealed class CostAgentHandler : IAgentHandler
 {
     public AgentType AgentType => AgentType.Cost;
 
+    /// <inheritdoc />
+    public string AgentTypeKey => AgentTypeKeys.Cost;
+
     public Task<AgentResult> ExecuteAsync(
         string runId,
         ArchitectureRequest request,

@@ -33,7 +33,7 @@ export default function SearchPage() {
       const params = new URLSearchParams();
       params.set("q", q);
       if (runId.trim()) params.set("runId", runId.trim());
-      const data = await apiGet<RetrievalHit[]>(`/api/retrieval/search?${params.toString()}`);
+      const data = await apiGet<RetrievalHit[]>(`/v1/retrieval/search?${params.toString()}`);
       setResults(data);
     } catch (e) {
       setFailure(toApiLoadFailure(e));

@@ -10,7 +10,7 @@ using FluentAssertions;
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// End-to-end: seed authority run → POST <c>api/ask</c> with fake LLM → verify response includes thread and answer → list conversations via <c>GET api/conversations</c>.
+/// End-to-end: seed authority run → POST <c>v1/ask</c> with fake LLM → verify response includes thread and answer → list conversations via <c>GET v1/conversations</c>.
 /// </summary>
 [Trait("Category", "Integration")]
 public sealed class AskThreadIntegrationTests
@@ -30,7 +30,7 @@ public sealed class AskThreadIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage askResponse = await client.PostAsJsonAsync(
-            "api/ask",
+            "v1/ask",
             new AskRequest
             {
                 RunId = runId,
@@ -48,7 +48,7 @@ public sealed class AskThreadIntegrationTests
         result.Answer.Should().NotBeNullOrWhiteSpace();
 
         HttpResponseMessage threadsResponse = await client.GetAsync(
-            new Uri("api/conversations?take=10", UriKind.Relative),
+            new Uri("v1/conversations?take=10", UriKind.Relative),
             CancellationToken.None);
 
         threadsResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -69,7 +69,7 @@ public sealed class AskThreadIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage firstResponse = await client.PostAsJsonAsync(
-            "api/ask",
+            "v1/ask",
             new AskRequest { RunId = runId, Question = "How many decisions exist?" },
             JsonOptions,
             CancellationToken.None);
@@ -82,7 +82,7 @@ public sealed class AskThreadIntegrationTests
         Guid threadId = first.ThreadId;
 
         HttpResponseMessage followUpResponse = await client.PostAsJsonAsync(
-            "api/ask",
+            "v1/ask",
             new AskRequest { ThreadId = threadId, Question = "What are the security concerns?" },
             JsonOptions,
             CancellationToken.None);
@@ -95,7 +95,7 @@ public sealed class AskThreadIntegrationTests
         followUp.ThreadId.Should().Be(threadId, "follow-up should reuse the same thread");
 
         HttpResponseMessage messagesResponse = await client.GetAsync(
-            new Uri($"api/conversations/{threadId:D}/messages?take=50", UriKind.Relative),
+            new Uri($"v1/conversations/{threadId:D}/messages?take=50", UriKind.Relative),
             CancellationToken.None);
 
         messagesResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -113,7 +113,7 @@ public sealed class AskThreadIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
-            "api/ask",
+            "v1/ask",
             new AskRequest { RunId = Guid.NewGuid(), Question = "" },
             JsonOptions,
             CancellationToken.None);
@@ -128,7 +128,7 @@ public sealed class AskThreadIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.PostAsJsonAsync(
-            "api/ask",
+            "v1/ask",
             new AskRequest { Question = "Some question without anchor" },
             JsonOptions,
             CancellationToken.None);

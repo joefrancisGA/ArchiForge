@@ -23,7 +23,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ExecuteAuthority)]
 [ApiVersion("1.0")]
-[Route("api/authority/replay")]
+[Route("v{version:apiVersion}/authority/replay")]
 [EnableRateLimiting("fixed")]
 public sealed class AuthorityReplayController(
     IAuthorityReplayService replayService,

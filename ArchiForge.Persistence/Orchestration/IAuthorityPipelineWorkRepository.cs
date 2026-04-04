@@ -14,4 +14,7 @@ public interface IAuthorityPipelineWorkRepository
     Task<IReadOnlyList<AuthorityPipelineWorkOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken cancellationToken);
 
     Task MarkProcessedAsync(Guid outboxId, CancellationToken cancellationToken);
+
+    /// <summary>Rows with <c>ProcessedUtc</c> null.</summary>
+    Task<long> CountPendingAsync(CancellationToken cancellationToken = default);
 }

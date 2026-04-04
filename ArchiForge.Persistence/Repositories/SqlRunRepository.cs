@@ -37,6 +37,7 @@ public sealed class SqlRunRepository(
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
             )
+            OUTPUT inserted.RowVersionStamp
             VALUES
             (
                 @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
@@ -47,12 +48,16 @@ public sealed class SqlRunRepository(
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            byte[] stamp = await connection.QuerySingleAsync<byte[]>(
+                new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            run.RowVersion = stamp;
+
             return;
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+        byte[] ownedStamp = await owned.QuerySingleAsync<byte[]>(new CommandDefinition(sql, run, cancellationToken: ct));
+        run.RowVersion = ownedStamp;
     }
 
     public async Task<RunRecord?> GetByIdAsync(ScopeContext scope, Guid runId, CancellationToken ct)
@@ -63,7 +68,8 @@ public sealed class SqlRunRepository(
             SELECT
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                RowVersionStamp AS RowVersion
             FROM dbo.Runs
             WHERE RunId = @RunId
               AND TenantId = @TenantId
@@ -148,17 +154,63 @@ public sealed class SqlRunRepository(
                 DecisionTraceId = @DecisionTraceId,
                 ArtifactBundleId = @ArtifactBundleId,
                 ArchivedUtc = @ArchivedUtc
-            WHERE RunId = @RunId;
+            OUTPUT inserted.RowVersionStamp
+            WHERE RunId = @RunId
+              AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
             """;
 
         if (connection is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(sql, run, transaction, cancellationToken: ct));
+            await ApplyUpdateAsync(connection, transaction, run, sql, ct);
+
             return;
         }
 
         await using SqlConnection owned = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await owned.ExecuteAsync(new CommandDefinition(sql, run, cancellationToken: ct));
+        await ApplyUpdateAsync(owned, null, run, sql, ct);
+    }
+
+    private static async Task ApplyUpdateAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        RunRecord run,
+        string sql,
+        CancellationToken ct)
+    {
+        byte[]? newStamp = await connection.QuerySingleOrDefaultAsync<byte[]>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    run.RunId,
+                    run.TenantId,
+                    run.WorkspaceId,
+                    ScopeProjectId = run.ScopeProjectId,
+                    run.ProjectId,
+                    run.Description,
+                    run.ContextSnapshotId,
+                    run.GraphSnapshotId,
+                    run.FindingsSnapshotId,
+                    run.GoldenManifestId,
+                    run.DecisionTraceId,
+                    run.ArtifactBundleId,
+                    run.ArchivedUtc,
+                    RowVersion = run.RowVersion
+                },
+                transaction: transaction,
+                cancellationToken: ct));
+
+        if (newStamp is null)
+        {
+            if (run.RowVersion is not null)
+            {
+                throw new RunConcurrencyConflictException(run.RunId);
+            }
+
+            throw new InvalidOperationException($"Run '{run.RunId:D}' was not found for update.");
+        }
+
+        run.RowVersion = newStamp;
     }
 
     /// <inheritdoc />

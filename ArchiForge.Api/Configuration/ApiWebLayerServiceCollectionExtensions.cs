@@ -1,3 +1,4 @@
+using ArchiForge.Api.Services.Admin;
 using ArchiForge.Api.Services.Evolution;
 using ArchiForge.Api.Services.Learning;
 using ArchiForge.Host.Core.Configuration;
@@ -33,6 +34,8 @@ public static class ApiWebLayerServiceCollectionExtensions
             services.AddScoped<ILearningPlanningReadService, LearningPlanningReadService>();
             services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();
         }
+
+        services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
 
         return services;
     }

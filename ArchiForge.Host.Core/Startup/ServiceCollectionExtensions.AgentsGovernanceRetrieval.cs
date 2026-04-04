@@ -5,6 +5,7 @@ using ArchiForge.AgentRuntime;
 using ArchiForge.AgentSimulator.Services;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
+using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Resilience;
 using ArchiForge.Application.Governance;
 using ArchiForge.Core.Scoping;
@@ -27,6 +28,9 @@ public static partial class ServiceCollectionExtensions
 {
     private static void RegisterAgentExecution(IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<AgentPromptCatalogOptions>(
+            configuration.GetSection(AgentPromptCatalogOptions.SectionName));
+
         string? agentMode = configuration["AgentExecution:Mode"];
 
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))

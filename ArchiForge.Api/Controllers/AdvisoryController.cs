@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
@@ -32,7 +32,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/advisory")]
+[Route("v{version:apiVersion}/advisory")]
 [EnableRateLimiting("fixed")]
 public sealed class AdvisoryController(
     IAuthorityQueryService authorityQueryService,
@@ -45,7 +45,7 @@ public sealed class AdvisoryController(
     : ControllerBase
 {
     /// <summary>
-    /// Builds an <see cref="ImprovementPlan"/> from the run’s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
+    /// Builds an <see cref="ImprovementPlan"/> from the run�s golden manifest and findings, optionally compared to another run, then persists recommendations for the scope.
     /// </summary>
     /// <param name="runId">Authority run whose golden manifest and findings drive the plan.</param>
     /// <param name="compareToRunId">When set, manifests are compared and diff-based signals are included.</param>

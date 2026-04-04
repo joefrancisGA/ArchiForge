@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -22,6 +22,9 @@ public sealed class CriticAgentHandler(
     };
 
     public AgentType AgentType => AgentType.Critic;
+
+    /// <inheritdoc />
+    public string AgentTypeKey => AgentTypeKeys.Critic;
 
     public async Task<AgentResult> ExecuteAsync(
         string runId,

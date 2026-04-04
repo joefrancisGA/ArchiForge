@@ -32,7 +32,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const url = String(fetchMock.mock.calls[0][0]);
 
-    expect(url).toContain("/api/artifacts/manifests/manifest-xyz");
+    expect(url).toContain("/v1/artifacts/manifests/manifest-xyz");
     expect(url).not.toContain("/artifact/");
   });
 
@@ -53,7 +53,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
 
     const url = String(fetchMock.mock.calls[0][0]);
 
-    expect(url).toContain("/api/artifacts/manifests/m1/artifact/a1/descriptor");
+    expect(url).toContain("/v1/artifacts/manifests/m1/artifact/a1/descriptor");
   });
 
   it("compareRuns encodes left and right run query params", async () => {
@@ -74,7 +74,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
     expect(url).toContain("rightRunId=");
     expect(url).toContain(encodeURIComponent("left id"));
     expect(url).toContain(encodeURIComponent("right&run"));
-    expect(url).toContain("/api/authority/compare/runs");
+    expect(url).toContain("/v1/authority/compare/runs");
   });
 
   it("compareGoldenManifestRuns encodes base and target run ids", async () => {
@@ -96,7 +96,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
 
     const url = String(fetchMock.mock.calls[0][0]);
 
-    expect(url).toContain("/api/compare?");
+    expect(url).toContain("/v1/compare?");
     expect(url).toContain("baseRunId=");
     expect(url).toContain("targetRunId=");
     expect(url).toContain(encodeURIComponent("base=1"));
@@ -118,7 +118,7 @@ describe("API client review/compare contracts (55R smoke)", () => {
 
     const url = String(fetchMock.mock.calls[0][0]);
 
-    expect(url).toContain("/api/explain/compare/explain?");
+    expect(url).toContain("/v1/explain/compare/explain?");
     expect(url).toContain("baseRunId=");
     expect(url).toContain("targetRunId=");
     expect(url).toContain(encodeURIComponent("base id"));

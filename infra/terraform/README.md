@@ -1,5 +1,7 @@
 # ArchiForge — Azure Terraform (API Management, Consumption)
 
+For the full map of Terraform roots (Container Apps, storage, private networking, edge, monitoring, Entra), see **`docs/DEPLOYMENT_TERRAFORM.md`**.
+
 This directory holds **optional** infrastructure for **Azure** deployments. It does **not** run on your laptop as part of normal app development: keep `enable_api_management = false` (or do not apply this root module) until you provision Azure resources.
 
 ## What gets created

@@ -14,6 +14,9 @@ public interface IAgentHandler
     /// <summary>Agent role this handler implements.</summary>
     AgentType AgentType { get; }
 
+    /// <summary>Stable key used for DI registration and <see cref="AgentTask.AgentTypeKey"/> dispatch (e.g. <c>topology</c>).</summary>
+    string AgentTypeKey { get; }
+
     /// <summary>
     /// Runs the LLM (or simulator) pipeline for <paramref name="task"/> and returns a validated <see cref="AgentResult"/>.
     /// </summary>

@@ -23,7 +23,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/provenance")]
+[Route("v{version:apiVersion}/provenance")]
 [EnableRateLimiting("fixed")]
 public sealed class ProvenanceController(
     IProvenanceQueryService service,

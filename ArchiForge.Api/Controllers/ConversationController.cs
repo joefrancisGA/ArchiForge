@@ -1,4 +1,4 @@
-ï»¿using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Core.Conversation;
 using ArchiForge.Core.Pagination;
@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/conversations")]
+[Route("v{version:apiVersion}/conversations")]
 [EnableRateLimiting("fixed")]
 public sealed class ConversationController(
     IConversationThreadRepository threadRepository,
@@ -30,9 +30,9 @@ public sealed class ConversationController(
     : ControllerBase
 {
     /// <summary>Lists conversation threads for the current scope.</summary>
-    /// <param name="take">Number of threads to return (clamped to 1â€“200; defaults to 50). Used when <paramref name="page"/> is not set.</param>
+    /// <param name="take">Number of threads to return (clamped to 1–200; defaults to 50). Used when <paramref name="page"/> is not set.</param>
     /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}"/>.</param>
-    /// <param name="pageSize">Items per page (clamped 1â€“200; default 50). Only used when <paramref name="page"/> is set.</param>
+    /// <param name="pageSize">Items per page (clamped 1–200; default 50). Only used when <paramref name="page"/> is set.</param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ConversationThread>), StatusCodes.Status200OK)]
@@ -74,7 +74,7 @@ public sealed class ConversationController(
 
     /// <summary>Returns messages for the specified conversation thread.</summary>
     /// <param name="threadId">Thread identifier.</param>
-    /// <param name="take">Number of messages to return (clamped to 1â€“500; defaults to 100).</param>
+    /// <param name="take">Number of messages to return (clamped to 1–500; defaults to 100).</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Message list, or 404 when the thread does not exist or belongs to another scope.</returns>
     [HttpGet("{threadId:guid}/messages")]

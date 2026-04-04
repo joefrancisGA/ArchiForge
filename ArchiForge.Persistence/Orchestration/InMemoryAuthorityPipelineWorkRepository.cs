@@ -63,4 +63,13 @@ public sealed class InMemoryAuthorityPipelineWorkRepository : IAuthorityPipeline
 
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task<long> CountPendingAsync(CancellationToken cancellationToken = default)
+    {
+        lock (_sync)
+        {
+            return Task.FromResult((long)_pending.Count);
+        }
+    }
 }

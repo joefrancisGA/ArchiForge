@@ -10,7 +10,103 @@
     }
   ],
   "paths": {
-    "/api/advisory/runs/{runId}/improvements": {
+    "/v1/admin/diagnostics/outboxes": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOutboxSnapshot"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOutboxSnapshot"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOutboxSnapshot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/diagnostics/leases": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HostLeaderLeaseSnapshot"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HostLeaderLeaseSnapshot"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HostLeaderLeaseSnapshot"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/features/async-authority-pipeline": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncAuthorityPipelineFeatureState"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncAuthorityPipelineFeatureState"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsyncAuthorityPipelineFeatureState"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisory/runs/{runId}/improvements": {
       "get": {
         "tags": [
           "Advisory"
@@ -31,13 +127,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -85,7 +174,7 @@
         }
       }
     },
-    "/api/advisory/runs/{runId}/recommendations": {
+    "/v1/advisory/runs/{runId}/recommendations": {
       "get": {
         "tags": [
           "Advisory"
@@ -98,13 +187,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -141,7 +223,7 @@
         }
       }
     },
-    "/api/advisory/recommendations/{recommendationId}/action": {
+    "/v1/advisory/recommendations/{recommendationId}/action": {
       "post": {
         "tags": [
           "Advisory"
@@ -154,13 +236,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -268,19 +343,10 @@
         }
       }
     },
-    "/api/advisory-scheduling/schedules": {
+    "/v1/advisory-scheduling/schedules": {
       "post": {
         "tags": [
           "AdvisoryScheduling"
-        ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "requestBody": {
           "content": {
@@ -409,15 +475,6 @@
         "tags": [
           "AdvisoryScheduling"
         ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -451,7 +508,7 @@
         }
       }
     },
-    "/api/advisory-scheduling/schedules/{scheduleId}/executions": {
+    "/v1/advisory-scheduling/schedules/{scheduleId}/executions": {
       "get": {
         "tags": [
           "AdvisoryScheduling"
@@ -477,13 +534,6 @@
               ],
               "format": "int32",
               "default": 30
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -540,7 +590,7 @@
         }
       }
     },
-    "/api/advisory-scheduling/schedules/{scheduleId}/run": {
+    "/v1/advisory-scheduling/schedules/{scheduleId}/run": {
       "post": {
         "tags": [
           "AdvisoryScheduling"
@@ -553,13 +603,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -630,7 +673,7 @@
         }
       }
     },
-    "/api/advisory-scheduling/digests": {
+    "/v1/advisory-scheduling/digests": {
       "get": {
         "tags": [
           "AdvisoryScheduling"
@@ -647,13 +690,6 @@
               ],
               "format": "int32",
               "default": 20
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -690,7 +726,7 @@
         }
       }
     },
-    "/api/advisory-scheduling/digests/{digestId}": {
+    "/v1/advisory-scheduling/digests/{digestId}": {
       "get": {
         "tags": [
           "AdvisoryScheduling"
@@ -703,13 +739,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -3043,7 +3072,7 @@
         }
       }
     },
-    "/api/artifacts/manifests/{manifestId}": {
+    "/v1/artifacts/manifests/{manifestId}": {
       "get": {
         "tags": [
           "ArtifactExport"
@@ -3056,13 +3085,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -3159,7 +3181,7 @@
         }
       }
     },
-    "/api/artifacts/manifests/{manifestId}/artifact/{artifactId}/descriptor": {
+    "/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}/descriptor": {
       "get": {
         "tags": [
           "ArtifactExport"
@@ -3181,13 +3203,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -3275,7 +3290,7 @@
         }
       }
     },
-    "/api/artifacts/manifests/{manifestId}/artifact/{artifactId}": {
+    "/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}": {
       "get": {
         "tags": [
           "ArtifactExport"
@@ -3297,13 +3312,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -3347,7 +3355,7 @@
         }
       }
     },
-    "/api/artifacts/manifests/{manifestId}/bundle": {
+    "/v1/artifacts/manifests/{manifestId}/bundle": {
       "get": {
         "tags": [
           "ArtifactExport"
@@ -3361,13 +3369,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -3410,7 +3411,7 @@
         }
       }
     },
-    "/api/artifacts/runs/{runId}/export": {
+    "/v1/artifacts/runs/{runId}/export": {
       "get": {
         "tags": [
           "ArtifactExport"
@@ -3424,13 +3425,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -3473,19 +3467,10 @@
         }
       }
     },
-    "/api/ask": {
+    "/v1/ask": {
       "post": {
         "tags": [
           "Ask"
-        ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "requestBody": {
           "content": {
@@ -3591,7 +3576,7 @@
         }
       }
     },
-    "/api/audit": {
+    "/v1/audit": {
       "get": {
         "tags": [
           "Audit"
@@ -3608,13 +3593,6 @@
               ],
               "format": "int32",
               "default": 100
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -3689,7 +3667,7 @@
         }
       }
     },
-    "/api/authority/compare/manifests": {
+    "/v1/authority/compare/manifests": {
       "get": {
         "tags": [
           "AuthorityCompare"
@@ -3710,13 +3688,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -3763,7 +3734,7 @@
         }
       }
     },
-    "/api/authority/compare/runs": {
+    "/v1/authority/compare/runs": {
       "get": {
         "tags": [
           "AuthorityCompare"
@@ -3784,13 +3755,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -3837,7 +3801,7 @@
         }
       }
     },
-    "/api/authority/projects/{projectId}/runs": {
+    "/v1/authority/projects/{projectId}/runs": {
       "get": {
         "tags": [
           "AuthorityQuery"
@@ -3862,13 +3826,6 @@
               ],
               "format": "int32",
               "default": 20
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -3965,7 +3922,7 @@
         }
       }
     },
-    "/api/authority/runs/{runId}/summary": {
+    "/v1/authority/runs/{runId}/summary": {
       "get": {
         "tags": [
           "AuthorityQuery"
@@ -3978,13 +3935,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -4072,7 +4022,7 @@
         }
       }
     },
-    "/api/authority/runs/{runId}": {
+    "/v1/authority/runs/{runId}": {
       "get": {
         "tags": [
           "AuthorityQuery"
@@ -4085,13 +4035,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -4179,7 +4122,7 @@
         }
       }
     },
-    "/api/authority/manifests/{manifestId}/summary": {
+    "/v1/authority/manifests/{manifestId}/summary": {
       "get": {
         "tags": [
           "AuthorityQuery"
@@ -4193,13 +4136,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -4286,19 +4222,10 @@
         }
       }
     },
-    "/api/authority/replay": {
+    "/v1/authority/replay": {
       "post": {
         "tags": [
           "AuthorityReplay"
-        ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "requestBody": {
           "content": {
@@ -4404,7 +4331,7 @@
         }
       }
     },
-    "/api/compare": {
+    "/v1/compare": {
       "get": {
         "tags": [
           "Comparison"
@@ -4424,13 +4351,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -6288,7 +6208,7 @@
         }
       }
     },
-    "/api/conversations": {
+    "/v1/conversations": {
       "get": {
         "tags": [
           "Conversation"
@@ -6331,13 +6251,6 @@
               "format": "int32",
               "default": 50
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -6364,7 +6277,7 @@
         }
       }
     },
-    "/api/conversations/{threadId}/messages": {
+    "/v1/conversations/{threadId}/messages": {
       "get": {
         "tags": [
           "Conversation"
@@ -6390,13 +6303,6 @@
               ],
               "format": "int32",
               "default": 100
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -6925,7 +6831,7 @@
         }
       }
     },
-    "/api/docx/runs/{runId}/architecture-package": {
+    "/v1/docx/runs/{runId}/architecture-package": {
       "get": {
         "tags": [
           "DocxExport"
@@ -6962,13 +6868,6 @@
             "schema": {
               "type": "boolean",
               "default": true
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -7491,7 +7390,7 @@
         }
       }
     },
-    "/api/explain/runs/{runId}/explain": {
+    "/v1/explain/runs/{runId}/explain": {
       "get": {
         "tags": [
           "Explanation"
@@ -7504,13 +7403,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -7558,7 +7450,7 @@
         }
       }
     },
-    "/api/explain/compare/explain": {
+    "/v1/explain/compare/explain": {
       "get": {
         "tags": [
           "Explanation"
@@ -7578,13 +7470,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -9394,7 +9279,7 @@
         }
       }
     },
-    "/api/graph/runs/{runId}": {
+    "/v1/graph/runs/{runId}": {
       "get": {
         "tags": [
           "Graph"
@@ -9407,13 +9292,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -9461,7 +9339,7 @@
         }
       }
     },
-    "/api/graph/runs/{runId}/nodes": {
+    "/v1/graph/runs/{runId}/nodes": {
       "get": {
         "tags": [
           "Graph"
@@ -9500,13 +9378,6 @@
               ],
               "format": "int32",
               "default": 50
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -12007,7 +11878,7 @@
         }
       }
     },
-    "/api/provenance/runs/{runId}/graph": {
+    "/v1/provenance/runs/{runId}/graph": {
       "get": {
         "tags": [
           "Provenance"
@@ -12020,13 +11891,6 @@
             "schema": {
               "type": "string",
               "format": "uuid"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -12074,7 +11938,7 @@
         }
       }
     },
-    "/api/provenance/runs/{runId}/graph/decision/{decisionKey}": {
+    "/v1/provenance/runs/{runId}/graph/decision/{decisionKey}": {
       "get": {
         "tags": [
           "Provenance"
@@ -12096,13 +11960,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12149,7 +12006,7 @@
         }
       }
     },
-    "/api/provenance/runs/{runId}/graph/node/{nodeId}": {
+    "/v1/provenance/runs/{runId}/graph/node/{nodeId}": {
       "get": {
         "tags": [
           "Provenance"
@@ -12185,13 +12042,6 @@
               "format": "int32",
               "default": 1
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12238,7 +12088,7 @@
         }
       }
     },
-    "/api/authority/runs/{runId}/provenance": {
+    "/v1/authority/runs/{runId}/provenance": {
       "get": {
         "tags": [
           "ProvenanceQuery"
@@ -12252,13 +12102,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12305,7 +12148,7 @@
         }
       }
     },
-    "/api/authority/runs/{runId}/graph": {
+    "/v1/authority/runs/{runId}/graph": {
       "get": {
         "tags": [
           "ProvenanceQuery"
@@ -12319,13 +12162,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12372,7 +12208,7 @@
         }
       }
     },
-    "/api/authority/runs/{runId}/graph/decision/{decisionKey}": {
+    "/v1/authority/runs/{runId}/graph/decision/{decisionKey}": {
       "get": {
         "tags": [
           "ProvenanceQuery"
@@ -12391,13 +12227,6 @@
             "name": "decisionKey",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
             "schema": {
               "type": "string"
             }
@@ -12467,7 +12296,7 @@
         }
       }
     },
-    "/api/authority/runs/{runId}/graph/node/{nodeId}": {
+    "/v1/authority/runs/{runId}/graph/node/{nodeId}": {
       "get": {
         "tags": [
           "ProvenanceQuery"
@@ -12503,13 +12332,6 @@
               "format": "int32",
               "default": 1
             }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -12556,20 +12378,11 @@
         }
       }
     },
-    "/api/recommendation-learning/latest": {
+    "/v1/recommendation-learning/latest": {
       "get": {
         "tags": [
           "RecommendationLearning"
         ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -12614,19 +12427,10 @@
         }
       }
     },
-    "/api/recommendation-learning/rebuild": {
+    "/v1/recommendation-learning/rebuild": {
       "post": {
         "tags": [
           "RecommendationLearning"
-        ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "responses": {
           "200": {
@@ -12652,7 +12456,7 @@
         }
       }
     },
-    "/api/retrieval/search": {
+    "/v1/retrieval/search": {
       "get": {
         "tags": [
           "Retrieval"
@@ -12692,13 +12496,6 @@
               ],
               "format": "int32",
               "default": 8
-            }
-          },
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -15193,19 +14990,10 @@
         }
       }
     },
-    "/api/scope": {
+    "/v1/scope": {
       "get": {
         "tags": [
           "ScopeDebug"
-        ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "responses": {
           "200": {
@@ -15263,6 +15051,31 @@
   },
   "components": {
     "schemas": {
+      "AdminOutboxSnapshot": {
+        "required": [
+          "authorityPipelineWorkPending",
+          "retrievalIndexingPending"
+        ],
+        "type": "object",
+        "properties": {
+          "authorityPipelineWorkPending": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "retrievalIndexingPending": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          }
+        }
+      },
       "AdvisoryScanExecution": {
         "type": "object",
         "properties": {
@@ -15727,6 +15540,12 @@
           },
           "agentType": {
             "$ref": "#/components/schemas/AgentType"
+          },
+          "agentTypeKey": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "objective": {
             "type": "string"
@@ -16773,6 +16592,17 @@
             "type": "string"
           },
           "isPinned": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AsyncAuthorityPipelineFeatureState": {
+        "required": [
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
             "type": "boolean"
           }
         }
@@ -19733,6 +19563,21 @@
           },
           "isEmpty": {
             "type": "boolean"
+          }
+        }
+      },
+      "HostLeaderLeaseSnapshot": {
+        "type": "object",
+        "properties": {
+          "leaseName": {
+            "type": "string"
+          },
+          "holderInstanceId": {
+            "type": "string"
+          },
+          "leaseExpiresUtc": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -22875,6 +22720,13 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "rowVersion": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "byte"
           }
         }
       },
@@ -23438,6 +23290,9 @@
     }
   },
   "tags": [
+    {
+      "name": "Admin"
+    },
     {
       "name": "Advisory"
     },

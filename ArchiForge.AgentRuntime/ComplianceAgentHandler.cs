@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Agents;
@@ -22,6 +22,9 @@ public sealed class ComplianceAgentHandler(
     };
 
     public AgentType AgentType => AgentType.Compliance;
+
+    /// <inheritdoc />
+    public string AgentTypeKey => AgentTypeKeys.Compliance;
 
     public async Task<AgentResult> ExecuteAsync(
         string runId,

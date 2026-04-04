@@ -79,4 +79,19 @@ public sealed class DapperAuthorityPipelineWorkRepository(ISqlConnectionFactory 
         await connection.ExecuteAsync(
             new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: cancellationToken));
     }
+
+    /// <inheritdoc />
+    public async Task<long> CountPendingAsync(CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT COUNT_BIG(1)
+            FROM dbo.AuthorityPipelineWorkOutbox
+            WHERE ProcessedUtc IS NULL;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        long count = await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, cancellationToken: cancellationToken));
+
+        return count;
+    }
 }

@@ -4,9 +4,10 @@ using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosting;
 
 using ArchiForge.DecisionEngine.Validation;
+using ArchiForge.Persistence.Archival;
 using ArchiForge.Persistence.BlobStore;
 using ArchiForge.Persistence.Caching;
-using ArchiForge.Persistence.Archival;
+using ArchiForge.Persistence.Connections;
 using ArchiForge.Retrieval.Indexing;
 
 namespace ArchiForge.Host.Core.Startup.Validation;
@@ -111,12 +112,14 @@ public static class ArchiForgeConfigurationRules
         if (hostingRole == ArchiForgeHostingRole.Worker)
         {
             CollectProductionWebhookSecretErrors(configuration, errors);
+            CollectProductionSqlRowLevelSecurityErrors(configuration, archiForge, errors);
 
             return errors;
         }
 
         CollectProductionCorsErrors(configuration, errors);
         CollectProductionWebhookSecretErrors(configuration, errors);
+        CollectProductionSqlRowLevelSecurityErrors(configuration, archiForge, errors);
 
         string? authMode = configuration["ArchiForgeAuth:Mode"];
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
@@ -149,6 +152,29 @@ public static class ArchiForgeConfigurationRules
 
 
         return errors;
+    }
+
+    /// <summary>Require RLS session context when using SQL in Production (API and Worker).</summary>
+    private static void CollectProductionSqlRowLevelSecurityErrors(
+        IConfiguration configuration,
+        ArchiForgeOptions archiForge,
+        List<string> errors)
+    {
+        if (!string.Equals(archiForge.StorageProvider, "Sql", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        SqlServerOptions sql =
+            configuration.GetSection(SqlServerOptions.SectionName).Get<SqlServerOptions>() ?? new SqlServerOptions();
+
+        if (sql.RowLevelSecurity.ApplySessionContext)
+        {
+            return;
+        }
+
+        errors.Add(
+            "Production with ArchiForge:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS).");
     }
 
     /// <summary>Fail-fast CORS checks in Production for API-facing hosts only.</summary>

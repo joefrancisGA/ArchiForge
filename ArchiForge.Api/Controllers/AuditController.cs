@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/audit")]
+[Route("v{version:apiVersion}/audit")]
 [EnableRateLimiting("fixed")]
 public sealed class AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider) : ControllerBase
 {

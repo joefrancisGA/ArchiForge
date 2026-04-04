@@ -19,7 +19,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/retrieval")]
+[Route("v{version:apiVersion}/retrieval")]
 [EnableRateLimiting("fixed")]
 public sealed class RetrievalController(
     IRetrievalQueryService retrievalQueryService,

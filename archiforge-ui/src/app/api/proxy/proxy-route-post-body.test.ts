@@ -18,7 +18,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
   });
 
   it("returns 413 when Content-Length declares a body larger than the cap", async () => {
-    const req = new NextRequest("http://localhost/api/proxy/api/health", {
+    const req = new NextRequest("http://localhost/api/proxy/health/live", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -37,7 +37,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
 
   it("returns 413 when streamed body exceeds the cap", async () => {
     const oversized = new Uint8Array(PROXY_MAX_BODY_BYTES + 1);
-    const req = new NextRequest("http://localhost/api/proxy/api/health", {
+    const req = new NextRequest("http://localhost/api/proxy/health/live", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: oversized,
@@ -50,7 +50,7 @@ describe("POST /api/proxy/[...path] body limits", () => {
   });
 
   it("forwards small POST to upstream when within limit", async () => {
-    const req = new NextRequest("http://localhost/api/proxy/api/health", {
+    const req = new NextRequest("http://localhost/api/proxy/health/live", {
       method: "POST",
       headers: { "content-type": "application/json", "content-length": "2" },
       body: "{}",

@@ -1,5 +1,6 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Data;
+using System.Globalization;
 
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Interfaces;
@@ -19,6 +20,8 @@ public sealed class InMemoryRunRepository : IRunRepository
 
     private readonly ConcurrentDictionary<Guid, RunRecord> _store = new();
 
+    private long _fakeRowVersion;
+
     public Task SaveAsync(
         RunRecord run,
         CancellationToken ct,
@@ -37,6 +40,7 @@ public sealed class InMemoryRunRepository : IRunRepository
                 _store.TryRemove(oldest.RunId, out _);
         }
 
+        run.RowVersion = NextFakeRowVersion();
         _store[run.RunId] = run;
         return Task.CompletedTask;
     }
@@ -83,8 +87,31 @@ public sealed class InMemoryRunRepository : IRunRepository
         ct.ThrowIfCancellationRequested();
         _ = connection;
         _ = transaction;
+
+        if (!_store.ContainsKey(run.RunId))
+        {
+            throw new InvalidOperationException(
+                string.Format(CultureInfo.InvariantCulture, "Run '{0:D}' was not found for update.", run.RunId));
+        }
+
+        if (run.RowVersion is not null &&
+            _store.TryGetValue(run.RunId, out RunRecord? existing) &&
+            existing.RowVersion is not null &&
+            !existing.RowVersion.AsSpan().SequenceEqual(run.RowVersion))
+        {
+            throw new RunConcurrencyConflictException(run.RunId);
+        }
+
+        run.RowVersion = NextFakeRowVersion();
         _store[run.RunId] = run;
         return Task.CompletedTask;
+    }
+
+    private byte[] NextFakeRowVersion()
+    {
+        long v = Interlocked.Increment(ref _fakeRowVersion);
+
+        return BitConverter.GetBytes(v);
     }
 
     /// <inheritdoc />

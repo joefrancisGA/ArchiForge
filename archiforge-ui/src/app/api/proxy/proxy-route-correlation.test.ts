@@ -30,7 +30,7 @@ describe("proxy route X-Correlation-ID", () => {
 
   it("forwards safe browser correlation id on upstream fetch (GET)", async () => {
     const browserId = "aaaaaaaa-bbbb-4ccc-dddd-eeeeeeeeeeee";
-    const req = new NextRequest(`http://localhost/api/proxy/api/health`, {
+    const req = new NextRequest(`http://localhost/api/proxy/health/live`, {
       headers: { [CORRELATION_ID_HEADER]: browserId },
     });
 
@@ -47,7 +47,7 @@ describe("proxy route X-Correlation-ID", () => {
   it("generates correlation id when browser value is unsafe", async () => {
     const genSpy = vi.spyOn(correlation, "generateCorrelationId").mockReturnValue("generated-fixed-id");
 
-    const req = new NextRequest(`http://localhost/api/proxy/api/health`, {
+    const req = new NextRequest(`http://localhost/api/proxy/health/live`, {
       headers: { [CORRELATION_ID_HEADER]: "has spaces" },
     });
 
@@ -61,7 +61,7 @@ describe("proxy route X-Correlation-ID", () => {
 
   it("forwards correlation id on POST", async () => {
     const browserId = "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb";
-    const req = new NextRequest(`http://localhost/api/proxy/api/health`, {
+    const req = new NextRequest(`http://localhost/api/proxy/health/live`, {
       method: "POST",
       headers: {
         "content-type": "application/json",

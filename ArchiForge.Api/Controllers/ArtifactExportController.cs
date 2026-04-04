@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
@@ -28,7 +28,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/artifacts")]
+[Route("v{version:apiVersion}/artifacts")]
 [EnableRateLimiting("fixed")]
 public sealed class ArtifactExportController(
     IArtifactQueryService artifactQueryService,
@@ -71,7 +71,7 @@ public sealed class ArtifactExportController(
     }
 
     /// <summary>
-    /// JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is not in that manifest’s bundle.
+    /// JSON metadata for one artifact (operator review). <c>404</c> if the manifest is out of scope or the artifact id is not in that manifest�s bundle.
     /// </summary>
     [HttpGet("manifests/{manifestId:guid}/artifact/{artifactId:guid}/descriptor")]
     [ProducesResponseType(typeof(ArtifactDescriptorResponse), StatusCodes.Status200OK)]

@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// End-to-end: index documents via DI → query via <c>GET api/retrieval/search</c> → assert hits.
+/// End-to-end: index documents via DI → query via <c>GET v1/retrieval/search</c> → assert hits.
 /// Uses <see cref="AlertLifecycleWebAppFactory"/> (InMemory storage + <c>FakeEmbeddingService</c> + <c>InMemoryVectorIndex</c>).
 /// </summary>
 [Trait("Category", "Integration")]
@@ -33,7 +33,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
 
         HttpClient client = factory.CreateClient();
         HttpResponseMessage response = await client.GetAsync(
-            new Uri("api/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
+            new Uri("v1/retrieval/search?q=microservices+topology&topK=5", UriKind.Relative),
             CancellationToken.None);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -51,7 +51,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync(
-            new Uri("api/retrieval/search?q=", UriKind.Relative),
+            new Uri("v1/retrieval/search?q=", UriKind.Relative),
             CancellationToken.None);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -64,7 +64,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
         HttpClient client = factory.CreateClient();
 
         HttpResponseMessage response = await client.GetAsync(
-            new Uri("api/retrieval/search?q=anything&topK=3", UriKind.Relative),
+            new Uri("v1/retrieval/search?q=anything&topK=3", UriKind.Relative),
             CancellationToken.None);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -83,7 +83,7 @@ public sealed class RetrievalQuerySmokeIntegrationTests
 
         HttpClient client = factory.CreateClient();
         HttpResponseMessage response = await client.GetAsync(
-            new Uri("api/retrieval/search?q=architecture&topK=1", UriKind.Relative),
+            new Uri("v1/retrieval/search?q=architecture&topK=1", UriKind.Relative),
             CancellationToken.None);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);

@@ -180,31 +180,31 @@ export async function fetchArchiForgeJson<T>(path: string): Promise<T> {
   return apiGet<T>(path);
 }
 
-/** Lists recent runs for a project (GET /api/authority/projects/{id}/runs). */
+/** Lists recent runs for a project (GET /v1/authority/projects/{id}/runs). */
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
   return apiGet<RunSummary[]>(
-    `/api/authority/projects/${encodeURIComponent(projectId)}/runs?take=${take}`,
+    `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?take=${take}`,
   );
 }
 
 /** Fetches the lightweight summary for a single run. */
 export async function getRunSummary(runId: string): Promise<RunSummary> {
-  return apiGet<RunSummary>(`/api/authority/runs/${runId}/summary`);
+  return apiGet<RunSummary>(`/v1/authority/runs/${runId}/summary`);
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
 export async function getRunDetail(runId: string): Promise<RunDetail> {
-  return apiGet<RunDetail>(`/api/authority/runs/${runId}`);
+  return apiGet<RunDetail>(`/v1/authority/runs/${runId}`);
 }
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */
 export async function getManifestSummary(manifestId: string): Promise<ManifestSummary> {
-  return apiGet<ManifestSummary>(`/api/authority/manifests/${manifestId}/summary`);
+  return apiGet<ManifestSummary>(`/v1/authority/manifests/${manifestId}/summary`);
 }
 
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
 export async function listArtifacts(manifestId: string): Promise<ArtifactDescriptor[]> {
-  return apiGet<ArtifactDescriptor[]>(`/api/artifacts/manifests/${manifestId}`);
+  return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/manifests/${manifestId}`);
 }
 
 /** JSON metadata for one artifact (no binary download). */
@@ -213,7 +213,7 @@ export async function getArtifactDescriptor(
   artifactId: string,
 ): Promise<ArtifactDescriptor> {
   return apiGet<ArtifactDescriptor>(
-    `/api/artifacts/manifests/${manifestId}/artifact/${artifactId}/descriptor`,
+    `/v1/artifacts/manifests/${manifestId}/artifact/${artifactId}/descriptor`,
   );
 }
 
@@ -237,7 +237,7 @@ export async function fetchArtifactContentUtf8(
   artifactId: string,
   maxBytes: number = DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES,
 ): Promise<ArtifactContentFetchResult> {
-  const path = `/api/artifacts/manifests/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
+  const path = `/v1/artifacts/manifests/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = resolveBinaryGetRequest(path);
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {
@@ -274,7 +274,7 @@ export async function fetchArtifactContentUtf8(
 /** Legacy flat-diff comparison between two runs (run-level + optional manifest diffs). */
 export async function compareRuns(leftRunId: string, rightRunId: string): Promise<RunComparison> {
   return apiGet<RunComparison>(
-    `/api/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
+    `/v1/authority/compare/runs?leftRunId=${encodeURIComponent(leftRunId)}&rightRunId=${encodeURIComponent(rightRunId)}`,
   );
 }
 
@@ -284,7 +284,7 @@ export async function compareGoldenManifestRuns(
   targetRunId: string,
 ): Promise<GoldenManifestComparison> {
   return apiGet<GoldenManifestComparison>(
-    `/api/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+    `/v1/compare?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
   );
 }
 
@@ -294,13 +294,13 @@ export async function explainComparisonRuns(
   targetRunId: string,
 ): Promise<ComparisonExplanation> {
   return apiGet<ComparisonExplanation>(
-    `/api/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
+    `/v1/explain/compare/explain?baseRunId=${encodeURIComponent(baseRunId)}&targetRunId=${encodeURIComponent(targetRunId)}`,
   );
 }
 
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
 export async function explainRun(runId: string): Promise<RunExplanation> {
-  return apiGet<RunExplanation>(`/api/explain/runs/${encodeURIComponent(runId)}/explain`);
+  return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
 }
 
 /** Sends a natural-language question to the ArchiForge conversational AI endpoint. */
@@ -319,17 +319,17 @@ export async function askArchiForge(payload: {
   if (payload.baseRunId?.trim()) body.baseRunId = payload.baseRunId.trim();
   if (payload.targetRunId?.trim()) body.targetRunId = payload.targetRunId.trim();
 
-  return apiPostJson<AskResponse>("/api/ask", body);
+  return apiPostJson<AskResponse>("/v1/ask", body);
 }
 
 /** Lists recent conversation threads for the current scope. */
 export async function listConversationThreads(take = 50): Promise<ConversationThread[]> {
-  return apiGet(`/api/conversations?take=${take}`);
+  return apiGet(`/v1/conversations?take=${take}`);
 }
 
 /** Fetches messages for a conversation thread (most recent first). */
 export async function getConversationMessages(threadId: string, take = 200): Promise<ConversationMessage[]> {
-  return apiGet(`/api/conversations/${encodeURIComponent(threadId)}/messages?take=${take}`);
+  return apiGet(`/v1/conversations/${encodeURIComponent(threadId)}/messages?take=${take}`);
 }
 
 /** Generates an AI-driven improvement plan for a run, optionally compared to another run. */
@@ -338,13 +338,13 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
   if (compareToRunId?.trim()) params.set("compareToRunId", compareToRunId.trim());
   const q = params.toString();
   return apiGet<ImprovementPlan>(
-    `/api/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
+    `/v1/advisory/runs/${encodeURIComponent(runId)}/improvements${q ? `?${q}` : ""}`,
   );
 }
 
 /** Fetches the most recent recommendation learning profile, or null if none exists (404). */
 export async function getLatestLearningProfile(): Promise<LearningProfile | null> {
-  const { url, headers } = resolveRequest("/api/recommendation-learning/latest");
+  const { url, headers } = resolveRequest("/v1/recommendation-learning/latest");
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, { cache: "no-store", headers: h });
   const text = await response.text();
@@ -488,7 +488,7 @@ export async function postEvolutionSimulate(candidateId: string): Promise<Evolut
 
 /** Lists all advisory scan schedules for the current scope. */
 export async function listAdvisorySchedules(): Promise<AdvisoryScanSchedule[]> {
-  return apiGet<AdvisoryScanSchedule[]>("/api/advisory-scheduling/schedules");
+  return apiGet<AdvisoryScanSchedule[]>("/v1/advisory-scheduling/schedules");
 }
 
 /** Creates a new advisory scan schedule with a cron expression. */
@@ -498,7 +498,7 @@ export async function createAdvisorySchedule(body: {
   runProjectSlug?: string;
   isEnabled?: boolean;
 }): Promise<AdvisoryScanSchedule> {
-  return apiPostJson<AdvisoryScanSchedule>("/api/advisory-scheduling/schedules", {
+  return apiPostJson<AdvisoryScanSchedule>("/v1/advisory-scheduling/schedules", {
     name: body.name,
     cronExpression: body.cronExpression,
     runProjectSlug: body.runProjectSlug?.trim() || "default",
@@ -509,7 +509,7 @@ export async function createAdvisorySchedule(body: {
 /** Triggers an immediate execution of an advisory scan schedule. */
 export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> {
   const { url, headers } = resolveRequest(
-    `/api/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
+    `/v1/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
   );
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
@@ -527,13 +527,13 @@ export async function listScheduleExecutions(
   take = 30,
 ): Promise<AdvisoryScanExecution[]> {
   return apiGet<AdvisoryScanExecution[]>(
-    `/api/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/executions?take=${take}`,
+    `/v1/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/executions?take=${take}`,
   );
 }
 
 /** Lists recent architecture digests (periodic summary reports). */
 export async function listArchitectureDigests(take = 20): Promise<ArchitectureDigest[]> {
-  return apiGet<ArchitectureDigest[]>(`/api/advisory-scheduling/digests?take=${take}`);
+  return apiGet<ArchitectureDigest[]>(`/v1/advisory-scheduling/digests?take=${take}`);
 }
 
 /** Lists all digest delivery subscriptions (email, webhook, etc.). */
@@ -561,7 +561,7 @@ export async function createDigestSubscription(body: {
 /** Toggles a digest subscription between enabled and disabled. */
 export async function toggleDigestSubscription(subscriptionId: string): Promise<DigestSubscription> {
   return apiPostJson<DigestSubscription>(
-    `/api/digest-subscriptions/${encodeURIComponent(subscriptionId)}/toggle`,
+    `/v1/digest-subscriptions/${encodeURIComponent(subscriptionId)}/toggle`,
     {},
   );
 }
@@ -586,7 +586,7 @@ export async function listDigestDeliveryAttempts(digestId: string): Promise<Dige
 /** Fetches a single architecture digest by ID. */
 export async function getArchitectureDigest(digestId: string): Promise<ArchitectureDigest> {
   return apiGet<ArchitectureDigest>(
-    `/api/advisory-scheduling/digests/${encodeURIComponent(digestId)}`,
+    `/v1/advisory-scheduling/digests/${encodeURIComponent(digestId)}`,
   );
 }
 
@@ -823,7 +823,7 @@ export async function createCompositeAlertRule(body: {
 
 /** Triggers a full rebuild of the recommendation learning profile from historical outcomes. */
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
-  const { url, headers } = resolveRequest("/api/recommendation-learning/rebuild");
+  const { url, headers } = resolveRequest("/v1/recommendation-learning/rebuild");
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {
@@ -842,7 +842,7 @@ export async function rebuildLearningProfile(): Promise<LearningProfile> {
 
 /** Replays an authority chain for a run using the specified mode (ReconstructOnly, RebuildManifest, RebuildArtifacts). */
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
-  const { url, headers } = resolveRequest("/api/authority/replay");
+  const { url, headers } = resolveRequest("/v1/authority/replay");
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
   const response = await fetch(url, {
@@ -862,17 +862,17 @@ export async function replayRun(runId: string, mode: string): Promise<ReplayResp
 
 /** Use same-origin proxy so browser downloads work with API key auth. */
 export function getArtifactDownloadUrl(manifestId: string, artifactId: string): string {
-  return `/api/proxy/api/artifacts/manifests/${manifestId}/artifact/${artifactId}`;
+  return `/api/proxy/v1/artifacts/manifests/${manifestId}/artifact/${artifactId}`;
 }
 
 /** Returns the proxy URL for downloading the full artifact bundle ZIP for a manifest. */
 export function getBundleDownloadUrl(manifestId: string): string {
-  return `/api/proxy/api/artifacts/manifests/${manifestId}/bundle`;
+  return `/api/proxy/v1/artifacts/manifests/${manifestId}/bundle`;
 }
 
 /** Returns the proxy URL for downloading the full run export ZIP. */
 export function getRunExportDownloadUrl(runId: string): string {
-  return `/api/proxy/api/artifacts/runs/${runId}/export`;
+  return `/api/proxy/v1/artifacts/runs/${runId}/export`;
 }
 
 /** DOCX package; optional compare + AI narrative flags. */
@@ -888,5 +888,5 @@ export function getArchitecturePackageDocxUrl(
   if (opts?.includeComparisonExplanation === false)
     params.set("includeComparisonExplanation", "false");
   const q = params.toString();
-  return `/api/proxy/api/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
+  return `/api/proxy/v1/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
 }

@@ -4,7 +4,7 @@ import type { RecommendationRecord } from "@/types/advisory";
 /** Lists persisted recommendation records for a run (governance workflow state). */
 export async function listRecommendations(runId: string): Promise<RecommendationRecord[]> {
   return apiGet<RecommendationRecord[]>(
-    `/api/advisory/runs/${encodeURIComponent(runId)}/recommendations`,
+    `/v1/advisory/runs/${encodeURIComponent(runId)}/recommendations`,
   );
 }
 
@@ -16,7 +16,7 @@ export async function applyRecommendationAction(
   rationale?: string,
 ): Promise<RecommendationRecord> {
   return apiPostJson<RecommendationRecord>(
-    `/api/advisory/recommendations/${encodeURIComponent(recommendationId)}/action`,
+    `/v1/advisory/recommendations/${encodeURIComponent(recommendationId)}/action`,
     {
       action,
       comment: comment ?? null,

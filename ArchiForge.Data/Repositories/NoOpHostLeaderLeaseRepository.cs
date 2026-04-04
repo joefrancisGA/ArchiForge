@@ -20,4 +20,10 @@ public sealed class NoOpHostLeaderLeaseRepository : IHostLeaderLeaseRepository
     {
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<HostLeaderLeaseSnapshot>> ListAllAsync(CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult<IReadOnlyList<HostLeaderLeaseSnapshot>>([]);
+    }
 }

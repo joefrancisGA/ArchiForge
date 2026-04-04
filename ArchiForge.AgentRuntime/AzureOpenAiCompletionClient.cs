@@ -99,11 +99,24 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         ChatCompletion completion = response.Value;
 
-        if (llmActivity is not null && completion.Usage is { } usage)
+        if (completion.Usage is { } usage)
         {
-            llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
-            llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
-            llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
+            if (usage.InputTokenCount is { } inTok && inTok > 0)
+            {
+                ArchiForgeInstrumentation.LlmPromptTokensTotal.Add(inTok);
+            }
+
+            if (usage.OutputTokenCount is { } outTok && outTok > 0)
+            {
+                ArchiForgeInstrumentation.LlmCompletionTokensTotal.Add(outTok);
+            }
+
+            if (llmActivity is not null)
+            {
+                llmActivity.SetTag("gen_ai.usage.input_tokens", usage.InputTokenCount);
+                llmActivity.SetTag("gen_ai.usage.output_tokens", usage.OutputTokenCount);
+                llmActivity.SetTag("gen_ai.usage.total_tokens", usage.TotalTokenCount);
+            }
         }
 
         IReadOnlyList<ChatMessageContentPart> parts = completion.Content;

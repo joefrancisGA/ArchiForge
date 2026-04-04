@@ -25,7 +25,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/graph")]
+[Route("v{version:apiVersion}/graph")]
 [EnableRateLimiting("fixed")]
 public sealed class GraphController(
     IAuthorityQueryService authorityQueryService,

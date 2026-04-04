@@ -18,7 +18,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/scope")]
+[Route("v{version:apiVersion}/scope")]
 [EnableRateLimiting("fixed")]
 public sealed class ScopeDebugController(IScopeContextProvider scopeProvider) : ControllerBase
 {

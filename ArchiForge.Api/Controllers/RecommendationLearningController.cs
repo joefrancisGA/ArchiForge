@@ -24,7 +24,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/recommendation-learning")]
+[Route("v{version:apiVersion}/recommendation-learning")]
 [EnableRateLimiting("fixed")]
 public sealed class RecommendationLearningController(
     IRecommendationLearningService learningService,

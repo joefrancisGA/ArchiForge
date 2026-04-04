@@ -19,7 +19,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/authority/compare")]
+[Route("v{version:apiVersion}/authority/compare")]
 [EnableRateLimiting("fixed")]
 public sealed class AuthorityCompareController(
     IAuthorityCompareService compareService,

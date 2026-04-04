@@ -1,7 +1,7 @@
 const PROXY_PREFIX = "/api/proxy";
 
 /**
- * Returns the backend-relative path for a same-origin proxy request (e.g. `/api/authority/runs/x`),
+ * Returns the backend-relative path for a same-origin proxy request (e.g. `/v1/authority/runs/x`),
  * or null if the URL is not under `/api/proxy`.
  */
 export function backendApiPath(url: URL): string | null {
@@ -17,33 +17,33 @@ export function backendApiPath(url: URL): string | null {
 export function matchesRunDetailGet(url: URL, runId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/api/authority/runs/${encodeURIComponent(runId)}`
+    backendApiPath(url) === `/v1/authority/runs/${encodeURIComponent(runId)}`
   );
 }
 
 export function matchesManifestSummaryGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/api/authority/manifests/${encodeURIComponent(manifestId)}/summary`
+    backendApiPath(url) === `/v1/authority/manifests/${encodeURIComponent(manifestId)}/summary`
   );
 }
 
 export function matchesArtifactListGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/api/artifacts/manifests/${encodeURIComponent(manifestId)}`
+    backendApiPath(url) === `/v1/artifacts/manifests/${encodeURIComponent(manifestId)}`
   );
 }
 
 export function matchesArtifactBundleGet(url: URL, manifestId: string): boolean {
   return (
     url.search === "" &&
-    backendApiPath(url) === `/api/artifacts/manifests/${encodeURIComponent(manifestId)}/bundle`
+    backendApiPath(url) === `/v1/artifacts/manifests/${encodeURIComponent(manifestId)}/bundle`
   );
 }
 
 export function matchesLegacyCompareRunsGet(url: URL, leftRunId: string, rightRunId: string): boolean {
-  if (backendApiPath(url) !== "/api/authority/compare/runs") {
+  if (backendApiPath(url) !== "/v1/authority/compare/runs") {
     return false;
   }
 
@@ -53,7 +53,7 @@ export function matchesLegacyCompareRunsGet(url: URL, leftRunId: string, rightRu
 }
 
 export function matchesStructuredCompareGet(url: URL, baseRunId: string, targetRunId: string): boolean {
-  if (backendApiPath(url) !== "/api/compare") {
+  if (backendApiPath(url) !== "/v1/compare") {
     return false;
   }
 
@@ -63,7 +63,7 @@ export function matchesStructuredCompareGet(url: URL, baseRunId: string, targetR
 }
 
 export function matchesCompareExplainGet(url: URL, baseRunId: string, targetRunId: string): boolean {
-  if (backendApiPath(url) !== "/api/explain/compare/explain") {
+  if (backendApiPath(url) !== "/v1/explain/compare/explain") {
     return false;
   }
 

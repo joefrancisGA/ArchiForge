@@ -60,6 +60,87 @@
       ],
       "title": "Authority run throughput (OTel → Prometheus)",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "description": "Meter **ArchiForge** counters. If a panel is empty, scrape `/metrics` and adjust the series name for your OpenTelemetry → Prometheus exporter (name mangling varies by exporter version).",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archiforge_archiforge_authority_runs_completed_total[5m])) or sum(rate(archiforge_authority_runs_completed_total[5m]))",
+          "legendFormat": "authority runs completed / s",
+          "refId": "A"
+        }
+      ],
+      "title": "Authority runs completed (app counter)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum by (agent_type_key, outcome) (rate(archiforge_archiforge_agent_handler_invocations_total[5m])) or sum by (agent_type_key, outcome) (rate(archiforge_agent_handler_invocations_total[5m]))",
+          "legendFormat": "{{agent_type_key}} {{outcome}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent handler invocations (by type)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archiforge_archiforge_llm_prompt_tokens_total[5m])) or sum(rate(archiforge_llm_prompt_tokens_total[5m]))",
+          "legendFormat": "prompt tokens/s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(archiforge_archiforge_llm_completion_tokens_total[5m])) or sum(rate(archiforge_llm_completion_tokens_total[5m]))",
+          "legendFormat": "completion tokens/s",
+          "refId": "B"
+        }
+      ],
+      "title": "LLM token rates (Azure OpenAI completions)",
+      "type": "timeseries"
     }
   ],
   "refresh": "30s",

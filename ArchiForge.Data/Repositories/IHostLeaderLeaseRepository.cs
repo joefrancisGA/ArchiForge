@@ -19,4 +19,7 @@ public interface IHostLeaderLeaseRepository
     /// Best-effort release so another replica can acquire without waiting for expiry.
     /// </summary>
     Task TryReleaseAsync(string leaseName, string instanceId, CancellationToken cancellationToken = default);
+
+    /// <summary>Returns all lease rows (admin / diagnostics).</summary>
+    Task<IReadOnlyList<HostLeaderLeaseSnapshot>> ListAllAsync(CancellationToken cancellationToken = default);
 }

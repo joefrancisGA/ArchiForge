@@ -177,7 +177,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         DateTimeOffset retryAfter = new(2026, 3, 1, 12, 0, 0, TimeSpan.Zero);
         ExceptionContext context = CreateExceptionContext(
             new CircuitBreakerOpenException(retryAfter),
-            "/api/ask");
+            "/v1/ask");
 
         RunFilter(context);
 

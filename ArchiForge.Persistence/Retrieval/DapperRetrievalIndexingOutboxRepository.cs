@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Persistence.Connections;
@@ -21,14 +22,61 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
         Guid projectId,
         CancellationToken ct)
     {
+        Guid outboxId = Guid.NewGuid();
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await EnqueueCoreAsync(
+            connection,
+            null,
+            outboxId,
+            runId,
+            tenantId,
+            workspaceId,
+            projectId,
+            ct);
+    }
+
+    /// <inheritdoc />
+    public Task EnqueueAsync(
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentNullException.ThrowIfNull(transaction);
+
+        Guid outboxId = Guid.NewGuid();
+
+        return EnqueueCoreAsync(
+            connection,
+            transaction,
+            outboxId,
+            runId,
+            tenantId,
+            workspaceId,
+            projectId,
+            ct);
+    }
+
+    private static async Task EnqueueCoreAsync(
+        IDbConnection connection,
+        IDbTransaction? transaction,
+        Guid outboxId,
+        Guid runId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
         const string sql = """
             INSERT INTO dbo.RetrievalIndexingOutbox
             (OutboxId, RunId, TenantId, WorkspaceId, ProjectId, CreatedUtc)
             VALUES (@OutboxId, @RunId, @TenantId, @WorkspaceId, @ProjectId, SYSUTCDATETIME());
             """;
 
-        Guid outboxId = Guid.NewGuid();
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
             new CommandDefinition(
                 sql,
@@ -40,6 +88,7 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
                     WorkspaceId = workspaceId,
                     ProjectId = projectId
                 },
+                transaction: transaction,
                 cancellationToken: ct));
     }
 
@@ -73,5 +122,20 @@ public sealed class DapperRetrievalIndexingOutboxRepository(ISqlConnectionFactor
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
         await connection.ExecuteAsync(
             new CommandDefinition(sql, new { OutboxId = outboxId }, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<long> CountPendingAsync(CancellationToken ct)
+    {
+        const string sql = """
+            SELECT COUNT_BIG(1)
+            FROM dbo.RetrievalIndexingOutbox
+            WHERE ProcessedUtc IS NULL;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        long count = await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, cancellationToken: ct));
+
+        return count;
     }
 }

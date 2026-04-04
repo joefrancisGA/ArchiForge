@@ -4,6 +4,7 @@ using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Core.Resilience;
 using ArchiForge.Host.Core.ProblemDetails;
+using ArchiForge.Persistence.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -70,6 +71,17 @@ public static class ApplicationProblemMapper
                         details.Extensions["retryAfterUtc"] = until;
                 });
 
+            return true;
+        }
+
+        if (ex is RunConcurrencyConflictException rcc)
+        {
+            result = CreateProblemResult(
+                StatusCodes.Status409Conflict,
+                "Concurrency conflict",
+                rcc.Message,
+                ProblemTypes.Conflict,
+                instance);
             return true;
         }
 

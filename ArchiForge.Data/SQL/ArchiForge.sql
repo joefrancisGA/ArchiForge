@@ -460,9 +460,15 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         ArchivedUtc DATETIME2 NULL,
+        RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
 END;
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'RowVersionStamp') IS NULL
+    ALTER TABLE dbo.Runs ADD RowVersionStamp ROWVERSION;
 GO
 
 IF OBJECT_ID('dbo.ContextSnapshots', 'U') IS NULL
@@ -943,9 +949,15 @@ BEGIN
         TenantId UNIQUEIDENTIFIER NOT NULL,
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ProjectId UNIQUEIDENTIFIER NOT NULL,
+        RowVersionStamp ROWVERSION,
         INDEX IX_GoldenManifests_RunId NONCLUSTERED (RunId)
     );
 END;
+GO
+
+IF OBJECT_ID(N'dbo.GoldenManifests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GoldenManifests', N'RowVersionStamp') IS NULL
+    ALTER TABLE dbo.GoldenManifests ADD RowVersionStamp ROWVERSION;
 GO
 
 -- Phase-1 relational slices for GoldenManifest (dual-write; other sections remain JSON on dbo.GoldenManifests).
@@ -1831,10 +1843,16 @@ BEGIN
         IsPinned BIT NOT NULL CONSTRAINT DF_PolicyPackAssignments_IsPinned_Create DEFAULT (0),
         AssignedUtc DATETIME2 NOT NULL,
         ArchivedUtc DATETIME2 NULL,
+        RowVersionStamp ROWVERSION,
         INDEX IX_PolicyPackAssignments_Scope_Enabled NONCLUSTERED (TenantId, WorkspaceId, ProjectId, IsEnabled, AssignedUtc DESC),
         INDEX IX_PolicyPackAssignments_ScopeLevel_AssignedUtc NONCLUSTERED (TenantId, WorkspaceId, ProjectId, ScopeLevel, AssignedUtc DESC)
     );
 END;
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'RowVersionStamp') IS NULL
+    ALTER TABLE dbo.PolicyPackAssignments ADD RowVersionStamp ROWVERSION;
 GO
 
 /* -- First-wave CHECK constraints (obvious status domains only) ----

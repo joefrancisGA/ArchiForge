@@ -19,4 +19,7 @@ public sealed class RunRecord
 
     /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
     public DateTime? ArchivedUtc { get; set; }
+
+    /// <summary>SQL Server <c>ROWVERSION</c> for optimistic concurrency on updates; <see langword="null"/> before first read/insert round-trip.</summary>
+    public byte[]? RowVersion { get; set; }
 }

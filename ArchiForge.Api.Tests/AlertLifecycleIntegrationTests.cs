@@ -52,7 +52,7 @@ public sealed class AlertLifecycleIntegrationTests
         ruleId.Should().NotBeEmpty();
 
         HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
-            "api/advisory-scheduling/schedules",
+            "v1/advisory-scheduling/schedules",
             new
             {
                 name = "Lifecycle test scan",
@@ -70,7 +70,7 @@ public sealed class AlertLifecycleIntegrationTests
         schedule.Should().NotBeNull();
 
         HttpResponseMessage runResponse = await client
-            .PostAsync($"api/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", content: null, CancellationToken.None)
+            .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", content: null, CancellationToken.None)
 ;
 
         runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);

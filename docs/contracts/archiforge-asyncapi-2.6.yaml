@@ -1,0 +1,80 @@
+asyncapi: 2.6.0
+info:
+  title: ArchiForge outbound webhooks
+  version: 1.0.0
+  description: |
+    ArchiForge **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
+    This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
+
+    When `WebhookDelivery:UseHttpClient` is true and a shared secret is configured, requests include
+    header `X-ArchiForge-Webhook-Signature` with value `sha256=<hex>` (HMAC-SHA256 over the raw UTF-8 body).
+    Verify using `ArchiForge.Host.Core.Services.Delivery.WebhookSignature` semantics.
+
+defaultContentType: application/json
+channels:
+  alertTeamsIncomingWebhook:
+    description: POST to a Microsoft Teams incoming webhook URL (`AlertRoutingChannelType.TeamsWebhook`).
+    publish:
+      operationId: postAlertTeams
+      message:
+        name: AlertTeamsPayload
+        payload:
+          type: object
+          required: [title, text]
+          properties:
+            title:
+              type: string
+            text:
+              type: string
+  alertSlackIncomingWebhook:
+    description: POST to a Slack incoming webhook URL (`AlertRoutingChannelType.SlackWebhook`).
+    publish:
+      operationId: postAlertSlack
+      message:
+        name: AlertSlackPayload
+        payload:
+          type: object
+          required: [text]
+          properties:
+            text:
+              type: string
+  alertOnCallWebhook:
+    description: POST to a generic on-call receiver (`AlertRoutingChannelType.OnCallWebhook`).
+    publish:
+      operationId: postAlertOnCall
+      message:
+        name: AlertOnCallPayload
+        payload:
+          type: object
+          required: [severity, title, category, triggerValue, description, alertId, runId]
+          properties:
+            severity:
+              type: string
+            title:
+              type: string
+            category:
+              type: string
+            triggerValue:
+              type: string
+            description:
+              type: string
+            alertId:
+              type: string
+              format: uuid
+            runId:
+              type: string
+              format: uuid
+  digestTeamsIncomingWebhook:
+    description: POST to a Teams incoming webhook for architecture digests (`DigestDeliveryChannelType.TeamsWebhook`).
+    publish:
+      operationId: postDigestTeams
+      message:
+        name: DigestTeamsPayload
+        payload:
+          type: object
+          required: [title, text]
+          properties:
+            title:
+              type: string
+            text:
+              type: string

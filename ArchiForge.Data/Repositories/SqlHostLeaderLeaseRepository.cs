@@ -175,4 +175,20 @@ public sealed class SqlHostLeaderLeaseRepository(IDbConnectionFactory connection
                 new { LeaseName = leaseName, HolderInstanceId = instanceId },
                 cancellationToken: cancellationToken));
     }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<HostLeaderLeaseSnapshot>> ListAllAsync(CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT LeaseName, HolderInstanceId, LeaseExpiresUtc
+            FROM dbo.HostLeaderLeases
+            ORDER BY LeaseName ASC;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        IEnumerable<HostLeaderLeaseSnapshot> rows = await connection.QueryAsync<HostLeaderLeaseSnapshot>(
+            new CommandDefinition(sql, cancellationToken: cancellationToken));
+
+        return rows.ToList();
+    }
 }

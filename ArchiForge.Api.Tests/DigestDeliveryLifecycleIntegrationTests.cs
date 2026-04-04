@@ -50,7 +50,7 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
         Guid subscriptionId = subscription.SubscriptionId;
 
         HttpResponseMessage createScheduleResponse = await client.PostAsJsonAsync(
-            "api/advisory-scheduling/schedules",
+            "v1/advisory-scheduling/schedules",
             new
             {
                 name = "Digest lifecycle scan",
@@ -68,7 +68,7 @@ public sealed class DigestDeliveryLifecycleIntegrationTests
         schedule.Should().NotBeNull();
 
         HttpResponseMessage runResponse = await client
-            .PostAsync($"api/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", content: null, CancellationToken.None)
+            .PostAsync($"v1/advisory-scheduling/schedules/{schedule.ScheduleId:D}/run", content: null, CancellationToken.None)
 ;
 
         runResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);

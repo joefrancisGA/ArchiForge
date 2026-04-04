@@ -976,4 +976,97 @@ public sealed class ArchiForgeConfigurationRulesTests
 
         errors.Should().NotContain(e => e.Contains("ScrapeUsername", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenDevelopmentAndSqlWithoutRlsSessionContext_has_no_row_level_security_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e => e.Contains("ApplySessionContext", StringComparison.OrdinalIgnoreCase)
+                && e.Contains("RowLevelSecurity", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndSqlWithoutRlsSessionContext_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndSqlWithRlsSessionContext_has_no_row_level_security_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should()
+            .NotContain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionWorkerAndSqlWithoutRlsSessionContext_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["Hosting:Role"] = "Worker",
+            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ConnectionStrings:ArchiForge"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
+            ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchiForgeConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("SqlServer:RowLevelSecurity:ApplySessionContext=true", StringComparison.OrdinalIgnoreCase));
+    }
 }

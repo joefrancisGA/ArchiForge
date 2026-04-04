@@ -21,7 +21,7 @@ namespace ArchiForge.Api.Controllers;
 [ApiController]
 [Authorize(Policy = ArchiForgePolicies.ReadAuthority)]
 [ApiVersion("1.0")]
-[Route("api/authority")]
+[Route("v{version:apiVersion}/authority")]
 [EnableRateLimiting("fixed")]
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,

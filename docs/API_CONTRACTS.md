@@ -6,6 +6,22 @@
 - **Default:** Version **1.0** is assumed when not specified; clients should still use **`/v1`** in URLs.
 - **Discovery:** Responses can include **`api-supported-versions`** / **`api-deprecated-versions`** per [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) options (`ReportApiVersions`).
 
+## Deprecation policy
+
+- **Headers:** When **`ApiDeprecation:Enabled`** is true, successful responses may include **`Deprecation`** and **`Sunset`** (and optional **`Link`** with relation `deprecation`) per product configuration (`ApiDeprecation:*` in appsettings).
+- **Sunset:** Treat **`Sunset`** as the earliest date after which the version may be removed; plan client upgrades before that date.
+- **Breaking changes:** Ship breaking changes only in a **new major** API version (new path prefix, e.g. `/v2/...`), keep **`v1`** stable for the published sunset window, and document migration in release notes.
+- **Non-breaking:** Minor additive changes (new optional fields, new endpoints under the same major version) do not require a new major version; prefer OpenAPI diff + contract tests to catch accidental breaks.
+
+## Contract artifacts
+
+| Artifact | Location | Purpose |
+|----------|----------|---------|
+| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. |
+| OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | Interactive docs and optional APIM import (`infra/terraform`). |
+| AsyncAPI (webhooks) | **`docs/contracts/archiforge-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
+| Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
+
 ## Operator artifacts (`/v1/api/artifacts`)
 
 - **List** `GET …/manifests/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).

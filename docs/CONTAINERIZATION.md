@@ -69,9 +69,9 @@ docker compose --profile full-stack up -d --build
 | API | 5000 | 8080 | `archiforge-api` (local build) |
 | UI | 3000 | 3000 | `archiforge-ui` (local build) |
 
-### Workflow 3 — Azure deployment (future)
+### Workflow 3 — Azure deployment
 
-Same images pushed to ACR, deployed via Terraform to the chosen compute target. The Dockerfiles do not change; only the infrastructure-as-code layer wraps them.
+Same images pushed to ACR, deployed via **Terraform** roots under `infra/terraform-*` (see **`docs/DEPLOYMENT_TERRAFORM.md`**). The Dockerfiles do not change; only the infrastructure-as-code layer wraps them.
 
 ---
 
@@ -167,12 +167,12 @@ The repository root `.dockerignore` is used by the API build context (which is t
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Azure Container Registry (ACR) | Not provisioned | Needed before Azure deployment |
-| Terraform modules | Not created | Depends on deployment target decision |
-| CI/CD image build + push | Not configured | GitHub Actions job to build, tag, push to ACR |
-| VNet / private endpoints | Not configured | Required for production SQL, storage access |
-| Managed Identity | Not configured | For ACR pull, Key Vault access, SQL auth |
-| TLS / custom domain | Not configured | Front Door or App Gateway handles termination |
-| Image vulnerability scanning | Not configured | Trivy or Defender for Containers recommended |
+| Azure Container Registry (ACR) | Operator-owned | Create per environment; Terraform variables reference registry URL / identity |
+| Terraform roots | Available | `infra/terraform-container-apps`, `infra/terraform-storage`, `infra/terraform-private`, `infra/terraform-edge`, `infra/terraform-monitoring`, `infra/terraform-entra`, optional `infra/terraform` (APIM) — see **`docs/DEPLOYMENT_TERRAFORM.md`** |
+| CI/CD image build + push | Partial | `.github/workflows/ci.yml` builds images and can be extended to push to ACR |
+| VNet / private endpoints | Terraform | `infra/terraform-private` and related modules (landing-zone dependent) |
+| Managed Identity | Terraform / host | Wire in Container Apps / App Service modules per environment |
+| TLS / custom domain | Terraform | `infra/terraform-edge` (Front Door pattern) |
+| Image vulnerability scanning | CI (Trivy) | `.github/workflows/ci.yml` runs **Trivy** on API and UI images (CRITICAL/HIGH) and **Trivy IaC** on Terraform; tune severities and registry push gates in the workflow |
 
-These are infrastructure concerns, addressed by future Terraform and CI change sets.
+Remaining gaps (if any) are organizational: subscription placement, naming, and which Terraform roots you enable per stage.
