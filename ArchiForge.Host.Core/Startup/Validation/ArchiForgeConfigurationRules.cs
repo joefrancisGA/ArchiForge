@@ -92,6 +92,7 @@ public static class ArchiForgeConfigurationRules
         CollectBatchReplayErrors(configuration, errors);
         CollectApiDeprecationErrors(configuration, errors);
         CollectDataArchivalErrors(configuration, errors);
+        CollectHostLeaderElectionErrors(configuration, errors);
         CollectRetrievalEmbeddingCapErrors(configuration, errors);
         CollectRetrievalVectorIndexErrors(configuration, errors);
         CollectRateLimitingErrors(configuration, errors);
@@ -276,6 +277,46 @@ public static class ArchiForgeConfigurationRules
         
             errors.Add("DataArchival:IntervalHours must be between 1 and 168.");
         
+    }
+
+    private static void CollectHostLeaderElectionErrors(IConfiguration configuration, List<string> errors)
+    {
+        bool enabled = configuration.GetValue("HostLeaderElection:Enabled", true);
+
+        if (!enabled)
+        {
+            return;
+        }
+
+        int leaseSeconds = configuration.GetValue("HostLeaderElection:LeaseDurationSeconds", 90);
+
+        if (leaseSeconds < 15 || leaseSeconds > 3600)
+        {
+            errors.Add(
+                "HostLeaderElection:LeaseDurationSeconds must be between 15 and 3600 inclusive when HostLeaderElection:Enabled is true.");
+        }
+
+        int renewSeconds = configuration.GetValue("HostLeaderElection:RenewIntervalSeconds", 25);
+
+        if (renewSeconds < 5)
+        {
+            errors.Add(
+                "HostLeaderElection:RenewIntervalSeconds must be at least 5 when HostLeaderElection:Enabled is true.");
+        }
+
+        if (renewSeconds >= leaseSeconds)
+        {
+            errors.Add(
+                "HostLeaderElection:RenewIntervalSeconds must be less than HostLeaderElection:LeaseDurationSeconds when HostLeaderElection:Enabled is true.");
+        }
+
+        int followerMs = configuration.GetValue("HostLeaderElection:FollowerPollMilliseconds", 2000);
+
+        if (followerMs < 100 || followerMs > 120_000)
+        {
+            errors.Add(
+                "HostLeaderElection:FollowerPollMilliseconds must be between 100 and 120000 when HostLeaderElection:Enabled is true.");
+        }
     }
 
     private static void CollectRateLimitingErrors(IConfiguration configuration, List<string> errors)

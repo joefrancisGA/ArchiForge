@@ -1,6 +1,7 @@
 using System.Reflection;
 
 using ArchiForge.Host.Core.DataAccess;
+using ArchiForge.Host.Core.Hosted;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
@@ -118,6 +119,9 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddSingleton<IConversationMessageRepository, InMemoryConversationMessageRepository>();
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
             services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
+            RegisterHostLeaderLeaseInfrastructure(services);
+            services.AddSingleton<ArchiForge.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Data.Repositories.NoOpHostLeaderLeaseRepository>();
+
             return services;
         }
 
@@ -225,7 +229,16 @@ public static class ArchiForgeStorageServiceCollectionExtensions
                 p.GetRequiredService<IServiceScopeFactory>(),
                 connectionString));
 
+        RegisterHostLeaderLeaseInfrastructure(services);
+        services.AddSingleton<ArchiForge.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Data.Repositories.SqlHostLeaderLeaseRepository>();
+
         return services;
+    }
+
+    private static void RegisterHostLeaderLeaseInfrastructure(IServiceCollection services)
+    {
+        services.AddSingleton<HostInstanceIdentifier>();
+        services.AddSingleton<HostLeaderElectionCoordinator>();
     }
 
     private static void RegisterHotPathReadCaching(IServiceCollection services, IConfiguration configuration)

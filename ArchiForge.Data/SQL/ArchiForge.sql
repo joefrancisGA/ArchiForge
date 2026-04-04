@@ -2289,3 +2289,15 @@ IF OBJECT_ID(N'dbo.BackgroundJobs', N'U') IS NOT NULL
     ALTER TABLE dbo.BackgroundJobs ADD CONSTRAINT CK_BackgroundJobs_State
         CHECK (State IN (N'Pending', N'Running', N'Succeeded', N'Failed'));
 GO
+
+/* ---- Host leader leases (singleton hosted services; see Migrations/035_HostLeaderLeases.sql) ---- */
+IF OBJECT_ID(N'dbo.HostLeaderLeases', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.HostLeaderLeases
+    (
+        LeaseName        NVARCHAR(128) NOT NULL CONSTRAINT PK_HostLeaderLeases PRIMARY KEY,
+        HolderInstanceId NVARCHAR(256) NOT NULL,
+        LeaseExpiresUtc  DATETIME2     NOT NULL
+    );
+END;
+GO

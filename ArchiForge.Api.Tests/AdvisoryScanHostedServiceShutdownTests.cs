@@ -38,6 +38,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
 
         AdvisoryScanHostedService sut = new(
             provider,
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled(),
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         using CancellationTokenSource cts = new();
@@ -80,6 +81,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
 
         AdvisoryScanHostedService sut = new(
             provider,
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled(),
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         using CancellationTokenSource cts = new();
@@ -121,6 +123,7 @@ public sealed class AdvisoryScanHostedServiceShutdownTests
 
         AdvisoryScanHostedService sut = new(
             provider,
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled(),
             NullLogger<AdvisoryScanHostedService>.Instance);
 
         await sut.StartAsync(cts.Token);

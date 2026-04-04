@@ -24,7 +24,10 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
             .Setup(p => p.ProcessPendingBatchAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        RetrievalIndexingOutboxHostedService sut = new(processor.Object, NullLogger<RetrievalIndexingOutboxHostedService>.Instance);
+        RetrievalIndexingOutboxHostedService sut = new(
+            processor.Object,
+            NullLogger<RetrievalIndexingOutboxHostedService>.Instance,
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled());
 
         using CancellationTokenSource cts = new();
         await sut.StartAsync(cts.Token);
@@ -55,7 +58,10 @@ public sealed class RetrievalIndexingOutboxHostedServiceTests
                 return Task.CompletedTask;
             });
 
-        RetrievalIndexingOutboxHostedService sut = new(processor.Object, NullLogger<RetrievalIndexingOutboxHostedService>.Instance);
+        RetrievalIndexingOutboxHostedService sut = new(
+            processor.Object,
+            NullLogger<RetrievalIndexingOutboxHostedService>.Instance,
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled());
 
         using CancellationTokenSource cts = new();
         await sut.StartAsync(cts.Token);

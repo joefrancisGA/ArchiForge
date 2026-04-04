@@ -30,7 +30,8 @@ public sealed class DataArchivalHostedServiceTests
             root.GetRequiredService<IServiceScopeFactory>(),
             options.Object,
             NullLogger<DataArchivalHostedService>.Instance,
-            new DataArchivalHostHealthState());
+            new DataArchivalHostHealthState(),
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled());
 
         using CancellationTokenSource cts = new();
         await sut.StartAsync(cts.Token);
@@ -66,7 +67,8 @@ public sealed class DataArchivalHostedServiceTests
             scopeFactory.Object,
             options.Object,
             NullLogger<DataArchivalHostedService>.Instance,
-            health);
+            health,
+            HostLeaderElectionTestDoubles.CoordinatorWithElectionDisabled());
 
         using CancellationTokenSource cts = new();
         await sut.StartAsync(cts.Token);

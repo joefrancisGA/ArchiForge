@@ -5,9 +5,13 @@ namespace ArchiForge.Host.Core.Hosted;
 /// <summary>
 /// Periodically drains <see cref="IRetrievalIndexingOutboxRepository"/> so retrieval indexing runs after the authority UOW commits.
 /// </summary>
+/// <remarks>
+/// When <c>HostLeaderElection:Enabled</c> is true and storage is SQL, only one worker replica drains the outbox.
+/// </remarks>
 public sealed class RetrievalIndexingOutboxHostedService(
     IRetrievalIndexingOutboxProcessor processor,
-    ILogger<RetrievalIndexingOutboxHostedService> logger) : BackgroundService
+    ILogger<RetrievalIndexingOutboxHostedService> logger,
+    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
 {
     private readonly IRetrievalIndexingOutboxProcessor _processor =
         processor ?? throw new ArgumentNullException(nameof(processor));
@@ -15,16 +19,27 @@ public sealed class RetrievalIndexingOutboxHostedService(
     private readonly ILogger<RetrievalIndexingOutboxHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.RetrievalIndexingOutbox,
+            LoopAsync,
+            stoppingToken);
+    }
+
+    private async Task LoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             try
             {
-                await _processor.ProcessPendingBatchAsync(stoppingToken);
+                await _processor.ProcessPendingBatchAsync(leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -35,9 +50,9 @@ public sealed class RetrievalIndexingOutboxHostedService(
 
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(2), leaderToken);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
