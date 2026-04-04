@@ -18,9 +18,17 @@ import { getScopeHeaders } from "@/lib/scope";
 function buildUpstreamHeaders(request: NextRequest): Headers {
   const h = new Headers();
   const key = process.env.ARCHIFORGE_API_KEY;
-  if (key) h.set("X-Api-Key", key);
-  const auth = request.headers.get("authorization");
-  if (auth && auth.trim().length > 0) h.set("Authorization", auth);
+  const authHeader = request.headers.get("authorization");
+  const bearer = authHeader?.trim() ?? "";
+  const hasBearer = bearer.length > 0;
+
+  if (key && !hasBearer) {
+    h.set("X-Api-Key", key);
+  }
+
+  if (hasBearer) {
+    h.set("Authorization", bearer);
+  }
   for (const [k, v] of Object.entries(getScopeHeaders())) {
     const incoming = request.headers.get(k);
     h.set(k, incoming && incoming.trim().length > 0 ? incoming : v);

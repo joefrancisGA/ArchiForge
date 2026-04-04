@@ -174,7 +174,7 @@ ArtifactListTable.tsx         (artifact table with review + download)
 ArtifactReviewContent.tsx     (pretty + raw content panel)
 GraphViewer.tsx               (React Flow wrapper with type filter + detail panel)
 SectionCard.tsx               (bordered section container)
-AuthStatus.tsx                (auth mode indicator)
+AuthPanel.tsx                 (dev bypass + OIDC sign-in strip)
 
 compare/
 ├── StructuredComparisonView.tsx     (golden manifest delta tables)

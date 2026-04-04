@@ -13,7 +13,7 @@
 4. [ArtifactReviewContent](#4-artifactreviewcontent)
 5. [GraphViewer](#5-graphviewer)
 6. [SectionCard](#6-sectioncard)
-7. [AuthStatus](#7-authstatus)
+7. [AuthPanel](#7-authpanel)
 8. [Compare sub-components](#8-compare-sub-components)
 9. [Layout and navigation](#9-layout-and-navigation)
 10. [Helper libraries](#10-helper-libraries)
@@ -33,7 +33,7 @@
 | `ArtifactReviewContent` | `components/ArtifactReviewContent.tsx` | Server | Pretty + raw content panel |
 | `GraphViewer` | `components/GraphViewer.tsx` | Client | React Flow graph canvas |
 | `SectionCard` | `components/SectionCard.tsx` | Either | Bordered section container |
-| `AuthStatus` | `components/AuthStatus.tsx` | Client | Dev-mode auth display |
+| `AuthPanel` | `components/AuthPanel.tsx` | Client | Dev bypass notice; OIDC sign-in / sign-out in JWT mode |
 | `StructuredComparisonView` | `components/compare/StructuredComparisonView.tsx` | Client | Golden manifest delta tables |
 | `LegacyRunComparisonView` | `components/compare/LegacyRunComparisonView.tsx` | Client | Flat diff display |
 | `AiComparisonExplanationView` | `components/compare/AiComparisonExplanationView.tsx` | Client | LLM explanation display |
@@ -243,14 +243,14 @@ A bordered card with optional title. Used when a page section needs visual separ
 
 ---
 
-## 7. AuthStatus
+## 7. AuthPanel
 
-**File:** `src/components/AuthStatus.tsx`  
+**File:** `src/components/AuthPanel.tsx`  
 **Type:** Client component
 
 ### Purpose
 
-Shows the current auth mode at the top of every page. In development bypass mode, displays a small "Auth: development-bypass" label.
+Shows auth at the top of every page. In **development-bypass** mode, explains that the API auto-authenticates. When **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt`**, shows sign-in / sign-out, OIDC session display name (from JWT payload), and links to **`/auth/signin`**.
 
 ---
 
@@ -283,7 +283,7 @@ The root layout renders:
 1. `<html>` and `<body>` tags
 2. A `<header>` with the "ArchiForge" title
 3. A `<nav>` with `<Link>` elements for every page
-4. `<AuthStatus />`
+4. `<AuthPanel />`
 5. `{children}` — the current page
 
 The `<Link>` component from `next/link` performs client-side navigation (no full page reload) when the user clicks a link. For back-end developers: this is like a SPA router link, but Next.js pre-renders pages on the server.

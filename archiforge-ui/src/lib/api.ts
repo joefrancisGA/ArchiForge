@@ -2,7 +2,8 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
-import { AUTH_MODE } from "@/lib/auth-config";
+import { isJwtAuthMode } from "@/lib/oidc/config";
+import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation, RunExplanation } from "@/types/explanation";
@@ -61,14 +62,25 @@ function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
+async function ensureOidcBearerReady(): Promise<void> {
+  if (isBrowser() && isJwtAuthMode()) {
+    await ensureAccessTokenFresh();
+  }
+}
+
 /**
- * Returns a bearer token for JWT-based API auth when running in the browser.
- * Stub: returns undefined until OIDC/JWT integration is wired.
+ * Returns a bearer token for JWT-based API auth when running in the browser (OIDC session).
  */
 function getBearerToken(): string | undefined {
-  if (typeof window === "undefined") return undefined;
-  if (AUTH_MODE !== "jwt" && AUTH_MODE !== "jwt-bearer") return undefined;
-  return undefined;
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  if (!isJwtAuthMode()) {
+    return undefined;
+  }
+
+  return getAccessTokenForApi();
 }
 
 /**
@@ -140,6 +152,7 @@ function withCorrelationHeaders(headers: HeadersInit): Headers {
 
 /** GETs JSON from the ArchiForge API. Throws {@link ApiRequestError} on HTTP errors. */
 export async function apiGet<T>(path: string): Promise<T> {
+  await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, {
@@ -157,6 +170,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 
 /** POSTs a JSON body to the ArchiForge API and returns the parsed response. Throws on HTTP errors. */
 export async function apiPostJson<T>(path: string, body: unknown): Promise<T> {
+  await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
@@ -237,6 +251,7 @@ export async function fetchArtifactContentUtf8(
   artifactId: string,
   maxBytes: number = DEFAULT_ARTIFACT_PREVIEW_MAX_BYTES,
 ): Promise<ArtifactContentFetchResult> {
+  await ensureOidcBearerReady();
   const path = `/v1/artifacts/manifests/${encodeURIComponent(manifestId)}/artifact/${encodeURIComponent(artifactId)}`;
   const { url, headers } = resolveBinaryGetRequest(path);
   const h = withCorrelationHeaders(headers);
@@ -344,6 +359,7 @@ export async function getImprovementPlan(runId: string, compareToRunId?: string)
 
 /** Fetches the most recent recommendation learning profile, or null if none exists (404). */
 export async function getLatestLearningProfile(): Promise<LearningProfile | null> {
+  await ensureOidcBearerReady();
   const { url, headers } = resolveRequest("/v1/recommendation-learning/latest");
   const h = withCorrelationHeaders(headers);
   const response = await fetch(url, { cache: "no-store", headers: h });
@@ -508,6 +524,7 @@ export async function createAdvisorySchedule(body: {
 
 /** Triggers an immediate execution of an advisory scan schedule. */
 export async function runAdvisoryScheduleNow(scheduleId: string): Promise<void> {
+  await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(
     `/v1/advisory-scheduling/schedules/${encodeURIComponent(scheduleId)}/run`,
   );
@@ -823,6 +840,7 @@ export async function createCompositeAlertRule(body: {
 
 /** Triggers a full rebuild of the recommendation learning profile from historical outcomes. */
 export async function rebuildLearningProfile(): Promise<LearningProfile> {
+  await ensureOidcBearerReady();
   const { url, headers } = resolveRequest("/v1/recommendation-learning/rebuild");
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");
@@ -842,6 +860,7 @@ export async function rebuildLearningProfile(): Promise<LearningProfile> {
 
 /** Replays an authority chain for a run using the specified mode (ReconstructOnly, RebuildManifest, RebuildArtifacts). */
 export async function replayRun(runId: string, mode: string): Promise<ReplayResponse> {
+  await ensureOidcBearerReady();
   const { url, headers } = resolveRequest("/v1/authority/replay");
   const h = withCorrelationHeaders(headers);
   h.set("Content-Type", "application/json");

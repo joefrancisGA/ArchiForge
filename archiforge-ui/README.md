@@ -48,6 +48,18 @@ Optional:
 
 - **`NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL`** — Fallback if `ARCHIFORGE_API_BASE_URL` is unset (documentation only; browser calls use `/api/proxy`).
 
+### OIDC / JWT (Entra ID)
+
+When the API uses **`ArchiForgeAuth:Mode = JwtBearer`** (see `ArchiForge.Api/appsettings.Entra.sample.json`):
+
+1. Set **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt`** (or `jwt-bearer`).
+2. Register a **single-page application** client in Entra; add redirect URI **`http://localhost:3000/auth/callback`** (and production origins).
+3. Expose an API scope on the ArchiForge API app registration; grant the SPA **delegated** permission to that scope.
+4. Set **`NEXT_PUBLIC_OIDC_AUTHORITY`**, **`NEXT_PUBLIC_OIDC_CLIENT_ID`**, and **`NEXT_PUBLIC_OIDC_SCOPES`** (must include `openid` and your API scope so the access token validates against **`ArchiForgeAuth:Audience`**).
+5. Leave **`ARCHIFORGE_API_KEY`** empty when using delegated user tokens — the proxy forwards **`Authorization: Bearer`** and omits the API key when a bearer token is present.
+
+Sign-in flow: **`/auth/signin`** → IdP → **`/auth/callback`** → tokens in **sessionStorage** (short-lived access token; refresh when `offline_access` is granted).
+
 ## Run
 
 Start the ArchiForge API, then:
@@ -77,6 +89,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `/graph` | Provenance / architecture graph for a run |
 | `/compare` | Compare two runs (structured + legacy + optional AI) |
 | `/replay` | Replay authority chain for a run |
+| `/auth/signin` | Start OIDC sign-in (JWT mode only) |
+| `/auth/callback` | OAuth redirect handler (PKCE token exchange) |
 
 Downloads use **`/api/proxy/...`** so the browser receives files without attaching `X-Api-Key` manually.
 

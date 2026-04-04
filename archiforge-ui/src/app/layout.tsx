@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { AuthStatus } from "@/components/AuthStatus";
+import { AuthPanel } from "@/components/AuthPanel";
 import { ShellNav } from "@/components/ShellNav";
 
 import "./globals.css";
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </h1>
             <ShellNav />
           </header>
-          <AuthStatus />
+          <AuthPanel />
           {children}
         </div>
       </body>
