@@ -7,6 +7,8 @@ ArchiForge is an API for orchestrating AI-driven architecture design. It coordin
 | Doc | Purpose |
 |-----|---------|
 | **[docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md)** | **Start here for setup order:** role-based entry (developer / SRE / security), one diagram (**zero → local → prod-like dev → Azure**), phased checklists, **advanced appendix** for optional paths |
+| [docs/onboarding/README.md](docs/onboarding/README.md) | **Week-one tickets:** 3–5 checkboxes per role (dev, SRE, security) |
+| [docs/diagrams/c4/README.md](docs/diagrams/c4/README.md) | **C4 PNG set** (context, container, API components) for exec/security + `.mmd` sources |
 | [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |
 | [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md) | **56R:** Release build, package API to `artifacts/release/`, readiness script, pilot run instructions |
 | [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchiForge does, first run, artifacts, logs, tests |

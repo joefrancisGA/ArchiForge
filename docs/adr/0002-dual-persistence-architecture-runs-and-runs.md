@@ -15,6 +15,7 @@ Treat **`dbo.Runs`** as the **authority source of truth** for new features. **`A
 
 - **Positive:** Clear direction for new code; ROWVERSION and RLS target authority tables first.
 - **Negative:** Idempotency and rare races cannot assume a single global transaction across both tables — see `docs/DATA_CONSISTENCY_MATRIX.md`.
+- **Schedule:** Product default dates and epic tag **`RunsAuthorityConvergence`** are in **`docs/DATA_CONSISTENCY_MATRIX.md`** (write freeze, read convergence, legacy removal). Extend only via ADR.
 
 ## Links
 

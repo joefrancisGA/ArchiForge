@@ -1,0 +1,31 @@
+%% ArchiForge - C4 Level 2 (Containers)
+C4Container
+title ArchiForge - containers typical Azure deployment
+
+Person(operator, "Operator", "Browser or API client.")
+
+Container_Boundary(workloads, "ArchiForge workloads") {
+  Container(api, "ArchiForge.Api", "ASP.NET Core", "HTTP API authZ health OpenAPI.")
+  Container(worker, "ArchiForge.Worker", "NET worker", "Outbox consumers scheduled jobs.")
+  Container(ui, "Operator UI", "Next.js", "Optional talks to API.")
+}
+
+ContainerDb(sql, "Azure SQL", "Database", "Runs governance alerts outboxes.")
+Container_Ext(blob, "Blob storage", "Azure Storage", "Optional large payloads.")
+Container_Ext(redis, "Redis", "Cache", "Optional distributed cache.")
+
+Container_Ext(entra, "Entra ID", "Identity", "JWT in production.")
+Container_Ext(openai, "Azure OpenAI", "Managed LLM", "Real agent mode.")
+
+Rel(operator, api, "HTTPS", "REST v1")
+Rel(operator, ui, "HTTPS", "Operator shell")
+Rel(ui, api, "HTTPS", "API calls")
+Rel(api, sql, "SQL", "Dapper optional RLS")
+Rel(worker, sql, "SQL", "Workers outbox")
+Rel(api, blob, "HTTPS", "When configured")
+Rel(worker, blob, "HTTPS", "When configured")
+Rel(api, redis, "TCP", "Optional")
+Rel(worker, redis, "TCP", "Optional")
+Rel(api, entra, "HTTPS", "JWKS")
+Rel(api, openai, "HTTPS", "Completions")
+Rel(worker, openai, "HTTPS", "If worker uses LLM")

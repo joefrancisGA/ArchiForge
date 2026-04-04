@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-04
+**Last reviewed:** 2026-04-04 (RunsAuthorityConvergence milestone table)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -29,13 +29,22 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 
 **Status:** Converge new features on **`dbo.Runs`** and Dapper repositories. **`ArchitectureRuns`** exists for historical and CLI/adjacent flows.
 
-**Target:** Reduce new writes to **`ArchitectureRuns`** and document a **removal milestone** once downstream consumers migrate (suggested horizon: **after** two major releases with deprecation warnings in release notes — adjust per your org).
+### Named milestone: **RunsAuthorityConvergence**
+
+| Gate | Date (aggressive default) | Meaning |
+|------|---------------------------|---------|
+| **Write freeze** | **2026-09-30** | No new product features or net-new code paths may **write** to **`dbo.ArchitectureRuns`**. Hotfixes to existing writers require an **ADR** and a dated removal task. |
+| **Read convergence** | **2026-12-31** | All first-party readers that can switch to **`dbo.Runs`** / GUID **`/v1`** flows **must** switch; remaining `ArchitectureRuns` reads listed in a single tracking epic. |
+| **Legacy removal target** | **2027-03-31** | **`ArchitectureRuns`** is **read-only or removed** from supported deployments (org choice: empty table vs drop), unless the epic is **explicitly extended** by ADR with a new named date. |
+
+These dates are **planning defaults** for the product repo; your organization may tighten them in internal runbooks. They replace the vague “after two major releases” horizon so security and SRE reviews have a **single named target**.
 
 **Actions for teams:**
 
 1. Prefer APIs and jobs that resolve runs by **GUID** from **`/v1/...`** responses.
 2. When adding persistence, avoid new **`ArchitectureRuns`** dependencies without an ADR (`docs/adr/`).
 3. Track remaining readers with a periodic codebase search for `ArchitectureRuns` / legacy `RunId` string keys.
+4. Tag work items **`RunsAuthorityConvergence`** so release notes and audits can filter progress.
 
 ## Related
 

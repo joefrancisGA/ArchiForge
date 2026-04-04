@@ -4,6 +4,10 @@
 
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
   - `docs/GOLDEN_PATH.md`
+- **Week-one role tickets (dev / SRE / security)** — 3–5 checkboxes each  
+  - `docs/onboarding/README.md`
+- **C4 diagrams for exec/security (PNG + `.mmd` sources)**  
+  - `docs/diagrams/c4/README.md`
 - **Request happy path (client → API → SQL → agents)**  
   - `docs/ONBOARDING_HAPPY_PATH.md`
 - **System map (Mermaid flows + entry points)**  

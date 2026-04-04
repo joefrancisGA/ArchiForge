@@ -10,11 +10,13 @@ One **environment and delivery** spine for ArchiForge. Use this page when you ne
 
 ## Pick your lane (role-based entry)
 
-| Role | Start here | You care most about |
-|------|------------|---------------------|
-| **Developer** | [Phase 0](#phase-0--zero-toolchain-and-clone) → [Phase 1](#phase-1--local-minimum-viable) | Build, tests, local SQL, API + optional UI |
-| **SRE / Platform** | [Phase 2](#phase-2--prod-like-local) → [Phase 3](#phase-3--azure) → **[DEPLOYMENT.md](DEPLOYMENT.md)** | Terraform order, health, migrations, failover, observability |
-| **Security / GRC** | **[CUSTOMER_TRUST_AND_ACCESS.md](CUSTOMER_TRUST_AND_ACCESS.md)** → [Phase 3](#phase-3--azure) (identity + network) | Entra, private endpoints, Key Vault, threat models under `docs/security/` |
+| Role | Start here | Week-one ticket (3–5 checks) | You care most about |
+|------|------------|------------------------------|---------------------|
+| **Developer** | [Phase 0](#phase-0--zero-toolchain-and-clone) → [Phase 1](#phase-1--local-minimum-viable) | [onboarding/day-one-developer.md](onboarding/day-one-developer.md) | Build, tests, local SQL, API + optional UI |
+| **SRE / Platform** | [Phase 2](#phase-2--prod-like-local) → [Phase 3](#phase-3--azure) → **[DEPLOYMENT.md](DEPLOYMENT.md)** | [onboarding/day-one-sre.md](onboarding/day-one-sre.md) | Terraform order, health, migrations, failover, observability |
+| **Security / GRC** | **[CUSTOMER_TRUST_AND_ACCESS.md](CUSTOMER_TRUST_AND_ACCESS.md)** → [Phase 3](#phase-3--azure) (identity + network) | [onboarding/day-one-security.md](onboarding/day-one-security.md) | Entra, private endpoints, Key Vault, threat models under `docs/security/` |
+
+**Exec / audit decks (PNG, not Mermaid):** [diagrams/c4/README.md](diagrams/c4/README.md) — context, container, and API component PNGs plus `.mmd` sources.
 
 Deep references stay in linked docs; this file only **sequences** them.
 

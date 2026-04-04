@@ -1,0 +1,20 @@
+%% ArchiForge - C4 Level 1 (System Context)
+C4Context
+title ArchiForge - system context
+
+Person(operator, "Operator or integrator", "Uses HTTPS API or operator UI.")
+Person(admin, "Platform admin", "Terraform Azure secrets rotation.")
+
+System(archi, "ArchiForge", "Orchestrates architecture runs governance artifacts optional AI agents.")
+
+SystemDb(sql, "Azure SQL", "Authority data outboxes manifests.")
+System_Ext(blob, "Azure Blob Storage", "Large artifacts when enabled.")
+System_Ext(entra, "Microsoft Entra ID", "JWT and app roles in JwtBearer mode.")
+System_Ext(openai, "Azure OpenAI", "LLM when AgentExecution is Real.")
+
+Rel(operator, archi, "HTTPS JSON", "TLS")
+Rel(admin, sql, "Manages", "IaC RBAC networking")
+Rel(archi, sql, "Reads writes", "TLS optional private endpoint")
+Rel(archi, blob, "Offloads reads", "HTTPS optional private endpoint")
+Rel(archi, entra, "Validates tokens", "HTTPS")
+Rel(archi, openai, "Invokes model", "HTTPS")

@@ -1,0 +1,23 @@
+%% ArchiForge - C4 Level 3 (API container only, simplified)
+%% For exec/security: shows major modules inside the API process boundary.
+C4Component
+title ArchiForge.Api - major components (simplified)
+
+Container_Boundary(api, "ArchiForge.Api process") {
+  Component(mvc, "MVC / controllers", "ASP.NET Core", "HTTP endpoints, validation, ProblemDetails.")
+  Component(auth, "AuthN / AuthZ", "JWT / API key / dev bypass", "Policies ReadAuthority, ExecuteAuthority, AdminAuthority.")
+  Component(app, "Application services", "Mediated use cases", "Runs, governance, exports, comparison.")
+  Component(host, "Host.Core", "Cross-cutting", "OTel, Serilog, rate limits, health, CORS.")
+  Component(persist, "Persistence / Data", "Dapper", "SQL access, units of work, repositories.")
+}
+
+ContainerDb(sql, "Azure SQL", "Database", "Primary store.")
+Container_Ext(blob, "Blob", "Storage", "Optional.")
+Container_Ext(entra, "Entra ID", "IdP", "JWT.")
+
+Rel(mvc, auth, "Uses")
+Rel(mvc, app, "Invokes")
+Rel(app, persist, "Uses")
+Rel(persist, sql, "SQL", "Parameterized")
+Rel(app, blob, "Optional", "Large payloads")
+Rel(auth, entra, "Validates", "When JwtBearer")
