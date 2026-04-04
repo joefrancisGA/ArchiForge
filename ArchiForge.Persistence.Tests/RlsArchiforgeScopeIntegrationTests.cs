@@ -5,11 +5,11 @@ using Microsoft.Data.SqlClient;
 namespace ArchiForge.Persistence.Tests;
 
 /// <summary>
-/// Validates dbo.Runs RLS pilot (<c>rls.RunsScopeFilter</c>) with <c>SESSION_CONTEXT</c> when the policy is temporarily enabled.
+/// Validates <c>rls.ArchiforgeTenantScope</c> on <c>dbo.Runs</c> and <c>dbo.AuditEvents</c> with <c>SESSION_CONTEXT</c> when the policy is temporarily enabled.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
-public sealed class RlsRunsScopeIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class RlsArchiforgeScopeIntegrationTests(SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantA = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
     private static readonly Guid TenantB = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
@@ -26,7 +26,7 @@ public sealed class RlsRunsScopeIntegrationTests(SqlServerPersistenceFixture fix
 
         await using (SqlCommand enable = admin.CreateCommand())
         {
-            enable.CommandText = "ALTER SECURITY POLICY rls.RunsScopeFilter WITH (STATE = ON);";
+            enable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = ON);";
             await enable.ExecuteNonQueryAsync();
         }
 
@@ -64,7 +64,7 @@ public sealed class RlsRunsScopeIntegrationTests(SqlServerPersistenceFixture fix
         finally
         {
             await using SqlCommand disable = admin.CreateCommand();
-            disable.CommandText = "ALTER SECURITY POLICY rls.RunsScopeFilter WITH (STATE = OFF);";
+            disable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = OFF);";
             await disable.ExecuteNonQueryAsync();
         }
     }
@@ -155,6 +155,101 @@ public sealed class RlsRunsScopeIntegrationTests(SqlServerPersistenceFixture fix
         cmd.CommandText = "SELECT COUNT(*) FROM dbo.Runs WHERE RunId IN (@a, @b);";
         cmd.Parameters.AddWithValue("@a", runA);
         cmd.Parameters.AddWithValue("@b", runB);
+        object? scalar = await cmd.ExecuteScalarAsync();
+
+        return Convert.ToInt32(scalar);
+    }
+
+    [SkippableFact]
+    public async Task Rls_filters_AuditEvents_by_session_context()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        await using SqlConnection admin = new(fixture.ConnectionString);
+        await admin.OpenAsync();
+
+        await using (SqlCommand enable = admin.CreateCommand())
+        {
+            enable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = ON);";
+            await enable.ExecuteNonQueryAsync();
+        }
+
+        Guid eventA = Guid.NewGuid();
+        Guid eventB = Guid.NewGuid();
+
+        try
+        {
+            await SetBypassAsync(admin);
+            await InsertAuditEventAsync(admin, eventA, TenantA, WorkspaceW, ProjectP);
+            await InsertAuditEventAsync(admin, eventB, TenantB, WorkspaceW, ProjectP);
+
+            await using SqlConnection connA = new(fixture.ConnectionString);
+            await connA.OpenAsync();
+            await SetTenantScopeContextAsync(connA, TenantA, WorkspaceW, ProjectP);
+            int countA = await CountAuditEventsAsync(connA, eventA, eventB);
+            countA.Should().Be(1);
+
+            await using SqlConnection connB = new(fixture.ConnectionString);
+            await connB.OpenAsync();
+            await SetTenantScopeContextAsync(connB, TenantB, WorkspaceW, ProjectP);
+            int countB = await CountAuditEventsAsync(connB, eventA, eventB);
+            countB.Should().Be(1);
+
+            await using SqlConnection connBypass = new(fixture.ConnectionString);
+            await connBypass.OpenAsync();
+            await SetBypassAsync(connBypass);
+            int countAll = await CountAuditEventsAsync(connBypass, eventA, eventB);
+            countAll.Should().Be(2);
+
+            await SetBypassAsync(admin);
+            await DeleteAuditEventAsync(admin, eventA);
+            await DeleteAuditEventAsync(admin, eventB);
+        }
+        finally
+        {
+            await using SqlCommand disable = admin.CreateCommand();
+            disable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = OFF);";
+            await disable.ExecuteNonQueryAsync();
+        }
+    }
+
+    private static async Task InsertAuditEventAsync(
+        SqlConnection connection,
+        Guid eventId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId)
+    {
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO dbo.AuditEvents (
+                EventId, OccurredUtc, EventType, ActorUserId, ActorUserName,
+                TenantId, WorkspaceId, ProjectId, DataJson)
+            VALUES (
+                @EventId, SYSUTCDATETIME(), N'RlsTest', N'test', N'Test User',
+                @TenantId, @WorkspaceId, @ProjectId, N'{}');
+            """;
+        cmd.Parameters.AddWithValue("@EventId", eventId);
+        cmd.Parameters.AddWithValue("@TenantId", tenantId);
+        cmd.Parameters.AddWithValue("@WorkspaceId", workspaceId);
+        cmd.Parameters.AddWithValue("@ProjectId", projectId);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    private static async Task DeleteAuditEventAsync(SqlConnection connection, Guid eventId)
+    {
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText = "DELETE FROM dbo.AuditEvents WHERE EventId = @EventId;";
+        cmd.Parameters.AddWithValue("@EventId", eventId);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    private static async Task<int> CountAuditEventsAsync(SqlConnection connection, Guid eventA, Guid eventB)
+    {
+        await using SqlCommand cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM dbo.AuditEvents WHERE EventId IN (@a, @b);";
+        cmd.Parameters.AddWithValue("@a", eventA);
+        cmd.Parameters.AddWithValue("@b", eventB);
         object? scalar = await cmd.ExecuteScalarAsync();
 
         return Convert.ToInt32(scalar);

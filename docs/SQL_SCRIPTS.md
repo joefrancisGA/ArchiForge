@@ -117,8 +117,9 @@ They are **different domains**; names overlap conceptually but not at the databa
 | **020_PerformanceIndexes_HotLists.sql** | Hot-list indexes (e.g. scoped **`Runs`** lists). |
 | **021_ArchitectureRunIdempotency.sql** | **`ArchitectureRunIdempotency`** for **`Idempotency-Key`** on create run. |
 | **022_GraphSnapshotEdges_IndexKeyLength.sql** | Index shape fix for **`GraphSnapshotEdges`** (1700-byte key limit). |
-| **023–030** | Relational snapshot children, performance indexes, idempotency, retrieval outbox, governance workflow extras, archival flags, RLS pilot on **`dbo.Runs`**, etc. |
+| **023–030** | Relational snapshot children, performance indexes, idempotency, retrieval outbox, governance workflow extras, archival flags, RLS pilot on **`dbo.Runs`** (superseded by 036), etc. |
 | **031_ProductLearningPilotSignals.sql** | **58R:** Scoped pilot/product signals (trust / reject / revise / follow-up) with optional **`PatternKey`** for aggregation. |
+| **036_RlsArchiforgeTenantScope.sql** | RLS **`rls.ArchiforgeTenantScope`** on all scope-keyed authority tables (replaces pilot **`RunsScopeFilter`**). See **`docs/security/MULTI_TENANT_RLS.md`**. |
 | **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
 
 **Note:** Authority-chain tables also appear in **`ArchiForge.sql`** for Persistence bootstrap parity.
