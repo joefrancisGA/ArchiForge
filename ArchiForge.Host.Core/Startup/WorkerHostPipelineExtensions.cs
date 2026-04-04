@@ -2,6 +2,7 @@ using ArchiForge.Host.Core.Health;
 using ArchiForge.Host.Core.Middleware;
 using ArchiForge.Host.Core.ProblemDetails;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
@@ -63,18 +64,21 @@ public static class WorkerHostPipelineExtensions
 
 
         app.MapHealthChecks("/health/live", new HealthCheckOptions
-        {
-            Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
-        });
+            {
+                Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
+            })
+            .AllowAnonymous();
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
-        {
-            Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
-            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
-        });
+            {
+                Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+                ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+            })
+            .AllowAnonymous();
         app.MapHealthChecks("/health", new HealthCheckOptions
-        {
-            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
-        });
+            {
+                ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+            })
+            .AllowAnonymous();
 
         return app;
     }

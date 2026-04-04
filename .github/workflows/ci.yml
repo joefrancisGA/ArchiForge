@@ -11,7 +11,9 @@
 # .NET coverage: each test job writes a collapsible report to the job summary; download
 # coverage-report-*-html artifacts for browsable index.html (ReportGenerator).
 # Also: Dependabot (.github/dependabot.yml), CodeQL (.github/workflows/codeql.yml),
-# Docker build smoke, NuGet cache on setup-dotnet, PR sticky coverage comment.
+# Docker build smoke + Trivy image scan, Terraform validate + Trivy config (Terraform misconfiguration;
+# same audit class as tfsec/checkov for public exposure / encryption / IAM footguns),
+# NuGet cache on setup-dotnet, PR sticky coverage comment.
 name: CI
 
 on:
@@ -61,6 +63,14 @@ jobs:
         working-directory: infra/terraform-private
         run: terraform fmt -check -recursive
 
+      - name: Trivy IaC (Terraform misconfigurations)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: config
+          scan-ref: infra/terraform-private
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+
   terraform-validate-public-stacks:
     name: "Terraform: validate main / edge / entra (no backend)"
     needs: gitleaks
@@ -86,6 +96,14 @@ jobs:
       - name: terraform fmt (check only)
         working-directory: ${{ matrix.directory }}
         run: terraform fmt -check -recursive
+
+      - name: Trivy IaC (Terraform misconfigurations)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: config
+          scan-ref: ${{ matrix.directory }}
+          severity: HIGH,CRITICAL
+          exit-code: "1"
 
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
@@ -319,6 +337,22 @@ jobs:
 
       - name: Build Operator UI image
         run: docker build -f archiforge-ui/Dockerfile -t archiforge-ui:ci archiforge-ui
+
+      - name: Trivy scan API image (CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: image
+          image-ref: archiforge-api:ci
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+
+      - name: Trivy scan Operator UI image (CRITICAL/HIGH)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: image
+          image-ref: archiforge-ui:ci
+          severity: CRITICAL,HIGH
+          exit-code: "1"
 
   ui-unit:
     name: "Operator UI: unit (Vitest)"

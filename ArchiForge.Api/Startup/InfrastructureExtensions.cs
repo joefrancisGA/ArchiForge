@@ -1,5 +1,6 @@
-﻿using ArchiForge.Api.Auth.Models;
+using ArchiForge.Api.Auth.Models;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchiForge.Api.Startup;
@@ -11,9 +12,17 @@ internal static class InfrastructureExtensions
     /// role-based (ReadAuthority, ExecuteAuthority, AdminAuthority) and
     /// claim-based (CanCommitRuns, CanSeedResults, etc.).
     /// </summary>
+    /// <remarks>
+    /// <see cref="AuthorizationOptions.FallbackPolicy"/> requires an authenticated principal so new controllers
+    /// are closed by default; use <c>[AllowAnonymous]</c> only for intentional public surface (e.g. <c>/version</c>, health).
+    /// </remarks>
     public static IServiceCollection AddArchiForgeAuthorization(this IServiceCollection services)
     {
         services.AddAuthorizationBuilder()
+            .SetFallbackPolicy(
+                new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build())
             .AddPolicy(ArchiForgePolicies.ReadAuthority, policy =>
             {
                 policy.RequireAuthenticatedUser();
