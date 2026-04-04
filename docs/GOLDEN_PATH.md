@@ -84,7 +84,7 @@ flowchart LR
 
 | Step | Action | Detail |
 |------|--------|--------|
-| 1 | Confirm SQL storage | `ArchiForge:StorageProvider=Sql` for production-aligned paths — **[adr/0005-inmemory-vs-sql-storage-provider.md](adr/0005-inmemory-vs-sql-storage-provider.md)** |
+| 1 | Confirm SQL storage | `ArchiForge:StorageProvider=Sql` for production-aligned paths — **[adr/0011-inmemory-vs-sql-storage-provider.md](adr/0011-inmemory-vs-sql-storage-provider.md)** |
 | 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — root **[README.md](../README.md#api-authentication-archiforgeauth)**, sample **[ArchiForge.Api/appsettings.Entra.sample.json](../ArchiForge.Api/appsettings.Entra.sample.json)** |
 | 3 | Run integration / regression | Set `ARCHIFORGE_SQL_TEST` (or API test var); scripts — **[BUILD.md](BUILD.md)**, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** |
 | 4 | Optional release smoke | `release-smoke` with `ARCHIFORGE_SMOKE_SQL` — **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** |
@@ -132,7 +132,7 @@ Use these when a **specific feature** demands them — not part of the golden pa
 | **Comparison replay / custom types** | **[COMPARISON_REPLAY.md](COMPARISON_REPLAY.md)**, **[HOWTO_ADD_COMPARISON_TYPE.md](HOWTO_ADD_COMPARISON_TYPE.md)** |
 | **Mutation testing (Stryker)** | **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)** |
 | **Finding-engine template** | **[BUILD.md](BUILD.md)** (`archiforge-finding-engine` template) |
-| **Product / pilot learning dashboards** | **[PRODUCT_LEARNING.md](PRODUCT_LEARNING.md)**, change-set notes under `docs/CHANGE_SET_*.md` |
+| **Product / pilot learning dashboards** | **[PRODUCT_LEARNING.md](PRODUCT_LEARNING.md)**, release summary in **[CHANGELOG.md](CHANGELOG.md)**, full design-session logs in `docs/archive/` |
 | **CLI API implementation plan** | **[CLI_API_IMPLEMENTATION_PLAN.md](CLI_API_IMPLEMENTATION_PLAN.md)** |
 | **JSON / contract audits** | **[JSON_PUBLIC_CONTRACTS.md](JSON_PUBLIC_CONTRACTS.md)**, **[JSON_FALLBACK_AUDIT.md](JSON_FALLBACK_AUDIT.md)** |
 

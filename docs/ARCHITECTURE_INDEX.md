@@ -50,7 +50,11 @@
 
 ### Decisions and onboarding
 
-- **ADRs** – governance merge, alert dedupe, digest delivery semantics  
+- **Glossary** – 20 domain terms (authority run, golden manifest, finding engine, policy pack …)  
+  - `docs/GLOSSARY.md`
+- **Changelog** – per-release summaries (55R → latest); archived design-session logs in `docs/archive/`  
+  - `docs/CHANGELOG.md`
+- **ADRs** – 11 numbered decisions; no shared prefix IDs  
   - `docs/adr/README.md`
 - **Contributor onboarding** – build, test filters  
   - `docs/CONTRIBUTOR_ONBOARDING.md`

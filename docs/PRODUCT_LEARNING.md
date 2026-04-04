@@ -78,7 +78,7 @@ Exports are **short, human-readable rollups**: totals, artifact outcome table, p
 
 | Doc | Notes |
 |-----|--------|
-| [CHANGE_SET_58R.md](CHANGE_SET_58R.md) | Objectives, constraints, component list, prompt log. |
+| [archive/CHANGE_SET_58R.md](archive/CHANGE_SET_58R.md) | Objectives, constraints, component list, full prompt log (historical). |
 | [DATA_MODEL.md](DATA_MODEL.md) | `ProductLearningPilotSignals` table overview. |
 | [API_CONTRACTS.md](API_CONTRACTS.md) | General HTTP behavior, auth, correlation ID. |
 | [operator-shell.md](operator-shell.md) | Overall UI navigation patterns. |

@@ -1,8 +1,7 @@
-# ADR 0002: Alert deduplication scopes
+# ADR 0008: Alert deduplication scopes
 
-## Status
-
-Accepted (v1)
+- **Status:** Accepted (v1)
+- **Date:** 2026-04-04
 
 ## Context
 

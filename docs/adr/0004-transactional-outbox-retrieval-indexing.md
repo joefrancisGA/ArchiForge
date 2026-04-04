@@ -14,7 +14,7 @@ Enqueue retrieval indexing work **inside the same SQL transaction** as authority
 ## Consequences
 
 - **Positive:** Atomic handoff from commit to indexer; aligns with outbox pattern.
-- **Negative:** In-memory test doubles use a separate code path; integration tests should exercise SQL.
+- **Negative:** In-memory test doubles use a separate code path; integration tests should exercise SQL. See ADR 0011 for storage-provider branching.
 
 ## Links
 

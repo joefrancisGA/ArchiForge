@@ -11,7 +11,7 @@ This document ties together how ArchiForge is released, how database changes rol
 
 ## Assumptions
 
-- Production uses **`ArchiForge:StorageProvider=Sql`** (see [ADR 0005 — InMemory vs Sql](adr/0005-inmemory-vs-sql-storage-provider.md)).
+- Production uses **`ArchiForge:StorageProvider=Sql`** (see [ADR 0011 — InMemory vs Sql](adr/0011-inmemory-vs-sql-storage-provider.md)).
 - SQL is reachable only from **private network paths** (private endpoint / VNet integration), not from the public internet.
 - Optional components (Redis, Azure AI Search, etc.) follow the same “config-gated” pattern as in **`infra/`** Terraform roots.
 
@@ -38,7 +38,7 @@ This document ties together how ArchiForge is released, how database changes rol
 | Terraform roots and environments | [infra/README.md](../infra/README.md) |
 | Containers and compose profiles | [CONTAINERIZATION.md](CONTAINERIZATION.md) |
 | Build and test | [BUILD.md](BUILD.md) |
-| Storage provider semantics | [adr/0005-inmemory-vs-sql-storage-provider.md](adr/0005-inmemory-vs-sql-storage-provider.md) |
+| Storage provider semantics | [adr/0011-inmemory-vs-sql-storage-provider.md](adr/0011-inmemory-vs-sql-storage-provider.md) |
 
 ## Security note
 
