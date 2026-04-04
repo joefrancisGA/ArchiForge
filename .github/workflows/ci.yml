@@ -64,7 +64,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: config
           scan-ref: infra/terraform-private
@@ -98,7 +98,7 @@ jobs:
         run: terraform fmt -check -recursive
 
       - name: Trivy IaC (Terraform misconfigurations)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: config
           scan-ref: ${{ matrix.directory }}
@@ -339,7 +339,7 @@ jobs:
         run: docker build -f archiforge-ui/Dockerfile -t archiforge-ui:ci archiforge-ui
 
       - name: Trivy scan API image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: image
           image-ref: archiforge-api:ci
@@ -347,7 +347,7 @@ jobs:
           exit-code: "1"
 
       - name: Trivy scan Operator UI image (CRITICAL/HIGH)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           scan-type: image
           image-ref: archiforge-ui:ci
