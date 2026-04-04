@@ -1,0 +1,19 @@
+# Copy to terraform.tfvars (untracked) and adjust. Default: no resources.
+
+enable_sql_failover_group = false
+
+# failover_group_name     = "archiforge-prod-sqlfg"
+# primary_sql_server_resource_id   = "/subscriptions/.../resourceGroups/rg-primary/providers/Microsoft.Sql/servers/sql-primary"
+# partner_sql_server_resource_id   = "/subscriptions/.../resourceGroups/rg-secondary/providers/Microsoft.Sql/servers/sql-secondary"
+# database_resource_ids = [
+#   "/subscriptions/.../resourceGroups/rg-primary/providers/Microsoft.Sql/servers/sql-primary/databases/ArchiForge",
+# ]
+
+# read_write_failover_mode         = "Automatic"
+# read_write_grace_minutes         = 60
+# readonly_endpoint_failover_enabled = true
+
+# tags = {
+#   Environment = "production"
+#   Workload    = "archi-forge"
+# }
