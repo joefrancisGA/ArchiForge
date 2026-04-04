@@ -10,6 +10,7 @@ ArchiForge splits Azure infrastructure into **optional Terraform roots** so loca
 | [`terraform-entra/`](terraform-entra/) | **Microsoft Entra ID** app registration with **Admin / Operator / Reader** app roles aligned with the API. | **`enable_entra_api_app = false`** |
 | [`terraform-container-apps/`](terraform-container-apps/) | **Azure Container Apps**: Log Analytics, environment, **API + background Worker + Operator UI**, **Hosting__Role** split (**Api** vs **Worker**), **min/max replicas**, HTTP scale rules for API/UI, and **ArtifactLargePayload** env + **blob RBAC** on API and Worker when enabled. | **`enable_container_apps = false`** |
 | [`terraform-storage/`](terraform-storage/) | **Storage account** + **private blob containers** for **large manifest/bundle offload** (`ArtifactLargePayload`, SQL pointer columns). | **`enable_storage_account = false`** |
+| [`terraform-monitoring/`](terraform-monitoring/) | **Azure Monitor** action group + optional **Container App CPU metric alerts**; optional **Azure Managed Grafana**. Dashboard JSON templates under [`grafana/dashboards/`](grafana/dashboards/). | **`enable_monitoring_stack = false`** |
 
 ## Suggested order
 

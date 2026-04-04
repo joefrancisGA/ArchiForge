@@ -1,0 +1,29 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "grafana-azure-monitor-datasource", "uid": "${AZURE_MONITOR_DS_UID}" },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "content": "## ArchiForge — Container Apps\n\n1. Add an **Azure Monitor** data source (Managed Identity or service principal).\n2. Replace `${AZURE_MONITOR_DS_UID}` in this dashboard with that source’s UID.\n3. Duplicate panels and scope queries to **Microsoft.App/containerApps** → your API / Worker.\n\nSee `infra/terraform-monitoring/README.md`.", "mode": "markdown" },
+      "title": "Overview",
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 39,
+  "tags": ["archiforge", "azure", "container-apps"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ArchiForge — Container Apps (template)",
+  "uid": "archiforge-ca-overview",
+  "version": 1,
+  "weekStart": ""
+}

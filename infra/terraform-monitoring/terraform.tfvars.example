@@ -1,0 +1,24 @@
+# Copy to terraform.tfvars (gitignored). Defaults keep everything off for safe validate in CI.
+
+enable_monitoring_stack = false
+# resource_group_name     = "rg-archiforge-prod"
+# name_prefix             = "archiforge"
+# alert_email_address     = "ops@example.com"
+# alert_webhook_uri       = "https://..." # optional Teams / PagerDuty
+
+# Full resource IDs from Azure Portal or terraform-container-apps outputs (Container Apps).
+# api_container_app_resource_id    = "/subscriptions/.../providers/Microsoft.App/containerApps/archiforge-api"
+# worker_container_app_resource_id = "/subscriptions/.../providers/Microsoft.App/containerApps/archiforge-worker"
+
+# ~0.5 vCPU sustained → 500000000 nano cores (tune per allocation).
+# container_cpu_nanos_threshold = 500000000
+
+# Optional: Azure Managed Grafana (extra cost; assign Monitor Reader to the Grafana identity in Azure).
+# enable_managed_grafana = true
+# grafana_name           = "archiforge-grafana"
+# grafana_location       = "eastus2"
+
+tags = {
+  workload = "archiforge"
+  tier     = "monitoring"
+}
