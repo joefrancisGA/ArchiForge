@@ -6,8 +6,8 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 ## Assumptions
 
-- Production and shared dev databases evolve via **DbUp** embedded scripts under **`ArchiForge.Data/Migrations/`** (`DatabaseMigrator`).
-- Greenfield SQL Server installs, Persistence **bootstrap**, and human operators may run **`ArchiForge.Data/SQL/ArchiForge.sql`** (batched by `GO`, idempotent `IF OBJECT_ID` / `IF NOT EXISTS` patterns).
+- Production and shared dev databases evolve via **DbUp** embedded scripts under **`ArchiForge.Persistence/Migrations/`** (`DatabaseMigrator`).
+- Greenfield SQL Server installs, Persistence **bootstrap**, and human operators may run **`ArchiForge.Persistence/Scripts/ArchiForge.sql`** (batched by `GO`, idempotent `IF OBJECT_ID` / `IF NOT EXISTS` patterns).
 - **Integration tests** use **SQL Server** (per-test databases); **DbUp** runs on test host startup (see **`ArchiForge.Api.Tests`** / **`TEST_STRUCTURE.md`**).
 
 ## Constraints
@@ -24,12 +24,12 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 ## Component breakdown
 
-- **`ArchiForge.Data`** — embeds migrations, ships SQL files, exposes **`DatabaseMigrator`**.
+- **`ArchiForge.Persistence.Data.*`** — embeds migrations, ships SQL files, exposes **`DatabaseMigrator`**.
 - **`ArchiForge.Persistence`** — MSBuild **link** copies **`ArchiForge.sql`** to output **`Scripts/ArchiForge.sql`** for **`SqlSchemaBootstrapper`** (see **`ArchiForgeStorageServiceCollectionExtensions`**).
 
 ## Data flow
 
-1. **New column/table/index:** add **`ArchiForge.Data/Migrations/NNN_....sql`** (idempotent `IF NOT EXISTS` where possible).
+1. **New column/table/index:** add **`ArchiForge.Persistence/Migrations/NNN_....sql`** (idempotent `IF NOT EXISTS` where possible).
 2. **Mirror** the same logical object into **`ArchiForge.sql`**.
 3. Run **`DatabaseMigrator`** in CI or locally against SQL Server test instances (see **`ArchiForge.Persistence.Tests`** / **`TEST_STRUCTURE.md`**).
 

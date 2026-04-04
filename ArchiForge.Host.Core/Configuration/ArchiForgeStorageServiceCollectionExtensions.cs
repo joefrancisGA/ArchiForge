@@ -130,7 +130,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
             services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
             RegisterHostLeaderLeaseInfrastructure(services);
-            services.AddSingleton<ArchiForge.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Data.Repositories.NoOpHostLeaderLeaseRepository>();
+            services.AddSingleton<ArchiForge.Persistence.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Persistence.Data.Repositories.NoOpHostLeaderLeaseRepository>();
 
             RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
             RegisterLlmCompletionResponseStore(services, configuration);
@@ -258,13 +258,13 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
 
-        services.AddSingleton<Data.Infrastructure.IDbConnectionFactory>(p =>
+        services.AddSingleton<ArchiForge.Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(
                 p.GetRequiredService<IServiceScopeFactory>(),
                 connectionString));
 
         RegisterHostLeaderLeaseInfrastructure(services);
-        services.AddSingleton<ArchiForge.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Data.Repositories.SqlHostLeaderLeaseRepository>();
+        services.AddSingleton<ArchiForge.Persistence.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
 
         return services;
     }

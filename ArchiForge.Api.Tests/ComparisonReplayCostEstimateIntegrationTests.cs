@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 
 using ArchiForge.Api.Models;
 using ArchiForge.Contracts.Metadata;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

@@ -4,16 +4,16 @@ This document zooms into the most important components inside each container/lib
 
 ---
 
-### `ArchiForge.Data` vs `ArchiForge.Persistence`
+### Workflow data access vs authority persistence (both in `ArchiForge.Persistence`)
 
-| Library | Role | Typical types |
-|---------|------|----------------|
-| **`ArchiForge.Data`** | ADO.NET/Dapper access to SQL Server, row DTOs, and **application-facing** repositories used by `ArchiForge.Application` for runs, tasks, requests, evidence, governance entities, etc. | `ArchitectureRequestRepository`, `SqlConnectionFactory`, `IArchitectureRunRepository` (Data namespace) |
-| **`ArchiForge.Persistence`** | **Authority and decisioning** persistence ports: unit of work, orchestration (`AuthorityRunOrchestrator`), snapshot repos for context/graph/findings/manifests, caching decorators (`CachingRunRepository`), archival, retrieval outbox, RLS session context. | `IRunRepository` (Persistence `Models.RunRecord`), `IArchiForgeUnitOfWork`, `SqlContextSnapshotRepository` |
+| Area | Role | Typical types |
+|------|------|----------------|
+| **`ArchiForge.Persistence.Data.*`** | ADO.NET/Dapper for the **run/commit/agent** workflow: repositories used by `ArchiForge.Application` and HTTP services for requests, runs, tasks, evidence, governance entities, background jobs, `IDbConnectionFactory`, DbUp **`DatabaseMigrator`**, consolidated **`Scripts/ArchiForge.sql`**. | `ArchitectureRequestRepository`, `SqlConnectionFactory`, `IArchitectureRunRepository` |
+| **Rest of `ArchiForge.Persistence`** | **Authority and decisioning** ports: unit of work, orchestration (`AuthorityRunOrchestrator`), snapshot repos for context/graph/findings/manifests, caching decorators (`CachingRunRepository`), archival, retrieval outbox, RLS session context. | `IRunRepository` (`Models.RunRecord`), `IArchiForgeUnitOfWork`, `SqlContextSnapshotRepository` |
 
 **Configuration:** SQL security and read-scale-out are grouped under **`SqlServer`** in appsettings (`RowLevelSecurity`, `ReadReplica`). See `ArchiForge.Persistence/Connections/SqlServerOptions.cs`.
 
-**Why two layers:** Decisioning/ingestion domains evolved with explicit persistence abstractions; the application layer uses a parallel Data repository surface for the run/commit/agent workflow. When adding a feature, follow existing callers: authority chain → Persistence; HTTP application services → Data + Application.
+**Why two namespaces inside one assembly:** Decisioning/ingestion evolved with explicit persistence abstractions; the application layer uses **`ArchiForge.Persistence.Data.Repositories`** for the run/commit/agent workflow (distinct from Decisioning’s manifest/trace interfaces — see ADR 0010). When adding a feature, follow existing callers: authority chain → orchestration repos; HTTP application services → **`Persistence.Data`** + Application.
 
 ---
 
@@ -21,12 +21,12 @@ This document zooms into the most important components inside each container/lib
 
 #### Connection bridging (SQL)
 
-- **`SqlScopedResolutionDbConnectionFactory`** (`ArchiForge.Api.DataAccess`): implements **`ArchiForge.Data.Infrastructure.IDbConnectionFactory`** for the SQL storage path. **`CreateOpenConnectionAsync`** resolves scoped **`ISqlConnectionFactory`** ( **`ResilientSqlConnectionFactory`** and optional **`SessionContextSqlConnectionFactory`** ) so Dapper repositories under **`ArchiForge.Data.Repositories`** share the same resilience/RLS path as **`ArchiForge.Persistence`** without registering **`IDbConnectionFactory`** as scoped (hosted health checks resolve from the root provider). **`CreateConnection`** returns an unopened **`SqlConnection`** for lightweight probes that open explicitly.
+- **`SqlScopedResolutionDbConnectionFactory`** (`ArchiForge.Api.DataAccess`): implements **`ArchiForge.Persistence.Data.Infrastructure.IDbConnectionFactory`** for the SQL storage path. **`CreateOpenConnectionAsync`** resolves scoped **`ISqlConnectionFactory`** ( **`ResilientSqlConnectionFactory`** and optional **`SessionContextSqlConnectionFactory`** ) so Dapper repositories under **`ArchiForge.Persistence.Data.Repositories`** share the same resilience/RLS path as **`ArchiForge.Persistence`** without registering **`IDbConnectionFactory`** as scoped (hosted health checks resolve from the root provider). **`CreateConnection`** returns an unopened **`SqlConnection`** for lightweight probes that open explicitly.
 
 #### Dual manifest / trace repository interfaces
 
 - **`ArchiForge.Decisioning.Interfaces.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: authority-oriented contracts (`SaveAsync`, scoped `GetByIdAsync`). Implemented by **`SqlGoldenManifestRepository`**, **`SqlDecisionTraceRepository`**, and in-memory counterparts; registered in **`AddArchiForgeStorage`**.
-- **`ArchiForge.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces. When **`ArchiForge:StorageProvider=InMemory`**, the same registration block uses **`InMemoryCoordinatorGoldenManifestRepository`** and **`InMemoryCoordinatorDecisionTraceRepository`** (singleton), plus the other coordinator in-memory Data repos (**`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** with request lookup, **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, evidence/execution trace packages, tasks/results, idempotency). **`RegisterRunExportAndArchitectureAnalysis`** registers **`InMemoryRunExportRecordRepository`** in that mode so exports do not require SQL.
+- **`ArchiForge.Persistence.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces. When **`ArchiForge:StorageProvider=InMemory`**, the same registration block uses **`InMemoryCoordinatorGoldenManifestRepository`** and **`InMemoryCoordinatorDecisionTraceRepository`** (singleton), plus the other coordinator in-memory Data repos (**`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** with request lookup, **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, evidence/execution trace packages, tasks/results, idempotency). **`RegisterRunExportAndArchitectureAnalysis`** registers **`InMemoryRunExportRecordRepository`** in that mode so exports do not require SQL.
 
 #### Governance persistence
 
@@ -147,7 +147,7 @@ This document zooms into the most important components inside each container/lib
 - **Entry points:** **`IKnowledgeGraphService`**, **`DefaultGraphBuilder`**, **`DefaultGraphEdgeInferer`**, **`GraphNodeFactory`**.
 - **Detail:** `docs/KNOWLEDGE_GRAPH.md`.
 
-### `ArchiForge.Data` components
+### Workflow components (`ArchiForge.Persistence.Data.*`)
 
 #### Repository layer (Dapper)
 
@@ -158,7 +158,7 @@ This document zooms into the most important components inside each container/lib
 #### Contract test coverage (persistence)
 
 - Shared suites under **`ArchiForge.Persistence.Tests/Contracts/`** include runs, comparison records, policy assignments, digests, alert rules, conversation threads/messages, **audit events**, **provenance snapshots**, **authority golden manifests**, **decision traces**, **policy packs**, **architecture run idempotency**, **agent tasks** / **agent results**, **architecture requests**, **architecture runs** (including list + join semantics), **evidence bundles**, **agent evidence packages**, **agent execution traces**, **advisory scan schedules**, and **alert delivery attempts** (each with InMemory + Dapper/SQL subclasses where applicable). SQL golden-manifest tests reuse **`AuthorityRunChainTestSeed`**; data-layer SQL tests reuse **`ArchitectureCommitTestSeed`** (request-only insert, request/run chain, and agent task FKs as needed).
-- **`ArchiForge.Data.Repositories` in-memory parity:** besides tasks/results/idempotency/comparison, the solution ships **in-memory** implementations for **requests**, **runs** (optional **`IArchitectureRequestRepository`** for **`ListAsync`** system names), **evidence bundles**, **agent evidence packages**, and **agent execution traces** to support fast contract tests without SQL.
+- **`ArchiForge.Persistence.Data.Repositories` — in-memory parity:** besides tasks/results/idempotency/comparison, the solution ships **in-memory** implementations for **requests**, **runs** (optional **`IArchitectureRequestRepository`** for **`ListAsync`** system names), **evidence bundles**, **agent evidence packages**, and **agent execution traces** to support fast contract tests without SQL.
 
 #### `ComparisonRecordRepository`
 

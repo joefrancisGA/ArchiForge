@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

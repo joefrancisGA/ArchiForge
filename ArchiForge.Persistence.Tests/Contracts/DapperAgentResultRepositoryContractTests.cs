@@ -1,6 +1,6 @@
 using ArchiForge.Contracts.Agents;
 
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using ArchiForge.Persistence.Tests.Support;
 

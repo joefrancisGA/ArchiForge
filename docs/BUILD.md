@@ -80,7 +80,7 @@ Shared resolution lives in **`ArchiForge.TestSupport`** (`SqlServerIntegrationTe
 
 **Docker (local):** run SQL Server 2022 (or Azure SQL edge) and point **`ARCHIFORGE_SQL_TEST`** at it; API tests will piggyback the same server for ephemeral DBs.
 
-Keep **one DDL source of truth** (`ArchiForge.Data/SQL/ArchiForge.sql` + **`ArchiForge.Data/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
+Keep **one DDL source of truth** (`ArchiForge.Persistence/Scripts/ArchiForge.sql` + **`ArchiForge.Persistence/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
 
 ## Central Package Management (CPM)
 

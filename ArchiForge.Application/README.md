@@ -12,7 +12,7 @@ Application-layer services used by `ArchiForge.Api`.
 When adding new behavior:
 
 - Put orchestration and formatting logic here (not in controllers).
-- Keep repositories/data access in `ArchiForge.Data`.
+- Keep repositories/data access in `ArchiForge.Persistence.Data.*`.
 - Keep manifest merge logic in `ArchiForge.DecisionEngine`.
 
 See:

@@ -2,7 +2,7 @@ using System.Text.Json;
 
 using ArchiForge.Application.Analysis;
 using ArchiForge.Contracts.Metadata;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

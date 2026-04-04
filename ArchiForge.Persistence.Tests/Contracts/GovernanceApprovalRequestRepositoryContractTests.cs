@@ -1,5 +1,5 @@
 using ArchiForge.Contracts.Governance;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

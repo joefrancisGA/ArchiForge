@@ -9,7 +9,7 @@ using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Manifest;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 

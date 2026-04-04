@@ -10,7 +10,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 - HTTP surface for all run/execution/export/compare/replay workflows.
 - API versioning (`/v1/...`), rate limiting, and API-key auth.
-- Wires up DI for Application, Data, DecisionEngine, Decisioning, Persistence, Retrieval, ContextIngestion, and related services.
+- Wires up DI for Application, Persistence (workflow `Data.*` + authority SQL), DecisionEngine, Decisioning, Retrieval, ContextIngestion, and related services.
 - Provides Swagger/OpenAPI docs (with small operation filters for replay examples).
 
 **Key concerns**
@@ -26,7 +26,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 **Depends on**
 
 - `ArchiForge.Application` (core orchestration + analysis/export/replay services)
-- `ArchiForge.Data` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
+- `ArchiForge.Persistence.Data.*` (Dapper repositories for run/commit path, migrations, `IDbConnectionFactory`)
 - `ArchiForge.Persistence` (SQL authority repositories, RLS-aware connection factories, queries, advisory/alert persistence)
 - `ArchiForge.DecisionEngine` (merge agent results into manifests)
 - `ArchiForge.Decisioning` (governance, advisory, alerts, manifest/decision models used by persistence and application)
@@ -70,7 +70,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 **Depends on**
 
-- `ArchiForge.Data` for repositories
+- `ArchiForge.Persistence.Data.*` for repositories
 - `ArchiForge.DecisionEngine` (sometimes indirectly via other services)
 - `ArchiForge.Decisioning` (governance, previews, advisory surfaces)
 - `ArchiForge.Contracts` for shared models
@@ -158,12 +158,12 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 
 ---
 
-### Library: `ArchiForge.Data` (persistence)
+### Library: `ArchiForge.Persistence` — workflow data access (`ArchiForge.Persistence.Data.*`)
 
 **Responsibility**
 
 - Database access (Dapper repositories) for runs, tasks, results, manifests, export records, comparison records, traces, evidence, etc.
-- Migration scripts under `ArchiForge.Data/Migrations/*` applied by DbUp at startup.
+- Migration scripts under `ArchiForge.Persistence/Migrations/*` applied by DbUp at startup.
 - DB connection factory (`IDbConnectionFactory`) for **SQL Server** (`SqlConnectionFactory`).
 
 **Depends on**
@@ -202,7 +202,7 @@ This is a pragmatic C4 “containers” view: **deployable processes** and major
 ### Container relationships (high-level)
 
 - `ArchiForge.Cli` → (HTTP) → `ArchiForge.Api`
-- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Data` / `ArchiForge.Persistence` / `ArchiForge.Decisioning`
+- `ArchiForge.Api` → `ArchiForge.Application` → `ArchiForge.Persistence.Data.*` / `ArchiForge.Persistence` / `ArchiForge.Decisioning`
 - `ArchiForge.Api` → `ArchiForge.DecisionEngine` (merge/commit)
 - Optional paths: Context ingestion, knowledge graph, retrieval, artifact synthesis (all invoked from application/API layers as configured)
 - All projects share models from `ArchiForge.Contracts`

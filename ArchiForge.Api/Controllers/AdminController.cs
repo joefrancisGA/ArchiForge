@@ -1,6 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Services.Admin;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
 
 using Asp.Versioning;

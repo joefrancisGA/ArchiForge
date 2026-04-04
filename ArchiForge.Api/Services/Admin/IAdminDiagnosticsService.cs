@@ -1,4 +1,4 @@
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 namespace ArchiForge.Api.Services.Admin;
 

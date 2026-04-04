@@ -9,7 +9,7 @@ using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Resilience;
 using ArchiForge.Application.Governance;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Jobs;
 using ArchiForge.Host.Core.Resilience;

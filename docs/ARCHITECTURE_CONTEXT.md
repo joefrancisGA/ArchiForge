@@ -35,7 +35,7 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 - `ArchiForge.Api` (HTTP surface)
 - `ArchiForge.Application` (orchestration + formatting/export/replay services)
-- `ArchiForge.Data` (repositories + migrations)
+- `ArchiForge.Persistence.Data.*` (repositories + migrations)
 - `ArchiForge.DecisionEngine` (merge logic that produces manifests)
 - `ArchiForge.Contracts` (shared DTOs and domain contracts)
 

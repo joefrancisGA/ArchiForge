@@ -17,7 +17,7 @@ ASP.NET Core Web API surface for ArchiForge.
 When changing API behavior, prefer to:
 
 - Keep controllers thin and delegate to `ArchiForge.Application` services.
-- Keep persistence details in `ArchiForge.Data` repositories.
+- Keep persistence details in `ArchiForge.Persistence.Data.*` repositories.
 
 See:
 

@@ -12,7 +12,7 @@ Privileged routes under **`GET /v1/admin/...`** require **`AdminAuthority`** pol
 
 ## Runbooks
 
-- Stuck outbox / backlog: `docs/TROUBLESHOOTING.md`, SQL tables referenced in `ArchiForge.Data` repositories for pipeline work and retrieval outbox.
+- Stuck outbox / backlog: `docs/TROUBLESHOOTING.md`, SQL tables referenced in `ArchiForge.Persistence.Data.*` repositories for pipeline work and retrieval outbox.
 - Migrations / readiness failures: `GET /health/ready` and host startup logs (correlation id).
 - LLM / quota: `docs/OPERATIONS_LLM_QUOTA.md`
 

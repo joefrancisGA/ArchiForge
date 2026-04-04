@@ -1,4 +1,4 @@
-# SQL migration rollback (DbUp / ArchiForge.Data)
+# SQL migration rollback (DbUp / ArchiForge.Persistence)
 
 ## Objective
 
@@ -6,7 +6,7 @@ Describe how operators recover when a **forward-only** DbUp migration is wrong, 
 
 ## Assumptions
 
-- Production schema evolves via **embedded scripts** under **`ArchiForge.Data/Migrations/`**, applied in lexicographic order by **`DatabaseMigrator`**.
+- Production schema evolves via **embedded scripts** under **`ArchiForge.Persistence/Migrations/`**, applied in lexicographic order by **`DatabaseMigrator`**.
 - **`ArchiForge.sql`** is the consolidated reference for greenfield bootstrap; brownfield servers may have run the same logical change through a numbered migration first.
 - **DbUp does not ship “down” scripts**; rollback is a **manual** DBA operation with a **restore-first** bias.
 

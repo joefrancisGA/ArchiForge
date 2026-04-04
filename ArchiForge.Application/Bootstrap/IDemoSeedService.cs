@@ -2,7 +2,7 @@ namespace ArchiForge.Application.Bootstrap;
 
 /// <summary>
 /// Seeds a deterministic **trusted baseline** (49R pass 2 / Corrected 50R) Contoso Retail story into the
-/// primary ArchiForge SQL Server store used by <see cref="ArchiForge.Data.Repositories"/> architecture repositories.
+/// primary ArchiForge SQL Server store used by <see cref="ArchiForge.Persistence.Data.Repositories"/> architecture repositories.
 /// Safe to call multiple times: existing rows are skipped or left unchanged.
 /// </summary>
 public interface IDemoSeedService

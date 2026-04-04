@@ -65,4 +65,4 @@ flowchart TB
 ## Constraints
 
 - Align with org **landing zone** (subnets, DNS zones, private endpoints).
-- Keep **DDL** in the single SQL file discipline (`ArchiForge.Data/SQL/ArchiForge.sql`) and apply via pipeline.
+- Keep **DDL** in the single SQL file discipline (`ArchiForge.Persistence/Scripts/ArchiForge.sql`) and apply via pipeline.

@@ -7,7 +7,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
 using FluentAssertions;

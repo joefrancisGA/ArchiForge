@@ -5,7 +5,7 @@ using ArchiForge.Application;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Governance;
 using ArchiForge.Contracts.Governance;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using Asp.Versioning;
 

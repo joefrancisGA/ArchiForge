@@ -1,4 +1,4 @@
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosted;
 

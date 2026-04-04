@@ -1805,7 +1805,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`docs/runbooks/LOAD_TEST_RATE_LIMITS.md`** + **`scripts/load/k6-expensive-rate-limit.js`** (configure **`ARCHIFORGE_EXPENSIVE_PATH`** + auth for real 429s).
 - [x] 202. Resilience: SQL timeout → health / problem details — `ApplicationProblemMapper.TryMapDatabaseException` maps `SqlException(-2)` / `TimeoutException` → 503 `DatabaseTimeout`, `DbException` → 503 `DatabaseUnavailable`; `SqlConnectionHealthCheck` reports `Degraded` for transient SQL errors (timeout, Azure throttling); `ProblemTypes.DatabaseTimeout` / `DatabaseUnavailable` constants; `ProblemDetailsExtensions.ServiceUnavailableProblem` helper; unit tests in `ApiProblemDetailsExceptionFilterTests` + `SqlConnectionHealthCheckTests`.
 - [x] 203. CI: migrate from N−1 schema.
-  - **`DatabaseMigrator.RunExcludingTrailingScripts`** (`ArchiForge.Data`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
+  - **`DatabaseMigrator.RunExcludingTrailingScripts`** (**`ArchiForge.Persistence`**, `Data/Infrastructure/DatabaseMigrator.cs`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
 - [x] 204. UI e2e: policy assign + effective-content.
   - **`archiforge-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archiforge-api-server`** (`v1/policy-packs` POST/GET).
 
@@ -1971,7 +1971,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 257. **Data archival hosted iteration + health state** — `DataArchivalHostIteration` outcome wiring in `DataArchivalHostedService`; `DataArchivalHostHealthState` records last success/failure.
 - [x] 258. **`DataArchivalHostHealthCheck`** — readiness tag **`data_archival`**; **Healthy** when disabled, enabled with no attempt yet, or last success; **Degraded** when enabled and last iteration failed (`failureStatus: Degraded` in `RegisterArchiForgeHealthChecks`).
 - [x] 259. **`ReplayDiagnosticsOptions`** — config section, recorder retention for replay diagnostics endpoint.
-- [x] 260. **`InMemoryComparisonRecordRepository`** — thread-safe in-memory implementation in **ArchiForge.Data**; parity with Dapper via contract tests.
+- [x] 260. **`InMemoryComparisonRecordRepository`** — thread-safe in-memory implementation in **`ArchiForge.Persistence.Data.Repositories`**; parity with Dapper via contract tests.
 - [x] 261. **Comparison record contract tests** — abstract base + InMemory + Dapper (`ComparisonRecordRepositoryContractTests`).
 - [x] 262. **`TestSqlDbConnectionFactory`** (and SQL integration helpers) for persistence tests against real SQL.
 - [x] 263. **RLS / session context** — integration coverage for tenant-scoped SQL access where applicable.
@@ -1989,7 +1989,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Data access clarity & test depth (275–283)
 
-- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchiForge.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchiForge.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchiForgeStorage`**.
+- [x] 275. **Dual `IGoldenManifestRepository` / `IDecisionTraceRepository` contracts** — `ArchiForge.Persistence.Data.Repositories` (run/commit Dapper: `CreateAsync`, `GetByVersionAsync`, batch traces) vs `ArchiForge.Decisioning.Interfaces` (authority SQL: `SaveAsync`, scoped `GetByIdAsync`). Coordinator registrations use **fully qualified Data interface types** so DI is not mistaken for a duplicate override of the Decisioning contracts registered in **`AddArchiForgeStorage`**.
 - [x] 276. **`SqlScopedResolutionDbConnectionFactory`** — singleton **`IDbConnectionFactory`** for SQL storage that opens connections via a **short scope** resolving scoped **`ISqlConnectionFactory`** (resilience + optional RLS) for **`CreateOpenConnectionAsync`**, while **`CreateConnection`** stays an unopened **`SqlConnection`** for readiness probes. **`RegisterDataInfrastructure`** registers **`Data.SqlConnectionFactory`** only when **`StorageProvider=InMemory`**; SQL mode registers this bridge inside **`AddArchiForgeStorage`**.
 - [x] 277. **`CorrelationIdMiddlewareTests`** + **`ApiDeprecationHeadersMiddlewareTests`** (Core suite).
 - [x] 278. **`RetrievalIndexingOutboxHostedServiceTests`** — clean shutdown and continue-after-failure loop behavior.
@@ -2072,11 +2072,16 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 337. **`docs/runbooks/DATABASE_FAILOVER.md`** — Azure SQL HA/geo-failover, listeners, RPO/RTO framing.
 - [x] 338. **This file + `docs/ARCHITECTURE_COMPONENTS.md`** — §329–338 recorded; governance InMemory registration note.
 
-### Data vs Persistence consolidation (339–341) — future
+### Data vs Persistence consolidation (339–341)
 
-- [ ] 339. **Consolidate coordinator / legacy SQL repositories** — Move Dapper implementations and types that logically belong with **`ArchiForge.Persistence`** (authority-adjacent and run workflow storage) out of **`ArchiForge.Data`**, keeping **`ArchiForge.Data`** as a thin compatibility layer or deleting it once call sites are migrated. **Goal:** one obvious home for SQL + UoW-aligned access; reduce duplicate interface names and mental overhead (see ADR 0004 and [DI_REGISTRATION_MAP.md](DI_REGISTRATION_MAP.md)).
-- [ ] 340. **Optional compatibility shim in `ArchiForge.Data`** — If external or test code still references `ArchiForge.Data.Repositories`, provide forwarding types or adapter registrations that delegate to Persistence implementations until consumers are updated. **Trade-off:** temporary duplication vs break-the-world rename.
+- [x] 339. **Consolidate coordinator / legacy SQL repositories** — Former **`ArchiForge.Data`** assembly merged into **`ArchiForge.Persistence`** as **`ArchiForge.Persistence.Data.Infrastructure`** and **`ArchiForge.Persistence.Data.Repositories`** (DbUp migrations, consolidated SQL, Dapper workflow repos). **`ArchiForge.Data`** / **`ArchiForge.Data.Tests`** removed from the solution.
+- [x] 340. **Optional compatibility shim** — Skipped; consumers use **`ArchiForge.Persistence.Data.*`** directly.
 - [ ] 341. **Connection factory alignment** — Prefer **`ISqlConnectionFactory`** / `CreateOpenConnectionAsync` for new and migrated code; phase out or wrap sync **`IDbConnectionFactory`** / `CreateConnection` where it forces blocking or diverges from RLS/resilience paths. **Risks:** mixed async/sync call chains, scoped resolution (`SqlScopedResolutionDbConnectionFactory`) assumptions, and test doubles that only implement one factory abstraction.
+
+### Post-merge follow-up (342)
+
+- [x] 342. **Doc / ADR sweep** — Grep across **`docs/**/*.md`**, **`*.csproj`**, and **`*.cs`**: no stale **`ArchiForge.Data`** references remain in maintained docs or code. Remaining hits are historical build/test logs at repo root (**`test_results.txt`**, **`commit*-log.txt`**, **`getrun-test-log.txt`**) and this checklist’s intentional mention of the old assembly name.
+
 
 ---
 

@@ -1,7 +1,7 @@
 using System.Data.Common;
 
 using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Infrastructure;
 using ArchiForge.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;

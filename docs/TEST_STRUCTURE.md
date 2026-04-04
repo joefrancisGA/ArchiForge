@@ -80,7 +80,7 @@ npm run test:e2e
 
 ## SQL Server for API + Persistence tests
 
-- **No SQLite.** Use **SQL Server** for anything that hits the DB; tests use **Dapper** and **DbUp** (`ArchiForge.Data/Migrations/`).
+- **No SQLite.** Use **SQL Server** for anything that hits the DB; tests use **Dapper** and **DbUp** (`ArchiForge.Persistence/Migrations/`).
 - **API integration** (`ArchiForge.Api.Tests`): factories create ephemeral databases on the configured instance — set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** on Linux/macOS/CI; Windows may use **localhost** / LocalDB if unset (see **BUILD.md**).
 - **CI** sets `ARCHIFORGE_SQL_TEST` against the SQL Server service container for the full regression job.
 

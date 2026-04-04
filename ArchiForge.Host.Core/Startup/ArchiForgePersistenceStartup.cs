@@ -1,7 +1,7 @@
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Application.Bootstrap;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Infrastructure;
 using ArchiForge.Persistence.Sql;
 
 namespace ArchiForge.Host.Core.Startup;
@@ -41,7 +41,7 @@ public static class ArchiForgePersistenceStartup
         else
         {
             app.Logger.LogInformation(
-                "Startup: running DbUp migrations (embedded scripts under ArchiForge.Data/Migrations).");
+                "Startup: running DbUp migrations (embedded scripts under ArchiForge.Persistence/Migrations).");
 
             if (!DatabaseMigrator.Run(connectionString))
             

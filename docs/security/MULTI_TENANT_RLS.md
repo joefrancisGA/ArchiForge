@@ -78,7 +78,7 @@ flowchart LR
 - **Scalability:** Predicate simplicity keeps plans stable; indexes already lead with scope columns on most advisory/alert tables.
 - **Reliability:** Connection resiliency (`ResilientSqlConnectionFactory`) re-applies session context when **SessionContextSqlConnectionFactory** wraps the connection.
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.
-- **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchiForge.Data/SQL/ArchiForge.sql` for greenfield parity.
+- **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchiForge.Persistence/Scripts/ArchiForge.sql` for greenfield parity.
 
 ## 9. Covered tables and known gaps (DbUp 036)
 

@@ -13,7 +13,7 @@ using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
 using Microsoft.Extensions.Logging;
@@ -24,7 +24,7 @@ namespace ArchiForge.Application;
 /// Orchestrates the three-phase architecture run workflow: coordinate and persist a new run, execute simulated agents with evidence and evaluations, then resolve decisions and commit a <see cref="ArchiForge.Contracts.Manifest.GoldenManifest"/>.
 /// </summary>
 /// <remarks>
-/// Dependencies include <see cref="ArchiForge.Coordinator.Services.ICoordinatorService"/>, repositories under <c>ArchiForge.Data.Repositories</c>, <see cref="ArchiForge.AgentSimulator.Services.IAgentExecutor"/>, <see cref="ArchiForge.Application.Evidence.IEvidenceBuilder"/>, and decision services from <c>ArchiForge.DecisionEngine</c>.
+/// Dependencies include <see cref="ArchiForge.Coordinator.Services.ICoordinatorService"/>, repositories under <c>ArchiForge.Persistence.Data.Repositories</c>, <see cref="ArchiForge.AgentSimulator.Services.IAgentExecutor"/>, <see cref="ArchiForge.Application.Evidence.IEvidenceBuilder"/>, and decision services from <c>ArchiForge.DecisionEngine</c>.
 /// </remarks>
 public sealed class ArchitectureRunService(
     ICoordinatorService coordinator,

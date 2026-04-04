@@ -152,7 +152,7 @@ for replay — no new route is needed there.
 No new migration is required unless you add type-specific columns to `ComparisonRecords`.
 If you do:
 
-1. Create `ArchiForge.Data/Migrations/0NN_MyNewTypeComparisonColumns.sql` (idempotent `IF NOT EXISTS`).
+1. Create `ArchiForge.Persistence/Migrations/0NN_MyNewTypeComparisonColumns.sql` (idempotent `IF NOT EXISTS`).
 2. Add the same columns to `ArchiForge.sql` (SQL Server consolidated).
 3. Update `docs/DATA_MODEL.md` and `docs/SQL_SCRIPTS.md`.
 

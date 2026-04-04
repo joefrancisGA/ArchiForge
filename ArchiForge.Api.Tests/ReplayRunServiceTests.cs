@@ -3,7 +3,7 @@ using ArchiForge.Application.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Metadata;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
 using FluentAssertions;

@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Infrastructure;
 
 using FluentAssertions;
 
@@ -21,7 +21,7 @@ public sealed class DatabaseMigrationScriptTests
         TimeSpan.FromMilliseconds(100));
 
     [Fact]
-    public void ArchiForgeDataAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
+    public void ArchiForgePersistenceAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;
 

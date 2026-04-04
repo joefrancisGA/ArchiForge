@@ -27,7 +27,6 @@ COPY ArchiForge.Contracts/*.csproj          ArchiForge.Contracts/
 COPY ArchiForge.ContextIngestion/*.csproj   ArchiForge.ContextIngestion/
 COPY ArchiForge.Coordinator/*.csproj        ArchiForge.Coordinator/
 COPY ArchiForge.Core/*.csproj               ArchiForge.Core/
-COPY ArchiForge.Data/*.csproj               ArchiForge.Data/
 COPY ArchiForge.DecisionEngine/*.csproj     ArchiForge.DecisionEngine/
 COPY ArchiForge.Decisioning/*.csproj        ArchiForge.Decisioning/
 COPY ArchiForge.KnowledgeGraph/*.csproj     ArchiForge.KnowledgeGraph/

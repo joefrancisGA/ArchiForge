@@ -57,7 +57,7 @@ Store connection strings in **Key Vault** (or managed identity–backed settings
 
 ## Post-failover validation
 
-1. Run **`ArchiForge.DatabaseMigrator`** in **report-only** or equivalent check if your process requires schema confirmation (optional if schema unchanged).
+1. Run **DbUp** / **`DatabaseMigrator`** in **report-only** or equivalent check if your process requires schema confirmation (optional if schema unchanged).
 2. Smoke: create architecture request → run → commit; open governance or comparison endpoints if enabled.
 3. Watch **OpenTelemetry** / App Insights for error rate and dependency duration on SQL.
 

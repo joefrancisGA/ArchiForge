@@ -1,10 +1,10 @@
-﻿using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +14,7 @@ namespace ArchiForge.Application.Bootstrap;
 /// Idempotent seed for the Contoso Retail Modernization **trusted baseline** (two committed runs, governance workflow, activations).
 /// </summary>
 /// <remarks>
-/// Persists via <c>ArchiForge.Data</c> repositories only. The export row is optional metadata for export history — not required for
+/// Persists via <c>ArchiForge.Persistence.Data.Repositories</c> only. The export row is optional metadata for export history — not required for
 /// consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(

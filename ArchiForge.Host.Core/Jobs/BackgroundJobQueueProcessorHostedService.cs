@@ -1,7 +1,7 @@
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Application.Jobs;
 
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;

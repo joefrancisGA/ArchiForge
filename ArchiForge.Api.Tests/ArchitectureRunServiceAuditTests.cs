@@ -5,7 +5,7 @@ using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Coordinator.Services;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 
 using FluentAssertions;

@@ -67,7 +67,7 @@ All Dapper/SQL repository classes that execute queries against SQL Server. Each 
 - `SqlRunRepository`, `SqlFindingsSnapshotRepository`, `SqlDecisionTraceRepository`, `SqlGraphSnapshotRepository`, `SqlArtifactBundleRepository`, `SqlGoldenManifestRepository`, `SqlContextSnapshotRepository`
 - `SqlProvenanceSnapshotRepository`
 
-### ArchiForge.Data (17 classes)
+### ArchiForge.Persistence — workflow Dapper repositories (`ArchiForge.Persistence.Data.Repositories`, 17 classes)
 
 - `AgentEvaluationRepository`, `AgentEvidencePackageRepository`, `AgentExecutionTraceRepository`, `AgentResultRepository`, `AgentTaskRepository`
 - `ArchitectureRequestRepository`, `ArchitectureRunIdempotencyRepository`, `ArchitectureRunRepository`

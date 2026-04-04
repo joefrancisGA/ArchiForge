@@ -1,8 +1,8 @@
-﻿using ArchiForge.Application.Diffs;
+using ArchiForge.Application.Diffs;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Metadata;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 namespace ArchiForge.Application.Analysis;
 

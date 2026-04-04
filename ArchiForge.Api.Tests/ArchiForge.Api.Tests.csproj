@@ -36,7 +36,6 @@
     <ProjectReference Include="..\ArchiForge.Host.Core\ArchiForge.Host.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.Application\ArchiForge.Application.csproj" />
     <ProjectReference Include="..\ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj" />
-    <ProjectReference Include="..\ArchiForge.Data\ArchiForge.Data.csproj" />
     <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />

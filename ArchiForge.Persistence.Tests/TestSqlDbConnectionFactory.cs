@@ -1,6 +1,6 @@
 using System.Data;
 
-using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 

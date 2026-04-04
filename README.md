@@ -91,7 +91,7 @@ Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pas
 ## Database Setup
 
 1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Data/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchiForge.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
@@ -306,7 +306,7 @@ To update: `dotnet tool update -g ArchiForge.Cli --add-source ./nupkg`
 | ArchiForge.Contracts | DTOs, request/response types, manifest models |
 | ArchiForge.Coordinator | Run creation, task generation |
 | ArchiForge.DecisionEngine | Merges agent results into manifests |
-| ArchiForge.Data | Repositories, SQL persistence |
+| ArchiForge.Persistence (`Data.*` sub-namespaces) | Workflow Dapper repos, DbUp migrations, `IDbConnectionFactory`, consolidated `Scripts/ArchiForge.sql` |
 | ArchiForge.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
 
 ## Architecture docs (internal)

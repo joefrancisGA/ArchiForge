@@ -1,6 +1,6 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 
 namespace ArchiForge.AgentRuntime;
 

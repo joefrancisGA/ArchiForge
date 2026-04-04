@@ -2,7 +2,7 @@ using System.Data.Common;
 
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Health;
-using ArchiForge.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Infrastructure;
 
 using FluentAssertions;
 

@@ -56,8 +56,8 @@ If any of steps 1–4 fail, do not push. Step 5 should pass on the PR branch bef
 
 Follow this checklist **before** opening a PR:
 
-- [ ] Created `ArchiForge.Data/Migrations/017_YourChange.sql` — idempotent DDL only.
-- [ ] Updated `ArchiForge.Data/SQL/ArchiForge.sql` with the same objects/columns.
+- [ ] Created `ArchiForge.Persistence/Migrations/017_YourChange.sql` — idempotent DDL only.
+- [ ] Updated `ArchiForge.Persistence/Scripts/ArchiForge.sql` with the same objects/columns.
 - [ ] Extended `DatabaseMigrationScriptTests` if new ordering rules apply.
 - [ ] Updated `docs/SQL_SCRIPTS.md` migration catalog (§4.2) with the new entry.
 - [ ] Updated `docs/DATA_MODEL.md` if the conceptual data model changed.

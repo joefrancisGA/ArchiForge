@@ -28,7 +28,7 @@ A serialized point-in-time capture of structured context (infrastructure declara
 
 ## Decision trace
 
-A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchiForge.Data`**) and authority-layer (`IDecisionTraceRepository` in **`ArchiForge.Decisioning`**). See **ADR 0010** (`docs/adr/0010-dual-manifest-trace-repository-contracts.md`).
+A structured log of every decisioning step during a run: which rules fired, which findings applied, what the outcome was. Persisted in two flavors: coordinator-layer (`IDecisionTraceRepository` in **`ArchiForge.Persistence.Data.*`**) and authority-layer (`IDecisionTraceRepository` in **`ArchiForge.Decisioning`**). See **ADR 0010** (`docs/adr/0010-dual-manifest-trace-repository-contracts.md`).
 
 ## Effective governance
 

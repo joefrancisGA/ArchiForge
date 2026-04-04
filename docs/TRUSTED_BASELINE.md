@@ -10,8 +10,8 @@ This document defines what the repo treats as **intentionally complete and demo-
 
 ## What is trusted (Category A)
 
-- **Startup:** `Program.cs` — config load, optional `ISchemaBootstrapper` when `ArchiForge:StorageProvider` = `Sql`, **DbUp** over embedded `ArchiForge.Data/Migrations/*.sql`, optional demo seed, then the HTTP pipeline.
-- **DbUp:** `ArchiForge.Data/Infrastructure/DatabaseMigrator.cs` — applies embedded **`ArchiForge.Data/Migrations/*.sql`** when `ConnectionStrings:ArchiForge` is set, with deterministic `NNN_Name.sql` ordering.
+- **Startup:** `Program.cs` — config load, optional `ISchemaBootstrapper` when `ArchiForge:StorageProvider` = `Sql`, **DbUp** over embedded `ArchiForge.Persistence/Migrations/*.sql`, optional demo seed, then the HTTP pipeline.
+- **DbUp:** `ArchiForge.Persistence/Data/Infrastructure/DatabaseMigrator.cs` — applies embedded **`ArchiForge.Persistence/Migrations/*.sql`** when `ConnectionStrings:ArchiForge` is set, with deterministic `NNN_Name.sql` ordering.
 - **Canonical run detail:** `IRunDetailQueryService` / `RunDetailQueryService` — single aggregate for run, tasks, results, manifest, traces.
 - **Compare (trusted):** Manifest compare by version (`ManifestsController`), agent result compare between runs (`RunComparisonController` + `IAgentResultDiffService`).
 - **Governance workflow (trusted for demo):** Tables from `017_GovernanceWorkflow.sql`; seed creates approval, promotion, environment activations used by **governance preview** (`IGovernancePreviewService`).

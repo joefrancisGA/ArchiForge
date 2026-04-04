@@ -19,6 +19,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.Resilience" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="dbup-sqlserver" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,10 +35,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\ArchiForge.Data\SQL\ArchiForge.sql">
-      <Link>Scripts\ArchiForge.sql</Link>
+    <None Include="Scripts\ArchiForge.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <!-- DbUp: DatabaseMigrator includes only resources whose name contains ".Migrations." (see DatabaseMigrator.cs). -->
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\*.sql" />
   </ItemGroup>
 
   <ItemGroup>

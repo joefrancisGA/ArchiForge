@@ -25,7 +25,7 @@ alwaysApply: false
 
 ## Data vs persistence
 
-- **`ArchiForge.Data`**: Dapper repositories against SQL, connection factories, migrations scripts consumption.
+- **`ArchiForge.Persistence.Data.*`**: Dapper repositories against SQL, connection factories, migrations scripts consumption.
 - **`ArchiForge.Persistence`**: Domain-oriented persistence ports (`IRunRepository`, UoW, orchestration, caching decorators, archival).
 
 ## Host roles

@@ -15,7 +15,7 @@
 | `ServiceCollectionExtensions.DataHealthAndJobs.cs` | In-memory `IDbConnectionFactory`, health checks, background jobs |
 | `ServiceCollectionExtensions.ApplicationPipeline.cs` | Run export, analysis, replay/drift, **core run pipeline** (`IArchitectureRunService`, …), context ingestion + knowledge graph |
 | `ServiceCollectionExtensions.Decisioning.cs` | Finding engines, decision engine, manifest builders/validators |
-| `ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` | Coordinator, decision engine services, Data-layer repos for runs/tasks/manifests, artifact synthesis |
+| `ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` | Coordinator, decision engine services, **`ArchiForge.Persistence.Data.Repositories`** for runs/tasks/manifests, artifact synthesis |
 | `ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` | Agent execution (Simulator vs Real), governance repos, retrieval + embeddings |
 
 ---
@@ -37,7 +37,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 11. **`RegisterRunReplayManifestAndDiffs`** — `IArchitectureRunService`, replay, diffs, exports, `IActorContext`, audit
 12. **`RegisterContextIngestionAndKnowledgeGraph`** — connectors, parsers, `IContextIngestionService`, graph builder/service
 13. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
-14. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated Data repos by **`StorageProvider`**
+14. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchiForge.Persistence.Data.Repositories`) by **`StorageProvider`**
 15. **`RegisterArtifactSynthesis`**
 16. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
 17. **`RegisterGovernance`** → **`ArchiForge:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)

@@ -1,7 +1,7 @@
 using ArchiForge.Application.Jobs;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Data.Infrastructure;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Health;
 using ArchiForge.Host.Core.Hosting;

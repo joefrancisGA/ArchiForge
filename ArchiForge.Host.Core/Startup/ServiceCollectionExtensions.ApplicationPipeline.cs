@@ -18,7 +18,7 @@ using ArchiForge.ContextIngestion.Infrastructure;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Parsing;
 using ArchiForge.ContextIngestion.Summaries;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Services;
 using ArchiForge.KnowledgeGraph.Inference;

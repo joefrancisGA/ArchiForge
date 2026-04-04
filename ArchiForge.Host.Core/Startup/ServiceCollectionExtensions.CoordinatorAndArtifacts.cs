@@ -11,7 +11,7 @@ using ArchiForge.ArtifactSynthesis.Renderers;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Core.Ask;
-using ArchiForge.Data.Repositories;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using ArchiForge.Decisioning.Advisory.Analysis;
