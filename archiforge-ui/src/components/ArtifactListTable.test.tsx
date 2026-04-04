@@ -35,7 +35,7 @@ describe("ArtifactListTable", () => {
 
     const links = screen.getAllByRole("link", { name: "Download" });
     expect(links).toHaveLength(2);
-    expect(links[0].getAttribute("href")).toContain("/api/proxy/api/artifacts/manifests/manifest-1/artifact/");
+    expect(links[0].getAttribute("href")).toContain("/api/proxy/v1/artifacts/manifests/manifest-1/artifact/");
   });
 
   it("renders headers with zero data rows when artifact list is empty", () => {
