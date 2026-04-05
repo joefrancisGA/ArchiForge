@@ -74,13 +74,32 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   certificate_name_check_enabled = true
 }
 
+resource "azurerm_cdn_frontdoor_origin" "secondary" {
+  count = local.secondary_origin_enabled ? 1 : 0
+
+  name                          = "${var.front_door_profile_name}-origin-secondary"
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main[0].id
+
+  enabled                        = true
+  host_name                      = trimspace(var.secondary_backend_hostname)
+  http_port                      = 80
+  https_port                     = 443
+  origin_host_header             = local.secondary_origin_header
+  priority                       = 2
+  weight                         = 500
+  certificate_name_check_enabled = true
+}
+
 resource "azurerm_cdn_frontdoor_route" "main" {
   count = local.fd_enabled ? 1 : 0
 
   name                          = "${var.front_door_profile_name}-route"
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.main[0].id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main[0].id
-  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.main[0].id]
+  cdn_frontdoor_origin_ids = local.secondary_origin_enabled ? [
+    azurerm_cdn_frontdoor_origin.main[0].id,
+    azurerm_cdn_frontdoor_origin.secondary[0].id,
+  ] : [azurerm_cdn_frontdoor_origin.main[0].id]
 
   patterns_to_match   = var.route_patterns
   supported_protocols = ["Http", "Https"]

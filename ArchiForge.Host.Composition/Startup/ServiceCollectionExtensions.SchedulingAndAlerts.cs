@@ -13,6 +13,9 @@ using ArchiForge.Decisioning.Governance.Resolution;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosted;
 using ArchiForge.Host.Core.Hosting;
+using ArchiForge.Core.Integration;
+
+using ArchiForge.Host.Core.Integration;
 using ArchiForge.Host.Core.Services;
 using ArchiForge.Host.Core.Services.Delivery;
 using ArchiForge.Persistence.Advisory;
@@ -22,6 +25,7 @@ using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Retrieval;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Host.Composition;
@@ -117,5 +121,27 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IEffectiveGovernanceLoader>(static sp =>
             new RequestScopedCachingEffectiveGovernanceLoader(sp.GetRequiredService<EffectiveGovernanceLoader>()));
         services.AddScoped<IPolicyPacksAppService, PolicyPacksAppService>();
+    }
+
+    private static void RegisterIntegrationEventPublishing(IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<IntegrationEventsOptions>(configuration.GetSection(IntegrationEventsOptions.SectionName));
+
+        services.AddSingleton<IIntegrationEventPublisher>(static sp =>
+        {
+            IntegrationEventsOptions options = sp.GetRequiredService<IOptions<IntegrationEventsOptions>>().Value;
+            string? connectionString = options.ServiceBusConnectionString?.Trim();
+            string? queueOrTopic = options.QueueOrTopicName?.Trim();
+
+            if (!string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(queueOrTopic))
+            {
+                return new AzureServiceBusIntegrationEventPublisher(
+                    connectionString,
+                    queueOrTopic,
+                    sp.GetRequiredService<ILogger<AzureServiceBusIntegrationEventPublisher>>());
+            }
+
+            return NullIntegrationEventPublisher.Instance;
+        });
     }
 }

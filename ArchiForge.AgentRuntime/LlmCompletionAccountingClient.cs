@@ -18,6 +18,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
     private readonly IScopeContextProvider _scopeProvider;
     private readonly IOptionsMonitor<LlmTokenQuotaOptions> _quotaOptions;
     private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions;
+    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions;
     private readonly ILogger<LlmCompletionAccountingClient> _logger;
 
     public LlmCompletionAccountingClient(
@@ -26,6 +27,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
         IScopeContextProvider scopeProvider,
         IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
         IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
+        IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions,
         ILogger<LlmCompletionAccountingClient> logger)
     {
         _inner = inner ?? throw new ArgumentNullException(nameof(inner));
@@ -33,6 +35,7 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
         _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
         _quotaOptions = quotaOptions ?? throw new ArgumentNullException(nameof(quotaOptions));
         _telemetryOptions = telemetryOptions ?? throw new ArgumentNullException(nameof(telemetryOptions));
+        _labelOptions = labelOptions ?? throw new ArgumentNullException(nameof(labelOptions));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -61,7 +64,15 @@ public sealed class LlmCompletionAccountingClient : IAgentCompletionClient
                 bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
                 string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
 
-                ArchiForgeInstrumentation.RecordLlmTokenUsage(promptTok, completionTok, perTenant, tenantKey);
+                LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
+
+                ArchiForgeInstrumentation.RecordLlmTokenUsage(
+                    promptTok,
+                    completionTok,
+                    perTenant,
+                    tenantKey,
+                    labels.ProviderId,
+                    labels.ModelDeploymentLabel);
             }
         }
     }

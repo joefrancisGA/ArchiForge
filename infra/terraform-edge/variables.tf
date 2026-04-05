@@ -56,3 +56,15 @@ variable "front_door_health_probe_path" {
   description = "Origin health probe path. Use /health/ready when the origin is the ArchiForge API (ASP.NET). Use / when the origin is the Next.js UI only (no readiness route)."
   default     = "/health/ready"
 }
+
+variable "secondary_backend_hostname" {
+  type        = string
+  description = "Optional passive standby origin (paired region API or APIM). Empty = single origin. Front Door sends traffic to priority 1 first; priority 2 used when primary is unhealthy."
+  default     = ""
+}
+
+variable "secondary_origin_host_header" {
+  type        = string
+  description = "Optional Host header for secondary origin; defaults to secondary_backend_hostname when empty."
+  default     = ""
+}

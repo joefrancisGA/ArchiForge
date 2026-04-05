@@ -32,6 +32,7 @@ public static partial class ServiceCollectionExtensions
         services.AddArchiForgeStorage(configuration);
         RegisterAdvisoryScheduling(services, hostingRole);
         RegisterDigestDelivery(services, configuration);
+        RegisterIntegrationEventPublishing(services, configuration);
         RegisterAlerts(services);
         RegisterDataInfrastructure(services, configuration);
         RegisterBackgroundJobs(services, configuration, hostingRole);

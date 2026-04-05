@@ -1,0 +1,24 @@
+---
+description: Standing instruction to incrementally rename ArchiForge → ArchLucid alongside every task.
+alwaysApply: true
+---
+
+# ArchLucid incremental rename
+
+The product is being renamed from **ArchiForge** to **ArchLucid**. The rename is tracked in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
+
+## What to do every session
+
+1. Open `docs/ARCHLUCID_RENAME_CHECKLIST.md` and find the **next unchecked batch**.
+2. Complete that batch alongside whatever else the user asked for.
+3. Check off the completed items in the checklist and note the date.
+4. Keep the build green — every commit must compile and pass CI.
+
+## Guardrails
+
+- **One batch per session** unless the user explicitly asks for more.
+- **Never start Phase 5 or Phase 6** (bulk namespace rename, .sln regeneration) without asking the user first — these are large, focused changes that should not piggyback on unrelated work.
+- **Never modify historical SQL migration files** (001–028). Only update the master DDL script (`ArchiForge.sql`) and add new migrations if needed.
+- When renaming config keys (`ArchiForgeAuth`, `ArchiForge:StorageProvider`, etc.), always add a **fallback** that reads the old key so deployed environments are not broken.
+- When renaming OIDC storage keys or environment variables, add a **bridge read** (check new name, fall back to old name) and mark the old name for removal in a future batch.
+- If a batch turns out to be larger than expected, split it and update the checklist.

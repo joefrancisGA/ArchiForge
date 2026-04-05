@@ -28,6 +28,10 @@ alwaysApply: false
 - **`ArchiForge.Persistence.Data.*`**: Dapper repositories against SQL, connection factories, migrations scripts consumption.
 - **`ArchiForge.Persistence`**: Domain-oriented persistence ports (`IRunRepository`, UoW, orchestration, caching decorators, archival).
 
+## Product rename (in progress)
+
+- **Rename checklist**: `docs/ARCHLUCID_RENAME_CHECKLIST.md` — ArchiForge → ArchLucid, done incrementally per `.cursor/rules/ArchLucid-Rename.mdc`.
+
 ## Host roles
 
 - **`Hosting:Role`**: `Combined` (default dev), `Api` (HTTP only), `Worker` (background services). See `ArchiForge.Host.Core/Hosting/ArchiForgeHostingRole.cs`.

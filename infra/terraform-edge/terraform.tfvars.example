@@ -14,6 +14,9 @@ backend_hostname = "archiforge-dev-apim.azure-api.net"
 # ArchiForge API readiness (default). UI-only origin: use "/".
 # front_door_health_probe_path = "/health/ready"
 
+# Optional passive standby (paired region APIM or API hostname). Empty = single origin.
+# secondary_backend_hostname = "archiforge-dev-apim-westus2.azure-api.net"
+
 tags = {
   workload = "archiforge"
   layer    = "edge-waf"

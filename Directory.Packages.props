@@ -3,6 +3,7 @@
     <PackageVersion Include="Asp.Versioning.Mvc" Version="8.0.0" />
     <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.0.0" />
     <PackageVersion Include="Azure.AI.OpenAI" Version="2.1.0" />
+    <PackageVersion Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
     <PackageVersion Include="Azure.Identity" Version="1.17.1" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.26.0" />
     <PackageVersion Include="Azure.Storage.Queues" Version="12.24.0" />

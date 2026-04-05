@@ -10,8 +10,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "ArchiForge operator shell",
-    template: "%s · ArchiForge",
+    default: "ArchLucid operator shell",
+    template: "%s · ArchLucid",
   },
   description:
     "Operator UI for architecture runs, manifests, artifacts, graphs, compare, replay, and governance.",
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <header className="mb-6 border-b border-neutral-200 pb-4">
             <h1 className="mb-3 text-2xl font-semibold tracking-tight">
               <Button variant="ghost" className="h-auto p-0 text-2xl font-semibold" asChild>
-                <Link href="/">ArchiForge</Link>
+                <Link href="/">ArchLucid</Link>
               </Button>
             </h1>
             <ShellNav />

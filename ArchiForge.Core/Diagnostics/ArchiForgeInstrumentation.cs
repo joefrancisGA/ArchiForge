@@ -95,15 +95,47 @@ public static class ArchiForgeInstrumentation
     /// <summary>
     /// Records LLM token counters. When <paramref name="recordPerTenant"/> is true, also emits tagged series with
     /// <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
+    /// Optional <paramref name="llmProviderId"/> and <paramref name="llmDeploymentLabel"/> add low-cardinality series for FinOps dashboards.
     /// </summary>
-    public static void RecordLlmTokenUsage(long promptTokens, long completionTokens, bool recordPerTenant, string? tenantIdNormalized)
+    public static void RecordLlmTokenUsage(
+        long promptTokens,
+        long completionTokens,
+        bool recordPerTenant,
+        string? tenantIdNormalized,
+        string? llmProviderId = null,
+        string? llmDeploymentLabel = null)
     {
-        if (promptTokens > 0)
+        bool hasTags = (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+                       || !string.IsNullOrEmpty(llmProviderId)
+                       || !string.IsNullOrEmpty(llmDeploymentLabel);
+
+        TagList BuildTags()
         {
+            TagList tags = new TagList();
+
             if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
             {
-                TagList tenantTags = new TagList { { "tenant_id", tenantIdNormalized } };
-                LlmPromptTokensTotal.Add(promptTokens, tenantTags);
+                tags.Add("tenant_id", tenantIdNormalized);
+            }
+
+            if (!string.IsNullOrEmpty(llmProviderId))
+            {
+                tags.Add("llm_provider", llmProviderId);
+            }
+
+            if (!string.IsNullOrEmpty(llmDeploymentLabel))
+            {
+                tags.Add("llm_deployment", llmDeploymentLabel);
+            }
+
+            return tags;
+        }
+
+        if (promptTokens > 0)
+        {
+            if (hasTags)
+            {
+                LlmPromptTokensTotal.Add(promptTokens, BuildTags());
             }
             else
             {
@@ -113,10 +145,9 @@ public static class ArchiForgeInstrumentation
 
         if (completionTokens > 0)
         {
-            if (recordPerTenant && !string.IsNullOrEmpty(tenantIdNormalized))
+            if (hasTags)
             {
-                TagList tenantTags = new TagList { { "tenant_id", tenantIdNormalized } };
-                LlmCompletionTokensTotal.Add(completionTokens, tenantTags);
+                LlmCompletionTokensTotal.Add(completionTokens, BuildTags());
             }
             else
             {

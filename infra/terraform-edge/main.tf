@@ -24,4 +24,10 @@ locals {
   ) : ""
 
   origin_header = trimspace(var.origin_host_header) != "" ? trimspace(var.origin_host_header) : trimspace(var.backend_hostname)
+
+  secondary_origin_enabled = local.fd_enabled && trimspace(var.secondary_backend_hostname) != ""
+
+  secondary_origin_header = local.secondary_origin_enabled ? (
+    trimspace(var.secondary_origin_host_header) != "" ? trimspace(var.secondary_origin_host_header) : trimspace(var.secondary_backend_hostname)
+  ) : ""
 }

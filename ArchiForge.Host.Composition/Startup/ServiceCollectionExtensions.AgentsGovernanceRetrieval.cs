@@ -34,6 +34,12 @@ public static partial class ServiceCollectionExtensions
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
 
         string? agentMode = configuration["AgentExecution:Mode"];
+        bool useAzureOpenAi = !string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase)
+                              && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:Endpoint"])
+                              && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:ApiKey"])
+                              && !string.IsNullOrWhiteSpace(configuration["AzureOpenAI:DeploymentName"]);
+
+        ConfigureLlmTelemetryLabels(services, configuration, agentMode, useAzureOpenAi);
 
         if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
         {
@@ -49,13 +55,6 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentHandler, ComplianceAgentHandler>();
             services.AddScoped<IAgentHandler, CriticAgentHandler>();
             services.AddScoped<IAgentResultParser, AgentResultParser>();
-
-            string? azureOpenAiEndpoint = configuration["AzureOpenAI:Endpoint"];
-            string? azureOpenAiKey = configuration["AzureOpenAI:ApiKey"];
-            string? azureOpenAiDeployment = configuration["AzureOpenAI:DeploymentName"];
-            bool useAzureOpenAi = !string.IsNullOrWhiteSpace(azureOpenAiEndpoint)
-                                  && !string.IsNullOrWhiteSpace(azureOpenAiKey)
-                                  && !string.IsNullOrWhiteSpace(azureOpenAiDeployment);
 
             if (useAzureOpenAi)
             {
@@ -92,6 +91,8 @@ public static partial class ServiceCollectionExtensions
                     IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
                     IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
                         sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+                    IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
+                        sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
                     ILogger<LlmCompletionAccountingClient> accountingLogger =
                         sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
@@ -101,6 +102,7 @@ public static partial class ServiceCollectionExtensions
                         scopeProvider,
                         quotaOpts,
                         telemetryOpts,
+                        labelTelemetryOpts,
                         accountingLogger);
 
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
@@ -139,6 +141,41 @@ public static partial class ServiceCollectionExtensions
                 RegisterFakeAgentCompletionClient(services);
             }
         }
+
+        services.AddScoped<ILlmCompletionProvider>(sp =>
+        {
+            IAgentCompletionClient inner = sp.GetRequiredService<IAgentCompletionClient>();
+            IOptionsMonitor<LlmTelemetryLabelOptions> labelOpts = sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+            LlmTelemetryLabelOptions labels = labelOpts.CurrentValue;
+
+            return new DelegatingLlmCompletionProvider(inner, labels.ProviderId, labels.ModelDeploymentLabel);
+        });
+    }
+
+    private static void ConfigureLlmTelemetryLabels(
+        IServiceCollection services,
+        IConfiguration configuration,
+        string? agentMode,
+        bool useAzureOpenAi)
+    {
+        services.Configure<LlmTelemetryLabelOptions>(options =>
+        {
+            if (useAzureOpenAi)
+            {
+                options.ProviderId = "azure-openai";
+                options.ModelDeploymentLabel = configuration["AzureOpenAI:DeploymentName"]?.Trim() ?? "unknown";
+            }
+            else if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ProviderId = "simulator";
+                options.ModelDeploymentLabel = "deterministic";
+            }
+            else
+            {
+                options.ProviderId = "fake";
+                options.ModelDeploymentLabel = "fake";
+            }
+        });
     }
 
     /// <summary>

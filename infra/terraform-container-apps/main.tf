@@ -59,6 +59,7 @@ resource "azurerm_log_analytics_workspace" "container_apps" {
   resource_group_name = local.resource_group_name
   sku                 = "PerGB2018"
   retention_in_days   = 30
+  daily_quota_gb      = var.log_analytics_daily_quota_gb > 0 ? var.log_analytics_daily_quota_gb : null
   tags                = var.tags
 }
 

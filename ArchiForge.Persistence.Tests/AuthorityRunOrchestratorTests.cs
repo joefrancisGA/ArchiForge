@@ -1,6 +1,7 @@
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Authority;
+using ArchiForge.Core.Integration;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Manifest.Sections;
 using ArchiForge.Decisioning.Models;
@@ -124,6 +125,11 @@ public sealed class AuthorityRunOrchestratorTests
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        integrationEvents
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
             scopeProvider.Object,
@@ -133,6 +139,7 @@ public sealed class AuthorityRunOrchestratorTests
             retrievalOutbox.Object,
             workRepo.Object,
             modeResolver.Object,
+            integrationEvents.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new()
@@ -205,6 +212,11 @@ public sealed class AuthorityRunOrchestratorTests
 
         Mock<IAuditService> audit = new();
 
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        integrationEvents
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
             scopeProvider.Object,
@@ -214,6 +226,7 @@ public sealed class AuthorityRunOrchestratorTests
             retrievalOutbox.Object,
             workRepo.Object,
             modeResolver.Object,
+            integrationEvents.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new() { ProjectId = "q", Description = "d" };
@@ -281,6 +294,11 @@ public sealed class AuthorityRunOrchestratorTests
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        integrationEvents
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         AuthorityRunOrchestrator sut = new(
             uowFactory.Object,
             scopeProvider.Object,
@@ -290,6 +308,7 @@ public sealed class AuthorityRunOrchestratorTests
             retrievalOutbox.Object,
             workRepo.Object,
             modeResolver.Object,
+            integrationEvents.Object,
             NullLogger<AuthorityRunOrchestrator>.Instance);
 
         ContextIngestionRequest request = new() { ProjectId = "proj-fail" };

@@ -46,6 +46,12 @@ variable "log_analytics_workspace_name" {
   default     = "law-archiforge-ca"
 }
 
+variable "log_analytics_daily_quota_gb" {
+  type        = number
+  description = "Daily cap on Log Analytics ingestion (GB). Use 0 to omit (Azure default / no Terraform-enforced cap). Set 1–10 for FinOps guardrails in shared environments."
+  default     = 0
+}
+
 variable "container_app_environment_name" {
   type        = string
   description = "Container Apps managed environment name."

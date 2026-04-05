@@ -1,7 +1,13 @@
-# Continuous deployment (manual + environment gates).
-# Wire repository secrets and replace the placeholder steps with your registry / Terraform / Container Apps targets.
+# Continuous deployment: Azure OIDC login, push API/UI images to ACR, optional Terraform plan/apply, optional NuGet client push.
 #
-# Required GitHub Environments (Settings → Environments): staging, production — add protection rules and secrets per env.
+# Per GitHub Environment (staging / production), configure:
+#   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
+#   ACR_LOGIN_SERVER (e.g. myregistry.azurecr.io) — optional; skips image push when unset
+#   ACR_NAME — optional explicit registry name for `az acr login --name`
+#   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps
+#   NUGET_API_KEY — optional; pushes ArchiForge.Api.Client when set
+#
+# Container Apps image update: point your stack at ${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG} (and archiforge-ui) or run Terraform apply with updated variables.
 name: CD
 
 on:
@@ -14,6 +20,15 @@ on:
         options:
           - staging
           - production
+      run_terraform_apply:
+        description: "Run terraform apply after plan (requires TF_WORKING_DIRECTORY and configured backend)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
 
 concurrency:
   group: archiforge-cd-${{ github.event.inputs.target }}
@@ -24,20 +39,86 @@ jobs:
     name: Deploy (${{ github.event.inputs.target }})
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target }}
+    env:
+      TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Validate CD wiring (placeholder)
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set image tag
         run: |
-          echo "CD scaffold: set environment-scoped secrets (e.g. AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID,"
-          echo "ACR_LOGIN_SERVER, TF_STATE_* ) and replace this step with:"
-          echo "  - azure/login + docker build/push for ArchiForge.Api and archiforge-ui images"
-          echo "  - terraform apply (or az containerapp update) using infra/terraform-* stacks"
-          echo "See docs/DEPLOYMENT_TERRAFORM.md and infra/README.md."
+          TAG="${{ vars.IMAGE_TAG }}"
+          if [ -z "$TAG" ]; then TAG="${{ github.sha }}"; fi
+          echo "IMAGE_TAG=$TAG" >> "$GITHUB_ENV"
 
-      - name: Build API image (smoke — does not publish)
-        run: docker build -f ArchiForge.Api/Dockerfile -t archiforge-api:cd-smoke .
+      - name: Build and push container images
+        env:
+          ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+        run: |
+          if [ -z "$ACR_LOGIN_SERVER" ]; then
+            echo "ACR_LOGIN_SERVER not set — skipping image push."
+            exit 0
+          fi
+          REG_NAME="${ACR_NAME:-${ACR_LOGIN_SERVER%%.*}}"
+          az acr login --name "$REG_NAME"
+          docker build -f ArchiForge.Api/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}" .
+          docker push "${ACR_LOGIN_SERVER}/archiforge-api:${IMAGE_TAG}"
+          docker build -f archiforge-ui/Dockerfile -t "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}" ./archiforge-ui
+          docker push "${ACR_LOGIN_SERVER}/archiforge-ui:${IMAGE_TAG}"
 
-      - name: Build UI image (smoke — does not publish)
-        run: docker build -f archiforge-ui/Dockerfile -t archiforge-ui:cd-smoke ./archiforge-ui
+      - name: Setup Terraform
+        if: env.TF_DIR != ''
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform plan
+        if: env.TF_DIR != ''
+        run: |
+          cd "$TF_DIR"
+          terraform init -input=false
+          terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply
+        if: env.TF_DIR != '' && inputs.run_terraform_apply
+        run: |
+          cd "$TF_DIR"
+          terraform apply -input=false tfplan
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Pack and push API client (NuGet)
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "NUGET_API_KEY not set — skipping NuGet push."
+            exit 0
+          fi
+          dotnet restore
+          dotnet pack ArchiForge.Api.Client/ArchiForge.Api.Client.csproj \
+            --no-restore -c Release -o "${RUNNER_TEMP}/nuget" \
+            /p:ArchiForgeApiClientPackageVersion=1.0.${{ github.run_number }}
+          dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+      - name: CD summary
+        if: always()
+        run: |
+          echo "## CD summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Target: ${{ github.event.inputs.target }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Image tag: ${IMAGE_TAG}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Terraform apply: ${{ github.event.inputs.run_terraform_apply }}" >> "$GITHUB_STEP_SUMMARY"

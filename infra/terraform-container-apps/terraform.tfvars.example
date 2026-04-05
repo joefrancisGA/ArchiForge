@@ -15,6 +15,9 @@ ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:2026.04.1"
 # Optional: use a different image for the worker (default: same as api_container_image).
 # worker_container_image = "<your-acr>.azurecr.io/archiforge-worker:2026.04.1"
 
+# Optional: cap Log Analytics ingestion (GB/day) for FinOps (0 = omit / no Terraform cap).
+# log_analytics_daily_quota_gb = 5
+
 # Replica bounds (HTTP concurrent-request scale rules apply between min and max).
 # Default module value is 2 (staging/production). Use 1 only for pilots where duplicate background jobs are OK to avoid.
 api_min_replicas = 2

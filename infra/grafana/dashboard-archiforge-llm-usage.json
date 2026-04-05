@@ -1,0 +1,70 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Cumulative LLM prompt (input) tokens from ArchiForgeInstrumentation; labels llm_provider / llm_deployment when set.",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (llm_provider, llm_deployment) (rate(archiforge_llm_prompt_tokens_total[5m]))",
+          "legendFormat": "{{llm_provider}} / {{llm_deployment}}",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM prompt tokens / s (by provider)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Cumulative LLM completion (output) tokens.",
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "options": { "legend": { "displayMode": "table", "placement": "right" }, "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "expr": "sum by (llm_provider, llm_deployment) (rate(archiforge_llm_completion_tokens_total[5m]))",
+          "legendFormat": "{{llm_provider}} / {{llm_deployment}}",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM completion tokens / s (by provider)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["archiforge", "llm", "finops"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "Prometheus", "value": "prometheus" },
+        "hide": 0,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "ArchiForge / ArchLucid — LLM usage",
+  "uid": "archiforge-llm-usage",
+  "version": 1,
+  "weekStart": ""
+}

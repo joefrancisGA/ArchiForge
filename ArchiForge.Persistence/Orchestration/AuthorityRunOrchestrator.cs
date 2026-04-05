@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Audit;
+using ArchiForge.Core.Integration;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Core.Authority;
 using ArchiForge.Core.Diagnostics;
@@ -30,6 +31,7 @@ public sealed class AuthorityRunOrchestrator(
     IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
     IAuthorityPipelineWorkRepository authorityPipelineWorkRepository,
     IAsyncAuthorityPipelineModeResolver asyncAuthorityPipelineModeResolver,
+    IIntegrationEventPublisher integrationEventPublisher,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     /// <inheritdoc />
@@ -276,7 +278,41 @@ public sealed class AuthorityRunOrchestrator(
 
         ArchiForgeInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
+        await TryPublishAuthorityRunCompletedAsync(run, manifest.ManifestId, scope, ct);
+
         return run;
+    }
+
+    private async Task TryPublishAuthorityRunCompletedAsync(
+        RunRecord run,
+        Guid manifestId,
+        ScopeContext scope,
+        CancellationToken ct)
+    {
+        try
+        {
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(
+                new
+                {
+                    runId = run.RunId,
+                    manifestId,
+                    tenantId = scope.TenantId,
+                    workspaceId = scope.WorkspaceId,
+                    projectId = scope.ProjectId,
+                });
+
+            await integrationEventPublisher.PublishAsync("com.archiforge.authority.run.completed", json, ct);
+        }
+        catch (Exception ex) when (!ct.IsCancellationRequested)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    ex,
+                    "Integration event publish failed after authority run completed. RunId={RunId}",
+                    run.RunId);
+            }
+        }
     }
 
     private async Task SaveRunAsync(RunRecord run, IArchiForgeUnitOfWork uow, CancellationToken ct)
