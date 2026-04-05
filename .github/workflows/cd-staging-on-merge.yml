@@ -87,6 +87,8 @@ jobs:
           file: ArchiForge.Api/Dockerfile
           tags: ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-api:${{ env.IMAGE_TAG }}
           push: true
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=api-docker-smoke
           cache-to: type=gha,scope=api-docker-smoke,mode=max
 
@@ -94,10 +96,11 @@ jobs:
         if: steps.acr.outputs.configured == 'true'
         uses: docker/build-push-action@v6
         with:
-          context: archiforge-ui
-          file: archiforge-ui/Dockerfile
+          context: ./archiforge-ui
           tags: ${{ secrets.ACR_LOGIN_SERVER }}/archiforge-ui:${{ env.IMAGE_TAG }}
           push: true
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=ui-docker-smoke
           cache-to: type=gha,scope=ui-docker-smoke,mode=max
 
