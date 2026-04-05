@@ -1,7 +1,6 @@
-using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
+using ArchiForge.Persistence.Data.Repositories;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Host.Core.Hosted;

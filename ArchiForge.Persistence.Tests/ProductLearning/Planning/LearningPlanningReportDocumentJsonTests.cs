@@ -93,7 +93,7 @@ public sealed class LearningPlanningReportDocumentJsonTests
         LearningPlanningReportDocument? back = JsonSerializer.Deserialize<LearningPlanningReportDocument>(json, Options);
 
         Assert.NotNull(back);
-        Assert.Equal(original.Summary.TotalLinkedSignalsAcrossPlans, back!.Summary.TotalLinkedSignalsAcrossPlans);
+        Assert.Equal(original.Summary.TotalLinkedSignalsAcrossPlans, back.Summary.TotalLinkedSignalsAcrossPlans);
         Assert.Single(back.Plans);
         Assert.Equal(original.Plans[0].Evidence.LinkedSignalCount, back.Plans[0].Evidence.LinkedSignalCount);
     }

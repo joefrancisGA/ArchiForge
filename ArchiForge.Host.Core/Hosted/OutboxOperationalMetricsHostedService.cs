@@ -1,10 +1,6 @@
 using ArchiForge.Core.Diagnostics;
 using ArchiForge.Persistence.Diagnostics;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 namespace ArchiForge.Host.Core.Hosted;
 
 /// <summary>

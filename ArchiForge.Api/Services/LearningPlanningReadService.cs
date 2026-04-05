@@ -3,7 +3,7 @@ using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 using ArchiForge.Persistence.ProductLearning.Planning;
 
-namespace ArchiForge.Api.Services.Learning;
+namespace ArchiForge.Api.Services;
 
 public sealed class LearningPlanningReadService(IProductLearningPlanningRepository planningRepository)
     : ILearningPlanningReadService

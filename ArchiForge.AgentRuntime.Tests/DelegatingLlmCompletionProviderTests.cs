@@ -1,7 +1,5 @@
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchiForge.AgentRuntime.Tests;
 
 public sealed class DelegatingLlmCompletionProviderTests

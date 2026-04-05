@@ -1,6 +1,5 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
 
 namespace ArchiForge.Coordinator.Services;

@@ -19,7 +19,7 @@ public sealed class BackgroundJobWorkUnitJsonTests
         BackgroundJobWorkUnit? restored = BackgroundJobWorkUnitJson.Deserialize(json);
 
         restored.Should().BeOfType<AnalysisReportDocxWorkUnit>();
-        AnalysisReportDocxWorkUnit typed = (AnalysisReportDocxWorkUnit)restored!;
+        AnalysisReportDocxWorkUnit typed = (AnalysisReportDocxWorkUnit)restored;
         typed.Payload.RunId.Should().Be("run-1");
         typed.Payload.IncludeDiagram.Should().BeFalse();
         typed.FileName.Should().Be("report.docx");
@@ -38,7 +38,7 @@ public sealed class BackgroundJobWorkUnitJsonTests
         BackgroundJobWorkUnit? restored = BackgroundJobWorkUnitJson.Deserialize(json);
 
         restored.Should().BeOfType<ConsultingDocxWorkUnit>();
-        ConsultingDocxWorkUnit typed = (ConsultingDocxWorkUnit)restored!;
+        ConsultingDocxWorkUnit typed = (ConsultingDocxWorkUnit)restored;
         typed.Payload.RunId.Should().Be("run-2");
         typed.Payload.TemplateProfile.Should().Be("exec");
     }

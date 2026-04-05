@@ -1,4 +1,3 @@
-using ArchiForge.Api.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Agents;
@@ -275,7 +274,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync([..existingResults, result]);
+            .ReturnsAsync([.. existingResults, result]);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -311,7 +310,7 @@ public sealed class ArchitectureApplicationServiceTests
             .ReturnsAsync(DetailFor(run, tasks, existingResults));
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync([..existingResults, result]);
+            .ReturnsAsync([.. existingResults, result]);
         _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
@@ -452,7 +451,12 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task GetManifestAsync_WhenVersionExists_ReturnsManifest()
     {
-        GoldenManifest manifest = new() { RunId = "run-1", SystemName = "TestSystem", Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
+        GoldenManifest manifest = new()
+        {
+            RunId = "run-1",
+            SystemName = "TestSystem",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+        };
         _manifestRepository.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
 
         GoldenManifest? result = await _sut.GetManifestAsync("v1");
@@ -475,7 +479,10 @@ public sealed class ArchitectureApplicationServiceTests
     public async Task GetManifestAsync_PassesCancellationTokenToRepository()
     {
         CancellationTokenSource cts = new();
-        GoldenManifest manifest = new() { Metadata = new ManifestMetadata { ManifestVersion = "v1" } };
+        GoldenManifest manifest = new()
+        {
+            Metadata = new ManifestMetadata { ManifestVersion = "v1" }
+        };
         _manifestRepository.Setup(r => r.GetByVersionAsync("v1", cts.Token)).ReturnsAsync(manifest);
 
         await _sut.GetManifestAsync("v1", cts.Token);

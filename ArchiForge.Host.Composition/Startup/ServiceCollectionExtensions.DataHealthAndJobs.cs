@@ -1,22 +1,19 @@
 using ArchiForge.Application.Jobs;
-using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Data.Infrastructure;
-using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Health;
 using ArchiForge.Host.Core.Hosting;
 using ArchiForge.Host.Core.Jobs;
-using ArchiForge.Host.Core.Resilience;
 using ArchiForge.Persistence.BlobStore;
+using ArchiForge.Persistence.Data.Infrastructure;
+using ArchiForge.Persistence.Data.Repositories;
 
 using Azure.Core;
 using Azure.Storage.Queues;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

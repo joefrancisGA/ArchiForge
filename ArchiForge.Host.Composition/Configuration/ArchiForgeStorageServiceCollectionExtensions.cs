@@ -1,8 +1,6 @@
-using System.Linq;
 using System.Reflection;
 
-using ArchiForge.Host.Core.DataAccess;
-using ArchiForge.Host.Core.Hosted;
+using ArchiForge.AgentRuntime;
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Repositories;
 using ArchiForge.ContextIngestion.Interfaces;
@@ -10,6 +8,7 @@ using ArchiForge.ContextIngestion.Repositories;
 using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
+using ArchiForge.Core.Authority;
 using ArchiForge.Decisioning.Advisory.Delivery;
 using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Workflow;
@@ -19,6 +18,10 @@ using ArchiForge.Decisioning.Alerts.Delivery;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Repositories;
+using ArchiForge.Host.Core.Authority;
+using ArchiForge.Host.Core.Configuration;
+using ArchiForge.Host.Core.DataAccess;
+using ArchiForge.Host.Core.Hosted;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Repositories;
 using ArchiForge.Persistence.Advisory;
@@ -30,10 +33,11 @@ using ArchiForge.Persistence.Caching;
 using ArchiForge.Persistence.Compare;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Conversation;
+using ArchiForge.Persistence.Diagnostics;
 using ArchiForge.Persistence.Evolution;
 using ArchiForge.Persistence.Governance;
-using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Integration;
+using ArchiForge.Persistence.Interfaces;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Orchestration.Pipeline;
 using ArchiForge.Persistence.ProductLearning;
@@ -46,23 +50,15 @@ using ArchiForge.Persistence.Retrieval;
 using ArchiForge.Persistence.Sql;
 using ArchiForge.Persistence.Transactions;
 using ArchiForge.Provenance;
-using ArchiForge.AgentRuntime;
-using ArchiForge.Core.Authority;
-using ArchiForge.Host.Core.Authority;
 
 using Azure.Core;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Persistence.Diagnostics;
-
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Configuration;
 
 public static class ArchiForgeStorageServiceCollectionExtensions
 {

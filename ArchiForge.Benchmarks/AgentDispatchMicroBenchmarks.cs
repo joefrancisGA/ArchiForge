@@ -29,7 +29,7 @@ public class AgentDispatchMicroBenchmarks
     public AgentTask[] OrderTasksByDispatchKey()
     {
         return _tasks
-            .OrderBy(t => AgentTypeKeys.ResolveDispatchKey(t), StringComparer.OrdinalIgnoreCase)
+            .OrderBy(AgentTypeKeys.ResolveDispatchKey, StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
 }

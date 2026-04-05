@@ -1,8 +1,6 @@
 using ArchiForge.Core.Integration;
 using ArchiForge.Persistence.Integration;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -90,7 +88,11 @@ public sealed class IntegrationEventOutboxProcessorTests
                 }
             ]);
 
-        IntegrationEventsOptions opts = new() { OutboxMaxPublishAttempts = 6, OutboxMaxBackoffSeconds = 300 };
+        IntegrationEventsOptions opts = new()
+        {
+            OutboxMaxPublishAttempts = 6,
+            OutboxMaxBackoffSeconds = 300
+        };
         IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object, opts);
 
         await sut.ProcessPendingBatchAsync(CancellationToken.None);
@@ -137,7 +139,11 @@ public sealed class IntegrationEventOutboxProcessorTests
                 }
             ]);
 
-        IntegrationEventsOptions opts = new() { OutboxMaxPublishAttempts = 6, OutboxMaxBackoffSeconds = 300 };
+        IntegrationEventsOptions opts = new()
+        {
+            OutboxMaxPublishAttempts = 6,
+            OutboxMaxBackoffSeconds = 300
+        };
         IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object, opts);
 
         await sut.ProcessPendingBatchAsync(CancellationToken.None);

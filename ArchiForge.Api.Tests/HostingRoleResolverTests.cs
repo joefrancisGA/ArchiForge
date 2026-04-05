@@ -25,8 +25,11 @@ public sealed class HostingRoleResolverTests
     [InlineData("bogus", ArchiForgeHostingRole.Combined)]
     public void Resolve_WhenSet_returns_expected_role(string raw, ArchiForgeHostingRole expected)
     {
-        Dictionary<string, string?> data = new() { ["Hosting:Role"] = raw };
-        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data!).Build();
+        Dictionary<string, string?> data = new()
+        {
+            ["Hosting:Role"] = raw
+        };
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
 
         HostingRoleResolver.Resolve(configuration).Should().Be(expected);
     }

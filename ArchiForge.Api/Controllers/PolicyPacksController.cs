@@ -1,10 +1,9 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Host.Core.Services;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 using ArchiForge.Decisioning.Governance.Resolution;
+using ArchiForge.Host.Core.Services;
 
 using Asp.Versioning;
 
@@ -123,11 +122,11 @@ public sealed class PolicyPacksController(
             ct);
 
         if (assignment is null)
-        
+
             return this.NotFoundProblem(
                 $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
                 ProblemTypes.PolicyPackVersionNotFound);
-        
+
 
         return Ok(assignment);
     }
@@ -145,11 +144,11 @@ public sealed class PolicyPacksController(
         bool ok = await policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
 
         if (!ok)
-        
+
             return this.NotFoundProblem(
                 $"Assignment '{assignmentId}' was not found or is already archived for this tenant.",
                 ProblemTypes.ResourceNotFound);
-        
+
 
         return NoContent();
     }
@@ -186,11 +185,11 @@ public sealed class PolicyPacksController(
             pack.TenantId != scope.TenantId ||
             pack.WorkspaceId != scope.WorkspaceId ||
             pack.ProjectId != scope.ProjectId)
-        
+
             return this.NotFoundProblem(
                 $"Policy pack '{policyPackId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
-        
+
 
         IReadOnlyList<PolicyPackVersion> versions = await versionRepository.ListByPackAsync(policyPackId, ct);
         return Ok(versions);

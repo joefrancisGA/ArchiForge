@@ -2,7 +2,6 @@ using ArchiForge.AgentRuntime;
 using ArchiForge.AgentRuntime.Explanation;
 using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
-using ArchiForge.Application.Governance;
 using ArchiForge.ArtifactSynthesis.Docx;
 using ArchiForge.ArtifactSynthesis.Generators;
 using ArchiForge.ArtifactSynthesis.Interfaces;
@@ -11,7 +10,6 @@ using ArchiForge.ArtifactSynthesis.Renderers;
 using ArchiForge.ArtifactSynthesis.Services;
 using ArchiForge.Coordinator.Services;
 using ArchiForge.Core.Ask;
-using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.DecisionEngine.Services;
 using ArchiForge.DecisionEngine.Validation;
 using ArchiForge.Decisioning.Advisory.Analysis;
@@ -21,10 +19,9 @@ using ArchiForge.Decisioning.Comparison;
 using ArchiForge.Host.Core.Ask;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Services.Ask;
+using ArchiForge.Persistence.Data.Repositories;
 
-using Microsoft.Extensions.DependencyInjection;
-
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

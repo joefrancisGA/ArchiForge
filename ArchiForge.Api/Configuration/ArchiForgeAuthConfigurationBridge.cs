@@ -1,8 +1,6 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Host.Core.Configuration;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchiForge.Api.Configuration;
 
 /// <summary>Binds merged auth options (legacy + <c>ArchLucidAuth</c> override) for API startup.</summary>

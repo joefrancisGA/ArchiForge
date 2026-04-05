@@ -29,7 +29,7 @@ public sealed class GoldenManifestPayloadBlobEnvelopeTests
         string json = original.ToJson();
         GoldenManifestPayloadBlobEnvelope? parsed = GoldenManifestPayloadBlobEnvelope.TryDeserialize(json);
         parsed.Should().NotBeNull();
-        parsed!.MetadataJson.Should().Be("""{"k":"m"}""");
+        parsed.MetadataJson.Should().Be("""{"k":"m"}""");
 
         GoldenManifestStorageRow row = new()
         {

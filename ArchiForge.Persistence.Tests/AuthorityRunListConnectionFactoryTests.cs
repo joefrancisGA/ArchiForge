@@ -3,8 +3,6 @@ using ArchiForge.Persistence.Connections;
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;
-
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;

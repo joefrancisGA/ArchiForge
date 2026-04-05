@@ -1,9 +1,7 @@
 using ArchiForge.Api.Middleware;
 using ArchiForge.Host.Core.Health;
 using ArchiForge.Host.Core.Middleware;
-using ArchiForge.Host.Core.ProblemDetails;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
@@ -68,20 +66,20 @@ internal static class PipelineExtensions
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapHealthChecks("/health/live", new HealthCheckOptions
-            {
-                Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
-            })
+        {
+            Predicate = static check => check.Tags.Contains(ReadinessTags.Live),
+        })
             .AllowAnonymous();
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
-            {
-                Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
-                ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
-            })
+        {
+            Predicate = static check => check.Tags.Contains(ReadinessTags.Ready),
+            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+        })
             .AllowAnonymous();
         app.MapHealthChecks("/health", new HealthCheckOptions
-            {
-                ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
-            })
+        {
+            ResponseWriter = DetailedHealthCheckResponseWriter.WriteAsync,
+        })
             .AllowAnonymous();
 
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
@@ -90,7 +88,7 @@ internal static class PipelineExtensions
             app.UseMiddleware<PrometheusScrapeAuthMiddleware>();
             app.UseOpenTelemetryPrometheusScrapingEndpoint();
         }
-        
+
         app.MapControllers();
         return app;
     }

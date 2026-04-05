@@ -4,7 +4,6 @@ using ArchiForge.AgentRuntime;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Core.Resilience;
-using ArchiForge.Host.Core.ProblemDetails;
 using ArchiForge.Persistence.Repositories;
 
 using Microsoft.AspNetCore.Mvc;
@@ -103,8 +102,9 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (ex is not (ArgumentException or ArgumentNullException)) return false;
-        
+        if (ex is not (ArgumentException or ArgumentNullException))
+            return false;
+
         result = CreateProblemResult(
             StatusCodes.Status400BadRequest,
             "Bad Request",
@@ -199,15 +199,16 @@ public static class ApplicationProblemMapper
             return true;
         }
 
-        if (ex is not DbException) return false;
-        
+        if (ex is not DbException)
+            return false;
+
         result = CreateProblemResult(
             StatusCodes.Status503ServiceUnavailable,
             "Database Unavailable",
             "The database is currently unreachable. The request may succeed on retry.",
             ProblemTypes.DatabaseUnavailable,
             instance);
-        
+
         return true;
     }
 

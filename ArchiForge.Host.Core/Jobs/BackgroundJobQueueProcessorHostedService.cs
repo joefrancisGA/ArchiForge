@@ -1,13 +1,10 @@
-using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Application.Jobs;
-
+using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Persistence.Data.Repositories;
 
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchiForge.Host.Core.Jobs;

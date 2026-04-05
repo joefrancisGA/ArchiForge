@@ -1,11 +1,11 @@
+using ArchiForge.Core.Audit;
+using ArchiForge.Core.Scoping;
+using ArchiForge.Host.Composition.Startup;
 using ArchiForge.Host.Core.Auth.Services;
 using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Host.Composition;
 using ArchiForge.Host.Core.Startup;
 using ArchiForge.Host.Core.Startup.Diagnostics;
 using ArchiForge.Host.Core.Startup.Validation;
-using ArchiForge.Core.Audit;
-using ArchiForge.Core.Scoping;
 
 namespace ArchiForge.Worker;
 

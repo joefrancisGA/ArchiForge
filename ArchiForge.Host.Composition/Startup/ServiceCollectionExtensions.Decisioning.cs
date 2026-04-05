@@ -9,7 +9,7 @@ using Dm = ArchiForge.Decisioning.Manifest.Builders;
 using Dr = ArchiForge.Decisioning.Rules;
 using Ds = ArchiForge.Decisioning.Services;
 
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

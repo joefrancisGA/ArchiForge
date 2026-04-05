@@ -1,5 +1,5 @@
-using ArchiForge.Host.Core.Jobs;
 using ArchiForge.Application.Jobs;
+using ArchiForge.Host.Core.Jobs;
 
 using FluentAssertions;
 
@@ -93,7 +93,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.State.Should().Be(BackgroundJobState.Failed);
         info.Error.Should().Contain("work failed");
 
         await queue.StopAsync(CancellationToken.None);
@@ -158,7 +158,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Succeeded);
+        info.State.Should().Be(BackgroundJobState.Succeeded);
         info.RetryCount.Should().Be(2, "two retries should have occurred before success");
 
         await queue.StopAsync(CancellationToken.None);
@@ -182,7 +182,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.State.Should().Be(BackgroundJobState.Failed);
         info.RetryCount.Should().Be(3, "initial attempt + 2 retries = 3 total attempts");
         info.Error.Should().Contain("Always fails");
 
@@ -207,7 +207,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
         info.Should().NotBeNull();
-        info!.State.Should().Be(BackgroundJobState.Failed);
+        info.State.Should().Be(BackgroundJobState.Failed);
         info.RetryCount.Should().Be(1, "one attempt, no retries");
 
         await queue.StopAsync(CancellationToken.None);

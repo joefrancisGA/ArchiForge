@@ -1,13 +1,10 @@
 using System.Security.Claims;
 
 using ArchiForge.Core.Scoping;
-using ArchiForge.Host.Core.Auth.Services;
 
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
-
-using Xunit;
 
 namespace ArchiForge.Api.Tests;
 
@@ -97,11 +94,11 @@ public sealed class HttpScopeContextProviderTests
         http.Request.Headers["x-tenant-id"] = claimTenant.ToString("D");
 
         using (AmbientScopeContext.Push(new ScopeContext
-               {
-                   TenantId = ambientTenant,
-                   WorkspaceId = ScopeIds.DefaultWorkspace,
-                   ProjectId = ScopeIds.DefaultProject
-               }))
+        {
+            TenantId = ambientTenant,
+            WorkspaceId = ScopeIds.DefaultWorkspace,
+            ProjectId = ScopeIds.DefaultProject
+        }))
         {
             ScopeContext scope = CreateProvider(http).GetCurrentScope();
             scope.TenantId.Should().Be(ambientTenant);

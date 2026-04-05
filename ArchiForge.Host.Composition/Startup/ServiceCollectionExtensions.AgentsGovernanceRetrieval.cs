@@ -3,26 +3,23 @@ using System.Text.Json.Serialization;
 
 using ArchiForge.AgentRuntime;
 using ArchiForge.AgentSimulator.Services;
+using ArchiForge.Application.Governance;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Core.Configuration;
 using ArchiForge.Core.Resilience;
-using ArchiForge.Application.Governance;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Host.Core.Configuration;
-using ArchiForge.Host.Core.Jobs;
 using ArchiForge.Host.Core.Resilience;
+using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Retrieval.Chunking;
 using ArchiForge.Retrieval.Embedding;
 using ArchiForge.Retrieval.Indexing;
 using ArchiForge.Retrieval.Queries;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

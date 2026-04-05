@@ -1,14 +1,13 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Host.Core.Services;
 using ArchiForge.Application.Diagrams;
 using ArchiForge.Application.Diffs;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Manifest;
+using ArchiForge.Host.Core.Services;
 using ArchiForge.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -57,7 +56,8 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         return Ok(new ManifestCompareResponse
         {
@@ -76,7 +76,8 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         string summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
 
@@ -99,7 +100,8 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         string summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
         string content = manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
@@ -123,7 +125,8 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         LoadedManifestPair loaded = await LoadAndCompareManifestPairAsync(leftVersion, rightVersion, cancellationToken);
-        if (loaded.Error is not null) return loaded.Error;
+        if (loaded.Error is not null)
+            return loaded.Error;
 
         string summary = manifestDiffSummaryFormatter.FormatMarkdown(loaded.Diff!);
         string content = manifestDiffExportService.GenerateMarkdownExport(loaded.Left!, loaded.Right!, loaded.Diff!, summary);
@@ -220,7 +223,7 @@ public sealed class ManifestsController(
             : null;
 
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
-        
+
             return Ok(new ManifestSummaryJsonResponse
             {
                 ManifestVersion = manifestVersion,
@@ -269,14 +272,14 @@ public sealed class ManifestsController(
                     }).ToList()
                     : []
             });
-        
+
 
         if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase))
-        
+
             return this.BadRequestProblem(
                 $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
                 ProblemTypes.ValidationFailed);
-        
+
 
         ManifestSummaryOptions options = new()
         {
@@ -398,12 +401,12 @@ public sealed class ManifestsController(
     {
         if (string.IsNullOrWhiteSpace(leftVersion))
             return new LoadedManifestPair { Error = this.BadRequestProblem("leftVersion is required.", ProblemTypes.ValidationFailed) };
-        
+
         if (string.IsNullOrWhiteSpace(rightVersion))
             return new LoadedManifestPair { Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed) };
 
         GoldenManifest? left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
-        
+
         if (left is null)
             return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound) };
 
@@ -421,17 +424,30 @@ public sealed class ManifestsController(
         CancellationToken cancellationToken)
     {
         GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
-        if (manifest is null) return (null, null);
+        if (manifest is null)
+            return (null, null);
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);
         return (manifest, evidence);
     }
 
     private sealed class LoadedManifestPair
     {
-        public GoldenManifest? Left { get; init; }
-        public GoldenManifest? Right { get; init; }
-        public ManifestDiffResult? Diff { get; init; }
-        public IActionResult? Error { get; init; }
+        public GoldenManifest? Left
+        {
+            get; init;
+        }
+        public GoldenManifest? Right
+        {
+            get; init;
+        }
+        public ManifestDiffResult? Diff
+        {
+            get; init;
+        }
+        public IActionResult? Error
+        {
+            get; init;
+        }
     }
 }
 

@@ -1,7 +1,6 @@
 using ArchiForge.Application;
 using ArchiForge.Application.Agents;
 using ArchiForge.Application.Analysis;
-using ArchiForge.Application.Bootstrap;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Determinism;
 using ArchiForge.Application.Diagrams;
@@ -10,30 +9,27 @@ using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Evolution;
 using ArchiForge.Application.Exports;
 using ArchiForge.Application.Summaries;
-using ArchiForge.Contracts.Evolution;
 using ArchiForge.ContextIngestion.Canonicalization;
 using ArchiForge.ContextIngestion.Connectors;
 using ArchiForge.ContextIngestion.Contracts;
 using ArchiForge.ContextIngestion.Infrastructure;
-using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Parsing;
 using ArchiForge.ContextIngestion.Summaries;
-using ArchiForge.Persistence.Data.Repositories;
+using ArchiForge.Contracts.Evolution;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Services;
 using ArchiForge.KnowledgeGraph.Inference;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Mapping;
 using ArchiForge.KnowledgeGraph.Services;
-
-using Microsoft.Extensions.DependencyInjection;
+using ArchiForge.Persistence.Data.Repositories;
 
 using ContextConnector = ArchiForge.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchiForge.ContextIngestion.Interfaces.IContextIngestionService;
 using GraphBuilder = ArchiForge.KnowledgeGraph.Interfaces.IGraphBuilder;
 using KnowledgeGraphService = ArchiForge.KnowledgeGraph.Interfaces.IKnowledgeGraphService;
 
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

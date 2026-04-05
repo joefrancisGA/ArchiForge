@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Text;
 
-using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Evolution;

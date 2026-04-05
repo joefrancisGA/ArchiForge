@@ -1,9 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 using ArchiForge.Api.Models.Evolution;
-using ArchiForge.Api.ProblemDetails;
 
 using FluentAssertions;
 
@@ -27,7 +25,7 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
             await response.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetListResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Candidates.Should().NotBeNull();
+        body.Candidates.Should().NotBeNull();
         body.Candidates.Should().BeEmpty();
     }
 
@@ -40,7 +38,7 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
@@ -53,7 +51,7 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
     [Fact]
@@ -66,7 +64,7 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
     [Fact]
@@ -79,7 +77,7 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
     [Fact]
@@ -93,7 +91,7 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
@@ -107,6 +105,6 @@ public sealed class EvolutionControllerQueryTests(ArchiForgeApiFactory factory) 
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
+        problem.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
     }
 }

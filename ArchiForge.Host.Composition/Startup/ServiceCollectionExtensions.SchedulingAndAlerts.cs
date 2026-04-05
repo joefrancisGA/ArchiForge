@@ -1,8 +1,6 @@
-using ArchiForge.Decisioning.Advisory.Analysis;
+using ArchiForge.Core.Integration;
 using ArchiForge.Decisioning.Advisory.Delivery;
-using ArchiForge.Decisioning.Advisory.Learning;
 using ArchiForge.Decisioning.Advisory.Scheduling;
-using ArchiForge.Decisioning.Advisory.Services;
 using ArchiForge.Decisioning.Alerts;
 using ArchiForge.Decisioning.Alerts.Composite;
 using ArchiForge.Decisioning.Alerts.Delivery;
@@ -13,8 +11,6 @@ using ArchiForge.Decisioning.Governance.Resolution;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosted;
 using ArchiForge.Host.Core.Hosting;
-using ArchiForge.Core.Integration;
-
 using ArchiForge.Host.Core.Integration;
 using ArchiForge.Host.Core.Services;
 using ArchiForge.Host.Core.Services.Delivery;
@@ -25,11 +21,9 @@ using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Orchestration;
 using ArchiForge.Persistence.Retrieval;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {

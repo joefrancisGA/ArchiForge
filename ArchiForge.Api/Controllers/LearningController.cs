@@ -5,7 +5,7 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Learning;
 using ArchiForge.Api.Models.Learning;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services.Learning;
+using ArchiForge.Api.Services;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 using ArchiForge.Core.Scoping;

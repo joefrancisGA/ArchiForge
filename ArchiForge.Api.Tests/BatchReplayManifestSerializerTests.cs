@@ -1,7 +1,6 @@
 using System.Text;
 
 using ArchiForge.Api.Models;
-using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Api.Services;
 
 using FluentAssertions;

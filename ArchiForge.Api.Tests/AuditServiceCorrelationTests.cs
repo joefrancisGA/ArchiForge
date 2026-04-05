@@ -1,6 +1,5 @@
 using System.Diagnostics;
 
-using ArchiForge.Api.Auth.Services;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Scoping;
@@ -85,7 +84,10 @@ public sealed class AuditServiceCorrelationTests
             .Callback<AuditEvent, CancellationToken>((e, _) => captured = e)
             .Returns(Task.CompletedTask);
 
-        DefaultHttpContext httpContext = new() { TraceIdentifier = "trace-from-kestrel" };
+        DefaultHttpContext httpContext = new()
+        {
+            TraceIdentifier = "trace-from-kestrel"
+        };
 
         Mock<IHttpContextAccessor> httpAccessor = new();
         httpAccessor.Setup(h => h.HttpContext).Returns(httpContext);

@@ -3,8 +3,6 @@ using System.Threading.Channels;
 
 using ArchiForge.Application.Jobs;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace ArchiForge.Host.Core.Jobs;
 
 public sealed class InMemoryBackgroundJobQueue(

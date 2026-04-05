@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -54,13 +53,22 @@ public sealed class CloudEventsWrappingWebhookPoster(
         public string SpecVersion { get; init; } = "1.0";
 
         [JsonPropertyName("type")]
-        public required string Type { get; init; }
+        public required string Type
+        {
+            get; init;
+        }
 
         [JsonPropertyName("source")]
-        public required string Source { get; init; }
+        public required string Source
+        {
+            get; init;
+        }
 
         [JsonPropertyName("id")]
-        public required string Id { get; init; }
+        public required string Id
+        {
+            get; init;
+        }
 
         [JsonPropertyName("time")]
         public string Time { get; init; } = "";
@@ -69,7 +77,10 @@ public sealed class CloudEventsWrappingWebhookPoster(
         public string DataContentType { get; init; } = "application/json";
 
         [JsonPropertyName("data")]
-        public required JsonElement Data { get; init; }
+        public required JsonElement Data
+        {
+            get; init;
+        }
 
         public static CloudEventV10 Create(string type, string source, object data)
         {

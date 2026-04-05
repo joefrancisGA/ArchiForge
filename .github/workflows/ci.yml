@@ -331,7 +331,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      # BuildKit GHA cache backend (docker/build-push-action cache-to type=gha)
+      # cache-from always (fork PRs may read base-branch cache). cache-to only on push to main/master
+      # — fork PR workflows get a read-only token and fail if we always pass cache-to.
       actions: write
     steps:
       - uses: actions/checkout@v5
@@ -339,25 +340,62 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build API image
+      - name: Decide whether to write BuildKit GHA cache
+        id: gha_cache_write
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && { [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ github.ref }}" = "refs/heads/master" ]; }; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build API image (read/write GHA cache)
+        if: steps.gha_cache_write.outputs.enabled == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ArchiForge.Api/Dockerfile
           tags: archiforge-api:ci
           load: true
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=api-docker-smoke
           cache-to: type=gha,scope=api-docker-smoke,mode=max
 
-      - name: Build Operator UI image
+      - name: Build API image (read-only GHA cache)
+        if: steps.gha_cache_write.outputs.enabled != 'true'
         uses: docker/build-push-action@v6
         with:
-          context: archiforge-ui
-          file: archiforge-ui/Dockerfile
+          context: .
+          file: ArchiForge.Api/Dockerfile
+          tags: archiforge-api:ci
+          load: true
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=api-docker-smoke
+
+      - name: Build Operator UI image (read/write GHA cache)
+        if: steps.gha_cache_write.outputs.enabled == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./archiforge-ui
           tags: archiforge-ui:ci
           load: true
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=ui-docker-smoke
           cache-to: type=gha,scope=ui-docker-smoke,mode=max
+
+      - name: Build Operator UI image (read-only GHA cache)
+        if: steps.gha_cache_write.outputs.enabled != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: ./archiforge-ui
+          tags: archiforge-ui:ci
+          load: true
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=ui-docker-smoke
 
       - name: Trivy scan API image (CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@v0.35.0
@@ -422,6 +460,8 @@ jobs:
         working-directory: archiforge-ui
         env:
           CI: true
+          # Next.js production build in webServer can OOM on default ubuntu-latest Node heap.
+          NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npm ci
           npx playwright install --with-deps chromium
@@ -479,6 +519,8 @@ jobs:
           file: ArchiForge.Api/Dockerfile
           tags: archiforge-api:zap
           load: true
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=api-docker-smoke
 
       - name: Run API on Docker network and ZAP baseline

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Contracts.ProductLearning;
 
 using FluentAssertions;

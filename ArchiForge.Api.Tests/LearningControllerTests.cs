@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchiForge.Api.Models.Learning;
-using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Contracts.ProductLearning;
 using ArchiForge.Contracts.ProductLearning.Planning;
 
@@ -28,7 +27,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         LearningThemesListResponse? body = await response.Content.ReadFromJsonAsync<LearningThemesListResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Themes.Should().NotBeNull();
+        body.Themes.Should().NotBeNull();
         body.Themes.Should().BeEmpty();
     }
 
@@ -41,7 +40,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
         problem.Detail.Should().Contain("maxThemes");
     }
 
@@ -55,7 +54,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         LearningPlansListResponse? body = await response.Content.ReadFromJsonAsync<LearningPlansListResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Plans.Should().NotBeNull();
+        body.Plans.Should().NotBeNull();
         body.Plans.Should().BeEmpty();
     }
 
@@ -68,7 +67,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
@@ -81,7 +80,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
+        problem.Type.Should().Be(ProblemTypes.LearningImprovementPlanNotFound);
     }
 
     [Fact]
@@ -94,7 +93,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
         LearningSummaryResponse? body = await response.Content.ReadFromJsonAsync<LearningSummaryResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.ThemeCount.Should().Be(0);
+        body.ThemeCount.Should().Be(0);
         body.PlanCount.Should().Be(0);
         body.TotalThemeEvidenceSignals.Should().Be(0);
         body.TotalLinkedSignalsAcrossPlans.Should().Be(0);
@@ -110,7 +109,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Detail.Should().Contain("maxPlans");
+        problem.Detail.Should().Contain("maxPlans");
     }
 
     [Fact]
@@ -124,7 +123,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
             await response.Content.ReadFromJsonAsync<LearningPlanningReportDocument>(JsonOptions);
 
         doc.Should().NotBeNull();
-        doc!.Summary.ThemeCount.Should().Be(0);
+        doc.Summary.ThemeCount.Should().Be(0);
         doc.Themes.Should().BeEmpty();
         doc.Plans.Should().BeEmpty();
     }
@@ -140,7 +139,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
             await response.Content.ReadFromJsonAsync<LearningPlanningReportExportResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.Format.Should().Be("markdown");
+        body.Format.Should().Be("markdown");
         body.FileName.Should().Be("learning-planning-report-59r.md");
         body.Content.Should().NotBeNullOrWhiteSpace();
         body.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries)[0].Should().StartWith("# ");
@@ -155,7 +154,7 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.ValidationFailed);
+        problem.Type.Should().Be(ProblemTypes.ValidationFailed);
     }
 
     [Fact]
@@ -209,6 +208,6 @@ public sealed class LearningControllerTests(ArchiForgeApiFactory factory) : Inte
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Detail.Should().Contain("maxReportSignalLinks");
+        problem.Detail.Should().Contain("maxReportSignalLinks");
     }
 }

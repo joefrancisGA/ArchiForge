@@ -112,29 +112,37 @@ public sealed class ShadowExecutionServiceTests
     }
 
     [Fact]
-    public async Task ArchitectureRunDetailIsolatingCloner_produces_detached_copy()
+    public Task ArchitectureRunDetailIsolatingCloner_produces_detached_copy()
     {
-        ArchitectureRunDetail source = new()
+        try
         {
-            Run = new ArchitectureRun { RunId = "x" },
-            Tasks =
-            [
-                new AgentTask
-                {
-                    RunId = "x",
-                    TaskId = "tk",
-                    AgentType = AgentType.Topology,
-                    Objective = "o",
-                },
-            ],
-        };
+            ArchitectureRunDetail source = new()
+            {
+                Run = new ArchitectureRun { RunId = "x" },
+                Tasks =
+                [
+                    new AgentTask
+                    {
+                        RunId = "x",
+                        TaskId = "tk",
+                        AgentType = AgentType.Topology,
+                        Objective = "o",
+                    },
+                ],
+            };
 
-        ArchitectureRunDetail copy = ArchitectureRunDetailIsolatingCloner.Clone(source);
+            ArchitectureRunDetail copy = ArchitectureRunDetailIsolatingCloner.Clone(source);
 
-        copy.Run.RunId.Should().Be("x");
-        copy.Tasks[0].Objective = "mutated";
+            copy.Run.RunId.Should().Be("x");
+            copy.Tasks[0].Objective = "mutated";
 
-        source.Tasks[0].Objective.Should().Be("o");
+            source.Tasks[0].Objective.Should().Be("o");
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
     }
 
     private static CandidateChangeSet MinimalCandidate()

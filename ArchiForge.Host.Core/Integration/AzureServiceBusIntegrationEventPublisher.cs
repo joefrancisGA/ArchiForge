@@ -1,13 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 using ArchiForge.Core.Integration;
 
 using Azure.Core;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
-
-using Microsoft.Extensions.Logging;
 
 namespace ArchiForge.Host.Core.Integration;
 

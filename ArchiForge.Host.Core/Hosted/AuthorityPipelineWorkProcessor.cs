@@ -9,9 +9,6 @@ using ArchiForge.Persistence.Data.Repositories;
 using ArchiForge.Persistence.Models;
 using ArchiForge.Persistence.Orchestration;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchiForge.Host.Core.Hosted;
 
 /// <inheritdoc cref="IAuthorityPipelineWorkProcessor" />

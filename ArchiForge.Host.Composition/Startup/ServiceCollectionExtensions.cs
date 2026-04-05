@@ -1,12 +1,10 @@
 using ArchiForge.Application.Bootstrap;
+using ArchiForge.Host.Composition.Configuration;
 using ArchiForge.Host.Core.Configuration;
 using ArchiForge.Host.Core.Hosting;
 using ArchiForge.Persistence.Archival;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace ArchiForge.Host.Composition;
+namespace ArchiForge.Host.Composition.Startup;
 
 /// <summary>
 /// Composition root for ArchiForge application services. Registration is split across partial files by subsystem

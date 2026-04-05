@@ -5,8 +5,6 @@ using ArchiForge.Api.Authentication;
 using ArchiForge.Api.Configuration;
 using ArchiForge.Host.Core.Configuration;
 
-using Microsoft.Extensions.Configuration;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -36,7 +34,7 @@ public static class AuthServiceCollectionExtensions
         ArchiForgeAuthOptions authOptions = ArchiForgeAuthConfigurationBridge.Resolve(configuration);
 
         if (string.Equals(authOptions.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
-        
+
             services
                 .AddAuthentication(options =>
                 {
@@ -57,9 +55,9 @@ public static class AuthServiceCollectionExtensions
                         NameClaimType = nameClaimType
                     };
                 });
-        
+
         else if (string.Equals(authOptions.Mode, "ApiKey", StringComparison.OrdinalIgnoreCase))
-        
+
             services
                 .AddAuthentication(options =>
                 {
@@ -69,9 +67,9 @@ public static class AuthServiceCollectionExtensions
                 .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
                     ApiKeySchemeName,
                     _ => { });
-        
+
         else
-        
+
             services
                 .AddAuthentication(options =>
                 {
@@ -81,7 +79,7 @@ public static class AuthServiceCollectionExtensions
                 .AddScheme<AuthenticationSchemeOptions, DevelopmentBypassAuthenticationHandler>(
                     DevelopmentBypassAuthenticationHandler.SchemeName,
                     _ => { });
-        
+
 
         services.AddScoped<IClaimsTransformation, ArchiForgeRoleClaimsTransformation>();
 

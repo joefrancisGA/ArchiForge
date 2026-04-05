@@ -1,7 +1,6 @@
 using ArchiForge.Core.Authority;
 using ArchiForge.Host.Core.Configuration;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.FeatureManagement;
 
 namespace ArchiForge.Host.Core.Authority;

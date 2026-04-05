@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Configuration;
-
 namespace ArchiForge.Host.Core.Configuration;
 
 /// <summary>

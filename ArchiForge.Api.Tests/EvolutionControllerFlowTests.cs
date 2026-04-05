@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchiForge.Api.Models.Evolution;
-using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.ProductLearning.Planning;
 using ArchiForge.Core.Scoping;
@@ -33,7 +32,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
+        problem.Type.Should().Be(ProblemTypes.EvolutionCandidateChangeSetNotFound);
     }
 
     [Fact]
@@ -50,7 +49,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
             await createResponse.Content.ReadFromJsonAsync<EvolutionCandidateChangeSetResponse>(JsonOptions);
 
         created.Should().NotBeNull();
-        created!.SourcePlanId.Should().Be(planId);
+        created.SourcePlanId.Should().Be(planId);
         created.Status.Should().Be(EvolutionCandidateChangeSetStatusValues.Draft);
         created.DerivationRuleVersion.Should().Be("60R-v1");
 
@@ -65,7 +64,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
             await shadowResponse.Content.ReadFromJsonAsync<EvolutionShadowEvaluateResponse>(JsonOptions);
 
         shadowBody.Should().NotBeNull();
-        shadowBody!.SimulationRuns.Should().BeEmpty();
+        shadowBody.SimulationRuns.Should().BeEmpty();
 
         HttpResponseMessage detailResponse =
             await Client.GetAsync($"/v1/evolution/candidates/{created.CandidateChangeSetId}");
@@ -76,7 +75,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
             await detailResponse.Content.ReadFromJsonAsync<EvolutionCandidateDetailResponse>(JsonOptions);
 
         detail.Should().NotBeNull();
-        detail!.Candidate.Status.Should().Be(EvolutionCandidateChangeSetStatusValues.Simulated);
+        detail.Candidate.Status.Should().Be(EvolutionCandidateChangeSetStatusValues.Simulated);
         detail.SimulationRuns.Should().BeEmpty();
         detail.PlanSnapshotJson.Should().NotBeNullOrWhiteSpace();
 
@@ -99,7 +98,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
         created.Should().NotBeNull();
 
         HttpResponseMessage simulateResponse = await Client.PostAsync(
-            $"/v1/evolution/simulate/{created!.CandidateChangeSetId}",
+            $"/v1/evolution/simulate/{created.CandidateChangeSetId}",
             content: null);
 
         simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -108,7 +107,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
             await simulateResponse.Content.ReadFromJsonAsync<EvolutionSimulateResponse>(JsonOptions);
 
         simBody.Should().NotBeNull();
-        simBody!.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
+        simBody.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
         simBody.SimulationRuns.Should().BeEmpty();
 
         HttpResponseMessage resultsResponse =
@@ -120,7 +119,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
             await resultsResponse.Content.ReadFromJsonAsync<EvolutionResultsResponse>(JsonOptions);
 
         resultsBody.Should().NotBeNull();
-        resultsBody!.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
+        resultsBody.Candidate.CandidateChangeSetId.Should().Be(created.CandidateChangeSetId);
         resultsBody.PlanSnapshotJson.Should().NotBeNullOrWhiteSpace();
         resultsBody.SimulationRuns.Should().BeEmpty();
     }
@@ -141,7 +140,7 @@ public sealed class EvolutionControllerFlowTests(ArchiForgeApiFactory factory) :
         created.Should().NotBeNull();
 
         HttpResponseMessage simulateResponse = await Client.PostAsync(
-            $"/v1/evolution/simulate/{created!.CandidateChangeSetId}",
+            $"/v1/evolution/simulate/{created.CandidateChangeSetId}",
             content: null);
 
         simulateResponse.StatusCode.Should().Be(HttpStatusCode.OK);

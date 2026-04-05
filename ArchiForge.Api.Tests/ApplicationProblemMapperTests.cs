@@ -2,7 +2,6 @@ using ArchiForge.AgentRuntime;
 using ArchiForge.Api.ProblemDetails;
 using ArchiForge.Application;
 using ArchiForge.Application.Analysis;
-using ArchiForge.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 
@@ -23,7 +22,11 @@ public sealed class ApplicationProblemMapperTests
     [Fact]
     public void TryMapUnhandledException_ComparisonVerificationFailed_Returns422()
     {
-        DriftAnalysisResult drift = new() { DriftDetected = true, Summary = "x" };
+        DriftAnalysisResult drift = new()
+        {
+            DriftDetected = true,
+            Summary = "x"
+        };
         ComparisonVerificationFailedException ex = new("verify", drift);
 
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);

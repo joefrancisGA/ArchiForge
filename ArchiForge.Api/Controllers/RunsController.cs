@@ -2,8 +2,6 @@ using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Mapping;
 using ArchiForge.Api.Models;
 using ArchiForge.Api.ProblemDetails;
-using ArchiForge.Api.Services;
-using ArchiForge.Host.Core.Services;
 using ArchiForge.Application;
 using ArchiForge.Application.Common;
 using ArchiForge.Application.Determinism;
@@ -13,6 +11,7 @@ using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Host.Core.Services;
 using ArchiForge.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -68,9 +67,9 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         if (request is null)
-        
+
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
-        
+
 
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
@@ -80,11 +79,11 @@ public sealed partial class RunsController(
             string trimmedKey = rawKeyHeader.ToString().Trim();
 
             if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
-            
+
                 return this.BadRequestProblem(
                     $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
                     ProblemTypes.ValidationFailed);
-            
+
         }
 
         CreateRunIdempotencyState? idempotency = TryBuildCreateRunIdempotency(request);
@@ -100,7 +99,10 @@ public sealed partial class RunsController(
             if (!result.IdempotentReplay)
                 return CreatedAtAction(
                     nameof(GetRun),
-                    new { runId = result.Run.RunId },
+                    new
+                    {
+                        runId = result.Run.RunId
+                    },
                     response);
             Response.Headers.Append("Idempotency-Replayed", "true");
 
@@ -124,9 +126,9 @@ public sealed partial class RunsController(
     {
         if (!Request.Headers.TryGetValue("Idempotency-Key", out Microsoft.Extensions.Primitives.StringValues raw) ||
             string.IsNullOrWhiteSpace(raw.ToString()))
-        
+
             return null;
-        
+
 
         string trimmed = raw.ToString().Trim();
 
@@ -398,18 +400,18 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
-        
+
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        
+
 
         IReadOnlyList<DecisionNode> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (decisions.Count == 0)
-        
+
             return this.NotFoundProblem(
                 $"No decisions found for run '{runId}'. Decisions are available after the run has been committed.",
                 ProblemTypes.ResourceNotFound);
-        
+
 
         return Ok(new DecisionNodeResponse
         {
@@ -428,15 +430,15 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
-        
+
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        
+
 
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
         if (evidence is null)
-        
+
             return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-        
+
 
         return Ok(new AgentEvidencePackageResponse
         {
@@ -465,11 +467,15 @@ public sealed partial class RunsController(
                 ProblemTypes.ValidationFailed);
 
         if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
-        
-            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        
 
-        PagingParameters paging = new() { PageNumber = pageNumber, PageSize = pageSize };
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+
+        PagingParameters paging = new()
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
         (int skip, int take) = paging.Normalize();
 
         (IReadOnlyList<AgentExecutionTrace> pagedTraces, int totalCount) = await agentExecutionTraceRepository.GetPagedByRunIdAsync(
