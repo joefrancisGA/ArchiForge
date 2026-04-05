@@ -1,4 +1,4 @@
-# Weekly mutation testing against ArchiForge.Persistence (see stryker-config.json and docs/MUTATION_TESTING_STRYKER.md).
+# Weekly mutation testing: Persistence (default stryker-config.json), Application, AgentRuntime — see docs/MUTATION_TESTING_STRYKER.md.
 name: Stryker (scheduled)
 
 on:
@@ -11,8 +11,18 @@ env:
 
 jobs:
   stryker:
-    name: "Stryker.NET — Persistence"
+    name: "Stryker.NET — ${{ matrix.label }}"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Persistence
+            config: stryker-config.json
+          - label: Application
+            config: stryker-config.application.json
+          - label: AgentRuntime
+            config: stryker-config.agentruntime.json
     steps:
       - uses: actions/checkout@v5
 
@@ -28,12 +38,11 @@ jobs:
         run: dotnet tool restore
 
       - name: Run Stryker
-        run: dotnet dotnet-stryker
-        # stryker-config.json at repo root targets Persistence + Persistence.Tests; break threshold 0 = report-only gate.
+        run: dotnet dotnet-stryker -f ${{ matrix.config }}
 
       - name: Upload Stryker report
         uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: stryker-report
+          name: stryker-report-${{ matrix.label }}
           path: StrykerOutput

@@ -235,7 +235,7 @@ jobs:
           dotnet reportgenerator \
             "-reports:${{ runner.temp }}/coverage-full/**/coverage.cobertura.xml" \
             "-targetdir:${OUT}" \
-            "-reporttypes:Html;TextSummary;MarkdownSummaryGithub" \
+            "-reporttypes:Html;TextSummary;MarkdownSummaryGithub;Cobertura" \
             -verbosity:Info
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
@@ -245,6 +245,13 @@ jobs:
         with:
           name: coverage-metrics
           path: ${{ runner.temp }}/coverage-metrics.txt
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: success()
+        with:
+          name: coverage-merged-cobertura
+          path: ${{ runner.temp }}/coverage-report-full/Cobertura.xml
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v6
@@ -293,6 +300,13 @@ jobs:
           name: coverage-metrics
           path: head-metrics
 
+      - uses: actions/download-artifact@v6
+        continue-on-error: true
+        if: steps.gate.outputs.post == 'true'
+        with:
+          name: coverage-merged-cobertura
+          path: head-cobertura
+
       - name: Download base branch coverage metrics (optional)
         continue-on-error: true
         if: steps.gate.outputs.post == 'true'
@@ -313,9 +327,18 @@ jobs:
         env:
           HEAD_FILE: head-metrics/coverage-metrics.txt
           BASE_FILE: base-metrics/coverage-metrics.txt
+          COBERTURA_FILE: head-cobertura/Cobertura.xml
+          ANNOTATIONS_FILE: head-metrics/coverage-annotations.txt
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: python3 scripts/ci/build_coverage_pr_comment.py
+        run: |
+          python3 scripts/ci/build_coverage_pr_comment.py
+          if [ -f head-metrics/coverage-annotations.txt ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              [ -z "$line" ] && continue
+              echo "::warning::$line"
+            done < head-metrics/coverage-annotations.txt
+          fi
 
       - uses: marocchino/sticky-pull-request-comment@v3
         if: steps.gate.outputs.post == 'true'

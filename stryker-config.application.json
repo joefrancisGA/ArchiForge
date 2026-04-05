@@ -1,0 +1,12 @@
+{
+  "stryker-config": {
+    "project": "ArchiForge.Application/ArchiForge.Application.csproj",
+    "test-projects": ["ArchiForge.Application.Tests/ArchiForge.Application.Tests.csproj"],
+    "reporters": ["progress", "html"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    }
+  }
+}

@@ -11,12 +11,12 @@
 
 ## Configuration
 
-The repo includes **`stryker-config.json`** at the solution root, initially scoped to:
+The repo includes **`stryker-config.json`** at the solution root for **Persistence**, plus:
 
-- **Project under test:** `ArchiForge.Persistence`
-- **Tests:** `ArchiForge.Persistence.Tests`
+- **`stryker-config.application.json`** — `ArchiForge.Application` + `ArchiForge.Application.Tests`
+- **`stryker-config.agentruntime.json`** — `ArchiForge.AgentRuntime` + `ArchiForge.AgentRuntime.Tests`
 
-This keeps first runs bounded. To expand coverage, duplicate the pattern for other project pairs (e.g. `ArchiForge.Application` once a dedicated test project exists).
+Scheduled CI runs all three targets (matrix) and uploads separate artifacts (`stryker-report-Persistence`, `…-Application`, `…-AgentRuntime`).
 
 ## Commands
 
@@ -25,6 +25,8 @@ From the repository root:
 ```bash
 dotnet tool restore
 dotnet dotnet-stryker
+dotnet dotnet-stryker -f stryker-config.application.json
+dotnet dotnet-stryker -f stryker-config.agentruntime.json
 ```
 
 ## Scheduled CI
