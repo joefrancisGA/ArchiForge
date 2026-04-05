@@ -75,77 +75,75 @@ public sealed class AuthorityPipelineWorkProcessor(
             ProjectId = entry.ProjectId,
         };
 
-        using (IDisposable _ = AmbientScopeContext.Push(jobScope))
+        using IDisposable _ = AmbientScopeContext.Push(jobScope);
+        IAuthorityRunOrchestrator orchestrator =
+            scope.ServiceProvider.GetRequiredService<IAuthorityRunOrchestrator>();
+        IArchitectureRunRepository architectureRunRepository =
+            scope.ServiceProvider.GetRequiredService<IArchitectureRunRepository>();
+        IArchitectureRequestRepository requestRepository =
+            scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();
+        IEvidenceBundleRepository evidenceBundleRepository =
+            scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
+        IAgentTaskRepository taskRepository =
+            scope.ServiceProvider.GetRequiredService<IAgentTaskRepository>();
+
+        ContextIngestionRequest request = payload.ContextIngestionRequest;
+        request.RunId = entry.RunId;
+
+        RunRecord completed =
+            await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
+
+        string runIdN = entry.RunId.ToString("N");
+        ArchitectureRun? architectureRun =
+            await architectureRunRepository.GetByIdAsync(runIdN, cancellationToken);
+
+        if (architectureRun is null)
         {
-            IAuthorityRunOrchestrator orchestrator =
-                scope.ServiceProvider.GetRequiredService<IAuthorityRunOrchestrator>();
-            IArchitectureRunRepository architectureRunRepository =
-                scope.ServiceProvider.GetRequiredService<IArchitectureRunRepository>();
-            IArchitectureRequestRepository requestRepository =
-                scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();
-            IEvidenceBundleRepository evidenceBundleRepository =
-                scope.ServiceProvider.GetRequiredService<IEvidenceBundleRepository>();
-            IAgentTaskRepository taskRepository =
-                scope.ServiceProvider.GetRequiredService<IAgentTaskRepository>();
-
-            ContextIngestionRequest request = payload.ContextIngestionRequest;
-            request.RunId = entry.RunId;
-
-            RunRecord completed =
-                await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
-
-            string runIdN = entry.RunId.ToString("N");
-            ArchitectureRun? architectureRun =
-                await architectureRunRepository.GetByIdAsync(runIdN, cancellationToken);
-
-            if (architectureRun is null)
-            {
-                _logger.LogError(
-                    "Architecture run {RunId} missing after authority completion; marking authority work processed.",
-                    runIdN);
-                await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-
-                return;
-            }
-
-            ArchitectureRequest? architectureRequest =
-                await requestRepository.GetByIdAsync(architectureRun.RequestId, cancellationToken);
-
-            EvidenceBundle? evidenceBundle =
-                await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken);
-
-            if (architectureRequest is null || evidenceBundle is null)
-            {
-                _logger.LogError(
-                    "Cannot promote deferred run {RunId}: request or evidence bundle missing.",
-                    runIdN);
-                await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
-
-                return;
-            }
-
-            List<AgentTask> starterTasks =
-                RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest);
-
-            if (architectureRun.Status == ArchitectureRunStatus.Created)
-            {
-                await architectureRunRepository.ApplyDeferredAuthoritySnapshotsAsync(
-                    runIdN,
-                    completed.ContextSnapshotId?.ToString("N"),
-                    completed.GraphSnapshotId,
-                    completed.ArtifactBundleId,
-                    cancellationToken);
-            }
-
-            ArchitectureRun? refreshed =
-                await architectureRunRepository.GetByIdAsync(runIdN, cancellationToken);
-
-            if (refreshed is not null && refreshed.TaskIds.Count == 0)
-            {
-                await taskRepository.CreateManyAsync(starterTasks, cancellationToken);
-            }
-
+            _logger.LogError(
+                "Architecture run {RunId} missing after authority completion; marking authority work processed.",
+                runIdN);
             await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
         }
+
+        ArchitectureRequest? architectureRequest =
+            await requestRepository.GetByIdAsync(architectureRun.RequestId, cancellationToken);
+
+        EvidenceBundle? evidenceBundle =
+            await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken);
+
+        if (architectureRequest is null || evidenceBundle is null)
+        {
+            _logger.LogError(
+                "Cannot promote deferred run {RunId}: request or evidence bundle missing.",
+                runIdN);
+            await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
+        }
+
+        List<AgentTask> starterTasks =
+            RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest);
+
+        if (architectureRun.Status == ArchitectureRunStatus.Created)
+        {
+            await architectureRunRepository.ApplyDeferredAuthoritySnapshotsAsync(
+                runIdN,
+                completed.ContextSnapshotId?.ToString("N"),
+                completed.GraphSnapshotId,
+                completed.ArtifactBundleId,
+                cancellationToken);
+        }
+
+        ArchitectureRun? refreshed =
+            await architectureRunRepository.GetByIdAsync(runIdN, cancellationToken);
+
+        if (refreshed is not null && refreshed.TaskIds.Count == 0)
+        {
+            await taskRepository.CreateManyAsync(starterTasks, cancellationToken);
+        }
+
+        await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
     }
 }

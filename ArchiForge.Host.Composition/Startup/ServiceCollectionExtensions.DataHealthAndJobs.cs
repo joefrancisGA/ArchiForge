@@ -71,11 +71,11 @@ public static partial class ServiceCollectionExtensions
 
         if (hostingRole == ArchiForgeHostingRole.Worker)
         {
-            if (durable)
-            {
-                RegisterDurableBackgroundJobInfrastructure(services);
-                services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
-            }
+            if (!durable)
+                return;
+
+            RegisterDurableBackgroundJobInfrastructure(services);
+            services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
 
             return;
         }

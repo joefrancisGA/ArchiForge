@@ -20,7 +20,7 @@ public sealed class AdvisoryScanHostedService(
     {
         return electionCoordinator.RunLeaderWorkAsync(
             HostElectionLeaseNames.AdvisoryScanPolling,
-            ct => PollLoopAsync(ct),
+            PollLoopAsync,
             stoppingToken);
     }
 

@@ -1,7 +1,7 @@
 using System.Data;
 
-using ArchiForge.Persistence.Data.Infrastructure;
 using ArchiForge.Persistence.Connections;
+using ArchiForge.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
 
@@ -36,11 +36,9 @@ public sealed class SqlScopedResolutionDbConnectionFactory(
     /// <inheritdoc />
     public async Task<IDbConnection> CreateOpenConnectionAsync(CancellationToken cancellationToken = default)
     {
-        SqlConnection connection;
-
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         ISqlConnectionFactory sql = scope.ServiceProvider.GetRequiredService<ISqlConnectionFactory>();
-        connection = await sql.CreateOpenConnectionAsync(cancellationToken);
+        SqlConnection connection = await sql.CreateOpenConnectionAsync(cancellationToken);
 
         return connection;
     }

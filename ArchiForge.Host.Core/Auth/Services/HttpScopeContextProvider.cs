@@ -58,7 +58,7 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
         if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
             return defaultId;
 
-        string? headerText = headerRaw.ToString();
+        string headerText = headerRaw.ToString();
 
         if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader))
             return defaultId;

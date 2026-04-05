@@ -228,22 +228,22 @@ public static partial class ServiceCollectionExtensions
 
             string cacheDeploymentLabel = config["AzureOpenAI:DeploymentName"]?.Trim() ?? "echo";
 
-            if (cacheOptions.Enabled)
-            {
-                TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
-                ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
-                ILogger<CachingAgentCompletionClient> cacheLogger =
-                    sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
-                completionPipeline = new CachingAgentCompletionClient(
-                    completionPipeline,
-                    store,
-                    cacheDeploymentLabel,
-                    enabled: true,
-                    partitionByScope: cacheOptions.PartitionByScope,
-                    absoluteExpiration: ttl,
-                    scopeProvider: scopeProvider,
-                    logger: cacheLogger);
-            }
+            if (!cacheOptions.Enabled)
+                return completionPipeline;
+
+            TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
+            ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
+            ILogger<CachingAgentCompletionClient> cacheLogger =
+                sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
+            completionPipeline = new CachingAgentCompletionClient(
+                completionPipeline,
+                store,
+                cacheDeploymentLabel,
+                enabled: true,
+                partitionByScope: cacheOptions.PartitionByScope,
+                absoluteExpiration: ttl,
+                scopeProvider: scopeProvider,
+                logger: cacheLogger);
 
             return completionPipeline;
         });

@@ -221,7 +221,7 @@ public sealed class AuthorityRunOrchestrator(
 
     private async Task<RunRecord> FinalizeCommittedPipelineAsync(
         RunRecord run,
-        ContextIngestion.Models.ContextSnapshot contextSnapshot,
+        ContextSnapshot contextSnapshot,
         Decisioning.Models.FindingsSnapshot findingsSnapshot,
         Decisioning.Models.GoldenManifest manifest,
         Decisioning.Models.DecisionTrace trace,

@@ -43,11 +43,11 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IRetrievalIndexingOutboxProcessor, RetrievalIndexingOutboxProcessor>();
         services.AddSingleton<IAuthorityPipelineWorkProcessor, AuthorityPipelineWorkProcessor>();
 
-        if (hostingRole is ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker)
-        {
-            services.AddHostedService<RetrievalIndexingOutboxHostedService>();
-            services.AddHostedService<AuthorityPipelineWorkHostedService>();
-        }
+        if (hostingRole is not (ArchiForgeHostingRole.Combined or ArchiForgeHostingRole.Worker))
+            return;
+
+        services.AddHostedService<RetrievalIndexingOutboxHostedService>();
+        services.AddHostedService<AuthorityPipelineWorkHostedService>();
     }
 
     private static void RegisterIntegrationEventOutbox(IServiceCollection services, ArchiForgeHostingRole hostingRole)

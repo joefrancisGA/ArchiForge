@@ -37,11 +37,6 @@ public static class ArchiForgeConfigurationBridge
 
         string? lucid = configuration[$"{ArchLucidAuthSectionName}:{relativeKey}"]?.Trim();
 
-        if (!string.IsNullOrEmpty(lucid))
-        {
-            return lucid;
-        }
-
-        return configuration[$"{LegacyAuthSectionName}:{relativeKey}"]?.Trim();
+        return !string.IsNullOrEmpty(lucid) ? lucid : configuration[$"{LegacyAuthSectionName}:{relativeKey}"]?.Trim();
     }
 }

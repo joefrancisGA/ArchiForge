@@ -109,7 +109,7 @@ public sealed class HostLeaderElectionCoordinator(
             }
             finally
             {
-                leaderCts.Cancel();
+                await leaderCts.CancelAsync();
 
                 try
                 {
@@ -163,7 +163,7 @@ public sealed class HostLeaderElectionCoordinator(
                         leaseName,
                         id);
 
-                    leaderCts.Cancel();
+                    await leaderCts.CancelAsync();
 
                     return;
                 }

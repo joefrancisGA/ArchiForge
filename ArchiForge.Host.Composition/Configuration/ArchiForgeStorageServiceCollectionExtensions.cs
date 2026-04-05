@@ -128,7 +128,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
             services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
             RegisterHostLeaderLeaseInfrastructure(services);
-            services.AddSingleton<ArchiForge.Persistence.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Persistence.Data.Repositories.NoOpHostLeaderLeaseRepository>();
+            services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.NoOpHostLeaderLeaseRepository>();
 
             RegisterDistributedCacheForLlmCompletionIfNeeded(services, configuration);
             RegisterLlmCompletionResponseStore(services, configuration);
@@ -260,13 +260,13 @@ public static class ArchiForgeStorageServiceCollectionExtensions
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
 
-        services.AddSingleton<ArchiForge.Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
+        services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(
                 p.GetRequiredService<IServiceScopeFactory>(),
                 connectionString));
 
         RegisterHostLeaderLeaseInfrastructure(services);
-        services.AddSingleton<ArchiForge.Persistence.Data.Repositories.IHostLeaderLeaseRepository, ArchiForge.Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
+        services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
 
@@ -297,8 +297,8 @@ public static class ArchiForgeStorageServiceCollectionExtensions
             configuration.GetSection(HotPathCacheOptions.SectionName).Get<HotPathCacheOptions>() ??
             new HotPathCacheOptions();
 
-        string? redis = string.IsNullOrWhiteSpace(llm.RedisConnectionString)
-            ? hotPath.RedisConnectionString?.Trim()
+        string redis = string.IsNullOrWhiteSpace(llm.RedisConnectionString)
+            ? hotPath.RedisConnectionString.Trim()
             : llm.RedisConnectionString.Trim();
 
         if (string.IsNullOrEmpty(redis))
@@ -348,7 +348,7 @@ public static class ArchiForgeStorageServiceCollectionExtensions
 
         if (string.Equals(provider, "Redis", StringComparison.OrdinalIgnoreCase))
         {
-            string redis = snapshot.RedisConnectionString?.Trim() ?? string.Empty;
+            string redis = snapshot.RedisConnectionString.Trim();
 
             if (string.IsNullOrEmpty(redis))
             {
@@ -408,11 +408,11 @@ public static class ArchiForgeStorageServiceCollectionExtensions
                                                    .Get<ArtifactLargePayloadOptions>()
                                                ?? new ArtifactLargePayloadOptions();
 
-        string provider = snapshot.BlobProvider ?? "None";
+        string provider = snapshot.BlobProvider;
 
         if (string.Equals(provider, "AzureBlob", StringComparison.OrdinalIgnoreCase))
         {
-            string uriText = snapshot.AzureBlobServiceUri ?? string.Empty;
+            string uriText = snapshot.AzureBlobServiceUri;
 
             if (string.IsNullOrWhiteSpace(uriText))
             {

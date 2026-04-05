@@ -118,7 +118,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
             }
             catch
             {
-                linked.Cancel();
+                await linked.CancelAsync();
                 throw;
             }
         }
