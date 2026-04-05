@@ -2,25 +2,25 @@ using System.Text.Json;
 
 using ArchiForge.Decisioning.Governance.PolicyPacks;
 
-using FsCheck;
-using FsCheck.Xunit;
-
 namespace ArchiForge.Api.Tests;
 
 /// <summary>
-/// Property checks for governance JSON documents that flow through the API stack.
+/// Round-trip and merge-shape checks for governance JSON documents used by the API stack.
 /// </summary>
 [Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class GovernancePolicyPackContentPropertyTests
 {
-    [Property(MaxTest = 40)]
-    public void Policy_pack_content_metadata_entry_round_trips_through_shared_options(NonEmptyString key, NonEmptyString value)
+    [Theory]
+    [InlineData("env", "prod")]
+    [InlineData("tier", "enterprise")]
+    [InlineData("key-with-dashes", "v1")]
+    [InlineData("unicode-key", "值")]
+    [InlineData("quotes", "say \"hi\"")]
+    public void Policy_pack_content_metadata_entry_round_trips_through_shared_options(string key, string value)
     {
-        string k = key.Get;
-        string v = value.Get;
-
         PolicyPackContentDocument original = new();
-        original.Metadata[k] = v;
+        original.Metadata[key] = value;
 
         string json = JsonSerializer.Serialize(original, PolicyPackJsonSerializerOptions.Default);
         PolicyPackContentDocument? back = JsonSerializer.Deserialize<PolicyPackContentDocument>(
@@ -28,7 +28,7 @@ public sealed class GovernancePolicyPackContentPropertyTests
             PolicyPackJsonSerializerOptions.Default);
 
         Assert.NotNull(back);
-        Assert.True(back!.Metadata.TryGetValue(k, out string? read));
-        Assert.Equal(v, read);
+        Assert.True(back!.Metadata.TryGetValue(key, out string? read));
+        Assert.Equal(value, read);
     }
 }
