@@ -51,10 +51,10 @@ jobs:
       TF_DIR: ${{ secrets.TF_WORKING_DIRECTORY }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Azure login (OIDC)
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -164,7 +164,7 @@ jobs:
 
       - name: Setup Terraform
         if: env.TF_DIR != ''
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_wrapper: false
 
