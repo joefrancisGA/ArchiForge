@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -186,22 +187,27 @@ public sealed class RealRuntimeMixedModeTests
         AgentResultParser parser = new();
         NoOpTraceRecorder traceRecorder = new();
 
+        IAgentSystemPromptCatalog promptCatalog = AgentPromptCatalogTestFactory.Create();
+
         TopologyAgentHandler topologyHandler = new(
             new StubAgentCompletionClient(topologyJson),
             parser,
-            traceRecorder);
+            traceRecorder,
+            promptCatalog);
 
         ComplianceAgentHandler complianceHandler = new(
             new StubAgentCompletionClient(complianceJson),
             parser,
-            traceRecorder);
+            traceRecorder,
+            promptCatalog);
 
         CostAgentHandler costHandler = new();
 
         CriticAgentHandler criticHandler = new(
             new StubAgentCompletionClient(criticJson),
             parser,
-            traceRecorder);
+            traceRecorder,
+            promptCatalog);
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions

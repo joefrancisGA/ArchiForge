@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -73,7 +74,8 @@ public sealed class ComplianceAgentHandlerTests
         StubAgentCompletionClient completionClient = new(json);
         AgentResultParser parser = new();
         NoOpTraceRecorder traceRecorder = new();
-        ComplianceAgentHandler handler = new(completionClient, parser, traceRecorder);
+        IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create();
+        ComplianceAgentHandler handler = new(completionClient, parser, traceRecorder, catalog);
 
         ArchitectureRequest request = new()
         {

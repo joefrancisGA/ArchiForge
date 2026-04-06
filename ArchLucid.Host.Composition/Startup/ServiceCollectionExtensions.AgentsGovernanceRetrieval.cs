@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Agents;
@@ -27,6 +28,7 @@ public static partial class ServiceCollectionExtensions
     {
         services.Configure<AgentPromptCatalogOptions>(
             configuration.GetSection(AgentPromptCatalogOptions.SectionName));
+        services.AddSingleton<IAgentSystemPromptCatalog, CachedAgentSystemPromptCatalog>();
         services.Configure<AgentExecutionResilienceOptions>(
             configuration.GetSection(AgentExecutionResilienceOptions.SectionName));
         services.AddSingleton<IAgentHandlerConcurrencyGate, AgentHandlerConcurrencyGate>();

@@ -15582,6 +15582,30 @@
               "string"
             ]
           },
+          "promptTemplateId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promptTemplateVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "systemPromptContentSha256": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promptReleaseLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "type": "string",
             "format": "date-time"

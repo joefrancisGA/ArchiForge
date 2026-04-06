@@ -19638,6 +19638,18 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
         public string ErrorMessage { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("promptTemplateId")]
+        public string PromptTemplateId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("promptTemplateVersion")]
+        public string PromptTemplateVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("systemPromptContentSha256")]
+        public string SystemPromptContentSha256 { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("promptReleaseLabel")]
+        public string PromptReleaseLabel { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset CreatedUtc { get; set; }
 

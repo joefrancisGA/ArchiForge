@@ -61,6 +61,18 @@ public sealed class AgentExecutionTrace
     /// </summary>
     public string? ErrorMessage { get; set; }
 
+    /// <summary>Stable catalog id for the system prompt template (e.g. <c>topology-system</c>).</summary>
+    public string? PromptTemplateId { get; set; }
+
+    /// <summary>Semantic version of the template content (bump when instructions change).</summary>
+    public string? PromptTemplateVersion { get; set; }
+
+    /// <summary>SHA-256 (hex, lowercase) of canonical UTF-8 system prompt bytes — use for regression detection and replay identity.</summary>
+    public string? SystemPromptContentSha256 { get; set; }
+
+    /// <summary>Optional operator-defined label from configuration (A/B variant, pilot name); not part of the content hash.</summary>
+    public string? PromptReleaseLabel { get; set; }
+
     /// <summary>UTC timestamp when this trace was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime.Tests;
@@ -14,5 +15,6 @@ public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
         string? parsedResultJson,
         bool parseSucceeded,
         string? errorMessage,
+        AgentPromptReproMetadata? promptRepro = null,
         CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

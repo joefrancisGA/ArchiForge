@@ -24,6 +24,7 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
         string? parsedResultJson,
         bool parseSucceeded,
         string? errorMessage,
+        AgentPromptReproMetadata? promptRepro = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -41,6 +42,10 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
             ParsedResultJson = parsedResultJson,
             ParseSucceeded = parseSucceeded,
             ErrorMessage = errorMessage,
+            PromptTemplateId = promptRepro?.TemplateId,
+            PromptTemplateVersion = promptRepro?.TemplateVersion,
+            SystemPromptContentSha256 = promptRepro?.SystemPromptContentSha256Hex,
+            PromptReleaseLabel = promptRepro?.ReleaseLabel,
             CreatedUtc = DateTime.UtcNow
         };
 

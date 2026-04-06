@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime;
@@ -19,6 +20,7 @@ public interface IAgentExecutionTraceRecorder
     /// <param name="parsedResultJson">Serialized structured result when parsing succeeded; otherwise <see langword="null"/>.</param>
     /// <param name="parseSucceeded">Whether <paramref name="parsedResultJson"/> is usable.</param>
     /// <param name="errorMessage">Parse or validation error text when <paramref name="parseSucceeded"/> is <see langword="false"/>.</param>
+    /// <param name="promptRepro">Template id/version/hash and optional release label; <see langword="null"/> when not applicable.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -31,5 +33,6 @@ public interface IAgentExecutionTraceRecorder
         string? parsedResultJson,
         bool parseSucceeded,
         string? errorMessage,
+        AgentPromptReproMetadata? promptRepro = null,
         CancellationToken cancellationToken = default);
 }

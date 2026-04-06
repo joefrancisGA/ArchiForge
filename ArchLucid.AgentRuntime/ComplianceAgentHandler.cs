@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -13,7 +14,8 @@ namespace ArchLucid.AgentRuntime;
 public sealed class ComplianceAgentHandler(
     IAgentCompletionClient completionClient,
     IAgentResultParser resultParser,
-    IAgentExecutionTraceRecorder traceRecorder)
+    IAgentExecutionTraceRecorder traceRecorder,
+    IAgentSystemPromptCatalog systemPromptCatalog)
     : IAgentHandler
 {
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
@@ -37,7 +39,10 @@ public sealed class ComplianceAgentHandler(
         ArgumentNullException.ThrowIfNull(evidence);
         ArgumentNullException.ThrowIfNull(task);
 
-        string systemPrompt = BuildSystemPrompt();
+        ResolvedSystemPrompt systemResolved = systemPromptCatalog.Resolve(AgentType.Compliance);
+        string systemPrompt = systemResolved.Text;
+        AgentPromptActivityTags.Apply(systemResolved);
+        AgentPromptReproMetadata promptRepro = systemResolved.ToReproMetadata();
         string userPrompt = BuildUserPrompt(runId, request, evidence, task);
 
         string rawJson = string.Empty;
@@ -67,6 +72,7 @@ public sealed class ComplianceAgentHandler(
                 parsedJson,
                 parseSucceeded: true,
                 errorMessage: null,
+                promptRepro,
                 cancellationToken: cancellationToken);
 
             return parsed;
@@ -83,87 +89,11 @@ public sealed class ComplianceAgentHandler(
                 parsedResultJson: null,
                 parseSucceeded: false,
                 errorMessage: ex.Message,
+                promptRepro,
                 cancellationToken: cancellationToken);
 
             throw;
         }
-    }
-
-    private static string BuildSystemPrompt()
-    {
-        return """
-You are the ArchiForge Compliance Agent.
-
-Your responsibility is to evaluate architecture requests for governance and control requirements.
-
-You must return ONLY valid JSON that can be deserialized into an AgentResult object.
-
-Do not include markdown.
-Do not include commentary outside JSON.
-Do not wrap the response in code fences.
-
-Rules:
-1. AgentType must be "Compliance".
-2. RunId and TaskId must exactly match the values provided by the user prompt.
-3. Confidence must be between 0.0 and 1.0.
-4. ProposedChanges may include only:
-   - RequiredControls
-   - Warnings
-5. You may include Findings related to compliance, policy, security baseline, or mandatory controls.
-6. Do not add services, datastores, or relationships.
-7. Do not produce cost estimates.
-8. Prefer standard enterprise controls when clearly implied by constraints and required capabilities.
-9. Keep the result conservative and governance-focused.
-
-Use these enum string values exactly where needed:
-
-AgentType:
-- Compliance
-
-Return JSON matching this conceptual shape:
-
-{
-  "resultId": "string",
-  "taskId": "string",
-  "runId": "string",
-  "agentType": "Compliance",
-  "claims": ["string"],
-  "evidenceRefs": ["string"],
-  "confidence": 0.0,
-  "findings": [
-    {
-      "findingId": "string",
-      "sourceAgent": "Compliance",
-      "severity": "Info",
-      "category": "Compliance",
-      "message": "string",
-      "evidenceRefs": ["string"]
-    }
-  ],
-  "proposedChanges": {
-    "proposalId": "string",
-    "sourceAgent": "Compliance",
-    "addedServices": [],
-    "addedDatastores": [],
-    "addedRelationships": [],
-    "requiredControls": ["string"],
-    "warnings": ["string"]
-  },
-  "createdUtc": "2026-03-15T14:00:00Z"
-}
-
-Important guidance:
-- Use standard control names consistently, such as:
-  - Managed Identity
-  - Private Endpoints
-  - Private Networking
-  - Key Vault
-  - Encryption At Rest
-  - Diagnostic Logging
-  - RBAC
-- Findings should be short, machine-friendly, and reusable where possible.
-- If a control is required, place it in ProposedChanges.RequiredControls.
-""";
     }
 
     private static string BuildUserPrompt(

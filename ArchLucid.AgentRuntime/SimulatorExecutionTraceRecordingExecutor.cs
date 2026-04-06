@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
@@ -48,17 +49,27 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 ? $"Simulator task: AgentType={task.AgentType}; Objective: {task.Objective}"
                 : $"Simulator task TaskId={result.TaskId} (task row not found in batch).";
 
+            const string simulatorSystem =
+                "ArchiForge AgentExecution:Mode=Simulator. Deterministic fake AgentResult (no LLM). " +
+                "Traces are persisted for API parity with RealAgentExecutor.";
+
+            AgentPromptReproMetadata promptRepro = new(
+                "simulator-deterministic",
+                "1.0.0",
+                AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(simulatorSystem),
+                ReleaseLabel: null);
+
             await traceRecorder.RecordAsync(
                 runId,
                 result.TaskId,
                 result.AgentType,
-                "ArchiForge AgentExecution:Mode=Simulator. Deterministic fake AgentResult (no LLM). " +
-                "Traces are persisted for API parity with RealAgentExecutor.",
+                simulatorSystem,
                 userPrompt,
                 resultJson,
                 resultJson,
                 parseSucceeded: true,
                 errorMessage: null,
+                promptRepro,
                 cancellationToken);
         }
 
