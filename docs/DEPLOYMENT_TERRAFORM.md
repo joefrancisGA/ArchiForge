@@ -71,7 +71,7 @@ flowchart LR
 - **Consumption budgets:** Enable **`enable_container_apps_consumption_budget`** in `infra/terraform-container-apps`, **`enable_sql_consumption_budget`** in `infra/terraform-sql-failover`, and/or **`enable_openai_consumption_budget`** in `infra/terraform-openai` to emit **`azurerm_consumption_budget_resource_group`** resources with Cost Management notifications (amounts and `*_time_period_start` are variables per root).
 - **Plan/apply:** Run `terraform init` / `plan` / `apply` per root; compose order is usually **network → data → compute → edge → monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
-- **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchiForge.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.
+- **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchLucid.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.
 - **Image scanning:** CI runs **Trivy** on container images and Terraform directories — extend with registry gates and Defender for Containers per org policy.
 
 ## Related docs

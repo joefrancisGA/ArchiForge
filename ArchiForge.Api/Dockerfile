@@ -21,18 +21,20 @@ COPY ArchiForge.Host.Composition/*.csproj   ArchiForge.Host.Composition/
 COPY ArchiForge.AgentRuntime/*.csproj       ArchiForge.AgentRuntime/
 COPY ArchiForge.AgentSimulator/*.csproj     ArchiForge.AgentSimulator/
 COPY ArchiForge.Application/*.csproj        ArchiForge.Application/
-COPY ArchiForge.Application.Tests/*.csproj    ArchiForge.Application.Tests/
+COPY ArchLucid.Application.Tests/*.csproj    ArchLucid.Application.Tests/
 COPY ArchiForge.ArtifactSynthesis/*.csproj  ArchiForge.ArtifactSynthesis/
-COPY ArchiForge.ArtifactSynthesis.Tests/*.csproj ArchiForge.ArtifactSynthesis.Tests/
+COPY ArchLucid.ArtifactSynthesis.Tests/*.csproj ArchLucid.ArtifactSynthesis.Tests/
 COPY ArchiForge.Contracts/*.csproj          ArchiForge.Contracts/
 COPY ArchiForge.ContextIngestion/*.csproj   ArchiForge.ContextIngestion/
 COPY ArchiForge.Coordinator/*.csproj        ArchiForge.Coordinator/
 COPY ArchiForge.Core/*.csproj               ArchiForge.Core/
-COPY ArchiForge.DecisionEngine/*.csproj     ArchiForge.DecisionEngine/
 COPY ArchiForge.Decisioning/*.csproj        ArchiForge.Decisioning/
 COPY ArchiForge.KnowledgeGraph/*.csproj     ArchiForge.KnowledgeGraph/
 COPY ArchiForge.Persistence/*.csproj        ArchiForge.Persistence/
 COPY ArchiForge.Persistence.Runtime/*.csproj ArchiForge.Persistence.Runtime/
+COPY ArchiForge.Persistence.Advisory/*.csproj ArchiForge.Persistence.Advisory/
+COPY ArchiForge.Persistence.Alerts/*.csproj ArchiForge.Persistence.Alerts/
+COPY ArchiForge.Persistence.Integration/*.csproj ArchiForge.Persistence.Integration/
 COPY ArchiForge.Provenance/*.csproj         ArchiForge.Provenance/
 COPY ArchiForge.Retrieval/*.csproj          ArchiForge.Retrieval/
 
@@ -40,16 +42,19 @@ COPY ArchiForge.Retrieval/*.csproj          ArchiForge.Retrieval/
 # Provide stubs so `dotnet restore` on the .sln succeeds.
 COPY ArchiForge.Cli/*.csproj                ArchiForge.Cli/
 COPY ArchiForge.Backfill.Cli/*.csproj       ArchiForge.Backfill.Cli/
-COPY ArchiForge.Api.Tests/*.csproj          ArchiForge.Api.Tests/
-COPY ArchiForge.AgentRuntime.Tests/*.csproj  ArchiForge.AgentRuntime.Tests/
-COPY ArchiForge.Cli.Tests/*.csproj          ArchiForge.Cli.Tests/
-COPY ArchiForge.ContextIngestion.Tests/*.csproj ArchiForge.ContextIngestion.Tests/
-COPY ArchiForge.Contracts.Tests/*.csproj    ArchiForge.Contracts.Tests/
-COPY ArchiForge.Coordinator.Tests/*.csproj  ArchiForge.Coordinator.Tests/
-COPY ArchiForge.Decisioning.Tests/*.csproj  ArchiForge.Decisioning.Tests/
-COPY ArchiForge.KnowledgeGraph.Tests/*.csproj ArchiForge.KnowledgeGraph.Tests/
-COPY ArchiForge.Persistence.Tests/*.csproj  ArchiForge.Persistence.Tests/
-COPY ArchiForge.Retrieval.Tests/*.csproj    ArchiForge.Retrieval.Tests/
+COPY ArchLucid.Api.Tests/*.csproj          ArchLucid.Api.Tests/
+COPY ArchLucid.AgentRuntime.Tests/*.csproj  ArchLucid.AgentRuntime.Tests/
+COPY ArchLucid.Cli.Tests/*.csproj          ArchLucid.Cli.Tests/
+COPY ArchLucid.ContextIngestion.Tests/*.csproj ArchLucid.ContextIngestion.Tests/
+COPY ArchLucid.Contracts.Tests/*.csproj    ArchLucid.Contracts.Tests/
+COPY ArchLucid.Coordinator.Tests/*.csproj  ArchLucid.Coordinator.Tests/
+COPY ArchLucid.Decisioning.Tests/*.csproj  ArchLucid.Decisioning.Tests/
+COPY ArchLucid.KnowledgeGraph.Tests/*.csproj ArchLucid.KnowledgeGraph.Tests/
+COPY ArchLucid.Persistence.Tests/*.csproj  ArchLucid.Persistence.Tests/
+COPY ArchLucid.Retrieval.Tests/*.csproj    ArchLucid.Retrieval.Tests/
+COPY ArchLucid.Core.Tests/*.csproj         ArchLucid.Core.Tests/
+COPY ArchLucid.Provenance.Tests/*.csproj   ArchLucid.Provenance.Tests/
+COPY ArchLucid.Api.Client.Tests/*.csproj   ArchLucid.Api.Client.Tests/
 COPY ArchiForge.TestSupport/*.csproj        ArchiForge.TestSupport/
 COPY ArchiForge.Worker/*.csproj             ArchiForge.Worker/
 

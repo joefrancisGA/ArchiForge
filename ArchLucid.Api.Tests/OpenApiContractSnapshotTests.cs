@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -70,16 +70,16 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
 
         for (int i = 0; i < 12 && dir != null; i++)
         {
-            string csproj = Path.Combine(dir, "ArchiForge.Api.Tests.csproj");
+            string lucidCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
+            string legacyCsproj = Path.Combine(dir, "ArchiForge.Api.Tests.csproj");
 
-            if (File.Exists(csproj))
-            
+            if (File.Exists(lucidCsproj) || File.Exists(legacyCsproj))
                 return Path.Combine(dir, "Contracts", SnapshotFileName);
-            
 
             dir = Directory.GetParent(dir)?.FullName;
         }
 
-        throw new InvalidOperationException("Cannot find ArchiForge.Api.Tests.csproj for OpenAPI snapshot path.");
+        throw new InvalidOperationException(
+            "Cannot find ArchLucid.Api.Tests.csproj (or legacy ArchiForge.Api.Tests.csproj) for OpenAPI snapshot path.");
     }
 }

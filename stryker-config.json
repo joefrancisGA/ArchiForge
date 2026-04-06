@@ -1,7 +1,7 @@
 {
   "stryker-config": {
     "project": "ArchiForge.Persistence/ArchiForge.Persistence.csproj",
-    "test-projects": ["ArchiForge.Persistence.Tests/ArchiForge.Persistence.Tests.csproj"],
+    "test-projects": ["ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj"],
     "reporters": ["progress", "html"],
     "thresholds": {
       "high": 80,

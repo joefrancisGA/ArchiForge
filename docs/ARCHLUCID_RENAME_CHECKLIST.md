@@ -62,7 +62,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 > Strategy: rename directories and `.csproj` files but preserve `<RootNamespace>ArchiForge.*</RootNamespace>`
 > so no C# source changes are needed yet. Update `.sln` and `<ProjectReference>` paths.
 
-- [ ] 5.1 Rename leaf test projects: `*.Tests` directories and `.csproj` files
+- [x] 5.1 Rename leaf test projects: `*.Tests` directories and `.csproj` files (2026-04-06 — folders + `ArchLucid.*.Tests.csproj`; `AssemblyName`/`RootNamespace` kept `ArchiForge.*.Tests` until Phase 6)
 - [ ] 5.2 Rename `ArchiForge.TestSupport`, `ArchiForge.Benchmarks`
 - [ ] 5.3 Rename `ArchiForge.Cli`, `ArchiForge.Cli.Tests`, `ArchiForge.Backfill.Cli`
 - [ ] 5.4 Rename `ArchiForge.Api.Client`, `ArchiForge.Api.Client.Tests`
@@ -117,3 +117,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-06 | Namespace flatten | Removed nested `Decisioning.DecisionEngine.*` namespaces: code under `ArchiForge.Decisioning/Merge/` and `ArchiForge.Decisioning/Validation/`; tests under `ArchiForge.Decisioning.Tests/Merge/` and `Validation/`; OTel meter `ArchiForge.Decisioning.SchemaValidation` (replaces `ArchiForge.DecisionEngine.SchemaValidation`). |
 | 2026-04-06 | Quality batch (six improvements) | Stryker `break:60` (all `stryker-config*.json`); merged line-coverage gate documented in `docs/coverage-exclusions.md` (not Coverlet `<Threshold>` per assembly — see comment in `coverage.runsettings`); CLI `ResolveApiErrorMessage` for typed ProblemDetails; rename `DecisionTrace` → `RunEventTrace` (coordinator) / `RuleAuditTrace` (authority); `GET /v1/authority/runs/{id}/provenance`; UI `/runs/[id]/provenance`; `docs/DUAL_PIPELINE_NAVIGATOR.md`, `docs/CHAOS_TESTING.md`, `CliRetryDelegatingHandlerTests`. Prometheus SLO/outbox alerts already in `infra/prometheus/`. Phase 5–6 bulk project/namespace rename **not** started (explicit scope). |
 | 2026-04-06 | 1.7 + CI coverage gate | Phase **1.7** pilot/release docs → ArchLucid product naming (`PILOT_GUIDE`, `OPERATOR_QUICKSTART`, `RELEASE_SMOKE`, `RELEASE_LOCAL`); CI **70%** merged line gate via `scripts/ci/assert_merged_line_coverage_min.py`; `RetrievalIndexingOutboxProcessor` uses `RunDetailDto.DecisionTrace` (fixes stale `RuleAuditTrace` property). |
+| 2026-04-06 | **5.1** | All main-solution leaf test projects renamed to **`ArchLucid.*.Tests`** (dirs + csproj); solution + Stryker + Dockerfile + `nswag.json` paths updated; `OpenApiContractSnapshotTests` resolves `ArchLucid.Api.Tests.csproj`; docs: `CI_MIGRATION_CHECKLIST`, `ArchiForge.Api.Client/README`, `Migrations/README`. |

@@ -2,7 +2,7 @@
   "runtime": "Net90",
   "documentGenerator": {
     "fromDocument": {
-      "url": "../ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json",
+      "url": "../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json",
       "newLineBehavior": "Auto"
     }
   },

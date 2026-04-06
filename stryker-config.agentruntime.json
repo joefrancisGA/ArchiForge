@@ -1,7 +1,7 @@
 {
   "stryker-config": {
     "project": "ArchiForge.AgentRuntime/ArchiForge.AgentRuntime.csproj",
-    "test-projects": ["ArchiForge.AgentRuntime.Tests/ArchiForge.AgentRuntime.Tests.csproj"],
+    "test-projects": ["ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj"],
     "reporters": ["progress", "html"],
     "thresholds": {
       "high": 80,

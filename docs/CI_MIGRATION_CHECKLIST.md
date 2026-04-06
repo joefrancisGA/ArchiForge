@@ -23,12 +23,12 @@ Run these commands from the repo root before every push that touches SQL or seed
 dotnet build ArchiForge.sln --configuration Debug
 
 # 2. Run the DemoSeedService idempotency test
-dotnet test ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj `
+dotnet test ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj `
   --filter "FullyQualifiedName~DemoSeedServiceTests" `
   --no-build
 
 # 3. Run the migration ordering / content tests
-dotnet test ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj `
+dotnet test ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj `
   --filter "FullyQualifiedName~DatabaseMigrationScriptTests" `
   --no-build
 
@@ -89,7 +89,7 @@ Add the following to your CI YAML (Azure DevOps / GitHub Actions):
   run: dotnet test ArchiForge.sln --filter "Category=Integration" --no-build --logger trx
 ```
 
-**ArchiForge.Api.Tests** integration tests require a reachable **SQL Server** (default **`localhost`**); factories create temporary databases and run **DbUp**. `DemoSeedServiceTests` and `DatabaseMigrationScriptTests` run in this phase when included in the filter.
+**ArchLucid.Api.Tests** integration tests require a reachable **SQL Server** (default **`localhost`**); factories create temporary databases and run **DbUp**. `DemoSeedServiceTests` and `DatabaseMigrationScriptTests` run in this phase when included in the filter.
 
 ---
 

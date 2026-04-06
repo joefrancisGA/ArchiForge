@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.4.11612.150
@@ -21,11 +21,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Application", "A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{128DBBE7-315A-4005-BED1-BA51A521D8FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Contracts.Tests", "ArchiForge.Contracts.Tests\ArchiForge.Contracts.Tests.csproj", "{B74B17AC-A877-4334-AA54-9EF3D1B4C2C6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Contracts.Tests", "ArchLucid.Contracts.Tests\ArchLucid.Contracts.Tests.csproj", "{B74B17AC-A877-4334-AA54-9EF3D1B4C2C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Coordinator.Tests", "ArchiForge.Coordinator.Tests\ArchiForge.Coordinator.Tests.csproj", "{D84FD236-A30A-49ED-BE82-53D481026B8F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Coordinator.Tests", "ArchLucid.Coordinator.Tests\ArchLucid.Coordinator.Tests.csproj", "{D84FD236-A30A-49ED-BE82-53D481026B8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Api.Tests", "ArchiForge.Api.Tests\ArchiForge.Api.Tests.csproj", "{43069D07-AE75-4A8A-9018-05486D334390}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Api.Tests", "ArchLucid.Api.Tests\ArchLucid.Api.Tests.csproj", "{43069D07-AE75-4A8A-9018-05486D334390}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9DFBBF70-173F-4190-A3F5-2203DFE6C526} = {9DFBBF70-173F-4190-A3F5-2203DFE6C526}
 	EndProjectSection
@@ -51,9 +51,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "expected", "expected", "{1B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Cli", "ArchiForge.Cli\ArchiForge.Cli.csproj", "{E7A2C8F1-4B3D-4E9A-8F2C-1D5B6E7A8C9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Cli.Tests", "ArchiForge.Cli.Tests\ArchiForge.Cli.Tests.csproj", "{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Cli.Tests", "ArchLucid.Cli.Tests\ArchLucid.Cli.Tests.csproj", "{C81E2D45-1A3B-4F6E-9D2C-8B7A5E4F3D1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.AgentRuntime.Tests", "ArchiForge.AgentRuntime.Tests\ArchiForge.AgentRuntime.Tests.csproj", "{A9B8C7D6-E5F4-3210-9876-543210FEDCBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.AgentRuntime.Tests", "ArchLucid.AgentRuntime.Tests\ArchLucid.AgentRuntime.Tests.csproj", "{A9B8C7D6-E5F4-3210-9876-543210FEDCBA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F391F1CE-53C6-475C-9C9C-7B7F859408ED}"
 	ProjectSection(SolutionItems) = preProject
@@ -62,13 +62,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{F391F1CE-5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.ContextIngestion", "ArchiForge.ContextIngestion\ArchiForge.ContextIngestion.csproj", "{8FA568F0-9212-8B8C-05C8-7DB8CC48E7E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.ContextIngestion.Tests", "ArchiForge.ContextIngestion.Tests\ArchiForge.ContextIngestion.Tests.csproj", "{E1F2A3B4-C5D6-4789-ABCD-EF0123456789}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.ContextIngestion.Tests", "ArchLucid.ContextIngestion.Tests\ArchLucid.ContextIngestion.Tests.csproj", "{E1F2A3B4-C5D6-4789-ABCD-EF0123456789}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.KnowledgeGraph", "ArchiForge.KnowledgeGraph\ArchiForge.KnowledgeGraph.csproj", "{EFD25BC6-2623-D707-A538-B8069B821FBA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Decisioning", "ArchiForge.Decisioning\ArchiForge.Decisioning.csproj", "{3A7E2E2B-0C8F-4A1F-8A67-3E0B1B6C9D2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Decisioning.Tests", "ArchiForge.Decisioning.Tests\ArchiForge.Decisioning.Tests.csproj", "{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Decisioning.Tests", "ArchLucid.Decisioning.Tests\ArchLucid.Decisioning.Tests.csproj", "{C4D5E6F7-A8B9-0123-CDEF-456789ABCDEF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD53CE87-F72D-42D8-9A9A-EB95D608BD24}"
 	ProjectSection(SolutionItems) = preProject
@@ -83,27 +83,27 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Provenance", "Ar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Retrieval", "ArchiForge.Retrieval\ArchiForge.Retrieval.csproj", "{D1E2F3A4-B5C6-7890-DEF1-234567890ABC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.KnowledgeGraph.Tests", "ArchiForge.KnowledgeGraph.Tests\ArchiForge.KnowledgeGraph.Tests.csproj", "{A2B3C4D5-E6F7-8901-ABCD-EF2345678901}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.KnowledgeGraph.Tests", "ArchLucid.KnowledgeGraph.Tests\ArchLucid.KnowledgeGraph.Tests.csproj", "{A2B3C4D5-E6F7-8901-ABCD-EF2345678901}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Retrieval.Tests", "ArchiForge.Retrieval.Tests\ArchiForge.Retrieval.Tests.csproj", "{F4A5B6C7-D8E9-0123-FABC-DEF456789012}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Retrieval.Tests", "ArchLucid.Retrieval.Tests\ArchLucid.Retrieval.Tests.csproj", "{F4A5B6C7-D8E9-0123-FABC-DEF456789012}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Persistence.Tests", "ArchiForge.Persistence.Tests\ArchiForge.Persistence.Tests.csproj", "{B5C6D7E8-F9A0-4A5B-8C9D-0E1F2A3B4C5D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Persistence.Tests", "ArchLucid.Persistence.Tests\ArchLucid.Persistence.Tests.csproj", "{B5C6D7E8-F9A0-4A5B-8C9D-0E1F2A3B4C5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Backfill.Cli", "ArchiForge.Backfill.Cli\ArchiForge.Backfill.Cli.csproj", "{F51E77F0-78E5-4ADB-8829-1F17D25AF564}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.TestSupport", "ArchiForge.TestSupport\ArchiForge.TestSupport.csproj", "{99449A88-AF64-48D2-803A-1EA348474812}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.ArtifactSynthesis.Tests", "ArchiForge.ArtifactSynthesis.Tests\ArchiForge.ArtifactSynthesis.Tests.csproj", "{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.ArtifactSynthesis.Tests", "ArchLucid.ArtifactSynthesis.Tests\ArchLucid.ArtifactSynthesis.Tests.csproj", "{50D243DC-57F5-47F2-AC7D-EBB6D162B0EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Application.Tests", "ArchiForge.Application.Tests\ArchiForge.Application.Tests.csproj", "{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Application.Tests", "ArchLucid.Application.Tests\ArchLucid.Application.Tests.csproj", "{ABB665B3-314F-498C-BA1C-0BD4AD8E53EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Core.Tests", "ArchiForge.Core.Tests\ArchiForge.Core.Tests.csproj", "{B558395D-5D27-4E15-A726-D1844D4CF9D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Core.Tests", "ArchLucid.Core.Tests\ArchLucid.Core.Tests.csproj", "{B558395D-5D27-4E15-A726-D1844D4CF9D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Provenance.Tests", "ArchiForge.Provenance.Tests\ArchiForge.Provenance.Tests.csproj", "{36BF3223-42C2-4365-A32F-CF527EA01DDB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Provenance.Tests", "ArchLucid.Provenance.Tests\ArchLucid.Provenance.Tests.csproj", "{36BF3223-42C2-4365-A32F-CF527EA01DDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Api.Client", "ArchiForge.Api.Client\ArchiForge.Api.Client.csproj", "{6434CF04-818C-4D93-9B4B-8652D31E1C0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Api.Client.Tests", "ArchiForge.Api.Client.Tests\ArchiForge.Api.Client.Tests.csproj", "{5CDADB7E-3C29-4170-A059-29803BA5A41D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Api.Client.Tests", "ArchLucid.Api.Client.Tests\ArchLucid.Api.Client.Tests.csproj", "{5CDADB7E-3C29-4170-A059-29803BA5A41D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiForge.Worker", "ArchiForge.Worker\ArchiForge.Worker.csproj", "{9663B718-58A9-4A9D-806E-8722094C4351}"
 EndProject

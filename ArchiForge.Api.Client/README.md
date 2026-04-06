@@ -6,7 +6,7 @@ Versioned .NET package containing an **NSwag-generated** `HttpClient`-based clie
 
 Generation uses the committed OpenAPI document:
 
-`ArchiForge.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`
+`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`
 
 That file is kept in sync with `GET /openapi/v1.json` by `OpenApiContractSnapshotTests` in the main repository.
 

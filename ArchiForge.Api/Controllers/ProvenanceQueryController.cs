@@ -23,10 +23,14 @@ public sealed class ProvenanceQueryController(
     IScopeContextProvider scopeProvider)
     : ControllerBase
 {
-    [HttpGet("runs/{runId:guid}/provenance")]
+    /// <summary>
+    /// Returns the persisted provenance snapshot row (raw graph JSON + metadata), not the computed <see cref="DecisionProvenanceGraph"/>.
+    /// For the structural graph built from run detail, use <c>GET /v1/authority/runs/{runId}/provenance</c> (<see cref="AuthorityQueryController"/>).
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/provenance-snapshot")]
     [ProducesResponseType(typeof(DecisionProvenanceSnapshot), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProvenance(Guid runId, CancellationToken ct = default)
+    public async Task<IActionResult> GetProvenanceSnapshot(Guid runId, CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         DecisionProvenanceSnapshot? snapshot = await repo.GetByRunIdAsync(scope, runId, ct);
