@@ -1,3 +1,4 @@
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -12,7 +13,7 @@ namespace ArchiForge.Decisioning.Services;
 /// <remarks>
 /// Rules are applied in descending <c>Priority</c> order. For each finding the first matching
 /// rule per action type wins; unmatched findings are recorded in
-/// <see cref="RuleAuditTrace.Notes"/>. After manifest construction,
+/// <see cref="RuleAuditTracePayload.Notes"/>. After manifest construction,
 /// <see cref="IGoldenManifestValidator.Validate"/> is called and a content hash is computed
 /// via <see cref="IManifestHashService"/>.
 /// Cancellation is forwarded to <see cref="IDecisionRuleProvider.GetRuleSetAsync"/>; the
@@ -26,7 +27,7 @@ public class RuleBasedDecisionEngine(
     : IDecisionEngine
 {
     /// <inheritdoc />
-    public async Task<(GoldenManifest Manifest, RuleAuditTrace Trace)> DecideAsync(
+    public async Task<(GoldenManifest Manifest, DecisionTrace Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
@@ -38,7 +39,7 @@ public class RuleBasedDecisionEngine(
             .OrderByDescending(r => r.Priority)
             .ToList();
 
-        RuleAuditTrace trace = new()
+        RuleAuditTracePayload audit = new()
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,
@@ -59,33 +60,35 @@ public class RuleBasedDecisionEngine(
 
             if (matchingRules.Count == 0)
             {
-                trace.Notes.Add($"No rule matched finding {finding.FindingId} ({finding.FindingType}).");
+                audit.Notes.Add($"No rule matched finding {finding.FindingId} ({finding.FindingType}).");
                 continue;
             }
 
             foreach (DecisionRule rule in matchingRules)
             {
-                trace.AppliedRuleIds.Add(rule.RuleId);
+                audit.AppliedRuleIds.Add(rule.RuleId);
 
                 switch (rule.Action.ToLowerInvariant())
                 {
                     case "require":
                     case "allow":
                     case "prefer":
-                        trace.AcceptedFindingIds.Add(finding.FindingId);
+                        audit.AcceptedFindingIds.Add(finding.FindingId);
                         break;
 
                     case "reject":
-                        trace.RejectedFindingIds.Add(finding.FindingId);
-                        trace.Notes.Add($"Rejected finding {finding.FindingId} by rule {rule.Name}.");
+                        audit.RejectedFindingIds.Add(finding.FindingId);
+                        audit.Notes.Add($"Rejected finding {finding.FindingId} by rule {rule.Name}.");
                         break;
 
                     default:
-                        trace.Notes.Add($"No recognized action for rule {rule.Name}.");
+                        audit.Notes.Add($"No recognized action for rule {rule.Name}.");
                         break;
                 }
             }
         }
+
+        DecisionTrace trace = DecisionTrace.FromRuleAudit(audit);
 
         GoldenManifest manifest = manifestBuilder.Build(
             runId,

@@ -3,6 +3,7 @@ using System.Text;
 
 using ArchiForge.Application.Analysis;
 using ArchiForge.Contracts.Architecture;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.Metadata;
 
@@ -79,7 +80,7 @@ public sealed class ShadowExecutionService(
 
         foreach (CandidateChangeSetStep step in orderedSteps)
         {
-            RunEventTrace trace = new()
+            RunEventTracePayload payload = new()
             {
                 TraceId = Guid.NewGuid().ToString("N"),
                 RunId = detail.Run.RunId,
@@ -95,10 +96,10 @@ public sealed class ShadowExecutionService(
 
             if (!string.IsNullOrEmpty(step.AcceptanceCriteria))
             {
-                trace.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;
+                payload.Metadata["AcceptanceCriteria"] = step.AcceptanceCriteria;
             }
 
-            detail.DecisionTraces.Add(trace);
+            detail.DecisionTraces.Add(DecisionTrace.FromRunEvent(payload));
         }
     }
 

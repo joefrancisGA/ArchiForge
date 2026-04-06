@@ -1,4 +1,5 @@
 using ArchiForge.Contracts.Agents;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 
@@ -39,7 +40,7 @@ public sealed class CommitRunResult
     /// <summary>Golden manifest produced by merge and persisted for this commit.</summary>
     public GoldenManifest Manifest { get; set; } = new();
     /// <summary>Decision traces persisted with the manifest.</summary>
-    public List<RunEventTrace> DecisionTraces { get; set; } = [];
+    public List<DecisionTrace> DecisionTraces { get; set; } = [];
     /// <summary>Non-fatal merge warnings (empty when none).</summary>
     public List<string> Warnings { get; set; } = [];
 }

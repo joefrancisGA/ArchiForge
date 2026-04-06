@@ -1,5 +1,6 @@
-﻿using System.Globalization;
+using System.Globalization;
 
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Findings;
 using ArchiForge.Decisioning.Findings.Factories;
 using ArchiForge.Decisioning.Findings.Payloads;
@@ -17,9 +18,11 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
         FindingsSnapshot findingsSnapshot,
-        RuleAuditTrace trace,
+        DecisionTrace trace,
         DecisionRuleSet ruleSet)
     {
+        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+
         GoldenManifest manifest = new()
         {
             ManifestId = Guid.NewGuid(),
@@ -27,7 +30,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             ContextSnapshotId = contextSnapshotId,
             GraphSnapshotId = graphSnapshot.GraphSnapshotId,
             FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId,
-            DecisionTraceId = trace.DecisionTraceId,
+            DecisionTraceId = audit.DecisionTraceId,
             CreatedUtc = DateTime.UtcNow,
             RuleSetId = ruleSet.RuleSetId,
             RuleSetVersion = ruleSet.Version,
@@ -50,8 +53,8 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         PopulatePolicyApplicability(manifest, findingsSnapshot);
         PopulatePolicySection(manifest, findingsSnapshot);
         PopulateCoverageWarnings(manifest, findingsSnapshot);
-        PopulateConstraints(manifest, findingsSnapshot, trace);
-        PopulateProvenance(manifest, findingsSnapshot, trace);
+        PopulateConstraints(manifest, findingsSnapshot, audit);
+        PopulateProvenance(manifest, findingsSnapshot, audit);
 
         manifest.Metadata.Status = manifest.UnresolvedIssues.Items.Count == 0
             ? "Resolved"
@@ -487,7 +490,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     private static void PopulateConstraints(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
-        RuleAuditTrace trace)
+        RuleAuditTracePayload trace)
     {
         foreach (Finding finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
         
@@ -505,7 +508,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     private static void PopulateProvenance(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
-        RuleAuditTrace trace)
+        RuleAuditTracePayload trace)
     {
         manifest.Provenance.SourceFindingIds = findingsSnapshot.Findings
             .Select(f => f.FindingId)

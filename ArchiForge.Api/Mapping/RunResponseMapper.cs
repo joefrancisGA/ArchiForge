@@ -1,7 +1,8 @@
 using ArchiForge.Api.Models;
 using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Api.Mapping;
 
@@ -33,7 +34,7 @@ internal static class RunResponseMapper
         string executionMode,
         IEnumerable<AgentResult> results,
         GoldenManifest? manifest,
-        IEnumerable<RunEventTrace> decisionTraces,
+        IEnumerable<DecisionTrace> decisionTraces,
         IEnumerable<string> warnings) =>
         new()
         {
@@ -48,7 +49,7 @@ internal static class RunResponseMapper
 
     public static CommitRunResponse ToCommitRunResponse(
         GoldenManifest manifest,
-        IEnumerable<RunEventTrace> decisionTraces,
+        IEnumerable<DecisionTrace> decisionTraces,
         IEnumerable<string> warnings) =>
         new()
         {
@@ -62,7 +63,7 @@ internal static class RunResponseMapper
         List<AgentTask> tasks,
         List<AgentResult> results,
         GoldenManifest? manifest,
-        List<RunEventTrace> decisionTraces) =>
+        List<DecisionTrace> decisionTraces) =>
         new()
         {
             Run = run,

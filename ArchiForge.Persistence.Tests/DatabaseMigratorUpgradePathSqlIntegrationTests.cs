@@ -31,11 +31,8 @@ public sealed class DatabaseMigratorUpgradePathSqlIntegrationTests(SqlServerPers
 
         await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(catalogConnectionString, CancellationToken.None);
 
-        bool first = DatabaseMigrator.RunExcludingTrailingScripts(catalogConnectionString, 1);
-        first.Should().BeTrue("N−1 migration pass should succeed");
-
-        bool second = DatabaseMigrator.Run(catalogConnectionString);
-        second.Should().BeTrue("final migration pass should succeed");
+        DatabaseMigrator.RunExcludingTrailingScripts(catalogConnectionString, 1);
+        DatabaseMigrator.Run(catalogConnectionString);
 
         await using SqlConnection connection = new(catalogConnectionString);
         await connection.OpenAsync(CancellationToken.None);

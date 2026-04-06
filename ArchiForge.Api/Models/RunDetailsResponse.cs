@@ -1,8 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchiForge.Contracts.Agents;
-using ArchiForge.Contracts.Manifest;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.Manifest;
 
 namespace ArchiForge.Api.Models;
 
@@ -14,5 +15,5 @@ public sealed class RunDetailsResponse
     public List<AgentTask> Tasks { get; set; } = [];
     public List<AgentResult> Results { get; set; } = [];
     public GoldenManifest? Manifest { get; set; }
-    public List<RunEventTrace> DecisionTraces { get; set; } = [];
+    public List<DecisionTrace> DecisionTraces { get; set; } = [];
 }

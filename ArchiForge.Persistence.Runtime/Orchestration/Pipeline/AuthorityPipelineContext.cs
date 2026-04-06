@@ -3,6 +3,7 @@ using System.Diagnostics;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.KnowledgeGraph.Services;
@@ -38,7 +39,7 @@ public sealed class AuthorityPipelineContext
 
     public GoldenManifest? Manifest { get; set; }
 
-    public RuleAuditTrace? Trace { get; set; }
+    public DecisionTrace? Trace { get; set; }
 
     public ArtifactBundle? ArtifactBundle { get; set; }
 }

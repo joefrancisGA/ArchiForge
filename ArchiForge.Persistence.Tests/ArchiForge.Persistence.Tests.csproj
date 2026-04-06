@@ -24,6 +24,9 @@
     <ProjectReference Include="..\ArchiForge.TestSupport\ArchiForge.TestSupport.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Advisory\ArchiForge.Persistence.Advisory.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Alerts\ArchiForge.Persistence.Alerts.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Integration\ArchiForge.Persistence.Integration.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence.Runtime\ArchiForge.Persistence.Runtime.csproj" />
     <ProjectReference Include="..\ArchiForge.Provenance\ArchiForge.Provenance.csproj" />
   </ItemGroup>

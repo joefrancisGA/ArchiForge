@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-04-04
 
-One narrative for **new engineers and integrators**. Deep dives are linked; this page is the **spine**.
+One narrative for **new engineers and integrators** working on **ArchLucid** (this codebase). Deep dives are linked; this page is the **spine**.
 
 > **Environments and delivery (clone → local → Azure)?** Use **[GOLDEN_PATH.md](GOLDEN_PATH.md)** — role-based entry (developer / SRE / security), one maturity diagram, ordered phases, and an **advanced appendix** for rarely used paths. *This* page focuses on **one HTTP request’s journey** through the API and data plane.
 
@@ -11,7 +11,7 @@ One narrative for **new engineers and integrators**. Deep dives are linked; this
 ```mermaid
 flowchart LR
   Client[Client / Operator UI]
-  API[ArchiForge.Api /v1]
+  API[API host /v1<br/>ArchiForge.Api]
   SQL[(Azure SQL)]
   Agents[Agent execution]
   AOAI[Azure OpenAI]
@@ -29,7 +29,7 @@ flowchart LR
 
 1. **Authenticate** — API key (`X-Api-Key`) or JWT (Entra), per environment. Scope: `x-tenant-id`, `x-workspace-id`, `x-project-id` (or claims).
 2. **Create run** — `POST /v1/architecture/run/request` with `ArchitectureRequest`. Optional `Idempotency-Key` (see `docs/API_CONTRACTS.md`).
-3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchiForge.AuthorityRun`).
+3. **Execute authority** — Pipeline stages ingest context, graph, findings, decisioning, artifacts (see traces: `ArchiForge.AuthorityRun` in logs/telemetry).
 4. **Agents** — `AgentExecution:Mode` `Simulator` (deterministic) or `Real` (Azure OpenAI). Token usage and optional per-tenant metrics: `docs/OPERATIONS_LLM_QUOTA.md`.
 5. **Commit** — `POST /v1/architecture/run/{runId}/commit` when the run is ready; handle `409` for invalid state.
 6. **Retrieval** — After commit, indexing work is processed asynchronously; query `GET /v1/retrieval/search` when enabled.

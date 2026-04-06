@@ -5,6 +5,7 @@ using ArchiForge.Application.Agents;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Contracts.Requests;
@@ -110,7 +111,7 @@ public sealed class ReplayRunService(
         cancellationToken.ThrowIfCancellationRequested();
 
         GoldenManifest? manifest = null;
-        List<RunEventTrace> decisionTraces = [];
+        List<DecisionTrace> decisionTraces = [];
         List<string> warnings = [];
 
         if (!commitReplay)
@@ -178,7 +179,7 @@ public sealed class ReplayRunService(
     //private async Task PersistReplayCommitRowsAsync(
     //    string replayRunId,
     //    GoldenManifest manifest,
-    //    List<RunEventTrace> decisionTraces,
+    //    List<DecisionTrace> decisionTraces,
     //    CancellationToken cancellationToken)
     //{
     //    await manifestRepository.CreateAsync(manifest, cancellationToken);

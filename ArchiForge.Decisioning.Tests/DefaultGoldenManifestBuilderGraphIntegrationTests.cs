@@ -1,3 +1,4 @@
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Manifest.Builders;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Decisioning.Rules;
@@ -43,7 +44,11 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             Findings = []
         };
 
-        RuleAuditTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
+        DecisionTrace trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+        {
+            DecisionTraceId = Guid.NewGuid(),
+            RunId = runId
+        });
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
         GoldenManifest manifest = new DefaultGoldenManifestBuilder().Build(

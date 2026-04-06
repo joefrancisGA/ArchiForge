@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Persistence.Data.Infrastructure;
 
 using Dapper;
@@ -13,7 +13,7 @@ namespace ArchiForge.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : ICoordinatorDecisionTraceRepository
 {
-    public async Task CreateManyAsync(IEnumerable<RunEventTrace> traces, CancellationToken cancellationToken = default)
+    public async Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(traces);
 
@@ -40,14 +40,19 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
 
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        var rows = traces.Select(t => new
+        var rows = traces.Select(t =>
         {
-            t.TraceId,
-            t.RunId,
-            t.EventType,
-            t.EventDescription,
-            EventJson = JsonSerializer.Serialize(t, ContractJson.Default),
-            t.CreatedUtc
+            RunEventTracePayload run = t.RequireRunEvent();
+
+            return new
+            {
+                run.TraceId,
+                run.RunId,
+                run.EventType,
+                run.EventDescription,
+                EventJson = JsonSerializer.Serialize(run, ContractJson.Default),
+                run.CreatedUtc
+            };
         });
 
         await connection.ExecuteAsync(new CommandDefinition(
@@ -56,7 +61,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             cancellationToken: cancellationToken));
     }
 
-    public async Task<IReadOnlyList<RunEventTrace>> GetByRunIdAsync(
+    public async Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
@@ -78,29 +83,29 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             },
             cancellationToken: cancellationToken));
 
-        List<RunEventTrace> traces = [];
+        List<DecisionTrace> traces = [];
         foreach (string json in rows)
         {
-            RunEventTrace? trace;
+            RunEventTracePayload? payload;
             try
             {
-                trace = JsonSerializer.Deserialize<RunEventTrace>(json, ContractJson.Default);
+                payload = JsonSerializer.Deserialize<RunEventTracePayload>(json, ContractJson.Default);
             }
             catch (JsonException ex)
             {
                 throw new InvalidOperationException(
-                    $"Failed to deserialize a RunEventTrace for run '{runId}'. " +
+                    $"Failed to deserialize coordinator trace payload for run '{runId}'. " +
                     "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
             }
 
-            if (trace is null)
-            
-                throw new InvalidOperationException(
-                    $"A RunEventTrace row for run '{runId}' deserialized to null. " +
-                    "The stored JSON may be empty or corrupt.");
-            
+            if (payload is null)
 
-            traces.Add(trace);
+                throw new InvalidOperationException(
+                    $"A coordinator trace row for run '{runId}' deserialized to null. " +
+                    "The stored JSON may be empty or corrupt.");
+
+
+            traces.Add(DecisionTrace.FromRunEvent(payload));
         }
 
         return traces;

@@ -1,9 +1,9 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Connections;
 using ArchiForge.Persistence.Serialization;
 
@@ -13,17 +13,18 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
-/// <summary>Persists <see cref="RuleAuditTrace"/> from decisioning (not API <c>DecisionTraces</c> table).</summary>
+/// <summary>Persists authority <see cref="DecisionTrace"/> (rule audit) from decisioning (not coordinator <c>DecisionTraces</c> table).</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
     public async Task SaveAsync(
-        RuleAuditTrace trace,
+        DecisionTrace trace,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(trace);
+        RuleAuditTracePayload audit = trace.RequireRuleAudit();
 
         const string sql = """
             INSERT INTO dbo.DecisioningTraces
@@ -44,19 +45,19 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
 
         object args = new
         {
-            trace.TenantId,
-            trace.WorkspaceId,
-            trace.ProjectId,
-            trace.DecisionTraceId,
-            trace.RunId,
-            trace.CreatedUtc,
-            trace.RuleSetId,
-            trace.RuleSetVersion,
-            trace.RuleSetHash,
-            AppliedRuleIdsJson = JsonEntitySerializer.Serialize(trace.AppliedRuleIds),
-            AcceptedFindingIdsJson = JsonEntitySerializer.Serialize(trace.AcceptedFindingIds),
-            RejectedFindingIdsJson = JsonEntitySerializer.Serialize(trace.RejectedFindingIds),
-            NotesJson = JsonEntitySerializer.Serialize(trace.Notes)
+            audit.TenantId,
+            audit.WorkspaceId,
+            audit.ProjectId,
+            audit.DecisionTraceId,
+            audit.RunId,
+            audit.CreatedUtc,
+            audit.RuleSetId,
+            audit.RuleSetVersion,
+            audit.RuleSetHash,
+            AppliedRuleIdsJson = JsonEntitySerializer.Serialize(audit.AppliedRuleIds),
+            AcceptedFindingIdsJson = JsonEntitySerializer.Serialize(audit.AcceptedFindingIds),
+            RejectedFindingIdsJson = JsonEntitySerializer.Serialize(audit.RejectedFindingIds),
+            NotesJson = JsonEntitySerializer.Serialize(audit.Notes)
         };
 
         if (connection is not null)
@@ -69,7 +70,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
-    public async Task<RuleAuditTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
+    public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -102,7 +103,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        return new RuleAuditTrace
+        return DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
         {
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,
@@ -117,7 +118,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
             AcceptedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.AcceptedFindingIdsJson),
             RejectedFindingIds = JsonEntitySerializer.Deserialize<List<string>>(row.RejectedFindingIdsJson),
             Notes = JsonEntitySerializer.Deserialize<List<string>>(row.NotesJson)
-        };
+        });
     }
 
     private sealed class DecisionTraceRow

@@ -1,5 +1,6 @@
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Queries;
@@ -49,7 +50,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                 if (detail?.GoldenManifest is null ||
                     detail.GraphSnapshot is null ||
                     detail.FindingsSnapshot is null ||
-                    detail.DecisionTrace is null)
+                    detail.AuthorityTrace is null)
                 {
                     _logger.LogWarning(
                         "Skipping retrieval indexing for run {RunId}: incomplete run detail.",
@@ -61,7 +62,6 @@ public sealed class RetrievalIndexingOutboxProcessor(
                 GoldenManifest manifest = detail.GoldenManifest;
                 GraphSnapshot graphSnapshot = detail.GraphSnapshot;
                 FindingsSnapshot findings = detail.FindingsSnapshot;
-                RuleAuditTrace trace = detail.DecisionTrace;
                 IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
 
                 DecisionProvenanceGraph graph = provenanceBuilder.Build(
@@ -69,7 +69,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                     findings,
                     graphSnapshot,
                     manifest,
-                    trace,
+                    detail.AuthorityTrace,
                     artifacts);
 
                 await indexer.IndexAuthorityRunAsync(

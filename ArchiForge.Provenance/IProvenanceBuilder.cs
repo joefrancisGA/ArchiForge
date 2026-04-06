@@ -1,4 +1,5 @@
 using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -12,6 +13,6 @@ public interface IProvenanceBuilder
         FindingsSnapshot findings,
         GraphSnapshot graph,
         GoldenManifest manifest,
-        RuleAuditTrace trace,
+        DecisionTrace trace,
         IReadOnlyList<SynthesizedArtifact> artifacts);
 }

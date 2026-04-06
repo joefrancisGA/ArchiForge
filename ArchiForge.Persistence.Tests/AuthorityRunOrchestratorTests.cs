@@ -1,4 +1,5 @@
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Authority;
 using ArchiForge.Core.Integration;
@@ -89,15 +90,18 @@ public sealed class AuthorityRunOrchestratorTests
                         CreatedUtc = DateTime.UtcNow,
                     };
 
-                    ctx.Trace = new RuleAuditTrace
+                    ctx.Trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
                     {
+                        TenantId = ctx.Scope.TenantId,
+                        WorkspaceId = ctx.Scope.WorkspaceId,
+                        ProjectId = ctx.Scope.ProjectId,
                         DecisionTraceId = traceId,
                         RunId = ctx.Run.RunId,
                         CreatedUtc = DateTime.UtcNow,
                         RuleSetId = "rs",
                         RuleSetVersion = "1",
                         RuleSetHash = "h",
-                    };
+                    });
 
                     ctx.Manifest = NewMinimalManifest(
                         ctx.Scope,
@@ -258,15 +262,18 @@ public sealed class AuthorityRunOrchestratorTests
                         CreatedUtc = DateTime.UtcNow,
                     };
 
-                    ctx.Trace = new RuleAuditTrace
+                    ctx.Trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
                     {
+                        TenantId = ctx.Scope.TenantId,
+                        WorkspaceId = ctx.Scope.WorkspaceId,
+                        ProjectId = ctx.Scope.ProjectId,
                         DecisionTraceId = traceId,
                         RunId = ctx.Run.RunId,
                         CreatedUtc = DateTime.UtcNow,
                         RuleSetId = "rs",
                         RuleSetVersion = "1",
                         RuleSetHash = "h",
-                    };
+                    });
 
                     ctx.Manifest = NewMinimalManifest(
                         ctx.Scope,

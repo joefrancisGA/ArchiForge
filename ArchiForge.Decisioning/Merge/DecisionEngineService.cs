@@ -3,7 +3,7 @@ using ArchiForge.Contracts.Common;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Findings;
 using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Requests;
 using ArchiForge.Decisioning.Validation;
 
@@ -676,10 +676,10 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
     private static void AttachDecisionTraceIds(
         GoldenManifest manifest,
-        IReadOnlyCollection<RunEventTrace> traces)
+        IReadOnlyCollection<DecisionTrace> traces)
     {
         manifest.Metadata.DecisionTraceIds = traces
-            .Select(t => t.TraceId)
+            .Select(t => t.RequireRunEvent().TraceId)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
@@ -738,7 +738,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         string description,
         Dictionary<string, string> metadata)
     {
-        output.DecisionTraces.Add(new RunEventTrace
+        output.DecisionTraces.Add(DecisionTrace.FromRunEvent(new RunEventTracePayload
         {
             TraceId = Guid.NewGuid().ToString("N"),
             RunId = runId,
@@ -746,7 +746,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
             EventDescription = description,
             CreatedUtc = DateTime.UtcNow,
             Metadata = metadata
-        });
+        }));
     }
 
     private static ManifestService CloneService(ManifestService source) =>

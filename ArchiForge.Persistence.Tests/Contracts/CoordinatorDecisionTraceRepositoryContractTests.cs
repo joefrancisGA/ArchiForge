@@ -1,4 +1,4 @@
-using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -37,33 +37,33 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
         DateTime t0 = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
         DateTime t1 = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
 
-        List<RunEventTrace> batch =
+        List<DecisionTrace> batch =
         [
-            new()
+            DecisionTrace.FromRunEvent(new RunEventTracePayload
             {
                 TraceId = "a-" + Guid.NewGuid().ToString("N"),
                 RunId = runId,
                 EventType = "second",
                 EventDescription = "d2",
                 CreatedUtc = t1,
-            },
-            new()
+            }),
+            DecisionTrace.FromRunEvent(new RunEventTracePayload
             {
                 TraceId = "b-" + Guid.NewGuid().ToString("N"),
                 RunId = runId,
                 EventType = "first",
                 EventDescription = "d1",
                 CreatedUtc = t0,
-            },
+            }),
         ];
 
         await repo.CreateManyAsync(batch, CancellationToken.None);
 
-        IReadOnlyList<RunEventTrace> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<DecisionTrace> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
-        loaded[0].EventType.Should().Be("first");
-        loaded[1].EventType.Should().Be("second");
+        loaded[0].RequireRunEvent().EventType.Should().Be("first");
+        loaded[1].RequireRunEvent().EventType.Should().Be("second");
     }
 
     [SkippableFact]
@@ -72,7 +72,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
         SkipIfSqlServerUnavailable();
         ICoordinatorDecisionTraceRepository repo = CreateRepository();
 
-        IReadOnlyList<RunEventTrace> loaded =
+        IReadOnlyList<DecisionTrace> loaded =
             await repo.GetByRunIdAsync("no-such-" + Guid.NewGuid().ToString("N"), CancellationToken.None);
 
         loaded.Should().BeEmpty();

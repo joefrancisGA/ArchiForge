@@ -8,6 +8,7 @@ using ArchiForge.Application.Evidence;
 using ArchiForge.Application.Runs;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
@@ -688,7 +689,7 @@ public sealed class ArchitectureRunService(
                 "but the manifest could not be found in storage. " +
                 "It may have been deleted or there is a replication lag.");
 
-        IReadOnlyList<RunEventTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation(

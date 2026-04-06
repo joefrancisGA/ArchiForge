@@ -1,3 +1,4 @@
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -10,7 +11,7 @@ public interface IGoldenManifestBuilder
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
         FindingsSnapshot findingsSnapshot,
-        RuleAuditTrace trace,
+        DecisionTrace trace,
         DecisionRuleSet ruleSet);
 }
 

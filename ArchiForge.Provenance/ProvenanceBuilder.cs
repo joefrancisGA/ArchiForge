@@ -1,4 +1,5 @@
-﻿using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 
@@ -11,9 +12,11 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         FindingsSnapshot findings,
         GraphSnapshot graph,
         GoldenManifest manifest,
-        RuleAuditTrace trace,
+        DecisionTrace decisionTrace,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
+        RuleAuditTracePayload trace = decisionTrace.RequireRuleAudit();
+
         DecisionProvenanceGraph result = new()
         {
             Id = Guid.NewGuid(),

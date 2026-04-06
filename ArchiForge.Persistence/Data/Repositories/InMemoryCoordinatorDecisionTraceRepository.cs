@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 using ArchiForge.Contracts.Common;
-using ArchiForge.Contracts.Metadata;
+using ArchiForge.Contracts.DecisionTraces;
 
 namespace ArchiForge.Persistence.Data.Repositories;
 
@@ -11,61 +11,66 @@ namespace ArchiForge.Persistence.Data.Repositories;
 /// </summary>
 public sealed class InMemoryCoordinatorDecisionTraceRepository : ICoordinatorDecisionTraceRepository
 {
-    private readonly Dictionary<string, List<RunEventTrace>> _byRunId = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, List<DecisionTrace>> _byRunId = new(StringComparer.Ordinal);
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateManyAsync(IEnumerable<RunEventTrace> traces, CancellationToken cancellationToken = default)
+    public Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(traces);
         cancellationToken.ThrowIfCancellationRequested();
 
-        List<RunEventTrace> materialized = traces.ToList();
+        List<DecisionTrace> materialized = traces.ToList();
 
         lock (_gate)
-        
-            foreach (RunEventTrace trace in materialized)
+
+            foreach (DecisionTrace trace in materialized)
             {
-                if (!_byRunId.TryGetValue(trace.RunId, out List<RunEventTrace>? list))
+                RunEventTracePayload run = trace.RequireRunEvent();
+
+                if (!_byRunId.TryGetValue(run.RunId, out List<DecisionTrace>? list))
                 {
                     list = [];
-                    _byRunId[trace.RunId] = list;
+                    _byRunId[run.RunId] = list;
                 }
 
                 list.Add(Clone(trace));
             }
-        
+
 
         return Task.CompletedTask;
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<RunEventTrace>> GetByRunIdAsync(
+    public Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)
         {
-            if (!_byRunId.TryGetValue(runId, out List<RunEventTrace>? list))
-            
-                return Task.FromResult<IReadOnlyList<RunEventTrace>>([]);
-            
+            if (!_byRunId.TryGetValue(runId, out List<DecisionTrace>? list))
 
-            List<RunEventTrace> ordered = list
-                .OrderBy(t => t.CreatedUtc)
+                return Task.FromResult<IReadOnlyList<DecisionTrace>>([]);
+
+
+            List<DecisionTrace> ordered = list
+                .OrderBy(t => t.RequireRunEvent().CreatedUtc)
                 .Select(Clone)
                 .ToList();
 
-            return Task.FromResult<IReadOnlyList<RunEventTrace>>(ordered);
+            return Task.FromResult<IReadOnlyList<DecisionTrace>>(ordered);
         }
     }
 
-    private static RunEventTrace Clone(RunEventTrace source)
+    private static DecisionTrace Clone(DecisionTrace source)
     {
-        string json = JsonSerializer.Serialize(source, ContractJson.Default);
-        RunEventTrace? copy = JsonSerializer.Deserialize<RunEventTrace>(json, ContractJson.Default);
+        RunEventTracePayload payload = source.RequireRunEvent();
+        string json = JsonSerializer.Serialize(payload, ContractJson.Default);
+        RunEventTracePayload? copy = JsonSerializer.Deserialize<RunEventTracePayload>(json, ContractJson.Default);
 
-        return copy ?? throw new InvalidOperationException("Clone produced null RunEventTrace.");
+        return copy is null
+            ? throw new InvalidOperationException("Clone produced null RunEventTracePayload.")
+            : DecisionTrace.FromRunEvent(copy);
     }
 }

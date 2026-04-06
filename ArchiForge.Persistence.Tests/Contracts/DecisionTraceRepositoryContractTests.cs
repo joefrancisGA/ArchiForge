@@ -1,6 +1,6 @@
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
-using ArchiForge.Decisioning.Models;
 
 using FluentAssertions;
 
@@ -17,9 +17,9 @@ public abstract class DecisionTraceRepositoryContractTests
 
     protected abstract IDecisionTraceRepository CreateRepository();
 
-    private static RuleAuditTrace NewTrace(ScopeContext scope, Guid runId, Guid traceId)
+    private static DecisionTrace NewTrace(ScopeContext scope, Guid runId, Guid traceId)
     {
-        return new RuleAuditTrace
+        return DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -34,7 +34,7 @@ public abstract class DecisionTraceRepositoryContractTests
             AcceptedFindingIds = [],
             RejectedFindingIds = [],
             Notes = ["n1"],
-        };
+        });
     }
 
     [SkippableFact]
@@ -54,14 +54,15 @@ public abstract class DecisionTraceRepositoryContractTests
 
         await PrepareRunForTraceAsync(scope, runId, CancellationToken.None);
 
-        RuleAuditTrace trace = NewTrace(scope, runId, traceId);
+        DecisionTrace trace = NewTrace(scope, runId, traceId);
         await repo.SaveAsync(trace, CancellationToken.None);
 
-        RuleAuditTrace? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
+        DecisionTrace? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
         loaded.Should().NotBeNull();
-        loaded.DecisionTraceId.Should().Be(traceId);
-        loaded.RunId.Should().Be(runId);
-        loaded.AppliedRuleIds.Should().Equal("r1");
+        RuleAuditTracePayload audit = loaded!.RequireRuleAudit();
+        audit.DecisionTraceId.Should().Be(traceId);
+        audit.RunId.Should().Be(runId);
+        audit.AppliedRuleIds.Should().Equal("r1");
     }
 
     [SkippableFact]
@@ -81,7 +82,7 @@ public abstract class DecisionTraceRepositoryContractTests
 
         await PrepareRunForTraceAsync(scope, runId, CancellationToken.None);
 
-        RuleAuditTrace trace = NewTrace(scope, runId, traceId);
+        DecisionTrace trace = NewTrace(scope, runId, traceId);
         await repo.SaveAsync(trace, CancellationToken.None);
 
         ScopeContext other = new()
@@ -91,7 +92,7 @@ public abstract class DecisionTraceRepositoryContractTests
             ProjectId = scope.ProjectId,
         };
 
-        RuleAuditTrace? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);
+        DecisionTrace? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);
         loaded.Should().BeNull();
     }
 

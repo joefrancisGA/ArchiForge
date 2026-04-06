@@ -16466,7 +16466,7 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RunEventTrace"
+              "$ref": "#/components/schemas/DecisionTrace"
             }
           },
           "isCommitted": {
@@ -16987,7 +16987,7 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RunEventTrace"
+              "$ref": "#/components/schemas/DecisionTrace"
             }
           },
           "warnings": {
@@ -18068,6 +18068,37 @@
             "format": "date-time"
           }
         }
+      },
+      "DecisionTrace": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/DecisionTraceKind"
+          },
+          "runEvent": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RunEventTracePayload"
+              }
+            ]
+          },
+          "ruleAudit": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RuleAuditTracePayload"
+              }
+            ]
+          }
+        }
+      },
+      "DecisionTraceKind": {
+        "type": "integer"
       },
       "DeterminismCheckRequest": {
         "type": "object",
@@ -22190,7 +22221,7 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RunEventTrace"
+              "$ref": "#/components/schemas/DecisionTrace"
             }
           },
           "warnings": {
@@ -22328,7 +22359,7 @@
           }
         }
       },
-      "RuleAuditTrace": {
+      "RuleAuditTracePayload": {
         "type": "object",
         "properties": {
           "tenantId": {
@@ -22632,7 +22663,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/RuleAuditTrace"
+                "$ref": "#/components/schemas/DecisionTrace"
               }
             ]
           },
@@ -22689,12 +22720,12 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RunEventTrace"
+              "$ref": "#/components/schemas/DecisionTrace"
             }
           }
         }
       },
-      "RunEventTrace": {
+      "RunEventTracePayload": {
         "type": "object",
         "properties": {
           "traceId": {

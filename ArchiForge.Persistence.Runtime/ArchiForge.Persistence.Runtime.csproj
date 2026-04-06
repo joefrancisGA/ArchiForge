@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Advisory\ArchiForge.Persistence.Advisory.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Integration\ArchiForge.Persistence.Integration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

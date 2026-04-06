@@ -1,5 +1,6 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Persistence.Data.Repositories;
 
@@ -40,7 +41,7 @@ public sealed class RunDetailQueryService(
         IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
 
         Contracts.Manifest.GoldenManifest? manifest = null;
-        List<RunEventTrace> decisionTraces = [];
+        List<DecisionTrace> decisionTraces = [];
 
         if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
             return new ArchitectureRunDetail

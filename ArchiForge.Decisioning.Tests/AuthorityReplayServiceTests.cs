@@ -1,4 +1,5 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
@@ -83,10 +84,10 @@ public sealed class AuthorityReplayServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((
                 new GoldenManifest { ManifestId = Guid.NewGuid(), RunId = Guid.NewGuid() },
-                new RuleAuditTrace { DecisionTraceId = Guid.NewGuid() }));
+                DecisionTrace.FromRuleAudit(new RuleAuditTracePayload { DecisionTraceId = Guid.NewGuid() })));
 
         traceRepo
-            .Setup(x => x.SaveAsync(It.IsAny<RuleAuditTrace>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         manifestRepo

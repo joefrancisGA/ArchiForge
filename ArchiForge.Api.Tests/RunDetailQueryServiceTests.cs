@@ -2,6 +2,7 @@ using ArchiForge.Application;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
 using ArchiForge.Persistence.Data.Repositories;
@@ -91,7 +92,7 @@ public sealed class RunDetailQueryServiceTests
         GoldenManifest manifest = Manifest();
         AgentTask task = new() { TaskId = "t1", RunId = run.RunId };
         AgentResult agentResult = new() { ResultId = "r1", RunId = run.RunId };
-        RunEventTrace trace = new() { TraceId = "tr1", RunId = run.RunId };
+        DecisionTrace trace = DecisionTrace.FromRunEvent(new RunEventTracePayload { TraceId = "tr1", RunId = run.RunId });
 
         _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(run);

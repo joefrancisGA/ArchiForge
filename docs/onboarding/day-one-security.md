@@ -1,6 +1,6 @@
 # Day one — Security / GRC (week one)
 
-**Goal:** Map **trust boundaries**, **identity**, and **data-plane exposure** for ArchiForge in **your** Azure landing zone. **Not** a full pen test or every ADR.
+**Goal:** Map **trust boundaries**, **identity**, and **data-plane exposure** for **ArchLucid** in **your** Azure landing zone. **Not** a full pen test or every ADR.
 
 **Ticket:** `ONBOARD-SEC-001` (copy into your work tracker)
 

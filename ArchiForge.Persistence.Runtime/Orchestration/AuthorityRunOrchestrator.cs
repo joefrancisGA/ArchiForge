@@ -6,6 +6,7 @@ using ArchiForge.Core.Audit;
 using ArchiForge.Core.Authority;
 using ArchiForge.Core.Diagnostics;
 using ArchiForge.Core.Integration;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Integration;
 using ArchiForge.Persistence.Interfaces;
@@ -223,7 +224,7 @@ public sealed class AuthorityRunOrchestrator(
         ContextSnapshot contextSnapshot,
         Decisioning.Models.FindingsSnapshot findingsSnapshot,
         Decisioning.Models.GoldenManifest manifest,
-        Decisioning.Models.RuleAuditTrace trace,
+        DecisionTrace trace,
         ScopeContext scope,
         IArchiForgeUnitOfWork uow,
         CancellationToken ct)
@@ -299,7 +300,7 @@ public sealed class AuthorityRunOrchestrator(
                 manifest.ManifestId,
                 contextSnapshot.SnapshotId,
                 findingsSnapshot.FindingsSnapshotId,
-                trace.DecisionTraceId);
+                trace.RequireRuleAudit().DecisionTraceId);
         }
 
         ArchiForgeInstrumentation.AuthorityRunsCompletedTotal.Add(1);

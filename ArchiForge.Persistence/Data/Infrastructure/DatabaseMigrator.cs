@@ -18,14 +18,16 @@ public static class DatabaseMigrator
     /// <summary>
     /// Applies all embedded migration scripts to the SQL Server database.
     /// </summary>
-    public static bool Run(string connectionString) =>
+    /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
+    public static void Run(string connectionString) =>
         RunWithScriptFilter(connectionString, static _ => true);
 
     /// <summary>
     /// Applies embedded migrations in order, excluding the last <paramref name="trailingScriptCountToSkip"/> scripts (upgrade-from-N-1 CI path).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">When skip count is not between 1 and script count - 1.</exception>
-    public static bool RunExcludingTrailingScripts(string connectionString, int trailingScriptCountToSkip)
+    /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
+    public static void RunExcludingTrailingScripts(string connectionString, int trailingScriptCountToSkip)
     {
         IReadOnlyList<string> ordered = GetOrderedMigrationResourceNames();
 
@@ -37,7 +39,7 @@ public static class DatabaseMigrator
         
 
         HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip).ToHashSet(StringComparer.Ordinal);
-        return RunWithScriptFilter(connectionString, allowed.Contains);
+        RunWithScriptFilter(connectionString, allowed.Contains);
     }
 
     /// <summary>Ordered embedded migration resource names (same order DbUp uses).</summary>
@@ -53,7 +55,7 @@ public static class DatabaseMigrator
             .ToList();
     }
 
-    private static bool RunWithScriptFilter(string connectionString, Func<string, bool> includeScript)
+    private static void RunWithScriptFilter(string connectionString, Func<string, bool> includeScript)
     {
         Assembly assembly = Assembly.GetExecutingAssembly();
 
@@ -77,14 +79,16 @@ public static class DatabaseMigrator
 
         DatabaseUpgradeResult result = upgrader.PerformUpgrade();
 
-        if (!result.Successful)
-        {
-            string detail = result.Error?.Message ?? "(no exception on DatabaseUpgradeResult)";
+        if (result.Successful)
+            return;
 
-            Console.Error.WriteLine("DbUp migration failed: " + detail);
-        }
+        string detail = result.Error?.Message ?? "(no exception on DatabaseUpgradeResult)";
 
-        return result.Successful;
+        Console.Error.WriteLine("DbUp migration failed: " + detail);
+
+        throw new InvalidOperationException(
+            "Database migration failed. See inner exception for the SQL Server error. DbUp message: " + detail,
+            result.Error);
     }
 
     private static string ReadEmbeddedScript(Assembly assembly, string name)

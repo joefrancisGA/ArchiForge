@@ -43,11 +43,7 @@ public static class ArchiForgePersistenceStartup
             app.Logger.LogInformation(
                 "Startup: running DbUp migrations (embedded scripts under ArchiForge.Persistence/Migrations).");
 
-            if (!DatabaseMigrator.Run(connectionString))
-
-                throw new InvalidOperationException(
-                    "Database migration failed; see DbUp console output and standard error for the SQL error.");
-
+            DatabaseMigrator.Run(connectionString);
 
             app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
         }

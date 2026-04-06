@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.Persistence.Models;
@@ -29,7 +30,7 @@ public class RunDetailDto
 
     /// <summary>Authority rule-audit trace when <see cref="RunRecord.DecisionTraceId"/> resolves.</summary>
     [JsonPropertyName("decisionTrace")]
-    public RuleAuditTrace? DecisionTrace { get; set; }
+    public DecisionTrace? AuthorityTrace { get; set; }
 
     /// <summary>Golden manifest when <see cref="RunRecord.GoldenManifestId"/> resolves.</summary>
     public GoldenManifest? GoldenManifest { get; set; }

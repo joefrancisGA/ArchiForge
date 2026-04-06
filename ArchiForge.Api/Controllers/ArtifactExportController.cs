@@ -209,9 +209,9 @@ public sealed class ArtifactExportController(
 
         string manifestJson = JsonSerializer.Serialize(runDetail.GoldenManifest, ExportJsonOptions);
 
-        string? traceJson = runDetail.DecisionTrace is null
+        string? traceJson = runDetail.AuthorityTrace is null
             ? null
-            : JsonSerializer.Serialize(runDetail.DecisionTrace, ExportJsonOptions);
+            : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
 
         ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(
             runId,

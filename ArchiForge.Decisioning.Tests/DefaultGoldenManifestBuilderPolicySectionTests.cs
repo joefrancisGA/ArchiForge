@@ -1,3 +1,4 @@
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Findings;
 using ArchiForge.Decisioning.Findings.Payloads;
 using ArchiForge.Decisioning.Manifest.Builders;
@@ -128,7 +129,11 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
             Findings = findings
         };
 
-        RuleAuditTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
+        DecisionTrace trace = DecisionTrace.FromRuleAudit(new RuleAuditTracePayload
+        {
+            DecisionTraceId = Guid.NewGuid(),
+            RunId = runId
+        });
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
         return new DefaultGoldenManifestBuilder().Build(runId, ctxId, graph, snapshot, trace, ruleSet);

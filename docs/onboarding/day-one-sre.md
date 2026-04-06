@@ -1,6 +1,6 @@
 # Day one — SRE / Platform (week one)
 
-**Goal:** Know how the service **starts**, **fails**, and **deploys** in your environment. **Not** full Terraform depth for every optional root.
+**Goal:** Know how the **ArchLucid** service **starts**, **fails**, and **deploys** in your environment. **Not** full Terraform depth for every optional root.
 
 **Ticket:** `ONBOARD-SRE-001` (copy into your work tracker)
 

@@ -7,9 +7,10 @@ using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
 using ArchiForge.Core.Audit;
 using ArchiForge.Core.Diagnostics;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Core.Scoping;
-using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
+using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.KnowledgeGraph.Interfaces;
 using ArchiForge.KnowledgeGraph.Models;
 using ArchiForge.KnowledgeGraph.Services;
@@ -157,7 +158,7 @@ public sealed class AuthorityPipelineStagesExecutor(
         using (Activity? a = ArchiForgeInstrumentation.AuthorityRun.StartActivity("authority.decisioning"))
         {
             a?.SetTag("archiforge.run_id", run.RunId.ToString("D"));
-            (GoldenManifest manifest, RuleAuditTrace trace) = await _decisionEngine.DecideAsync(
+            (GoldenManifest manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
@@ -190,7 +191,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             ctx.Manifest = manifest;
             ctx.Trace = trace;
 
-            run.DecisionTraceId = trace.DecisionTraceId;
+            run.DecisionTraceId = trace.RequireRuleAudit().DecisionTraceId;
             run.GoldenManifestId = manifest.ManifestId;
             await UpdateRunAsync(run, uow, ct);
         }
@@ -267,7 +268,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _findingsSnapshotRepository.SaveAsync(snapshot, ct);
     }
 
-    private async Task SaveTraceAsync(RuleAuditTrace trace, IArchiForgeUnitOfWork uow, CancellationToken ct)
+    private async Task SaveTraceAsync(DecisionTrace trace, IArchiForgeUnitOfWork uow, CancellationToken ct)
     {
         if (uow.SupportsExternalTransaction)
             await _decisionTraceRepository.SaveAsync(trace, ct, uow.Connection, uow.Transaction);
@@ -291,11 +292,12 @@ public sealed class AuthorityPipelineStagesExecutor(
             await _artifactBundleRepository.SaveAsync(bundle, ct);
     }
 
-    private static void ApplyScope(RuleAuditTrace trace, ScopeContext scope)
+    private static void ApplyScope(DecisionTrace trace, ScopeContext scope)
     {
-        trace.TenantId = scope.TenantId;
-        trace.WorkspaceId = scope.WorkspaceId;
-        trace.ProjectId = scope.ProjectId;
+        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        audit.TenantId = scope.TenantId;
+        audit.WorkspaceId = scope.WorkspaceId;
+        audit.ProjectId = scope.ProjectId;
     }
 
     private static void ApplyScope(GoldenManifest manifest, ScopeContext scope)

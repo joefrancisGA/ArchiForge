@@ -145,7 +145,7 @@ public sealed class AuthorityQueryController(
         if (detail.GoldenManifest is null ||
             detail.GraphSnapshot is null ||
             detail.FindingsSnapshot is null ||
-            detail.DecisionTrace is null)
+            detail.AuthorityTrace is null)
         {
             return this.UnprocessableEntityProblem(
                 "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
@@ -158,7 +158,7 @@ public sealed class AuthorityQueryController(
             detail.FindingsSnapshot,
             detail.GraphSnapshot,
             detail.GoldenManifest,
-            detail.DecisionTrace,
+            detail.AuthorityTrace,
             artifacts);
 
         return Ok(graph);

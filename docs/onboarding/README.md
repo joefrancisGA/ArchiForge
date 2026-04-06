@@ -1,6 +1,6 @@
 # Week-one onboarding (role-scoped)
 
-Short **ticket-style** checklists: each page lists only **3–5** outcomes a role typically touches in the **first week**. Deep dives stay in the linked golden path and architecture docs.
+Short **ticket-style** checklists for onboarding to **ArchLucid**: each page lists only **3–5** outcomes a role typically touches in the **first week**. Deep dives stay in the linked golden path and architecture docs.
 
 | Role | Day-one ticket |
 |------|----------------|

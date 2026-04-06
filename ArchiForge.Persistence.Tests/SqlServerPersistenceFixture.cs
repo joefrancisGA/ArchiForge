@@ -62,11 +62,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
         {
             await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
-            if (!DatabaseMigrator.Run(connectionString))
-            
-                throw new InvalidOperationException(
-                    "DbUp failed against SQL Server; see test output for script errors.");
-            
+            DatabaseMigrator.Run(connectionString);
 
             await RunPersistenceContractSupplementAsync(connectionString);
 
@@ -98,8 +94,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
             await SqlServerTestCatalogCommands.EnsureCatalogExistsAsync(connectionString, CancellationToken.None);
 
-            if (!DatabaseMigrator.Run(connectionString))
-                return false;
+            DatabaseMigrator.Run(connectionString);
 
             await RunPersistenceContractSupplementAsync(connectionString);
 

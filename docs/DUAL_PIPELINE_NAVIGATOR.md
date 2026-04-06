@@ -14,7 +14,7 @@
 |--------|---------------------------|---------------------------|
 | **Entry** | `POST /v1/architecture/request`, `ArchitectureRunService` | `AuthorityRunOrchestrator` / `AuthorityPipelineStagesExecutor` |
 | **Primary actors** | `IAgentExecutor`, `DecisionEngineService` (merge) | Context ingestion → graph → findings → `IDecisionEngine` |
-| **Event / audit log** | `RunEventTrace` (`ArchiForge.Contracts.Metadata`) — append-only steps | `RuleAuditTrace` (`ArchiForge.Decisioning.Models`) — rule IDs, finding accept/reject |
+| **Event / audit log** | `DecisionTrace` with `Kind=RunEvent` (`RunEventTracePayload`) — append-only merge/agent steps | `DecisionTrace` with `Kind=RuleAudit` (`RuleAuditTracePayload`) — rule IDs, finding accept/reject |
 | **Manifest** | Versioned coordinator manifest | `GoldenManifest` with snapshot IDs |
 | **Typical UI** | Runs / tasks / agent results | Authority run detail, graph, provenance |
 
@@ -24,7 +24,7 @@
 
 - **Coordinator path**: `RunsController` → application services → `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` (names express “coordinator port”).
 - **Authority path**: Ingestion connectors → `ContextSnapshot` → `GraphSnapshot` → `FindingsSnapshot` → `RuleBasedDecisionEngine` → `IDecisionTraceRepository` (rule audit rows) and `IGoldenManifestRepository`.
-- **Overlap**: Both produce or consume `GoldenManifest`, `FindingsSnapshot`, and decision **nodes**; only the **trace types** differ (`RunEventTrace` vs `RuleAuditTrace`).
+- **Overlap**: Both produce or consume `GoldenManifest`, `FindingsSnapshot`, and decision **nodes**; traces share the **`DecisionTrace` discriminated union** (`DecisionTraceKind`) with different payloads per pipeline.
 
 ---
 
@@ -36,7 +36,7 @@ flowchart LR
     R[Architecture request]
     A[Agents]
     M[Merge DecisionEngineService]
-    T1[RunEventTrace rows]
+    T1[DecisionTrace RunEvent rows]
     R --> A --> M --> T1
   end
   subgraph auth [Authority pipeline]
@@ -44,7 +44,7 @@ flowchart LR
     G[Graph build]
     F[Findings engines]
     D[RuleBasedDecisionEngine]
-    T2[RuleAuditTrace row]
+    T2[DecisionTrace RuleAudit row]
     C --> G --> F --> D --> T2
   end
   GM[GoldenManifest]
@@ -63,8 +63,8 @@ Both paths honor **scope** (`TenantId` / `WorkspaceId` / `ProjectId`) and **auth
 ## Operational considerations
 
 - **Incomplete authority runs** (no graph/findings/trace) return **422** from the provenance endpoint; coordinator-only runs are expected to hit that path.
-- **Tracing**: Use correlation IDs from the API; coordinator merge emits `RunEventTrace` rows for operator forensics.
-- **Rename**: Product/UI strings move to ArchLucid per `docs/ARCHLUCID_RENAME_CHECKLIST.md`; type names `RunEventTrace` / `RuleAuditTrace` are stable labels for code navigation.
+- **Tracing**: Use correlation IDs from the API; coordinator merge emits **RunEvent** decision traces for operator forensics.
+- **Rename**: Product/UI strings move to ArchLucid per `docs/ARCHLUCID_RENAME_CHECKLIST.md`; coordinator SQL still stores **RunEvent** payload JSON in legacy columns; authority stores **RuleAudit** in relational `DecisionTraces` tables.
 
 ---
 

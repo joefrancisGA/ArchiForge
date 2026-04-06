@@ -1,6 +1,7 @@
 using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.Persistence.Models;
@@ -53,7 +54,7 @@ public sealed class AuthorityReplayService(
                 GraphPresent = original.GraphSnapshot is not null,
                 FindingsPresent = original.FindingsSnapshot is not null,
                 ManifestPresent = original.GoldenManifest is not null,
-                TracePresent = original.DecisionTrace is not null,
+                TracePresent = original.AuthorityTrace is not null,
                 ArtifactsPresent = original.ArtifactBundle is not null
             }
         };
@@ -86,7 +87,7 @@ public sealed class AuthorityReplayService(
             return result;
         }
 
-        (GoldenManifest manifest, RuleAuditTrace trace) = await decisionEngine.DecideAsync(
+        (GoldenManifest manifest, DecisionTrace trace) = await decisionEngine.DecideAsync(
             original.Run.RunId,
             original.ContextSnapshot.SnapshotId,
             original.GraphSnapshot,
@@ -161,11 +162,12 @@ public sealed class AuthorityReplayService(
         };
     }
 
-    private static void ApplyScope(RuleAuditTrace trace, ScopeContext scope)
+    private static void ApplyScope(DecisionTrace trace, ScopeContext scope)
     {
-        trace.TenantId = scope.TenantId;
-        trace.WorkspaceId = scope.WorkspaceId;
-        trace.ProjectId = scope.ProjectId;
+        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+        audit.TenantId = scope.TenantId;
+        audit.WorkspaceId = scope.WorkspaceId;
+        audit.ProjectId = scope.ProjectId;
     }
 
     private static void ApplyScope(GoldenManifest manifest, ScopeContext scope)

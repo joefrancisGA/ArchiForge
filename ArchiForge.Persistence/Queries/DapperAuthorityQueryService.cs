@@ -2,6 +2,7 @@ using ArchiForge.ArtifactSynthesis.Interfaces;
 using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.ContextIngestion.Interfaces;
 using ArchiForge.ContextIngestion.Models;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Interfaces;
 using ArchiForge.Decisioning.Models;
@@ -59,9 +60,9 @@ public sealed class DapperAuthorityQueryService(
         Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
             ? findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)
             : Task.FromResult<FindingsSnapshot?>(null);
-        Task<RuleAuditTrace?> traceTask = run.DecisionTraceId.HasValue
+        Task<DecisionTrace?> traceTask = run.DecisionTraceId.HasValue
             ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
-            : Task.FromResult<RuleAuditTrace?>(null);
+            : Task.FromResult<DecisionTrace?>(null);
         Task<GoldenManifest?> manifestTask = run.GoldenManifestId.HasValue
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<GoldenManifest?>(null);
@@ -77,7 +78,7 @@ public sealed class DapperAuthorityQueryService(
             ContextSnapshot = await contextTask,
             GraphSnapshot = await graphTask,
             FindingsSnapshot = await findingsTask,
-            DecisionTrace = await traceTask,
+            AuthorityTrace = await traceTask,
             GoldenManifest = await manifestTask,
             ArtifactBundle = await bundleTask
         };

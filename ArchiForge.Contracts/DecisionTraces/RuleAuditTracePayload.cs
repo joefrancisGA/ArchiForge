@@ -1,12 +1,10 @@
-namespace ArchiForge.Decisioning.Models;
+namespace ArchiForge.Contracts.DecisionTraces;
 
 /// <summary>
-/// Authority pipeline record of which rules were applied and which findings were accepted or rejected.
+/// Authority pipeline record of which rules were applied and which findings were accepted or rejected;
+/// nested under <see cref="DecisionTrace"/> when <see cref="DecisionTrace.Kind"/> is <see cref="DecisionTraceKind.RuleAudit"/>.
 /// </summary>
-/// <remarks>
-/// Distinct from <see cref="ArchiForge.Contracts.Metadata.RunEventTrace"/>, which logs coordinator merge/engine steps for string runs.
-/// </remarks>
-public class RuleAuditTrace
+public sealed class RuleAuditTracePayload
 {
     public Guid TenantId { get; set; }
     public Guid WorkspaceId { get; set; }

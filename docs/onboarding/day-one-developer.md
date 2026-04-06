@@ -1,6 +1,6 @@
 # Day one — Developer (week one)
 
-**Goal:** Ship a small, safe change or run the stack locally with confidence. **Not** full domain mastery.
+**Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchiForge.*`.)
 
 **Ticket:** `ONBOARD-DEV-001` (copy into your work tracker)
 

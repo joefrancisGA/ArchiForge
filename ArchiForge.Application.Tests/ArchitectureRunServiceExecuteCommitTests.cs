@@ -4,6 +4,7 @@ using ArchiForge.Application.Decisions;
 using ArchiForge.Application.Evidence;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Decisions;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
@@ -344,12 +345,12 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Manifest = manifest,
             DecisionTraces =
             [
-                new RunEventTrace
+                DecisionTrace.FromRunEvent(new RunEventTracePayload
                 {
                     RunId = runId,
                     EventType = "Commit",
                     EventDescription = "merged",
-                },
+                }),
             ],
         };
 
@@ -391,7 +392,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         manifestRepo.Verify(
             x => x.CreateAsync(It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == manifestVersion), It.IsAny<CancellationToken>()),
             Times.Once);
-        traceRepo.Verify(x => x.CreateManyAsync(It.IsAny<IEnumerable<RunEventTrace>>(), It.IsAny<CancellationToken>()), Times.Once);
+        traceRepo.Verify(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()), Times.Once);
         runRepo.Verify(
             x => x.UpdateStatusAsync(
                 runId,

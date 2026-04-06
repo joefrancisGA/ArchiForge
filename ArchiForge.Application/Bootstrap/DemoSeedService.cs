@@ -1,5 +1,6 @@
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Governance;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
@@ -151,7 +152,7 @@ public sealed class DemoSeedService(
         GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened);
         await manifestRepository.CreateAsync(manifest, cancellationToken);
 
-        RunEventTrace trace = new()
+        DecisionTrace trace = DecisionTrace.FromRunEvent(new RunEventTracePayload
         {
             TraceId = isHardened ? DemoIds.TraceHardened : DemoIds.TraceBaseline,
             RunId = runId,
@@ -161,7 +162,7 @@ public sealed class DemoSeedService(
                 : "Committed baseline Contoso retail manifest.",
             CreatedUtc = DemoUtc,
             Metadata = new Dictionary<string, string> { ["demo"] = "trusted-baseline-49R" }
-        };
+        });
 
         await decisionTraceRepository.CreateManyAsync([trace], cancellationToken);
 

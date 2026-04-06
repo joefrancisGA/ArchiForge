@@ -39,6 +39,7 @@
     <ProjectReference Include="..\ArchiForge.Core\ArchiForge.Core.csproj" />
     <ProjectReference Include="..\ArchiForge.Decisioning\ArchiForge.Decisioning.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence\ArchiForge.Persistence.csproj" />
+    <ProjectReference Include="..\ArchiForge.Persistence.Advisory\ArchiForge.Persistence.Advisory.csproj" />
     <ProjectReference Include="..\ArchiForge.Persistence.Runtime\ArchiForge.Persistence.Runtime.csproj" />
   </ItemGroup>
 

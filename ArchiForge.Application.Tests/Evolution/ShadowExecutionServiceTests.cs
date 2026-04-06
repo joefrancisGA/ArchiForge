@@ -3,6 +3,7 @@ using ArchiForge.Application.Evolution;
 using ArchiForge.Contracts.Agents;
 using ArchiForge.Contracts.Architecture;
 using ArchiForge.Contracts.Common;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Evolution;
 using ArchiForge.Contracts.Manifest;
 using ArchiForge.Contracts.Metadata;
@@ -50,13 +51,13 @@ public sealed class ShadowExecutionServiceTests
             },
             DecisionTraces =
             [
-                new RunEventTrace
+                DecisionTrace.FromRunEvent(new RunEventTracePayload
                 {
                     TraceId = "t0",
                     RunId = "run1",
                     EventType = "Real",
                     EventDescription = "committed",
-                },
+                }),
             ],
         };
 
@@ -106,7 +107,7 @@ public sealed class ShadowExecutionServiceTests
         captured.PreloadedRunDetail.Should().NotBeNull();
         captured.PreloadedRunDetail!.DecisionTraces.Should().HaveCount(2);
 
-        captured.PreloadedRunDetail.DecisionTraces[^1].EventType.Should().Be("Shadow.CandidateStep");
+        captured.PreloadedRunDetail.DecisionTraces[^1].RequireRunEvent().EventType.Should().Be("Shadow.CandidateStep");
         captured.PreloadedRunDetail.Manifest!.Metadata.ChangeDescription.Should().Contain("[60R shadow]");
         captured.PreloadedRunDetail.Manifest.Metadata.ChangeDescription.Should().Contain("original");
     }

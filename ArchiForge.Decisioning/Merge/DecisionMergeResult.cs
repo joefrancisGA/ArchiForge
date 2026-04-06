@@ -1,6 +1,6 @@
 using ArchiForge.Contracts.Decisions;
+using ArchiForge.Contracts.DecisionTraces;
 using ArchiForge.Contracts.Manifest;
-using ArchiForge.Contracts.Metadata;
 
 namespace ArchiForge.Decisioning.Merge;
 
@@ -37,7 +37,7 @@ public sealed class DecisionMergeResult
     /// Audit traces recording every decision step taken during the merge.
     /// Always populated regardless of success or failure.
     /// </summary>
-    public List<RunEventTrace> DecisionTraces { get; set; } = [];
+    public List<DecisionTrace> DecisionTraces { get; set; } = [];
 
     /// <summary>
     /// <see langword="true"/> when <see cref="Errors"/> is empty and the merge completed successfully.
