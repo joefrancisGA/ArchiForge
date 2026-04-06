@@ -1,10 +1,13 @@
 namespace ArchiForge.Contracts.Metadata;
 
 /// <summary>
-/// Append-only log entry emitted by the decision engine during a run (options evaluated, merges applied, etc.).
+/// Append-only coordinator run event (options evaluated, merges applied, etc.).
 /// </summary>
-/// <remarks>Persisted with the run and exposed in run detail for audit and analysis UIs.</remarks>
-public sealed class DecisionTrace
+/// <remarks>
+/// Persisted with the string-run (coordinator) pipeline and exposed in run detail for audit UIs.
+/// Distinct from <see cref="ArchiForge.Decisioning.Models.RuleAuditTrace"/>, which captures authority rule-application state.
+/// </remarks>
+public sealed class RunEventTrace
 {
     /// <summary>Unique row identifier.</summary>
     public string TraceId { get; set; } = Guid.NewGuid().ToString("N");

@@ -27,7 +27,7 @@ public sealed class ArchitectureRunDetail
     public GoldenManifest? Manifest { get; set; }
 
     /// <summary>Decision traces recorded during commit; empty before commit.</summary>
-    public List<DecisionTrace> DecisionTraces { get; set; } = [];
+    public List<RunEventTrace> DecisionTraces { get; set; } = [];
 
     /// <summary>Convenience accessor: <see langword="true"/> when the run has a committed manifest.</summary>
     public bool IsCommitted => Manifest is not null;

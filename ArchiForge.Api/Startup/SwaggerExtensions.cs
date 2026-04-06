@@ -10,7 +10,7 @@ internal static class SwaggerExtensions
     {
         services.AddSwaggerGen(c =>
         {
-            // Disambiguate types that share a short name (e.g. Decisioning vs Contracts DecisionTrace).
+            // Disambiguate types that share a short name (e.g. RunEventTrace vs RuleAuditTrace).
             c.CustomSchemaIds(type => type.FullName?.Replace("+", ".", StringComparison.Ordinal) ?? type.Name);
 
             c.TagActionsBy(api =>

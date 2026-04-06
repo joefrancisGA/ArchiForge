@@ -344,7 +344,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Manifest = manifest,
             DecisionTraces =
             [
-                new DecisionTrace
+                new RunEventTrace
                 {
                     RunId = runId,
                     EventType = "Commit",
@@ -391,7 +391,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         manifestRepo.Verify(
             x => x.CreateAsync(It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == manifestVersion), It.IsAny<CancellationToken>()),
             Times.Once);
-        traceRepo.Verify(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()), Times.Once);
+        traceRepo.Verify(x => x.CreateManyAsync(It.IsAny<IEnumerable<RunEventTrace>>(), It.IsAny<CancellationToken>()), Times.Once);
         runRepo.Verify(
             x => x.UpdateStatusAsync(
                 runId,

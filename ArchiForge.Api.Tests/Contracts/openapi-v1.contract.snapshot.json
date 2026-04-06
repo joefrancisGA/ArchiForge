@@ -4318,6 +4318,66 @@
         }
       }
     },
+    "/v1/authority/runs/{runId}/provenance": {
+      "get": {
+        "tags": [
+          "ProvenanceQuery"
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionProvenanceSnapshot"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionProvenanceSnapshot"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionProvenanceSnapshot"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/authority/replay": {
       "post": {
         "tags": [
@@ -12184,66 +12244,6 @@
         }
       }
     },
-    "/v1/authority/runs/{runId}/provenance": {
-      "get": {
-        "tags": [
-          "ProvenanceQuery"
-        ],
-        "parameters": [
-          {
-            "name": "runId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/DecisionProvenanceSnapshot"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DecisionProvenanceSnapshot"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DecisionProvenanceSnapshot"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/authority/runs/{runId}/graph": {
       "get": {
         "tags": [
@@ -16466,7 +16466,7 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
+              "$ref": "#/components/schemas/RunEventTrace"
             }
           },
           "isCommitted": {
@@ -16987,7 +16987,7 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
+              "$ref": "#/components/schemas/RunEventTrace"
             }
           },
           "warnings": {
@@ -18012,6 +18012,31 @@
           }
         }
       },
+      "DecisionProvenanceGraph": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProvenanceNode"
+            }
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProvenanceEdge"
+            }
+          }
+        }
+      },
       "DecisionProvenanceSnapshot": {
         "type": "object",
         "properties": {
@@ -18041,33 +18066,6 @@
           "createdUtc": {
             "type": "string",
             "format": "date-time"
-          }
-        }
-      },
-      "DecisionTrace": {
-        "type": "object",
-        "properties": {
-          "traceId": {
-            "type": "string"
-          },
-          "runId": {
-            "type": "string"
-          },
-          "eventType": {
-            "type": "string"
-          },
-          "eventDescription": {
-            "type": "string"
-          },
-          "createdUtc": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "metadata": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
           }
         }
       },
@@ -21520,6 +21518,56 @@
           }
         }
       },
+      "ProvenanceEdge": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fromNodeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "toNodeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ProvenanceEdgeType"
+          }
+        }
+      },
+      "ProvenanceEdgeType": {
+        "type": "integer"
+      },
+      "ProvenanceNode": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ProvenanceNodeType"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ProvenanceNodeType": {
+        "type": "integer"
+      },
       "PublishPolicyPackVersionRequest": {
         "type": "object",
         "properties": {
@@ -22142,7 +22190,7 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
+              "$ref": "#/components/schemas/RunEventTrace"
             }
           },
           "warnings": {
@@ -22277,6 +22325,68 @@
               "string"
             ],
             "format": "double"
+          }
+        }
+      },
+      "RuleAuditTrace": {
+        "type": "object",
+        "properties": {
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decisionTraceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ruleSetId": {
+            "type": "string"
+          },
+          "ruleSetVersion": {
+            "type": "string"
+          },
+          "ruleSetHash": {
+            "type": "string"
+          },
+          "appliedRuleIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "acceptedFindingIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rejectedFindingIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -22522,7 +22632,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/DecisionTrace"
+                "$ref": "#/components/schemas/RuleAuditTrace"
               }
             ]
           },
@@ -22579,7 +22689,34 @@
           "decisionTraces": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/DecisionTrace"
+              "$ref": "#/components/schemas/RunEventTrace"
+            }
+          }
+        }
+      },
+      "RunEventTrace": {
+        "type": "object",
+        "properties": {
+          "traceId": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "eventType": {
+            "type": "string"
+          },
+          "eventDescription": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
             }
           }
         }
@@ -23486,6 +23623,9 @@
       "name": "AuthorityQuery"
     },
     {
+      "name": "ProvenanceQuery"
+    },
+    {
       "name": "AuthorityReplay"
     },
     {
@@ -23550,9 +23690,6 @@
     },
     {
       "name": "Provenance"
-    },
-    {
-      "name": "ProvenanceQuery"
     },
     {
       "name": "RecommendationLearning"

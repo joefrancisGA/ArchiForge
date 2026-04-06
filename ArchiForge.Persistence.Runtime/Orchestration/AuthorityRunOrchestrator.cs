@@ -223,7 +223,7 @@ public sealed class AuthorityRunOrchestrator(
         ContextSnapshot contextSnapshot,
         Decisioning.Models.FindingsSnapshot findingsSnapshot,
         Decisioning.Models.GoldenManifest manifest,
-        Decisioning.Models.DecisionTrace trace,
+        Decisioning.Models.RuleAuditTrace trace,
         ScopeContext scope,
         IArchiForgeUnitOfWork uow,
         CancellationToken ct)

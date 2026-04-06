@@ -38,7 +38,7 @@ public sealed class AuthorityPipelineContext
 
     public GoldenManifest? Manifest { get; set; }
 
-    public DecisionTrace? Trace { get; set; }
+    public RuleAuditTrace? Trace { get; set; }
 
     public ArtifactBundle? ArtifactBundle { get; set; }
 }

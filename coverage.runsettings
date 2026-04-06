@@ -5,6 +5,9 @@
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
           <Format>cobertura</Format>
+          <!-- Line-coverage thresholds: do not set <Threshold> here — VSTest invokes coverlet per test assembly, so a global
+               minimum would fail projects that only exercise a slice of the solution. Prefer merged Cobertura + ReportGenerator
+               (see CI "Merge coverage" step) and/or a dedicated script on the merged XML when you want a repo-wide gate. -->
           <!-- Tier 5: generated / external-HTTP surfaces not meaningfully unit-tested -->
           <Exclude>[ArchiForge.Cli]*ArchiForgeApiClient*</Exclude>
           <Exclude>[ArchiForge.Api]Microsoft.AspNetCore.OpenApi.Generated*</Exclude>

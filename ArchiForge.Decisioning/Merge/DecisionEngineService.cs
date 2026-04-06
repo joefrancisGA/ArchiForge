@@ -676,7 +676,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
 
     private static void AttachDecisionTraceIds(
         GoldenManifest manifest,
-        IReadOnlyCollection<DecisionTrace> traces)
+        IReadOnlyCollection<RunEventTrace> traces)
     {
         manifest.Metadata.DecisionTraceIds = traces
             .Select(t => t.TraceId)
@@ -738,7 +738,7 @@ public sealed class DecisionEngineService(ISchemaValidationService schemaValidat
         string description,
         Dictionary<string, string> metadata)
     {
-        output.DecisionTraces.Add(new DecisionTrace
+        output.DecisionTraces.Add(new RunEventTrace
         {
             TraceId = Guid.NewGuid().ToString("N"),
             RunId = runId,

@@ -83,10 +83,10 @@ public sealed class AuthorityReplayServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((
                 new GoldenManifest { ManifestId = Guid.NewGuid(), RunId = Guid.NewGuid() },
-                new DecisionTrace { DecisionTraceId = Guid.NewGuid() }));
+                new RuleAuditTrace { DecisionTraceId = Guid.NewGuid() }));
 
         traceRepo
-            .Setup(x => x.SaveAsync(It.IsAny<DecisionTrace>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.SaveAsync(It.IsAny<RuleAuditTrace>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         manifestRepo

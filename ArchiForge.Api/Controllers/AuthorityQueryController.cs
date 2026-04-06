@@ -1,8 +1,10 @@
 using ArchiForge.Api.Auth.Models;
 using ArchiForge.Api.Contracts;
 using ArchiForge.Api.ProblemDetails;
+using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Persistence.Queries;
+using ArchiForge.Provenance;
 
 using Asp.Versioning;
 
@@ -25,7 +27,8 @@ namespace ArchiForge.Api.Controllers;
 [EnableRateLimiting("fixed")]
 public sealed class AuthorityQueryController(
     IAuthorityQueryService queryService,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IProvenanceBuilder provenanceBuilder) : ControllerBase
 {
     /// <summary>Lists recent runs for an authority project slug (e.g. <c>default</c>).</summary>
     /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
@@ -119,6 +122,46 @@ public sealed class AuthorityQueryController(
             OperatorSummary =
                 $"{result.DecisionCount} decisions, {result.WarningCount} warnings, {result.UnresolvedIssueCount} unresolved issues, status {result.Status}",
         });
+    }
+
+    /// <summary>
+    /// Returns a structural provenance graph (nodes + edges) linking graph, findings, rules, decisions, manifest, and artifacts.
+    /// </summary>
+    /// <remarks>Requires a completed authority pipeline; coordinator-only runs return 422.</remarks>
+    [HttpGet("runs/{runId:guid}/provenance")]
+    [ProducesResponseType(typeof(DecisionProvenanceGraph), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> GetRunProvenance(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
+
+        if (detail is null)
+        {
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+        }
+
+        if (detail.GoldenManifest is null ||
+            detail.GraphSnapshot is null ||
+            detail.FindingsSnapshot is null ||
+            detail.DecisionTrace is null)
+        {
+            return this.UnprocessableEntityProblem(
+                "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
+                "Coordinator-only or in-progress runs do not satisfy this contract.");
+        }
+
+        IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
+        DecisionProvenanceGraph graph = provenanceBuilder.Build(
+            detail.Run.RunId,
+            detail.FindingsSnapshot,
+            detail.GraphSnapshot,
+            detail.GoldenManifest,
+            detail.DecisionTrace,
+            artifacts);
+
+        return Ok(graph);
     }
 
     private static RunSummaryResponse ToRunSummaryResponse(RunSummaryDto x) =>

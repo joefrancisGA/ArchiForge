@@ -10,7 +10,7 @@ public interface IGoldenManifestBuilder
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
         FindingsSnapshot findingsSnapshot,
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         DecisionRuleSet ruleSet);
 }
 

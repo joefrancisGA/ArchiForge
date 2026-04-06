@@ -31,6 +31,7 @@ Give operators a **repeatable** way to:
 |-------|----------|------|
 | SLO recording + burn alerts | `infra/prometheus/archiforge-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts |
 | Threshold / backlog alerts | `infra/prometheus/archiforge-alerts.yml` | Outbox depth, integration backlog, etc. |
+| Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |
 | Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
 | Managed Grafana instance | `infra/terraform-monitoring/main.tf` | `azurerm_dashboard_grafana` |
 | Optional Terraform dashboards | `infra/terraform-monitoring/grafana_dashboards.tf` | `grafana_folder` + `grafana_dashboard` (Grafana provider) |

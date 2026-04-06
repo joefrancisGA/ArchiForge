@@ -37,7 +37,7 @@ public sealed class DecisionMergeResult
     /// Audit traces recording every decision step taken during the merge.
     /// Always populated regardless of success or failure.
     /// </summary>
-    public List<DecisionTrace> DecisionTraces { get; set; } = [];
+    public List<RunEventTrace> DecisionTraces { get; set; } = [];
 
     /// <summary>
     /// <see langword="true"/> when <see cref="Errors"/> is empty and the merge completed successfully.

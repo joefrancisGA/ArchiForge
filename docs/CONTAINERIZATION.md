@@ -2,7 +2,7 @@
 
 ## Objective
 
-Provide production-ready Docker images for the ArchiForge API and Operator UI that are identical across local integration testing and cloud deployment.
+Provide production-ready Docker images for the **ArchLucid** API and Operator UI (image names and paths may still use `archiforge` until rename batches) that are identical across local integration testing and cloud deployment.
 
 ## Assumptions
 

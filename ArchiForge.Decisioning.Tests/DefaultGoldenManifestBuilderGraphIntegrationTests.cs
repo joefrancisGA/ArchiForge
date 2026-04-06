@@ -43,7 +43,7 @@ public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
             Findings = []
         };
 
-        DecisionTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
+        RuleAuditTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
         GoldenManifest manifest = new DefaultGoldenManifestBuilder().Build(

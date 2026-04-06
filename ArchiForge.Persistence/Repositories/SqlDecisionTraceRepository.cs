@@ -13,12 +13,12 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchiForge.Persistence.Repositories;
 
-/// <summary>Persists <see cref="DecisionTrace"/> from decisioning (not API <c>DecisionTraces</c> table).</summary>
+/// <summary>Persists <see cref="RuleAuditTrace"/> from decisioning (not API <c>DecisionTraces</c> table).</summary>
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionFactory) : IDecisionTraceRepository
 {
     public async Task SaveAsync(
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -69,7 +69,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         await owned.ExecuteAsync(new CommandDefinition(sql, args, cancellationToken: ct));
     }
 
-    public async Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
+    public async Task<RuleAuditTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);
 
@@ -102,7 +102,7 @@ public sealed class SqlDecisionTraceRepository(ISqlConnectionFactory connectionF
         if (row is null)
             return null;
 
-        return new DecisionTrace
+        return new RuleAuditTrace
         {
             TenantId = row.TenantId,
             WorkspaceId = row.WorkspaceId,

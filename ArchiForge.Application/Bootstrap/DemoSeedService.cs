@@ -151,7 +151,7 @@ public sealed class DemoSeedService(
         GoldenManifest manifest = BuildManifest(runId, manifestVersion, isHardened);
         await manifestRepository.CreateAsync(manifest, cancellationToken);
 
-        DecisionTrace trace = new()
+        RunEventTrace trace = new()
         {
             TraceId = isHardened ? DemoIds.TraceHardened : DemoIds.TraceBaseline,
             RunId = runId,

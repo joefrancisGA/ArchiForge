@@ -276,7 +276,7 @@ public sealed class ReplayRunServiceTests
             Metadata = new ManifestMetadata { ManifestVersion = "v-override" },
         };
 
-        List<DecisionTrace> traces =
+        List<RunEventTrace> traces =
         [
             new()
             {
@@ -322,7 +322,7 @@ public sealed class ReplayRunServiceTests
             .Returns(Task.CompletedTask);
 
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
-        traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()))
+        traceRepo.Setup(x => x.CreateManyAsync(It.IsAny<IEnumerable<RunEventTrace>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         ReplayRunService sut = new(
@@ -342,7 +342,7 @@ public sealed class ReplayRunServiceTests
         output.Manifest!.Metadata.ManifestVersion.Should().Be("v-override");
         manifestRepo.Verify(x => x.CreateAsync(It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == "v-override"), It.IsAny<CancellationToken>()), Times.Once);
         traceRepo.Verify(
-            x => x.CreateManyAsync(It.Is<IEnumerable<DecisionTrace>>(t => t.Count() == 1), It.IsAny<CancellationToken>()),
+            x => x.CreateManyAsync(It.Is<IEnumerable<RunEventTrace>>(t => t.Count() == 1), It.IsAny<CancellationToken>()),
             Times.Once);
         runRepo.Verify(
             x => x.UpdateStatusAsync(

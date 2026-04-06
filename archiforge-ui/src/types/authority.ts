@@ -133,3 +133,26 @@ export type RunDetail = {
   goldenManifest?: unknown;
   artifactBundle?: unknown;
 };
+
+/** Node in the API decision provenance graph (camelCase JSON from GET …/provenance). */
+export type ProvenanceNode = {
+  id: string;
+  type: number;
+  referenceId: string;
+  name: string;
+  metadata?: Record<string, string>;
+};
+
+export type ProvenanceEdge = {
+  id: string;
+  fromNodeId: string;
+  toNodeId: string;
+  type: number;
+};
+
+export type DecisionProvenanceGraph = {
+  id: string;
+  runId: string;
+  nodes: ProvenanceNode[];
+  edges: ProvenanceEdge[];
+};

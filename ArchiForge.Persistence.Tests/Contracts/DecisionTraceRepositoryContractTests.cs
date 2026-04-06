@@ -17,9 +17,9 @@ public abstract class DecisionTraceRepositoryContractTests
 
     protected abstract IDecisionTraceRepository CreateRepository();
 
-    private static DecisionTrace NewTrace(ScopeContext scope, Guid runId, Guid traceId)
+    private static RuleAuditTrace NewTrace(ScopeContext scope, Guid runId, Guid traceId)
     {
-        return new DecisionTrace
+        return new RuleAuditTrace
         {
             TenantId = scope.TenantId,
             WorkspaceId = scope.WorkspaceId,
@@ -54,10 +54,10 @@ public abstract class DecisionTraceRepositoryContractTests
 
         await PrepareRunForTraceAsync(scope, runId, CancellationToken.None);
 
-        DecisionTrace trace = NewTrace(scope, runId, traceId);
+        RuleAuditTrace trace = NewTrace(scope, runId, traceId);
         await repo.SaveAsync(trace, CancellationToken.None);
 
-        DecisionTrace? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
+        RuleAuditTrace? loaded = await repo.GetByIdAsync(scope, traceId, CancellationToken.None);
         loaded.Should().NotBeNull();
         loaded.DecisionTraceId.Should().Be(traceId);
         loaded.RunId.Should().Be(runId);
@@ -81,7 +81,7 @@ public abstract class DecisionTraceRepositoryContractTests
 
         await PrepareRunForTraceAsync(scope, runId, CancellationToken.None);
 
-        DecisionTrace trace = NewTrace(scope, runId, traceId);
+        RuleAuditTrace trace = NewTrace(scope, runId, traceId);
         await repo.SaveAsync(trace, CancellationToken.None);
 
         ScopeContext other = new()
@@ -91,7 +91,7 @@ public abstract class DecisionTraceRepositoryContractTests
             ProjectId = scope.ProjectId,
         };
 
-        DecisionTrace? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);
+        RuleAuditTrace? loaded = await repo.GetByIdAsync(other, traceId, CancellationToken.None);
         loaded.Should().BeNull();
     }
 

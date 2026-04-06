@@ -11,7 +11,7 @@ public sealed class ProvenanceBuilder : IProvenanceBuilder
         FindingsSnapshot findings,
         GraphSnapshot graph,
         GoldenManifest manifest,
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         IReadOnlyList<SynthesizedArtifact> artifacts)
     {
         DecisionProvenanceGraph result = new()

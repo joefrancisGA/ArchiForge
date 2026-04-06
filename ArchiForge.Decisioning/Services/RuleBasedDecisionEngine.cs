@@ -12,7 +12,7 @@ namespace ArchiForge.Decisioning.Services;
 /// <remarks>
 /// Rules are applied in descending <c>Priority</c> order. For each finding the first matching
 /// rule per action type wins; unmatched findings are recorded in
-/// <see cref="DecisionTrace.Notes"/>. After manifest construction,
+/// <see cref="RuleAuditTrace.Notes"/>. After manifest construction,
 /// <see cref="IGoldenManifestValidator.Validate"/> is called and a content hash is computed
 /// via <see cref="IManifestHashService"/>.
 /// Cancellation is forwarded to <see cref="IDecisionRuleProvider.GetRuleSetAsync"/>; the
@@ -26,7 +26,7 @@ public class RuleBasedDecisionEngine(
     : IDecisionEngine
 {
     /// <inheritdoc />
-    public async Task<(GoldenManifest Manifest, DecisionTrace Trace)> DecideAsync(
+    public async Task<(GoldenManifest Manifest, RuleAuditTrace Trace)> DecideAsync(
         Guid runId,
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
@@ -38,7 +38,7 @@ public class RuleBasedDecisionEngine(
             .OrderByDescending(r => r.Priority)
             .ToList();
 
-        DecisionTrace trace = new()
+        RuleAuditTrace trace = new()
         {
             DecisionTraceId = Guid.NewGuid(),
             RunId = runId,

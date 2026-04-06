@@ -192,7 +192,7 @@ public sealed class ArchiForgeApiClient
         }
         catch (Gen.ArchiForgeApiException ex)
         {
-            return CreateRunResult.Fail(ex.StatusCode, TryParseError(ex.Response) ?? ex.Message);
+            return CreateRunResult.Fail(ex.StatusCode, ResolveApiErrorMessage(ex));
         }
         catch (HttpRequestException ex)
         {
@@ -225,9 +225,7 @@ public sealed class ArchiForgeApiClient
         }
         catch (Gen.ArchiForgeApiException ex)
         {
-            string? error = TryParseError(ex.Response);
-
-            return new SubmitResultResult(false, null, error ?? ex.Message, ex.StatusCode);
+            return new SubmitResultResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode);
         }
         catch (HttpRequestException ex)
         {
@@ -272,9 +270,7 @@ public sealed class ArchiForgeApiClient
         }
         catch (Gen.ArchiForgeApiException ex)
         {
-            string? error = TryParseError(ex.Response);
-
-            return new CommitRunResult(false, null, error ?? ex.Message, ex.StatusCode);
+            return new CommitRunResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode);
         }
         catch (HttpRequestException ex)
         {
@@ -300,9 +296,7 @@ public sealed class ArchiForgeApiClient
         }
         catch (Gen.ArchiForgeApiException ex)
         {
-            string? error = TryParseError(ex.Response);
-
-            return new SeedFakeResultsResult(false, 0, error ?? ex.Message, ex.StatusCode);
+            return new SeedFakeResultsResult(false, 0, ResolveApiErrorMessage(ex), ex.StatusCode);
         }
         catch (HttpRequestException ex)
         {
@@ -732,6 +726,34 @@ public sealed class ArchiForgeApiClient
         string json = JsonSerializer.Serialize(result, _jsonOptions);
 
         return JsonSerializer.Deserialize<Gen.AgentResult>(json, _jsonOptions);
+    }
+
+    /// <summary>
+    /// NSwag reads ProblemDetails from the stream with <c>ReadResponseAsString=false</c>, so <see cref="Gen.ArchiForgeApiException.Response"/>
+    /// is often empty even when <see cref="Gen.ArchiForgeApiException{TResult}"/> carries a typed <see cref="Gen.ProblemDetails"/> body.
+    /// </summary>
+    private static string ResolveApiErrorMessage(Gen.ArchiForgeApiException ex)
+    {
+        string? fromBody = TryParseError(ex.Response ?? string.Empty);
+        if (!string.IsNullOrWhiteSpace(fromBody))
+        {
+            return fromBody;
+        }
+
+        if (ex is Gen.ArchiForgeApiException<Gen.ProblemDetails> typed)
+        {
+            if (!string.IsNullOrWhiteSpace(typed.Result?.Detail))
+            {
+                return typed.Result.Detail;
+            }
+
+            if (!string.IsNullOrWhiteSpace(typed.Result?.Title))
+            {
+                return typed.Result.Title;
+            }
+        }
+
+        return ex.Message;
     }
 
     /// <summary>

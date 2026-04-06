@@ -17,7 +17,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         Guid contextSnapshotId,
         GraphSnapshot graphSnapshot,
         FindingsSnapshot findingsSnapshot,
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         DecisionRuleSet ruleSet)
     {
         GoldenManifest manifest = new()
@@ -487,7 +487,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     private static void PopulateConstraints(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
-        DecisionTrace trace)
+        RuleAuditTrace trace)
     {
         foreach (Finding finding in trace.AcceptedFindingIds.Select(findingId => findingsSnapshot.Findings.FirstOrDefault(f => f.FindingId == findingId)).OfType<Finding>())
         
@@ -505,7 +505,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     private static void PopulateProvenance(
         GoldenManifest manifest,
         FindingsSnapshot findingsSnapshot,
-        DecisionTrace trace)
+        RuleAuditTrace trace)
     {
         manifest.Provenance.SourceFindingIds = findingsSnapshot.Findings
             .Select(f => f.FindingId)

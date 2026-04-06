@@ -89,7 +89,7 @@ public sealed class AuthorityRunOrchestratorTests
                         CreatedUtc = DateTime.UtcNow,
                     };
 
-                    ctx.Trace = new DecisionTrace
+                    ctx.Trace = new RuleAuditTrace
                     {
                         DecisionTraceId = traceId,
                         RunId = ctx.Run.RunId,
@@ -258,7 +258,7 @@ public sealed class AuthorityRunOrchestratorTests
                         CreatedUtc = DateTime.UtcNow,
                     };
 
-                    ctx.Trace = new DecisionTrace
+                    ctx.Trace = new RuleAuditTrace
                     {
                         DecisionTraceId = traceId,
                         RunId = ctx.Run.RunId,

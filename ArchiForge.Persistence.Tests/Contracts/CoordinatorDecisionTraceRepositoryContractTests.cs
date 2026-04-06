@@ -37,7 +37,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
         DateTime t0 = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);
         DateTime t1 = new(2026, 4, 1, 11, 0, 0, DateTimeKind.Utc);
 
-        List<DecisionTrace> batch =
+        List<RunEventTrace> batch =
         [
             new()
             {
@@ -59,7 +59,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
 
         await repo.CreateManyAsync(batch, CancellationToken.None);
 
-        IReadOnlyList<DecisionTrace> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
+        IReadOnlyList<RunEventTrace> loaded = await repo.GetByRunIdAsync(runId, CancellationToken.None);
 
         loaded.Should().HaveCount(2);
         loaded[0].EventType.Should().Be("first");
@@ -72,7 +72,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
         SkipIfSqlServerUnavailable();
         ICoordinatorDecisionTraceRepository repo = CreateRepository();
 
-        IReadOnlyList<DecisionTrace> loaded =
+        IReadOnlyList<RunEventTrace> loaded =
             await repo.GetByRunIdAsync("no-such-" + Guid.NewGuid().ToString("N"), CancellationToken.None);
 
         loaded.Should().BeEmpty();

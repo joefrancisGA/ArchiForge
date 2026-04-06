@@ -10,6 +10,6 @@ public sealed class RunDetailsResponseDto
     public List<AgentTask> Tasks { get; set; } = [];
     public List<AgentResult> Results { get; set; } = [];
     public GoldenManifest? Manifest { get; set; }
-    public List<DecisionTrace> DecisionTraces { get; set; } = [];
+    public List<RunEventTrace> DecisionTraces { get; set; } = [];
 }
 

@@ -22,6 +22,8 @@
   - `docs/ARCHITECTURE_CONTAINERS.md`
 - **Components** – key modules inside each container  
   - `docs/ARCHITECTURE_COMPONENTS.md`
+- **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared manifest, `RunEventTrace` vs `RuleAuditTrace`  
+  - `docs/DUAL_PIPELINE_NAVIGATOR.md`
 - **DI registration map** – `AddArchiForgeApplicationServices` order, `AddArchiForgeStorage`, partial `ServiceCollectionExtensions`, config gates  
   - `docs/DI_REGISTRATION_MAP.md`
 - **Key flows** – run, export, comparison, replay sequences  

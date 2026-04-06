@@ -132,6 +132,8 @@ export default async function RunDetailPage({
         <Link href="/graph">Graph</Link>
         {" · "}
         <Link href="/compare">Compare runs</Link>
+        {" · "}
+        <Link href={`/runs/${runId}/provenance`}>Provenance</Link>
       </p>
 
       <section style={{ marginBottom: 24 }}>

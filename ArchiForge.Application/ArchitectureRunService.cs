@@ -688,7 +688,7 @@ public sealed class ArchitectureRunService(
                 "but the manifest could not be found in storage. " +
                 "It may have been deleted or there is a replication lag.");
 
-        IReadOnlyList<DecisionTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<RunEventTrace> existingTraces = await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation(

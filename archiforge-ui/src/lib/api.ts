@@ -9,6 +9,7 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation, RunExplanation } from "@/types/explanation";
 import type {
   ArtifactDescriptor,
+  DecisionProvenanceGraph,
   ManifestSummary,
   ReplayResponse,
   RunComparison,
@@ -234,6 +235,11 @@ export async function getRunSummary(runId: string): Promise<RunSummary> {
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
 export async function getRunDetail(runId: string): Promise<RunDetail> {
   return apiGet<RunDetail>(`/v1/authority/runs/${runId}`);
+}
+
+/** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */
+export async function getRunProvenance(runId: string): Promise<DecisionProvenanceGraph> {
+  return apiGet<DecisionProvenanceGraph>(`/v1/authority/runs/${runId}/provenance`);
 }
 
 /** Fetches golden manifest summary (decision count, warnings, status, etc.). */

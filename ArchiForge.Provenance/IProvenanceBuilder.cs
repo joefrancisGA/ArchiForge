@@ -12,6 +12,6 @@ public interface IProvenanceBuilder
         FindingsSnapshot findings,
         GraphSnapshot graph,
         GoldenManifest manifest,
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         IReadOnlyList<SynthesizedArtifact> artifacts);
 }

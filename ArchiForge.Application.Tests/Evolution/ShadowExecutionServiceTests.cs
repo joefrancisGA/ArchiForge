@@ -50,7 +50,7 @@ public sealed class ShadowExecutionServiceTests
             },
             DecisionTraces =
             [
-                new DecisionTrace
+                new RunEventTrace
                 {
                     TraceId = "t0",
                     RunId = "run1",

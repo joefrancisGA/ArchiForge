@@ -10,11 +10,11 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
 {
     private const int MaxEntries = 500;
 
-    private readonly List<DecisionTrace> _store = [];
+    private readonly List<RuleAuditTrace> _store = [];
     private readonly Lock _lock = new();
 
     public Task SaveAsync(
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null)
@@ -32,12 +32,12 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         return Task.CompletedTask;
     }
 
-    public Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
+    public Task<RuleAuditTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         lock (_lock)
         {
-            DecisionTrace? result = _store.FirstOrDefault(x =>
+            RuleAuditTrace? result = _store.FirstOrDefault(x =>
                 x.DecisionTraceId == decisionTraceId &&
                 x.TenantId == scope.TenantId &&
                 x.WorkspaceId == scope.WorkspaceId &&

@@ -58,9 +58,9 @@ public sealed class InMemoryAuthorityQueryService(
         Task<FindingsSnapshot?> findingsTask = run.FindingsSnapshotId.HasValue
             ? findingsSnapshotRepository.GetByIdAsync(run.FindingsSnapshotId.Value, ct)
             : Task.FromResult<FindingsSnapshot?>(null);
-        Task<DecisionTrace?> traceTask = run.DecisionTraceId.HasValue
+        Task<RuleAuditTrace?> traceTask = run.DecisionTraceId.HasValue
             ? decisionTraceRepository.GetByIdAsync(scope, run.DecisionTraceId.Value, ct)
-            : Task.FromResult<DecisionTrace?>(null);
+            : Task.FromResult<RuleAuditTrace?>(null);
         Task<GoldenManifest?> manifestTask = run.GoldenManifestId.HasValue
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<GoldenManifest?>(null);

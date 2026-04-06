@@ -6,7 +6,7 @@ using ArchiForge.Decisioning.Models;
 namespace ArchiForge.Decisioning.Interfaces;
 
 /// <summary>
-/// Persistence contract for <see cref="DecisionTrace"/> records that capture the
+/// Persistence contract for <see cref="RuleAuditTrace"/> records that capture the
 /// full rule-application log produced by the decision engine during a run.
 /// </summary>
 public interface IDecisionTraceRepository
@@ -20,7 +20,7 @@ public interface IDecisionTraceRepository
     /// <param name="connection">Optional open connection to reuse.</param>
     /// <param name="transaction">Optional transaction to enlist in.</param>
     Task SaveAsync(
-        DecisionTrace trace,
+        RuleAuditTrace trace,
         CancellationToken ct,
         IDbConnection? connection = null,
         IDbTransaction? transaction = null);
@@ -33,6 +33,6 @@ public interface IDecisionTraceRepository
     /// <param name="scope">Tenant/workspace/project boundary enforced by the implementation.</param>
     /// <param name="decisionTraceId">Primary key of the trace.</param>
     /// <param name="ct">Propagates notification that the operation should be cancelled.</param>
-    Task<DecisionTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct);
+    Task<RuleAuditTrace?> GetByIdAsync(ScopeContext scope, Guid decisionTraceId, CancellationToken ct);
 }
 

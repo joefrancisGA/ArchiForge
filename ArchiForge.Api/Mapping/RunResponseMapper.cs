@@ -33,7 +33,7 @@ internal static class RunResponseMapper
         string executionMode,
         IEnumerable<AgentResult> results,
         GoldenManifest? manifest,
-        IEnumerable<DecisionTrace> decisionTraces,
+        IEnumerable<RunEventTrace> decisionTraces,
         IEnumerable<string> warnings) =>
         new()
         {
@@ -48,7 +48,7 @@ internal static class RunResponseMapper
 
     public static CommitRunResponse ToCommitRunResponse(
         GoldenManifest manifest,
-        IEnumerable<DecisionTrace> decisionTraces,
+        IEnumerable<RunEventTrace> decisionTraces,
         IEnumerable<string> warnings) =>
         new()
         {
@@ -62,7 +62,7 @@ internal static class RunResponseMapper
         List<AgentTask> tasks,
         List<AgentResult> results,
         GoldenManifest? manifest,
-        List<DecisionTrace> decisionTraces) =>
+        List<RunEventTrace> decisionTraces) =>
         new()
         {
             Run = run,

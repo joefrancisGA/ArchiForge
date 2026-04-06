@@ -137,3 +137,7 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 | Classes | ~1050 | 905 | -145 |
 
 The improvement is due to removing untestable SQL infrastructure code from the denominator, giving an accurate picture of how well the testable codebase is covered.
+
+## Repo-wide minimum (merged Cobertura)
+
+`coverage.runsettings` intentionally does **not** set Coverlet `<Threshold>`: VSTest runs collectors **per test assembly**, so a single global percentage would fail assemblies that only cover part of the tree. CI merges Cobertura files with ReportGenerator (see `.github/workflows/ci.yml`). To add a hard gate, parse the merged Cobertura or ReportGenerator summary in a small script and fail the job (target **70%** line coverage over time).

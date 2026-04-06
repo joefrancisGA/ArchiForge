@@ -79,7 +79,7 @@ public sealed class ShadowExecutionService(
 
         foreach (CandidateChangeSetStep step in orderedSteps)
         {
-            DecisionTrace trace = new()
+            RunEventTrace trace = new()
             {
                 TraceId = Guid.NewGuid().ToString("N"),
                 RunId = detail.Run.RunId,

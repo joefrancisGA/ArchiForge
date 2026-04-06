@@ -1,6 +1,12 @@
 namespace ArchiForge.Decisioning.Models;
 
-public class DecisionTrace
+/// <summary>
+/// Authority pipeline record of which rules were applied and which findings were accepted or rejected.
+/// </summary>
+/// <remarks>
+/// Distinct from <see cref="ArchiForge.Contracts.Metadata.RunEventTrace"/>, which logs coordinator merge/engine steps for string runs.
+/// </remarks>
+public class RuleAuditTrace
 {
     public Guid TenantId { get; set; }
     public Guid WorkspaceId { get; set; }
@@ -16,4 +22,3 @@ public class DecisionTrace
     public List<string> RejectedFindingIds { get; set; } = [];
     public List<string> Notes { get; set; } = [];
 }
-

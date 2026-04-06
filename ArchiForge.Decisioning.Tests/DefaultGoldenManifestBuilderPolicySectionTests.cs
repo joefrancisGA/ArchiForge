@@ -128,7 +128,7 @@ public sealed class DefaultGoldenManifestBuilderPolicySectionTests
             Findings = findings
         };
 
-        DecisionTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
+        RuleAuditTrace trace = new() { DecisionTraceId = Guid.NewGuid(), RunId = runId };
         DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
 
         return new DefaultGoldenManifestBuilder().Build(runId, ctxId, graph, snapshot, trace, ruleSet);

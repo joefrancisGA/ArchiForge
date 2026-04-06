@@ -110,7 +110,7 @@ public sealed class ReplayRunService(
         cancellationToken.ThrowIfCancellationRequested();
 
         GoldenManifest? manifest = null;
-        List<DecisionTrace> decisionTraces = [];
+        List<RunEventTrace> decisionTraces = [];
         List<string> warnings = [];
 
         if (!commitReplay)
@@ -178,7 +178,7 @@ public sealed class ReplayRunService(
     //private async Task PersistReplayCommitRowsAsync(
     //    string replayRunId,
     //    GoldenManifest manifest,
-    //    List<DecisionTrace> decisionTraces,
+    //    List<RunEventTrace> decisionTraces,
     //    CancellationToken cancellationToken)
     //{
     //    await manifestRepository.CreateAsync(manifest, cancellationToken);

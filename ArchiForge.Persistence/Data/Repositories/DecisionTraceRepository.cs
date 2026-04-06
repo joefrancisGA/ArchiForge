@@ -13,7 +13,7 @@ namespace ArchiForge.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : ICoordinatorDecisionTraceRepository
 {
-    public async Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
+    public async Task CreateManyAsync(IEnumerable<RunEventTrace> traces, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(traces);
 
@@ -56,7 +56,7 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             cancellationToken: cancellationToken));
     }
 
-    public async Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(
+    public async Task<IReadOnlyList<RunEventTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)
     {
@@ -78,25 +78,25 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             },
             cancellationToken: cancellationToken));
 
-        List<DecisionTrace> traces = [];
+        List<RunEventTrace> traces = [];
         foreach (string json in rows)
         {
-            DecisionTrace? trace;
+            RunEventTrace? trace;
             try
             {
-                trace = JsonSerializer.Deserialize<DecisionTrace>(json, ContractJson.Default);
+                trace = JsonSerializer.Deserialize<RunEventTrace>(json, ContractJson.Default);
             }
             catch (JsonException ex)
             {
                 throw new InvalidOperationException(
-                    $"Failed to deserialize a DecisionTrace for run '{runId}'. " +
+                    $"Failed to deserialize a RunEventTrace for run '{runId}'. " +
                     "The stored JSON may be corrupt or written by an incompatible schema version.", ex);
             }
 
             if (trace is null)
             
                 throw new InvalidOperationException(
-                    $"A DecisionTrace row for run '{runId}' deserialized to null. " +
+                    $"A RunEventTrace row for run '{runId}' deserialized to null. " +
                     "The stored JSON may be empty or corrupt.");
             
 

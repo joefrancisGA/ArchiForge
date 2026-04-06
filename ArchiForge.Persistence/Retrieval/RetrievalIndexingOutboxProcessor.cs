@@ -1,4 +1,4 @@
-﻿using ArchiForge.ArtifactSynthesis.Models;
+using ArchiForge.ArtifactSynthesis.Models;
 using ArchiForge.Core.Scoping;
 using ArchiForge.Decisioning.Models;
 using ArchiForge.KnowledgeGraph.Models;
@@ -61,7 +61,7 @@ public sealed class RetrievalIndexingOutboxProcessor(
                 GoldenManifest manifest = detail.GoldenManifest;
                 GraphSnapshot graphSnapshot = detail.GraphSnapshot;
                 FindingsSnapshot findings = detail.FindingsSnapshot;
-                DecisionTrace trace = detail.DecisionTrace;
+                RuleAuditTrace trace = detail.DecisionTrace;
                 IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
 
                 DecisionProvenanceGraph graph = provenanceBuilder.Build(
