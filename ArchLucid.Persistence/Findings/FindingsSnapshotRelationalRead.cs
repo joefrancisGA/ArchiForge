@@ -6,7 +6,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Findings;
 
-/// <summary>Builds <see cref="FindingsSnapshot"/> from relational finding tables.</summary>
+/// <summary>Builds <see cref="FindingsSnapshot"/> from relational finding tables when rows exist; otherwise <c>FindingsJson</c>.</summary>
 internal static class FindingsSnapshotRelationalRead
 {
     internal static async Task<FindingsSnapshot> LoadRelationalSnapshotAsync(
@@ -34,6 +34,8 @@ internal static class FindingsSnapshotRelationalRead
 
         if (records.Count == 0)
         {
+            List<Finding> legacyFindings = FindingsSnapshotLegacyJsonReader.DeserializeFindings(row.FindingsJson);
+
             return new FindingsSnapshot
             {
                 FindingsSnapshotId = row.FindingsSnapshotId,
@@ -42,7 +44,7 @@ internal static class FindingsSnapshotRelationalRead
                 GraphSnapshotId = row.GraphSnapshotId,
                 CreatedUtc = row.CreatedUtc,
                 SchemaVersion = row.SchemaVersion,
-                Findings = [],
+                Findings = legacyFindings,
             };
         }
 

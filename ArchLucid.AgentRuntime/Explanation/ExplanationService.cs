@@ -93,7 +93,7 @@ public sealed class ExplanationService(
             (string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
                 ? "(none)\n"
                 : manifest.Metadata.Summary + "\n") +
-            "\n## Key drivers (must be reflected in your narrative)\n" +
+            "\n## Key drivers (must be reflected in your reasoning)\n" +
             string.Join("\n", keyDrivers.Select(x => "- " + x)) +
             "\n\n## Risks / issues (from manifest)\n" +
             string.Join("\n", risks.Select(x => "- " + x)) +
@@ -103,27 +103,150 @@ public sealed class ExplanationService(
             string.Join("\n", compliance.Select(x => "- " + x)) +
             "\n\n## Provenance\n" +
             FormatProvenanceSummary(provenance) +
-            "\n\nRespond with a single JSON object only (no markdown fences), keys:\n" +
-            "summary (one paragraph), detailedNarrative (2-4 paragraphs referencing the bullets above).";
+            "\n\nRespond with a single JSON object only (no markdown fences), matching this schema (camelCase keys):\n" +
+            "- schemaVersion: number (use 1)\n" +
+            "- reasoning: string (required) — 2–4 paragraphs referencing the bullets above\n" +
+            "- evidenceRefs: string[] — optional provenance or decision IDs you cite\n" +
+            "- confidence: number between 0 and 1, or omit if unknown\n" +
+            "- alternativesConsidered: string[] — optional\n" +
+            "- caveats: string[] — optional limitations\n" +
+            "Example: {\"schemaVersion\":1,\"reasoning\":\"...\",\"evidenceRefs\":[\"dec-1\"],\"confidence\":0.72}\n" +
+            "If you cannot follow the schema, respond with plain prose only (no JSON); the system will still accept it.";
 
         string? json = await TryCompleteJsonAsync(userPrompt, ct);
-        LlmRunJson? parsed = TryDeserialize<LlmRunJson>(json);
+        string rawStored = json ?? string.Empty;
 
-        return new ExplanationResult
+        return BuildExplanationResultFromLlmResponse(
+            manifest,
+            keyDrivers,
+            risks,
+            costs,
+            compliance,
+            rawStored);
+    }
+
+    private ExplanationResult BuildExplanationResultFromLlmResponse(
+        GoldenManifest manifest,
+        List<string> keyDrivers,
+        List<string> risks,
+        List<string> costs,
+        List<string> compliance,
+        string rawStored)
+    {
+        string heuristicSummary = HeuristicRunSummary(manifest);
+        string narrativeFallback = BuildRunNarrativeFallback(manifest, keyDrivers, risks);
+
+        ExplanationResult result = new()
         {
-            Summary = !string.IsNullOrWhiteSpace(parsed?.Summary)
-                ? parsed.Summary.Trim()
-                : string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
-                    ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
-                    : manifest.Metadata.Summary.Trim(),
+            RawText = rawStored,
             KeyDrivers = keyDrivers,
             RiskImplications = risks,
             CostImplications = costs,
             ComplianceImplications = compliance,
-            DetailedNarrative = !string.IsNullOrWhiteSpace(parsed?.DetailedNarrative)
-                ? parsed.DetailedNarrative.Trim()
-                : BuildRunNarrativeFallback(manifest, keyDrivers, risks)
         };
+
+        if (StructuredExplanationParser.TryNormalizeStructuredJson(rawStored, out StructuredExplanation? structured))
+        {
+            result.Structured = structured;
+            result.DetailedNarrative = structured.Reasoning.Trim();
+            result.Summary = SummarizeFromReasoning(structured.Reasoning, heuristicSummary);
+            return result;
+        }
+
+        LlmRunJsonDto? legacy = TryDeserialize<LlmRunJsonDto>(rawStored);
+
+        if (legacy is not null
+            && (!string.IsNullOrWhiteSpace(legacy.Summary) || !string.IsNullOrWhiteSpace(legacy.DetailedNarrative)))
+        {
+            string summary = !string.IsNullOrWhiteSpace(legacy.Summary)
+                ? legacy.Summary.Trim()
+                : heuristicSummary;
+            string narrative = !string.IsNullOrWhiteSpace(legacy.DetailedNarrative)
+                ? legacy.DetailedNarrative.Trim()
+                : (!string.IsNullOrWhiteSpace(legacy.Summary) ? legacy.Summary.Trim() : narrativeFallback);
+
+            result.Summary = summary;
+            result.DetailedNarrative = narrative;
+            result.Structured = new StructuredExplanation
+            {
+                Reasoning = narrative,
+                SchemaVersion = 1,
+                EvidenceRefs = [],
+            };
+            return result;
+        }
+
+        if (!string.IsNullOrWhiteSpace(rawStored))
+        {
+            if (IsProbablyJsonObject(rawStored))
+            {
+                result.Summary = heuristicSummary;
+                result.DetailedNarrative = narrativeFallback;
+                result.Structured = new StructuredExplanation
+                {
+                    Reasoning = narrativeFallback,
+                    SchemaVersion = 1,
+                    EvidenceRefs = [],
+                };
+                return result;
+            }
+
+            StructuredExplanation envelope = StructuredExplanationParser.Parse(rawStored);
+            result.Structured = envelope;
+            result.DetailedNarrative = string.IsNullOrWhiteSpace(envelope.Reasoning)
+                ? narrativeFallback
+                : envelope.Reasoning.Trim();
+            result.Summary = SummarizeFromReasoning(result.DetailedNarrative, heuristicSummary);
+            return result;
+        }
+
+        result.Summary = heuristicSummary;
+        result.DetailedNarrative = narrativeFallback;
+        result.Structured = new StructuredExplanation
+        {
+            Reasoning = narrativeFallback,
+            SchemaVersion = 1,
+            EvidenceRefs = [],
+        };
+        return result;
+    }
+
+    private static bool IsProbablyJsonObject(string raw)
+    {
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(raw);
+
+            return doc.RootElement.ValueKind == JsonValueKind.Object;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static string HeuristicRunSummary(GoldenManifest manifest) =>
+        string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
+            ? $"Run {manifest.RunId} manifest ({manifest.Decisions.Count} decisions, {manifest.UnresolvedIssues.Items.Count} open issues)."
+            : manifest.Metadata.Summary.Trim();
+
+    private static string SummarizeFromReasoning(string reasoning, string heuristicSummary)
+    {
+        string r = reasoning.Trim();
+
+        if (r.Length == 0)
+            return heuristicSummary;
+
+        int idx = r.IndexOf("\n\n", StringComparison.Ordinal);
+
+        string first = idx > 0 ? r[..idx] : r;
+
+        const int maxLen = 500;
+
+        if (first.Length > maxLen)
+            return first[..maxLen].TrimEnd() + "…";
+
+        return first;
     }
 
     private async Task<string?> TryCompleteJsonAsync(string userPrompt, CancellationToken ct)
@@ -348,11 +471,12 @@ public sealed class ExplanationService(
     }
 
     [UsedImplicitly]
-    private sealed class LlmRunJson
+    private sealed class LlmRunJsonDto
     {
         [UsedImplicitly]
-        public string? Summary { get; }
+        public string? Summary { get; set; }
+
         [UsedImplicitly]
-        public string? DetailedNarrative { get; }
+        public string? DetailedNarrative { get; set; }
     }
 }

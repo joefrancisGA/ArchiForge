@@ -1,11 +1,17 @@
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
-/// Stakeholder-facing explanation for a single run: short summary, bullet facets, and longer narrative.
+/// Stakeholder-facing explanation for a single run: short summary, bullet facets, longer narrative, and optional structured LLM envelope.
 /// </summary>
 /// <remarks>Produced by <c>ArchLucid.AgentRuntime.Explanation.IExplanationService.ExplainRunAsync</c>.</remarks>
 public class ExplanationResult
 {
+    /// <summary>Raw LLM completion (after JSON fence unwrap), for auditing and backward-compatible opaque access.</summary>
+    public string RawText { get; set; } = string.Empty;
+
+    /// <summary>Programmatic explanation envelope when the model returned structured JSON; always set (fallback wraps free text).</summary>
+    public StructuredExplanation? Structured { get; set; }
+
     /// <summary>One-paragraph headline (LLM or manifest metadata fallback).</summary>
     public string Summary { get; set; } = string.Empty;
 

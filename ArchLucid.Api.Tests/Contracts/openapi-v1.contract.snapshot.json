@@ -19194,6 +19194,19 @@
       "ExplanationResult": {
         "type": "object",
         "properties": {
+          "rawText": {
+            "type": "string"
+          },
+          "structured": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/StructuredExplanation"
+              }
+            ]
+          },
           "summary": {
             "type": "string"
           },
@@ -23484,6 +23497,54 @@
           },
           "hasValue": {
             "type": "boolean"
+          }
+        }
+      },
+      "StructuredExplanation": {
+        "required": [
+          "reasoning"
+        ],
+        "type": "object",
+        "properties": {
+          "schemaVersion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "reasoning": {
+            "type": "string"
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "alternativesConsidered": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "caveats": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

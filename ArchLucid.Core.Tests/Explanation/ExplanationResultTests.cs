@@ -4,6 +4,7 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Explanation;
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ExplanationResultTests
 {
@@ -12,6 +13,8 @@ public sealed class ExplanationResultTests
     {
         ExplanationResult sut = new();
 
+        sut.RawText.Should().BeEmpty();
+        sut.Structured.Should().BeNull();
         sut.Summary.Should().BeEmpty();
         sut.DetailedNarrative.Should().BeEmpty();
         sut.KeyDrivers.Should().NotBeNull().And.BeEmpty();
@@ -25,6 +28,8 @@ public sealed class ExplanationResultTests
     {
         ExplanationResult sut = new();
 
+        sut.RawText = "raw";
+        sut.Structured = new StructuredExplanation { Reasoning = "r" };
         sut.Summary = "summary";
         sut.DetailedNarrative = "details";
         sut.KeyDrivers = ["k1"];
@@ -32,6 +37,8 @@ public sealed class ExplanationResultTests
         sut.CostImplications = ["c1"];
         sut.ComplianceImplications = ["m1"];
 
+        sut.RawText.Should().Be("raw");
+        sut.Structured!.Reasoning.Should().Be("r");
         sut.Summary.Should().Be("summary");
         sut.DetailedNarrative.Should().Be("details");
         sut.KeyDrivers.Should().Equal("k1");
