@@ -4,7 +4,7 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
-using ArchLucid.Persistence.Replay;
+using ArchLucid.Persistence.Coordination.Replay;
 
 using Asp.Versioning;
 

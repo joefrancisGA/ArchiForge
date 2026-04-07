@@ -7,7 +7,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
-using ArchLucid.Persistence.Replay;
+using ArchLucid.Persistence.Coordination.Replay;
 
 using FluentAssertions;
 

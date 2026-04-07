@@ -1,7 +1,7 @@
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.ProductLearning;
-using ArchLucid.Persistence.ProductLearning.Planning;
+using ArchLucid.Persistence.Coordination.ProductLearning;
+using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Tests.ProductLearning.Planning;
 

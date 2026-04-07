@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Caching.Distributed;

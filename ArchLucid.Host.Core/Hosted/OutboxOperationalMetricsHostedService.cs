@@ -1,5 +1,5 @@
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Persistence.Diagnostics;
+using ArchLucid.Persistence.Coordination.Diagnostics;
 
 namespace ArchLucid.Host.Core.Hosted;
 

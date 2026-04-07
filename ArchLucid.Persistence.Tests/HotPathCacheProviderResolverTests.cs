@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Caching;
+using ArchLucid.Persistence.Coordination.Caching;
 
 using FluentAssertions;
 

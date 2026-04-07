@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.Coordination.Caching;
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 

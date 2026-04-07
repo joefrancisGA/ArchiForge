@@ -23276,6 +23276,12 @@ namespace ArchLucid.Api.Client.Generated
     public partial class ExplanationResult
     {
 
+        [System.Text.Json.Serialization.JsonPropertyName("rawText")]
+        public string RawText { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("structured")]
+        public StructuredExplanation Structured { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("summary")]
         public string Summary { get; set; }
 
@@ -27612,6 +27618,41 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("hasValue")]
         public bool HasValue { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class StructuredExplanation
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("schemaVersion")]
+        public int SchemaVersion { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("reasoning")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Reasoning { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("evidenceRefs")]
+        public System.Collections.Generic.ICollection<string> EvidenceRefs { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("confidence")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
+        public double? Confidence { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("alternativesConsidered")]
+        public System.Collections.Generic.ICollection<string> AlternativesConsidered { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("caveats")]
+        public System.Collections.Generic.ICollection<string> Caveats { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

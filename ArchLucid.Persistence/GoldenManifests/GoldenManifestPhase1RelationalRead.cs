@@ -90,7 +90,7 @@ internal static class GoldenManifestPhase1RelationalRead
                 """,
                 manifestId,
                 ct)
-            : [];
+            : FallbackDeserializeList(row.AssumptionsJson);
 
         List<string> warnings = warningsCount > 0
             ? await LoadOrderedStringsAsync(
@@ -103,7 +103,7 @@ internal static class GoldenManifestPhase1RelationalRead
                 """,
                 manifestId,
                 ct)
-            : [];
+            : FallbackDeserializeList(row.WarningsJson);
 
         int totalProvCount = provFindingCount + provNodeCount + provRuleCount;
         ManifestProvenance provenance;
@@ -158,12 +158,12 @@ internal static class GoldenManifestPhase1RelationalRead
         }
         else
         {
-            provenance = new ManifestProvenance();
+            provenance = FallbackDeserializeProvenance(row.ProvenanceJson);
         }
 
         List<ResolvedArchitectureDecision> decisions = decisionsCount > 0
             ? await LoadDecisionsRelationalAsync(connection, manifestId, ct)
-            : [];
+            : FallbackDeserializeDecisions(row.DecisionsJson);
 
         return new GoldenManifest
         {
@@ -318,6 +318,33 @@ internal static class GoldenManifestPhase1RelationalRead
                 cancellationToken: ct));
 
         return rows.ToList();
+    }
+
+    /// <summary>Falls back to the legacy JSON column when no relational rows exist for a string list slice.</summary>
+    private static List<string> FallbackDeserializeList(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        return JsonEntitySerializer.Deserialize<List<string>>(json);
+    }
+
+    /// <summary>Falls back to the legacy JSON column when no relational provenance rows exist.</summary>
+    private static ManifestProvenance FallbackDeserializeProvenance(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new ManifestProvenance();
+
+        return JsonEntitySerializer.Deserialize<ManifestProvenance>(json);
+    }
+
+    /// <summary>Falls back to the legacy JSON column when no relational decision rows exist.</summary>
+    private static List<ResolvedArchitectureDecision> FallbackDeserializeDecisions(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        return JsonEntitySerializer.Deserialize<List<ResolvedArchitectureDecision>>(json);
     }
 
     private static ComplianceSection DeserializeCompliance(string? json)

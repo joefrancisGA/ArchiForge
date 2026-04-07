@@ -10,7 +10,7 @@ using ArchLucid.Api.Services.Evolution;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Evolution;
+using ArchLucid.Persistence.Coordination.Evolution;
 
 using Asp.Versioning;
 

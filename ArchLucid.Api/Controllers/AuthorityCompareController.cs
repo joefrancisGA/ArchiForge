@@ -2,7 +2,7 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Compare;
+using ArchLucid.Persistence.Coordination.Compare;
 
 using Asp.Versioning;
 

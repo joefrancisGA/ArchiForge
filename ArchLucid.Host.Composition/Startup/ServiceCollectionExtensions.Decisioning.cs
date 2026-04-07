@@ -1,7 +1,7 @@
 using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
-using ArchLucid.Persistence.Compliance;
+using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Provenance;
 
 using Di = ArchLucid.Decisioning.Interfaces;

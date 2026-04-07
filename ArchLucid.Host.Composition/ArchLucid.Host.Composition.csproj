@@ -27,6 +27,7 @@
     <ProjectReference Include="..\ArchLucid.Provenance\ArchLucid.Provenance.csproj" />
     <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
+    <ProjectReference Include="..\ArchLucid.Persistence.Coordination\ArchLucid.Persistence.Coordination.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Alerts\ArchLucid.Persistence.Alerts.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />

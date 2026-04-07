@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Coordination.Retrieval;
 
 namespace ArchLucid.Host.Core.Hosted;
 

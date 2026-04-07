@@ -9,7 +9,7 @@ using ArchLucid.Api.Services;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.ProductLearning.Planning;
+using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 using Asp.Versioning;
 

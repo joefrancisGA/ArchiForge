@@ -6,7 +6,7 @@ using ArchLucid.Api.Models.Evolution;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.ProductLearning.Planning;
+using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 using FluentAssertions;
 

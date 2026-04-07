@@ -12,7 +12,7 @@ using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
-using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.Core.Transactions;
 

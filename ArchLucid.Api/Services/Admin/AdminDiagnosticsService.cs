@@ -1,7 +1,7 @@
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Coordination.Retrieval;
 
 namespace ArchLucid.Api.Services.Admin;
 

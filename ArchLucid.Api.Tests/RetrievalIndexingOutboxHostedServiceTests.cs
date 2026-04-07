@@ -1,5 +1,5 @@
 using ArchLucid.Host.Core.Hosted;
-using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Coordination.Retrieval;
 
 using FluentAssertions;
 

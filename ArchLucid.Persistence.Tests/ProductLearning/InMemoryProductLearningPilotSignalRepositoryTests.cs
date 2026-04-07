@@ -1,5 +1,5 @@
 using ArchLucid.Contracts.ProductLearning;
-using ArchLucid.Persistence.ProductLearning;
+using ArchLucid.Persistence.Coordination.ProductLearning;
 
 using FluentAssertions;
 

@@ -7,8 +7,8 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Evolution;
-using ArchLucid.Persistence.ProductLearning.Planning;
+using ArchLucid.Persistence.Coordination.Evolution;
+using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 using JetBrains.Annotations;
 

@@ -1,6 +1,6 @@
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Persistence.Evolution;
+using ArchLucid.Persistence.Coordination.Evolution;
 
 using FluentAssertions;
 

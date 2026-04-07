@@ -19,7 +19,7 @@ using ArchLucid.Persistence.Alerts;
 using ArchLucid.Persistence.Alerts.Simulation;
 using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Orchestration;
-using ArchLucid.Persistence.Retrieval;
+using ArchLucid.Persistence.Coordination.Retrieval;
 
 using Microsoft.Extensions.Options;
 

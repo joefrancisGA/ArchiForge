@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Compare;
+using ArchLucid.Persistence.Coordination.Compare;
 
 using FluentAssertions;
 

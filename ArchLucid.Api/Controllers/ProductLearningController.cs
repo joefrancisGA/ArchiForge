@@ -6,7 +6,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.ProductLearning;
+using ArchLucid.Persistence.Coordination.ProductLearning;
 
 using Asp.Versioning;
 
