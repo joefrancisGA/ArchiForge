@@ -15,7 +15,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFactory) : IArchitectureRunRepository
 {
-    public async Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        ArchitectureRun run,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(run);
 
@@ -46,23 +50,32 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                run.RunId,
-                run.RequestId,
-                Status = run.Status.ToString(),
-                run.CreatedUtc,
-                run.CompletedUtc,
-                run.CurrentManifestVersion,
-                run.ContextSnapshotId,
-                run.GraphSnapshotId,
-                run.ArtifactBundleId
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    run.RunId,
+                    run.RequestId,
+                    Status = run.Status.ToString(),
+                    run.CreatedUtc,
+                    run.CompletedUtc,
+                    run.CurrentManifestVersion,
+                    run.ContextSnapshotId,
+                    run.GraphSnapshotId,
+                    run.ArtifactBundleId
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<ArchitectureRun?> GetByIdAsync(string runId, CancellationToken cancellationToken = default)
@@ -172,7 +185,9 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
         string? currentManifestVersion = null,
         DateTime? completedUtc = null,
         CancellationToken cancellationToken = default,
-        ArchitectureRunStatus? expectedStatus = null)
+        ArchitectureRunStatus? expectedStatus = null,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         // COALESCE preserves the existing manifest version when the caller passes null,
         // preventing a stale null snapshot from overwriting a version already written
@@ -196,26 +211,35 @@ public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFac
               WHERE RunId = @RunId;
               """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        int rowsAffected = await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
+        try
+        {
+            int rowsAffected = await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    RunId = runId,
+                    Status = status.ToString(),
+                    CurrentManifestVersion = currentManifestVersion,
+                    CompletedUtc = completedUtc,
+                    ExpectedStatus = expectedStatus?.ToString()
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+
+            if (expectedStatus.HasValue && rowsAffected == 0)
             {
-                RunId = runId,
-                Status = status.ToString(),
-                CurrentManifestVersion = currentManifestVersion,
-                CompletedUtc = completedUtc,
-                ExpectedStatus = expectedStatus?.ToString()
-            },
-            cancellationToken: cancellationToken));
-
-        if (expectedStatus.HasValue && rowsAffected == 0)
-        
-            throw new InvalidOperationException(
-                $"Run '{runId}' could not be transitioned to '{status}': " +
-                $"expected status '{expectedStatus}' but the run has already been moved by a concurrent operation.");
-        
+                throw new InvalidOperationException(
+                    $"Run '{runId}' could not be transitioned to '{status}': " +
+                    $"expected status '{expectedStatus}' but the run has already been moved by a concurrent operation.");
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     private sealed class ArchitectureRunRow

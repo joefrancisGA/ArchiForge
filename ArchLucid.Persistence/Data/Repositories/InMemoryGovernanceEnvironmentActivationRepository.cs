@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -17,7 +18,11 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        GovernanceEnvironmentActivation item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();
@@ -38,7 +43,11 @@ public sealed class InMemoryGovernanceEnvironmentActivationRepository : IGoverna
     }
 
     /// <inheritdoc />
-    public Task UpdateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default)
+    public Task UpdateAsync(
+        GovernanceEnvironmentActivation item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
         cancellationToken.ThrowIfCancellationRequested();

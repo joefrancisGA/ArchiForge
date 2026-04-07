@@ -8,7 +8,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Persistence.Transactions;
+using ArchLucid.Core.Transactions;
 
 namespace ArchLucid.Persistence.Orchestration.Pipeline;
 

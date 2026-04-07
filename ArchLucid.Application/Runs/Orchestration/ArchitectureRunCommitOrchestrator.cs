@@ -1,4 +1,4 @@
-using System.Transactions;
+using System.Data;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -33,6 +34,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IArchitectureRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -49,6 +51,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
     private readonly ICoordinatorDecisionTraceRepository _decisionTraceRepository = decisionTraceRepository ?? throw new ArgumentNullException(nameof(decisionTraceRepository));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly ILogger<ArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
@@ -323,29 +326,55 @@ public sealed class ArchitectureRunCommitOrchestrator(
         DecisionMergeResult merge,
         CancellationToken cancellationToken)
     {
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
-        await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, cancellationToken);
-        scope.Complete();
+        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        try
+        {
+            await PersistCommittedRunRowsAsync(runId, decisionNodes, merge, uow, cancellationToken);
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     private async Task PersistCommittedRunRowsAsync(
         string runId,
         IReadOnlyList<DecisionNode> decisionNodes,
         DecisionMergeResult merge,
+        IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
-        await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
-        await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
-        await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.Committed,
-            merge.Manifest.Metadata.ManifestVersion,
-            DateTime.UtcNow,
-            cancellationToken,
-            expectedStatus: ArchitectureRunStatus.ReadyForCommit);
+        if (uow.SupportsExternalTransaction)
+        {
+            await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken, uow.Connection, uow.Transaction);
+            await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken, uow.Connection, uow.Transaction);
+            await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken, uow.Connection, uow.Transaction);
+            await _runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.Committed,
+                merge.Manifest.Metadata.ManifestVersion,
+                DateTime.UtcNow,
+                cancellationToken,
+                expectedStatus: ArchitectureRunStatus.ReadyForCommit,
+                connection: uow.Connection,
+                transaction: uow.Transaction);
+        }
+        else
+        {
+            await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
+            await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
+            await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
+            await _runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.Committed,
+                merge.Manifest.Metadata.ManifestVersion,
+                DateTime.UtcNow,
+                cancellationToken,
+                expectedStatus: ArchitectureRunStatus.ReadyForCommit);
+        }
     }
 
     /// <summary>

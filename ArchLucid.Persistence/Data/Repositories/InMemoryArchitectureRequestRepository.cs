@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
+using System.Data;
+
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -14,7 +16,11 @@ public sealed class InMemoryArchitectureRequestRepository : IArchitectureRequest
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();

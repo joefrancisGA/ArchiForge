@@ -12,7 +12,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFactory connectionFactory)
     : IGovernanceEnvironmentActivationRepository
 {
-    public async Task CreateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        GovernanceEnvironmentActivation item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -37,23 +41,36 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                item.ActivationId,
-                item.RunId,
-                item.ManifestVersion,
-                item.Environment,
-                item.IsActive,
-                item.ActivatedUtc
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    item.ActivationId,
+                    item.RunId,
+                    item.ManifestVersion,
+                    item.Environment,
+                    item.IsActive,
+                    item.ActivatedUtc
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
-    public async Task UpdateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(
+        GovernanceEnvironmentActivation item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -63,16 +80,25 @@ public sealed class GovernanceEnvironmentActivationRepository(IDbConnectionFacto
             WHERE ActivationId = @ActivationId;
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                item.ActivationId,
-                item.IsActive
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    item.ActivationId,
+                    item.IsActive
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<IReadOnlyList<GovernanceEnvironmentActivation>> GetByEnvironmentAsync(

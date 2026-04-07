@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
+using System.Data;
+
 using ArchLucid.Contracts.Decisions;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -16,7 +18,9 @@ public sealed class InMemoryDecisionNodeRepository : IDecisionNodeRepository
     /// <inheritdoc />
     public Task CreateManyAsync(
         IReadOnlyCollection<DecisionNode> decisions,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(decisions);
         cancellationToken.ThrowIfCancellationRequested();

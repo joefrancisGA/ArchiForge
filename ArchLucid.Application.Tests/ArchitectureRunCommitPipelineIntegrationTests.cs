@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -125,6 +126,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             traceRepository,
             actor.Object,
             Mock.Of<IBaselineMutationAuditService>(),
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);

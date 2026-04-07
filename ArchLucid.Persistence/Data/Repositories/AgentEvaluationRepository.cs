@@ -18,28 +18,28 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
 {
     public async Task CreateManyAsync(
         IReadOnlyCollection<AgentEvaluation> evaluations,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evaluations);
 
         if (evaluations.Count == 0)
-        
             return;
-        
 
         List<string> distinctRunIds = evaluations.Select(e => e.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
-        
+        {
             throw new ArgumentException(
                 $"All evaluations in a batch must belong to the same run. " +
                 $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(evaluations));
-        
+        }
 
         string runId = evaluations.First().RunId;
 
         // Delete all existing evaluations for this run before inserting so that a retry
-        // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
+        // of ExecuteRunAsync (inside IArchLucidUnitOfWork) does not produce duplicate rows.
         const string deleteSql = "DELETE FROM AgentEvaluations WHERE RunId = @RunId;";
 
         const string insertSql = """
@@ -67,19 +67,49 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        using IDbTransaction transaction = connection.BeginTransaction();
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
+        try
+        {
+            if (transaction is not null)
+            {
+                await ExecuteCreateManyCoreAsync(conn, transaction, evaluations, runId, deleteSql, insertSql, cancellationToken);
+            }
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
+
+                await ExecuteCreateManyCoreAsync(conn, tx, evaluations, runId, deleteSql, insertSql, cancellationToken);
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    private static async Task ExecuteCreateManyCoreAsync(
+        IDbConnection conn,
+        IDbTransaction tx,
+        IReadOnlyCollection<AgentEvaluation> evaluations,
+        string runId,
+        string deleteSql,
+        string insertSql,
+        CancellationToken cancellationToken)
+    {
+        await conn.ExecuteAsync(new CommandDefinition(
             deleteSql,
             new { RunId = runId },
-            transaction: transaction,
+            transaction: tx,
             cancellationToken: cancellationToken));
 
         foreach (AgentEvaluation e in evaluations)
         {
             string payload = JsonSerializer.Serialize(e, ContractJson.Default);
-            await connection.ExecuteAsync(new CommandDefinition(
+            await conn.ExecuteAsync(new CommandDefinition(
                 insertSql,
                 new
                 {
@@ -92,11 +122,9 @@ public sealed class AgentEvaluationRepository(IDbConnectionFactory connectionFac
                     EvaluationJson = payload,
                     e.CreatedUtc
                 },
-                transaction: transaction,
+                transaction: tx,
                 cancellationToken: cancellationToken));
         }
-
-        transaction.Commit();
     }
 
     public async Task<IReadOnlyList<AgentEvaluation>> GetByRunIdAsync(

@@ -6,7 +6,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -73,6 +75,7 @@ public sealed class ArchitectureApplicationServiceTests
             _requestRepository.Object,
             _agentEvidencePackageRepository.Object,
             _evidenceBuilder.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
 

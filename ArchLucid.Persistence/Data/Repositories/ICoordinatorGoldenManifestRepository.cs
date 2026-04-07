@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -13,7 +15,11 @@ public interface ICoordinatorGoldenManifestRepository
     /// <paramref name="manifest"/> must have a non-empty <c>Metadata.ManifestVersion</c>.
     /// Implementors should not overwrite an existing version; callers are expected to generate unique version strings.
     /// </summary>
-    Task CreateAsync(GoldenManifest manifest, CancellationToken cancellationToken = default);
+    Task CreateAsync(
+        GoldenManifest manifest,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns the manifest with the specified <paramref name="manifestVersion"/>, or <see langword="null"/> when not found.

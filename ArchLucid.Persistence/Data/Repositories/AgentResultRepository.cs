@@ -13,7 +13,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory) : IAgentResultRepository
 {
-    public async Task CreateAsync(AgentResult result, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        AgentResult result,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(result);
 
@@ -56,26 +60,55 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         };
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        using IDbTransaction tx = connection.BeginTransaction();
+        try
+        {
+            if (transaction is not null)
+            {
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { result.RunId, result.TaskId },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            deleteSql,
-            new { result.RunId, result.TaskId },
-            transaction: tx,
-            cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+            }
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            insertSql,
-            parameters,
-            transaction: tx,
-            cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { result.RunId, result.TaskId },
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
 
-        tx.Commit();
+                await conn.ExecuteAsync(new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
-    public async Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default)
+    public async Task CreateManyAsync(
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(results);
 
@@ -84,15 +117,15 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
 
         List<string> distinctRunIds = results.Select(r => r.RunId).Distinct().ToList();
         if (distinctRunIds.Count > 1)
-        
+        {
             throw new ArgumentException(
                 $"All results in a batch must belong to the same run. " +
                 $"Found distinct RunIds: {string.Join(", ", distinctRunIds)}.",
                 nameof(results));
-        
+        }
 
         // Delete all existing results for this run before bulk-inserting so that a retry
-        // of ExecuteRunAsync (inside a TransactionScope) does not produce duplicate rows.
+        // of ExecuteRunAsync (inside IArchLucidUnitOfWork) does not produce duplicate rows.
         const string deleteSql = "DELETE FROM AgentResults WHERE RunId = @RunId;";
 
         const string insertSql = """
@@ -129,25 +162,48 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             result.CreatedUtc
         });
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        using IDbTransaction tx = connection.BeginTransaction();
+        try
+        {
+            if (transaction is not null)
+            {
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { results[0].RunId },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            deleteSql,
-            new { results[0].RunId },
-            transaction: tx,
-            cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: transaction, cancellationToken: cancellationToken));
+            }
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
 
-        await connection.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { results[0].RunId },
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
 
-        tx.Commit();
+                await conn.ExecuteAsync(new CommandDefinition(insertSql, args, transaction: tx, cancellationToken: cancellationToken));
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
-    public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
         string sql = $"""
             SELECT ResultJson
             FROM AgentResults
@@ -156,13 +212,25 @@ public sealed class AgentResultRepository(IDbConnectionFactory connectionFactory
             {SqlPagingSyntax.FirstRowsOnly(1000)};
             """;
 
-        IEnumerable<string> rows = await connection.QueryAsync<string>(new CommandDefinition(
-            sql,
-            new
-            {
-                RunId = runId
-            },
-            cancellationToken: cancellationToken));
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        IEnumerable<string> rows;
+        try
+        {
+            rows = await conn.QueryAsync<string>(new CommandDefinition(
+                sql,
+                new
+                {
+                    RunId = runId
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
 
         List<AgentResult> results = [];
         foreach (string json in rows)

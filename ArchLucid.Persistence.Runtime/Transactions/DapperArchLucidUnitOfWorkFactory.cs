@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Connections;
 
 using Microsoft.Data.SqlClient;

@@ -1,5 +1,3 @@
-using System.Transactions;
-
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Agents;
@@ -9,8 +7,9 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application;
 
@@ -28,7 +27,8 @@ public sealed class ReplayRunService(
     IArchitectureRunRepository runRepository,
     ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
-    IAgentEvidencePackageRepository agentEvidencePackageRepository)
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory)
     : IReplayRunService
 {
     /// <summary>
@@ -149,20 +149,42 @@ public sealed class ReplayRunService(
         decisionTraces = merge.DecisionTraces;
         warnings = merge.Warnings;
 
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
-        await manifestRepository.CreateAsync(manifest, cancellationToken);
-        await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
-        await runRepository.UpdateStatusAsync(
-            replayRunId,
-            ArchitectureRunStatus.Committed,
-            currentManifestVersion: manifest.Metadata.ManifestVersion,
-            completedUtc: DateTime.UtcNow,
-            cancellationToken: cancellationToken);
+        try
+        {
+            if (uow.SupportsExternalTransaction)
+            {
+                await manifestRepository.CreateAsync(manifest, cancellationToken, uow.Connection, uow.Transaction);
+                await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken, uow.Connection, uow.Transaction);
+                await runRepository.UpdateStatusAsync(
+                    replayRunId,
+                    ArchitectureRunStatus.Committed,
+                    currentManifestVersion: manifest.Metadata.ManifestVersion,
+                    completedUtc: DateTime.UtcNow,
+                    cancellationToken: cancellationToken,
+                    connection: uow.Connection,
+                    transaction: uow.Transaction);
+            }
+            else
+            {
+                await manifestRepository.CreateAsync(manifest, cancellationToken);
+                await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+                await runRepository.UpdateStatusAsync(
+                    replayRunId,
+                    ArchitectureRunStatus.Committed,
+                    currentManifestVersion: manifest.Metadata.ManifestVersion,
+                    completedUtc: DateTime.UtcNow,
+                    cancellationToken: cancellationToken);
+            }
 
-        scope.Complete();
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
 
         return new ReplayRunResult
         {

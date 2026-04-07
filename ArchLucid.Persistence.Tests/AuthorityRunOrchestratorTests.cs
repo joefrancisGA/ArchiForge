@@ -12,7 +12,7 @@ using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Retrieval;
-using ArchLucid.Persistence.Transactions;
+using ArchLucid.Core.Transactions;
 
 using FluentAssertions;
 

@@ -1,4 +1,4 @@
-namespace ArchLucid.Persistence.Transactions;
+namespace ArchLucid.Core.Transactions;
 
 /// <summary>
 /// Creates <see cref="IArchLucidUnitOfWork"/> instances for a single orchestrated persistence flow (Dapper with open connection + transaction, or in-memory no-op).

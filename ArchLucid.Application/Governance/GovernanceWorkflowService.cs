@@ -1,4 +1,4 @@
-using System.Transactions;
+using System.Data;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Integration;
@@ -6,6 +6,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,7 @@ public sealed class GovernanceWorkflowService(
     IBaselineMutationAuditService baselineMutationAudit,
     IScopeContextProvider scopeContextProvider,
     IIntegrationEventPublisher integrationEventPublisher,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
 {
@@ -304,18 +306,37 @@ public sealed class GovernanceWorkflowService(
             ActivatedUtc = DateTime.UtcNow
         };
 
-        using (TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled))
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        try
         {
-            foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
+            if (uow.SupportsExternalTransaction)
             {
-                active.IsActive = false;
-                await activationRepo.UpdateAsync(active, cancellationToken);
+                foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
+                {
+                    active.IsActive = false;
+                    await activationRepo.UpdateAsync(active, cancellationToken, uow.Connection, uow.Transaction);
+                }
+
+                await activationRepo.CreateAsync(activation, cancellationToken, uow.Connection, uow.Transaction);
+            }
+            else
+            {
+                foreach (GovernanceEnvironmentActivation active in existing.Where(a => a.IsActive))
+                {
+                    active.IsActive = false;
+                    await activationRepo.UpdateAsync(active, cancellationToken);
+                }
+
+                await activationRepo.CreateAsync(activation, cancellationToken);
             }
 
-            await activationRepo.CreateAsync(activation, cancellationToken);
-            scope.Complete();
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
         }
 
         await baselineMutationAudit

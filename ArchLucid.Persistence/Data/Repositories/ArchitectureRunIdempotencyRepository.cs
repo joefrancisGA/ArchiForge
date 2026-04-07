@@ -71,7 +71,9 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
         byte[] idempotencyKeyHash,
         byte[] requestFingerprint,
         string runId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
         ArgumentNullException.ThrowIfNull(requestFingerprint);
@@ -100,35 +102,42 @@ public sealed class ArchitectureRunIdempotencyRepository(IDbConnectionFactory co
             );
             """;
 
-        using IDbConnection connection = await connectionFactory
-            .CreateOpenConnectionAsync(cancellationToken)
-            ;
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
         DateTime createdUtc = DateTime.UtcNow;
 
         try
         {
-            int affected = await connection
-                .ExecuteAsync(new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        TenantId = tenantId,
-                        WorkspaceId = workspaceId,
-                        ProjectId = projectId,
-                        IdempotencyKeyHash = idempotencyKeyHash,
-                        RequestFingerprint = requestFingerprint,
-                        RunId = runId,
-                        CreatedUtc = createdUtc
-                    },
-                    cancellationToken: cancellationToken))
-                ;
+            try
+            {
+                int affected = await conn
+                    .ExecuteAsync(new CommandDefinition(
+                        sql,
+                        new
+                        {
+                            TenantId = tenantId,
+                            WorkspaceId = workspaceId,
+                            ProjectId = projectId,
+                            IdempotencyKeyHash = idempotencyKeyHash,
+                            RequestFingerprint = requestFingerprint,
+                            RunId = runId,
+                            CreatedUtc = createdUtc
+                        },
+                        transaction: transaction,
+                        cancellationToken: cancellationToken))
+                    ;
 
-            return affected > 0;
+                return affected > 0;
+            }
+            catch (SqlException ex) when (ex.Number is 2601 or 2627)
+            {
+                return false;
+            }
         }
-        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        finally
         {
-            return false;
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
         }
     }
 

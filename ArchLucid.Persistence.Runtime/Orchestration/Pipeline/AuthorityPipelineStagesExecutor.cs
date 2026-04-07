@@ -17,7 +17,7 @@ using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
-using ArchLucid.Persistence.Transactions;
+using ArchLucid.Core.Transactions;
 
 using Microsoft.Extensions.Logging;
 

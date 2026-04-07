@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -17,7 +18,9 @@ public sealed class InMemoryAgentEvaluationRepository : IAgentEvaluationReposito
     /// <inheritdoc />
     public Task CreateManyAsync(
         IReadOnlyCollection<AgentEvaluation> evaluations,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evaluations);
         cancellationToken.ThrowIfCancellationRequested();

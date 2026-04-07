@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -14,7 +15,11 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(AgentResult result, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        AgentResult result,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(result);
         cancellationToken.ThrowIfCancellationRequested();
@@ -30,7 +35,11 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
     }
 
     /// <inheritdoc />
-    public Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default)
+    public Task CreateManyAsync(
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(results);
         cancellationToken.ThrowIfCancellationRequested();
@@ -61,7 +70,11 @@ public sealed class InMemoryAgentResultRepository : IAgentResultRepository
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)

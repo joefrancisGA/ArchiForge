@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
@@ -18,7 +19,11 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        ArchitectureRun run,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(run);
         cancellationToken.ThrowIfCancellationRequested();
@@ -48,7 +53,9 @@ public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestReposi
         string? currentManifestVersion = null,
         DateTime? completedUtc = null,
         CancellationToken cancellationToken = default,
-        ArchitectureRunStatus? expectedStatus = null)
+        ArchitectureRunStatus? expectedStatus = null,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         cancellationToken.ThrowIfCancellationRequested();
         lock (_gate)

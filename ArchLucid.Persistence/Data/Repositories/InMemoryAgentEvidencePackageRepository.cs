@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -15,7 +16,11 @@ public sealed class InMemoryAgentEvidencePackageRepository : IAgentEvidencePacka
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(AgentEvidencePackage evidencePackage, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        AgentEvidencePackage evidencePackage,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evidencePackage);
         cancellationToken.ThrowIfCancellationRequested();

@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -11,7 +13,11 @@ public interface IEvidenceBundleRepository
     /// <summary>Persists a new evidence bundle.</summary>
     /// <param name="evidenceBundle">The bundle to create.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
-    Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default);
+    Task CreateAsync(
+        EvidenceBundle evidenceBundle,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns the evidence bundle with the given primary key, or <see langword="null"/> when not found.

@@ -10,6 +10,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -47,7 +48,8 @@ public sealed class ReplayRunServiceTests
             runRepo.Object,
             manifestRepo.Object,
             traceRepo.Object,
-            evidenceRepo.Object);
+            evidenceRepo.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
 
         Func<Task> act = async () => await sut.ReplayAsync("missing", ExecutionModes.Current, false, null, CancellationToken.None);
 
@@ -154,7 +156,8 @@ public sealed class ReplayRunServiceTests
             runRepo.Object,
             manifestRepo.Object,
             traceRepo.Object,
-            evidenceRepo.Object);
+            evidenceRepo.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
 
         ReplayRunResult output = await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: false, null, CancellationToken.None);
 
@@ -334,7 +337,8 @@ public sealed class ReplayRunServiceTests
             runRepo.Object,
             manifestRepo.Object,
             traceRepo.Object,
-            evidenceRepo.Object);
+            evidenceRepo.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
 
         ReplayRunResult output =
             await sut.ReplayAsync(originalRunId, ExecutionModes.Current, commitReplay: true, manifestVersionOverride: "v-override", CancellationToken.None);

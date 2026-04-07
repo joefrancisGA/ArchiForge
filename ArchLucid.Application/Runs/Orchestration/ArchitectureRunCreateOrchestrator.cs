@@ -1,5 +1,5 @@
+using System.Data;
 using System.Security.Cryptography;
-using System.Transactions;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -24,6 +25,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly ICoordinatorService _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
@@ -35,6 +37,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
@@ -87,17 +90,25 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         try
         {
-            using TransactionScope scope = new(
-                TransactionScopeOption.Required,
-                TransactionScopeAsyncFlowOption.Enabled);
-            inserted = await PersistCreateRunRowsAsync(
-                request,
-                coordination,
-                idempotency,
-                cancellationToken);
+            await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
 
-            if (inserted || idempotency is null)
-                scope.Complete();
+            try
+            {
+                inserted = await PersistCreateRunRowsAsync(
+                    request,
+                    coordination,
+                    idempotency,
+                    uow,
+                    cancellationToken);
+
+                if (inserted || idempotency is null)
+                    await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -151,32 +162,57 @@ public sealed class ArchitectureRunCreateOrchestrator(
         ArchitectureRequest request,
         CoordinationResult coordination,
         CreateRunIdempotencyState? idempotency,
+        IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
-        await _requestRepository.CreateAsync(request, cancellationToken);
-        await _runRepository.CreateAsync(coordination.Run, cancellationToken);
-        await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
+        if (uow.SupportsExternalTransaction)
+        {
+            await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
+            await _runRepository.CreateAsync(coordination.Run, cancellationToken, uow.Connection, uow.Transaction);
+            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
 
-        if (coordination.Tasks.Count > 0)
-            await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+            if (coordination.Tasks.Count > 0)
+                await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken, uow.Connection, uow.Transaction);
+        }
+        else
+        {
+            await _requestRepository.CreateAsync(request, cancellationToken);
+            await _runRepository.CreateAsync(coordination.Run, cancellationToken);
+            await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
+
+            if (coordination.Tasks.Count > 0)
+                await _taskRepository.CreateManyAsync(coordination.Tasks, cancellationToken);
+        }
 
         if (idempotency is null)
             return false;
 
-        bool inserted = await _architectureRunIdempotencyRepository
-            .TryInsertAsync(
-                idempotency.TenantId,
-                idempotency.WorkspaceId,
-                idempotency.ProjectId,
-                idempotency.IdempotencyKeyHash,
-                idempotency.RequestFingerprint,
-                coordination.Run.RunId,
-                cancellationToken);
+        bool inserted = uow.SupportsExternalTransaction
+            ? await _architectureRunIdempotencyRepository
+                .TryInsertAsync(
+                    idempotency.TenantId,
+                    idempotency.WorkspaceId,
+                    idempotency.ProjectId,
+                    idempotency.IdempotencyKeyHash,
+                    idempotency.RequestFingerprint,
+                    coordination.Run.RunId,
+                    cancellationToken,
+                    uow.Connection,
+                    uow.Transaction)
+            : await _architectureRunIdempotencyRepository
+                .TryInsertAsync(
+                    idempotency.TenantId,
+                    idempotency.WorkspaceId,
+                    idempotency.ProjectId,
+                    idempotency.IdempotencyKeyHash,
+                    idempotency.RequestFingerprint,
+                    coordination.Run.RunId,
+                    cancellationToken);
 
         if (!inserted)
         {
             _logger.LogInformation(
-                "Idempotency insert did not win race for RunId={RunId}; SQL Server rolls back the ambient transaction when the scope is not completed.",
+                "Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
                 coordination.Run.RunId);
         }
 

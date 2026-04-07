@@ -1,4 +1,4 @@
-using System.Transactions;
+using System.Data;
 
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Application;
@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Host.Core.Services;
@@ -20,7 +21,7 @@ namespace ArchLucid.Host.Core.Services;
 /// <remarks>
 /// All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
 /// data-loading path. State-changing operations (result submission, status transitions) execute
-/// inside a <see cref="System.Transactions.TransactionScope"/> to guarantee atomicity.
+/// inside <see cref="IArchLucidUnitOfWork"/> to guarantee atomicity.
 /// </remarks>
 public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
@@ -30,6 +31,7 @@ public sealed class ArchitectureApplicationService(
     IArchitectureRequestRepository requestRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IEvidenceBuilder evidenceBuilder,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureApplicationService> logger)
     : IArchitectureApplicationService
 {
@@ -104,22 +106,30 @@ public sealed class ArchitectureApplicationService(
                 ApplicationServiceFailureKind.BadRequest);
         
 
-        using TransactionScope tx = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
-        ArchitectureRunStatus newStatus = await SubmitAgentResultPersistAsync(
-            runId,
-            result,
-            run,
-            cancellationToken);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
 
-        tx.Complete();
+        try
+        {
+            ArchitectureRunStatus newStatus = await SubmitAgentResultPersistAsync(
+                runId,
+                result,
+                run,
+                uow,
+                cancellationToken);
 
-        if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
-                runId, result.ResultId, result.AgentType, newStatus);
+            await uow.CommitAsync(cancellationToken);
 
-        return new SubmitResultResult(true, result.ResultId, null);
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
+                    runId, result.ResultId, result.AgentType, newStatus);
+
+            return new SubmitResultResult(true, result.ResultId, null);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     /// <summary>True when there is exactly one result for each required agent type and no extra types.</summary>
@@ -196,11 +206,18 @@ public sealed class ArchitectureApplicationService(
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
-        await SeedFakeResultsPersistAsync(runId, fakeResults, run, architectureRequest, newStatus, cancellationToken);
-        scope.Complete();
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        try
+        {
+            await SeedFakeResultsPersistAsync(runId, fakeResults, run, architectureRequest, newStatus, uow, cancellationToken);
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
 
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
@@ -212,28 +229,58 @@ public sealed class ArchitectureApplicationService(
         string runId,
         AgentResult result,
         ArchitectureRun run,
+        IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
+        if (uow.SupportsExternalTransaction)
+        {
+            await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
+
+            // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
+            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(
+                runId,
+                cancellationToken,
+                uow.Connection,
+                uow.Transaction);
+            bool hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
+            ArchitectureRunStatus newStatus = hasAllRequiredAgentTypes
+                ? ArchitectureRunStatus.ReadyForCommit
+                : ArchitectureRunStatus.WaitingForResults;
+
+            if (newStatus != run.Status)
+            {
+                await runRepository.UpdateStatusAsync(
+                    runId,
+                    newStatus,
+                    currentManifestVersion: run.CurrentManifestVersion,
+                    completedUtc: null,
+                    cancellationToken: cancellationToken,
+                    connection: uow.Connection,
+                    transaction: uow.Transaction);
+            }
+
+            return newStatus;
+        }
+
         await resultRepository.CreateAsync(result, cancellationToken);
 
-        // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
-        IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
-        bool hasAllRequiredAgentTypes = HasAllRequiredAgentTypes(allResults);
-        ArchitectureRunStatus newStatus = hasAllRequiredAgentTypes
+        IReadOnlyList<AgentResult> allResultsMemory = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        bool hasAllRequired = HasAllRequiredAgentTypes(allResultsMemory);
+        ArchitectureRunStatus newStatusMemory = hasAllRequired
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
 
-        if (newStatus != run.Status)
-        
+        if (newStatusMemory != run.Status)
+        {
             await runRepository.UpdateStatusAsync(
                 runId,
-                newStatus,
+                newStatusMemory,
                 currentManifestVersion: run.CurrentManifestVersion,
                 completedUtc: null,
                 cancellationToken: cancellationToken);
-        
+        }
 
-        return newStatus;
+        return newStatusMemory;
     }
 
     private async Task SeedFakeResultsPersistAsync(
@@ -242,6 +289,7 @@ public sealed class ArchitectureApplicationService(
         ArchitectureRun run,
         ArchitectureRequest request,
         ArchitectureRunStatus newStatus,
+        IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
         // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
@@ -251,15 +299,34 @@ public sealed class ArchitectureApplicationService(
         if (existingPackage is null)
         {
             AgentEvidencePackage package = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
-            await agentEvidencePackageRepository.CreateAsync(package, cancellationToken);
+
+            if (uow.SupportsExternalTransaction)
+                await agentEvidencePackageRepository.CreateAsync(package, cancellationToken, uow.Connection, uow.Transaction);
+            else
+                await agentEvidencePackageRepository.CreateAsync(package, cancellationToken);
         }
 
-        await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
-        await runRepository.UpdateStatusAsync(
-            runId,
-            newStatus,
-            currentManifestVersion: run.CurrentManifestVersion,
-            completedUtc: null,
-            cancellationToken: cancellationToken);
+        if (uow.SupportsExternalTransaction)
+        {
+            await resultRepository.CreateManyAsync(fakeResults, cancellationToken, uow.Connection, uow.Transaction);
+            await runRepository.UpdateStatusAsync(
+                runId,
+                newStatus,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken,
+                connection: uow.Connection,
+                transaction: uow.Transaction);
+        }
+        else
+        {
+            await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
+            await runRepository.UpdateStatusAsync(
+                runId,
+                newStatus,
+                currentManifestVersion: run.CurrentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken);
+        }
     }
 }

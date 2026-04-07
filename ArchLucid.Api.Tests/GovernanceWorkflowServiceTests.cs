@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.TestSupport;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
@@ -72,6 +73,7 @@ public sealed class GovernanceWorkflowServiceTests
             _baselineAudit.Object,
             _scopeContext.Object,
             _integrationEvents.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
 

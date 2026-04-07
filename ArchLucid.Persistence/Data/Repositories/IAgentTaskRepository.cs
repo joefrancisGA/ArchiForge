@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -12,7 +14,11 @@ public interface IAgentTaskRepository
     /// Each task in <paramref name="tasks"/> must have a unique <c>TaskId</c>.
     /// Implementors should treat each write as an insert; duplicate IDs result in implementation-defined behaviour.
     /// </summary>
-    Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default);
+    Task CreateManyAsync(
+        IEnumerable<AgentTask> tasks,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns all tasks for the given <paramref name="runId"/>, ordered by creation time ascending.

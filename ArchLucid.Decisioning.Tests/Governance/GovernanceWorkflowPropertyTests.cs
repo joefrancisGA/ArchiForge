@@ -1,6 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
+using ArchLucid.TestSupport;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
@@ -289,6 +290,7 @@ internal static class GovernanceWorkflowTestFactory
             audit.Object,
             scopeProvider.Object,
             publisher.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
 
@@ -339,6 +341,7 @@ internal static class GovernanceWorkflowTestFactory
             audit.Object,
             scopeProvider.Object,
             publisher.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
 }

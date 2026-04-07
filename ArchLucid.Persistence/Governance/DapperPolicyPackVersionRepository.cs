@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -23,7 +24,11 @@ public sealed class DapperPolicyPackVersionRepository(
     : IPolicyPackVersionRepository
 {
     /// <inheritdoc />
-    public async Task CreateAsync(PolicyPackVersion version, CancellationToken ct)
+    public async Task CreateAsync(
+        PolicyPackVersion version,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(version);
 
@@ -34,8 +39,17 @@ public sealed class DapperPolicyPackVersionRepository(
             (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, version, cancellationToken: ct));
+        (SqlConnection conn, bool ownsConnection) =
+            await SqlExternalConnection.ResolveAsync(connectionFactory, connection, ct);
+
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(sql, version, transaction: transaction, cancellationToken: ct));
+        }
+        finally
+        {
+            SqlExternalConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     /// <inheritdoc />

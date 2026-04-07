@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Governance;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -11,12 +13,20 @@ public interface IGovernanceEnvironmentActivationRepository
     /// <summary>Persists a new environment activation record.</summary>
     /// <param name="item">The activation to create.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
-    Task CreateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default);
+    Task CreateAsync(
+        GovernanceEnvironmentActivation item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>Updates an existing environment activation record (e.g., to mark it inactive).</summary>
     /// <param name="item">The activation with updated values.</param>
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
-    Task UpdateAsync(GovernanceEnvironmentActivation item, CancellationToken cancellationToken = default);
+    Task UpdateAsync(
+        GovernanceEnvironmentActivation item,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns all activation records for the specified <paramref name="environment"/>,

@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Decisions;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -13,7 +15,9 @@ public interface IAgentEvaluationRepository
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     Task CreateManyAsync(
         IReadOnlyCollection<AgentEvaluation> evaluations,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns all evaluations recorded for the specified run, ordered by creation time ascending.

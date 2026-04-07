@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -10,7 +12,11 @@ public interface IAgentResultRepository
     /// <summary>Persists a single agent result.</summary>
     /// <param name="result">The result to store.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task CreateAsync(AgentResult result, CancellationToken cancellationToken = default);
+    Task CreateAsync(
+        AgentResult result,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Persists multiple agent results in a single operation.
@@ -19,7 +25,11 @@ public interface IAgentResultRepository
     /// </summary>
     /// <param name="results">The results to store.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task CreateManyAsync(IReadOnlyList<AgentResult> results, CancellationToken cancellationToken = default);
+    Task CreateManyAsync(
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns all agent results for the specified run, in creation order.
@@ -27,5 +37,9 @@ public interface IAgentResultRepository
     /// </summary>
     /// <param name="runId">The run identifier to query.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<AgentResult>> GetByRunIdAsync(
+        string runId,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 }

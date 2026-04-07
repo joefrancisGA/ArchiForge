@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -102,6 +103,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
                 actorContext,
                 baselineMutationAudit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
@@ -115,6 +117,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<IEvidenceBuilder>(),
                 actorContext,
                 baselineMutationAudit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
@@ -130,6 +133,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<ICoordinatorDecisionTraceRepository>(),
                 actorContext,
                 baselineMutationAudit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

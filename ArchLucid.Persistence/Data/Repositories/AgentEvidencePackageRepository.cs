@@ -16,7 +16,9 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 {
     public async Task CreateAsync(
         AgentEvidencePackage evidencePackage,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evidencePackage);
 
@@ -53,8 +55,6 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
 
         string json = JsonSerializer.Serialize(evidencePackage, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
         var parameters = new
         {
             evidencePackage.EvidencePackageId,
@@ -67,21 +67,48 @@ public sealed class AgentEvidencePackageRepository(IDbConnectionFactory connecti
             evidencePackage.CreatedUtc
         };
 
-        using IDbTransaction tx = connection.BeginTransaction();
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            deleteSql,
-            new { evidencePackage.RunId },
-            transaction: tx,
-            cancellationToken: cancellationToken));
+        try
+        {
+            if (transaction is not null)
+            {
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { evidencePackage.RunId },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            insertSql,
-            parameters,
-            transaction: tx,
-            cancellationToken: cancellationToken));
+                await conn.ExecuteAsync(new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+            }
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
 
-        tx.Commit();
+                await conn.ExecuteAsync(new CommandDefinition(
+                    deleteSql,
+                    new { evidencePackage.RunId },
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
+
+                await conn.ExecuteAsync(new CommandDefinition(
+                    insertSql,
+                    parameters,
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<AgentEvidencePackage?> GetByRunIdAsync(

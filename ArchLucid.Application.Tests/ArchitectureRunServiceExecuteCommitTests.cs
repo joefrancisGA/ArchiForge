@@ -14,6 +14,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.TestSupport;
 using ArchLucid.Decisioning.Merge;
 
 using FluentAssertions;
@@ -500,6 +501,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
                 actorContext,
                 audit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
@@ -513,6 +515,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 evidenceBuilder,
                 actorContext,
                 audit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
@@ -528,6 +531,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<ICoordinatorDecisionTraceRepository>(),
                 actorContext,
                 audit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 
@@ -556,6 +560,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
                 actorContext,
                 audit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
@@ -569,6 +574,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<IEvidenceBuilder>(),
                 actorContext,
                 audit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
@@ -584,6 +590,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 decisionTraceRepository,
                 actorContext,
                 audit,
+                ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

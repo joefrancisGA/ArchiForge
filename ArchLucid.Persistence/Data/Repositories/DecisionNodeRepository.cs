@@ -15,14 +15,14 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
 {
     public async Task CreateManyAsync(
         IReadOnlyCollection<DecisionNode> decisions,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(decisions);
 
         if (decisions.Count == 0)
-        
             return;
-        
 
         const string sql = """
             INSERT INTO DecisionNodes
@@ -49,13 +49,41 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        using IDbTransaction transaction = connection.BeginTransaction();
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
+        try
+        {
+            if (transaction is not null)
+            {
+                await InsertDecisionNodesAsync(conn, transaction, decisions, sql, cancellationToken);
+            }
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
+
+                await InsertDecisionNodesAsync(conn, tx, decisions, sql, cancellationToken);
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
+    }
+
+    private static async Task InsertDecisionNodesAsync(
+        IDbConnection conn,
+        IDbTransaction tx,
+        IReadOnlyCollection<DecisionNode> decisions,
+        string sql,
+        CancellationToken cancellationToken)
+    {
         foreach (DecisionNode decision in decisions)
         {
             string payload = JsonSerializer.Serialize(decision, ContractJson.Default);
-            await connection.ExecuteAsync(new CommandDefinition(
+            await conn.ExecuteAsync(new CommandDefinition(
                 sql,
                 new
                 {
@@ -68,11 +96,9 @@ public sealed class DecisionNodeRepository(IDbConnectionFactory connectionFactor
                     DecisionJson = payload,
                     decision.CreatedUtc
                 },
-                transaction: transaction,
+                transaction: tx,
                 cancellationToken: cancellationToken));
         }
-
-        transaction.Commit();
     }
 
     public async Task<IReadOnlyList<DecisionNode>> GetByRunIdAsync(

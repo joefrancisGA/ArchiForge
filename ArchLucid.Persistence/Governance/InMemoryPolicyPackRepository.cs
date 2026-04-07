@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Governance;
@@ -15,7 +17,11 @@ public sealed class InMemoryPolicyPackRepository : IPolicyPackRepository
     private readonly List<PolicyPack> _items = [];
     private readonly Lock _gate = new();
 
-    public Task CreateAsync(PolicyPack pack, CancellationToken ct)
+    public Task CreateAsync(
+        PolicyPack pack,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(pack);
         ct.ThrowIfCancellationRequested();

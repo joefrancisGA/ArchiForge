@@ -1,3 +1,4 @@
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -22,7 +23,11 @@ public sealed class DapperPolicyPackRepository(
     IGovernanceResolutionReadConnectionFactory governanceResolutionReadConnectionFactory) : IPolicyPackRepository
 {
     /// <inheritdoc />
-    public async Task CreateAsync(PolicyPack pack, CancellationToken ct)
+    public async Task CreateAsync(
+        PolicyPack pack,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(pack);
 
@@ -41,8 +46,17 @@ public sealed class DapperPolicyPackRepository(
             );
             """;
 
-        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        await connection.ExecuteAsync(new CommandDefinition(sql, pack, cancellationToken: ct));
+        (SqlConnection conn, bool ownsConnection) =
+            await SqlExternalConnection.ResolveAsync(connectionFactory, connection, ct);
+
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(sql, pack, transaction: transaction, cancellationToken: ct));
+        }
+        finally
+        {
+            SqlExternalConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     /// <inheritdoc />

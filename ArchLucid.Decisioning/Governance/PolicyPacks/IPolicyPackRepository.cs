@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Persistence port for <see cref="PolicyPack"/> aggregate metadata (not version rows).</summary>
@@ -8,7 +10,11 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public interface IPolicyPackRepository
 {
     /// <summary>Inserts a new pack row.</summary>
-    Task CreateAsync(PolicyPack pack, CancellationToken ct);
+    Task CreateAsync(
+        PolicyPack pack,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>Updates pack fields such as <see cref="PolicyPack.Status"/> and <see cref="PolicyPack.CurrentVersion"/>.</summary>
     Task UpdateAsync(PolicyPack pack, CancellationToken ct);

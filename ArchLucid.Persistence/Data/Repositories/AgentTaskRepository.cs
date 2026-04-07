@@ -15,7 +15,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) : IAgentTaskRepository
 {
-    public async Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default)
+    public async Task CreateManyAsync(
+        IEnumerable<AgentTask> tasks,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(tasks);
 
@@ -44,9 +48,6 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-        using IDbTransaction transaction = connection.BeginTransaction();
-
         IEnumerable<object> rows = tasks.Select(t => (object)new
         {
             t.TaskId,
@@ -59,13 +60,36 @@ public sealed class AgentTaskRepository(IDbConnectionFactory connectionFactory) 
             t.EvidenceBundleRef
         });
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            rows,
-            transaction: transaction,
-            cancellationToken: cancellationToken));
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        transaction.Commit();
+        try
+        {
+            if (transaction is not null)
+            {
+                await conn.ExecuteAsync(new CommandDefinition(
+                    sql,
+                    rows,
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+            }
+            else
+            {
+                using IDbTransaction tx = conn.BeginTransaction();
+
+                await conn.ExecuteAsync(new CommandDefinition(
+                    sql,
+                    rows,
+                    transaction: tx,
+                    cancellationToken: cancellationToken));
+
+                tx.Commit();
+            }
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<IReadOnlyList<AgentTask>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)

@@ -8,7 +8,7 @@ namespace ArchLucid.Persistence.Orchestration;
 /// </summary>
 /// <remarks>
 /// Implementation: <see cref="AuthorityRunOrchestrator"/>. Primary caller: <c>ArchLucid.Coordinator.Services.CoordinatorService</c>. Registered scoped in API storage extensions.
-/// Uses <see cref="ArchLucid.Persistence.Transactions.IArchLucidUnitOfWork"/> when the factory supports transactional persistence; rolls back on failure.
+/// Uses <see cref="ArchLucid.Core.Transactions.IArchLucidUnitOfWork"/> when the factory supports transactional persistence; rolls back on failure.
 /// </remarks>
 public interface IAuthorityRunOrchestrator
 {

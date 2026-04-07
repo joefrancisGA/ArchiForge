@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -11,7 +13,11 @@ public sealed class InMemoryAgentTaskRepository : IAgentTaskRepository
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateManyAsync(IEnumerable<AgentTask> tasks, CancellationToken cancellationToken = default)
+    public Task CreateManyAsync(
+        IEnumerable<AgentTask> tasks,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(tasks);
         cancellationToken.ThrowIfCancellationRequested();

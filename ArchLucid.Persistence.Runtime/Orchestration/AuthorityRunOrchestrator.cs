@@ -14,7 +14,7 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.Serialization;
-using ArchLucid.Persistence.Transactions;
+using ArchLucid.Core.Transactions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

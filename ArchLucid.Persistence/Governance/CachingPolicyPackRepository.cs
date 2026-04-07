@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Caching;
 
@@ -13,9 +15,13 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
     /// <inheritdoc />
-    public async Task CreateAsync(PolicyPack pack, CancellationToken ct)
+    public async Task CreateAsync(
+        PolicyPack pack,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
-        await _inner.CreateAsync(pack, ct);
+        await _inner.CreateAsync(pack, ct, connection, transaction);
 
         await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.PolicyPack(pack.PolicyPackId), ct);
     }

@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -13,7 +15,9 @@ public interface IAgentEvidencePackageRepository
     /// <param name="cancellationToken">Propagates notification that the operation should be cancelled.</param>
     Task CreateAsync(
         AgentEvidencePackage evidencePackage,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns the evidence package for the specified run, or <see langword="null"/> when none exists.

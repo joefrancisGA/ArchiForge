@@ -1,4 +1,4 @@
-using System.Transactions;
+using System.Data;
 
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application;
@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IEvidenceBuilder evidenceBuilder,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IArchitectureRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -44,6 +46,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
@@ -221,19 +224,27 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         IReadOnlyList<AgentEvaluation> evaluations,
         CancellationToken cancellationToken)
     {
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
-        await PersistExecutePhaseRowsAsync(
-            runId,
-            expectedStatus,
-            currentManifestVersion,
-            evidence,
-            results,
-            evaluations,
-            cancellationToken);
+        await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
 
-        scope.Complete();
+        try
+        {
+            await PersistExecutePhaseRowsAsync(
+                runId,
+                expectedStatus,
+                currentManifestVersion,
+                evidence,
+                results,
+                evaluations,
+                uow,
+                cancellationToken);
+
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 
     private async Task PersistExecutePhaseRowsAsync(
@@ -243,17 +254,36 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentResult> results,
         IReadOnlyList<AgentEvaluation> evaluations,
+        IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
-        await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
-        await _resultRepository.CreateManyAsync(results, cancellationToken);
-        await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.ReadyForCommit,
-            currentManifestVersion: currentManifestVersion,
-            completedUtc: null,
-            cancellationToken: cancellationToken,
-            expectedStatus: expectedStatus);
+        if (uow.SupportsExternalTransaction)
+        {
+            await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
+            await _resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
+            await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
+            await _runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.ReadyForCommit,
+                currentManifestVersion: currentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken,
+                expectedStatus: expectedStatus,
+                connection: uow.Connection,
+                transaction: uow.Transaction);
+        }
+        else
+        {
+            await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
+            await _resultRepository.CreateManyAsync(results, cancellationToken);
+            await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+            await _runRepository.UpdateStatusAsync(
+                runId,
+                ArchitectureRunStatus.ReadyForCommit,
+                currentManifestVersion: currentManifestVersion,
+                completedUtc: null,
+                cancellationToken: cancellationToken,
+                expectedStatus: expectedStatus);
+        }
     }
 }

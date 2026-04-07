@@ -48,6 +48,7 @@ using ArchLucid.Persistence.Replay;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Retrieval;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Provenance;
 

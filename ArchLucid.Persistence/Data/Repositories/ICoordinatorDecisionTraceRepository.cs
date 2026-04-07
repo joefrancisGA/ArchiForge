@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.DecisionTraces;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -12,7 +14,11 @@ public interface ICoordinatorDecisionTraceRepository
     /// Each trace must be a <see cref="RunEventTrace"/> (<see cref="DecisionTraceKind.RunEvent"/>) with a unique
     /// <c>RunEvent.TraceId</c>.
     /// </summary>
-    Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default);
+    Task CreateManyAsync(
+        IEnumerable<DecisionTrace> traces,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns all decision traces for the given <paramref name="runId"/>, ordered by creation time ascending.

@@ -16,7 +16,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFactory) : IEvidenceBundleRepository
 {
-    public async Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        EvidenceBundle evidenceBundle,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evidenceBundle);
         const string sql = """
@@ -38,18 +42,27 @@ public sealed class EvidenceBundleRepository(IDbConnectionFactory connectionFact
 
         string json = JsonSerializer.Serialize(evidenceBundle, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                evidenceBundle.EvidenceBundleId,
-                evidenceBundle.RequestDescription,
-                EvidenceJson = json,
-                CreatedUtc = DateTime.UtcNow
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    evidenceBundle.EvidenceBundleId,
+                    evidenceBundle.RequestDescription,
+                    EvidenceJson = json,
+                    CreatedUtc = DateTime.UtcNow
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<EvidenceBundle?> GetByIdAsync(string evidenceBundleId, CancellationToken cancellationToken = default)

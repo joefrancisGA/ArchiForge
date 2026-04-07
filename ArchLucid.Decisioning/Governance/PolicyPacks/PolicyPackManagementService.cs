@@ -1,5 +1,6 @@
-using System.Transactions;
+using System.Data;
 
+using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -10,7 +11,8 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public sealed class PolicyPackManagementService(
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
-    IPolicyPackAssignmentRepository assignmentRepository) : IPolicyPackManagementService
+    IPolicyPackAssignmentRepository assignmentRepository,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory) : IPolicyPackManagementService
 {
     private const string InitialVersion = "1.0.0";
     /// <inheritdoc />
@@ -41,26 +43,54 @@ public sealed class PolicyPackManagementService(
             CurrentVersion = InitialVersion,
         };
 
-        using TransactionScope scope = new(
-            TransactionScopeOption.Required,
-            TransactionScopeAsyncFlowOption.Enabled);
-        await packRepository.CreateAsync(pack, ct);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(ct);
 
-        await versionRepository
-            .CreateAsync(
-                new PolicyPackVersion
-                {
-                    PolicyPackVersionId = Guid.NewGuid(),
-                    PolicyPackId = pack.PolicyPackId,
-                    Version = InitialVersion,
-                    ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
-                    CreatedUtc = DateTime.UtcNow,
-                    IsPublished = false,
-                },
-                ct)
-            ;
+        try
+        {
+            if (uow.SupportsExternalTransaction)
+            {
+                await packRepository.CreateAsync(pack, ct, uow.Connection, uow.Transaction);
 
-        scope.Complete();
+                await versionRepository
+                    .CreateAsync(
+                        new PolicyPackVersion
+                        {
+                            PolicyPackVersionId = Guid.NewGuid(),
+                            PolicyPackId = pack.PolicyPackId,
+                            Version = InitialVersion,
+                            ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
+                            CreatedUtc = DateTime.UtcNow,
+                            IsPublished = false,
+                        },
+                        ct,
+                        uow.Connection,
+                        uow.Transaction);
+            }
+            else
+            {
+                await packRepository.CreateAsync(pack, ct);
+
+                await versionRepository
+                    .CreateAsync(
+                        new PolicyPackVersion
+                        {
+                            PolicyPackVersionId = Guid.NewGuid(),
+                            PolicyPackId = pack.PolicyPackId,
+                            Version = InitialVersion,
+                            ContentJson = string.IsNullOrWhiteSpace(initialContentJson) ? "{}" : initialContentJson,
+                            CreatedUtc = DateTime.UtcNow,
+                            IsPublished = false,
+                        },
+                        ct);
+            }
+
+            await uow.CommitAsync(ct);
+        }
+        catch
+        {
+            await uow.RollbackAsync(ct);
+            throw;
+        }
 
         return pack;
     }

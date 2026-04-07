@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
+using System.Data;
+
 using ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -15,7 +17,11 @@ public sealed class InMemoryCoordinatorGoldenManifestRepository : ICoordinatorGo
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(GoldenManifest manifest, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        GoldenManifest manifest,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(manifest);
         cancellationToken.ThrowIfCancellationRequested();

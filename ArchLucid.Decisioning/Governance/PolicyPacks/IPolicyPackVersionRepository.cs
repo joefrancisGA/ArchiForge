@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 
 /// <summary>Persistence port for immutable-ish <see cref="PolicyPackVersion"/> rows (versioned <c>ContentJson</c>).</summary>
@@ -8,7 +10,11 @@ namespace ArchLucid.Decisioning.Governance.PolicyPacks;
 public interface IPolicyPackVersionRepository
 {
     /// <summary>Inserts a new version row.</summary>
-    Task CreateAsync(PolicyPackVersion version, CancellationToken ct);
+    Task CreateAsync(
+        PolicyPackVersion version,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>Updates an existing version row (e.g. content and <see cref="PolicyPackVersion.IsPublished"/>).</summary>
     Task UpdateAsync(PolicyPackVersion version, CancellationToken ct);

@@ -1,6 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Transactions;
+
 namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>

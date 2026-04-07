@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
@@ -23,5 +25,7 @@ public interface IArchitectureRunIdempotencyRepository
         byte[] idempotencyKeyHash,
         byte[] requestFingerprint,
         string runId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 }

@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Persistence.Data.Repositories;
 
 /// <summary>
@@ -38,7 +40,9 @@ public sealed class InMemoryArchitectureRunIdempotencyRepository : IArchitecture
         byte[] idempotencyKeyHash,
         byte[] requestFingerprint,
         string runId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(idempotencyKeyHash);
         ArgumentNullException.ThrowIfNull(requestFingerprint);

@@ -13,7 +13,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFactory) : ICoordinatorDecisionTraceRepository
 {
-    public async Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
+    public async Task CreateManyAsync(
+        IEnumerable<DecisionTrace> traces,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(traces);
 
@@ -38,8 +42,6 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             );
             """;
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
-
         var rows = traces.Select(t =>
         {
             RunEventTracePayload run = t.RequireRunEvent();
@@ -55,10 +57,21 @@ public sealed class DecisionTraceRepository(IDbConnectionFactory connectionFacto
             };
         });
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            rows,
-            cancellationToken: cancellationToken));
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
+
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                rows,
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<IReadOnlyList<DecisionTrace>> GetByRunIdAsync(

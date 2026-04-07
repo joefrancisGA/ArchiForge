@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.ArtifactBundles;
 
-/// <summary>Relational hydration for artifact list slices; trace base remains JSON with relational list overlays.</summary>
+/// <summary>Relational hydration for artifact list slices when rows exist; otherwise <c>ArtifactsJson</c>. Trace base remains JSON with relational list overlays.</summary>
 internal static class ArtifactBundleRelationalRead
 {
     internal static async Task<ArtifactBundle> HydrateBundleAsync(
@@ -63,7 +63,7 @@ internal static class ArtifactBundleRelationalRead
 
         List<SynthesizedArtifact> artifacts = artifactCount > 0
             ? await LoadArtifactsRelationalAsync(connection, bundleId, blobStore, ct)
-            : [];
+            : ArtifactBundleArtifactsJsonReader.DeserializeArtifacts(row.ArtifactsJson);
 
         SynthesisTrace trace = ArtifactBundleTraceJsonReader.DeserializeTraceBase(row.TraceJson);
 

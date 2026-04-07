@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence\ArchLucid.Persistence.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Advisory\ArchLucid.Persistence.Advisory.csproj" />
     <ProjectReference Include="..\ArchLucid.Persistence.Integration\ArchLucid.Persistence.Integration.csproj" />

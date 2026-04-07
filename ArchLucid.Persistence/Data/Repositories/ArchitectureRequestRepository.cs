@@ -17,7 +17,11 @@ namespace ArchLucid.Persistence.Data.Repositories;
 public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectionFactory)
     : IArchitectureRequestRepository
 {
-    public async Task CreateAsync(ArchitectureRequest request, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -44,20 +48,29 @@ public sealed class ArchitectureRequestRepository(IDbConnectionFactory connectio
 
         string json = JsonSerializer.Serialize(request, ContractJson.Default);
 
-        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        (IDbConnection conn, bool ownsConnection) =
+            await ExternalDbConnection.ResolveAsync(connectionFactory, connection, cancellationToken);
 
-        await connection.ExecuteAsync(new CommandDefinition(
-            sql,
-            new
-            {
-                request.RequestId,
-                request.SystemName,
-                request.Environment,
-                CloudProvider = request.CloudProvider.ToString(),
-                RequestJson = json,
-                CreatedUtc = DateTime.UtcNow
-            },
-            cancellationToken: cancellationToken));
+        try
+        {
+            await conn.ExecuteAsync(new CommandDefinition(
+                sql,
+                new
+                {
+                    request.RequestId,
+                    request.SystemName,
+                    request.Environment,
+                    CloudProvider = request.CloudProvider.ToString(),
+                    RequestJson = json,
+                    CreatedUtc = DateTime.UtcNow
+                },
+                transaction: transaction,
+                cancellationToken: cancellationToken));
+        }
+        finally
+        {
+            ExternalDbConnection.DisposeIfOwned(conn, ownsConnection);
+        }
     }
 
     public async Task<ArchitectureRequest?> GetByIdAsync(string requestId, CancellationToken cancellationToken = default)

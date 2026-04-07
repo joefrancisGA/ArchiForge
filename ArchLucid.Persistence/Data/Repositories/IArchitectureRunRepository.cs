@@ -1,3 +1,5 @@
+using System.Data;
+
 using ArchLucid.Contracts.Metadata;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -10,7 +12,11 @@ public interface IArchitectureRunRepository
     /// <summary>Creates a new run record in storage.</summary>
     /// <param name="run">The run to persist.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task CreateAsync(ArchitectureRun run, CancellationToken cancellationToken = default);
+    Task CreateAsync(
+        ArchitectureRun run,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns the run with the given <paramref name="runId"/>, or
@@ -33,7 +39,9 @@ public interface IArchitectureRunRepository
         string? currentManifestVersion = null,
         DateTime? completedUtc = null,
         CancellationToken cancellationToken = default,
-        Contracts.Common.ArchitectureRunStatus? expectedStatus = null);
+        Contracts.Common.ArchitectureRunStatus? expectedStatus = null,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
     /// Returns summary items for all runs, ordered by <c>CreatedUtc</c> descending

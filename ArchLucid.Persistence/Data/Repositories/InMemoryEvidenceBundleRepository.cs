@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
@@ -14,7 +15,11 @@ public sealed class InMemoryEvidenceBundleRepository : IEvidenceBundleRepository
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateAsync(EvidenceBundle evidenceBundle, CancellationToken cancellationToken = default)
+    public Task CreateAsync(
+        EvidenceBundle evidenceBundle,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(evidenceBundle);
         cancellationToken.ThrowIfCancellationRequested();

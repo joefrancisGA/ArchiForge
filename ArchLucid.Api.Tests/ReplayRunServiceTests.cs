@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
@@ -39,7 +40,8 @@ public sealed class ReplayRunServiceTests
             _runRepository.Object,
             _manifestRepository.Object,
             _decisionTraceRepository.Object,
-            _evidenceRepository.Object);
+            _evidenceRepository.Object,
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
     }
 
     [Fact]

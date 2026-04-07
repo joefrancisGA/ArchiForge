@@ -1,5 +1,7 @@
 using System.Data;
 
+using ArchLucid.Core.Transactions;
+
 namespace ArchLucid.Persistence.Transactions;
 
 /// <summary>

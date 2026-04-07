@@ -1,6 +1,8 @@
 using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
+using System.Data;
+
 using ArchLucid.Contracts.DecisionTraces;
 
 namespace ArchLucid.Persistence.Data.Repositories;
@@ -15,7 +17,11 @@ public sealed class InMemoryCoordinatorDecisionTraceRepository : ICoordinatorDec
     private readonly Lock _gate = new();
 
     /// <inheritdoc />
-    public Task CreateManyAsync(IEnumerable<DecisionTrace> traces, CancellationToken cancellationToken = default)
+    public Task CreateManyAsync(
+        IEnumerable<DecisionTrace> traces,
+        CancellationToken cancellationToken = default,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(traces);
         cancellationToken.ThrowIfCancellationRequested();
