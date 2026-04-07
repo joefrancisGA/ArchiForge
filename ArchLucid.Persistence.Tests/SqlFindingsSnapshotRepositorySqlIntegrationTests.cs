@@ -126,12 +126,33 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                 new Finding
                 {
                     FindingId = "legacy",
-                    FindingType = "TopologyGap",
-                    Category = "Topology",
-                    EngineType = "E",
-                    Severity = FindingSeverity.Info,
+                    FindingType = "RequirementFinding",
+                    Category = "Requirement",
+                    EngineType = "JsonFallbackEngine",
+                    Severity = FindingSeverity.Warning,
                     Title = "Legacy title",
-                    Rationale = "Legacy",
+                    Rationale = "Legacy rationale",
+                    RelatedNodeIds = ["rn1", "rn2"],
+                    RecommendedActions = ["act-a", "act-b"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["propKey"] = "propVal",
+                    },
+                    PayloadType = nameof(RequirementFindingPayload),
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName = "ReqN",
+                        RequirementText = "Req body",
+                        IsMandatory = true,
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        GraphNodeIdsExamined = ["gx1"],
+                        RulesApplied = ["rule-json"],
+                        DecisionsTaken = ["dec-json"],
+                        AlternativePathsConsidered = ["alt-json"],
+                        Notes = ["trace-note"],
+                    },
                 },
             ],
         };
@@ -172,7 +193,22 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
 
         loaded.Should().NotBeNull();
         loaded.Findings.Should().ContainSingle(f => f.FindingId == "legacy");
-        loaded.Findings[0].Title.Should().Be("Legacy title");
+        Finding lf = loaded.Findings[0];
+        lf.Title.Should().Be("Legacy title");
+        lf.Rationale.Should().Be("Legacy rationale");
+        lf.RelatedNodeIds.Should().Equal("rn1", "rn2");
+        lf.RecommendedActions.Should().Equal("act-a", "act-b");
+        lf.Properties["propKey"].Should().Be("propVal");
+        lf.Payload.Should().BeOfType<RequirementFindingPayload>();
+        RequirementFindingPayload reqPayload = (RequirementFindingPayload)lf.Payload!;
+        reqPayload.RequirementName.Should().Be("ReqN");
+        reqPayload.RequirementText.Should().Be("Req body");
+        reqPayload.IsMandatory.Should().BeTrue();
+        lf.Trace.GraphNodeIdsExamined.Should().Equal("gx1");
+        lf.Trace.RulesApplied.Should().Equal("rule-json");
+        lf.Trace.DecisionsTaken.Should().Equal("dec-json");
+        lf.Trace.AlternativePathsConsidered.Should().Equal("alt-json");
+        lf.Trace.Notes.Should().Equal("trace-note");
     }
 
     [SkippableFact]

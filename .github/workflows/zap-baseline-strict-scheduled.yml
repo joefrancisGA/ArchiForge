@@ -31,6 +31,8 @@ jobs:
           }
           trap cleanup EXIT
           docker network create "$ZNET"
+          ZAP_WRK="${RUNNER_TEMP:-/tmp}/zap-wrk-${ZNET}"
+          mkdir -p "$ZAP_WRK"
           docker run -d --name archiforge-zap-api-strict --network "$ZNET" -p 8080:8080 \
             -e ASPNETCORE_URLS=http://+:8080 \
             -e ASPNETCORE_ENVIRONMENT=Development \
@@ -45,6 +47,8 @@ jobs:
             fi
             sleep 2
           done
-          docker run --rm --network "$ZNET" -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
+          docker run --rm --network "$ZNET" \
+            -v "$ZAP_WRK:/zap/wrk" \
+            -v "$GITHUB_WORKSPACE/infra/zap:/zap/wrk/config:ro" \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py -t http://archiforge-zap-api-strict:8080 -c config/baseline-pr.tsv

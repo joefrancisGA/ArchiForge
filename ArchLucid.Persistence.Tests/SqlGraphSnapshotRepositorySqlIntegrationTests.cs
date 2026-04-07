@@ -224,6 +224,86 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Edges[0].Properties["k"].Should().Be("v");
     }
 
+    /// <summary>
+    /// Header JSON columns are legacy dual-write artifacts; <see cref="GraphSnapshotRelationalRead"/> must not
+    /// deserialize them for nodes/warnings (and must not build edges without relational edge rows).
+    /// </summary>
+    [SkippableFact]
+    public async Task GetById_when_no_relational_children_returns_empty_collections_even_when_json_columns_populated()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlGraphSnapshotRepository repository = new(factory);
+
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        List<GraphNode> nodesIfRead =
+        [
+            new()
+            {
+                NodeId = "would-be-json-node",
+                NodeType = "T",
+                Label = "Should not appear",
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["ghost"] = "1" },
+            },
+        ];
+
+        List<GraphEdge> edgesIfRead =
+        [
+            new()
+            {
+                EdgeId = "would-be-json-edge",
+                FromNodeId = "a",
+                ToNodeId = "b",
+                EdgeType = "X",
+                Label = "ghost-edge",
+                Weight = 1d,
+            },
+        ];
+
+        string nodesJson = JsonEntitySerializer.Serialize(nodesIfRead);
+        string edgesJson = JsonEntitySerializer.Serialize(edgesIfRead);
+        string warningsJson = JsonEntitySerializer.Serialize(new List<string> { "ghost-warning" });
+
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        const string insertHeader = """
+            INSERT INTO dbo.GraphSnapshots
+            (
+                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                NodesJson, EdgesJson, WarningsJson
+            )
+            VALUES
+            (
+                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                @NodesJson, @EdgesJson, @WarningsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    GraphSnapshotId = graphId,
+                    ContextSnapshotId = contextId,
+                    RunId = runId,
+                    CreatedUtc = DateTime.UtcNow,
+                    NodesJson = nodesJson,
+                    EdgesJson = edgesJson,
+                    WarningsJson = warningsJson,
+                },
+                cancellationToken: CancellationToken.None));
+
+        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded.Nodes.Should().BeEmpty("relational GraphSnapshotNodes has no rows — JSON must not hydrate nodes");
+        loaded.Edges.Should().BeEmpty("relational GraphSnapshotEdges has no rows — JSON must not hydrate edges");
+        loaded.Warnings.Should().BeEmpty("relational GraphSnapshotWarnings has no rows — JSON must not hydrate warnings");
+    }
+
     [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {

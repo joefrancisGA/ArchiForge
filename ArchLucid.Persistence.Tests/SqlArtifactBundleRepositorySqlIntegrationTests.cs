@@ -285,8 +285,15 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
 
         loaded.Should().NotBeNull();
         loaded.Artifacts.Should().ContainSingle();
-        loaded.Artifacts[0].Content.Should().Be("json-only path");
+        SynthesizedArtifact artifact = loaded.Artifacts[0];
+        artifact.Content.Should().Be("json-only path");
+        artifact.Metadata.Should().ContainKey("k");
+        artifact.Metadata["k"].Should().Be("v");
+        artifact.ContributingDecisionIds.Should().Equal("x");
+        loaded.Trace.TraceId.Should().Be(trace.TraceId);
         loaded.Trace.GeneratorsUsed.Should().Equal("G");
+        loaded.Trace.SourceDecisionIds.Should().Equal("Y");
+        loaded.Trace.Notes.Should().Equal("n");
     }
 
     private static async Task SeedAuthorityChainAsync(

@@ -177,9 +177,27 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
             Constraints = new ConstraintSection(),
             UnresolvedIssues = new UnresolvedIssuesSection(),
             Assumptions = ["from-json"],
-            Warnings = [],
-            Provenance = new ManifestProvenance(),
-            Decisions = [],
+            Warnings = ["warn-from-json-a", "warn-from-json-b"],
+            Provenance = new ManifestProvenance
+            {
+                SourceFindingIds = ["pf-json-1"],
+                SourceGraphNodeIds = ["pn-json-1"],
+                AppliedRuleIds = ["pr-json-1"],
+            },
+            Decisions =
+            [
+                new ResolvedArchitectureDecision
+                {
+                    DecisionId = "dec-json",
+                    Category = "CatJ",
+                    Title = "TitleJ",
+                    SelectedOption = "OptJ",
+                    Rationale = "WhyJ",
+                    SupportingFindingIds = ["sf-json"],
+                    RelatedNodeIds = ["node-json"],
+                    RawDecisionJson = """{"slice":"json"}""",
+                },
+            ],
         };
 
         const string insertManifest = """
@@ -249,6 +267,20 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
 
         loaded.Should().NotBeNull();
         loaded.Assumptions.Should().Equal("from-json");
+        loaded.Warnings.Should().Equal("warn-from-json-a", "warn-from-json-b");
+        loaded.Provenance.SourceFindingIds.Should().Equal("pf-json-1");
+        loaded.Provenance.SourceGraphNodeIds.Should().Equal("pn-json-1");
+        loaded.Provenance.AppliedRuleIds.Should().Equal("pr-json-1");
+        loaded.Decisions.Should().ContainSingle();
+        ResolvedArchitectureDecision d = loaded.Decisions[0];
+        d.DecisionId.Should().Be("dec-json");
+        d.Category.Should().Be("CatJ");
+        d.Title.Should().Be("TitleJ");
+        d.SelectedOption.Should().Be("OptJ");
+        d.Rationale.Should().Be("WhyJ");
+        d.SupportingFindingIds.Should().Equal("sf-json");
+        d.RelatedNodeIds.Should().Equal("node-json");
+        d.RawDecisionJson.Should().Be("""{"slice":"json"}""");
     }
 
 }

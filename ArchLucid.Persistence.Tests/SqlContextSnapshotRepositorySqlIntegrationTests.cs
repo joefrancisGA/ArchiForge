@@ -99,8 +99,13 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
 
         string canonicalJson = JsonEntitySerializer.Serialize(canonical);
         string warningsJson = JsonEntitySerializer.Serialize(new List<string> { "jw" });
-        string errorsJson = JsonEntitySerializer.Serialize(new List<string>());
-        string hashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>());
+        string errorsJson = JsonEntitySerializer.Serialize(new List<string> { "err-a", "err-b" });
+        string hashesJson = JsonEntitySerializer.Serialize(
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["legacy/path.cs"] = "sha256:aa",
+                ["other"] = "bb",
+            });
 
         await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
         const string insertHeader = """
@@ -137,8 +142,10 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.Should().NotBeNull();
         loaded.CanonicalObjects.Should().ContainSingle(o => o.ObjectId == "legacy-obj");
         loaded.Warnings.Should().Equal("jw");
-        loaded.Errors.Should().BeEmpty();
-        loaded.SourceHashes.Should().BeEmpty();
+        loaded.Errors.Should().Equal("err-a", "err-b");
+        loaded.SourceHashes.Should().HaveCount(2);
+        loaded.SourceHashes["legacy/path.cs"].Should().Be("sha256:aa");
+        loaded.SourceHashes["other"].Should().Be("bb");
     }
 
     [SkippableFact]
