@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AgentResult",
+  "type": "object",
+  "required": [
+    "resultId",
+    "taskId",
+    "runId",
+    "agentType",
+    "claims",
+    "evidenceRefs",
+    "confidence",
+    "createdUtc"
+  ],
+  "properties": {
+    "resultId": { "type": "string", "minLength": 1 },
+    "taskId": { "type": "string", "minLength": 1 },
+    "runId": { "type": "string", "minLength": 1 },
+    "agentType": {
+      "type": "string",
+      "enum": ["Topology", "Cost", "Compliance", "Critic"]
+    },
+    "claims": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "createdUtc": {
+      "type": "string"
+    }
+  }
+}
+

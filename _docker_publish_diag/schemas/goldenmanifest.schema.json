@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GoldenManifest",
+  "type": "object",
+  "required": [
+    "runId",
+    "systemName",
+    "services",
+    "datastores",
+    "relationships",
+    "governance",
+    "metadata"
+  ],
+  "properties": {
+    "runId": { "type": "string", "minLength": 1 },
+    "systemName": { "type": "string", "minLength": 1 },
+    "services": { "type": "array" },
+    "datastores": { "type": "array" },
+    "relationships": { "type": "array" },
+    "governance": { "type": "object" },
+    "metadata": {
+      "type": "object",
+      "required": ["manifestVersion", "createdUtc"],
+      "properties": {
+        "manifestVersion": { "type": "string", "minLength": 1 },
+        "parentManifestVersion": { "type": ["string", "null"] },
+        "changeDescription": { "type": "string" },
+        "decisionTraceIds": { "type": "array" },
+        "createdUtc": { "type": "string" }
+      }
+    }
+  }
+}
+

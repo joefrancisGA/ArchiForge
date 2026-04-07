@@ -58,33 +58,36 @@ COPY ArchLucid.Retrieval.Tests/*.csproj    ArchLucid.Retrieval.Tests/
 COPY ArchLucid.Core.Tests/*.csproj         ArchLucid.Core.Tests/
 COPY ArchLucid.Provenance.Tests/*.csproj   ArchLucid.Provenance.Tests/
 COPY ArchLucid.Api.Client.Tests/*.csproj   ArchLucid.Api.Client.Tests/
+COPY ArchLucid.Api.Client/*.csproj         ArchLucid.Api.Client/
+COPY ArchLucid.Benchmarks/*.csproj         ArchLucid.Benchmarks/
 COPY ArchLucid.TestSupport/*.csproj        ArchLucid.TestSupport/
 COPY ArchLucid.Worker/*.csproj             ArchLucid.Worker/
 
-# RID must match publish (-r linux-musl-x64) or --no-restore publish fails with NETSDK1047 (missing target in project.assets.json).
-RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
-    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64
+# RID must match publish (-r linux-musl-x64) or assets lack the musl target (NETSDK1047).
+# PublishReadyToRun=true on restore pulls R2R/crossgen packages into the graph; publish no longer uses --no-restore so Alpine
+# can reconcile any remaining packages (dotnet/sdk#22706-class issues when R2R + --no-restore interact badly).
+RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
+    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 /p:PublishReadyToRun=true
 
 # ── Stage 2: publish ────────────────────────────────────────────────
 FROM restore AS publish
 
 COPY . .
-# Re-restore after full sources land: restore stage only had .csproj stubs; assets must match real tree before --no-restore publish.
-RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 \
-    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 \
+# Re-restore after full sources land: restore stage only had .csproj stubs; full tree must match assets before publish.
+# Publish omits --no-restore so ReadyToRun/crossgen can reconcile packages on Alpine (dotnet/sdk#22706-style failures with --no-restore+R2R).
+RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
+    && dotnet restore ArchLucid.Worker/ArchLucid.Worker.csproj -r linux-musl-x64 /p:PublishReadyToRun=true \
     && dotnet publish ArchLucid.Api/ArchLucid.Api.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
-        --no-restore \
         /p:PublishReadyToRun=true \
     && dotnet publish ArchLucid.Worker/ArchLucid.Worker.csproj \
         -c Release \
         -r linux-musl-x64 \
         --self-contained false \
         -o /app \
-        --no-restore \
         /p:PublishReadyToRun=true
 
 # ── Stage 3: runtime ───────────────────────────────────────────────

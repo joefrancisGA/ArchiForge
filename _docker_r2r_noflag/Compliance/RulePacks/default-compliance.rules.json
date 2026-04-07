@@ -1,0 +1,47 @@
+{
+  "rulePackId": "archiforge-compliance-default-v1",
+  "name": "ArchiForge Default Compliance Rules",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "network-must-have-security-baseline",
+      "controlId": "NET-001",
+      "controlName": "Network resources must be protected by security baseline controls",
+      "appliesToCategory": "network",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Every network resource should be protected by at least one security baseline control."
+    },
+    {
+      "ruleId": "compute-must-have-security-baseline",
+      "controlId": "CMP-001",
+      "controlName": "Compute resources must be protected by security baseline controls",
+      "appliesToCategory": "compute",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Every compute resource should be protected by at least one security baseline control."
+    },
+    {
+      "ruleId": "storage-must-have-policy-applicability",
+      "controlId": "STO-001",
+      "controlName": "Storage resources must be covered by policy controls",
+      "appliesToCategory": "storage",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Every storage resource should be covered by at least one policy control."
+    },
+    {
+      "ruleId": "data-must-have-policy-applicability",
+      "controlId": "DAT-001",
+      "controlName": "Data resources must be covered by policy controls",
+      "appliesToCategory": "data",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Every data resource should be covered by at least one policy control."
+    }
+  ]
+}
