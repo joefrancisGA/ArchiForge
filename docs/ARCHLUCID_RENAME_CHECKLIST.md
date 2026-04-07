@@ -49,6 +49,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 - [ ] 4.2 `infra/terraform-storage/` — variable defaults and resource name strings
 - [ ] 4.3 `infra/terraform-edge/` — variable defaults, Front Door profile names, WAF policy names
 - [ ] 4.4 `infra/terraform-container-apps/` — variable defaults, container app names
+  - [x] Worker container `command` → `dotnet ArchLucid.Worker.dll`; comments + `variables.tf` + `terraform.tfvars.example` + `README.md` use ArchLucid assembly naming; `terraform fmt` (2026-04-06). Azure resource/container **names** (`archiforge-*`) unchanged pending coordinated state rename.
 - [ ] 4.5 `infra/terraform-sql-failover/` — variable defaults, server/database names
 - [ ] 4.6 `infra/terraform-openai/` — variable defaults, budget names
 - [ ] 4.7 `infra/terraform-entra/` — app registration display names
@@ -129,3 +130,4 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 | 2026-04-06 | 1.10 (slice) | **`ILlmProvider`** + **`LlmProviderDescriptor`** / **`LlmProviderAuthScheme`** in `ArchLucid.AgentRuntime`; **`IAgentCompletionClient`** inherits `ILlmProvider`; Azure/echo/fake/wrappers expose `Descriptor`; **`DelegatingLlmCompletionProvider`** overlays telemetry labels; **`ILlmProvider`** registered in host composition. |
 | 2026-04-06 | 1.10 (slice) | **Prompt reproducibility:** `Prompts/*SystemPromptTemplate`, **`IAgentSystemPromptCatalog`** / **`CachedAgentSystemPromptCatalog`**, **`AgentPromptReproMetadata`**, trace fields + **`IAgentExecutionTraceRecorder`**; **`AgentPromptActivityTags`**; Simulator traces; NSwag client regen. |
 | 2026-04-06 | 1.10 (slice) | **`docs/CONTAINERIZATION.md`** — table + notes: RID-scoped `dotnet restore` matches Alpine `publish -r linux-musl-x64 --no-restore`; aligns with `ArchLucid.Api/Dockerfile` (avoids NETSDK1047 in CI/buildx). |
+| 2026-04-06 | Phase 4 slice (4.4 partial) | **`infra/terraform-container-apps/main.tf`** worker `command` → **`ArchLucid.Worker.dll`**; locals comment; **`variables.tf`**, **`terraform.tfvars.example`**, **`README.md`**; **`infra/terraform-entra/variables.tf`** + **`infra/terraform/variables.tf`** descriptions (ArchLucid.Api / API backend). **`terraform fmt`** on `terraform-container-apps`. |

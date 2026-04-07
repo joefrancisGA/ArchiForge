@@ -1,6 +1,6 @@
 variable "enable_entra_api_app" {
   type        = bool
-  description = "When true, register an Entra ID application with Admin / Operator / Reader app roles matching ArchiForge.Api. Keep false until you are ready to assign roles in the customer tenant."
+  description = "When true, register an Entra ID application with Admin / Operator / Reader app roles matching ArchLucid.Api. Keep false until you are ready to assign roles in the customer tenant."
   default     = false
 }
 

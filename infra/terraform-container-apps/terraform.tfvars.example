@@ -6,9 +6,9 @@ create_resource_group   = true
 resource_group_name     = "rg-archiforge-ca-dev"
 location                = "eastus2"
 
-# Build and push images (repo root). Dockerfile publishes ArchiForge.Worker + ArchiForge.Api into one image; default entrypoint is the API.
-#   docker build -f ArchiForge.Api/Dockerfile -t <acr>.azurecr.io/archiforge:2026.04.1 .
-# Worker container app runs: dotnet ArchiForge.Worker.dll (same image as API unless you set worker_container_image).
+# Build and push images (repo root). Dockerfile publishes ArchLucid.Api + ArchLucid.Worker into one image; default entrypoint is the API.
+#   docker build -f ArchLucid.Api/Dockerfile -t <acr>.azurecr.io/archiforge:2026.04.1 .
+# Worker container app runs: dotnet ArchLucid.Worker.dll (same image as API unless you set worker_container_image).
 #   docker build -t <acr>.azurecr.io/archiforge-ui:2026.04.1 archiforge-ui/
 api_container_image = "<your-acr>.azurecr.io/archiforge:2026.04.1"
 ui_container_image  = "<your-acr>.azurecr.io/archiforge-ui:2026.04.1"

@@ -90,7 +90,7 @@ variable "worker_container_app_name" {
 
 variable "worker_container_image" {
   type        = string
-  description = "Image for ArchiForge.Worker (must include ArchiForge.Worker.dll; same build as API is typical). Leave empty to reuse api_container_image."
+  description = "Image for ArchLucid.Worker (must include ArchLucid.Worker.dll; same build as API is typical). Leave empty to reuse api_container_image."
   default     = ""
 }
 
@@ -120,7 +120,7 @@ variable "worker_memory" {
 
 variable "api_container_image" {
   type        = string
-  description = "Full image reference for ArchiForge.Api (e.g. myregistry.azurecr.io/archiforge-api:2026.04.1). Required when enable_container_apps = true."
+  description = "Full image reference for the API container (default entrypoint ArchLucid.Api.dll), e.g. myregistry.azurecr.io/archiforge-api:2026.04.1. Required when enable_container_apps = true."
   default     = ""
 }
 

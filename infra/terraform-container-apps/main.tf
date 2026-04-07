@@ -11,7 +11,7 @@ locals {
 
   subnet_integrated = local.enabled && length(trimspace(var.container_apps_subnet_id)) > 0
 
-  # Single image: publish ArchiForge.Worker (includes Api.dll). Override worker_container_image to use a different tag if needed.
+  # Single image: publish ArchLucid.Api + ArchLucid.Worker into /app. Override worker_container_image to use a different tag if needed.
   worker_effective_image = trimspace(var.worker_container_image) != "" ? var.worker_container_image : var.api_container_image
 
   background_jobs_durable = local.enabled && var.background_jobs_mode == "Durable"
@@ -234,7 +234,7 @@ resource "azurerm_container_app" "worker" {
       image   = local.worker_effective_image
       cpu     = var.worker_cpu
       memory  = var.worker_memory
-      command = ["dotnet", "ArchiForge.Worker.dll"]
+      command = ["dotnet", "ArchLucid.Worker.dll"]
 
       env {
         name  = "ASPNETCORE_URLS"

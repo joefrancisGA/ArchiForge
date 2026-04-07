@@ -1,4 +1,4 @@
-# Terraform: Azure Container Apps (ArchiForge API + Worker + Operator UI)
+# Terraform: Azure Container Apps (ArchLucid API + Worker + Operator UI)
 
 Optional root that deploys:
 
