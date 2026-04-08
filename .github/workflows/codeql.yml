@@ -12,6 +12,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Operator UI package directory (renamed from archiforge-ui — keep CodeQL source-root in sync).
+  ARCHLUCID_UI_DIR: archlucid-ui
 
 concurrency:
   group: codeql-${{ github.ref }}
@@ -65,21 +67,28 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Verify UI directory for CodeQL
+        run: |
+          if [ ! -d "${ARCHLUCID_UI_DIR}" ]; then
+            echo "::error::Missing ${ARCHLUCID_UI_DIR}/ — update ARCHLUCID_UI_DIR in .github/workflows/codeql.yml if the UI folder was renamed."
+            exit 1
+          fi
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: javascript
-          source-root: archlucid-ui
+          source-root: ${{ env.ARCHLUCID_UI_DIR }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: archlucid-ui/package-lock.json
+          cache-dependency-path: ${{ env.ARCHLUCID_UI_DIR }}/package-lock.json
 
       - name: Install and build UI
-        working-directory: archlucid-ui
+        working-directory: ${{ env.ARCHLUCID_UI_DIR }}
         run: |
           npm ci
           npm run build

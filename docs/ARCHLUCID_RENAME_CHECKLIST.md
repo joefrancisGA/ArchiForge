@@ -113,6 +113,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 | Date | Batch | Notes |
 |------|-------|-------|
+| 2026-04-08 | (CI) | **CodeQL JavaScript job:** `source-root` and npm paths use `ARCHLUCID_UI_DIR=archlucid-ui` (post–Phase 3 rename); verify step fails fast if the folder is missing. |
 | 2026-04-08 | (integration events) | **Transactional outbox for all 6 event types** via `OutboxAwareIntegrationEventPublishing`; `IIntegrationEventOutboxRepository.EnqueueAsync` takes `Guid? runId`. **Canonical** `com.archlucid.*` type strings + legacy map (`IntegrationEventTypes`). **Worker** `AzureServiceBusIntegrationEventConsumer` + `LoggingIntegrationEventHandler`; `IntegrationEventsOptions` consumer settings. **Terraform** `infra/terraform-servicebus/`. Docs: `INTEGRATION_EVENTS_AND_WEBHOOKS.md`, AsyncAPI. Tests: outbox-aware, contract payloads, governance outbox path, `LoggingIntegrationEventHandler`. |
 | 2026-04-07 | (bugfix) | **`FindingsJson` read path:** `SqlFindingsSnapshotRepository` calls `FindingPayloadJsonCodec.HydrateJsonElementPayloads` after `FindingsSnapshotMigrator.Apply` so JSON-deserialized findings get typed `Payload` (matches relational read). Tests: `FindingPayloadJsonCodecTests` + `SqlFindingsSnapshotRepositorySqlIntegrationTests.GetById_when_no_FindingRecords_falls_back_to_FindingsJson`. |
 | 2026-04-07 | 2.3 | ArchLucid product config section merge + authority resolver uses `ResolveArchLucidOptions` |
