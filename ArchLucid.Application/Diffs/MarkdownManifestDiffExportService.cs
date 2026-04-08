@@ -24,7 +24,7 @@ public sealed class MarkdownManifestDiffExportService : IManifestDiffExportServi
 
         StringBuilder sb = new();
 
-        sb.AppendLine("# ArchiForge Manifest Comparison Export");
+        sb.AppendLine("# ArchLucid Manifest Comparison Export");
         sb.AppendLine();
         sb.AppendLine($"- Left Manifest Version: {diff.LeftManifestVersion}");
         sb.AppendLine($"- Right Manifest Version: {diff.RightManifestVersion}");

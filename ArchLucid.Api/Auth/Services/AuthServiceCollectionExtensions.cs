@@ -13,7 +13,7 @@ namespace ArchLucid.Api.Auth.Services;
 
 public static class AuthServiceCollectionExtensions
 {
-    /// <summary>Well-known scheme name used when <c>ArchiForgeAuth:Mode</c> is <c>ApiKey</c>.</summary>
+    /// <summary>Well-known scheme name used when <c>ArchLucidAuth:Mode</c> (or legacy <c>ArchiForgeAuth:Mode</c>) is <c>ApiKey</c>.</summary>
     public const string ApiKeySchemeName = "ApiKey";
 
     public static IServiceCollection AddArchLucidAuth(

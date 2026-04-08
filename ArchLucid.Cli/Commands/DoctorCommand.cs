@@ -15,7 +15,7 @@ internal static class DoctorCommand
 
     public static async Task<int> RunAsync(ArchLucidProjectScaffolder.ArchLucidCliConfig? config, CancellationToken ct = default)
     {
-        Console.WriteLine("ArchiForge doctor — local checks and API readiness");
+        Console.WriteLine("ArchLucid doctor — local checks and API readiness");
         Console.WriteLine();
 
         PrintCliBuildInfo();
@@ -26,12 +26,12 @@ internal static class DoctorCommand
 
         if (urlError is not null)
         {
-            await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
             return 1;
         }
 
-        Console.WriteLine("--- ArchiForge API ---");
+        Console.WriteLine("--- ArchLucid API ---");
         Console.WriteLine($"Base URL: {baseUrl}");
 
         ArchLucidApiClient client = new(baseUrl);
@@ -59,7 +59,7 @@ internal static class DoctorCommand
         {
             Console.WriteLine();
             Console.WriteLine(
-                "Detailed /health requires authentication (ReadAuthority). Set X-Api-Key (e.g. ARCHIFORGE_API_KEY) for full JSON. Liveness and readiness above are sufficient for a basic pass.");
+                "Detailed /health requires authentication (ReadAuthority). Set X-Api-Key (e.g. ARCHLUCID_API_KEY) for full JSON. Liveness and readiness above are sufficient for a basic pass.");
         }
         else if (aggregateCode < 200 || aggregateCode >= 300)
         {

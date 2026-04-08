@@ -31,7 +31,7 @@ public sealed class ArchitectureEndToEndComparisonExportTests(ArchLucidApiFactor
         EndToEndReplayComparisonExportResponse? payload = await response.Content.ReadFromJsonAsync<EndToEndReplayComparisonExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
-        payload.Content.Should().Contain("# ArchiForge End-to-End Replay Comparison Export");
+        payload.Content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
     }
 
     [Fact]

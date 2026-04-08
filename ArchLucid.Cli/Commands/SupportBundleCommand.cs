@@ -35,7 +35,7 @@ internal static class SupportBundleCommand
             {
                 if (i + 1 >= args.Length)
                 {
-                    await Console.Error.WriteLineAsync("[ArchiForge CLI] support-bundle: missing path after --output.");
+                    await Console.Error.WriteLineAsync("[ArchLucid CLI] support-bundle: missing path after --output.");
 
                     return 1;
                 }
@@ -53,7 +53,7 @@ internal static class SupportBundleCommand
                 return 0;
             }
 
-            await Console.Error.WriteLineAsync($"[ArchiForge CLI] support-bundle: unknown argument '{a}'.");
+            await Console.Error.WriteLineAsync($"[ArchLucid CLI] support-bundle: unknown argument '{a}'.");
 
             return 1;
         }
@@ -63,7 +63,7 @@ internal static class SupportBundleCommand
 
         if (urlError is not null)
         {
-            await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
             return 1;
         }
@@ -81,7 +81,7 @@ internal static class SupportBundleCommand
 
         string written = SupportBundleArchiveWriter.WriteDirectory(payload, bundleDir);
 
-        Console.WriteLine("ArchiForge support bundle written to:");
+        Console.WriteLine("ArchLucid support bundle written to:");
         Console.WriteLine(written);
 
         if (zip)
@@ -121,7 +121,7 @@ internal static class SupportBundleCommand
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine("[ArchiForge CLI] archiforge.json present but invalid: " + ex.Message);
+            Console.Error.WriteLine("[ArchLucid CLI] archiforge.json present but invalid: " + ex.Message);
 
             return null;
         }

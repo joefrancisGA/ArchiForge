@@ -12,7 +12,7 @@ public sealed class EchoAgentCompletionClientTests
 
         string json = await sut.CompleteJsonAsync(
             """
-            You are the ArchiForge Topology Agent.
+            You are the ArchLucid Topology Agent.
             Return JSON.
             """,
             """
@@ -33,7 +33,7 @@ public sealed class EchoAgentCompletionClientTests
 
         string json = await sut.CompleteJsonAsync(
             """
-            You are the ArchiForge Compliance Agent.
+            You are the ArchLucid Compliance Agent.
             Return JSON.
             """,
             """
@@ -52,7 +52,7 @@ public sealed class EchoAgentCompletionClientTests
 
         string json = await sut.CompleteJsonAsync(
             """
-            You are the ArchiForge Critic Agent.
+            You are the ArchLucid Critic Agent.
             Return JSON.
             """,
             """

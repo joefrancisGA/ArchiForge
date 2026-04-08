@@ -34,7 +34,7 @@ public sealed class AgentPromptReproTests
         r.TemplateVersion.Should().Be(TopologySystemPromptTemplate.Version);
         r.ReleaseLabel.Should().Be("pilot-a");
         r.ContentSha256Hex.Should().HaveLength(64);
-        r.Text.Should().StartWith("You are the ArchiForge Topology Agent.");
+        r.Text.Should().StartWith("You are the ArchLucid Topology Agent.");
     }
 
     [Fact]

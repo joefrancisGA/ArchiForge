@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Startup;
 internal static class InfrastructureExtensions
 {
     /// <summary>
-    /// Single registration point for all ArchiForge authorization policies:
+    /// Single registration point for all ArchLucid authorization policies:
     /// role-based (ReadAuthority, ExecuteAuthority, AdminAuthority) and
     /// claim-based (CanCommitRuns, CanSeedResults, etc.).
     /// </summary>

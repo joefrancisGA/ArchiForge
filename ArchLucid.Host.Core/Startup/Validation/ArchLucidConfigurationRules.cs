@@ -5,7 +5,7 @@ using ArchLucid.Host.Core.Startup.Validation.Rules;
 namespace ArchLucid.Host.Core.Startup.Validation;
 
 /// <summary>
-/// Central rules for ArchiForge API configuration. Used for fail-fast startup validation before migrations.
+/// Central rules for ArchLucid API configuration. Used for fail-fast startup validation before migrations.
 /// </summary>
 public static class ArchLucidConfigurationRules
 {

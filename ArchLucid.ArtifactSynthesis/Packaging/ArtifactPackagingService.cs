@@ -117,7 +117,7 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             
 
             StringBuilder readme = new StringBuilder()
-                .AppendLine("ArchiForge Export Package")
+                .AppendLine("ArchLucid Export Package")
                 .AppendLine($"Run ID: {runId}")
                 .AppendLine($"Manifest ID: {manifestId}")
                 .AppendLine($"Artifact Count: {artifacts.Count}");

@@ -12,7 +12,7 @@ namespace ArchLucid.Host.Core.Startup;
 public static class ObservabilityExtensions
 {
     /// <summary>
-    /// Registers OpenTelemetry tracing and metrics for ArchiForge hosts.
+    /// Registers OpenTelemetry tracing and metrics for ArchLucid hosts.
     /// </summary>
     /// <remarks>
     /// <para>

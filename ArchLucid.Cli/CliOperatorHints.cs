@@ -11,10 +11,10 @@ internal static class CliOperatorHints
         stderr ??= Console.Error;
 
         if (!string.IsNullOrEmpty(errorMessage) &&
-            errorMessage.Contains("Cannot connect to ArchiForge API", StringComparison.OrdinalIgnoreCase))
+            errorMessage.Contains("Cannot connect to ArchLucid API", StringComparison.OrdinalIgnoreCase))
         {
             stderr.WriteLine(
-                "Next: Start the API (dotnet run --project ArchLucid.Api), set ARCHIFORGE_API_URL or apiUrl in archiforge.json, and confirm the port is reachable.");
+                "Next: Start the API (dotnet run --project ArchLucid.Api), set ARCHLUCID_API_URL (or legacy ARCHIFORGE_API_URL) or apiUrl in archiforge.json, and confirm the port is reachable.");
 
             return;
         }
@@ -29,10 +29,11 @@ internal static class CliOperatorHints
         }
 
         string? line = LineForHttpStatus(httpStatusCode);
+
         if (!string.IsNullOrEmpty(line))
-        
+        {
             stderr.WriteLine(line);
-        
+        }
     }
 
     public static void WriteAfterHealthUnreachable(string baseUrl, TextWriter? stderr = null)
@@ -60,7 +61,7 @@ internal static class CliOperatorHints
         code switch
         {
             null => null,
-            Status401 => "Next: Configure authentication (ArchiForgeAuth / JWT) or ARCHIFORGE_API_KEY when the API requires it.",
+            Status401 => "Next: Configure authentication (ArchLucidAuth / JWT) or ARCHLUCID_API_KEY when the API requires it.",
             Status403 => "Next: Use an identity with Reader, Operator, or Admin as mapped by your deployment.",
             Status404 => "Next: Verify IDs and scope headers (x-tenant-id, x-workspace-id, x-project-id) match the resource.",
             Status409 => "Next: Read the API detail; you may need a fresh run or to resolve idempotency/state.",

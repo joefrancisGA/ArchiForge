@@ -80,13 +80,13 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         sb.AppendLine("<!DOCTYPE html>");
         sb.AppendLine("<html lang=\"en\">");
         sb.AppendLine("<head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>");
-        sb.AppendLine("<title>ArchiForge End-to-End Replay Comparison</title>");
+        sb.AppendLine("<title>ArchLucid End-to-End Replay Comparison</title>");
         sb.AppendLine("<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:1rem auto;padding:0 1rem;}");
         sb.AppendLine("h1{font-size:1.5rem;} h2{font-size:1.2rem;margin-top:1.25rem;} h3{font-size:1rem;}");
         sb.AppendLine("ul{margin:.5rem 0;} li{margin:.25rem 0;} .meta{color:#555;font-size:0.9rem;}</style>");
         sb.AppendLine("</head><body>");
 
-        sb.AppendLine("<h1>ArchiForge End-to-End Replay Comparison Export</h1>");
+        sb.AppendLine("<h1>ArchLucid End-to-End Replay Comparison Export</h1>");
         sb.AppendLine("<p class=\"meta\">Left Run ID: " + EscapeHtml(report.LeftRunId) + "</p>");
         sb.AppendLine("<p class=\"meta\">Right Run ID: " + EscapeHtml(report.RightRunId) + "</p>");
         sb.AppendLine("<p class=\"meta\">Generated UTC: " + EscapeHtml(DateTime.UtcNow.ToString("O")) + "</p>");
@@ -101,9 +101,9 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
         {
             sb.AppendLine("<hr/>");
             if (EndToEndComparisonExportProfile.IsExecutive(p))
-            
+            {
                 AppendHtmlExecutiveSummary(sb, report);
-            
+            }
             else
             {
                 AppendHtmlRunMetadataDiff(sb, report);
@@ -142,7 +142,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
             Body body = mainPart.Document.Body!;
 
-            AddHeading(body, "ArchiForge End-to-End Replay Comparison", 1);
+            AddHeading(body, "ArchLucid End-to-End Replay Comparison", 1);
             AddParagraph(body, $"Left Run ID: {report.LeftRunId}");
             AddParagraph(body, $"Right Run ID: {report.RightRunId}");
             AddParagraph(body, $"Generated UTC: {DateTime.UtcNow:O}");
@@ -255,7 +255,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 page.Margin(2, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Helvetica"));
 
-                page.Header().Text("ArchiForge End-to-End Replay Comparison").Bold().FontSize(14);
+                page.Header().Text("ArchLucid End-to-End Replay Comparison").Bold().FontSize(14);
                 page.Content().Column(column =>
                 {
                     column.Item().PaddingBottom(5).Text($"Left: {report.LeftRunId}  |  Right: {report.RightRunId}  |  Profile: {p}");
@@ -305,7 +305,7 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
 
     private static void AppendMarkdownHeader(StringBuilder sb, EndToEndReplayComparisonReport report)
     {
-        sb.AppendLine("# ArchiForge End-to-End Replay Comparison Export");
+        sb.AppendLine("# ArchLucid End-to-End Replay Comparison Export");
         sb.AppendLine();
         sb.AppendLine($"- Left Run ID: {report.LeftRunId}");
         sb.AppendLine($"- Right Run ID: {report.RightRunId}");

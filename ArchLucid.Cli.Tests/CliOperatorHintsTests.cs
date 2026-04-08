@@ -15,11 +15,11 @@ public sealed class CliOperatorHintsTests
 
         CliOperatorHints.WriteAfterApiFailure(
             null,
-            "Cannot connect to ArchiForge API: refused",
+            "Cannot connect to ArchLucid API: refused",
             stderr);
 
         string text = stderr.ToString();
-        text.ToUpperInvariant().Should().Contain("ARCHIFORGE_API_URL");
+        text.ToUpperInvariant().Should().Contain("ARCHLUCID_API_URL");
         text.Should().Contain("ArchLucid.Api");
     }
 

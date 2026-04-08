@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>
-/// Shared <see cref="JsonSerializerOptions"/> presets used across the ArchiForge contract surface.
+/// Shared <see cref="JsonSerializerOptions"/> presets used across the ArchLucid contract surface.
 /// Use <see cref="Default"/> wherever contract DTOs are serialized for storage, export, or display.
 /// </summary>
 /// <remarks>
@@ -15,7 +15,7 @@ namespace ArchLucid.Contracts.Common;
 public static class ContractJson
 {
     /// <summary>
-    /// The canonical JSON serialization options for ArchiForge contract types:
+    /// The canonical JSON serialization options for ArchLucid contract types:
     /// camelCase names, indented output, and <see langword="null"/> properties omitted.
     /// </summary>
     public static readonly JsonSerializerOptions Default = new()

@@ -32,7 +32,7 @@ public sealed class ArchitectureComparisonReplayTests(ArchLucidApiFactory factor
             .Should().Be("text/markdown");
 
         string content = await replayComparisonResponse.Content.ReadAsStringAsync();
-        content.Should().Contain("# ArchiForge End-to-End Replay Comparison Export");
+        content.Should().Contain("# ArchLucid End-to-End Replay Comparison Export");
     }
 }
 

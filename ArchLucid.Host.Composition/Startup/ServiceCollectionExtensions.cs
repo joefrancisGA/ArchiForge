@@ -7,13 +7,13 @@ using ArchLucid.Persistence.Archival;
 namespace ArchLucid.Host.Composition.Startup;
 
 /// <summary>
-/// Composition root for ArchiForge application services. Registration is split across partial files by subsystem
+/// Composition root for ArchLucid application services. Registration is split across partial files by subsystem
 /// (scheduling, data plane, jobs, pipeline, coordinator, agents, decisioning).
 /// </summary>
 public static partial class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers ArchiForge domain services, persistence choices, hosted workers, and health checks for the given host role.
+    /// Registers ArchLucid domain services, persistence choices, hosted workers, and health checks for the given host role.
     /// </summary>
     public static IServiceCollection AddArchLucidApplicationServices(
         this IServiceCollection services,

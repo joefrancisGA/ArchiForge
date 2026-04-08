@@ -21,7 +21,7 @@ public sealed class DatabaseMigrationScriptTests
         TimeSpan.FromMilliseconds(100));
 
     [Fact]
-    public void ArchiForgePersistenceAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
+    public void ArchLucidPersistenceAssembly_HasEmbeddedMigrationScripts_InNumericOrder()
     {
         Assembly asm = typeof(DatabaseMigrator).Assembly;
 

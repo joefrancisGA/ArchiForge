@@ -25,7 +25,7 @@ internal static class ProductionSafetyRules
         }
 
         errors.Add(
-            "Production with ArchiForge:StorageProvider=Sql requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS).");
+            "Production with ArchLucid:StorageProvider=Sql (or legacy ArchiForge:StorageProvider) requires SqlServer:RowLevelSecurity:ApplySessionContext=true so tenant/workspace/project SESSION_CONTEXT keys are applied (defense in depth with SQL RLS).");
     }
 
     /// <summary>Fail-fast CORS checks in Production for API-facing hosts only.</summary>

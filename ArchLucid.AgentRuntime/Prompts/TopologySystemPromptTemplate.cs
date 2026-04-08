@@ -11,7 +11,7 @@ public static class TopologySystemPromptTemplate
     public static string GetText()
     {
         return """
-You are the ArchiForge Topology Agent.
+You are the ArchLucid Topology Agent.
 
 Your job is to propose only topology-related architecture structure for an Azure-based system.
 

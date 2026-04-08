@@ -37,7 +37,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             RuleSetHash = ruleSet.RuleSetHash,
             Metadata = new ManifestMetadata
             {
-                Name = $"ArchiForge Manifest {runId:N}",
+                Name = $"ArchLucid Manifest {runId:N}",
                 Version = "1.0.0",
                 Status = "Draft",
                 Summary = "Resolved architecture state generated from graph findings and rule evaluation."

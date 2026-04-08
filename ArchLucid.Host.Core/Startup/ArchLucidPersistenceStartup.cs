@@ -20,7 +20,7 @@ public static class ArchLucidPersistenceStartup
             if (storageIsSql)
             {
                 app.Logger.LogInformation(
-                    "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider or ArchiForge:StorageProvider=Sql).");
+                    "Startup: running ISchemaBootstrapper (ArchLucid:StorageProvider=Sql or legacy ArchiForge:StorageProvider=Sql).");
 
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
@@ -43,7 +43,7 @@ public static class ArchLucidPersistenceStartup
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 app.Logger.LogWarning(
-                    "Startup: ConnectionStrings:ArchLucid (or legacy ArchiForge) is not set; skipping DbUp migrations.");
+                    "Startup: ConnectionStrings:ArchLucid (or legacy ConnectionStrings:ArchiForge) is not set; skipping DbUp migrations.");
             }
             else
             {

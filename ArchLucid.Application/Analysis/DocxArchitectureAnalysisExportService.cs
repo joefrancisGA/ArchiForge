@@ -21,7 +21,7 @@ public sealed class DocxArchitectureAnalysisExportService(IDiagramImageRenderer 
 
         using OpenXmlDocxDocumentBuilder builder = new();
 
-        builder.AddHeading("ArchiForge Analysis Report", 1);
+        builder.AddHeading("ArchLucid Analysis Report", 1);
 
         builder.AddParagraph($"Run ID: {report.Run.RunId}");
         builder.AddParagraph($"Request ID: {report.Run.RequestId}");

@@ -97,7 +97,7 @@ public sealed class DocxExportController(
             DocxExportRequest.ForArchitecturePackage(
                 runId,
                 manifest.ManifestId,
-                "ArchiForge Architecture Package",
+                "ArchLucid Architecture Package",
                 $"Generated for Run {runId}",
                 manifestComparison,
                 comparisonNarrative,

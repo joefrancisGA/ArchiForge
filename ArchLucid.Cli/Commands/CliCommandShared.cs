@@ -42,7 +42,7 @@ internal static class CliCommandShared
 
         if (urlError is not null)
         {
-            await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
             return false;
         }
@@ -54,7 +54,7 @@ internal static class CliCommandShared
             return true;
         }
 
-        Console.WriteLine($"Cannot connect to ArchiForge API at {baseUrl}");
+        Console.WriteLine($"Cannot connect to ArchLucid API at {baseUrl}");
         Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
         Console.WriteLine("Or set apiUrl in archiforge.json / ARCHIFORGE_API_URL environment variable.");
         CliOperatorHints.WriteAfterHealthUnreachable(baseUrl);

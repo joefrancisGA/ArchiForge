@@ -20,7 +20,7 @@ internal static class StatusCommand
 
         if (run is null)
         {
-            Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
+            Console.WriteLine($"Run '{runId}' not found. Ensure the ArchLucid API is running at {baseUrl}.");
 
             return 1;
         }

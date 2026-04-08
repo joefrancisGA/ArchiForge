@@ -9,7 +9,7 @@ internal static class HealthCommand
 
         if (urlError is not null)
         {
-            await Console.Error.WriteLineAsync("[ArchiForge CLI] " + urlError);
+            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
             return 1;
         }
@@ -18,12 +18,12 @@ internal static class HealthCommand
 
         if (await client.CheckHealthAsync())
         {
-            Console.WriteLine($"OK - ArchiForge API at {baseUrl} is reachable.");
+            Console.WriteLine($"OK - ArchLucid API at {baseUrl} is reachable.");
 
             return 0;
         }
 
-        Console.WriteLine($"FAIL - Cannot reach ArchiForge API at {baseUrl}");
+        Console.WriteLine($"FAIL - Cannot reach ArchLucid API at {baseUrl}");
         Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
 
         return 1;

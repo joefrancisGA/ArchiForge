@@ -115,8 +115,9 @@ public static class SupportBundleCollector
         bool truncated = body.Length > MaxHealthBodyLength;
 
         if (truncated)
-
-            body = body[..MaxHealthBodyLength] + "\n... [truncated by ArchiForge support-bundle]";
+        {
+            body = body[..MaxHealthBodyLength] + "\n... [truncated by ArchLucid support-bundle]";
+        }
 
 
         return new SupportBundleHealthProbe

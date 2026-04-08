@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 namespace ArchLucid.Api.Auth.Services;
 
 /// <summary>
-/// Maps ArchiForge roles to legacy <c>permission</c> claims so existing policies
+/// Maps ArchLucid roles to legacy <c>permission</c> claims so existing policies
 /// (CanCommitRuns, CanReplayComparisons, etc.) keep working with JWT or dev bypass.
 /// </summary>
 public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation

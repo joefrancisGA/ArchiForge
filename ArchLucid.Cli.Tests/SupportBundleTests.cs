@@ -48,7 +48,7 @@ public sealed class SupportBundleTests
             },
         };
 
-        string cwd = Path.Combine(Path.GetTempPath(), "ArchiForgeSupportBundleTests." + Guid.NewGuid().ToString("N")[..8]);
+        string cwd = Path.Combine(Path.GetTempPath(), "ArchLucidSupportBundleTests." + Guid.NewGuid().ToString("N")[..8]);
 
         try
         {

@@ -45,7 +45,7 @@ public static class Program
             }
 
             throw new InvalidOperationException(
-                "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");
+                "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
 
         StartupConfigurationDiagnostics.LogIfEnabled(
@@ -56,7 +56,7 @@ public static class Program
 
         ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
-        app.Logger.LogInformation("ArchiForge Worker starting (hosted background services only).");
+        app.Logger.LogInformation("ArchLucid Worker starting (hosted background services only).");
         app.UseArchLucidWorkerPipeline();
         app.Run();
     }

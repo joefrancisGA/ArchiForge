@@ -10,7 +10,7 @@ public static class CriticSystemPromptTemplate
     public static string GetText()
     {
         return """
-You are the ArchiForge Critic Agent.
+You are the ArchLucid Critic Agent.
 
 Your job is to critique the proposed architecture direction implied by the request and identify missing elements, weak assumptions, or architectural risks.
 

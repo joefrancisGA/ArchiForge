@@ -91,7 +91,7 @@ public static class ArchLucidProjectScaffolder
         CreateDirectory(Path.Combine(projectRoot, "docs"));
 
         // Write files
-        WriteFile(Path.Combine(projectRoot, "archiforge.json"), BuildArchiForgeJson(options.ProjectName), options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, "archiforge.json"), BuildArchLucidJson(options.ProjectName), options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "inputs", "brief.md"), BuildBriefMd(options.ProjectName), options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "outputs", ".gitkeep"), "", options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "plugins", "plugin-lock.json"), BuildPluginLockJson(), options.OverwriteExistingFiles);
@@ -107,11 +107,11 @@ public static class ArchLucidProjectScaffolder
         if (options.RegisterProject)
         {
             if (string.IsNullOrWhiteSpace(options.ConnectionString))
-            
+            {
                 throw new InvalidOperationException(
                     "ScaffoldOptions.ConnectionString must be set when RegisterProject is true. " +
                     "Set it explicitly; there is no hardcoded default connection string.");
-            
+            }
 
             const string sqlQuery =
                 "INSERT INTO PROJECTS (ProjectName, BaseDirectory, OverwriteExistingFiles, IncludeTerraformStubs) " +
@@ -252,7 +252,7 @@ public static class ArchLucidProjectScaffolder
         public string Path { get; set; } = "infra/terraform";
     }
 
-    private static string BuildArchiForgeJson(string projectName)
+    private static string BuildArchLucidJson(string projectName)
     {
         ArchLucidCliConfig config = new()
         {
@@ -353,7 +353,7 @@ public static class ArchLucidProjectScaffolder
     private static string BuildBriefMd(string projectName)
     {
         return
-            $@"# {projectName} — ArchiForge Brief
+            $@"# {projectName} — ArchLucid Brief
 
 ## Goal
 Describe the outcome you want (business + technical). Keep it short and runnable.
@@ -369,7 +369,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
 - Key dependencies:
 
 ## Outputs
-- What artifacts should ArchiForge generate?
+- What artifacts should ArchLucid generate?
 
 ## Acceptance Criteria
 - What does ""done"" look like?
@@ -441,7 +441,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
 
              1. Edit `inputs/brief.md`
              2. Update `archiforge.json` if needed
-             3. Run ArchiForge against the brief (implementation-specific)
+             3. Run ArchLucid against the brief (implementation-specific)
 
              """;
     }

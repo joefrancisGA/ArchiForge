@@ -134,6 +134,28 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
+      - name: Guard — unexpected ArchiForge string literals in C#
+        run: |
+          set +e
+          grep -rn "ArchiForge" --include="*.cs" . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
+          rc=$?
+          set -e
+          if [ "$rc" -gt 1 ]; then
+            echo "::error::grep failed while scanning for ArchiForge in .cs files (rc=$rc)"
+            exit 1
+          fi
+          if [ "$rc" -eq 1 ]; then
+            echo "No ArchiForge matches in .cs files."
+            exit 0
+          fi
+          HITS=$(grep -v -F -f scripts/ci/archiforge-rename-allowlist.txt "${RUNNER_TEMP}/archiforge-cs-hits.txt" || true)
+          if [ -n "$HITS" ]; then
+            echo "::error::Found unexpected 'ArchiForge' references in .cs files (Phase 6.4 regression):"
+            echo "$HITS"
+            exit 1
+          fi
+          echo "ArchiForge references in .cs are limited to allowlisted Phase 7 / bridge files."
+
       - name: Generate .NET SBOM (CycloneDX)
         run: |
           dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet

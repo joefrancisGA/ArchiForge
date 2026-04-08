@@ -14,7 +14,8 @@ internal static class StorageRules
             !string.Equals(archiForge.StorageProvider, "InMemory", StringComparison.OrdinalIgnoreCase) &&
             !storageIsSql)
         {
-            errors.Add("ArchiForge:StorageProvider must be 'InMemory' or 'Sql' when set.");
+            errors.Add(
+                "ArchLucid:StorageProvider (or legacy ArchiForge:StorageProvider) must be 'InMemory' or 'Sql' when set.");
         }
 
         IntegrationEventsOptions integrationEvents =
@@ -24,7 +25,7 @@ internal static class StorageRules
         if (integrationEvents.TransactionalOutboxEnabled && !storageIsSql)
         {
             errors.Add(
-                "IntegrationEvents:TransactionalOutboxEnabled requires ArchiForge:StorageProvider Sql (transactional enqueue needs a shared SQL transaction).");
+                "IntegrationEvents:TransactionalOutboxEnabled requires ArchLucid:StorageProvider Sql (or legacy ArchiForge:StorageProvider) (transactional enqueue needs a shared SQL transaction).");
         }
 
         string? connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);

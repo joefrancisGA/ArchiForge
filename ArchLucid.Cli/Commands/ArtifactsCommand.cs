@@ -22,7 +22,7 @@ internal static class ArtifactsCommand
 
         if (run is null)
         {
-            Console.WriteLine($"Run '{runId}' not found. Ensure the ArchiForge API is running at {baseUrl}.");
+            Console.WriteLine($"Run '{runId}' not found. Ensure the ArchLucid API is running at {baseUrl}.");
             CliOperatorHints.WriteAfterApiFailure(404, null);
 
             return 1;

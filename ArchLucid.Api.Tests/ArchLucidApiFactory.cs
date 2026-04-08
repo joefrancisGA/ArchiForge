@@ -27,7 +27,7 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     /// <summary>Creates the factory, ensures the unique test database exists, and applies migrations.</summary>
     public ArchLucidApiFactory()
     {
-        string databaseName = "ArchiForgeTest_" + Guid.NewGuid().ToString("N");
+        string databaseName = "ArchLucidTest_" + Guid.NewGuid().ToString("N");
         _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
         SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
     }

@@ -15,7 +15,7 @@ public sealed class DriftReportDocxExport : IDriftReportDocxExport
         ArgumentNullException.ThrowIfNull(drift);
 
         using OpenXmlDocxDocumentBuilder builder = new();
-        builder.AddHeading("ArchiForge Comparison Drift Report", 1);
+        builder.AddHeading("ArchLucid Comparison Drift Report", 1);
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
         {
             builder.AddParagraph($"Comparison record: {comparisonRecordId}");

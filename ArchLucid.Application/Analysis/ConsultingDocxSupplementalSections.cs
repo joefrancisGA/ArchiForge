@@ -17,7 +17,7 @@ internal static class ConsultingDocxSupplementalSections
 
         ConsultingDocxOpenXmlPrimitives.AddStyledParagraph(
             body,
-            "This document was generated from the ArchiForge analysis pipeline.",
+            "This document was generated from the ArchLucid analysis pipeline.",
             "BodyText");
 
         ConsultingDocxOpenXmlPrimitives.AddSpacer(body);

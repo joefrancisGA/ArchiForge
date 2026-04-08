@@ -40,7 +40,7 @@ public sealed class ConsultingDocxTemplateOptions
     public string SubtitleFormat { get; set; } = "{SystemName}";
 
     /// <summary>Footer line identifying the preparing organization.</summary>
-    public string GeneratedByLine { get; set; } = "Prepared by ArchiForge";
+    public string GeneratedByLine { get; set; } = "Prepared by ArchLucid";
 
     /// <summary>Primary brand colour used for headings, expressed as a 6-character hex string (no <c>#</c>).</summary>
     public string PrimaryColorHex { get; set; } = "2E4053";

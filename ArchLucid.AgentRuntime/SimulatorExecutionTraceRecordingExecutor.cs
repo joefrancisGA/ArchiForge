@@ -50,7 +50,7 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 : $"Simulator task TaskId={result.TaskId} (task row not found in batch).";
 
             const string simulatorSystem =
-                "ArchiForge AgentExecution:Mode=Simulator. Deterministic fake AgentResult (no LLM). " +
+                "ArchLucid AgentExecution:Mode=Simulator. Deterministic fake AgentResult (no LLM). " +
                 "Traces are persisted for API parity with RealAgentExecutor.";
 
             AgentPromptReproMetadata promptRepro = new(

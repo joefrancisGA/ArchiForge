@@ -1,7 +1,7 @@
 namespace ArchLucid.Api.Http;
 
 /// <summary>
-/// Well-known custom HTTP response header names written by ArchiForge API endpoints.
+/// Well-known custom HTTP response header names written by ArchLucid API endpoints.
 /// Centralised here to prevent typos and to make it easy to keep server code, tests,
 /// and client docs in sync.
 /// </summary>

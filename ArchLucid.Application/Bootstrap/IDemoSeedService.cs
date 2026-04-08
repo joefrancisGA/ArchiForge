@@ -2,7 +2,7 @@ namespace ArchLucid.Application.Bootstrap;
 
 /// <summary>
 /// Seeds a deterministic **trusted baseline** (49R pass 2 / Corrected 50R) Contoso Retail story into the
-/// primary ArchiForge SQL Server store used by <see cref="ArchLucid.Persistence.Data.Repositories"/> architecture repositories.
+/// primary ArchLucid SQL Server store used by <see cref="ArchLucid.Persistence.Data.Repositories"/> architecture repositories.
 /// Safe to call multiple times: existing rows are skipped or left unchanged.
 /// </summary>
 public interface IDemoSeedService

@@ -11,13 +11,13 @@ internal static class DevUpCommand
         if (composeDir is null)
         {
             Console.WriteLine(
-                "Error: docker-compose.yml not found. Run from the ArchiForge repo root, or ensure docker-compose.yml exists in the current directory.");
+                "Error: docker-compose.yml not found. Run from the ArchLucid repo root, or ensure docker-compose.yml exists in the current directory.");
 
             return Task.FromResult(1);
         }
 
         string composePath = Path.Combine(composeDir, "docker-compose.yml");
-        Console.WriteLine($"Starting ArchiForge dev services from {composeDir}...");
+        Console.WriteLine($"Starting ArchLucid dev services from {composeDir}...");
 
         try
         {
@@ -51,7 +51,7 @@ internal static class DevUpCommand
             Console.WriteLine("  Azurite:    localhost:10000 (blob), 10001 (queue), 10002 (table)");
             Console.WriteLine("  Redis:      localhost:6379");
             Console.WriteLine();
-            Console.WriteLine("Connection string for ArchiForge API (User Secrets or env):");
+            Console.WriteLine("Connection string for ArchLucid API (User Secrets or env):");
             Console.WriteLine(
                 "  Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;");
             Console.WriteLine();

@@ -53,7 +53,7 @@ internal static class PipelineExtensions
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArchiForge API v1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArchLucid API v1");
             });
         }
 

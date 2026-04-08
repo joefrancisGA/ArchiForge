@@ -50,7 +50,7 @@ public sealed class ArchitectureCompareExportTests(ArchLucidApiFactory factory) 
         ManifestCompareExportResponse? payload = await response.Content.ReadFromJsonAsync<ManifestCompareExportResponse>(JsonOptions);
         payload.Should().NotBeNull();
         payload.Format.Should().Be("markdown");
-        payload.Content.Should().Contain("# ArchiForge Manifest Comparison Export");
+        payload.Content.Should().Contain("# ArchLucid Manifest Comparison Export");
         payload.Content.Should().Contain(leftVersion);
         payload.Content.Should().Contain("v1-replay");
     }

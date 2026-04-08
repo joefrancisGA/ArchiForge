@@ -66,7 +66,7 @@ public partial class Program
             }
 
             throw new InvalidOperationException(
-                "ArchiForge configuration is invalid. Fix the settings listed in the logs above, then restart.");
+                "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
 
         // Belt-and-suspenders: refuse Production + DevelopmentBypass even if validation rules are bypassed later.
@@ -76,7 +76,7 @@ public partial class Program
             && string.Equals(authBound.Mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
-                "ArchiForgeAuth:Mode cannot be DevelopmentBypass when ASPNETCORE_ENVIRONMENT is Production.");
+                "ArchLucidAuth:Mode cannot be DevelopmentBypass when ASPNETCORE_ENVIRONMENT is Production.");
         }
 
         if (app.Environment.IsProduction()
@@ -94,7 +94,7 @@ public partial class Program
 
         ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
-        app.Logger.LogInformation("ArchiForge API starting request pipeline.");
+        app.Logger.LogInformation("ArchLucid API starting request pipeline.");
         app.UseArchLucidPipeline();
         app.Run();
     }

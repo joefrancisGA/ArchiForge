@@ -61,7 +61,7 @@ public sealed class ArchitectureAnalysisExportTests(ArchLucidApiFactory factory)
         payload.Content.Should().NotBeNullOrWhiteSpace();
 
         string[] lines = payload.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        lines[0].Trim().Should().Be("# ArchiForge Analysis Report");
+        lines[0].Trim().Should().Be("# ArchLucid Analysis Report");
 
         payload.Content.Should().Contain("## Evidence Package");
         payload.Content.Should().Contain("## Architecture Manifest");

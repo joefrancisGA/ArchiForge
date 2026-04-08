@@ -12,9 +12,9 @@ internal static class OpenApiAuthDocumentMutator
         string? schemeId = SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration);
 
         if (string.IsNullOrEmpty(schemeId))
-        
+        {
             return;
-        
+        }
 
         swaggerDoc.Components ??= new OpenApiComponents();
 
@@ -40,11 +40,11 @@ internal static class OpenApiAuthDocumentMutator
         string? authority = configuration["ArchiForgeAuth:Authority"]?.Trim();
 
         string audienceNote = string.IsNullOrEmpty(audience)
-            ? "Configure ArchiForgeAuth:Audience to match your Entra application ID URI (e.g. api://your-api)."
+            ? "Configure ArchLucidAuth:Audience (or ArchiForgeAuth:Audience) to match your Entra application ID URI (e.g. api://your-api)."
             : $"JWT **aud** must match **`{audience}`**.";
 
         string authorityNote = string.IsNullOrEmpty(authority)
-            ? "Set ArchiForgeAuth:Authority to your tenant issuer (e.g. https://login.microsoftonline.com/{tenant-id}/v2.0)."
+            ? "Set ArchLucidAuth:Authority (or ArchiForgeAuth:Authority) to your tenant issuer (e.g. https://login.microsoftonline.com/{tenant-id}/v2.0)."
             : $"Tokens must be issued by **`{authority}`**.";
 
         return new OpenApiSecurityScheme
@@ -70,7 +70,7 @@ internal static class OpenApiAuthDocumentMutator
             In = ParameterLocation.Header,
             Description =
                 "Static API key. Send **`X-Api-Key`** on each request. "
-                + "Configure **Authentication:ApiKey:*** and set **ArchiForgeAuth:Mode** to **ApiKey**."
+                + "Configure **Authentication:ApiKey:*** and set **ArchLucidAuth:Mode** (or **ArchiForgeAuth:Mode**) to **ApiKey**."
         };
     }
 }

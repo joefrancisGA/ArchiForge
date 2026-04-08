@@ -15,7 +15,7 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 
     public AlertLifecycleWebAppFactory()
     {
-        string databaseName = "ArchiForgeAlertTest_" + Guid.NewGuid().ToString("N");
+        string databaseName = "ArchLucidAlertTest_" + Guid.NewGuid().ToString("N");
         _connectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
         SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
     }

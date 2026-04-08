@@ -10,7 +10,7 @@ public sealed class ExportRecordDiffExportService : IExportRecordDiffExportServi
 
         using OpenXmlDocxDocumentBuilder builder = new();
 
-        builder.AddHeading("ArchiForge Export Record Diff Comparison Export", 1);
+        builder.AddHeading("ArchLucid Export Record Diff Comparison Export", 1);
 
         builder.AddParagraph($"Left Export Record ID: {diff.LeftExportRecordId}");
         builder.AddParagraph($"Right Export Record ID: {diff.RightExportRecordId}");

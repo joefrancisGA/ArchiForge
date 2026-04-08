@@ -4,7 +4,7 @@ internal static class NewCommand
 {
     public static Task<int> RunAsync(string projectName)
     {
-        Console.WriteLine("Creating ArchiForge project " + projectName);
+        Console.WriteLine("Creating ArchLucid project " + projectName);
 
         ArchLucidProjectScaffolder.ScaffoldOptions scaffoldOptions = new()
         {

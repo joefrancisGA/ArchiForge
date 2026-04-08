@@ -114,7 +114,7 @@ public sealed class ArchLucidApiClient
     }
 
     private static void LogCliFailure(string operation, Exception ex) =>
-        Console.Error.WriteLine($"[ArchiForge CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
+        Console.Error.WriteLine($"[ArchLucid CLI] {operation} failed: {ex.GetType().Name}: {ex.Message}");
 
     /// <summary>
     /// Calls <c>GET /version</c> and returns the raw JSON body for operator diagnostics.
@@ -136,7 +136,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Check connectivity to the ArchiForge API (GET /health/live). Returns true if the API process responds successfully (liveness only).
+    /// Check connectivity to the ArchLucid API (GET /health/live). Returns true if the API process responds successfully (liveness only).
     /// </summary>
     public async Task<bool> CheckHealthAsync(CancellationToken ct = default)
     {
@@ -200,7 +200,7 @@ public sealed class ArchLucidApiClient
         }
         catch (HttpRequestException ex)
         {
-            return CreateRunResult.Fail(null, $"Cannot connect to ArchiForge API: {ex.Message}");
+            return CreateRunResult.Fail(null, $"Cannot connect to ArchLucid API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {
@@ -233,7 +233,7 @@ public sealed class ArchLucidApiClient
         }
         catch (HttpRequestException ex)
         {
-            return new SubmitResultResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+            return new SubmitResultResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {
@@ -278,7 +278,7 @@ public sealed class ArchLucidApiClient
         }
         catch (HttpRequestException ex)
         {
-            return new CommitRunResult(false, null, $"Cannot connect to ArchiForge API: {ex.Message}");
+            return new CommitRunResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {
@@ -304,7 +304,7 @@ public sealed class ArchLucidApiClient
         }
         catch (HttpRequestException ex)
         {
-            return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchiForge API: {ex.Message}");
+            return new SeedFakeResultsResult(false, 0, $"Cannot connect to ArchLucid API: {ex.Message}");
         }
         catch (TaskCanceledException)
         {

@@ -15,7 +15,7 @@ public sealed class MarkdownArchitectureAnalysisExportService : IArchitectureAna
 
         StringBuilder sb = new();
 
-        sb.AppendLine("# ArchiForge Analysis Report");
+        sb.AppendLine("# ArchLucid Analysis Report");
         sb.AppendLine();
         sb.AppendLine($"- Run ID: {report.Run.RunId}");
         sb.AppendLine($"- Request ID: {report.Run.RequestId}");

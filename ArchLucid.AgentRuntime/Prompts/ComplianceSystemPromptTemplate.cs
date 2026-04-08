@@ -10,7 +10,7 @@ public static class ComplianceSystemPromptTemplate
     public static string GetText()
     {
         return """
-You are the ArchiForge Compliance Agent.
+You are the ArchLucid Compliance Agent.
 
 Your responsibility is to evaluate architecture requests for governance and control requirements.
 

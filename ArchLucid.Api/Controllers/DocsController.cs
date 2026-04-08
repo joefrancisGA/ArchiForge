@@ -31,7 +31,7 @@ public sealed class DocsController : ControllerBase
                       <head>
                         <meta charset="utf-8" />
                         <meta name="viewport" content="width=device-width, initial-scale=1" />
-                        <title>ArchiForge comparison replay recipes</title>
+                        <title>ArchLucid comparison replay recipes</title>
                         <style>
                           body {{ font-family: sans-serif; max-width: 800px; margin: 1rem auto; padding: 0 1rem; line-height: 1.5; }}
                           h1 {{ font-size: 1.5rem; }}
@@ -44,7 +44,7 @@ public sealed class DocsController : ControllerBase
                         </style>
                       </head>
                       <body>
-                        <h1>ArchiForge comparison replay recipes</h1>
+                        <h1>ArchLucid comparison replay recipes</h1>
                         <p>Step-by-step flow to list comparisons, replay as a file, and export a drift report. Use <a href="{{SWAGGER_URL}}">Swagger UI</a> to try the API interactively.</p>
 
                         <h2>1. List comparison records</h2>

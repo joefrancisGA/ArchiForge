@@ -345,7 +345,7 @@ public sealed class DemoSeedService(
             WasAutoSelected = false,
             ResolutionReason = "Demo seed export snapshot.",
             ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
-            Notes = "Seeded by ArchiForge trusted baseline demo (export history only).",
+            Notes = "Seeded by ArchLucid trusted baseline demo (export history only).",
             IncludedManifest = true,
             IncludedSummary = true,
             CreatedUtc = DemoUtc

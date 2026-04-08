@@ -16,7 +16,7 @@ public class DocxExportRequest
     public Guid ManifestId { get; set; }
 
     /// <summary>Cover / title page heading.</summary>
-    public string DocumentTitle { get; set; } = "ArchiForge Architecture Package";
+    public string DocumentTitle { get; set; } = "ArchLucid Architecture Package";
 
     /// <summary>Subtitle under the title.</summary>
     public string Subtitle { get; set; } = "Generated Architecture Document";

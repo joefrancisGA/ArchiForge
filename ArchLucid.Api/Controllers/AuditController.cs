@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Controllers;
 /// Returns a pageable audit event log for the caller's tenant/workspace/project scope.
 /// </summary>
 /// <remarks>
-/// Events are appended by all mutating operations across the ArchiForge API (run creation, governance promotion, alert delivery, etc.).
+/// Events are appended by all mutating operations across the ArchLucid API (run creation, governance promotion, alert delivery, etc.).
 /// Results are ordered newest-first and capped by the <c>take</c> parameter (max 500).
 /// </remarks>
 [ApiController]

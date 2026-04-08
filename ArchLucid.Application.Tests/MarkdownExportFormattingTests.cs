@@ -32,7 +32,7 @@ public sealed class MarkdownExportFormattingTests
 
         string md = fmt.FormatMarkdown(drift, "rec-1");
 
-        md.Should().Contain("# ArchiForge Comparison Drift Report");
+        md.Should().Contain("# ArchLucid Comparison Drift Report");
         md.Should().Contain("`rec-1`");
         md.Should().Contain("Drift detected:** Yes");
         md.Should().Contain("## Differences");
