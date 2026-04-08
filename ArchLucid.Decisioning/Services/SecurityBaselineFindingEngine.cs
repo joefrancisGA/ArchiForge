@@ -64,12 +64,14 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = examined,
+                    RulesApplied = ["security-baseline-coverage"],
                     DecisionsTaken =
                     [
                         protectedIds.Count > 0
                             ? "Included topology targets linked via PROTECTS edges in explainability scope."
                             : "Converted security graph node into a security finding."
-                    ]
+                    ],
+                    Notes = [$"PROTECTS edge count: {protectedIds.Count}"]
                 }
             });
         }

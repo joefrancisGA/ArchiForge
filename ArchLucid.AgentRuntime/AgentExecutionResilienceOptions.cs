@@ -17,4 +17,21 @@ public sealed class AgentExecutionResilienceOptions
 
     /// <summary>Per-handler wall-clock timeout in seconds. Default 900 (15 minutes). 0 = disabled.</summary>
     public int PerHandlerTimeoutSeconds { get; set; } = 900;
+
+    /// <summary>Retry attempts before a failure is recorded against the circuit breaker. Default 3. 0 = no retry.</summary>
+    public int LlmCallMaxRetryAttempts { get; set; } = 3;
+
+    /// <summary>Base delay in milliseconds for exponential backoff with jitter between LLM retries. Default 500.</summary>
+    public int LlmCallBaseDelayMilliseconds { get; set; } = 500;
+
+    /// <summary>Maximum delay cap in seconds for any single retry backoff. Default 10.</summary>
+    public int LlmCallMaxDelaySeconds { get; set; } = 10;
+
+    /// <summary>Clamps resilience settings to safe ranges (call after binding from configuration).</summary>
+    public void Normalize()
+    {
+        LlmCallMaxRetryAttempts = Math.Clamp(LlmCallMaxRetryAttempts, 0, 10);
+        LlmCallBaseDelayMilliseconds = Math.Clamp(LlmCallBaseDelayMilliseconds, 50, 30_000);
+        LlmCallMaxDelaySeconds = Math.Clamp(LlmCallMaxDelaySeconds, 1, 120);
+    }
 }

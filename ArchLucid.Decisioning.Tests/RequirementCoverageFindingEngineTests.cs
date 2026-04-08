@@ -13,6 +13,7 @@ namespace ArchLucid.Decisioning.Tests;
 /// <summary>
 /// Tests for Requirement Coverage Finding Engine.
 /// </summary>
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class RequirementCoverageFindingEngineTests
 {
@@ -59,6 +60,8 @@ public sealed class RequirementCoverageFindingEngineTests
         payload.Should().NotBeNull();
         payload.UncoveredRequirements.Should().Contain("REQ-99");
         payload.UncoveredRequirementCount.Should().Be(1);
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.GraphNodeIdsExamined.Should().Contain("REQ-99");
     }
 
     [Fact]

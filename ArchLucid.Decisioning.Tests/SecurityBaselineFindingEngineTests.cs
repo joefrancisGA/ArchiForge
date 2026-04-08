@@ -94,6 +94,9 @@ public sealed class SecurityBaselineFindingEngineTests
         f.FindingType.Should().Be("SecurityControlFinding");
         f.Severity.Should().Be(FindingSeverity.Info);
         f.RelatedNodeIds.Should().ContainSingle(id => id == "sec-1");
+        f.Trace.DecisionsTaken.Should().NotBeEmpty();
+        f.Trace.RulesApplied.Should().Contain("security-baseline-coverage");
+        f.Trace.Notes.Should().Contain("PROTECTS edge count: 0");
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -115,6 +118,7 @@ public sealed class SecurityBaselineFindingEngineTests
         SecurityControlFindingPayload? payload = f.Payload as SecurityControlFindingPayload;
         payload.Should().NotBeNull();
         payload.Impact.Should().Contain("missing");
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -130,6 +134,7 @@ public sealed class SecurityBaselineFindingEngineTests
         IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(snapshot, CancellationToken.None);
 
         findings[0].Severity.Should().Be(FindingSeverity.Info);
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -159,5 +164,7 @@ public sealed class SecurityBaselineFindingEngineTests
         f.RelatedNodeIds.Should().Contain("res-1");
         f.RelatedNodeIds.Should().HaveCount(2);
         f.Rationale.Should().Contain("PROTECTS");
+        f.Trace.DecisionsTaken.Should().NotBeEmpty();
+        f.Trace.Notes.Should().Contain("PROTECTS edge count: 1");
     }
 }

@@ -98,7 +98,11 @@ public sealed class AdvisorySchedulingController(
     /// <param name="scheduleId">Schedule to load history for.</param>
     /// <param name="take">Maximum rows (newest <see cref="AdvisoryScanExecution.StartedUtc"/> first).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>Execution history, or 404 when the schedule is missing or not in the caller’s scope.</returns>
+    /// <returns>
+    /// Execution history, or 404 when the schedule is missing or not in the caller’s scope.
+    /// Each <see cref="AdvisoryScanExecution.ResultJson"/> for <c>Completed</c> executions that ran against at least one authority run includes
+    /// a <c>traceCompleteness</c> object (per-engine explainability trace population metrics) alongside run and digest metadata.
+    /// </returns>
     [HttpGet("schedules/{scheduleId:guid}/executions")]
     [ProducesResponseType(typeof(IReadOnlyList<AdvisoryScanExecution>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

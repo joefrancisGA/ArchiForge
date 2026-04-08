@@ -13,6 +13,7 @@ namespace ArchLucid.Decisioning.Tests;
 /// <summary>
 /// Tests for Policy Coverage Finding Engine.
 /// </summary>
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class PolicyCoverageFindingEngineTests
 {
@@ -38,6 +39,7 @@ public sealed class PolicyCoverageFindingEngineTests
         findings[0].FindingType.Should().Be("PolicyCoverageFinding");
         findings[0].Severity.Should().Be(FindingSeverity.Warning);
         findings[0].Title.Should().Contain("No policy");
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
         PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;
         payload.Should().NotBeNull();
         payload.PolicyNodeCount.Should().Be(0);
@@ -81,6 +83,8 @@ public sealed class PolicyCoverageFindingEngineTests
         payload.Should().NotBeNull();
         payload.UncoveredResources.Should().Equal("storage-1", "vm-2");
         payload.PolicyNodeCount.Should().Be(1);
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.GraphNodeIdsExamined.Should().Equal("storage-1", "vm-2");
     }
 
     [Fact]

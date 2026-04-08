@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ArchLucid.AgentRuntime.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />

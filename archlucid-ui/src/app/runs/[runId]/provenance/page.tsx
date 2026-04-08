@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { getArchitectureRunProvenance } from "@/lib/api";
@@ -83,6 +84,8 @@ export default async function RunProvenancePage({
         </section>
       ) : null}
 
+      <ProvenanceGraphDiagram nodes={graph.nodes} edges={graph.edges} />
+
       <p>
         <Link href={`/runs/${runId}`}>← Run detail</Link>
       </p>
@@ -133,7 +136,7 @@ export default async function RunProvenancePage({
             </thead>
             <tbody>
               {graph.nodes.map((n) => (
-                <tr key={n.id}>
+                <tr key={n.id} id={`prov-node-row-${n.id}`}>
                   <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{n.type}</td>
                   <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top" }}>{n.name}</td>
                   <td style={{ padding: "6px 8px 6px 0", verticalAlign: "top", wordBreak: "break-all" }}>

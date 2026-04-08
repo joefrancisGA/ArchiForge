@@ -12,6 +12,7 @@ using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Resilience;
+using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Retrieval.Chunking;
 using ArchLucid.Retrieval.Embedding;
@@ -20,7 +21,10 @@ using ArchLucid.Retrieval.Queries;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Polly;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -33,7 +37,9 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IAgentSystemPromptCatalog, CachedAgentSystemPromptCatalog>();
         services.Configure<AgentExecutionResilienceOptions>(
             configuration.GetSection(AgentExecutionResilienceOptions.SectionName));
+        services.PostConfigure<AgentExecutionResilienceOptions>(static o => o.Normalize());
         services.AddSingleton<IAgentHandlerConcurrencyGate, AgentHandlerConcurrencyGate>();
+        services.AddSingleton<CircuitBreakerAuditBridge>();
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
 
@@ -150,8 +156,17 @@ public static partial class ServiceCollectionExtensions
                     CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
                     ILogger<CircuitBreakingAgentCompletionClient> logger =
                         sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
+                    AgentExecutionResilienceOptions resOpts =
+                        sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
+                    resOpts.Normalize();
+                    ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+                        logger: logger,
+                        maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
+                        baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
+                        maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
+                        gateName: OpenAiCircuitBreakerKeys.Completion);
 
-                    return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, logger);
+                    return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
                 });
             }
             else
@@ -362,8 +377,17 @@ public static partial class ServiceCollectionExtensions
                 CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Embedding);
                 ILogger<CircuitBreakingOpenAiEmbeddingClient> logger =
                     sp.GetRequiredService<ILogger<CircuitBreakingOpenAiEmbeddingClient>>();
+                AgentExecutionResilienceOptions resOpts =
+                    sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
+                resOpts.Normalize();
+                ResiliencePipeline embeddingRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+                    logger: logger,
+                    maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
+                    baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
+                    maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
+                    gateName: OpenAiCircuitBreakerKeys.Embedding);
 
-                return new CircuitBreakingOpenAiEmbeddingClient(inner, gate, logger);
+                return new CircuitBreakingOpenAiEmbeddingClient(inner, gate, embeddingRetry, logger);
             });
             services.AddSingleton<IEmbeddingService, AzureOpenAiEmbeddingService>();
         }
@@ -431,6 +455,9 @@ public static partial class ServiceCollectionExtensions
             serviceProvider.GetRequiredService<IOptionsFactory<CircuitBreakerOptions>>();
         CircuitBreakerOptions options = factory.Create(gateName);
 
-        return new CircuitBreakerGate(gateName, options);
+        CircuitBreakerAuditBridge? bridge = serviceProvider.GetService<CircuitBreakerAuditBridge>();
+        Action<CircuitBreakerAuditEntry>? onAudit = bridge?.CreateCallback();
+
+        return new CircuitBreakerGate(gateName, options, onAuditEntry: onAudit);
     }
 }

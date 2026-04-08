@@ -11,6 +11,7 @@ namespace ArchLucid.Decisioning.Tests;
 /// Tests for Cost Constraint Finding Engine.
 /// </summary>
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class CostConstraintFindingEngineTests
 {
@@ -58,6 +59,9 @@ public sealed class CostConstraintFindingEngineTests
         payload.BudgetName.Should().Be("Prod");
         payload.MaxMonthlyCost.Should().Be(5000m);
         payload.CostRisk.Should().Be("high");
+        f.Trace.DecisionsTaken.Should().NotBeEmpty();
+        f.Trace.RulesApplied.Should().Contain("cost-constraint-surface");
+        f.Trace.Notes.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -80,6 +84,8 @@ public sealed class CostConstraintFindingEngineTests
 
         IReadOnlyList<Finding> findings = await _sut.AnalyzeAsync(graph, CancellationToken.None);
 
-        findings.Should().ContainSingle().Which.Severity.Should().Be(FindingSeverity.Info);
+        Finding f = findings.Should().ContainSingle().Subject;
+        f.Severity.Should().Be(FindingSeverity.Info);
+        f.Trace.DecisionsTaken.Should().NotBeEmpty();
     }
 }

@@ -47,6 +47,7 @@ public class RequirementFindingEngine : IFindingEngine
             finding.Trace = new ExplainabilityTrace
             {
                 GraphNodeIdsExamined = relatedNodeIds,
+                RulesApplied = ["requirement-surface"],
                 DecisionsTaken =
                 [
                     relatedFromGraph.Count > 0

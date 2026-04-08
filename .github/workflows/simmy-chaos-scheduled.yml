@@ -1,0 +1,43 @@
+# Scheduled Simmy chaos coverage (LLM retry + CB composition, SQL, blob). See docs/LLM_RETRY_AND_CIRCUIT_BREAKER.md.
+name: Simmy chaos (scheduled)
+
+on:
+  schedule:
+    - cron: "0 5 * * 3"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  chaos:
+    name: "Simmy chaos — LLM + SQL + Blob"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Run chaos tests
+        run: |
+          dotnet test ArchLucid.AgentRuntime.Tests \
+            --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos" \
+            --logger "trx;LogFileName=chaos-agent.trx"
+          dotnet test ArchLucid.Persistence.Tests \
+            --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos" \
+            --logger "trx;LogFileName=chaos-persistence.trx"
+
+      - name: Upload chaos test results
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: chaos-test-results
+          path: |
+            **/chaos-agent.trx
+            **/chaos-persistence.trx

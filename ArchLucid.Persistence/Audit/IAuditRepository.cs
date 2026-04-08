@@ -31,4 +31,14 @@ public interface IAuditRepository
         Guid projectId,
         int take,
         CancellationToken ct);
+
+    /// <summary>
+    /// Filtered query within scope; <paramref name="filter.Take"/> is clamped 1–500.
+    /// </summary>
+    Task<IReadOnlyList<AuditEvent>> GetFilteredAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct);
 }

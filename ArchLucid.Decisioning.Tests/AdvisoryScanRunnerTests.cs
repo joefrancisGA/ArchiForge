@@ -17,6 +17,10 @@ using ArchLucid.Persistence.Integration;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
+using System.Text.Json;
+
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
@@ -27,7 +31,7 @@ namespace ArchLucid.Decisioning.Tests;
 /// <summary>
 /// Tests for Advisory Scan Runner.
 /// </summary>
-
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class AdvisoryScanRunnerTests
 {
@@ -212,12 +216,14 @@ public sealed class AdvisoryScanRunnerTests
         Mock<IDigestDeliveryDispatcher> delivery = new();
         delivery.Setup(x => x.DeliverAsync(It.IsAny<ArchitectureDigest>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+        string? lastResultJson = null;
         Mock<IAdvisoryScanExecutionRepository> executions = new();
         executions
             .Setup(x => x.CreateAsync(It.IsAny<AdvisoryScanExecution>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         executions
             .Setup(x => x.UpdateAsync(It.IsAny<AdvisoryScanExecution>(), It.IsAny<CancellationToken>()))
+            .Callback<AdvisoryScanExecution, CancellationToken>((e, _) => lastResultJson = e.ResultJson)
             .Returns(Task.CompletedTask);
 
         Mock<IAdvisoryScanScheduleRepository> schedules = new();
@@ -268,6 +274,17 @@ public sealed class AdvisoryScanRunnerTests
 
         digestRepo.Verify(x => x.CreateAsync(It.Is<ArchitectureDigest>(d => d.DigestId == digestId), It.IsAny<CancellationToken>()), Times.Once);
         delivery.Verify(x => x.DeliverAsync(It.Is<ArchitectureDigest>(d => d.DigestId == digestId), It.IsAny<CancellationToken>()), Times.Once);
+
+        lastResultJson.Should().NotBeNull();
+        using (JsonDocument doc = JsonDocument.Parse(lastResultJson!))
+        {
+            JsonElement root = doc.RootElement;
+            root.GetProperty("schemaVersion").GetInt32().Should().Be(1);
+            JsonElement tc = root.GetProperty("traceCompleteness");
+            tc.GetProperty("totalFindings").GetInt32().Should().Be(0);
+            tc.GetProperty("overallCompletenessRatio").GetDouble().Should().Be(0.0);
+            tc.GetProperty("byEngine").GetArrayLength().Should().Be(0);
+        }
     }
 
     private static IOptionsMonitor<IntegrationEventsOptions> OptionsMonitor(bool transactionalOutbox = false)

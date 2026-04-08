@@ -111,6 +111,13 @@ public static class ArchLucidInstrumentation
         unit: "ms",
         description: "Time to resolve effective governance for a tenant/workspace/project scope.");
 
+    /// <summary>
+    /// Per advisory scan: fraction of explainability trace fields populated across findings (0.0–1.0; label <c>scan_type</c>).
+    /// </summary>
+    public static readonly Histogram<double> ExplainabilityTraceCompleteness = AppMeter.CreateHistogram<double>(
+        "archlucid_explainability_trace_completeness_ratio",
+        description: "Per-scan trace completeness ratio (0.0–1.0).");
+
     /// <summary>Circuit breaker state changes (labels: <c>gate</c>, <c>from_state</c>, <c>to_state</c>).</summary>
     public static readonly Counter<long> CircuitBreakerStateTransitions =
         AppMeter.CreateCounter<long>(
@@ -128,6 +135,14 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archiforge_circuit_breaker_probe_outcomes_total",
             description: "Half-open probe results (labels: gate, outcome=success|failure|cancelled).");
+
+    /// <summary>
+    /// LLM call retry attempts before the circuit breaker records a failure (labels: <c>gate</c>, <c>attempt</c>, <c>exception_type</c>).
+    /// </summary>
+    public static readonly Counter<long> LlmCallRetries =
+        AppMeter.CreateCounter<long>(
+            "archlucid_llm_call_retries_total",
+            description: "LLM call retry attempts before circuit breaker recording (labels: gate, attempt, exception_type).");
 
     /// <summary>
     /// Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside <c>EffectiveGovernanceResolver</c>

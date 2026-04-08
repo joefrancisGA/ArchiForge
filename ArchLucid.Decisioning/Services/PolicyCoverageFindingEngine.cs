@@ -36,6 +36,13 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     PolicyNodeCount = 0,
                     PolicyApplicabilityEdgeCount = 0,
                     UncoveredResources = result.UncoveredResources
+                },
+                Trace = new ExplainabilityTrace
+                {
+                    DecisionsTaken =
+                    [
+                        "No PolicyControl nodes found in graph — emitted coverage warning."
+                    ]
                 }
             });
 
@@ -59,6 +66,14 @@ public class PolicyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IFin
                     PolicyNodeCount = result.PolicyNodeCount,
                     PolicyApplicabilityEdgeCount = result.PolicyApplicabilityEdgeCount,
                     UncoveredResources = result.UncoveredResources
+                },
+                Trace = new ExplainabilityTrace
+                {
+                    GraphNodeIdsExamined = [.. result.UncoveredResources],
+                    DecisionsTaken =
+                    [
+                        "Compared PolicyControl APPLIES_TO edges against topology resources."
+                    ]
                 }
             });
         

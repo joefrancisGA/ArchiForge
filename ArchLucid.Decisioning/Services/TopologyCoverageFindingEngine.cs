@@ -42,6 +42,13 @@ public class TopologyCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                         "storage",
                         "data"
                     ]
+                },
+                Trace = new ExplainabilityTrace
+                {
+                    DecisionsTaken =
+                    [
+                        "No TopologyResource nodes found in graph — emitted coverage warning."
+                    ]
                 }
             });
 

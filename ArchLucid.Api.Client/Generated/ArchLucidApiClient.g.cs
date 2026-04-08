@@ -398,6 +398,24 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string correlationId, string actorUserId, System.Guid? runId, int? take);
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string correlationId, string actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> EventTypesAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> EventTypesAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<CallerIdentityResponse> MeAsync(string api_version);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -1343,12 +1361,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> SearchAsync(string q, System.Guid? runId, System.Guid? manifestId, int? topK);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> SearchAsync(string q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -5739,6 +5757,192 @@ namespace ArchLucid.Api.Client.Generated
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<AuditEvent>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string correlationId, string actorUserId, System.Guid? runId, int? take)
+        {
+            return SearchAsync(eventType, fromUtc, toUtc, correlationId, actorUserId, runId, take, System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AuditEvent>> SearchAsync(string eventType, System.DateTimeOffset? fromUtc, System.DateTimeOffset? toUtc, string correlationId, string actorUserId, System.Guid? runId, int? take, System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/audit/search"
+                    urlBuilder_.Append("v1/audit/search");
+                    urlBuilder_.Append('?');
+                    if (eventType != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("eventType")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(eventType, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (fromUtc != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("fromUtc")).Append('=').Append(System.Uri.EscapeDataString(fromUtc.Value.ToString("s", System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (toUtc != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("toUtc")).Append('=').Append(System.Uri.EscapeDataString(toUtc.Value.ToString("s", System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (correlationId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("correlationId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(correlationId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (actorUserId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("actorUserId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(actorUserId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (runId != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("runId")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(runId, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    if (take != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("take")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(take, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<AuditEvent>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ArchLucidApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> EventTypesAsync()
+        {
+            return EventTypesAsync(System.Threading.CancellationToken.None);
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> EventTypesAsync(System.Threading.CancellationToken cancellationToken)
+        {
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                    if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
+                    // Operation Path: "v1/audit/event-types"
+                    urlBuilder_.Append("v1/audit/event-types");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<string>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ArchLucidApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -16567,15 +16771,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> SearchAsync(string q, System.Guid? runId, System.Guid? manifestId, int? topK)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK)
         {
-            return SearchAsync(q, runId, manifestId, topK, System.Threading.CancellationToken.None);
+            return Search2Async(q, runId, manifestId, topK, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> SearchAsync(string q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<RetrievalHit>> Search2Async(string q, System.Guid? runId, System.Guid? manifestId, int? topK, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;

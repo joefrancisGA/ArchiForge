@@ -30,10 +30,17 @@ public sealed class CircuitBreakerGate
 
     private bool _probeInFlight;
 
+    private readonly Action<CircuitBreakerAuditEntry>? _onAuditEntry;
+
     /// <param name="gateName">Stable low-cardinality label for metrics (e.g. keyed DI name).</param>
     /// <param name="options">Threshold and open duration.</param>
     /// <param name="utcNow">Optional clock for tests; defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
-    public CircuitBreakerGate(string gateName, CircuitBreakerOptions options, Func<DateTimeOffset>? utcNow = null)
+    /// <param name="onAuditEntry">Optional durable-audit hook (must not throw); invoked after OTel counters.</param>
+    public CircuitBreakerGate(
+        string gateName,
+        CircuitBreakerOptions options,
+        Func<DateTimeOffset>? utcNow = null,
+        Action<CircuitBreakerAuditEntry>? onAuditEntry = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
         ArgumentNullException.ThrowIfNull(options);
@@ -41,6 +48,7 @@ public sealed class CircuitBreakerGate
         _gateName = gateName;
         _options = options;
         _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
+        _onAuditEntry = onAuditEntry;
     }
 
     /// <summary>
@@ -165,6 +173,9 @@ public sealed class CircuitBreakerGate
     {
         TagList tags = new TagList { { "gate", _gateName } };
         ArchLucidInstrumentation.CircuitBreakerRejections.Add(1, tags);
+        string state = _state.ToString();
+
+        InvokeAuditEntry("Rejection", state, state, null);
     }
 
     private void EmitStateTransition(string fromState, string toState)
@@ -177,12 +188,40 @@ public sealed class CircuitBreakerGate
         };
 
         ArchLucidInstrumentation.CircuitBreakerStateTransitions.Add(1, tags);
+        InvokeAuditEntry("StateTransition", fromState, toState, null);
     }
 
     private void EmitProbeOutcome(string outcome)
     {
         TagList tags = new TagList { { "gate", _gateName }, { "outcome", outcome } };
         ArchLucidInstrumentation.CircuitBreakerProbeOutcomes.Add(1, tags);
+        string state = _state.ToString();
+
+        InvokeAuditEntry("ProbeOutcome", state, state, outcome);
+    }
+
+    private void InvokeAuditEntry(string transitionType, string fromState, string toState, string? probeOutcome)
+    {
+        if (_onAuditEntry is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _onAuditEntry.Invoke(
+                new CircuitBreakerAuditEntry(
+                    _gateName,
+                    transitionType,
+                    fromState,
+                    toState,
+                    probeOutcome,
+                    _utcNow()));
+        }
+        catch
+        {
+            // Audit callbacks must never break the circuit breaker.
+        }
     }
 
     private enum State

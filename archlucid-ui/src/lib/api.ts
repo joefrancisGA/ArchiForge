@@ -681,6 +681,50 @@ export async function listAlerts(status: string | null, take = 100): Promise<Ale
   return apiGet<AlertRecord[]>(`/v1/alerts${suffix ? `?${suffix}` : ""}`);
 }
 
+/** Row from `GET /v1/audit` / `GET /v1/audit/search` (camelCase JSON). */
+export interface AuditEvent {
+  eventId: string;
+  occurredUtc: string;
+  eventType: string;
+  actorUserId: string;
+  actorUserName: string;
+  tenantId: string;
+  workspaceId: string;
+  projectId: string;
+  runId: string | null;
+  manifestId: string | null;
+  artifactId: string | null;
+  dataJson: string;
+  correlationId: string | null;
+}
+
+/** Filtered audit query for the operator UI. */
+export async function searchAuditEvents(params: {
+  eventType?: string;
+  fromUtc?: string;
+  toUtc?: string;
+  correlationId?: string;
+  actorUserId?: string;
+  runId?: string;
+  take?: number;
+}): Promise<AuditEvent[]> {
+  const query = new URLSearchParams();
+  if (params.eventType) query.set("eventType", params.eventType);
+  if (params.fromUtc) query.set("fromUtc", params.fromUtc);
+  if (params.toUtc) query.set("toUtc", params.toUtc);
+  if (params.correlationId) query.set("correlationId", params.correlationId);
+  if (params.actorUserId) query.set("actorUserId", params.actorUserId);
+  if (params.runId) query.set("runId", params.runId);
+  if (params.take) query.set("take", String(params.take));
+  const qs = query.toString();
+  return apiGet<AuditEvent[]>(`/v1/audit/search${qs ? `?${qs}` : ""}`);
+}
+
+/** Core registry constants for event-type dropdowns (`GET /v1/audit/event-types`). */
+export async function getAuditEventTypes(): Promise<string[]> {
+  return apiGet<string[]>("/v1/audit/event-types");
+}
+
 /** Applies a lifecycle action (Acknowledge, Resolve, Suppress) to an alert record. */
 export async function applyAlertAction(
   alertId: string,

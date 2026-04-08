@@ -139,7 +139,10 @@ public sealed class TypedFindingsGoldenPathTests
         FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 
         snapshot.Findings.Should().Contain(f =>
-            f.FindingType == "RequirementFinding" && f.RelatedNodeIds.Contains("t1"));
+            f.FindingType == "RequirementFinding"
+            && f.RelatedNodeIds.Contains("t1")
+            && f.Trace.DecisionsTaken.Count > 0
+            && f.Trace.RulesApplied.Contains("requirement-surface"));
 
         snapshot.Findings.Should().Contain(f => f.FindingType == "CostConstraintFinding");
         snapshot.Findings.Should().Contain(f =>

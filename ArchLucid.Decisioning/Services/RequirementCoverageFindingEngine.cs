@@ -37,6 +37,14 @@ public class RequirementCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) :
                     CoveredRequirementCount = result.RelatedRequirementCount,
                     UncoveredRequirementCount = result.UnrelatedRequirementCount,
                     UncoveredRequirements = result.UncoveredRequirements
+                },
+                Trace = new ExplainabilityTrace
+                {
+                    GraphNodeIdsExamined = [.. result.UncoveredRequirements],
+                    DecisionsTaken =
+                    [
+                        "Detected requirement nodes without RELATES_TO edges to topology resources."
+                    ]
                 }
             });
         

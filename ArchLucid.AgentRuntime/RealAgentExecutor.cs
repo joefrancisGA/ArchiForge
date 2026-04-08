@@ -51,6 +51,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
         ArgumentNullException.ThrowIfNull(resilienceOptions);
 
         AgentExecutionResilienceOptions ro = resilienceOptions.Value;
+        ro.Normalize();
         int timeoutSeconds = ro.PerHandlerTimeoutSeconds;
 
         _handlerTimeoutPipeline = timeoutSeconds <= 0

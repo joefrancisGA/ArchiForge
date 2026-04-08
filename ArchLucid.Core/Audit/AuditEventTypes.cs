@@ -59,4 +59,10 @@ public static class AuditEventTypes
 
     /// <summary>Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception details).</summary>
     public const string DataArchivalHostLoopFailed = "DataArchivalHostLoopFailed";
+
+    public const string CircuitBreakerStateTransition = "CircuitBreakerStateTransition";
+
+    public const string CircuitBreakerRejection = "CircuitBreakerRejection";
+
+    public const string CircuitBreakerProbeOutcome = "CircuitBreakerProbeOutcome";
 }

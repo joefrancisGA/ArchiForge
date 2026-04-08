@@ -55,4 +55,65 @@ public sealed class InMemoryAuditRepository : IAuditRepository
 
         return Task.FromResult<IReadOnlyList<AuditEvent>>(result);
     }
+
+    public Task<IReadOnlyList<AuditEvent>> GetFilteredAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        AuditEventFilter filter,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(filter);
+
+        int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
+        List<AuditEvent> snapshot;
+        lock (_gate)
+        {
+            IEnumerable<AuditEvent> query = _events.Where(
+                x =>
+                    x.TenantId == tenantId
+                    && x.WorkspaceId == workspaceId
+                    && x.ProjectId == projectId);
+
+            if (!string.IsNullOrWhiteSpace(filter.EventType))
+            {
+                query = query.Where(x => string.Equals(x.EventType, filter.EventType, StringComparison.Ordinal));
+            }
+
+            if (filter.FromUtc.HasValue)
+            {
+                query = query.Where(x => x.OccurredUtc >= filter.FromUtc.Value);
+            }
+
+            if (filter.ToUtc.HasValue)
+            {
+                query = query.Where(x => x.OccurredUtc <= filter.ToUtc.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.CorrelationId))
+            {
+                query = query.Where(
+                    x => string.Equals(x.CorrelationId, filter.CorrelationId, StringComparison.Ordinal));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filter.ActorUserId))
+            {
+                query = query.Where(
+                    x => string.Equals(x.ActorUserId, filter.ActorUserId, StringComparison.Ordinal));
+            }
+
+            if (filter.RunId.HasValue)
+            {
+                query = query.Where(x => x.RunId == filter.RunId.Value);
+            }
+
+            snapshot = query
+                .OrderByDescending(x => x.OccurredUtc)
+                .Take(take)
+                .ToList();
+        }
+
+        return Task.FromResult<IReadOnlyList<AuditEvent>>(snapshot);
+    }
 }

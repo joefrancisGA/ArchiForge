@@ -134,6 +134,21 @@ jobs:
       - name: Build (Release)
         run: dotnet build ArchLucid.sln --no-restore -c Release /p:SourceRevisionId=$(git rev-parse HEAD)
 
+      - name: Guard — audit matrix Core constant count
+        run: |
+          set -e
+          CONST_COUNT=$(grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs)
+          MARKER=$(grep -oP 'audit-core-const-count:\K[0-9]+' docs/AUDIT_COVERAGE_MATRIX.md | head -1)
+          if [ -z "$MARKER" ]; then
+            echo "::error::docs/AUDIT_COVERAGE_MATRIX.md missing audit-core-const-count marker"
+            exit 1
+          fi
+          if [ "$CONST_COUNT" != "$MARKER" ]; then
+            echo "::error::AuditEventTypes const count ($CONST_COUNT) != matrix marker ($MARKER). Update docs/AUDIT_COVERAGE_MATRIX.md."
+            exit 1
+          fi
+          echo "Audit Core constants: $CONST_COUNT (matrix marker OK)."
+
       - name: Guard — unexpected ArchiForge string literals in C#
         run: |
           set +e

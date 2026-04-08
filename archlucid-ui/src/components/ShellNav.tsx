@@ -113,6 +113,9 @@ export function ShellNav() {
           <Link href="/governance-resolution" title="Effective governance resolution">
             Governance resolution
           </Link>
+          <Link href="/audit" title="Search and filter audit events">
+            Audit log
+          </Link>
         </nav>
       </div>
     </>

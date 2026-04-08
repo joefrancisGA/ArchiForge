@@ -15,6 +15,7 @@ using ArchLucid.Decisioning.Advisory.Workflow;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.Decisioning.Alerts.Composite;
 using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Integration;
@@ -279,11 +280,18 @@ public sealed class AdvisoryScanRunner(
 
         await deliveryDispatcher.DeliverAsync(digest, ct);
 
+        TraceCompletenessSummary traceCompletenessSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
+
+        ArchLucidInstrumentation.ExplainabilityTraceCompleteness.Record(
+            traceCompletenessSummary.OverallCompletenessRatio,
+            new KeyValuePair<string, object?>("scan_type", "advisory"));
+
         execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ResultJson = JsonSerializer.Serialize(
             new
             {
+                schemaVersion = 1,
                 runId = latest.RunId,
                 comparedToRunId,
                 recommendationCount = plan.Recommendations.Count,
@@ -292,6 +300,25 @@ public sealed class AdvisoryScanRunner(
                 alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
                 compositeAlertsCreated = compositeOutcome.Created.Count,
                 compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount,
+                traceCompleteness = new
+                {
+                    totalFindings = traceCompletenessSummary.TotalFindings,
+                    overallCompletenessRatio = traceCompletenessSummary.OverallCompletenessRatio,
+                    byEngine = traceCompletenessSummary.ByEngine
+                        .Select(
+                            e => new
+                            {
+                                engineType = e.EngineType,
+                                findingCount = e.FindingCount,
+                                completenessRatio = e.CompletenessRatio,
+                                graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount,
+                                rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount,
+                                decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount,
+                                alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount,
+                                notesPopulatedCount = e.NotesPopulatedCount,
+                            })
+                        .ToList(),
+                },
             },
             AuditJsonSerializationOptions.Instance);
 

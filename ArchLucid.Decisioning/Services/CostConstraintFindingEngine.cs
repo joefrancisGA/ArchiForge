@@ -50,7 +50,14 @@ public class CostConstraintFindingEngine : IFindingEngine
                 Trace = new ExplainabilityTrace
                 {
                     GraphNodeIdsExamined = [node.NodeId],
-                    DecisionsTaken = ["Emitted cost constraint finding from graph node."]
+                    RulesApplied = ["cost-constraint-surface"],
+                    DecisionsTaken = ["Emitted cost constraint finding from graph node."],
+                    Notes =
+                    [
+                        maxMonthly.HasValue
+                            ? $"Budget cap: {maxMonthly.Value:C0}/mo"
+                            : "No explicit budget cap."
+                    ]
                 }
             });
         }

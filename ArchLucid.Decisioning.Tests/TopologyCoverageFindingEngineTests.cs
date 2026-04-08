@@ -15,6 +15,7 @@ namespace ArchLucid.Decisioning.Tests;
 /// Tests for Topology Coverage Finding Engine.
 /// </summary>
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class TopologyCoverageFindingEngineTests
 {
@@ -35,6 +36,7 @@ public sealed class TopologyCoverageFindingEngineTests
         Finding finding = findings[0];
         finding.FindingType.Should().Be(FindingTypes.TopologyCoverageFinding);
         finding.Title.Should().Contain("No topology");
+        finding.Trace.DecisionsTaken.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -58,6 +60,7 @@ public sealed class TopologyCoverageFindingEngineTests
         TopologyCoverageFindingPayload? payload = findings[0].Payload as TopologyCoverageFindingPayload;
         payload.Should().NotBeNull();
         payload.MissingCategories.Should().Contain("storage");
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
     }
 
     [Fact]

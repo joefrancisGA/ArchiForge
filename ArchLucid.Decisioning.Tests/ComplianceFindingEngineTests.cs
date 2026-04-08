@@ -16,6 +16,7 @@ namespace ArchLucid.Decisioning.Tests;
 /// Tests for Compliance Finding Engine.
 /// </summary>
 
+[Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
 public sealed class ComplianceFindingEngineTests
 {
@@ -79,6 +80,9 @@ public sealed class ComplianceFindingEngineTests
         findings.Should().HaveCount(2);
         findings[0].Severity.Should().Be(FindingSeverity.Critical);
         findings[0].Payload.Should().BeOfType<ComplianceFindingPayload>();
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.Notes.Should().Contain("Rule pack: test-pack v1");
         findings[1].Severity.Should().Be(FindingSeverity.Info);
+        findings[1].Trace.DecisionsTaken.Should().NotBeEmpty();
     }
 }

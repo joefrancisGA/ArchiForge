@@ -68,7 +68,8 @@ public class ComplianceFindingEngine(
                     DecisionsTaken =
                     [
                         "Detected uncovered resources against compliance rule requirements."
-                    ]
+                    ],
+                    Notes = [$"Rule pack: {rulePack.RulePackId} v{rulePack.Version}"]
                 }
             });
         
