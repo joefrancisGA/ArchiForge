@@ -18,6 +18,7 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 | [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md) | **56R:** Release build, package API to `artifacts/release/`, readiness script, pilot run instructions |
 | [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchiForge does, first run, artifacts, logs, tests |
 | [docs/V1_SCOPE.md](docs/V1_SCOPE.md) | **V1 scope contract:** in/out of scope, operator happy path, minimum release criteria |
+| [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md) | **V1 release checklist:** actionable gates (deploy, health, operator flow, exports, recovery) |
 | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) | **56R:** Copy-paste command list for operators |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | **56R:** Common failures, health/auth/SQL/UI proxy, triage hints |
 | [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) | **56R + 57R:** `release-smoke` — API+CLI+artifact gate; optional **`-RunPlaywright`** for mock-backed UI operator journeys (see doc) |
@@ -42,7 +43,7 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 
 ## Pilot onboarding (56R)
 
-**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Start here:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative), [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
+**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Start here:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative), [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
 **Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 

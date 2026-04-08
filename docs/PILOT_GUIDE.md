@@ -138,6 +138,8 @@ If your program records **human judgments** on outputs (trusted / rejected / rev
 
 ## Readiness checks (before a demo or handoff)
 
+For a **full V1-style release gate** (scope freeze, recovery drill, export checks, naming, deferrals), use **[V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md)** in addition to the scripts below.
+
 | Goal | Command (repo root) | Notes |
 |------|---------------------|--------|
 | **Quick gate** — Release build + fast core tests + Vitest (if Node installed) | `run-readiness-check.cmd` or `.\run-readiness-check.ps1` | On failure, the script prints a **triage** block (**Stage**, **Category**, **Next:** hints). [RELEASE_LOCAL.md](RELEASE_LOCAL.md) |

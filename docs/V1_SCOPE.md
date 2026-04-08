@@ -132,6 +132,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 
 | Doc | Use |
 |-----|-----|
+| [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
 | [PILOT_GUIDE.md](PILOT_GUIDE.md) | Pilot onboarding narrative |
 | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Command-oriented operator entry |
 | [operator-shell.md](operator-shell.md) | UI workflows and API expectations |

@@ -4,6 +4,8 @@
 
 - **V1 scope contract (product boundary for pilots and releases)** — what is in/out of V1, operator happy path, minimum release criteria  
   - `docs/V1_SCOPE.md`
+- **V1 release checklist (actionable gates before handoff)** — scope freeze, deploy, health, operator flow, exports, naming, support bundle, recovery, deferrals  
+  - `docs/V1_RELEASE_CHECKLIST.md`
 - **Start here (new contributors)** — canonical front door: layered overview, pick-your-role, key concepts, quick commands  
   - `docs/START_HERE.md`
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
