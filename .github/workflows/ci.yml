@@ -137,7 +137,7 @@ jobs:
       - name: Guard — unexpected ArchiForge string literals in C#
         run: |
           set +e
-          grep -rn "ArchiForge" --include="*.cs" . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
+          grep -rn "ArchiForge" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/archiforge-cs-hits.txt"
           rc=$?
           set -e
           if [ "$rc" -gt 1 ]; then

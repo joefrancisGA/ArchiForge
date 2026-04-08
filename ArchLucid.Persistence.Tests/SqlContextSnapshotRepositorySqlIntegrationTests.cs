@@ -149,6 +149,150 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
     }
 
     [SkippableFact]
+    public async Task GetById_json_fallback_deserializes_canonical_object_properties()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlContextSnapshotRepository repository = new(factory);
+
+        Guid snapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 9, 1, 11, 0, 0, DateTimeKind.Utc);
+
+        List<CanonicalObject> canonical =
+        [
+            new()
+            {
+                ObjectId = "obj-props",
+                ObjectType = "Resource",
+                Name = "PrimaryApi",
+                SourceType = "Ingest",
+                SourceId = "src-props-1",
+                Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["region"] = "east",
+                    ["tier"] = "premium",
+                    ["env"] = "production",
+                },
+            },
+            new()
+            {
+                ObjectId = "obj-empty-props",
+                ObjectType = "Service",
+                Name = "NoPropsSvc",
+                SourceType = "Catalog",
+                SourceId = "src-empty",
+                Properties = [],
+            },
+        ];
+
+        string canonicalJson = JsonEntitySerializer.Serialize(canonical);
+
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        const string insertHeader = """
+            INSERT INTO dbo.ContextSnapshots
+            (
+                SnapshotId, RunId, ProjectId, CreatedUtc,
+                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+            )
+            VALUES
+            (
+                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    SnapshotId = snapshotId,
+                    RunId = runId,
+                    ProjectId = "proj-canonical-props-json",
+                    CreatedUtc = createdUtc,
+                    CanonicalObjectsJson = canonicalJson,
+                    DeltaSummary = (string?)null,
+                    WarningsJson = JsonEntitySerializer.Serialize(new List<string>()),
+                    ErrorsJson = JsonEntitySerializer.Serialize(new List<string>()),
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                },
+                cancellationToken: CancellationToken.None));
+
+        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.CanonicalObjects.Should().HaveCount(2);
+
+        loaded.CanonicalObjects[0].ObjectId.Should().Be("obj-props");
+        loaded.CanonicalObjects[0].ObjectType.Should().Be("Resource");
+        loaded.CanonicalObjects[0].Name.Should().Be("PrimaryApi");
+        loaded.CanonicalObjects[0].SourceType.Should().Be("Ingest");
+        loaded.CanonicalObjects[0].SourceId.Should().Be("src-props-1");
+        loaded.CanonicalObjects[0].Properties.Should().HaveCount(3);
+        loaded.CanonicalObjects[0].Properties["region"].Should().Be("east");
+        loaded.CanonicalObjects[0].Properties["tier"].Should().Be("premium");
+        loaded.CanonicalObjects[0].Properties["env"].Should().Be("production");
+
+        loaded.CanonicalObjects[1].ObjectId.Should().Be("obj-empty-props");
+        loaded.CanonicalObjects[1].ObjectType.Should().Be("Service");
+        loaded.CanonicalObjects[1].Name.Should().Be("NoPropsSvc");
+        loaded.CanonicalObjects[1].SourceType.Should().Be("Catalog");
+        loaded.CanonicalObjects[1].SourceId.Should().Be("src-empty");
+        loaded.CanonicalObjects[1].Properties.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_all_json_columns_null_returns_empty_collections()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlContextSnapshotRepository repository = new(factory);
+
+        Guid snapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 9, 2, 12, 0, 0, DateTimeKind.Utc);
+
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        const string insertHeader = """
+            INSERT INTO dbo.ContextSnapshots
+            (
+                SnapshotId, RunId, ProjectId, CreatedUtc,
+                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+            )
+            VALUES
+            (
+                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    SnapshotId = snapshotId,
+                    RunId = runId,
+                    ProjectId = "proj-all-json-null",
+                    CreatedUtc = createdUtc,
+                    CanonicalObjectsJson = (string?)null,
+                    DeltaSummary = (string?)null,
+                    WarningsJson = (string?)null,
+                    ErrorsJson = (string?)null,
+                    SourceHashesJson = (string?)null,
+                },
+                cancellationToken: CancellationToken.None));
+
+        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.CanonicalObjects.Should().BeEmpty();
+        loaded.Warnings.Should().BeEmpty();
+        loaded.Errors.Should().BeEmpty();
+        loaded.SourceHashes.Should().BeEmpty();
+        loaded.DeltaSummary.Should().BeNull();
+    }
+
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_header_and_children()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

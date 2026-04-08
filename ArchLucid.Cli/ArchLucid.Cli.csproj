@@ -9,8 +9,8 @@
     <ToolCommandName>archiforge</ToolCommandName>
     <PackageId>ArchLucid.Cli</PackageId>
     <Version>1.0.0</Version>
-    <Authors>ArchiForge</Authors>
-    <Description>CLI for ArchiForge: create projects, run architecture requests, and inspect results.</Description>
+    <Authors>ArchLucid</Authors>
+    <Description>CLI for ArchLucid: create projects, run architecture requests, and inspect results.</Description>
     <PackageTags>architecture;cli;archiforge</PackageTags>
   </PropertyGroup>
 

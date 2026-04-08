@@ -212,6 +212,318 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
     }
 
     [SkippableFact]
+    public async Task GetById_json_fallback_preserves_multi_finding_ordering()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        Guid findingsId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 7, 15, 14, 30, 0, DateTimeKind.Utc);
+        FindingsSnapshot original = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = createdUtc,
+            SchemaVersion = 1,
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "f-first",
+                    FindingType = "RequirementFinding",
+                    Category = "CatFirst",
+                    EngineType = "EngineAlpha",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Title First",
+                    Rationale = "Rationale first",
+                    RelatedNodeIds = ["rn-first-a", "rn-first-b"],
+                    RecommendedActions = ["action-first-1"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pf"] = "vf" },
+                    PayloadType = nameof(RequirementFindingPayload),
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName = "ReqFirst",
+                        RequirementText = "Text first",
+                        IsMandatory = true,
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        GraphNodeIdsExamined = ["g1a", "g1b"],
+                        RulesApplied = ["r1a"],
+                        DecisionsTaken = ["d1a", "d1b"],
+                        AlternativePathsConsidered = ["ap1"],
+                        Notes = ["n1a", "n1b", "n1c"],
+                    },
+                },
+                new Finding
+                {
+                    FindingId = "f-middle",
+                    FindingType = "ComplianceFinding",
+                    Category = "CatMiddle",
+                    EngineType = "EngineBeta",
+                    Severity = FindingSeverity.Error,
+                    Title = "Title Middle",
+                    Rationale = "Rationale middle",
+                    RelatedNodeIds = ["rn-mid-x", "rn-mid-y"],
+                    RecommendedActions = ["action-mid-1", "action-mid-2"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal)
+                    {
+                        ["pm1"] = "vm1",
+                        ["pm2"] = "vm2",
+                    },
+                    PayloadType = nameof(RequirementFindingPayload),
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName = "ReqMiddle",
+                        RequirementText = "Text middle",
+                        IsMandatory = false,
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        GraphNodeIdsExamined = ["g2a"],
+                        RulesApplied = ["r2a", "r2b"],
+                        DecisionsTaken = ["d2a"],
+                        AlternativePathsConsidered = ["ap2a", "ap2b"],
+                        Notes = ["n2a"],
+                    },
+                },
+                new Finding
+                {
+                    FindingId = "f-last",
+                    FindingType = "SecurityFinding",
+                    Category = "CatLast",
+                    EngineType = "EngineGamma",
+                    Severity = FindingSeverity.Info,
+                    Title = "Title Last",
+                    Rationale = "Rationale last",
+                    RelatedNodeIds = ["rn-last-1", "rn-last-2"],
+                    RecommendedActions = ["action-last"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal) { ["pl"] = "vl" },
+                    PayloadType = nameof(RequirementFindingPayload),
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName = "ReqLast",
+                        RequirementText = "Text last",
+                        IsMandatory = true,
+                    },
+                    Trace = new ExplainabilityTrace
+                    {
+                        GraphNodeIdsExamined = ["g3a", "g3b", "g3c"],
+                        RulesApplied = ["r3a"],
+                        DecisionsTaken = ["d3a"],
+                        AlternativePathsConsidered = ["ap3"],
+                        Notes = ["n3a", "n3b"],
+                    },
+                },
+            ],
+        };
+
+        FindingsSnapshotMigrator.Apply(original);
+        string findingsJson = JsonEntitySerializer.Serialize(original);
+
+        const string insertHeader = """
+            INSERT INTO dbo.FindingsSnapshots
+            (
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                SchemaVersion, FindingsJson
+            )
+            VALUES
+            (
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                @SchemaVersion, @FindingsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    CreatedUtc = createdUtc,
+                    SchemaVersion = 1,
+                    FindingsJson = findingsJson,
+                },
+                cancellationToken: CancellationToken.None));
+
+        SqlFindingsSnapshotRepository repository = new(factory);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Findings.Should().HaveCount(3);
+        loaded.Findings[0].FindingId.Should().Be("f-first");
+        loaded.Findings[1].FindingId.Should().Be("f-middle");
+        loaded.Findings[2].FindingId.Should().Be("f-last");
+
+        Finding a = loaded.Findings[0];
+        a.Title.Should().Be("Title First");
+        a.Category.Should().Be("CatFirst");
+        a.Severity.Should().Be(FindingSeverity.Warning);
+        a.EngineType.Should().Be("EngineAlpha");
+        a.RelatedNodeIds.Should().Equal("rn-first-a", "rn-first-b");
+        a.RecommendedActions.Should().Equal("action-first-1");
+        a.Payload.Should().BeOfType<RequirementFindingPayload>();
+        ((RequirementFindingPayload)a.Payload!).RequirementName.Should().Be("ReqFirst");
+        a.Trace.GraphNodeIdsExamined.Should().Equal("g1a", "g1b");
+        a.Trace.RulesApplied.Should().Equal("r1a");
+        a.Trace.DecisionsTaken.Should().Equal("d1a", "d1b");
+        a.Trace.AlternativePathsConsidered.Should().Equal("ap1");
+        a.Trace.Notes.Should().Equal("n1a", "n1b", "n1c");
+
+        Finding b = loaded.Findings[1];
+        b.Title.Should().Be("Title Middle");
+        b.Category.Should().Be("CatMiddle");
+        b.Severity.Should().Be(FindingSeverity.Error);
+        b.EngineType.Should().Be("EngineBeta");
+        b.RelatedNodeIds.Should().Equal("rn-mid-x", "rn-mid-y");
+        b.RecommendedActions.Should().Equal("action-mid-1", "action-mid-2");
+        b.Payload.Should().BeOfType<RequirementFindingPayload>();
+        ((RequirementFindingPayload)b.Payload!).RequirementName.Should().Be("ReqMiddle");
+        b.Trace.GraphNodeIdsExamined.Should().Equal("g2a");
+        b.Trace.RulesApplied.Should().Equal("r2a", "r2b");
+        b.Trace.DecisionsTaken.Should().Equal("d2a");
+        b.Trace.AlternativePathsConsidered.Should().Equal("ap2a", "ap2b");
+        b.Trace.Notes.Should().Equal("n2a");
+
+        Finding c = loaded.Findings[2];
+        c.Title.Should().Be("Title Last");
+        c.Category.Should().Be("CatLast");
+        c.Severity.Should().Be(FindingSeverity.Info);
+        c.EngineType.Should().Be("EngineGamma");
+        c.RelatedNodeIds.Should().Equal("rn-last-1", "rn-last-2");
+        c.RecommendedActions.Should().Equal("action-last");
+        c.Payload.Should().BeOfType<RequirementFindingPayload>();
+        ((RequirementFindingPayload)c.Payload!).RequirementName.Should().Be("ReqLast");
+        c.Trace.GraphNodeIdsExamined.Should().Equal("g3a", "g3b", "g3c");
+        c.Trace.Notes.Should().Equal("n3a", "n3b");
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_no_FindingRecords_and_FindingsJson_is_null_returns_empty_findings()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        Guid findingsId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 8, 2, 9, 0, 0, DateTimeKind.Utc);
+        const int schemaVersion = 1;
+
+        const string insertHeader = """
+            INSERT INTO dbo.FindingsSnapshots
+            (
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                SchemaVersion, FindingsJson
+            )
+            VALUES
+            (
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                @SchemaVersion, @FindingsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    CreatedUtc = createdUtc,
+                    SchemaVersion = schemaVersion,
+                    FindingsJson = (string?)null,
+                },
+                cancellationToken: CancellationToken.None));
+
+        SqlFindingsSnapshotRepository repository = new(factory);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Findings.Should().BeEmpty();
+        loaded.FindingsSnapshotId.Should().Be(findingsId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ContextSnapshotId.Should().Be(contextId);
+        loaded.GraphSnapshotId.Should().Be(graphId);
+        loaded.CreatedUtc.Should().Be(createdUtc);
+        loaded.SchemaVersion.Should().Be(schemaVersion);
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_no_FindingRecords_and_FindingsJson_is_empty_string_returns_empty_findings()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        Guid findingsId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 8, 2, 10, 0, 0, DateTimeKind.Utc);
+        const int schemaVersion = 1;
+
+        const string insertHeader = """
+            INSERT INTO dbo.FindingsSnapshots
+            (
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                SchemaVersion, FindingsJson
+            )
+            VALUES
+            (
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                @SchemaVersion, @FindingsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    CreatedUtc = createdUtc,
+                    SchemaVersion = schemaVersion,
+                    FindingsJson = "",
+                },
+                cancellationToken: CancellationToken.None));
+
+        SqlFindingsSnapshotRepository repository = new(factory);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Findings.Should().BeEmpty();
+        loaded.FindingsSnapshotId.Should().Be(findingsId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ContextSnapshotId.Should().Be(contextId);
+        loaded.GraphSnapshotId.Should().Be(graphId);
+        loaded.CreatedUtc.Should().Be(createdUtc);
+        loaded.SchemaVersion.Should().Be(schemaVersion);
+    }
+
+    [SkippableFact]
     public async Task SaveAsync_with_explicit_transaction_commits_relational_rows()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

@@ -77,3 +77,26 @@ BEGIN
     );
 END;
 GO
+
+/* Integration tests only: allow NULL legacy JSON columns to exercise repository IsNullOrWhiteSpace guards.
+   Production ArchiForge.sql keeps NOT NULL for brownfield inserts; test catalog applies this supplement after DbUp. */
+IF OBJECT_ID(N'dbo.FindingsSnapshots', N'U') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.FindingsSnapshots ALTER COLUMN FindingsJson NVARCHAR(MAX) NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ContextSnapshots', N'U') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.ContextSnapshots ALTER COLUMN CanonicalObjectsJson NVARCHAR(MAX) NULL;
+    ALTER TABLE dbo.ContextSnapshots ALTER COLUMN WarningsJson NVARCHAR(MAX) NULL;
+    ALTER TABLE dbo.ContextSnapshots ALTER COLUMN ErrorsJson NVARCHAR(MAX) NULL;
+    ALTER TABLE dbo.ContextSnapshots ALTER COLUMN SourceHashesJson NVARCHAR(MAX) NULL;
+END;
+GO
+
+IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.ArtifactBundles ALTER COLUMN ArtifactsJson NVARCHAR(MAX) NULL;
+END;
+GO
