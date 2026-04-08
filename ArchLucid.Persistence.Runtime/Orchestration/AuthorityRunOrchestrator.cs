@@ -86,6 +86,17 @@ public sealed class AuthorityRunOrchestrator(
                     scope.WorkspaceId);
             }
 
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RunStarted,
+                    RunId = run.RunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { run.ProjectId, Queued = false },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                cancellationToken);
+
             request.RunId = run.RunId;
 
             bool queue = await asyncAuthorityPipelineModeResolver.ShouldQueueContextAndGraphStagesAsync(cancellationToken)
@@ -110,6 +121,17 @@ public sealed class AuthorityRunOrchestrator(
                     cancellationToken);
 
                 await uow.CommitAsync(cancellationToken);
+
+                await auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.RunStarted,
+                        RunId = run.RunId,
+                        DataJson = JsonSerializer.Serialize(
+                            new { run.ProjectId, Queued = true },
+                            AuditJsonSerializationOptions.Instance),
+                    },
+                    cancellationToken);
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {
@@ -204,6 +226,17 @@ public sealed class AuthorityRunOrchestrator(
                 Scope = scope,
                 RunActivity = runActivity,
             };
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RunStarted,
+                    RunId = run.RunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { run.ProjectId, Queued = true, ResumedFromQueue = true },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                cancellationToken);
 
             await pipelineStagesExecutor.ExecuteAfterRunPersistedAsync(ctx, cancellationToken);
 

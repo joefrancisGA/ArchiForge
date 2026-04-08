@@ -2,7 +2,11 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.TestSupport;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
+
+using BaselineAuditEventTypes = ArchLucid.Application.Common.AuditEventTypes;
+using CoreAuditEventTypes = ArchLucid.Core.Audit.AuditEventTypes;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -34,6 +38,7 @@ public sealed class GovernanceWorkflowServiceTests
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo;
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly Mock<IBaselineMutationAuditService> _baselineAudit;
+    private readonly Mock<IAuditService> _durableAudit;
     private readonly Mock<IScopeContextProvider> _scopeContext;
     private readonly Mock<IIntegrationEventPublisher> _integrationEvents;
     private readonly Mock<IIntegrationEventOutboxRepository> _integrationOutbox;
@@ -47,6 +52,10 @@ public sealed class GovernanceWorkflowServiceTests
         _activationRepo = new Mock<IGovernanceEnvironmentActivationRepository>();
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
         _baselineAudit = new Mock<IBaselineMutationAuditService>();
+        _durableAudit = new Mock<IAuditService>();
+        _durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         _scopeContext = new Mock<IScopeContextProvider>();
         _integrationEvents = new Mock<IIntegrationEventPublisher>();
         _integrationOutbox = new Mock<IIntegrationEventOutboxRepository>();
@@ -110,6 +119,7 @@ public sealed class GovernanceWorkflowServiceTests
             _activationRepo.Object,
             _runDetailQueryService.Object,
             _baselineAudit.Object,
+            _durableAudit.Object,
             _scopeContext.Object,
             _integrationEvents.Object,
             _integrationOutbox.Object,
@@ -152,10 +162,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.ApprovalRequestSubmitted,
+                BaselineAuditEventTypes.Governance.ApprovalRequestSubmitted,
                 "alice",
                 It.IsAny<string>(),
                 It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("v1", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalSubmitted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -172,6 +188,12 @@ public sealed class GovernanceWorkflowServiceTests
             .Returns(Task.CompletedTask);
 
         await _sut.SubmitApprovalRequestAsync("run-1", "v1", "dev", "test", "alice", null);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalSubmitted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
 
         _integrationOutbox.Verify(
             o => o.EnqueueAsync(
@@ -210,6 +232,10 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Approve ──────────────────────────────────────────────────────────────
@@ -243,10 +269,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.ApprovalRequestApproved,
+                BaselineAuditEventTypes.Governance.ApprovalRequestApproved,
                 "bob",
                 "apr-1",
                 It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalApproved),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -268,6 +300,12 @@ public sealed class GovernanceWorkflowServiceTests
         GovernanceApprovalRequest result = await _sut.ApproveAsync("apr-draft", "bob", null);
 
         result.Status.Should().Be(GovernanceApprovalStatus.Approved);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalApproved),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -295,6 +333,10 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Reject ───────────────────────────────────────────────────────────────
@@ -321,10 +363,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.ApprovalRequestRejected,
+                BaselineAuditEventTypes.Governance.ApprovalRequestRejected,
                 "carol",
                 "apr-2",
                 It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceApprovalRejected),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -354,6 +402,10 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     // ── Promote ──────────────────────────────────────────────────────────────
@@ -378,6 +430,10 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -409,6 +465,10 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -449,10 +509,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.ManifestPromoted,
+                BaselineAuditEventTypes.Governance.ManifestPromoted,
                 "alice",
                 It.IsAny<string>(),
                 It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("prod", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceManifestPromoted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -474,10 +540,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.ManifestPromoted,
+                BaselineAuditEventTypes.Governance.ManifestPromoted,
                 "alice",
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceManifestPromoted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -521,10 +593,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.EnvironmentActivated,
+                BaselineAuditEventTypes.Governance.EnvironmentActivated,
                 "activator",
                 It.IsAny<string>(),
                 It.Is<string>(d => d.Contains("run-2", StringComparison.Ordinal) && d.Contains("dev", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceEnvironmentActivated),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -549,10 +627,16 @@ public sealed class GovernanceWorkflowServiceTests
 
         _baselineAudit.Verify(
             a => a.RecordAsync(
-                AuditEventTypes.Governance.EnvironmentActivated,
+                BaselineAuditEventTypes.Governance.EnvironmentActivated,
                 "activator",
                 It.IsAny<string>(),
                 It.Is<string>(d => d.Contains("run-1", StringComparison.Ordinal) && d.Contains("test", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceEnvironmentActivated),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -575,6 +659,10 @@ public sealed class GovernanceWorkflowServiceTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 }

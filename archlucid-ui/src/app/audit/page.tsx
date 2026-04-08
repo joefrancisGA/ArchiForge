@@ -18,6 +18,8 @@ function formatUtc(iso: string): string {
   }
 }
 
+const AUDIT_PAGE_SIZE = 200;
+
 function tryFormatDataJson(dataJson: string): string {
   try {
     const parsed: unknown = JSON.parse(dataJson);
@@ -37,8 +39,10 @@ export default function AuditPage() {
   const [actorUserId, setActorUserId] = useState<string>("");
   const [runId, setRunId] = useState<string>("");
   const [events, setEvents] = useState<AuditEvent[]>([]);
+  const [hasMoreResults, setHasMoreResults] = useState(false);
   const [loadingTypes, setLoadingTypes] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
 
   const loadTypes = useCallback(async () => {
@@ -69,15 +73,57 @@ export default function AuditPage() {
         correlationId: correlationId.trim() || undefined,
         actorUserId: actorUserId.trim() || undefined,
         runId: runId.trim() || undefined,
-        take: 200,
+        take: AUDIT_PAGE_SIZE,
       });
       setEvents(data);
+      setHasMoreResults(data.length === AUDIT_PAGE_SIZE);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
       setSearching(false);
     }
   }, [actorUserId, correlationId, eventType, fromUtc, runId, toUtc]);
+
+  const loadMore = useCallback(async () => {
+    if (events.length === 0) {
+      return;
+    }
+
+    const lastOccurredUtc = events[events.length - 1]?.occurredUtc;
+    if (!lastOccurredUtc) {
+      return;
+    }
+
+    setLoadingMore(true);
+    setFailure(null);
+    try {
+      const more = await searchAuditEvents({
+        eventType: eventType || undefined,
+        fromUtc: fromUtc ? new Date(fromUtc).toISOString() : undefined,
+        toUtc: toUtc ? new Date(toUtc).toISOString() : undefined,
+        beforeUtc: lastOccurredUtc,
+        correlationId: correlationId.trim() || undefined,
+        actorUserId: actorUserId.trim() || undefined,
+        runId: runId.trim() || undefined,
+        take: AUDIT_PAGE_SIZE,
+      });
+      setHasMoreResults(more.length === AUDIT_PAGE_SIZE);
+      setEvents((prev) => {
+        const seen = new Set(prev.map((e) => e.eventId));
+        const merged = [...prev];
+        for (const ev of more) {
+          if (!seen.has(ev.eventId)) {
+            merged.push(ev);
+          }
+        }
+        return merged;
+      });
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [actorUserId, correlationId, eventType, events, fromUtc, runId, toUtc]);
 
   function clearFilters() {
     setEventType("");
@@ -87,6 +133,7 @@ export default function AuditPage() {
     setActorUserId("");
     setRunId("");
     setEvents([]);
+    setHasMoreResults(false);
     setFailure(null);
   }
 
@@ -94,8 +141,8 @@ export default function AuditPage() {
     <main style={{ maxWidth: 900 }}>
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p style={{ color: "#444", fontSize: 14 }}>
-        Search durable audit events for the current tenant, workspace, and project. Results are newest first (up to 200
-        rows per search).
+        Search durable audit events for the current tenant, workspace, and project. Results are newest first (up to{" "}
+        {AUDIT_PAGE_SIZE} rows per request). Use <strong>Load more</strong> to page older events via a time cursor.
       </p>
 
       {failure !== null ? (
@@ -252,6 +299,14 @@ export default function AuditPage() {
           ))
         )}
       </div>
+
+      {events.length > 0 && hasMoreResults ? (
+        <div style={{ marginTop: 16 }}>
+          <button type="button" onClick={() => void loadMore()} disabled={loadingMore || searching}>
+            {loadingMore ? "Loading…" : "Load more"}
+          </button>
+        </div>
+      ) : null}
     </main>
   );
 }

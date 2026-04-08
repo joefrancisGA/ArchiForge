@@ -43,6 +43,39 @@ public sealed class AuditControllerSearchTests
     }
 
     [Fact]
+    public async Task SearchAudit_WithBeforeUtc_PassesFilterToRepo()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z");
+
+        response.EnsureSuccessStatusCode();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f =>
+                    f.BeforeUtc.HasValue
+                    && f.BeforeUtc.Value.Kind == DateTimeKind.Utc
+                    && f.BeforeUtc.Value.Year == 2026
+                    && f.BeforeUtc.Value.Month == 1
+                    && f.BeforeUtc.Value.Day == 1),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task SearchAudit_ClampsTake()
     {
         await using AuditControllerSearchApiFactory factory = new();

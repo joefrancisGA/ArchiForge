@@ -85,16 +85,17 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
         DateTime older = DateTime.UtcNow.AddMinutes(-10);
         DateTime newer = DateTime.UtcNow.AddMinutes(-5);
-        AuditEvent first = NewEvent(occurredUtc: older);
-        AuditEvent second = NewEvent(occurredUtc: newer);
+        AuditEvent first = NewEvent(occurredUtc: older, projectId: isolatedProjectId);
+        AuditEvent second = NewEvent(occurredUtc: newer, projectId: isolatedProjectId);
 
         await repo.AppendAsync(first, CancellationToken.None);
         await repo.AppendAsync(second, CancellationToken.None);
 
         IReadOnlyList<AuditEvent> list =
-            await repo.GetByScopeAsync(TenantId, WorkspaceId, ProjectId, take: 10, CancellationToken.None);
+            await repo.GetByScopeAsync(TenantId, WorkspaceId, isolatedProjectId, take: 10, CancellationToken.None);
 
         int iOld = list.ToList().FindIndex(x => x.EventId == first.EventId);
         int iNew = list.ToList().FindIndex(x => x.EventId == second.EventId);
@@ -252,17 +253,18 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
+        Guid isolatedProjectId = Guid.NewGuid();
         DateTime older = DateTime.UtcNow.AddMinutes(-20);
         DateTime newer = DateTime.UtcNow.AddMinutes(-10);
-        AuditEvent first = NewEvent(occurredUtc: older);
-        AuditEvent second = NewEvent(occurredUtc: newer);
+        AuditEvent first = NewEvent(occurredUtc: older, projectId: isolatedProjectId);
+        AuditEvent second = NewEvent(occurredUtc: newer, projectId: isolatedProjectId);
 
         await repo.AppendAsync(first, CancellationToken.None);
         await repo.AppendAsync(second, CancellationToken.None);
 
         AuditEventFilter filter = new() { Take = 10 };
         IReadOnlyList<AuditEvent> list =
-            await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
+            await repo.GetFilteredAsync(TenantId, WorkspaceId, isolatedProjectId, filter, CancellationToken.None);
 
         list.Should().Contain(x => x.EventId == first.EventId);
         list.Should().Contain(x => x.EventId == second.EventId);

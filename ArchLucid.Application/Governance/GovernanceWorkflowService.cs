@@ -1,6 +1,8 @@
 using System.Data;
+using System.Text.Json;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Architecture;
@@ -9,6 +11,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Integration;
+using ArchLucid.Persistence.Serialization;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -27,6 +30,7 @@ public sealed class GovernanceWorkflowService(
     IGovernanceEnvironmentActivationRepository activationRepo,
     IRunDetailQueryService runDetailQueryService,
     IBaselineMutationAuditService baselineMutationAudit,
+    IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     IIntegrationEventPublisher integrationEventPublisher,
     IIntegrationEventOutboxRepository integrationEventOutbox,
@@ -71,12 +75,31 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Governance.ApprovalRequestSubmitted,
+                Application.Common.AuditEventTypes.Governance.ApprovalRequestSubmitted,
                 requestedBy,
                 request.ApprovalRequestId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; Source={sourceEnvironment}; Target={targetEnvironment}",
                 cancellationToken)
             ;
+
+        Guid? auditRunId = Guid.TryParse(request.RunId, out Guid submittedRunGuid) ? submittedRunGuid : null;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceApprovalSubmitted,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        approvalRequestId = request.ApprovalRequestId,
+                        runId = request.RunId,
+                        manifestVersion = request.ManifestVersion,
+                        sourceEnvironment = request.SourceEnvironment,
+                        targetEnvironment = request.TargetEnvironment,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
@@ -121,12 +144,30 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Governance.ApprovalRequestApproved,
+                Application.Common.AuditEventTypes.Governance.ApprovalRequestApproved,
                 reviewedBy,
                 approvalRequestId,
                 $"Status={GovernanceApprovalStatus.Approved}",
                 cancellationToken)
             ;
+
+        Guid? approvedRunId = Guid.TryParse(request.RunId, out Guid approvedRunGuid) ? approvedRunGuid : null;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceApprovalApproved,
+                RunId = approvedRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        approvalRequestId = request.ApprovalRequestId,
+                        runId = request.RunId,
+                        reviewedBy,
+                        reviewComment = request.ReviewComment,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         
@@ -168,12 +209,30 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Governance.ApprovalRequestRejected,
+                Application.Common.AuditEventTypes.Governance.ApprovalRequestRejected,
                 reviewedBy,
                 approvalRequestId,
                 $"Status={GovernanceApprovalStatus.Rejected}",
                 cancellationToken)
             ;
+
+        Guid? rejectedRunId = Guid.TryParse(request.RunId, out Guid rejectedRunGuid) ? rejectedRunGuid : null;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceApprovalRejected,
+                RunId = rejectedRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        approvalRequestId = request.ApprovalRequestId,
+                        runId = request.RunId,
+                        reviewedBy,
+                        reviewComment = request.ReviewComment,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         
@@ -263,12 +322,32 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Governance.ManifestPromoted,
+                Application.Common.AuditEventTypes.Governance.ManifestPromoted,
                 promotedBy,
                 record.PromotionRecordId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; {sourceEnvironment}->{targetEnvironment}",
                 cancellationToken)
             ;
+
+        Guid? promotedRunId = Guid.TryParse(record.RunId, out Guid promotedRunGuid) ? promotedRunGuid : null;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceManifestPromoted,
+                RunId = promotedRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        promotionRecordId = record.PromotionRecordId,
+                        runId = record.RunId,
+                        manifestVersion = record.ManifestVersion,
+                        sourceEnvironment = record.SourceEnvironment,
+                        targetEnvironment = record.TargetEnvironment,
+                        approvalRequestId = record.ApprovalRequestId,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         
@@ -359,12 +438,31 @@ public sealed class GovernanceWorkflowService(
 
         await baselineMutationAudit
             .RecordAsync(
-                AuditEventTypes.Governance.EnvironmentActivated,
+                Application.Common.AuditEventTypes.Governance.EnvironmentActivated,
                 activatedBy,
                 activation.ActivationId,
                 $"RunId={runId}; ManifestVersion={manifestVersion}; Environment={environment}",
                 cancellationToken)
             ;
+
+        Guid? activationRunId = Guid.TryParse(activation.RunId, out Guid activationRunGuid) ? activationRunGuid : null;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = ArchLucid.Core.Audit.AuditEventTypes.GovernanceEnvironmentActivated,
+                RunId = activationRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        activationId = activation.ActivationId,
+                        runId = activation.RunId,
+                        manifestVersion = activation.ManifestVersion,
+                        environment = activation.Environment,
+                        activatedBy,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {

@@ -146,6 +146,12 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
             parameters.Add("RunId", filter.RunId.Value);
         }
 
+        if (filter.BeforeUtc.HasValue)
+        {
+            sql.Append(" AND OccurredUtc < @BeforeUtc");
+            parameters.Add("BeforeUtc", filter.BeforeUtc.Value);
+        }
+
         sql.Append(" ORDER BY OccurredUtc DESC;");
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);

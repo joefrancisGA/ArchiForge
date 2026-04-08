@@ -57,6 +57,12 @@ public static class AuditEventTypes
     public const string GovernanceResolutionExecuted = "GovernanceResolutionExecuted";
     public const string GovernanceConflictDetected = "GovernanceConflictDetected";
 
+    public const string GovernanceApprovalSubmitted = "GovernanceApprovalSubmitted";
+    public const string GovernanceApprovalApproved = "GovernanceApprovalApproved";
+    public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
+    public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
+    public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
+
     /// <summary>Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception details).</summary>
     public const string DataArchivalHostLoopFailed = "DataArchivalHostLoopFailed";
 

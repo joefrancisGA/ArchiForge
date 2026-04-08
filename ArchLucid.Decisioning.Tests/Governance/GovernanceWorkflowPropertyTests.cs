@@ -5,6 +5,7 @@ using ArchLucid.TestSupport;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -265,6 +266,11 @@ internal static class GovernanceWorkflowTestFactory
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IAuditService> durableAudit = new();
+        durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider
             .Setup(p => p.GetCurrentScope())
@@ -295,6 +301,7 @@ internal static class GovernanceWorkflowTestFactory
             activationRepo.Object,
             runDetail.Object,
             audit.Object,
+            durableAudit.Object,
             scopeProvider.Object,
             publisher.Object,
             outbox.Object,
@@ -321,6 +328,11 @@ internal static class GovernanceWorkflowTestFactory
                     It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        Mock<IAuditService> durableAudit = new();
+        durableAudit
+            .Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider
             .Setup(p => p.GetCurrentScope())
@@ -351,6 +363,7 @@ internal static class GovernanceWorkflowTestFactory
             activationRepo.Object,
             runDetail.Object,
             audit.Object,
+            durableAudit.Object,
             scopeProvider.Object,
             publisher.Object,
             outbox.Object,

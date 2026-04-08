@@ -22,6 +22,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 
 using System.Data;
+using System.Text.Json;
 
 using DecisioningManifestMetadata = ArchLucid.Decisioning.Manifest.Sections.ManifestMetadata;
 
@@ -204,6 +205,19 @@ public sealed class AuthorityRunOrchestratorTests
                 IntegrationEventTypes.AuthorityRunCompletedV1,
                 It.IsAny<ReadOnlyMemory<byte>>(),
                 $"{result.RunId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.RunStarted
+                    && e.RunId == result.RunId
+                    && JsonDocument.Parse(e.DataJson).RootElement.GetProperty("queued").GetBoolean() == false),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.RunCompleted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -419,6 +433,8 @@ public sealed class AuthorityRunOrchestratorTests
             .ReturnsAsync(true);
 
         Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
         Mock<IIntegrationEventPublisher> integrationEvents = new();
         integrationEvents
@@ -469,6 +485,185 @@ public sealed class AuthorityRunOrchestratorTests
                 scope.WorkspaceId,
                 scope.ProjectId,
                 It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.RunStarted
+                    && e.RunId == result.RunId
+                    && JsonDocument.Parse(e.DataJson).RootElement.GetProperty("queued").GetBoolean()),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.RunCompleted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CompleteQueuedAuthorityPipelineAsync_emits_run_started_with_resumed_from_queue()
+    {
+        Guid runIdGuid = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(x => x.GetCurrentScope()).Returns(scope);
+
+        Mock<IArchLucidUnitOfWork> uow = new();
+        uow.SetupGet(x => x.SupportsExternalTransaction).Returns(false);
+        uow.Setup(x => x.CommitAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+        uow.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
+
+        Mock<IArchLucidUnitOfWorkFactory> uowFactory = new();
+        uowFactory.Setup(f => f.CreateAsync(It.IsAny<CancellationToken>())).ReturnsAsync(uow.Object);
+
+        RunRecord existingRun = new()
+        {
+            RunId = runIdGuid,
+            ProjectId = "resume-proj",
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ContextSnapshotId = null,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(x => x.GetByIdAsync(scope, runIdGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingRun);
+        runRepo.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+        runRepo.Setup(x => x.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+
+        Guid contextSnapshotId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        Mock<IAuthorityPipelineStagesExecutor> pipeline = new();
+        pipeline
+            .Setup(x => x.ExecuteAfterRunPersistedAsync(It.IsAny<AuthorityPipelineContext>(), It.IsAny<CancellationToken>()))
+            .Callback<AuthorityPipelineContext, CancellationToken>(
+                (ctx, _) =>
+                {
+                    ctx.ContextSnapshot = new ContextSnapshot
+                    {
+                        SnapshotId = contextSnapshotId,
+                        RunId = ctx.Run.RunId,
+                        ProjectId = ctx.Request.ProjectId,
+                        CreatedUtc = DateTime.UtcNow,
+                    };
+
+                    ctx.FindingsSnapshot = new FindingsSnapshot
+                    {
+                        FindingsSnapshotId = findingsId,
+                        RunId = ctx.Run.RunId,
+                        ContextSnapshotId = contextSnapshotId,
+                        GraphSnapshotId = Guid.NewGuid(),
+                        CreatedUtc = DateTime.UtcNow,
+                    };
+
+                    ctx.Trace = RuleAuditTrace.From(new RuleAuditTracePayload
+                    {
+                        TenantId = ctx.Scope.TenantId,
+                        WorkspaceId = ctx.Scope.WorkspaceId,
+                        ProjectId = ctx.Scope.ProjectId,
+                        DecisionTraceId = traceId,
+                        RunId = ctx.Run.RunId,
+                        CreatedUtc = DateTime.UtcNow,
+                        RuleSetId = "rs",
+                        RuleSetVersion = "1",
+                        RuleSetHash = "h",
+                    });
+
+                    ctx.Manifest = NewMinimalManifest(
+                        ctx.Scope,
+                        ctx.Run.RunId,
+                        contextSnapshotId,
+                        Guid.NewGuid(),
+                        findingsId,
+                        traceId,
+                        manifestId);
+                })
+            .Returns(Task.CompletedTask);
+
+        Mock<IRetrievalIndexingOutboxRepository> retrievalOutbox = new();
+        retrievalOutbox.Setup(x => x.EnqueueAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IAuthorityPipelineWorkRepository> workRepo = new();
+        Mock<IAsyncAuthorityPipelineModeResolver> modeResolver = new();
+
+        Mock<IAuditService> audit = new();
+        audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventPublisher> integrationEvents = new();
+        integrationEvents
+            .Setup(x => x.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        integrationEvents
+            .Setup(x => x.PublishAsync(
+                It.IsAny<string>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IIntegrationEventOutboxRepository> integrationOutbox = new();
+        StubIntegrationOutbox(integrationOutbox);
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventOpts = CreateIntegrationEventsOptionsMonitor(false);
+
+        AuthorityRunOrchestrator sut = new(
+            uowFactory.Object,
+            scopeProvider.Object,
+            audit.Object,
+            runRepo.Object,
+            pipeline.Object,
+            retrievalOutbox.Object,
+            workRepo.Object,
+            modeResolver.Object,
+            integrationEvents.Object,
+            integrationOutbox.Object,
+            integrationEventOpts.Object,
+            NullLogger<AuthorityRunOrchestrator>.Instance);
+
+        ContextIngestionRequest request = new()
+        {
+            RunId = runIdGuid,
+            ProjectId = "resume-proj",
+            Description = "d",
+        };
+
+        RunRecord result = await sut.CompleteQueuedAuthorityPipelineAsync(request, CancellationToken.None);
+
+        result.RunId.Should().Be(runIdGuid);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.RunStarted
+                    && e.RunId == runIdGuid
+                    && JsonDocument.Parse(e.DataJson).RootElement.GetProperty("queued").GetBoolean()
+                    && JsonDocument.Parse(e.DataJson).RootElement.GetProperty("resumedFromQueue").GetBoolean()),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            x => x.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.RunCompleted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

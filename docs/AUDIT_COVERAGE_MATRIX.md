@@ -5,9 +5,9 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 1. **Durable SQL audit** — `IAuditService.LogAsync` → `IAuditRepository.AppendAsync` → `dbo.AuditEvents` (`ArchLucid.Core.Audit.AuditEvent`, `ArchLucid.Core.Audit.AuditEventTypes`).
 2. **Baseline mutation log** — `IBaselineMutationAuditService.RecordAsync` → structured **ILogger** lines only (`ArchLucid.Application.Common.BaselineMutationAuditService`). These use `ArchLucid.Application.Common.AuditEventTypes` names but **do not** populate `dbo.AuditEvents`.
 
-A third string registry, `ArchLucid.Application.Governance.GovernanceAuditEventTypes`, mirrors governance event names for documentation and workflow code paths; governance transitions today go through baseline mutation logging unless a controller also calls `IAuditService`.
+A third string registry, `ArchLucid.Application.Governance.GovernanceAuditEventTypes`, mirrors governance event names for documentation and workflow code paths. **`GovernanceWorkflowService`** dual-writes: `IBaselineMutationAuditService` (structured logs) **and** `IAuditService` with Core `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated`.
 
-<!-- audit-core-const-count:47 -->
+<!-- audit-core-const-count:52 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -30,6 +30,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 |-----------|----------------------|---------------------|--------------------------------------------------|---------------------------|
 | Authority pipeline manifest persisted | `AuthorityPipelineStagesExecutor` | `AuditEventTypes.ManifestGenerated` | RunId, ManifestId | `{ manifestHash, ruleSetId }` |
 | Authority pipeline artifacts synthesized | `AuthorityPipelineStagesExecutor` | `AuditEventTypes.ArtifactsGenerated` | RunId, ManifestId | `{ bundleId, artifactCount }` |
+| Authority run started (sync path, queued deferral, or queue resume) | `AuthorityRunOrchestrator` | `AuditEventTypes.RunStarted` | RunId | `{ projectId, queued, resumedFromQueue? }` |
 | Authority run completed | `AuthorityRunOrchestrator` | `AuditEventTypes.RunCompleted` | RunId, ManifestId | `{ goldenManifestId, artifactBundleId, decisionTraceId }` |
 | Authority replay executed | `AuthorityReplayController` | `AuditEventTypes.ReplayExecuted` | RunId | `{ mode, rebuilt manifest id? }` |
 | Advisory scan lifecycle | `AdvisoryScanRunner` | `AdvisoryScanScheduled`, `AdvisoryScanExecuted`, `ArchitectureDigestGenerated`, … | varies by path | scan / digest payloads (JSON) |
@@ -47,6 +48,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | Alert tuning API | `AlertTuningController` | `AlertThresholdRecommendationExecuted` | — | tuning context |
 | Policy packs (host) | `PolicyPacksAppService` | `PolicyPackCreated`, `PolicyPackVersionPublished`, `PolicyPackAssigned`, `PolicyPackAssignmentCreated`, `PolicyPackAssignmentArchived` | — | pack / version ids |
 | Governance resolution API | `GovernanceResolutionController` | `GovernanceResolutionExecuted`, `GovernanceConflictDetected` | — | resolution payload summary |
+| Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON) |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Data archival host failure | `DataArchivalHostIteration` | `DataArchivalHostLoopFailed` | — | exception summary |
@@ -60,9 +62,9 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 |-----------|------------------------|---------------------|-------|
 | Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `Application.Common.AuditEventTypes.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. |
 | Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, … | Same logging channel. |
-| Governance workflow | `GovernanceWorkflowService` | `Application.Common.AuditEventTypes.Governance.*` (mirrors `GovernanceAuditEventTypes`) | No `IAuditService` calls in this service today. |
+| Governance workflow | `GovernanceWorkflowService` | `Application.Common.AuditEventTypes.Governance.*` (mirrors `GovernanceAuditEventTypes`) | **Dual-write:** same service also calls `IAuditService` with Core governance event types (see durable table above). |
 
-**Implication:** operators searching **Audit log** in the UI only see rows that went through `IAuditService`. Governance and string-run lifecycle narratives may need future work to dual-write to SQL audit if compliance requires a single store.
+**Implication:** operators searching **Audit log** in the UI see `IAuditService` rows, including governance transitions from `GovernanceWorkflowService`. Baseline mutation logs remain for grep-friendly structured logging.
 
 ---
 
@@ -75,7 +77,6 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | `ConversationController` (threads / messages) | `ConversationThreadCreated`, `ConversationMessageAppended` | No `IAuditService` usage found. |
 | `DocxExportController` | `ArchitectureDocxExportGenerated` | Parallel to analysis artifacts. |
 | `GovernanceController` (HTTP surface beyond workflow service) | Align with `Governance.*` or Core governance types | Verify each POST/PATCH; add `IAuditService` where missing. |
-| Authority run **start** (before manifest) | `RunStarted` (Core constant exists) | Core defines `RunStarted` but no producer writes it to `dbo.AuditEvents` today. |
 
 ---
 
@@ -83,10 +84,10 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` constants** | 47 (see CI marker above) |
+| **Core `AuditEventTypes` constants** | 52 (see CI marker above) |
 | **`await *auditService.LogAsync` production call sites** | ~40 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
-| **Gaps listed** | 6 rows in table above (plus “dual registry” governance note) |
+| **Gaps listed** | 5 rows in table above (plus “dual registry” governance note) |
 
 ---
 
@@ -94,7 +95,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 
 | Constant | Value | Durable audit producer(s) |
 |----------|-------|---------------------------|
-| `RunStarted` | `RunStarted` | **None today** (reserved / gap) |
+| `RunStarted` | `RunStarted` | `AuthorityRunOrchestrator` |
 | `RunCompleted` | `RunCompleted` | `AuthorityRunOrchestrator` |
 | `ManifestGenerated` | `ManifestGenerated` | `AuthorityPipelineStagesExecutor` |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
@@ -137,6 +138,11 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | `PolicyPackAssignmentArchived` | `PolicyPackAssignmentArchived` | `PolicyPacksAppService` |
 | `GovernanceResolutionExecuted` | `GovernanceResolutionExecuted` | `GovernanceResolutionController` |
 | `GovernanceConflictDetected` | `GovernanceConflictDetected` | `GovernanceResolutionController` |
+| `GovernanceApprovalSubmitted` | `GovernanceApprovalSubmitted` | `GovernanceWorkflowService` |
+| `GovernanceApprovalApproved` | `GovernanceApprovalApproved` | `GovernanceWorkflowService` |
+| `GovernanceApprovalRejected` | `GovernanceApprovalRejected` | `GovernanceWorkflowService` |
+| `GovernanceManifestPromoted` | `GovernanceManifestPromoted` | `GovernanceWorkflowService` |
+| `GovernanceEnvironmentActivated` | `GovernanceEnvironmentActivated` | `GovernanceWorkflowService` |
 | `DataArchivalHostLoopFailed` | `DataArchivalHostLoopFailed` | `DataArchivalHostIteration` |
 | `CircuitBreakerStateTransition` | `CircuitBreakerStateTransition` | `CircuitBreakerAuditBridge` |
 | `CircuitBreakerRejection` | `CircuitBreakerRejection` | `CircuitBreakerAuditBridge` |

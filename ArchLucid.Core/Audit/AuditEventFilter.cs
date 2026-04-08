@@ -9,6 +9,9 @@ public sealed class AuditEventFilter
 
     public DateTime? ToUtc { get; set; }
 
+    /// <summary>Cursor: return only events with OccurredUtc strictly before this value. Enables keyset pagination.</summary>
+    public DateTime? BeforeUtc { get; set; }
+
     public string? CorrelationId { get; set; }
 
     public string? ActorUserId { get; set; }
