@@ -410,6 +410,159 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
     }
 
     [SkippableFact]
+    public async Task GetById_json_fallback_deserializes_mixed_payload_types()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        Guid findingsId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 5, 10, 0, 0, DateTimeKind.Utc);
+        FindingsSnapshot original = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = createdUtc,
+            SchemaVersion = 1,
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "f-req",
+                    FindingType = "RequirementFinding",
+                    Category = "Requirement",
+                    EngineType = "TestEngine",
+                    Severity = FindingSeverity.Warning,
+                    Title = "Requirement title",
+                    Rationale = "Rationale req",
+                    RelatedNodeIds = ["n-req"],
+                    RecommendedActions = ["fix-req"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal),
+                    PayloadType = nameof(RequirementFindingPayload),
+                    Payload = new RequirementFindingPayload
+                    {
+                        RequirementName = "NamedRequirement",
+                        RequirementText = "Requirement body text",
+                        IsMandatory = true,
+                    },
+                    Trace = new ExplainabilityTrace(),
+                },
+                new Finding
+                {
+                    FindingId = "f-comp",
+                    FindingType = "ComplianceFinding",
+                    Category = "Compliance",
+                    EngineType = "compliance",
+                    Severity = FindingSeverity.Error,
+                    Title = "Compliance title",
+                    Rationale = "Rationale comp",
+                    RelatedNodeIds = ["n-comp"],
+                    RecommendedActions = ["fix-comp"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal),
+                    PayloadType = nameof(ComplianceFindingPayload),
+                    Payload = new ComplianceFindingPayload
+                    {
+                        RulePackId = "pack-1",
+                        RulePackVersion = "2026.01",
+                        RuleId = "rule-comp-1",
+                        ControlId = "AC-2",
+                        ControlName = "Account management",
+                        AppliesToCategory = "Identity",
+                        AffectedResources = ["sub-a", "sub-b"],
+                    },
+                    Trace = new ExplainabilityTrace(),
+                },
+                new Finding
+                {
+                    FindingId = "f-cost",
+                    FindingType = "CostConstraintFinding",
+                    Category = "Cost",
+                    EngineType = "cost-constraint",
+                    Severity = FindingSeverity.Info,
+                    Title = "Cost title",
+                    Rationale = "Rationale cost",
+                    RelatedNodeIds = ["n-cost"],
+                    RecommendedActions = ["fix-cost"],
+                    Properties = new Dictionary<string, string>(StringComparer.Ordinal),
+                    PayloadType = nameof(CostConstraintFindingPayload),
+                    Payload = new CostConstraintFindingPayload
+                    {
+                        BudgetName = "MonthlyCap",
+                        MaxMonthlyCost = 12_500.50m,
+                        CostRisk = "high",
+                    },
+                    Trace = new ExplainabilityTrace(),
+                },
+            ],
+        };
+
+        FindingsSnapshotMigrator.Apply(original);
+        string findingsJson = JsonEntitySerializer.Serialize(original);
+
+        const string insertHeader = """
+            INSERT INTO dbo.FindingsSnapshots
+            (
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                SchemaVersion, FindingsJson
+            )
+            VALUES
+            (
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                @SchemaVersion, @FindingsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    CreatedUtc = createdUtc,
+                    SchemaVersion = 1,
+                    FindingsJson = findingsJson,
+                },
+                cancellationToken: CancellationToken.None));
+
+        SqlFindingsSnapshotRepository repository = new(factory);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Findings.Should().HaveCount(3);
+        loaded.Findings[0].FindingId.Should().Be("f-req");
+        loaded.Findings[1].FindingId.Should().Be("f-comp");
+        loaded.Findings[2].FindingId.Should().Be("f-cost");
+
+        Finding first = loaded.Findings[0];
+        first.Payload.Should().BeOfType<RequirementFindingPayload>();
+        RequirementFindingPayload req = (RequirementFindingPayload)first.Payload!;
+        req.RequirementName.Should().Be("NamedRequirement");
+
+        Finding second = loaded.Findings[1];
+        second.Payload.Should().BeOfType<ComplianceFindingPayload>();
+        ComplianceFindingPayload comp = (ComplianceFindingPayload)second.Payload!;
+        comp.ControlId.Should().Be("AC-2");
+        comp.RuleId.Should().Be("rule-comp-1");
+
+        Finding third = loaded.Findings[2];
+        third.Payload.Should().BeOfType<CostConstraintFindingPayload>();
+        CostConstraintFindingPayload cost = (CostConstraintFindingPayload)third.Payload!;
+        cost.BudgetName.Should().Be("MonthlyCap");
+        cost.CostRisk.Should().Be("high");
+        cost.MaxMonthlyCost.Should().Be(12_500.50m);
+    }
+
+    [SkippableFact]
     public async Task GetById_when_no_FindingRecords_and_FindingsJson_is_null_returns_empty_findings()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
@@ -507,6 +660,76 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
                     CreatedUtc = createdUtc,
                     SchemaVersion = schemaVersion,
                     FindingsJson = "",
+                },
+                cancellationToken: CancellationToken.None));
+
+        SqlFindingsSnapshotRepository repository = new(factory);
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(findingsId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Findings.Should().BeEmpty();
+        loaded.FindingsSnapshotId.Should().Be(findingsId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ContextSnapshotId.Should().Be(contextId);
+        loaded.GraphSnapshotId.Should().Be(graphId);
+        loaded.CreatedUtc.Should().Be(createdUtc);
+        loaded.SchemaVersion.Should().Be(schemaVersion);
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_no_FindingRecords_and_FindingsJson_has_empty_array_returns_empty_findings()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        Guid findingsId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 6, 15, 0, 0, DateTimeKind.Utc);
+        const int schemaVersion = 1;
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = createdUtc,
+            SchemaVersion = schemaVersion,
+            Findings = [],
+        };
+
+        FindingsSnapshotMigrator.Apply(snapshot);
+        string findingsJson = JsonEntitySerializer.Serialize(snapshot);
+
+        const string insertHeader = """
+            INSERT INTO dbo.FindingsSnapshots
+            (
+                FindingsSnapshotId, RunId, ContextSnapshotId, GraphSnapshotId, CreatedUtc,
+                SchemaVersion, FindingsJson
+            )
+            VALUES
+            (
+                @FindingsSnapshotId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @CreatedUtc,
+                @SchemaVersion, @FindingsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    FindingsSnapshotId = findingsId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    CreatedUtc = createdUtc,
+                    SchemaVersion = schemaVersion,
+                    FindingsJson = findingsJson,
                 },
                 cancellationToken: CancellationToken.None));
 

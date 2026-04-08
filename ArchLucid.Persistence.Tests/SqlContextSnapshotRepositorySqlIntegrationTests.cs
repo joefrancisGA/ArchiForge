@@ -2,6 +2,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -290,6 +291,75 @@ public sealed class SqlContextSnapshotRepositorySqlIntegrationTests(SqlServerPer
         loaded.Errors.Should().BeEmpty();
         loaded.SourceHashes.Should().BeEmpty();
         loaded.DeltaSummary.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_all_json_columns_are_empty_strings_returns_empty_collections()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlContextSnapshotRepository repository = new(factory);
+
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid scopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid snapshotId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 11, 14, 0, 0, DateTimeKind.Utc);
+        const string projectId = "proj-json-empty-string";
+
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.InsertRunAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            runId,
+            projectId,
+            CancellationToken.None);
+
+        const string insertHeader = """
+            INSERT INTO dbo.ContextSnapshots
+            (
+                SnapshotId, RunId, ProjectId, CreatedUtc,
+                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+            )
+            VALUES
+            (
+                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+            );
+            """;
+
+        string empty = "";
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    SnapshotId = snapshotId,
+                    RunId = runId,
+                    ProjectId = projectId,
+                    CreatedUtc = createdUtc,
+                    CanonicalObjectsJson = empty,
+                    DeltaSummary = (string?)null,
+                    WarningsJson = empty,
+                    ErrorsJson = empty,
+                    SourceHashesJson = empty,
+                },
+                cancellationToken: CancellationToken.None));
+
+        ContextSnapshot? loaded = await repository.GetByIdAsync(snapshotId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.SnapshotId.Should().Be(snapshotId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ProjectId.Should().Be(projectId);
+        loaded.CreatedUtc.Should().Be(createdUtc);
+        loaded.CanonicalObjects.Should().BeEmpty();
+        loaded.Warnings.Should().BeEmpty();
+        loaded.Errors.Should().BeEmpty();
+        loaded.SourceHashes.Should().BeEmpty();
     }
 
     [SkippableFact]

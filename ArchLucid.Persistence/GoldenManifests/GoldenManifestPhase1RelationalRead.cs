@@ -1,3 +1,5 @@
+using System;
+
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.RelationalRead;
@@ -181,14 +183,20 @@ internal static class GoldenManifestPhase1RelationalRead
             RuleSetId = row.RuleSetId,
             RuleSetVersion = row.RuleSetVersion,
             RuleSetHash = row.RuleSetHash,
-            Metadata = JsonEntitySerializer.Deserialize<ManifestMetadata>(row.MetadataJson),
-            Requirements = JsonEntitySerializer.Deserialize<RequirementsCoverageSection>(row.RequirementsJson),
-            Topology = JsonEntitySerializer.Deserialize<TopologySection>(row.TopologyJson),
-            Security = JsonEntitySerializer.Deserialize<SecuritySection>(row.SecurityJson),
+            Metadata = DeserializeOrNew(row.MetadataJson, static j => JsonEntitySerializer.Deserialize<ManifestMetadata>(j)),
+            Requirements = DeserializeOrNew(
+                row.RequirementsJson,
+                static j => JsonEntitySerializer.Deserialize<RequirementsCoverageSection>(j)),
+            Topology = DeserializeOrNew(row.TopologyJson, static j => JsonEntitySerializer.Deserialize<TopologySection>(j)),
+            Security = DeserializeOrNew(row.SecurityJson, static j => JsonEntitySerializer.Deserialize<SecuritySection>(j)),
             Compliance = DeserializeCompliance(row.ComplianceJson),
-            Cost = JsonEntitySerializer.Deserialize<CostSection>(row.CostJson),
-            Constraints = JsonEntitySerializer.Deserialize<ConstraintSection>(row.ConstraintsJson),
-            UnresolvedIssues = JsonEntitySerializer.Deserialize<UnresolvedIssuesSection>(row.UnresolvedIssuesJson),
+            Cost = DeserializeOrNew(row.CostJson, static j => JsonEntitySerializer.Deserialize<CostSection>(j)),
+            Constraints = DeserializeOrNew(
+                row.ConstraintsJson,
+                static j => JsonEntitySerializer.Deserialize<ConstraintSection>(j)),
+            UnresolvedIssues = DeserializeOrNew(
+                row.UnresolvedIssuesJson,
+                static j => JsonEntitySerializer.Deserialize<UnresolvedIssuesSection>(j)),
             Decisions = decisions,
             Assumptions = assumptions,
             Warnings = warnings,
@@ -350,6 +358,15 @@ internal static class GoldenManifestPhase1RelationalRead
     private static ComplianceSection DeserializeCompliance(string? json)
     {
         return string.IsNullOrWhiteSpace(json) ? new ComplianceSection() : JsonEntitySerializer.Deserialize<ComplianceSection>(json);
+    }
+
+    private static T DeserializeOrNew<T>(string? json, Func<string, T> deserialize)
+        where T : class, new()
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return new T();
+
+        return deserialize(json);
     }
 
     private sealed class ManifestDecisionRow

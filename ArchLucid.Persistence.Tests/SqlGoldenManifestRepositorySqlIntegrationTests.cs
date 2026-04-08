@@ -283,4 +283,254 @@ public sealed class SqlGoldenManifestRepositorySqlIntegrationTests(SqlServerPers
         d.RawDecisionJson.Should().Be("""{"slice":"json"}""");
     }
 
+    [SkippableFact]
+    public async Task GetById_when_no_phase1_rows_and_json_columns_null_returns_default_sections()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 10, 9, 0, 0, DateTimeKind.Utc);
+        const string manifestHash = "hash-null-json";
+        const string ruleSetId = "rs-null";
+        const string ruleSetVersion = "v1";
+        const string ruleSetHash = "rsh-null";
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-null-json",
+            CancellationToken.None);
+
+        const string insertManifest = """
+            INSERT INTO dbo.GoldenManifests
+            (
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson
+            )
+            VALUES
+            (
+                @TenantId, @WorkspaceId, @ProjectId,
+                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                @WarningsJson, @ProvenanceJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                    ManifestId = manifestId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    FindingsSnapshotId = findingsId,
+                    DecisionTraceId = traceId,
+                    CreatedUtc = createdUtc,
+                    ManifestHash = manifestHash,
+                    RuleSetId = ruleSetId,
+                    RuleSetVersion = ruleSetVersion,
+                    RuleSetHash = ruleSetHash,
+                    MetadataJson = (string?)null,
+                    RequirementsJson = (string?)null,
+                    TopologyJson = (string?)null,
+                    SecurityJson = (string?)null,
+                    ComplianceJson = (string?)null,
+                    CostJson = (string?)null,
+                    ConstraintsJson = (string?)null,
+                    UnresolvedIssuesJson = (string?)null,
+                    DecisionsJson = (string?)null,
+                    AssumptionsJson = (string?)null,
+                    WarningsJson = (string?)null,
+                    ProvenanceJson = (string?)null,
+                },
+                cancellationToken: CancellationToken.None));
+
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ManifestId.Should().Be(manifestId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ManifestHash.Should().Be(manifestHash);
+        loaded.RuleSetId.Should().Be(ruleSetId);
+        loaded.RuleSetVersion.Should().Be(ruleSetVersion);
+        loaded.RuleSetHash.Should().Be(ruleSetHash);
+
+        loaded.Metadata.Should().NotBeNull();
+        loaded.Requirements.Should().NotBeNull();
+        loaded.Topology.Should().NotBeNull();
+        loaded.Security.Should().NotBeNull();
+        loaded.Compliance.Should().NotBeNull();
+        loaded.Cost.Should().NotBeNull();
+        loaded.Constraints.Should().NotBeNull();
+        loaded.UnresolvedIssues.Should().NotBeNull();
+
+        loaded.Decisions.Should().BeEmpty();
+        loaded.Assumptions.Should().BeEmpty();
+        loaded.Warnings.Should().BeEmpty();
+
+        loaded.Provenance.Should().NotBeNull();
+        loaded.Provenance.SourceFindingIds.Should().BeEmpty();
+        loaded.Provenance.SourceGraphNodeIds.Should().BeEmpty();
+        loaded.Provenance.AppliedRuleIds.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_no_phase1_rows_and_json_columns_empty_string_returns_default_sections()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 10, 10, 30, 0, DateTimeKind.Utc);
+        const string manifestHash = "hash-empty-json";
+        const string ruleSetId = "rs-empty";
+        const string ruleSetVersion = "v2";
+        const string ruleSetHash = "rsh-empty";
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-empty-json",
+            CancellationToken.None);
+
+        const string insertManifest = """
+            INSERT INTO dbo.GoldenManifests
+            (
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson
+            )
+            VALUES
+            (
+                @TenantId, @WorkspaceId, @ProjectId,
+                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                @WarningsJson, @ProvenanceJson
+            );
+            """;
+
+        string empty = "";
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                    ManifestId = manifestId,
+                    RunId = runId,
+                    ContextSnapshotId = contextId,
+                    GraphSnapshotId = graphId,
+                    FindingsSnapshotId = findingsId,
+                    DecisionTraceId = traceId,
+                    CreatedUtc = createdUtc,
+                    ManifestHash = manifestHash,
+                    RuleSetId = ruleSetId,
+                    RuleSetVersion = ruleSetVersion,
+                    RuleSetHash = ruleSetHash,
+                    MetadataJson = empty,
+                    RequirementsJson = empty,
+                    TopologyJson = empty,
+                    SecurityJson = empty,
+                    ComplianceJson = empty,
+                    CostJson = empty,
+                    ConstraintsJson = empty,
+                    UnresolvedIssuesJson = empty,
+                    DecisionsJson = empty,
+                    AssumptionsJson = empty,
+                    WarningsJson = empty,
+                    ProvenanceJson = empty,
+                },
+                cancellationToken: CancellationToken.None));
+
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        SqlGoldenManifestRepository repository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        GoldenManifest? loaded = await repository.GetByIdAsync(scope, manifestId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.ManifestId.Should().Be(manifestId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ManifestHash.Should().Be(manifestHash);
+        loaded.RuleSetId.Should().Be(ruleSetId);
+        loaded.RuleSetVersion.Should().Be(ruleSetVersion);
+        loaded.RuleSetHash.Should().Be(ruleSetHash);
+
+        loaded.Metadata.Should().NotBeNull();
+        loaded.Requirements.Should().NotBeNull();
+        loaded.Topology.Should().NotBeNull();
+        loaded.Security.Should().NotBeNull();
+        loaded.Compliance.Should().NotBeNull();
+        loaded.Cost.Should().NotBeNull();
+        loaded.Constraints.Should().NotBeNull();
+        loaded.UnresolvedIssues.Should().NotBeNull();
+
+        loaded.Decisions.Should().BeEmpty();
+        loaded.Assumptions.Should().BeEmpty();
+        loaded.Warnings.Should().BeEmpty();
+
+        loaded.Provenance.Should().NotBeNull();
+        loaded.Provenance.SourceFindingIds.Should().BeEmpty();
+        loaded.Provenance.SourceGraphNodeIds.Should().BeEmpty();
+        loaded.Provenance.AppliedRuleIds.Should().BeEmpty();
+    }
+
 }

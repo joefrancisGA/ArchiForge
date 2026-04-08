@@ -46,6 +46,53 @@ public static class AuthorityRunChainTestSeed
                 cancellationToken: ct));
     }
 
+    /// <summary>Inserts <c>dbo.Runs</c> and <c>dbo.ContextSnapshots</c> only (for tests that insert <c>dbo.GraphSnapshots</c> headers directly).</summary>
+    public static async Task SeedRunAndContextOnlyAsync(
+        SqlConnection connection,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        Guid runId,
+        Guid contextSnapshotId,
+        string projectSlug,
+        CancellationToken ct)
+    {
+        await InsertRunAsync(connection, tenantId, workspaceId, projectId, runId, projectSlug, ct);
+
+        string emptyCanonical = JsonEntitySerializer.Serialize(new List<CanonicalObject>());
+        string emptyList = JsonEntitySerializer.Serialize(new List<string>());
+
+        const string insertContext = """
+            INSERT INTO dbo.ContextSnapshots
+            (
+                SnapshotId, RunId, ProjectId, CreatedUtc,
+                CanonicalObjectsJson, DeltaSummary, WarningsJson, ErrorsJson, SourceHashesJson
+            )
+            VALUES
+            (
+                @SnapshotId, @RunId, @ProjectId, @CreatedUtc,
+                @CanonicalObjectsJson, @DeltaSummary, @WarningsJson, @ErrorsJson, @SourceHashesJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertContext,
+                new
+                {
+                    SnapshotId = contextSnapshotId,
+                    RunId = runId,
+                    ProjectId = projectSlug,
+                    CreatedUtc = DateTime.UtcNow,
+                    CanonicalObjectsJson = emptyCanonical,
+                    DeltaSummary = (string?)null,
+                    WarningsJson = emptyList,
+                    ErrorsJson = emptyList,
+                    SourceHashesJson = JsonEntitySerializer.Serialize(new Dictionary<string, string>()),
+                },
+                cancellationToken: ct));
+    }
+
     /// <inheritdoc cref="AuthorityRunChainTestSeed"/>
     public static async Task SeedFullChainAsync(
         SqlConnection connection,

@@ -2,6 +2,7 @@ using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.Persistence.Tests.Support;
 
 using Dapper;
 
@@ -302,6 +303,71 @@ public sealed class SqlGraphSnapshotRepositorySqlIntegrationTests(SqlServerPersi
         loaded.Nodes.Should().BeEmpty("relational GraphSnapshotNodes has no rows — JSON must not hydrate nodes");
         loaded.Edges.Should().BeEmpty("relational GraphSnapshotEdges has no rows — JSON must not hydrate edges");
         loaded.Warnings.Should().BeEmpty("relational GraphSnapshotWarnings has no rows — JSON must not hydrate warnings");
+    }
+
+    [SkippableFact]
+    public async Task GetById_when_no_relational_children_and_json_columns_null_returns_empty_collections()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        SqlGraphSnapshotRepository repository = new(factory);
+
+        Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        Guid workspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Guid scopeProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid graphId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+        DateTime createdUtc = new(2026, 11, 13, 16, 0, 0, DateTimeKind.Utc);
+
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+        await AuthorityRunChainTestSeed.SeedRunAndContextOnlyAsync(
+            connection,
+            tenantId,
+            workspaceId,
+            scopeProjectId,
+            runId,
+            contextId,
+            "proj-graph-null-json",
+            CancellationToken.None);
+
+        const string insertHeader = """
+            INSERT INTO dbo.GraphSnapshots
+            (
+                GraphSnapshotId, ContextSnapshotId, RunId, CreatedUtc,
+                NodesJson, EdgesJson, WarningsJson
+            )
+            VALUES
+            (
+                @GraphSnapshotId, @ContextSnapshotId, @RunId, @CreatedUtc,
+                @NodesJson, @EdgesJson, @WarningsJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertHeader,
+                new
+                {
+                    GraphSnapshotId = graphId,
+                    ContextSnapshotId = contextId,
+                    RunId = runId,
+                    CreatedUtc = createdUtc,
+                    NodesJson = (string?)null,
+                    EdgesJson = (string?)null,
+                    WarningsJson = (string?)null,
+                },
+                cancellationToken: CancellationToken.None));
+
+        GraphSnapshot? loaded = await repository.GetByIdAsync(graphId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.GraphSnapshotId.Should().Be(graphId);
+        loaded.ContextSnapshotId.Should().Be(contextId);
+        loaded.RunId.Should().Be(runId);
+        loaded.CreatedUtc.Should().Be(createdUtc);
+        loaded.Nodes.Should().BeEmpty();
+        loaded.Edges.Should().BeEmpty();
+        loaded.Warnings.Should().BeEmpty();
     }
 
     [SkippableFact]

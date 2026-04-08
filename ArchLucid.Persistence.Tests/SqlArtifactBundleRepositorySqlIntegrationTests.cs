@@ -606,6 +606,117 @@ public sealed class SqlArtifactBundleRepositorySqlIntegrationTests(SqlServerPers
         loaded.Trace.Notes.Should().BeEmpty();
     }
 
+    [SkippableFact]
+    public async Task GetByManifestId_when_both_ArtifactsJson_and_TraceJson_null_returns_empty_artifacts_and_default_trace()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await SeedAuthorityChainAsync(
+            connection,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        GoldenManifest manifest = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = DateTime.UtcNow,
+            ManifestHash = "mh",
+            RuleSetId = "rs",
+            RuleSetVersion = "1",
+            RuleSetHash = "rsh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = [],
+        };
+
+        SqlGoldenManifestRepository manifestRepository = SqlPersistenceRepositoryFactory.CreateGoldenManifestRepository(factory);
+        await manifestRepository.SaveAsync(manifest, CancellationToken.None);
+
+        Guid bundleId = Guid.NewGuid();
+        DateTime created = new(2026, 11, 12, 11, 0, 0, DateTimeKind.Utc);
+
+        const string insertSql = """
+            INSERT INTO dbo.ArtifactBundles
+            (
+                BundleId, RunId, ManifestId, CreatedUtc, ArtifactsJson, TraceJson,
+                TenantId, WorkspaceId, ProjectId
+            )
+            VALUES
+            (
+                @BundleId, @RunId, @ManifestId, @CreatedUtc, @ArtifactsJson, @TraceJson,
+                @TenantId, @WorkspaceId, @ProjectId
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertSql,
+                new
+                {
+                    BundleId = bundleId,
+                    RunId = runId,
+                    ManifestId = manifestId,
+                    CreatedUtc = created,
+                    ArtifactsJson = (string?)null,
+                    TraceJson = (string?)null,
+                    TenantId,
+                    WorkspaceId,
+                    ProjectId,
+                },
+                cancellationToken: CancellationToken.None));
+
+        ScopeContext scope = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+        };
+
+        SqlArtifactBundleRepository repository = SqlPersistenceRepositoryFactory.CreateArtifactBundleRepository(factory);
+        ArtifactBundle? loaded = await repository.GetByManifestIdAsync(scope, manifestId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Artifacts.Should().BeEmpty();
+        loaded.Trace.Should().NotBeNull();
+        loaded.Trace.GeneratorsUsed.Should().BeEmpty();
+        loaded.Trace.SourceDecisionIds.Should().BeEmpty();
+        loaded.Trace.Notes.Should().BeEmpty();
+        loaded.BundleId.Should().Be(bundleId);
+        loaded.RunId.Should().Be(runId);
+        loaded.ManifestId.Should().Be(manifestId);
+        loaded.CreatedUtc.Should().Be(created);
+    }
+
     private static async Task SeedAuthorityChainAsync(
         SqlConnection connection,
         Guid runId,

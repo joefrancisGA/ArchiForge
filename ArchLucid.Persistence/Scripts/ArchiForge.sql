@@ -592,12 +592,47 @@ BEGIN
         ContextSnapshotId UNIQUEIDENTIFIER NOT NULL,
         RunId UNIQUEIDENTIFIER NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        NodesJson NVARCHAR(MAX) NOT NULL,
-        EdgesJson NVARCHAR(MAX) NOT NULL,
-        WarningsJson NVARCHAR(MAX) NOT NULL,
+        NodesJson NVARCHAR(MAX) NULL,
+        EdgesJson NVARCHAR(MAX) NULL,
+        WarningsJson NVARCHAR(MAX) NULL,
         INDEX IX_GraphSnapshots_RunId NONCLUSTERED (RunId),
         INDEX IX_GraphSnapshots_ContextSnapshotId NONCLUSTERED (ContextSnapshotId)
     );
+END;
+GO
+
+/* GraphSnapshots legacy JSON columns nullable (see Migrations/042_GraphSnapshots_LegacyJsonNullable.sql). */
+IF OBJECT_ID(N'dbo.GraphSnapshots', N'U') IS NOT NULL
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM sys.columns c
+        INNER JOIN sys.tables t ON c.object_id = t.object_id
+        WHERE t.schema_id = SCHEMA_ID(N'dbo')
+          AND t.name = N'GraphSnapshots'
+          AND c.name = N'NodesJson'
+          AND c.is_nullable = 0)
+        ALTER TABLE dbo.GraphSnapshots ALTER COLUMN NodesJson NVARCHAR(MAX) NULL;
+
+    IF EXISTS (
+        SELECT 1
+        FROM sys.columns c
+        INNER JOIN sys.tables t ON c.object_id = t.object_id
+        WHERE t.schema_id = SCHEMA_ID(N'dbo')
+          AND t.name = N'GraphSnapshots'
+          AND c.name = N'EdgesJson'
+          AND c.is_nullable = 0)
+        ALTER TABLE dbo.GraphSnapshots ALTER COLUMN EdgesJson NVARCHAR(MAX) NULL;
+
+    IF EXISTS (
+        SELECT 1
+        FROM sys.columns c
+        INNER JOIN sys.tables t ON c.object_id = t.object_id
+        WHERE t.schema_id = SCHEMA_ID(N'dbo')
+          AND t.name = N'GraphSnapshots'
+          AND c.name = N'WarningsJson'
+          AND c.is_nullable = 0)
+        ALTER TABLE dbo.GraphSnapshots ALTER COLUMN WarningsJson NVARCHAR(MAX) NULL;
 END;
 GO
 
