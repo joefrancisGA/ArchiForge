@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Cli;
@@ -265,6 +266,95 @@ public sealed class DependencyConstraintTests
         references.Should().NotContain(
             a => a.Name == "ArchLucid.Api",
             because: "The CLI must not reference the ASP.NET host assembly; HTTP types come from ArchLucid.Api.Client only.");
+    }
+
+    [Fact]
+    [Trait("Suite", "Core")]
+    [Trait("Category", "Unit")]
+    public void Product_code_must_not_call_IIntegrationEventPublisher_PublishAsync_outside_authorized_wrappers()
+    {
+        string? root = FindRepositoryRootContainingSolution();
+
+        root.Should().NotBeNull(because: "ArchLucid.sln must be discoverable from the test output directory.");
+
+        Regex directPublish = new(@"\.PublishAsync\(", RegexOptions.Compiled);
+        List<string> violations = new();
+
+        foreach (string path in Directory.EnumerateFiles(root!, "*.cs", SearchOption.AllDirectories))
+        {
+            if (IsExcludedSourceScanPath(path))
+            {
+                continue;
+            }
+
+            if (IsAuthorizedDirectIntegrationPublishFile(path))
+            {
+                continue;
+            }
+
+            string[] lines = File.ReadAllLines(path);
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                string trimmed = line.TrimStart();
+
+                if (trimmed.StartsWith("//", StringComparison.Ordinal)
+                    || trimmed.StartsWith("///", StringComparison.Ordinal)
+                    || trimmed.StartsWith('*'))
+                {
+                    continue;
+                }
+
+                if (!directPublish.IsMatch(line))
+                {
+                    continue;
+                }
+
+                violations.Add($"{path}:{i + 1}: {line.Trim()}");
+            }
+        }
+
+        violations.Should().BeEmpty(
+            "integration events must go through OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync; " +
+            "only IntegrationEventPublishing (TryPublishAsync) and IntegrationEventOutboxProcessor may call IIntegrationEventPublisher.PublishAsync directly. Violations:{0}{1}",
+            Environment.NewLine,
+            violations.Count == 0 ? "(none)" : string.Join(Environment.NewLine, violations));
+    }
+
+    private static string? FindRepositoryRootContainingSolution()
+    {
+        string? dir = Path.GetDirectoryName(typeof(DependencyConstraintTests).Assembly.Location);
+
+        for (int i = 0; i < 24 && dir is not null; i++)
+        {
+            if (File.Exists(Path.Combine(dir, "ArchLucid.sln")))
+            {
+                return dir;
+            }
+
+            dir = Directory.GetParent(dir)?.FullName;
+        }
+
+        return null;
+    }
+
+    private static bool IsExcludedSourceScanPath(string fullPath)
+    {
+        string n = fullPath.Replace('\\', '/');
+
+        return n.Contains("/bin/", StringComparison.OrdinalIgnoreCase)
+            || n.Contains("/obj/", StringComparison.OrdinalIgnoreCase)
+            || n.Contains("/.git/", StringComparison.OrdinalIgnoreCase)
+            || n.Contains("Tests/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsAuthorizedDirectIntegrationPublishFile(string fullPath)
+    {
+        string file = Path.GetFileName(fullPath);
+
+        return file.Equals("IntegrationEventPublishing.cs", StringComparison.OrdinalIgnoreCase)
+            || file.Equals("IntegrationEventOutboxProcessor.cs", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatFailingTypeNames(TestResult result)

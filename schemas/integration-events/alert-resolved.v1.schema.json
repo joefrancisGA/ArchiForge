@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
+  "title": "com.archlucid.alert.resolved",
+  "description": "Alert resolved via API (canonical com.archlucid.alert.resolved; legacy com.archiforge.alert.resolved).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "alertId",
+    "resolvedByUserId"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "alertId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "resolvedByUserId": { "type": "string" },
+    "comment": { "type": "string" }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/advisory-scan-completed.v1.schema.json",
+  "title": "com.archlucid.advisory.scan.completed",
+  "description": "Advisory scan execution completed (canonical com.archlucid.advisory.scan.completed; legacy com.archiforge.advisory.scan.completed).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "scheduleId",
+    "executionId",
+    "hasRuns",
+    "completedUtc"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "scheduleId": { "type": "string", "format": "uuid" },
+    "executionId": { "type": "string", "format": "uuid" },
+    "hasRuns": { "type": "boolean" },
+    "runId": { "type": "string", "format": "uuid" },
+    "comparedToRunId": { "type": "string", "format": "uuid" },
+    "digestId": { "type": "string", "format": "uuid" },
+    "completedUtc": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

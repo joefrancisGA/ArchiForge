@@ -24,14 +24,7 @@ public sealed class IntegrationEventPayloadContractTests
             projectId = Guid.NewGuid(),
         };
 
-        AssertContract(
-            payload,
-            "schemaVersion",
-            "runId",
-            "manifestId",
-            "tenantId",
-            "workspaceId",
-            "projectId");
+        AssertPayloadMatchesCommittedSchema("authority-run-completed.v1.schema.json", payload);
     }
 
     [Fact]
@@ -51,15 +44,7 @@ public sealed class IntegrationEventPayloadContractTests
             requestedBy = "u",
         };
 
-        AssertContract(
-            payload,
-            "schemaVersion",
-            "approvalRequestId",
-            "runId",
-            "manifestVersion",
-            "sourceEnvironment",
-            "targetEnvironment",
-            "requestedBy");
+        AssertPayloadMatchesCommittedSchema("governance-approval-submitted.v1.schema.json", payload);
     }
 
     [Fact]
@@ -79,14 +64,7 @@ public sealed class IntegrationEventPayloadContractTests
             activatedUtc = DateTime.UtcNow,
         };
 
-        AssertContract(
-            payload,
-            "schemaVersion",
-            "activationId",
-            "runId",
-            "environment",
-            "activatedBy",
-            "activatedUtc");
+        AssertPayloadMatchesCommittedSchema("governance-promotion-activated.v1.schema.json", payload);
     }
 
     [Fact]
@@ -108,7 +86,7 @@ public sealed class IntegrationEventPayloadContractTests
             deduplicationKey = "k",
         };
 
-        AssertContract(payload, "schemaVersion", "alertId", "ruleId", "severity", "title", "deduplicationKey");
+        AssertPayloadMatchesCommittedSchema("alert-fired.v1.schema.json", payload);
     }
 
     [Fact]
@@ -126,7 +104,7 @@ public sealed class IntegrationEventPayloadContractTests
             comment = (string?)null,
         };
 
-        AssertContract(payload, "schemaVersion", "alertId", "resolvedByUserId");
+        AssertPayloadMatchesCommittedSchema("alert-resolved.v1.schema.json", payload);
     }
 
     [Fact]
@@ -147,20 +125,49 @@ public sealed class IntegrationEventPayloadContractTests
             completedUtc = DateTime.UtcNow,
         };
 
-        AssertContract(payload, "schemaVersion", "scheduleId", "executionId", "hasRuns", "completedUtc");
+        AssertPayloadMatchesCommittedSchema("advisory-scan-completed.v1.schema.json", payload);
     }
 
-    private static void AssertContract(object payload, params string[] requiredProperties)
+    private static void AssertPayloadMatchesCommittedSchema(string schemaFileName, object payload)
     {
+        string path = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events", schemaFileName);
+
+        File.Exists(path).Should().BeTrue(because: $"schema file must be copied to test output: {path}");
+
+        string schemaJson = File.ReadAllText(path);
+        using JsonDocument schemaDoc = JsonDocument.Parse(schemaJson);
+        JsonElement schemaRoot = schemaDoc.RootElement;
+
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(payload, IntegrationEventJson.Options);
-        using JsonDocument doc = JsonDocument.Parse(utf8);
-        JsonElement root = doc.RootElement;
 
-        root.ValueKind.Should().Be(JsonValueKind.Object);
+        using JsonDocument payloadDoc = JsonDocument.Parse(utf8);
+        JsonElement payloadRoot = payloadDoc.RootElement;
 
-        foreach (string name in requiredProperties)
+        payloadRoot.ValueKind.Should().Be(JsonValueKind.Object);
+
+        if (schemaRoot.TryGetProperty("required", out JsonElement requiredElement)
+            && requiredElement.ValueKind == JsonValueKind.Array)
         {
-            root.TryGetProperty(name, out JsonElement _).Should().BeTrue(because: $"property {name} must exist for consumers");
+            foreach (JsonElement nameElement in requiredElement.EnumerateArray())
+            {
+                string? name = nameElement.GetString();
+
+                name.Should().NotBeNullOrWhiteSpace();
+
+                payloadRoot.TryGetProperty(name!, out JsonElement _).Should().BeTrue(
+                    because: $"required property '{name}' must exist in serialized payload for {schemaFileName}");
+            }
+        }
+
+        if (schemaRoot.TryGetProperty("properties", out JsonElement propertiesElement)
+            && propertiesElement.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty payloadProperty in payloadRoot.EnumerateObject())
+            {
+                propertiesElement.TryGetProperty(payloadProperty.Name, out JsonElement _).Should().BeTrue(
+                    because:
+                    $"serialized payload property '{payloadProperty.Name}' must be declared in schema {schemaFileName} (catch typos; additional payload fields require a schema update)");
+            }
         }
     }
 }

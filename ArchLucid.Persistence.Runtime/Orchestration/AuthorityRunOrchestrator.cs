@@ -240,11 +240,6 @@ public sealed class AuthorityRunOrchestrator(
         IArchLucidUnitOfWork uow,
         CancellationToken ct)
     {
-        IntegrationEventsOptions integrationOpts = integrationEventsOptions.CurrentValue;
-
-        bool useTransactionalIntegrationOutbox =
-            integrationOpts.TransactionalOutboxEnabled && uow.SupportsExternalTransaction;
-
         if (uow.SupportsExternalTransaction)
         {
             await retrievalIndexingOutbox.EnqueueAsync(
@@ -266,23 +261,32 @@ public sealed class AuthorityRunOrchestrator(
                 ct);
         }
 
-        if (useTransactionalIntegrationOutbox)
+        string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
+        object integrationPayload = new
         {
-            byte[] integrationPayload = SerializeAuthorityRunCompletedPayload(run, manifest.ManifestId, scope);
-            string integrationMessageId = BuildAuthorityRunCompletedMessageId(run.RunId);
+            schemaVersion = 1,
+            runId = run.RunId,
+            manifestId = manifest.ManifestId,
+            tenantId = scope.TenantId,
+            workspaceId = scope.WorkspaceId,
+            projectId = scope.ProjectId,
+        };
 
-            await integrationEventOutbox.EnqueueAsync(
-                run.RunId,
-                IntegrationEventTypes.AuthorityRunCompletedV1,
-                integrationMessageId,
-                integrationPayload,
-                scope.TenantId,
-                scope.WorkspaceId,
-                scope.ProjectId,
-                uow.Connection,
-                uow.Transaction,
-                ct);
-        }
+        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
+            integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
+            logger,
+            IntegrationEventTypes.AuthorityRunCompletedV1,
+            integrationPayload,
+            integrationMessageId,
+            run.RunId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            uow.SupportsExternalTransaction ? uow.Connection : null,
+            uow.SupportsExternalTransaction ? uow.Transaction : null,
+            ct);
 
         await uow.CommitAsync(ct);
 
@@ -316,51 +320,7 @@ public sealed class AuthorityRunOrchestrator(
 
         ArchLucidInstrumentation.AuthorityRunsCompletedTotal.Add(1);
 
-        if (!useTransactionalIntegrationOutbox)
-        {
-            await TryPublishAuthorityRunCompletedAsync(run, manifest.ManifestId, scope, ct);
-        }
-
         return run;
-    }
-
-    private async Task TryPublishAuthorityRunCompletedAsync(
-        RunRecord run,
-        Guid manifestId,
-        ScopeContext scope,
-        CancellationToken ct)
-    {
-        try
-        {
-            byte[] json = SerializeAuthorityRunCompletedPayload(run, manifestId, scope);
-            string messageId = BuildAuthorityRunCompletedMessageId(run.RunId);
-
-            await integrationEventPublisher.PublishAsync(IntegrationEventTypes.AuthorityRunCompletedV1, json, messageId, ct);
-        }
-        catch (Exception ex) when (!ct.IsCancellationRequested)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-            {
-                logger.LogWarning(
-                    ex,
-                    "Integration event publish failed after authority run completed. RunId={RunId}",
-                    run.RunId);
-            }
-        }
-    }
-
-    private static byte[] SerializeAuthorityRunCompletedPayload(RunRecord run, Guid manifestId, ScopeContext scope)
-    {
-        return JsonSerializer.SerializeToUtf8Bytes(
-            new
-            {
-                schemaVersion = 1,
-                runId = run.RunId,
-                manifestId,
-                tenantId = scope.TenantId,
-                workspaceId = scope.WorkspaceId,
-                projectId = scope.ProjectId,
-            });
     }
 
     private static string BuildAuthorityRunCompletedMessageId(Guid runId)

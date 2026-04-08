@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/governance-approval-submitted.v1.schema.json",
+  "title": "com.archlucid.governance.approval.submitted",
+  "description": "Governance approval request persisted (canonical com.archlucid.governance.approval.submitted; legacy com.archiforge.governance.approval.submitted).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "approvalRequestId",
+    "runId",
+    "manifestVersion",
+    "sourceEnvironment",
+    "targetEnvironment",
+    "requestedBy"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "approvalRequestId": { "type": "string" },
+    "runId": { "type": "string" },
+    "manifestVersion": { "type": "string" },
+    "sourceEnvironment": { "type": "string" },
+    "targetEnvironment": { "type": "string" },
+    "requestedBy": { "type": "string" }
+  },
+  "additionalProperties": true
+}

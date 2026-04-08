@@ -41,7 +41,7 @@ Events using the outbox today:
 
 | Event type (canonical) | When enqueued |
 |------------------------|---------------|
-| `com.archlucid.authority.run.completed` | Same SQL transaction as authority commit when `SupportsExternalTransaction` |
+| `com.archlucid.authority.run.completed` | Via `OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync` before commit: same SQL transaction as authority commit when `TransactionalOutboxEnabled` and `SupportsExternalTransaction`; otherwise standalone enqueue or best-effort direct publish (same helper as other events) |
 | `com.archlucid.governance.approval.submitted` | After approval request create (standalone SQL connection if no ambient transaction) |
 | `com.archlucid.governance.promotion.activated` | Same transaction as environment activation when `SupportsExternalTransaction`; otherwise standalone enqueue after commit |
 | `com.archlucid.alert.fired` / `com.archlucid.alert.resolved` | After alert row write (standalone enqueue) |
@@ -65,9 +65,24 @@ When the host role is **Worker** and `IntegrationEvents:ConsumerEnabled` is **tr
 
 Module: **`infra/terraform-servicebus`** — namespace (Standard), topic with duplicate detection, subscriptions `archlucid-worker` and `archlucid-external`, optional private endpoint variables, RBAC Sender/Receiver. See module `README.md`.
 
+### JSON Schema catalog
+
+Individual event payload schemas are published as [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/schema) files under `schemas/integration-events/`:
+
+| Schema file | Event type |
+|-------------|------------|
+| `authority-run-completed.v1.schema.json` | `com.archlucid.authority.run.completed` |
+| `governance-approval-submitted.v1.schema.json` | `com.archlucid.governance.approval.submitted` |
+| `governance-promotion-activated.v1.schema.json` | `com.archlucid.governance.promotion.activated` |
+| `alert-fired.v1.schema.json` | `com.archlucid.alert.fired` |
+| `alert-resolved.v1.schema.json` | `com.archlucid.alert.resolved` |
+| `advisory-scan-completed.v1.schema.json` | `com.archlucid.advisory.scan.completed` |
+
+External consumers can validate inbound Service Bus message bodies against these schemas. Each schema sets `additionalProperties: true` so new fields may appear in payloads without a schema-version bump (same additive contract as `IntegrationEventPayloadContractTests`).
+
 ### Event catalog (canonical types)
 
-Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contracts/archiforge-asyncapi-2.6.yaml`** for structured schemas.
+Payloads use `IntegrationEventJson` (camelCase, omit nulls). See **`docs/contracts/archiforge-asyncapi-2.6.yaml`** for structured schemas (aligned with the JSON Schema files above).
 
 1. **`com.archlucid.authority.run.completed`** — `schemaVersion`, `runId`, `manifestId`, `tenantId`, `workspaceId`, `projectId`
 2. **`com.archlucid.governance.approval.submitted`** — `schemaVersion`, scope ids, `approvalRequestId`, `runId`, `manifestVersion`, `sourceEnvironment`, `targetEnvironment`, `requestedBy`

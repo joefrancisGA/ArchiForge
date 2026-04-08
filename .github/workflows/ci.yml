@@ -156,6 +156,34 @@ jobs:
           fi
           echo "ArchiForge references in .cs are limited to allowlisted Phase 7 / bridge files."
 
+      - name: Guard — no direct IIntegrationEventPublisher.PublishAsync bypasses
+        run: |
+          set +e
+          grep -rn "\.PublishAsync(" --include="*.cs" --exclude-dir=obj --exclude-dir=bin --exclude-dir=.git . > "${RUNNER_TEMP}/pub-hits.txt"
+          rc=$?
+          set -e
+          if [ "$rc" -gt 1 ]; then
+            echo "::error::grep failed while scanning for .PublishAsync( (rc=$rc)"
+            exit 1
+          fi
+          if [ "$rc" -eq 1 ]; then
+            echo "No .PublishAsync( matches in .cs files."
+            exit 0
+          fi
+          HITS=$(grep -v "Tests/" "${RUNNER_TEMP}/pub-hits.txt" \
+            | grep -v "IntegrationEventPublishing.cs" \
+            | grep -v "IntegrationEventOutboxProcessor.cs" \
+            | grep -v "interface IIntegrationEventPublisher" \
+            | grep -v "/// " \
+            || true)
+          if [ -n "$HITS" ]; then
+            echo "::error::Found direct IIntegrationEventPublisher.PublishAsync calls outside authorized locations:"
+            echo "$HITS"
+            echo ""
+            echo "Use OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync instead."
+            exit 1
+          fi
+
       - name: Generate .NET SBOM (CycloneDX)
         run: |
           dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet

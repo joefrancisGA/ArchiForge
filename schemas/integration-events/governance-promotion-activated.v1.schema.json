@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/governance-promotion-activated.v1.schema.json",
+  "title": "com.archlucid.governance.promotion.activated",
+  "description": "Environment activation recorded (canonical com.archlucid.governance.promotion.activated; legacy com.archiforge.governance.promotion.activated).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "activationId",
+    "runId",
+    "manifestVersion",
+    "environment",
+    "activatedBy",
+    "activatedUtc"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "activationId": { "type": "string" },
+    "runId": { "type": "string" },
+    "manifestVersion": { "type": "string" },
+    "environment": { "type": "string" },
+    "activatedBy": { "type": "string" },
+    "activatedUtc": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

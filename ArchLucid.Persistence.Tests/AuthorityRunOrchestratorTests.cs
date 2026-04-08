@@ -199,6 +199,13 @@ public sealed class AuthorityRunOrchestratorTests
                 It.IsAny<IDbTransaction>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+        integrationEvents.Verify(
+            x => x.PublishAsync(
+                IntegrationEventTypes.AuthorityRunCompletedV1,
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                $"{result.RunId:D}:{IntegrationEventTypes.AuthorityRunCompletedV1}",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

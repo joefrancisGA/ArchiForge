@@ -24,6 +24,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\schemas\integration-events\*.v1.schema.json">
+      <Link>schemas\integration-events\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
