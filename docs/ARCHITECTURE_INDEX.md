@@ -6,6 +6,8 @@
   - `docs/V1_SCOPE.md`
 - **V1 release checklist (actionable gates before handoff)** — scope freeze, deploy, health, operator flow, exports, naming, support bundle, recovery, deferrals  
   - `docs/V1_RELEASE_CHECKLIST.md`
+- **V1 deferred / exploratory (doc inventory for intentional scope)** — audit gaps, 59R deferrals, Phase 7 rename, infra polish, `NEXT_REFACTORINGS` boundary  
+  - `docs/V1_DEFERRED.md`
 - **Start here (new contributors)** — canonical front door: layered overview, pick-your-role, key concepts, quick commands  
   - `docs/START_HERE.md`
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  

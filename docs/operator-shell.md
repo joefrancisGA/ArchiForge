@@ -12,8 +12,8 @@ A read-focused **operator shell**: inspect runs, manifests, and synthesized arti
 
 ## Main workflow
 
-1. **Start** — Open the app root (`/`). Use the header **Start & review** group: **Home**, **Runs**, **Graph**, **Compare runs**, **Replay run**.
-2. **Runs** — `Runs` → pick a project (default `default`) → **Open run** on a row.
+1. **Start** — Open the app root (`/`). First-time users: expand **First-run workflow** on Home for a guided checklist (create run → pipeline → commit → artifacts → compare/replay → export); **Hide guide** collapses it (preference in browser `localStorage`). Use the header **Start & review** group anytime: **Home**, **Runs**, **Graph**, **Compare runs**, **Replay run**.
+2. **Runs** — `Runs` → pick a project (default `default`) → **Open run** on a row (empty list shows **Create your first run (wizard)**).
 3. **Run detail** — After commit, you see manifest summary, **Artifacts** (table with **Review** / **Download**), and shortcuts to **Compare** (base = this run) and **Replay**.
 4. **Manifest / artifact** — From the golden manifest link or **Review**, you land on manifest-scoped or artifact review pages: metadata, in-shell preview (when available), raw disclosure, sibling artifact list.
 5. **Compare / replay** — **Compare runs**: enter base (left) and target (right) run IDs; structured manifest deltas first, then legacy flat diff; optional AI explanation. **Replay run**: pick mode and read validation flags/notes.

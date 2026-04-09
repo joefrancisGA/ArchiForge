@@ -265,7 +265,9 @@ function CompareForm() {
         <OperatorEmptyState title="Waiting for both run IDs">
           <p style={{ margin: 0 }}>
             Enter a <strong>base</strong> and <strong>target</strong> run ID before comparing. Query
-            parameters <code>leftRunId</code> and <code>rightRunId</code> prefill these fields.
+            parameters <code>leftRunId</code> and <code>rightRunId</code> prefill these fields. Get IDs from{" "}
+            <Link href="/runs?projectId=default">Runs</Link> or the <strong>Compare runs (base = this run)</strong>{" "}
+            link on run detail.
           </p>
         </OperatorEmptyState>
       )}

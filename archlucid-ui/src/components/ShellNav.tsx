@@ -31,7 +31,7 @@ export function ShellNav() {
       <div style={{ marginBottom: 4 }}>
         <div style={groupLabel}>Start &amp; review</div>
         <nav aria-label="Start and review workflows" style={navRow}>
-          <Link href="/" title="Landing page and workflow overview">
+          <Link href="/" title="Home — first-run workflow checklist and quick links">
             Home
           </Link>
           <Link href="/onboarding" title="Guided operator onboarding checklist">

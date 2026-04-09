@@ -11,15 +11,24 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
+  OperatorFirstRunWorkflowPanel: () => (
+    <div data-testid="first-run-panel-mock" aria-hidden>
+      First-run panel mock
+    </div>
+  ),
+}));
+
 import HomePage from "./page";
 
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders start heading and workflow summary", () => {
+  it("renders start heading and quick links", () => {
     render(<HomePage />);
 
     expect(screen.getByRole("heading", { level: 2, name: "Start here" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Main workflows" })).toBeInTheDocument();
-    expect(screen.getByRole("main").textContent).toContain("review the manifest and artifacts");
+    expect(screen.getByRole("heading", { level: 3, name: "Quick links" })).toBeInTheDocument();
+    expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
+    expect(screen.getByRole("main").textContent).toContain("New to this environment");
   });
 
   it("exposes primary workflow destinations matching shell review paths", () => {

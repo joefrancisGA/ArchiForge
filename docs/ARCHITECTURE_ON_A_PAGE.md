@@ -72,8 +72,8 @@ flowchart LR
 
 ## 8. Operational considerations
 
-- **Smoke:** CD workflows hit **`/health/live`** plus optional second path (default **`/version`**) via repository variable **`SMOKE_SYNTHETIC_PATH`**.
-- **Rollback:** Container Apps revision deactivation when **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is true (see workflow comments in `.github/workflows/cd.yml`).
+- **Post-deploy validation:** CD runs **`scripts/ci/cd-post-deploy-verify.sh`**: **`/health/live`**, **`/health/ready`** (JSON **`.status` must be `Healthy`**), **`/openapi/v1.json`**, **`/version`**, plus **`SMOKE_SYNTHETIC_PATH`** when not **`/version`** (see **`docs/DEPLOYMENT_CD_PIPELINE.md`**).
+- **Rollback:** Container Apps revision deactivation for **API and worker** when **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is true and the worker app secret is set (see `.github/workflows/cd.yml`).
 - **Metrics:** `infra/prometheus/archlucid-alerts.yml` targets **ArchiForge** meter outbox gauges fed by **`OutboxOperationalMetricsHostedService`**.
 - **Cost / capacity:** see [CAPACITY_AND_COST_PLAYBOOK.md](CAPACITY_AND_COST_PLAYBOOK.md).
 

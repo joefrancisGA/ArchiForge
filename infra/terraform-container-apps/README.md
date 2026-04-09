@@ -78,3 +78,7 @@ terraform apply
 ## CI
 
 This directory is included in **`.github/workflows/ci.yml`** (`terraform init -backend=false`, `validate`, `fmt -check`).
+
+## CD (image rollouts)
+
+After `terraform apply` created the Container Apps, routine releases usually **push** new image tags to ACR and run **`az containerapp update --image`** for the API, worker (same `archlucid-api:<tag>` image as the API app), and UI. Configure GitHub Environments and secrets per **`docs/DEPLOYMENT_CD_PIPELINE.md`** (workflow **`.github/workflows/cd.yml`**).

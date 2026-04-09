@@ -25,6 +25,9 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
         using JsonDocument doc = JsonDocument.Parse(body);
         JsonElement root = doc.RootElement;
 
+        // CD script scripts/ci/cd-post-deploy-verify.sh expects top-level status (summary writer).
+        root.GetProperty("status").GetString().Should().NotBeNullOrWhiteSpace();
+
         root.TryGetProperty("version", out _).Should().BeFalse("anonymous readiness must not expose build version");
         root.TryGetProperty("commitSha", out _).Should().BeFalse();
         root.TryGetProperty("totalDurationMs", out _).Should().BeFalse();

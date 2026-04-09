@@ -19,16 +19,28 @@ export default function OnboardingPage() {
 
       <ol style={{ maxWidth: 720, lineHeight: 1.8, color: "#1e293b", paddingLeft: 22 }}>
         <li style={{ marginBottom: 14 }}>
+          <strong>Walk the in-app checklist.</strong> On{" "}
+          <Link href="/" title="Home with first-run workflow">
+            Home
+          </Link>
+          , expand <strong>First-run workflow</strong> for step-by-step links (create run → commit → artifacts →
+          compare/replay → export).
+        </li>
+        <li style={{ marginBottom: 14 }}>
           <strong>Confirm API reachability.</strong> Ensure the UI proxy can reach the API (see{" "}
           <code>docs/TROUBLESHOOTING.md</code> in the repo). Run a health check from your deployment pipeline if
           applicable.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Open your first run.</strong>{" "}
+          <Link href="/runs/new" title="Create a run with the wizard">
+            New run
+          </Link>{" "}
+          or{" "}
           <Link href="/runs?projectId=default" title="Browse runs for the default project">
-            Go to Runs
+            Runs
           </Link>
-          , pick a run, and review manifest and artifacts from run detail.
+          , then review manifest and artifacts from run detail after commit.
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Trace provenance.</strong> From a known run ID, use{" "}

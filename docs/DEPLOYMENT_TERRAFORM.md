@@ -73,6 +73,7 @@ flowchart LR
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
 - **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchLucid.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.
 - **Image scanning:** CI runs **Trivy** on container images and Terraform directories — extend with registry gates and Defender for Containers per org policy.
+- **CD:** After the stack exists, routine image rollouts are described in **`docs/DEPLOYMENT_CD_PIPELINE.md`** (ACR push + Container App revision updates). Reconcile tfvars image pins when you run **`terraform apply`** so Terraform does not overwrite CLI-pushed tags unintentionally.
 
 ## Related docs
 

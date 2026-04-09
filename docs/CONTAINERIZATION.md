@@ -8,8 +8,8 @@ Provide production-ready Docker images for the **ArchLucid** API and Operator UI
 
 - Docker Desktop (or equivalent) is installed locally.
 - .NET 10 SDK and Node 22 are the current build toolchains.
-- Azure Container Registry (ACR) will be the production image store (not yet provisioned).
-- The deployment target (App Service containers, ACI, AKS) has not been finalised; these Dockerfiles are target-agnostic.
+- Azure Container Registry (ACR) is the intended production image store; provision a registry in your subscription and wire **`ACR_LOGIN_SERVER`** (and related secrets) on the GitHub **staging** / **production** environments for **[DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)**.
+- The reference Azure path is **Container Apps** via **`infra/terraform-container-apps`**; these Dockerfiles remain target-agnostic for other hosts.
 
 ## Constraints
 
@@ -71,7 +71,7 @@ docker compose --profile full-stack up -d --build
 
 ### Workflow 3 — Azure deployment
 
-Same images pushed to ACR, deployed via **Terraform** roots under `infra/terraform-*` (see **`docs/DEPLOYMENT_TERRAFORM.md`**). The Dockerfiles do not change; only the infrastructure-as-code layer wraps them.
+Same images pushed to ACR. **First-time** provisioning uses **Terraform** under `infra/terraform-*` (see **`docs/DEPLOYMENT_TERRAFORM.md`**). **Ongoing releases** typically use **GitHub Actions CD** (`.github/workflows/cd.yml`) to push tags and `az containerapp update` the API, worker (same API image), and UI—see **`docs/DEPLOYMENT_CD_PIPELINE.md`**. The Dockerfiles do not change between those paths.
 
 ---
 

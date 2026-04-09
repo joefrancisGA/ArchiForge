@@ -16,6 +16,8 @@
 
 For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md), [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md), and [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md).
 
+**Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
+
 ---
 
 ## 2. In scope for V1
@@ -133,6 +135,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | Doc | Use |
 |-----|-----|
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
+| [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
 | [PILOT_GUIDE.md](PILOT_GUIDE.md) | Pilot onboarding narrative |
 | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Command-oriented operator entry |
 | [operator-shell.md](operator-shell.md) | UI workflows and API expectations |

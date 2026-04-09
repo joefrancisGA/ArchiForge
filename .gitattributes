@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# Bash scripts run on ubuntu-latest in GitHub Actions; LF avoids CRLF/shebang issues.
+*.sh text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

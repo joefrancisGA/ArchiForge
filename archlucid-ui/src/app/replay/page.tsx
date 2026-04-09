@@ -97,7 +97,8 @@ function ReplayForm() {
       {!runId && (
         <OperatorEmptyState title="Waiting for a run ID">
           <p style={{ margin: 0 }}>
-            Enter the run to replay, or open this page with <code>?runId=…</code> in the URL.
+            Enter the run to replay, open this page with <code>?runId=…</code>, or go from{" "}
+            <Link href="/runs?projectId=default">Runs</Link> → run detail → <strong>Replay this run</strong>.
           </p>
         </OperatorEmptyState>
       )}

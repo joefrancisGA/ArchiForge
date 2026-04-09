@@ -17,9 +17,9 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 
 ## Application deployment
 
-1. **Build and publish** the API image (or package) from **`ArchLucid.Api`** using your pipeline; tag with an immutable version.
+1. **Build and publish** the API image (or package) from **`ArchLucid.Api`** using your pipeline; tag with an immutable version. The same Docker image also carries **`ArchLucid.Worker.dll`** for Azure Container Apps worker revisions (see **`docs/CONTAINERIZATION.md`**).
 2. **Run database migrations** with **DbUp** (`ArchLucid.Persistence.Data.Infrastructure.DatabaseMigrator`) against the target database **before** or **in lockstep** with rolling out the API version that requires new schema. See **`docs/runbooks/MIGRATION_ROLLBACK.md`** for failure handling.
-3. **Roll out** the new API revision (App Service slot swap, AKS rolling update, etc.). Prefer **health-checked** deployments so readiness fails if SQL or required config is wrong.
+3. **Roll out** the new API revision (App Service slot swap, Container Apps `az containerapp update`, AKS rolling update, etc.). Prefer **health-checked** deployments so readiness fails if SQL or required config is wrong. For GitHub Actions–driven Azure Container Apps, use **[DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)** (build → push to ACR → update API, optional worker and UI apps → smoke).
 4. **Smoke** critical paths: architecture run create → execute → commit, comparison replay (if enabled), governance endpoints if used.
 
 ## Rollback
@@ -36,6 +36,8 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 | RTO/RPO targets by tier (dev / staging / production) | [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) |
 | Azure SQL HA, failover, RPO/RTO | [runbooks/DATABASE_FAILOVER.md](runbooks/DATABASE_FAILOVER.md) |
 | Terraform roots and environments | [infra/README.md](../infra/README.md) |
+| GitHub Actions CD (ACR, Container Apps, optional Terraform) | [DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md) |
+| Failed deploy / manual rollback (operators) | [DEPLOYMENT_RUNBOOK.md](DEPLOYMENT_RUNBOOK.md) |
 | Containers and compose profiles | [CONTAINERIZATION.md](CONTAINERIZATION.md) |
 | Build and test | [BUILD.md](BUILD.md) |
 | Storage provider semantics | [adr/0011-inmemory-vs-sql-storage-provider.md](adr/0011-inmemory-vs-sql-storage-provider.md) |

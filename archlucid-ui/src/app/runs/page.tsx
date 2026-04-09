@@ -87,11 +87,30 @@ export default async function RunsPage({
       )}
 
       {loadFailure === null && !malformedMessage && runs.length === 0 && (
-        <OperatorEmptyState title="No runs in this project">
+        <OperatorEmptyState title="No runs in this project yet">
           <p style={{ margin: 0 }}>
-            There are no runs for this project and query yet (valid empty result). Create a run via
-            the API or CLI, then refresh. See <code>docs/CLI_USAGE.md</code>.{" "}
-            <Link href="/">Back to home</Link>.
+            This is a valid empty list — start with a guided request, or create runs via API/CLI and refresh.
+          </p>
+          <p style={{ margin: "14px 0 0" }}>
+            <Link
+              href="/runs/new"
+              style={{
+                display: "inline-block",
+                padding: "10px 18px",
+                background: "#0f766e",
+                color: "#fff",
+                borderRadius: 8,
+                fontWeight: 600,
+                textDecoration: "none",
+                fontSize: 14,
+              }}
+            >
+              Create your first run (wizard)
+            </Link>
+          </p>
+          <p style={{ margin: "12px 0 0", fontSize: 14, color: "#64748b" }}>
+            CLI/API: <code>docs/CLI_USAGE.md</code> · <Link href="/">Home workflow</Link> ·{" "}
+            <Link href="/onboarding">Onboarding</Link>
           </p>
         </OperatorEmptyState>
       )}

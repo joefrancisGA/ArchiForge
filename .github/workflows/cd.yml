@@ -8,9 +8,11 @@
 #   TF_WORKING_DIRECTORY — optional, e.g. infra/terraform-container-apps (copy .example tfvars to terraform.tfvars / production.tfvars)
 #   NUGET_API_KEY — optional; pushes ArchLucid.Api.Client when set (production path)
 #   AZURE_RESOURCE_GROUP, CONTAINER_APP_API_NAME — optional; `az containerapp update` after image push
+#   CONTAINER_APP_WORKER_NAME — optional; worker uses the same image as the API (ArchLucid.Api Dockerfile publishes Worker.dll; CA command is already set in Terraform)
 #   CONTAINER_APP_UI_NAME — optional second Container App for the UI image
-#   SMOKE_TEST_BASE_URL — optional; health + OpenAPI + synthetic path checks after deploy
-#   SMOKE_SYNTHETIC_PATH — optional (default /version)
+#   SMOKE_TEST_BASE_URL — optional; post-deploy validation (see scripts/ci/cd-post-deploy-verify.sh)
+#   SMOKE_SYNTHETIC_PATH — optional extra path after /version (default /version); must return HTTP 200 if not /version
+#   CD_POST_DEPLOY_MAX_ATTEMPTS / CD_POST_DEPLOY_RETRY_WAIT_SECONDS — optional repo vars for retry loop (cold start)
 #   CD_NOTIFY_WEBHOOK_URL — optional Slack-compatible JSON webhook
 #
 # Rollback: set repository variable CD_ROLLBACK_ON_SMOKE_FAILURE=true to deactivate the new API revision when smoke fails.
@@ -276,6 +278,9 @@ jobs:
       revision_before: ${{ steps.api_rev_before.outputs.revision }}
       revision_after: ${{ steps.api_rev_after.outputs.revision }}
       api_rev_before_skip: ${{ steps.api_rev_before.outputs.skip }}
+      worker_revision_before: ${{ steps.worker_rev_before.outputs.revision }}
+      worker_revision_after: ${{ steps.worker_rev_after.outputs.revision }}
+      worker_rev_before_skip: ${{ steps.worker_rev_before.outputs.skip }}
     env:
       IMAGE_TAG: ${{ needs.build-push-images.outputs.image_tag }}
     steps:
@@ -300,12 +305,27 @@ jobs:
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
           echo "skip=false" >> "$GITHUB_OUTPUT"
 
+      - name: Record worker revision before Container Apps update
+        id: worker_rev_before
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
       - name: Update Azure Container Apps (optional)
         id: containerapp_update
         env:
           ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
           CONTAINER_APP_UI_NAME: ${{ secrets.CONTAINER_APP_UI_NAME }}
         run: |
           if [ -z "${ACR_LOGIN_SERVER:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_API_NAME:-}" ]; then
@@ -314,6 +334,9 @@ jobs:
           fi
           API_IMAGE="${ACR_LOGIN_SERVER}/archlucid-api:${IMAGE_TAG}"
           az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --image "$API_IMAGE"
+          if [ -n "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+            az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --image "$API_IMAGE"
+          fi
           if [ -n "${CONTAINER_APP_UI_NAME:-}" ]; then
             UI_IMAGE="${ACR_LOGIN_SERVER}/archlucid-ui:${IMAGE_TAG}"
             az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE"
@@ -332,40 +355,43 @@ jobs:
           REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
           echo "revision=$REV" >> "$GITHUB_OUTPUT"
 
+      - name: Record worker revision after update
+        id: worker_rev_after
+        env:
+          AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
+        run: |
+          if [ -z "${AZURE_RESOURCE_GROUP:-}" ] || [ -z "${CONTAINER_APP_WORKER_NAME:-}" ]; then
+            echo "revision=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          REV=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
+          echo "revision=$REV" >> "$GITHUB_OUTPUT"
+
   smoke-test:
-    name: Smoke test (${{ github.event.inputs.target }})
+    name: Post-deploy validation (${{ github.event.inputs.target }})
     needs: deploy-container-apps
     if: github.event.inputs.action == 'deploy' && needs.deploy-container-apps.result == 'success'
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.target }}
     steps:
-      - name: Smoke test deployed API (optional)
+      - name: Post-deploy validation (health, readiness, OpenAPI, version)
         id: smoke_api
         env:
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
           SMOKE_SYNTHETIC_PATH: ${{ vars.SMOKE_SYNTHETIC_PATH }}
+          CD_POST_DEPLOY_MAX_ATTEMPTS: ${{ vars.CD_POST_DEPLOY_MAX_ATTEMPTS }}
+          CD_POST_DEPLOY_RETRY_WAIT_SECONDS: ${{ vars.CD_POST_DEPLOY_RETRY_WAIT_SECONDS }}
         run: |
           if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "SMOKE_TEST_BASE_URL not set — skipping smoke test."
+            echo "SMOKE_TEST_BASE_URL not set — skipping post-deploy validation."
             exit 0
           fi
-          BASE="${SMOKE_TEST_BASE_URL%/}"
-          curl -fsS "$BASE/health/ready" -o /dev/null
-          curl -fsS "$BASE/health/live" -o /dev/null
-          OPENAPI_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE/openapi/v1.json")
-          if [ "$OPENAPI_CODE" != "200" ]; then
-            echo "Expected HTTP 200 from /openapi/v1.json, got $OPENAPI_CODE"
-            exit 1
-          fi
-          SYN="${SMOKE_SYNTHETIC_PATH:-/version}"
-          case "$SYN" in
-            /*) ;;
-            *) SYN="/$SYN" ;;
-          esac
-          curl -fsS "$BASE$SYN" -o /dev/null
+          chmod +x scripts/ci/cd-post-deploy-verify.sh
+          bash scripts/ci/cd-post-deploy-verify.sh "${SMOKE_TEST_BASE_URL}" "${SMOKE_SYNTHETIC_PATH:-/version}"
 
   rollback:
-    name: Roll back API after failed smoke (optional)
+    name: Roll back API/worker after failed smoke (optional)
     needs: [deploy-container-apps, smoke-test]
     if: |
       always() &&
@@ -385,6 +411,7 @@ jobs:
         env:
           AZURE_RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           CONTAINER_APP_API_NAME: ${{ secrets.CONTAINER_APP_API_NAME }}
+          CONTAINER_APP_WORKER_NAME: ${{ secrets.CONTAINER_APP_WORKER_NAME }}
           SMOKE_TEST_BASE_URL: ${{ secrets.SMOKE_TEST_BASE_URL }}
         run: |
           if [ "${{ vars.CD_ROLLBACK_ON_SMOKE_FAILURE }}" != "true" ]; then
@@ -392,24 +419,39 @@ jobs:
             exit 0
           fi
           if [ "${{ needs.deploy-container-apps.outputs.api_rev_before_skip }}" = "true" ]; then
-            echo "No API app context — skipping rollback."
+            echo "No API app context — skipping API rollback."
+          else
+            if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
+              echo "Smoke URL missing — not rolling back API."
+            else
+              BEFORE="${{ needs.deploy-container-apps.outputs.revision_before }}"
+              AFTER="${{ needs.deploy-container-apps.outputs.revision_after }}"
+              if [ -z "$AFTER" ]; then
+                AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+              fi
+              if [ -n "$AFTER" ] && [ "$AFTER" != "$BEFORE" ]; then
+                echo "Smoke failed — deactivating API revision $AFTER (revision before deploy was $BEFORE)."
+                az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$AFTER"
+              else
+                echo "No distinct new API revision; skipping API rollback."
+              fi
+            fi
+          fi
+          if [ "${{ needs.deploy-container-apps.outputs.worker_rev_before_skip }}" = "true" ]; then
+            echo "No worker app context — skipping worker rollback."
             exit 0
           fi
-          if [ -z "${SMOKE_TEST_BASE_URL:-}" ]; then
-            echo "Smoke URL missing — not rolling back."
-            exit 0
+          WBEFORE="${{ needs.deploy-container-apps.outputs.worker_revision_before }}"
+          WAFTER="${{ needs.deploy-container-apps.outputs.worker_revision_after }}"
+          if [ -z "$WAFTER" ]; then
+            WAFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --query "properties.latestRevisionName" -o tsv)
           fi
-          BEFORE="${{ needs.deploy-container-apps.outputs.revision_before }}"
-          AFTER="${{ needs.deploy-container-apps.outputs.revision_after }}"
-          if [ -z "$AFTER" ]; then
-            AFTER=$(az containerapp show -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --query "properties.latestRevisionName" -o tsv)
+          if [ -n "$WAFTER" ] && [ "$WAFTER" != "$WBEFORE" ]; then
+            echo "Deactivating worker revision $WAFTER (revision before deploy was $WBEFORE)."
+            az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_WORKER_NAME" --revision "$WAFTER"
+          else
+            echo "No distinct new worker revision; skipping worker rollback."
           fi
-          if [ -z "$AFTER" ] || [ "$AFTER" = "$BEFORE" ]; then
-            echo "No distinct new revision; skipping rollback."
-            exit 0
-          fi
-          echo "Smoke failed — deactivating revision $AFTER (revision before deploy was $BEFORE)."
-          az containerapp revision deactivate -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_API_NAME" --revision "$AFTER"
 
   manual-rollback:
     name: Manual rollback (${{ github.event.inputs.target }})

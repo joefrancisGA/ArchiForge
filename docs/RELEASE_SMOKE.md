@@ -115,12 +115,17 @@ With **`-SkipE2E`**, Playwright still runs **after** the UI block (if any); use 
 
 ## CD synthetic smoke (GitHub → Azure Container Apps)
 
-GitHub Actions workflows **`.github/workflows/cd.yml`** and **`cd-staging-on-merge.yml`** optionally call the deployed API after image update:
+GitHub Actions workflows **`.github/workflows/cd.yml`** and **`cd-staging-on-merge.yml`** run **post-deploy validation** when **`SMOKE_TEST_BASE_URL`** is set on the environment. The implementation is **`scripts/ci/cd-post-deploy-verify.sh`** (documented in **`docs/DEPLOYMENT_CD_PIPELINE.md`**):
 
-1. **`GET {SMOKE_TEST_BASE_URL}/health/live`**
-2. **`GET {SMOKE_TEST_BASE_URL}{SMOKE_SYNTHETIC_PATH}`** — repository/org variable **`SMOKE_SYNTHETIC_PATH`** defaults to **`/version`** when unset (anonymous build info). Override if your ingress only exposes another path (e.g. a synthetic probe route).
+1. **`GET …/health/live`** — HTTP **200**; response excerpt logged on failure.
+2. **`GET …/health/ready`** — HTTP **200** and JSON **`.status` must be `"Healthy"`** (not merely “reachable”); per-check **`entries[].status`** lines are printed when the overall status is not Healthy.
+3. **`GET …/openapi/v1.json`** — HTTP **200** (fails closed if the host does not expose OpenAPI in that environment).
+4. **`GET …/version`** — HTTP **200**; full version JSON logged in compact form for traceability.
+5. **`GET …{SMOKE_SYNTHETIC_PATH}`** when that path is not **`/version`** — HTTP **200**.
 
-If either request fails and **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is **true**, the workflow attempts to **deactivate the new API revision** so traffic can fall back to the previous revision (see workflow comments for Azure CLI prerequisites). This is **not** a substitute for full **release-smoke** above — it is a **fast post-deploy availability** check.
+Optional retries: repository variables **`CD_POST_DEPLOY_MAX_ATTEMPTS`** and **`CD_POST_DEPLOY_RETRY_WAIT_SECONDS`**.
+
+If validation fails and **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is **true**, the workflow attempts to **deactivate the new API revision** and, when **`CONTAINER_APP_WORKER_NAME`** is configured, the **worker** revision updated in the same deploy. This is **not** a substitute for full **release-smoke** above — it is an **automated gate** after deploy with logs aimed at first-line diagnosis.
 
 ---
 

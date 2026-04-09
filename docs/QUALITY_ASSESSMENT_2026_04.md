@@ -64,22 +64,22 @@
 
 ### 2. Deployability — 48 / 100
 
-**Justification**: CI is excellent (multi-tier tests, IaC validation, SBOMs, vulnerability scanning, container builds). However, CD is explicitly a **placeholder** — no actual deployment pipeline exists. There is no automated staging or production deployment, no blue/green or canary strategy, no rollback automation. The Terraform stacks are validated but never applied in any workflow. Container images are built for smoke testing but never pushed to a registry.
+**Justification**: CI is excellent (multi-tier tests, IaC validation, SBOMs, vulnerability scanning, container builds). **CD** (`.github/workflows/cd.yml`) is a **real** path when operators configure GitHub Environments: **Azure OIDC**, **ACR push** for API/UI images, optional **Terraform plan/apply**, **`az containerapp update`** for API + optional **worker** (same image as API) + UI, **smoke** (`/health/ready`, OpenAPI, `/version`), optional **revision rollback**, optional **NuGet** push. **Terraform apply** remains opt-in per run (`run_terraform_apply`); stacks are still not auto-applied on every merge by default. Optional **staging on merge** (`cd-staging-on-merge.yml`) deploys when `AUTO_DEPLOY_STAGING_MERGE=true`.
 
 **Evidence**:
-- `.github/workflows/cd.yml`: `echo "CD scaffold"` placeholder steps, `docker build` smoke only.
-- No `azure/login`, no `terraform apply`, no registry push in any workflow.
-- 9 Terraform stacks validated but none applied automatically.
+- `.github/workflows/cd.yml`: multi-job pipeline (see **`docs/DEPLOYMENT_CD_PIPELINE.md`**).
+- `azure/login@v2`, `docker/build-push-action` push to ACR when secrets set; optional `terraform apply` from saved plan; Container Apps CLI updates.
+- 9 Terraform stacks validated in CI; apply is manual / workflow_dispatch-gated, not implicit on every PR.
 - Dockerfiles are well-optimized (multi-stage, non-root, healthchecks).
 - `docker-compose.yml` supports local dev with optional full-stack profile.
 
 **Tradeoffs**: Not automating deployment reduces risk of accidental production changes and keeps infrastructure ops manual. But it means every deployment is a manual, error-prone process.
 
 **Recommendations**:
-1. Wire `cd.yml` to push images to ACR and run `terraform apply` with plan-and-approve gates.
-2. Implement blue/green deployment using Container Apps revisions.
-3. Add automated rollback on health check failure post-deploy.
-4. Add environment-scoped secrets and `OIDC` federated credentials for Azure login.
+1. Turn on **staging** / **production** environment secrets in GitHub and run manual CD to validate end-to-end; keep `terraform apply` behind reviewers.
+2. Optional blue/green or canary traffic splits on Container Apps when the program needs them (not required for V1).
+3. Tune **`CD_ROLLBACK_ON_SMOKE_FAILURE`** and smoke URL coverage per ingress (APIM may need to expose `/openapi/v1.json`).
+4. Registry vulnerability gates (Defender for Containers, admission policies) per org standards.
 
 ---
 

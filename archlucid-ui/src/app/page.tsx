@@ -1,47 +1,45 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
+
 export const metadata: Metadata = {
   title: "Home",
 };
 
-/** Landing page: short orientation and links into the main operator workflows. */
+/** Landing page: first-run workflow panel plus compact links into operator areas. */
 export default function HomePage() {
   return (
     <main>
       <h2 style={{ marginBottom: 8 }}>Start here</h2>
-      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
-        Use <Link href="/runs?projectId=default">Runs</Link> to open a run, then review the manifest and
-        artifacts, download exports, or jump to <strong>Compare</strong> and <strong>Replay</strong> from run
-        detail. Use <Link href="/graph">Graph</Link> when you already have a run ID and need a visual view
-        of provenance or architecture.
+      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55, marginBottom: 16 }}>
+        New to this environment? Use the checklist below. Returning operators can hide it and jump straight to{" "}
+        <Link href="/runs?projectId=default">Runs</Link> or <Link href="/runs/new">New run</Link>.
       </p>
 
-      <section style={{ marginTop: 28 }} aria-labelledby="workflows-heading">
-        <h3 id="workflows-heading" style={{ fontSize: 16, marginBottom: 12 }}>
-          Main workflows
+      <OperatorFirstRunWorkflowPanel />
+
+      <section style={{ marginTop: 8 }} aria-labelledby="quick-links-heading">
+        <h3 id="quick-links-heading" style={{ fontSize: 16, marginBottom: 12 }}>
+          Quick links
         </h3>
         <ul style={{ lineHeight: 1.75, maxWidth: 720, margin: 0, paddingLeft: 20, color: "#334155" }}>
           <li>
-            <Link href="/runs?projectId=default">Runs</Link> — list runs, open detail, artifacts, compare /
-            replay shortcuts, downloads
+            <Link href="/runs?projectId=default">Runs</Link> — list, open detail, manifest, artifacts, exports,
+            compare/replay shortcuts
           </li>
           <li>
-            <Link href="/graph">Graph</Link> — load provenance or architecture graph for a run
+            <Link href="/graph">Graph</Link> — provenance or architecture graph for a run ID
           </li>
           <li>
-            <Link href="/compare">Compare runs</Link> — two-run structured and legacy diff
+            <Link href="/compare">Compare runs</Link> · <Link href="/replay">Replay run</Link>
           </li>
           <li>
-            <Link href="/replay">Replay run</Link> — replay authority chain and validation
+            Ask, search, advisory, <Link href="/planning">planning</Link>, pilot feedback, alerts, and policy tools
+            — header groups above
           </li>
         </ul>
       </section>
-
-      <p style={{ marginTop: 24, fontSize: 14, color: "#64748b", maxWidth: 720 }}>
-        Ask, search, advisory, <Link href="/planning">planning</Link> (59R themes and plans), pilot feedback, alerts, and
-        policy tools live in the header groups above.
-      </p>
     </main>
   );
 }

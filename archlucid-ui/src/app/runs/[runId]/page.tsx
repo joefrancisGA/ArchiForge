@@ -177,10 +177,15 @@ export default async function RunDetailPage({
       {!manifestId && (
         <OperatorEmptyState title="Manifest review not available yet">
           <p style={{ margin: 0 }}>
-            This run has no <strong>golden manifest</strong> (typically before commit). Commit the run
-            through the API or CLI to attach a manifest, then reload for summary, artifacts, and
-            downloads.
+            This run has no <strong>golden manifest</strong> yet (normal before commit). After the pipeline
+            finishes, commit through the <strong>API or CLI</strong>, then reload this page for manifest summary,
+            artifacts, and ZIP exports.
           </p>
+          <ol style={{ margin: "12px 0 0", paddingLeft: 20, fontSize: 14, color: "#475569", lineHeight: 1.6 }}>
+            <li>Confirm authority chain items above are populated (snapshots processing).</li>
+            <li>Commit when ready — examples in <code>docs/OPERATOR_QUICKSTART.md</code>.</li>
+            <li>Reload run detail; the manifest link and Artifacts section will appear.</li>
+          </ol>
         </OperatorEmptyState>
       )}
 

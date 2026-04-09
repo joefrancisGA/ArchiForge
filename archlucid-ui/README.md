@@ -4,6 +4,8 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 
 ## Change Set 55R (operator workflow)
 
+**First-time operators:** open **Home** (`/`) and use the collapsible **First-run workflow** panel (step-by-step links: new run wizard → runs list → commit → artifacts → compare/replay → export). **Hide guide** stores preference in `localStorage` (`archlucid_operator_workflow_guide_v1`).
+
 **End-to-end path:** Home → **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** (or manifest page) → preview + download → optional **Compare runs** / **Replay** / **Graph** from breadcrumbs or run actions.
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
