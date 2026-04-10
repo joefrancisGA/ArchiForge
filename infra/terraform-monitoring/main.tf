@@ -1,3 +1,7 @@
+# NOTE: Resource addresses in this module may still use the historical `archiforge` token to avoid Terraform state disruption.
+# Rename via `terraform state mv` during a planned maintenance window.
+# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+#
 # Log Analytics workspace and daily ingestion cap (daily_quota_gb) are provisioned with the
 # Container Apps stack: see azurerm_log_analytics_workspace in infra/terraform-container-apps/main.tf
 # and variable log_analytics_daily_quota_gb. This monitoring root only ships metric alerts and

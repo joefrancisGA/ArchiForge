@@ -26,7 +26,7 @@ if (-not (Test-Path -LiteralPath $apiDir)) {
     throw "API publish directory does not exist: $ApiPublishDirectory"
 }
 
-$apiDll = Join-Path $apiDir 'ArchiForge.Api.dll'
+$apiDll = Join-Path $apiDir 'ArchLucid.Api.dll'
 $informationalVersion = 'unknown'
 $assemblyVersion = 'unknown'
 $fileVersion = 'unknown'
@@ -99,8 +99,8 @@ if ([string]::IsNullOrWhiteSpace($packagerHost)) {
 
 $metadata = [ordered]@{
     schemaVersion          = '1.1'
-    packageKind            = 'ArchiForge.ReleaseCandidate'
-    application            = 'ArchiForge.Api'
+    packageKind            = 'ArchLucid.ReleaseCandidate'
+    application            = 'ArchLucid.Api'
     informationalVersion   = $informationalVersion
     assemblyVersion        = $assemblyVersion
     fileVersion            = $fileVersion
@@ -133,7 +133,7 @@ foreach ($f in $apiFiles) {
 
 $manifest = [ordered]@{
     schemaVersion  = '1.0'
-    packageKind    = 'ArchiForge.ReleaseHandoff'
+    packageKind    = 'ArchLucid.ReleaseHandoff'
     generatedAtUtc = $buildUtc
     summary        = [ordered]@{
         apiFileCount = $apiFiles.Count
@@ -205,7 +205,7 @@ else {
 }
 
 $handoff = @"
-ArchiForge — release package handoff (RC)
+ArchLucid — release package handoff (RC)
 ==========================================
 
 Build identity
@@ -214,7 +214,7 @@ Build identity
   Packaged at (UTC):     $buildUtc
 
 What is in artifacts/release/
-  api/                 Published ArchiForge.Api (framework-dependent; needs .NET 10 runtime).
+  api/                 Published ArchLucid.Api (framework-dependent; needs .NET 10 runtime).
   metadata.json        Machine-readable build/version fields for support tickets.
   release-manifest.json File list + sizes + layout (for inventory / audits).
   $checksumLine
@@ -223,8 +223,8 @@ What is in artifacts/release/
 Run the API (example)
   cd artifacts/release/api
   set ASPNETCORE_ENVIRONMENT=Production
-  set ConnectionStrings__ArchiForge=<your SQL connection string>
-  dotnet ArchiForge.Api.dll
+  set ConnectionStrings__ArchLucid=<your SQL connection string>
+  dotnet ArchLucid.Api.dll
 
 $uiLine
 

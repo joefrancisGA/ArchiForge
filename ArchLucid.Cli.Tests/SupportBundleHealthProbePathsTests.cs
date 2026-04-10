@@ -55,6 +55,7 @@ public sealed class SupportBundleHealthProbePathsTests
             seen.Should().Contain("/health/live");
             seen.Should().Contain("/health/ready");
             seen.Should().Contain("/health");
+            seen.Should().Contain("/openapi/v1.json");
         }
         finally
         {
@@ -75,11 +76,10 @@ public sealed class SupportBundleHealthProbePathsTests
             string json;
 
             if (string.Equals(path, "/version", StringComparison.Ordinal))
-            
                 json = """{"application":"ArchLucid.Api","informationalVersion":"1.0-test"}""";
-            
+            else if (string.Equals(path, "/openapi/v1.json", StringComparison.Ordinal))
+                json = """{"openapi":"3.0.1","info":{"title":"t"}}""";
             else
-            
                 json = """{"status":"Healthy"}""";
             
 

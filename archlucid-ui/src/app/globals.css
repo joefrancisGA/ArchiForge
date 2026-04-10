@@ -12,6 +12,53 @@ body {
   @apply bg-neutral-50 text-neutral-900 antialiased;
 }
 
+/* Skip link: first focusable control; moves focus into page content (see layout `#main-content`). */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 50;
+  padding: 0.5rem 1rem;
+  background-color: #0f172a;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.375rem;
+}
+
+.skip-to-main:focus {
+  left: 1rem;
+  top: 1rem;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Header nav: keyboard focus must be visible (links are not shadcn Button). */
+.shell-nav-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.125rem;
+}
+
+/* Teal CTA-style links in the first-run panel */
+.workflow-primary-action:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 3px;
+}
+
+.workflow-inline-link:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+  border-radius: 0.125rem;
+}
+
+/* Auth strip controls are custom-styled; match shell focus affordance */
+.auth-panel-focus:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 a {
   color: inherit;
 }

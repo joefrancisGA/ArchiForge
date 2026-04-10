@@ -1,3 +1,5 @@
+using ArchLucid.Cli;
+
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -23,7 +25,7 @@ public sealed class ArchLucidConfigTests
                              "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
                            }
                            """;
-        File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), validJson);
+        File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "inputs"));
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
         File.WriteAllText(Path.Combine(temp.Path, "inputs", "brief.md"), "# Brief");
@@ -49,14 +51,14 @@ public sealed class ArchLucidConfigTests
         Func<ArchLucidProjectScaffolder.ArchLucidCliConfig> act = () => ArchLucidProjectScaffolder.LoadConfig(temp.Path);
 
         act.Should().Throw<FileNotFoundException>()
-            .WithMessage("*archiforge.json*");
+            .WithMessage("*" + ArchLucidProjectScaffolder.CliManifestFileName + "*");
     }
 
     [Fact]
     public void LoadConfig_InvalidJson_ThrowsInvalidDataException()
     {
         using TempDirectory temp = new();
-        File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), "{ invalid json }");
+        File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), "{ invalid json }");
 
         Func<ArchLucidProjectScaffolder.ArchLucidCliConfig> act = () => ArchLucidProjectScaffolder.LoadConfig(temp.Path);
 
@@ -77,7 +79,7 @@ public sealed class ArchLucidConfigTests
                              "infra": { "terraform": { "enabled": false, "path": "infra/terraform" } }
                            }
                            """;
-        File.WriteAllText(Path.Combine(temp.Path, "archiforge.json"), validJson);
+        File.WriteAllText(Path.Combine(temp.Path, ArchLucidProjectScaffolder.CliManifestFileName), validJson);
         Directory.CreateDirectory(Path.Combine(temp.Path, "plugins"));
         File.WriteAllText(Path.Combine(temp.Path, "plugins", "plugin-lock.json"), "{}");
         // Do not create inputs/brief.md

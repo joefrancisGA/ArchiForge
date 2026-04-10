@@ -131,6 +131,70 @@ public sealed class SqlRunRepository(
         return rows.ToList();
     }
 
+    public async Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+        ScopeContext scope,
+        string projectId,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        int safeSkip = Math.Max(skip, 0);
+
+        const string countSql = """
+            SELECT COUNT(1)
+            FROM dbo.Runs
+            WHERE ProjectId = @ProjectSlug
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ScopeProjectId = @ScopeProjectId
+              AND ArchivedUtc IS NULL;
+            """;
+
+        const string pageSql = """
+            SELECT
+                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
+            FROM dbo.Runs
+            WHERE ProjectId = @ProjectSlug
+              AND TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ScopeProjectId = @ScopeProjectId
+              AND ArchivedUtc IS NULL
+            ORDER BY CreatedUtc DESC
+            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
+            """;
+
+        object scopeParams = new
+        {
+            ProjectSlug = projectId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId
+        };
+
+        object pageParams = new
+        {
+            ProjectSlug = projectId,
+            scope.TenantId,
+            scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            Skip = safeSkip,
+            Take = safeTake
+        };
+
+        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+        int total = await connection.QuerySingleAsync<int>(new CommandDefinition(countSql, scopeParams, cancellationToken: ct));
+
+        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(pageSql, pageParams, cancellationToken: ct));
+
+        return (rows.ToList(), total);
+    }
+
     public async Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,
@@ -214,16 +278,24 @@ public sealed class SqlRunRepository(
     }
 
     /// <inheritdoc />
-    public async Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
     {
         const string sql = """
             UPDATE dbo.Runs
             SET ArchivedUtc = SYSUTCDATETIME()
+            OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
             WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff;
             """;
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
-        return await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct));
+        List<ArchivedRunScopeRow> rows = (await connection.QueryAsync<ArchivedRunScopeRow>(
+                new CommandDefinition(sql, new { Cutoff = cutoffUtc.UtcDateTime }, cancellationToken: ct)))
+            .ToList();
+
+        return new RunArchiveBatchResult
+        {
+            UpdatedCount = rows.Count,
+            ArchivedRuns = rows
+        };
     }
 }

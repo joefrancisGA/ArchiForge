@@ -17,30 +17,46 @@
 
 | Artifact | Location | Purpose |
 |----------|----------|---------|
-| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. |
+| OpenAPI (Microsoft document) | Served at **`/openapi/v1.json`**; snapshot in **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** | CI fails on unexpected HTTP contract drift (`OpenApiContractSnapshotTests`). Regenerate: `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests`. |
 | OpenAPI (Swashbuckle) | **`/swagger/v1/swagger.json`** | Interactive docs and optional APIM import (`infra/terraform`). |
 | AsyncAPI (webhooks) | **`docs/contracts/archlucid-asyncapi-2.6.yaml`** | Documents **outbound** alert/digest webhook JSON and optional HMAC header. |
 | Bruno collection | **`contracts/bruno/`** | Manual smoke requests (health, OpenAPI, admin diagnostics); set **`local`** environment `baseUrl` and **`apiKey`** (or switch auth to JWT in Bruno for Entra). |
 
 **Operator narrative:** `docs/ONBOARDING_HAPPY_PATH.md` (request → commit → retrieval). **Consistency guarantees:** `docs/DATA_CONSISTENCY_MATRIX.md`. **Admin / runbooks:** `docs/OPERATIONS_ADMIN.md`, `docs/OPERATIONS_LLM_QUOTA.md`. **ADRs:** `docs/adr/README.md`.
 
-## Operator artifacts (`/v1/api/artifacts`)
+## Operator artifacts (`/v1/artifacts`)
 
-- **List** `GET …/manifests/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).
-- **Bundle** `GET …/manifests/{manifestId}/bundle`: **404** with **`#manifest-not-found`** when the manifest is unknown/out of scope; **404** with **`#resource-not-found`** when the manifest exists but there is no bundle or zero artifacts (list may still return `[]`). Use **problem `type` / `title`**, not status code alone.
-- **Descriptor / file download** under `…/artifact/{artifactId}`: manifest must be in scope; missing artifact → **404** **`#resource-not-found`**.
+- **List** `GET /v1/artifacts/manifests/{manifestId}`: **200** with a JSON **array** (possibly empty) when the manifest exists in scope. Items are ordered **by name (case-insensitive), then artifact id** (stable for UI tables and bundle ZIP entry order).
+- **Bundle** `GET /v1/artifacts/manifests/{manifestId}/bundle`: **404** with **`#manifest-not-found`** when the manifest is unknown/out of scope; **404** with **`#resource-not-found`** when the manifest exists but there is no bundle or zero artifacts (list may still return `[]`). Use **problem `type` / `title`**, not status code alone.
+- **Run export ZIP** `GET /v1/artifacts/runs/{runId}/export`: committed run only; see OpenAPI for response shape.
+- **Descriptor / file download** under `/v1/artifacts/manifests/{manifestId}/artifact/{artifactId}` (and `…/descriptor`): manifest must be in scope; missing artifact → **404** **`#resource-not-found`**.
 
 UI alignment: **`docs/operator-shell.md`**.
+
+## List pagination (runs and alerts)
+
+Several list endpoints support **two response shapes** so existing clients keep working:
+
+| Query | Response shape | Notes |
+|-------|----------------|--------|
+| **`GET /v1/authority/projects/{projectId}/runs`** with **`take`** only (no **`page`**) | JSON **array** of run summaries | **`take`** clamped **1–200** (default **20**). Newest first. |
+| Same path with **`page`** set | **`PagedResponse&lt;RunSummaryResponse&gt;`**: **`items`**, **`totalCount`**, **`page`**, **`pageSize`**, **`hasMore`** | **`page`** is one-based. **`pageSize`** clamped **1–200** (default **50**, same as **`PaginationDefaults.DefaultPageSize`**). Server uses **`OFFSET`/`FETCH`** (SQL) with a matching **`COUNT`** for **`totalCount`**. |
+| **`GET /v1/alerts`** with **`take`** only (no **`page`**) | JSON **array** of **`AlertRecord`** | **`take`** clamped **1–500** (default **100**). |
+| Same path with **`page`** set | **`PagedResponse&lt;AlertRecord&gt;`** | Same pagination rules as other **`page`**/**`pageSize`** endpoints. |
+
+The operator UI **Runs** page uses **`page`** + **`pageSize`** (legacy **`take`** in the query string is still read as **`pageSize`** when **`pageSize`** is omitted). **Alerts** uses **`page`** + **`pageSize`** from the client.
 
 ## Correlation ID
 
 - Optional request header **`X-Correlation-ID`**: if present, the API echoes it on the response and uses it for logging/tracing context; if absent, a value is generated (e.g. from the ASP.NET Core trace identifier).
+- **`application/problem+json`:** error bodies include **`correlationId`** (same value as **`X-Correlation-ID`**) so operators can triage from saved JSON when headers are missing. The global exception handler still includes legacy **`traceId`** for the same identifier.
+- **Operator UI proxy** (`/api/proxy/*`): proxy-generated errors (bad upstream URL, 413, 502, 429) include **`correlationId`** in the JSON body and **`X-Correlation-ID`** on the response; one-line **`archlucid-ui-proxy`** server logs may repeat **`correlationId`** for log correlation.
 - **Audit rows:** **`IAuditService`** (API host) stamps **`AuditEvent.CorrelationId`** from the **`correlation.id`** tag on the current or ancestor **`Activity`** (same value the middleware sets on the request activity), then falls back to **`HttpContext.TraceIdentifier`**, then the innermost activity id. Background advisory scans use a synthetic id of the form **`advisory-schedule:{scheduleId}`** on the advisory activity so digest/alert audits remain joinable in logs.
 
 ## Problem details (`application/problem+json`) — extensions
 
 - **`extensions.errorCode`**: stable uppercase code for clients and automation.
-- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`RunId`** for deep diagnosis. See **`docs/TROUBLESHOOTING.md`**.
+- **`extensions.supportHint`** (56R): optional, concise **next step** for operators; complements **`detail`**. No stack traces or secrets — use logs with **`X-Correlation-ID`** / **`correlationId`** in the body / **`RunId`** for deep diagnosis. See **`docs/TROUBLESHOOTING.md`**.
 
 ## Comparison replay — verify mode
 
@@ -77,7 +93,7 @@ Swagger documents the comparison replay **422** response, **404** with `#run-not
 
 ### Security schemes (Swashbuckle)
 
-When **`ArchiForgeAuth:Mode`** is **`JwtBearer`**, **`/swagger/v1/swagger.json`** includes **`components.securitySchemes.Bearer`** (HTTP bearer, JWT) and **document-level `security`** defaulting to that scheme, with text derived from **`ArchiForgeAuth:Audience`** and **`ArchiForgeAuth:Authority`** where set (Microsoft Entra). When **`ArchiForgeAuth:Mode`** is **`ApiKey`**, the document includes **`ApiKey`** (**`X-Api-Key`** header). **`DevelopmentBypass`** does not add these schemes (local ergonomics). Schema **ids** use the CLR **full type name** so colliding short names (e.g. two `DecisionTrace` types) do not break generation.
+When **`ArchLucidAuth:Mode`** is **`JwtBearer`**, **`/swagger/v1/swagger.json`** includes **`components.securitySchemes.Bearer`** (HTTP bearer, JWT) and **document-level `security`** defaulting to that scheme, with text derived from **`ArchLucidAuth:Audience`** and **`ArchLucidAuth:Authority`** where set (Microsoft Entra). When **`ArchLucidAuth:Mode`** is **`ApiKey`**, the document includes **`ApiKey`** (**`X-Api-Key`** header). **`DevelopmentBypass`** does not add these schemes (local ergonomics). Schema **ids** use the CLR **full type name** so colliding short names (e.g. two `DecisionTrace` types) do not break generation.
 
 ## Create run — `ArchitectureRequest` (context ingestion fields)
 

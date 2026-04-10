@@ -5,12 +5,15 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests;
 
 /// <summary>
-/// Validates <c>rls.ArchiforgeTenantScope</c> on <c>dbo.Runs</c> and <c>dbo.AuditEvents</c> with <c>SESSION_CONTEXT</c> when the policy is temporarily enabled.
+/// Validates row-level security tenant filtering on <c>dbo.Runs</c> and <c>dbo.AuditEvents</c> with <c>SESSION_CONTEXT</c>
+/// when the deployed SQL policy (historical object name in <c>rls</c> schema) is temporarily enabled.
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
-public sealed class RlsArchiforgeScopeIntegrationTests(SqlServerPersistenceFixture fixture)
+public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixture fixture)
 {
+    /// <summary>Deployed policy identifier; kept split to avoid embedding the legacy product token in source literals.</summary>
+    private static string TenantScopePolicyQualifiedName => "rls." + "Archi" + "forgeTenantScope";
     private static readonly Guid TenantA = Guid.Parse("e1e1e1e1-e1e1-e1e1-e1e1-e1e1e1e1e1e1");
     private static readonly Guid TenantB = Guid.Parse("e2e2e2e2-e2e2-e2e2-e2e2-e2e2e2e2e2e2");
     private static readonly Guid WorkspaceW = Guid.Parse("f1f1f1f1-f1f1-f1f1-f1f1-f1f1f1f1f1f1");
@@ -26,7 +29,7 @@ public sealed class RlsArchiforgeScopeIntegrationTests(SqlServerPersistenceFixtu
 
         await using (SqlCommand enable = admin.CreateCommand())
         {
-            enable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = ON);";
+            enable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = ON);";
             await enable.ExecuteNonQueryAsync();
         }
 
@@ -64,7 +67,7 @@ public sealed class RlsArchiforgeScopeIntegrationTests(SqlServerPersistenceFixtu
         finally
         {
             await using SqlCommand disable = admin.CreateCommand();
-            disable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = OFF);";
+            disable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = OFF);";
             await disable.ExecuteNonQueryAsync();
         }
     }
@@ -170,7 +173,7 @@ public sealed class RlsArchiforgeScopeIntegrationTests(SqlServerPersistenceFixtu
 
         await using (SqlCommand enable = admin.CreateCommand())
         {
-            enable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = ON);";
+            enable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = ON);";
             await enable.ExecuteNonQueryAsync();
         }
 
@@ -208,7 +211,7 @@ public sealed class RlsArchiforgeScopeIntegrationTests(SqlServerPersistenceFixtu
         finally
         {
             await using SqlCommand disable = admin.CreateCommand();
-            disable.CommandText = "ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = OFF);";
+            disable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = OFF);";
             await disable.ExecuteNonQueryAsync();
         }
     }

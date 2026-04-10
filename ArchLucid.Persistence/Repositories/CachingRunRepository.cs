@@ -7,7 +7,9 @@ using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Persistence.Repositories;
 
-/// <summary>Decorates <see cref="IRunRepository"/> with hot-path read caching and evicts on writes.</summary>
+/// <summary>
+/// Decorates <see cref="IRunRepository"/> with hot-path read caching and evicts on single-row writes and after bulk archival.
+/// </summary>
 public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache hotPathReadCache) : IRunRepository
 {
     private readonly IRunRepository _inner = inner ?? throw new ArgumentNullException(nameof(inner));
@@ -46,6 +48,14 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         CancellationToken ct) => _inner.ListByProjectAsync(scope, projectId, take, ct);
 
     /// <inheritdoc />
+    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+        ScopeContext scope,
+        string projectId,
+        int skip,
+        int take,
+        CancellationToken ct) => _inner.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
+
+    /// <inheritdoc />
     public async Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,
@@ -58,8 +68,24 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
-    public Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct) =>
-        _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct);
+    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    {
+        RunArchiveBatchResult batch = await _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct);
+
+        foreach (ArchivedRunScopeRow row in batch.ArchivedRuns)
+        {
+            ScopeContext scope = new()
+            {
+                TenantId = row.TenantId,
+                WorkspaceId = row.WorkspaceId,
+                ProjectId = row.ScopeProjectId
+            };
+
+            await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Run(scope, row.RunId), ct);
+        }
+
+        return batch;
+    }
 
     private static ScopeContext ScopeForRun(RunRecord run) => new()
     {

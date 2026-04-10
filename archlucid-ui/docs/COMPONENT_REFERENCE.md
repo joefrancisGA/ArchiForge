@@ -250,7 +250,7 @@ A bordered card with optional title. Used when a page section needs visual separ
 
 ### Purpose
 
-Shows auth at the top of every page. In **development-bypass** mode, explains that the API auto-authenticates. When **`NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE=jwt`**, shows sign-in / sign-out, OIDC session display name (from JWT payload), and links to **`/auth/signin`**.
+Shows auth at the top of every page. In **development-bypass** mode, explains that the API auto-authenticates. When **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt`**, shows sign-in / sign-out, OIDC session display name (from JWT payload), and links to **`/auth/signin`**.
 
 ---
 
@@ -379,4 +379,4 @@ All return `{ ok: true, value/items }` or `{ ok: false, message }`.
 
 | Export | Purpose |
 |--------|---------|
-| `AUTH_MODE` | Auth mode string from `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` |
+| `AUTH_MODE` | Auth mode string from `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE` |

@@ -42,9 +42,11 @@ export function AuthPanel() {
   if (AUTH_MODE === "development-bypass" || !isJwtAuthMode()) {
     return (
       <div
+        role="region"
+        aria-label="Authentication status"
         style={{
           padding: 12,
-          border: "1px solid #ddd",
+          border: "1px solid #cbd5e1",
           borderRadius: 8,
           marginBottom: 16,
           background: "#fff",
@@ -59,9 +61,11 @@ export function AuthPanel() {
 
   return (
     <div
+      role="region"
+      aria-label="Authentication status"
       style={{
         padding: 12,
-        border: "1px solid #ddd",
+        border: "1px solid #cbd5e1",
         borderRadius: 8,
         marginBottom: 16,
         background: "#fff",
@@ -88,7 +92,9 @@ export function AuthPanel() {
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         {!signedIn ? (
           <Link
+            className="auth-panel-focus"
             href="/auth/signin"
+            aria-label="Sign in with your organization account"
             style={{
               padding: "6px 12px",
               background: "#0f172a",
@@ -103,6 +109,8 @@ export function AuthPanel() {
         ) : (
           <button
             type="button"
+            className="auth-panel-focus"
+            aria-label="Sign out and return to the operator home page"
             onClick={() => void signOutAndRedirectHome()}
             style={{
               padding: "6px 12px",

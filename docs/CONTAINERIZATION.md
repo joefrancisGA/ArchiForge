@@ -119,7 +119,7 @@ The `standalone` output mode copies only the required subset of `node_modules` i
 
 | Control | Implementation |
 |---------|---------------|
-| Non-root user | Both images create an `archiforge` user/group; `USER archiforge` before `ENTRYPOINT`/`CMD` |
+| Non-root user | Both images create an `archlucid` user/group; `USER archlucid` before `ENTRYPOINT`/`CMD` |
 | No dev dependencies | Multi-stage builds discard SDK, test tools, and full `node_modules` |
 | No secrets in image | `.dockerignore` excludes `.env*`, credentials; secrets are injected at runtime via environment variables or mounted config |
 | Minimal OS surface | Alpine base images (~5 MB OS layer) |

@@ -2,6 +2,8 @@
 
 ## Redis (shared cache / hot path)
 
+**Invalidation:** Run `GetById`, golden manifest `GetById`, and policy pack `GetById` are cached when `HotPathCache:Enabled` is true. Writes through the corresponding repositories evict affected keys; **data archival** evicts every run row archived in a batch so archived runs do not linger in cache until TTL. Artifact lists, snapshots, and alert/planning reads are **not** behind this hot-path decorator today.
+
 - **Local / compose**: `docker-compose.yml` runs a single Redis node for development. This is not highly available.
 - **Production**: Use **Azure Cache for Redis** (Standard or Premium with replication) in the same region as your Container Apps, or in a paired region with private connectivity. Point `HotPathCache:RedisConnectionString` (and LLM cache when using Redis) at the Azure endpoint.
 - **Terraform**: There is no dedicated `terraform-redis` stack in-repo yet; add a module that provisions `azurerm_redis_cache` with `minimum_tls_version = "1.2"`, private endpoint (via `terraform-private`), and outputs the connection string for Key Vault / Container App secrets.

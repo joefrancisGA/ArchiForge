@@ -43,7 +43,7 @@ variable "finops_cost_center" {
 variable "log_analytics_workspace_name" {
   type        = string
   description = "Log Analytics workspace name (unique within the resource group)."
-  default     = "law-archiforge-ca"
+  default     = "law-archlucid-ca"
 }
 
 variable "log_analytics_daily_quota_gb" {
@@ -55,7 +55,7 @@ variable "log_analytics_daily_quota_gb" {
 variable "container_app_environment_name" {
   type        = string
   description = "Container Apps managed environment name."
-  default     = "cae-archiforge"
+  default     = "cae-archlucid"
 }
 
 variable "container_apps_subnet_id" {
@@ -270,7 +270,7 @@ variable "enable_container_apps_consumption_budget" {
 variable "container_apps_consumption_budget_name" {
   type        = string
   description = "Budget name (unique within the resource group scope in Cost Management)."
-  default     = "archiforge-container-apps-monthly"
+  default     = "archlucid-container-apps-monthly"
 
   validation {
     condition     = length(var.container_apps_consumption_budget_name) >= 1 && length(var.container_apps_consumption_budget_name) <= 63

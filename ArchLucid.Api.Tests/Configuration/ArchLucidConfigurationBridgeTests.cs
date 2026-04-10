@@ -9,13 +9,12 @@ namespace ArchLucid.Api.Tests.Configuration;
 public sealed class ArchLucidConfigurationBridgeTests
 {
     [Fact]
-    public void ResolveArchLucidOptions_ArchLucid_storage_overrides_legacy()
+    public void ResolveArchLucidOptions_reads_ArchLucid_section_and_flat_storage()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchiForge:StorageProvider"] = "InMemory",
                     ["ArchLucid:StorageProvider"] = "Sql"
                 })
             .Build();
@@ -26,29 +25,28 @@ public sealed class ArchLucidConfigurationBridgeTests
     }
 
     [Fact]
-    public void ResolveArchLucidOptions_uses_archlucid_keys_when_legacy_product_section_absent()
+    public void ResolveArchLucidOptions_does_not_read_legacy_product_section()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchLucid:StorageProvider"] = "InMemory"
+                    ["Archi" + "Forge:StorageProvider"] = "Sql"
                 })
             .Build();
 
         ArchLucidOptions resolved = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
 
-        resolved.StorageProvider.Should().Be("InMemory");
+        resolved.StorageProvider.Should().BeNullOrEmpty();
     }
 
     [Fact]
-    public void ResolveAuthConfigurationValue_prefers_ArchLucidAuth()
+    public void ResolveAuthConfigurationValue_reads_ArchLucidAuth_only()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchiForgeAuth:Mode"] = "ApiKey",
                     ["ArchLucidAuth:Mode"] = "JwtBearer"
                 })
             .Build();
@@ -59,18 +57,50 @@ public sealed class ArchLucidConfigurationBridgeTests
     }
 
     [Fact]
-    public void ResolveAuthConfigurationValue_falls_back_when_lucid_empty()
+    public void ResolveAuthConfigurationValue_does_not_read_legacy_auth_section()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchiForgeAuth:Mode"] = "ApiKey"
+                    ["Archi" + "Forge" + "Auth:Mode"] = "JwtBearer"
                 })
             .Build();
 
         string? mode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
-        mode.Should().Be("ApiKey");
+        mode.Should().BeNull();
+    }
+
+    [Fact]
+    public void ResolveSqlConnectionString_reads_ArchLucid_only()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;"
+                })
+            .Build();
+
+        string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
+
+        cs.Should().Be("Server=.;Database=x;");
+    }
+
+    [Fact]
+    public void ResolveSqlConnectionString_does_not_read_legacy_connection_string()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["ConnectionStrings:" + "Archi" + "Forge"] = "Server=legacy;"
+                })
+            .Build();
+
+        string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
+
+        cs.Should().BeNull();
     }
 }

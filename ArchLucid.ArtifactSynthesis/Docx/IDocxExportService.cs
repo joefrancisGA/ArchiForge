@@ -7,7 +7,10 @@ namespace ArchLucid.ArtifactSynthesis.Docx;
 /// <summary>
 /// Builds a Word OpenXML package from a golden manifest, synthesized artifacts, and optional comparison/explanation payloads.
 /// </summary>
-/// <remarks>Default implementation: <see cref="DocxExportService"/>. Used by <c>ArchLucid.Api.Controllers.DocxExportController</c>.</remarks>
+/// <remarks>
+/// Default implementation: <see cref="DocxExportService"/> (uses <see cref="ArchLucid.Core.Diagrams.IDiagramImageRenderer"/> for optional Mermaid rasterization).
+/// Used by <c>ArchLucid.Api.Controllers.DocxExportController</c>.
+/// </remarks>
 public interface IDocxExportService
 {
     /// <summary>

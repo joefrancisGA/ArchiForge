@@ -1,2 +1,1 @@
-storage-keys.ts
-session.ts
+# TS/TSX `archiforge` substring guard (`grep -v -F -f`). Phase 7: no patterns required.

@@ -1,3 +1,5 @@
+using ArchLucid.Core.Diagrams;
+
 namespace ArchLucid.Application.Diagrams;
 
 /// <summary>

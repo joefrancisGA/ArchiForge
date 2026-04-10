@@ -35,4 +35,4 @@ The API registers an ASP.NET Core health check named **`data_archival`** (readin
 ## Related documentation
 
 - Soft archival feature overview: backlog item **243** in `docs/NEXT_REFACTORINGS.md` (Data & persistence).
-- Migrations: `028_ArchivalSoftFlags.sql` and `ArchiForge.sql` (single DDL discipline per `docs/SQL_DDL_DISCIPLINE.md`).
+- Migrations: `028_ArchivalSoftFlags.sql` and `ArchLucid.sql` (single DDL discipline per `docs/SQL_DDL_DISCIPLINE.md`).

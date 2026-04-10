@@ -4,7 +4,7 @@
 
 **Status:** Contract for the current codebase and docs. It describes what is **implemented and supportable today**, not a roadmap of net-new capabilities.
 
-**Naming:** User-facing product name is **ArchLucid**. Configuration keys, connection string names, and some paths may still say **ArchiForge** during migration; see [GLOSSARY.md](GLOSSARY.md) and [README.md](../README.md).
+**Naming:** User-facing product name is **ArchLucid**. Application configuration uses **`ArchLucid*`** keys post–Phase 7; **historical** SQL migration filenames, some **RLS** object names, and **Terraform resource addresses** may still contain **`archiforge`** until follow-up work ([BREAKING_CHANGES.md](../BREAKING_CHANGES.md), [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)). See [GLOSSARY.md](GLOSSARY.md) and [README.md](../README.md).
 
 ---
 
@@ -142,6 +142,8 @@ These are **practical gates** already encoded or described in-repo—not an exha
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Export, comparison, replay sequences |
 | [API_CONTRACTS.md](API_CONTRACTS.md) | HTTP behavior and policy references |
 | [RELEASE_SMOKE.md](RELEASE_SMOKE.md) | Scripted smoke scope and limits |
+| [V1_RC_DRILL.md](V1_RC_DRILL.md) | RC drill: full operator path against a running API (`v1-rc-drill.ps1`) |
+| [V1_READINESS_SUMMARY.md](V1_READINESS_SUMMARY.md) | Short honest snapshot: done, deferred, risks, pilot bar, post-V1 priorities |
 
 ---
 

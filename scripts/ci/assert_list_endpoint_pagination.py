@@ -11,10 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-_CONTROLLER_DIR_CANDIDATES = (
-    ROOT / "ArchLucid.Api" / "Controllers",
-    ROOT / "ArchiForge.Api" / "Controllers",
-)
+_CONTROLLER_DIR_CANDIDATES = (ROOT / "ArchLucid.Api" / "Controllers",)
 ALLOWLIST_PATH = Path(__file__).resolve().parent / "list_endpoint_pagination_allowlist.txt"
 
 
@@ -119,7 +116,7 @@ def main() -> int:
     if controllers is None:
         tried = ", ".join(str(p) for p in _CONTROLLER_DIR_CANDIDATES)
         print(
-            f"Missing API Controllers directory (expected ArchLucid.Api or ArchiForge.Api). Tried: {tried}",
+            f"Missing API Controllers directory (expected ArchLucid.Api). Tried: {tried}",
             file=sys.stderr,
         )
         return 2

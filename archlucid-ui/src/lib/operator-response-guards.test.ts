@@ -10,6 +10,7 @@ import {
   coerceRunComparison,
   coerceRunDetail,
   coerceRunSummaryList,
+  coerceRunSummaryPaged,
 } from "./operator-response-guards";
 
 describe("coerceRunSummaryList", () => {
@@ -30,6 +31,40 @@ describe("coerceRunSummaryList", () => {
 
   it("rejects row without runId", () => {
     const result = coerceRunSummaryList([{ projectId: "p" }]);
+
+    expect(result.ok).toBe(false);
+  });
+});
+
+describe("coerceRunSummaryPaged", () => {
+  it("accepts empty items with valid paging fields", () => {
+    const result = coerceRunSummaryPaged({
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: 20,
+      hasMore: false,
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.items).toEqual([]);
+      expect(result.value.totalCount).toBe(0);
+    }
+  });
+
+  it("rejects non-object", () => {
+    expect(coerceRunSummaryPaged([]).ok).toBe(false);
+  });
+
+  it("rejects invalid hasMore", () => {
+    const result = coerceRunSummaryPaged({
+      items: [{ runId: "r1" }],
+      totalCount: 1,
+      page: 1,
+      pageSize: 20,
+      hasMore: "yes",
+    });
 
     expect(result.ok).toBe(false);
   });

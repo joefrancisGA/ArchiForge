@@ -1,6 +1,6 @@
 <Project>
   <!-- Humanizer.Core ships Humanizer.Analyzers (e.g. NamespaceMigrationAnalyzer). Remove from all projects. -->
-  <Target Name="ArchiForgeRemoveHumanizerAnalyzers" BeforeTargets="CoreCompile">
+  <Target Name="ArchLucidRemoveHumanizerAnalyzers" BeforeTargets="CoreCompile">
     <ItemGroup>
       <Analyzer Remove="@(Analyzer)"
                 Condition="$([System.String]::Copy('%(Identity)').IndexOf('Humanizer.Analyzers', System.StringComparison.OrdinalIgnoreCase)) &gt;= 0" />

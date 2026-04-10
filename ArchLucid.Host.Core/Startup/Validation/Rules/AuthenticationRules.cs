@@ -39,7 +39,7 @@ internal static class AuthenticationRules
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
             errors.Add(
-                "ArchLucidAuth:Mode (or legacy ArchiForgeAuth:Mode) cannot be DevelopmentBypass when the host environment is Production.");
+                "ArchLucidAuth:Mode cannot be DevelopmentBypass when the host environment is Production.");
         }
 
         if (string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
@@ -47,7 +47,7 @@ internal static class AuthenticationRules
             if (string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority")))
             {
                 errors.Add(
-                    "ArchLucidAuth:Authority (or legacy ArchiForgeAuth:Authority) is required when auth Mode is JwtBearer in Production.");
+                    "ArchLucidAuth:Authority is required when auth Mode is JwtBearer in Production.");
             }
         }
 
@@ -59,7 +59,7 @@ internal static class AuthenticationRules
         if (!configuration.GetValue("Authentication:ApiKey:Enabled", false))
         {
             errors.Add(
-                "Authentication:ApiKey:Enabled must be true when ArchLucidAuth:Mode (or ArchiForgeAuth:Mode) is ApiKey in Production.");
+                "Authentication:ApiKey:Enabled must be true when ArchLucidAuth:Mode is ApiKey in Production.");
         }
 
         string? productionApiAdminKey = configuration["Authentication:ApiKey:AdminKey"];

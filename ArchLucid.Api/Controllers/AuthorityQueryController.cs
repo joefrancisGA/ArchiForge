@@ -2,6 +2,7 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
@@ -32,24 +33,42 @@ public sealed class AuthorityQueryController(
 {
     /// <summary>Lists recent runs for an authority project slug (e.g. <c>default</c>).</summary>
     /// <param name="projectId">Path segment: authority project id/slug, not the scope GUID.</param>
-    /// <param name="take">Maximum runs (default 20).</param>
+    /// <param name="take">Max rows when <paramref name="page"/> is not set (default 20, clamped 1–200).</param>
+    /// <param name="page">One-based page. When set, response is <see cref="PagedResponse{T}"/> of <see cref="RunSummaryResponse"/>.</param>
+    /// <param name="pageSize">Page size when <paramref name="page"/> is set (clamped 1–200; default 50).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="RunSummaryResponse"/> items newest-first. Returns <c>200 OK</c> with an empty JSON array when the project has no runs.</returns>
+    /// <returns>Newest-first. Without <paramref name="page"/>: JSON array. With <paramref name="page"/>: paged envelope.</returns>
     [HttpGet("projects/{projectId}/runs")]
     [ProducesResponseType(typeof(IReadOnlyList<RunSummaryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResponse<RunSummaryResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> ListRunsByProject(
         string projectId,
         [FromQuery] int take = 20,
+        [FromQuery] int? page = null,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
         CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(projectId))
             return this.BadRequestProblem("projectId is required.", ProblemTypes.BadRequest);
 
-        take = Math.Clamp(take, 1, 200);
         ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        if (page.HasValue)
+        {
+            (int safePage, int safePageSize) = PaginationDefaults.Normalize(page.Value, pageSize);
+            int skip = PaginationDefaults.ToSkip(safePage, safePageSize);
+            (IReadOnlyList<RunSummaryDto> items, int total) =
+                await queryService.ListRunsByProjectPagedAsync(scope, projectId, skip, safePageSize, ct);
+
+            IReadOnlyList<RunSummaryResponse> mapped = items.Select(ToRunSummaryResponse).ToList();
+
+            return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
+        }
+
+        take = Math.Clamp(take, 1, 200);
         IReadOnlyList<RunSummaryDto> results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
 
         return Ok(results.Select(ToRunSummaryResponse).ToList());

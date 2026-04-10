@@ -519,7 +519,7 @@ jobs:
           dotnet restore ArchLucid.Api.Client/ArchLucid.Api.Client.csproj
           dotnet pack ArchLucid.Api.Client/ArchLucid.Api.Client.csproj \
             --no-restore -c Release -o "${RUNNER_TEMP}/nuget" \
-            /p:ArchiForgeApiClientPackageVersion=1.0.${{ github.run_number }}
+            /p:ArchLucidApiClientPackageVersion=1.0.${{ github.run_number }}
           dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \
             --api-key "$NUGET_API_KEY" \
             --source https://api.nuget.org/v3/index.json \

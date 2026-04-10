@@ -7,6 +7,7 @@ using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
@@ -213,12 +214,22 @@ public sealed class ArtifactExportController(
             ? null
             : JsonSerializer.Serialize(runDetail.AuthorityTrace, ExportJsonOptions);
 
+        GoldenManifest golden = runDetail.GoldenManifest;
+        string ruleSetLine = $"{golden.RuleSetId} {golden.RuleSetVersion}".Trim();
+        RunExportReadmeContext readmeContext = new()
+        {
+            ManifestDisplayName = string.IsNullOrWhiteSpace(golden.Metadata.Name) ? null : golden.Metadata.Name,
+            ManifestHash = string.IsNullOrWhiteSpace(golden.ManifestHash) ? null : golden.ManifestHash,
+            RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
+        };
+
         ArtifactPackage package = artifactPackagingService.BuildRunExportPackage(
             runId,
-            runDetail.GoldenManifest.ManifestId,
+            golden.ManifestId,
             artifacts,
             manifestJson,
-            traceJson);
+            traceJson,
+            readmeContext);
 
         await auditService.LogAsync(
             new AuditEvent

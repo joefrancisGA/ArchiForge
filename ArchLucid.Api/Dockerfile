@@ -1,4 +1,4 @@
-# ── ArchiForge API ──────────────────────────────────────────────────
+# ── ArchLucid API ───────────────────────────────────────────────────
 # Multi-stage build: SDK (restore + publish) → Alpine runtime.
 # Build context MUST be the repository root so project references resolve.
 #
@@ -102,8 +102,8 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 WORKDIR /app
 
-RUN addgroup -S archiforge && adduser -S archiforge -G archiforge
-USER archiforge
+RUN addgroup -S archlucid && adduser -S archlucid -G archlucid
+USER archlucid
 
 COPY --from=publish /app .
 

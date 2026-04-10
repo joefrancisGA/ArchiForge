@@ -17,8 +17,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };
@@ -37,9 +37,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };
@@ -58,8 +58,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "ApiKey",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "ApiKey",
             ["Authentication:ApiKey:Enabled"] = "false",
             ["Authentication:ApiKey:AdminKey"] = "k",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -80,9 +80,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
             ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -102,8 +102,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -120,8 +120,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -131,8 +131,7 @@ public sealed class ArchLucidConfigurationRulesTests
         IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
 
         errors.Should().Contain(e =>
-            e.Contains("ConnectionStrings:ArchLucid", StringComparison.OrdinalIgnoreCase)
-            && e.Contains("ArchiForge", StringComparison.OrdinalIgnoreCase));
+            e.Contains("ConnectionStrings:ArchLucid", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -140,8 +139,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -158,8 +157,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Blob",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Blob",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -177,8 +176,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["AgentExecution:Mode"] = "Banana",
         };
 
@@ -196,8 +195,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["AgentExecution:Mode"] = "Real",
         };
 
@@ -215,8 +214,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["AgentExecution:Mode"] = "Real",
             ["AgentExecution:CompletionClient"] = "Echo",
             ["LlmCompletionCache:Enabled"] = "false",
@@ -238,8 +237,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["IntegrationEvents:TransactionalOutboxEnabled"] = "true",
             ["LlmCompletionCache:Enabled"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -260,8 +259,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["AgentExecution:Mode"] = "Real",
             ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
             ["AzureOpenAI:ApiKey"] = "key",
@@ -286,8 +285,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:MaxEntries"] = "0",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -308,8 +307,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:Provider"] = "Distributed",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -334,8 +333,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["LlmCompletionCache:Enabled"] = "true",
             ["LlmCompletionCache:Provider"] = "Distributed",
@@ -364,8 +363,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["BackgroundJobs:Mode"] = "Durable",
             ["BackgroundJobs:ResultsContainerName"] = "background-job-results",
@@ -390,8 +389,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["SchemaValidation:AgentResultSchemaPath"] = "/abs/not-allowed-rooted.schema.json",
         };
 
@@ -410,8 +409,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["SchemaValidation:AgentResultSchemaPath"] = "../outside/agent.schema.json",
         };
 
@@ -430,8 +429,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ComparisonReplay:Batch:MaxComparisonRecordIds"] = "0",
         };
 
@@ -449,8 +448,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ApiDeprecation:Enabled"] = "true",
             ["ApiDeprecation:SunsetHttpDate"] = "not-a-date",
         };
@@ -469,8 +468,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["DataArchival:IntervalHours"] = "0",
         };
 
@@ -488,8 +487,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["RateLimiting:FixedWindow:PermitLimit"] = "-1",
         };
 
@@ -508,8 +507,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["RateLimiting:Expensive:WindowMinutes"] = "0",
         };
 
@@ -528,9 +527,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };
 
@@ -549,9 +548,9 @@ public sealed class ArchLucidConfigurationRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Hosting:Role"] = "Worker",
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };
 
@@ -569,9 +568,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "*",
             ["WebhookDelivery:UseHttpClient"] = "false",
         };
@@ -590,9 +589,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "true",
             ["WebhookDelivery:HmacSha256SharedSecret"] = "",
@@ -612,8 +611,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Retrieval:VectorIndex"] = "Elastic",
         };
 
@@ -631,9 +630,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "true",
             ["WebhookDelivery:HmacSha256SharedSecret"] = "short-secret-not-32-chars",
@@ -655,8 +654,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["RateLimiting:Replay:Light:PermitLimit"] = "10",
             ["RateLimiting:Replay:Light:WindowMinutes"] = "1",
             ["RateLimiting:Replay:Light:QueueLimit"] = "-1",
@@ -677,8 +676,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "",
             ["Authentication:ApiKey:ReadOnlyKey"] = "",
@@ -698,8 +697,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Retrieval:EmbeddingCaps:MaxTextsPerEmbeddingRequest"] = "0",
             ["Retrieval:EmbeddingCaps:MaxChunksPerIndexOperation"] = "2000000",
         };
@@ -719,8 +718,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["DataArchival:RunsRetentionDays"] = "-5",
         };
 
@@ -738,8 +737,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ComparisonReplay:Batch:MaxComparisonRecordIds"] = "501",
         };
 
@@ -757,8 +756,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["SchemaValidation:AgentResultSchemaPath"] = "   ",
         };
 
@@ -777,8 +776,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "ApiKey",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "ApiKey",
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "",
             ["Authentication:ApiKey:ReadOnlyKey"] = "",
@@ -800,8 +799,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "CosmosDb",
         };
@@ -820,8 +819,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "Redis",
             ["HotPathCache:RedisConnectionString"] = "",
@@ -841,8 +840,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:AbsoluteExpirationSeconds"] = "4000",
         };
@@ -861,9 +860,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["HotPathCache:Enabled"] = "true",
@@ -887,8 +886,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HotPathCache:Enabled"] = "true",
             ["HotPathCache:Provider"] = "Auto",
             ["HotPathCache:ExpectedApiReplicaCount"] = "5",
@@ -909,8 +908,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HostLeaderElection:Enabled"] = "true",
             ["HostLeaderElection:LeaseDurationSeconds"] = "30",
             ["HostLeaderElection:RenewIntervalSeconds"] = "30",
@@ -930,8 +929,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["HostLeaderElection:Enabled"] = "false",
             ["HostLeaderElection:LeaseDurationSeconds"] = "30",
             ["HostLeaderElection:RenewIntervalSeconds"] = "30",
@@ -951,8 +950,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Otlp:Enabled"] = "true",
         };
 
@@ -970,8 +969,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Otlp:Enabled"] = "true",
             ["Observability:Otlp:Endpoint"] = "http://localhost:4317",
             ["Observability:Otlp:Protocol"] = "Udp",
@@ -991,8 +990,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Prometheus:Enabled"] = "true",
         };
 
@@ -1010,8 +1009,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Prometheus:Enabled"] = "true",
             ["Observability:Prometheus:ScrapeUsername"] = "prom",
             ["Observability:Prometheus:ScrapePassword"] = "secret",
@@ -1031,8 +1030,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Observability:Prometheus:Enabled"] = "true",
             ["Observability:Prometheus:RequireScrapeAuthentication"] = "false",
         };
@@ -1051,8 +1050,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -1074,9 +1073,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1097,9 +1096,9 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "true",
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
@@ -1122,9 +1121,9 @@ public sealed class ArchLucidConfigurationRulesTests
         Dictionary<string, string?> data = new()
         {
             ["Hosting:Role"] = "Worker",
-            ["ArchiForge:StorageProvider"] = "Sql",
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:Authority"] = "https://login.example.com",
+            ["ArchLucid:StorageProvider"] = "Sql",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;Trusted_Connection=True;TrustServerCertificate=True",
             ["SqlServer:RowLevelSecurity:ApplySessionContext"] = "false",
             ["WebhookDelivery:UseHttpClient"] = "false",
@@ -1144,8 +1143,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmTokenQuota:Enabled"] = "true",
             ["LlmTokenQuota:MaxPromptTokensPerTenantPerWindow"] = "0",
             ["LlmTokenQuota:MaxCompletionTokensPerTenantPerWindow"] = "0",
@@ -1166,8 +1165,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmTokenQuota:Enabled"] = "true",
             ["LlmTokenQuota:WindowMinutes"] = "0",
             ["LlmTokenQuota:MaxPromptTokensPerTenantPerWindow"] = "100",
@@ -1188,8 +1187,8 @@ public sealed class ArchLucidConfigurationRulesTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForge:StorageProvider"] = "InMemory",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["LlmTokenQuota:Enabled"] = "false",
             ["LlmTokenQuota:WindowMinutes"] = "0",
             ["WebhookDelivery:UseHttpClient"] = "false",

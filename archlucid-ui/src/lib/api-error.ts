@@ -78,13 +78,46 @@ export function formatApiFailureMessage(
   return `Request failed (${statusLine})`;
 }
 
+function tryReadJsonCorrelationId(bodyText: string): string | null {
+  const trimmed = bodyText.trim();
+
+  if (!trimmed.startsWith("{")) {
+    return null;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(trimmed) as unknown;
+
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return null;
+    }
+
+    const record = parsed as Record<string, unknown>;
+    const raw = record.correlationId;
+
+    if (typeof raw !== "string") {
+      return null;
+    }
+
+    const id = raw.trim();
+
+    return id.length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
 export function buildApiRequestErrorFromParts(
   response: Response,
   bodyText: string,
 ): ApiRequestError {
   const contentType = response.headers.get("content-type");
   const problem = tryParseApiProblemDetails(bodyText, contentType);
-  const correlationId = response.headers.get(CORRELATION_ID_HEADER)?.trim() || null;
+  const correlationId =
+    response.headers.get(CORRELATION_ID_HEADER)?.trim() ||
+    problem?.correlationId?.trim() ||
+    tryReadJsonCorrelationId(bodyText) ||
+    null;
   const message = formatApiFailureMessage(
     problem,
     response.status,

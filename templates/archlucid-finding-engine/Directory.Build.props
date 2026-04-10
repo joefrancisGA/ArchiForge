@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <!-- Template is developed inside the ArchiForge repo (CPM at root). Standalone installs omit this file or keep it. -->
+    <!-- Template is developed inside the ArchLucid repo (CPM at root). Standalone installs omit this file or keep it. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 </Project>

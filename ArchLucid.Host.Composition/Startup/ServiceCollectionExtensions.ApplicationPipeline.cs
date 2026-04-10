@@ -6,6 +6,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Diagrams;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Application.Evidence;
 using ArchLucid.Application.Evolution;
@@ -55,7 +56,16 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IShadowExecutionService, ShadowExecutionService>();
         services.AddScoped<ISimulationEvaluationService, SimulationEvaluationService>();
         services.AddScoped<IArchitectureAnalysisExportService, MarkdownArchitectureAnalysisExportService>();
-        services.AddScoped<IDiagramImageRenderer, NullDiagramImageRenderer>();
+        bool mermaidCliEnabled = configuration.GetValue("ArchLucid:MermaidCli:Enabled", false);
+
+        if (mermaidCliEnabled)
+        {
+            services.AddScoped<IDiagramImageRenderer, MermaidCliDiagramImageRenderer>();
+        }
+        else
+        {
+            services.AddScoped<IDiagramImageRenderer, NullDiagramImageRenderer>();
+        }
         services.AddScoped<IArchitectureAnalysisDocxExportService, DocxArchitectureAnalysisExportService>();
         services.Configure<ConsultingDocxTemplateOptions>(configuration.GetSection("ConsultingDocxTemplate"));
         services.AddScoped<IConsultingDocxTemplateOptionsProvider, DefaultConsultingDocxTemplateOptionsProvider>();

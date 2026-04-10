@@ -8,12 +8,19 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## Phase 7 — ArchLucid rename (code-level)
+
+**Area:** Rename / operator breaking changes  
+**Summary:** Removed legacy `ArchiForge*` configuration keys, `ARCHIFORGE_*` / UI OIDC storage bridges, and renamed CLI manifest (`archlucid.json`), global tool command (`archlucid`), SQL DDL file (`ArchLucid.sql`), and dev Docker/compose defaults. **`com.archiforge.*` integration event type strings are no longer emitted or aliased** — only canonical `com.archlucid.*` types apply. See **`BREAKING_CHANGES.md`** for migration steps. Terraform resource **addresses** using `archiforge` remain until a planned `state mv` (checklist 7.5).
+
+---
+
 ## 59R — Learning-to-planning bridge
 
 **Area:** Product learning / planning  
 **Key deliverables:**
 
-- `032_ProductLearningPlanningBridge.sql` (DbUp) + `ArchiForge.sql` parity — SQL tables for improvement themes, plans, and junction links to runs/signals/artifacts.
+- `032_ProductLearningPlanningBridge.sql` (DbUp) + `ArchLucid.sql` parity — SQL tables for improvement themes, plans, and junction links to runs/signals/artifacts.
 - Contracts under `ArchLucid.Contracts/ProductLearning/Planning/`.
 - `IProductLearningPlanningRepository`, Dapper + in-memory implementations, DI registration.
 - Unit tests: `ProductLearningPlanningRepositoryTests`.
@@ -47,7 +54,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 - `e2e/fixtures/` — typed JSON payloads aligned with all UI coercion helpers.
 - `e2e/helpers/route-match.ts`, `register-operator-api-routes.ts`, `operator-journey.ts` — centralised route dispatch and journey navigation.
 - Specs: `smoke`, `compare-proxy-mock`, `run-manifest-journey`, `compare-journey`, `compare-stale-input-warning`, `manifest-empty-artifacts`.
-- `e2e/mock-archiforge-api-server.ts` + `e2e/start-e2e-with-mock.ts` — loopback HTTP mock on port 18765 for RSC pages; `playwright.config.ts` `webServer` updated.
+- `e2e/mock-archlucid-api-server.ts` + `e2e/start-e2e-with-mock.ts` — loopback HTTP mock on port 18765 for RSC pages; `playwright.config.ts` `webServer` updated.
 - `tsx` devDependency for TS mock runner; `e2e/tsconfig.json` + `npm run typecheck:e2e`.
 - `-RunPlaywright` flag added to `release-smoke.ps1` / `.cmd`.
 - Docs: `archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md` (section 8 rewritten).
@@ -65,7 +72,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 - `GET /version` endpoint (`VersionController`, `[AllowAnonymous]`): `application`, `informationalVersion`, `assemblyVersion`, `fileVersion`, `commitSha`, `runtimeFramework`, `environment`.
 - `BuildProvenance` + `BuildInfoResponse` (Core): parses `CommitSha` from `+{sha}` suffix of informational version; CI stamps `SourceRevisionId=$(git rev-parse HEAD)`.
 - API `ProblemSupportHints` (`extensions.supportHint`); CLI `CliOperatorHints` (`Next:` lines); UI proxy `502/503 supportHint`.
-- `archiforge support-bundle` CLI command (folder + optional `--zip`): `manifest.json`, `build.json`, `health.json`, `config-summary.json`, `environment.json`, `workspace.json`, `references.json`, `logs.json`.
+- `archlucid support-bundle` CLI command (folder + optional `--zip`): `README.txt`, `manifest.json` (v1.1 + `triageReadOrder`), `build.json`, `health.json`, `api-contract.json` (bounded OpenAPI probe), `config-summary.json`, `environment.json`, `workspace.json`, `references.json`, `logs.json`.
 - Local scripts: `build-release`, `package-release`, `run-readiness-check`, `release-smoke` (`.cmd` + `.ps1`); `scripts/OperatorDiagnostics.ps1` (structured triage output).
 - Release handoff artifacts in `artifacts/release/`: `metadata.json` (schema 1.1), `release-manifest.json`, `checksums-sha256.txt`, `PACKAGE-HANDOFF.txt`.
 - Docs added: `PILOT_GUIDE.md`, `OPERATOR_QUICKSTART.md`, `TROUBLESHOOTING.md`, `RELEASE_LOCAL.md`, `RELEASE_SMOKE.md`, `CLI_USAGE.md`.

@@ -1,5 +1,5 @@
 using ArchLucid.Application.Determinism;
-using ArchLucid.Application.Diagrams;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Manifest;
 

@@ -18,21 +18,21 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 # Prefer npm.cmd on Windows under StrictMode (npm.ps1 can throw on $MyInvocation.Statement).
 $releaseSmokeNpm = if (Get-Command npm.cmd -ErrorAction SilentlyContinue) { 'npm.cmd' } else { 'npm' }
 $sln = Join-Path $root 'ArchLucid.sln'
-$apiProj = Join-Path $root 'ArchiForge.Api\ArchiForge.Api.csproj'
-$cliProj = Join-Path $root 'ArchiForge.Cli\ArchiForge.Cli.csproj'
+$apiProj = Join-Path $root 'ArchLucid.Api\ArchLucid.Api.csproj'
+$cliProj = Join-Path $root 'ArchLucid.Cli\ArchLucid.Cli.csproj'
 
-$savedConn = $env:ConnectionStrings__ArchiForge
-$savedApiUrl = $env:ARCHIFORGE_API_URL
+$savedConn = $env:ConnectionStrings__ArchLucid
+$savedApiUrl = $env:ARCHLUCID_API_URL
 $apiProc = $null
 $tempRoot = $null
 
 function Restore-Env
 {
-    if ($null -eq $savedConn) { Remove-Item Env:\ConnectionStrings__ArchiForge -ErrorAction SilentlyContinue }
-    else { $env:ConnectionStrings__ArchiForge = $savedConn }
+    if ($null -eq $savedConn) { Remove-Item Env:\ConnectionStrings__ArchLucid -ErrorAction SilentlyContinue }
+    else { $env:ConnectionStrings__ArchLucid = $savedConn }
 
-    if ($null -eq $savedApiUrl) { Remove-Item Env:\ARCHIFORGE_API_URL -ErrorAction SilentlyContinue }
-    else { $env:ARCHIFORGE_API_URL = $savedApiUrl }
+    if ($null -eq $savedApiUrl) { Remove-Item Env:\ARCHLUCID_API_URL -ErrorAction SilentlyContinue }
+    else { $env:ARCHLUCID_API_URL = $savedApiUrl }
 }
 
 function Invoke-ReleaseSmokePlaywrightWhenRequested
@@ -99,8 +99,8 @@ function Invoke-ReleaseSmokePlaywrightWhenRequested
 try
 {
     $cs = $SqlConnectionString
-    if ([string]::IsNullOrWhiteSpace($cs)) { $cs = $env:ARCHIFORGE_SMOKE_SQL }
-    if ([string]::IsNullOrWhiteSpace($cs)) { $cs = $env:ConnectionStrings__ArchiForge }
+    if ([string]::IsNullOrWhiteSpace($cs)) { $cs = $env:ARCHLUCID_SMOKE_SQL }
+    if ([string]::IsNullOrWhiteSpace($cs)) { $cs = $env:ConnectionStrings__ArchLucid }
 
     Write-OperatorPhaseHeader -Title 'Release build' -Step 1 -Total 6
     & (Join-Path $root 'build-release.ps1')
@@ -205,19 +205,19 @@ try
         Write-OperatorFailureTriage -Stage '5/6 E2E API block (not started)' -Category 'Misconfiguration' `
             -Details @('No SQL connection string resolved for the temporary API process.') `
             -NextSteps @(
-            'Set env: $env:ARCHIFORGE_SMOKE_SQL = ''Server=...;Database=...;...''',
+            'Set env: $env:ARCHLUCID_SMOKE_SQL = ''Server=...;Database=...;...''',
             'Or pass: -SqlConnectionString ''...''',
-            'Or set ConnectionStrings__ArchiForge in the shell',
+            'Or set ConnectionStrings__ArchLucid in the shell',
             'CI / agents without SQL: .\release-smoke.ps1 -SkipE2E'
         )
         exit 1
     }
 
     Write-OperatorPhaseHeader -Title 'Start API (Release), wait for /health/ready, CLI quick run' -Step 5 -Total 6
-    $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("archiforge-smoke-" + (Get-Date -Format 'yyyyMMddHHmmss'))
+    $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("archlucid-smoke-" + (Get-Date -Format 'yyyyMMddHHmmss'))
     New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
-    $env:ConnectionStrings__ArchiForge = $cs
+    $env:ConnectionStrings__ArchLucid = $cs
     $env:ASPNETCORE_ENVIRONMENT = 'Development'
 
     $apiProc = Start-Process -FilePath 'dotnet' -ArgumentList @(
@@ -231,8 +231,8 @@ try
     if ($null -eq $apiProc)
     {
         Write-OperatorFailureTriage -Stage '5/6 Start API' -Category 'ProcessStartFailure' `
-            -Details @('Start-Process did not return a handle for dotnet run ArchiForge.Api.') `
-            -NextSteps @('Verify dotnet on PATH', 'Run manually: dotnet run --project ArchiForge.Api -c Release --launch-profile http')
+            -Details @('Start-Process did not return a handle for dotnet run ArchLucid.Api.') `
+            -NextSteps @('Verify dotnet on PATH', 'Run manually: dotnet run --project ArchLucid.Api -c Release --launch-profile http')
         exit 1
     }
 
@@ -249,14 +249,14 @@ try
                 -NextSteps @(
                 'Verify SQL: migrations, firewall, TrustServerCertificate, correct database name',
                 "Confirm nothing else is bound to $($ApiBaseUrl) (or pass -ApiBaseUrl)",
-                'Reproduce in a visible window: $env:ConnectionStrings__ArchiForge = ''...''; dotnet run --project ArchiForge.Api -c Release --launch-profile http',
-                'CLI: dotnet run --project ArchiForge.Cli -- doctor   (with API up)',
+                'Reproduce in a visible window: $env:ConnectionStrings__ArchLucid = ''...''; dotnet run --project ArchLucid.Api -c Release --launch-profile http',
+                'CLI: dotnet run --project ArchLucid.Cli -- doctor   (with API up)',
                 'See docs/RELEASE_SMOKE.md — Troubleshooting'
             )
             exit 1
         }
 
-        $probe = Get-ArchiForgeHttpProbe -Uri $readyUrl -TimeoutSec 2
+        $probe = Get-ArchLucidHttpProbe -Uri $readyUrl -TimeoutSec 2
 
         if ($probe.Ok -and $probe.StatusCode -eq 200) {
             $ready = $true
@@ -274,16 +274,16 @@ try
         ) `
             -NextSteps @(
             'Inspect failing health checks below (first unhealthy entry is the usual root cause).',
-            'dotnet run --project ArchiForge.Cli -- doctor',
-            'docs/TROUBLESHOOTING.md — SQL, port 5128, ArchiForge:StorageProvider',
+            'dotnet run --project ArchLucid.Cli -- doctor',
+            'docs/TROUBLESHOOTING.md — SQL, port 5128, ArchLucid:StorageProvider',
             'Pilot misconfig: wrong connection string or SQL unreachable from this machine'
         )
-        Write-ArchiForgeReadinessTimeoutDiagnostics -ApiBaseUrl $ApiBaseUrl
+        Write-ArchLucidReadinessTimeoutDiagnostics -ApiBaseUrl $ApiBaseUrl
         exit 1
     }
 
     $liveUrl = $ApiBaseUrl.TrimEnd('/') + '/health/live'
-    $liveProbe = Get-ArchiForgeHttpProbe -Uri $liveUrl -TimeoutSec 8
+    $liveProbe = Get-ArchLucidHttpProbe -Uri $liveUrl -TimeoutSec 8
 
     if (-not $liveProbe.Ok -or $liveProbe.StatusCode -ne 200) {
         Write-OperatorFailureTriage -Stage '5/6 Liveness after readiness' -Category 'LivenessFailure' `
@@ -295,7 +295,7 @@ try
     Push-Location $tempRoot
     try
     {
-        dotnet run --project $cliProj -- new ArchiForgeSmokeRc
+        dotnet run --project $cliProj -- new ArchLucidSmokeRc
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     }
     finally
@@ -303,15 +303,15 @@ try
         Pop-Location
     }
 
-    $projDir = Join-Path $tempRoot 'ArchiForgeSmokeRc'
+    $projDir = Join-Path $tempRoot 'ArchLucidSmokeRc'
     if (-not (Test-Path $projDir)) {
         Write-OperatorFailureTriage -Stage '5/6 CLI new' -Category 'ScaffoldLayoutMissing' `
-            -Details @("Expected project folder at $projDir after archiforge new.") `
+            -Details @("Expected project folder at $projDir after archlucid new.") `
             -NextSteps @('Re-run new in an empty folder', 'Check CLI new command output above')
         exit 1
     }
 
-    $env:ARCHIFORGE_API_URL = $ApiBaseUrl
+    $env:ARCHLUCID_API_URL = $ApiBaseUrl
     Push-Location $projDir
     try
     {
@@ -320,9 +320,9 @@ try
             Write-OperatorFailureTriage -Stage '5/6 CLI run --quick' -Category 'CliRunFailure' `
                 -Details @('run --quick failed — stderr above often includes HTTP status and Next: hints.') `
                 -NextSteps @(
-                'Confirm API still up and ARCHIFORGE_API_URL matches smoke API',
+                'Confirm API still up and ARCHLUCID_API_URL matches smoke API',
                 'API must see Development environment for seed (script sets ASPNETCORE_ENVIRONMENT=Development for child API)',
-                'dotnet run --project ArchiForge.Cli -- doctor'
+                'dotnet run --project ArchLucid.Cli -- doctor'
             )
             exit $LASTEXITCODE
         }
@@ -363,11 +363,11 @@ try
     }
 
     try {
-        $artifacts = Invoke-RestMethod -Uri ($ApiBaseUrl.TrimEnd('/') + '/api/artifacts/manifests/' + $manifestId) -Method Get
+        $artifacts = Invoke-RestMethod -Uri ($ApiBaseUrl.TrimEnd('/') + '/v1/artifacts/manifests/' + $manifestId) -Method Get
     }
     catch {
         Write-OperatorFailureTriage -Stage '6/6 Artifact verification' -Category 'ArtifactsApiFailure' `
-            -Details @("GET /api/artifacts/manifests/$manifestId failed: $($_.Exception.Message)") `
+            -Details @("GET /v1/artifacts/manifests/$manifestId failed: $($_.Exception.Message)") `
             -NextSteps @('curl or browser the same URL with API up', 'Check run and manifest IDs in API logs')
         exit 1
     }

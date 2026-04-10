@@ -7,8 +7,13 @@ using ArchLucid.Api.Validators;
 
 using Asp.Versioning;
 
+using ArchLucid.Host.Core.ProblemDetails;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ArchLucid.Api.Startup;
 
@@ -27,6 +32,26 @@ internal static class MvcExtensions
                 // Contract enums as strings (e.g. run.status, agentType) so clients and integration tests match OpenAPI expectations.
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true));
             });
+        services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                ValidationProblemDetails problem = new(context.ModelState)
+                {
+                    Type = ProblemTypes.ValidationFailed,
+                    Title = "One or more validation errors occurred.",
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = context.HttpContext.Request.Path.Value
+                };
+                ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.ValidationFailed);
+                ProblemSupportHints.AttachForProblemType(problem);
+                ProblemCorrelation.Attach(problem, context.HttpContext);
+                return new BadRequestObjectResult(problem)
+                {
+                    ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+                };
+            };
+        });
         services.AddProblemDetails();
         services.AddApiVersioning(options =>
         {

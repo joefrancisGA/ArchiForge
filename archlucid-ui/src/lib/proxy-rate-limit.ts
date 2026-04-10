@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import {
   readProxyRateLimitDisabled,
   readProxyRateLimitPerMinute,
@@ -94,6 +95,7 @@ export function enforceProxyRateLimit(request: NextRequest): NextResponse | null
   }
 
   const retryAfterSec = Math.max(1, Math.ceil((entry.windowStartMs + windowMs - nowMs) / 1000));
+  const correlationId = generateCorrelationId();
 
   return NextResponse.json(
     {
@@ -101,7 +103,14 @@ export function enforceProxyRateLimit(request: NextRequest): NextResponse | null
       title: "Too many requests",
       status: 429,
       detail: `Too many requests through the operator proxy. Try again in ${retryAfterSec} second(s).`,
+      correlationId,
     },
-    { status: 429, headers: { "Retry-After": String(retryAfterSec) } },
+    {
+      status: 429,
+      headers: {
+        "Retry-After": String(retryAfterSec),
+        [CORRELATION_ID_HEADER]: correlationId,
+      },
+    },
   );
 }

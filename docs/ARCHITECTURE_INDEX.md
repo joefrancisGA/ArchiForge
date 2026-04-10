@@ -38,6 +38,8 @@
   - `docs/DI_REGISTRATION_MAP.md`
 - **Key flows** – run, export, comparison, replay sequences  
   - `docs/ARCHITECTURE_FLOWS.md`
+- **Observability** – `ArchLucid` meter, key histograms/counters, `ActivitySource` names, tag conventions (`archlucid.stage.name`, authority pipeline stages)  
+  - `docs/OBSERVABILITY.md`
 
 ### Operator shell (front end)
 

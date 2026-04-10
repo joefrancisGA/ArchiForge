@@ -67,8 +67,8 @@ def parse_cobertura_packages(path: Path) -> tuple[float | None, list[tuple[str, 
     return overall_pct, packages
 
 
-def _is_product_archiforge_package(name: str) -> bool:
-    if not name.startswith("ArchiForge."):
+def _is_product_archlucid_package(name: str) -> bool:
+    if not name.startswith("ArchLucid."):
         return False
     lower = name.lower()
     if ".tests" in lower or name.endswith("Tests"):
@@ -130,7 +130,7 @@ def main() -> int:
         return 0
 
     cob_overall, cob_packages = parse_cobertura_packages(cobertura_file)
-    product_rows = [(n, p) for n, p in cob_packages if _is_product_archiforge_package(n)]
+    product_rows = [(n, p) for n, p in cob_packages if _is_product_archlucid_package(n)]
     low_projects = sorted(
         [(n, p) for n, p in product_rows if p < PER_PROJECT_LINE_WARN_PCT],
         key=lambda x: x[1],
@@ -184,7 +184,7 @@ def main() -> int:
 
     if cobertura_file.is_file() and not product_rows and cob_packages:
         lines.append(
-            "_Per-project table skipped: Cobertura packages did not match `ArchiForge.*` product filters._",
+            "_Per-project table skipped: Cobertura packages did not match `ArchLucid.*` product filters._",
         )
         lines.append("")
     elif not cobertura_file.is_file():

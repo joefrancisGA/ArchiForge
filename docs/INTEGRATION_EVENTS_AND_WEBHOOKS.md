@@ -49,8 +49,6 @@ Events using the outbox today:
 
 When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
 
-**Legacy type strings:** older `IntegrationEventTypes.*LegacyV1` values are **aliases** for the same logical events. In-process consumers should treat canonical and legacy names as equivalent (`IntegrationEventTypes.MapToCanonical` / `AreEquivalent`).
-
 **Operations:** pending and dead-letter depth surface in metrics; admin APIs remain `GET /admin/integration-outbox/dead-letters` and `POST /admin/integration-outbox/retry` (see API OpenAPI).
 
 ### Worker subscription consumer

@@ -1,3 +1,7 @@
+# NOTE: Resource addresses in this module may still use the historical `archiforge` token to avoid Terraform state disruption.
+# Rename via `terraform state mv` during a planned maintenance window.
+# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+
 locals {
   openai_consumption_budget_enabled = var.enable_openai_consumption_budget && length(trimspace(var.openai_consumption_budget_resource_group_id)) > 0
 

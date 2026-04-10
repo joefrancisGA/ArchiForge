@@ -23,7 +23,7 @@ type OperatorApiProblemProps = {
 
 /**
  * Renders API failures using Problem Details (`errorCode`, `supportHint`) when available,
- * plus optional **X-Correlation-ID** for support (WAF RE:05 / OE:07).
+ * plus optional correlation id (response header and/or problem JSON) for support triage.
  */
 export function OperatorApiProblem({
   problem,
@@ -44,7 +44,7 @@ export function OperatorApiProblem({
       ) : null}
       {trimmedCorrelation && trimmedCorrelation.length > 0 ? (
         <p style={correlationStyle}>
-          Reference (X-Correlation-ID): {trimmedCorrelation}
+          Reference (correlation ID — use with API logs and support bundle): {trimmedCorrelation}
         </p>
       ) : null}
     </Callout>

@@ -7,7 +7,7 @@ variable "enable_sql_failover_group" {
 variable "failover_group_name" {
   type        = string
   description = "Globally unique failover group name (Azure naming rules). Used in the listener FQDN: {name}.database.windows.net"
-  default     = "archiforge-sqlfg-disabled"
+  default     = "archlucid-sqlfg-disabled"
 
   validation {
     condition     = length(var.failover_group_name) >= 1 && length(var.failover_group_name) <= 63
@@ -82,7 +82,7 @@ variable "sql_consumption_budget_resource_group_id" {
 variable "sql_consumption_budget_name" {
   type        = string
   description = "Budget name (unique within the resource group scope in Cost Management)."
-  default     = "archiforge-sql-monthly"
+  default     = "archlucid-sql-monthly"
 
   validation {
     condition     = length(var.sql_consumption_budget_name) >= 1 && length(var.sql_consumption_budget_name) <= 63

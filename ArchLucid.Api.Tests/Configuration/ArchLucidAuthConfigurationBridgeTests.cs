@@ -16,8 +16,8 @@ public sealed class ArchLucidAuthConfigurationBridgeTests
             .AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchiForgeAuth:Mode"] = "ApiKey",
-                    ["ArchiForgeAuth:Audience"] = "api://legacy",
+                    ["ArchLucidAuth:Mode"] = "ApiKey",
+                    ["ArchLucidAuth:Audience"] = "api://legacy",
                     ["ArchLucidAuth:Mode"] = "JwtBearer",
                     ["ArchLucidAuth:Authority"] = "https://login.example/"
                 })

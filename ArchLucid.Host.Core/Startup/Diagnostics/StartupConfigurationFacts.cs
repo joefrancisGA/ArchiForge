@@ -52,7 +52,7 @@ internal static class StartupConfigurationFactsReader
             environment.EnvironmentName,
             environment.ContentRootPath,
             !string.IsNullOrWhiteSpace(ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)),
-            configuration["ArchLucid:StorageProvider"] ?? configuration["ArchiForge:StorageProvider"] ?? "(missing)",
+            configuration["ArchLucid:StorageProvider"] ?? "(missing)",
             configuration["Retrieval:VectorIndex"] ?? "(missing)",
             configuration["AgentExecution:Mode"] ?? "(missing)",
             ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode") ?? "(missing)",

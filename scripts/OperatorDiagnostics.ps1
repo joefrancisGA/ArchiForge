@@ -42,7 +42,7 @@ function Write-OperatorFailureTriage {
     Write-Host '-------------------------' -ForegroundColor Red
 }
 
-function Get-ArchiForgeHttpProbe {
+function Get-ArchLucidHttpProbe {
     param(
         [Parameter(Mandatory = $true)][string] $Uri,
         [int] $TimeoutSec = 8
@@ -86,7 +86,7 @@ function Get-ArchiForgeHttpProbe {
     }
 }
 
-function Get-ArchiForgeReadinessFailureSummaryLines {
+function Get-ArchLucidReadinessFailureSummaryLines {
     param(
         [AllowNull()][string] $JsonContent
     )
@@ -102,7 +102,7 @@ function Get-ArchiForgeReadinessFailureSummaryLines {
         $o = $JsonContent | ConvertFrom-Json
 
         if ($null -eq $o.entries) {
-            $lines.Add('  (no entries[] in JSON — not a detailed health payload)')
+            $lines.Add('  (no entries[] in JSON - not a detailed health payload)')
             return $lines.ToArray()
         }
 
@@ -121,7 +121,7 @@ function Get-ArchiForgeReadinessFailureSummaryLines {
 
             for ($i = 1; $i -lt $bad.Count; $i++) {
                 $e = $bad[$i]
-                $lines.Add("    - $($e.name): $($e.status) — $($e.description)")
+                $lines.Add("    - $($e.name): $($e.status) - $($e.description)")
             }
         }
     }
@@ -139,7 +139,7 @@ function Get-ArchiForgeReadinessFailureSummaryLines {
     return $lines.ToArray()
 }
 
-function Write-ArchiForgeReadinessTimeoutDiagnostics {
+function Write-ArchLucidReadinessTimeoutDiagnostics {
     param(
         [Parameter(Mandatory = $true)][string] $ApiBaseUrl,
         [int] $TimeoutSec = 10
@@ -149,19 +149,19 @@ function Write-ArchiForgeReadinessTimeoutDiagnostics {
     Write-Host ''
     Write-Host '--- Readiness probe snapshot (after timeout) ---' -ForegroundColor DarkYellow
 
-    $ready = Get-ArchiForgeHttpProbe -Uri ($base + '/health/ready') -TimeoutSec $TimeoutSec
+    $ready = Get-ArchLucidHttpProbe -Uri ($base + '/health/ready') -TimeoutSec $TimeoutSec
     Write-Host "GET /health/ready -> HTTP $($ready.StatusCode) ok=$($ready.Ok)"
 
     if (-not [string]::IsNullOrWhiteSpace($ready.Error)) {
         Write-Host "  transport: $($ready.Error)"
     }
 
-    $detailLines = Get-ArchiForgeReadinessFailureSummaryLines -JsonContent $ready.Content
+    $detailLines = Get-ArchLucidReadinessFailureSummaryLines -JsonContent $ready.Content
 
     foreach ($dl in $detailLines) {
         Write-Host $dl
     }
 
-    $agg = Get-ArchiForgeHttpProbe -Uri ($base + '/health') -TimeoutSec $TimeoutSec
+    $agg = Get-ArchLucidHttpProbe -Uri ($base + '/health') -TimeoutSec $TimeoutSec
     Write-Host "GET /health -> HTTP $($agg.StatusCode) ok=$($agg.Ok) (aggregate; same order as API health pipeline)"
 }

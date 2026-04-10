@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Tests;
 /// <summary>
 /// Fails when the ASP.NET Core OpenAPI document (<c>MapOpenApi</c>, <c>/openapi/v1.json</c>) drifts from the committed snapshot.
 /// Swashbuckle <c>/swagger/v1/swagger.json</c> is covered by generation smoke tests; this snapshot uses the Microsoft OpenAPI document for stable contract diffing.
-/// Regenerate: <c>ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root.
+/// Regenerate: <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> from repo root.
 /// </summary>
 [Trait("Suite", "Core")]
 public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory factory)
@@ -31,7 +31,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         Assert.NotNull(actualNode);
 
         if (string.Equals(
-                Environment.GetEnvironmentVariable("ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT"),
+                Environment.GetEnvironmentVariable("ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT"),
                 "1",
                 StringComparison.Ordinal))
         {
@@ -49,7 +49,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         string snapshotOnDisk = Path.Combine(AppContext.BaseDirectory, "Contracts", SnapshotFileName);
         Assert.True(
             File.Exists(snapshotOnDisk),
-            $"Missing snapshot at {snapshotOnDisk}. Run once with ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 to generate.");
+            $"Missing snapshot at {snapshotOnDisk}. Run once with ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 to generate.");
 
         string expectedJson = await File.ReadAllTextAsync(snapshotOnDisk);
         JsonNode? expectedNode = JsonNode.Parse(expectedJson);
@@ -59,7 +59,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         
             Assert.Fail(
                 $"OpenAPI document drifted from Contracts/{SnapshotFileName}. " +
-                "Review API changes, then regenerate with ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1.");
+                "Review API changes, then regenerate with ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1.");
         
     }
 

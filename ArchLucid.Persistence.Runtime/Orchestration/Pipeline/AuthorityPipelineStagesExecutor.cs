@@ -24,7 +24,8 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Persistence.Orchestration.Pipeline;
 
 /// <summary>
-/// Default pipeline executor with one OpenTelemetry span per major stage (<c>authority.*</c> activity names).
+/// Default pipeline executor with one OpenTelemetry span per major stage (<c>authority.*</c> activity names),
+/// explicitly parented to <see cref="AuthorityPipelineContext.RunActivity"/> when present.
 /// </summary>
 public sealed class AuthorityPipelineStagesExecutor(
     IRunRepository runRepository,
@@ -96,29 +97,27 @@ public sealed class AuthorityPipelineStagesExecutor(
         RunRecord run = ctx.Run;
         ScopeContext scope = ctx.Scope;
 
-        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.context_ingestion"))
+        await ExecuteStageAsync(ctx, "authority.context_ingestion", "context_ingestion", async (_, token) =>
         {
-            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
-            ctx.PriorCommittedContext ??= await _contextSnapshotRepository.GetLatestAsync(ctx.Request.ProjectId, ct);
+            ctx.PriorCommittedContext ??= await _contextSnapshotRepository.GetLatestAsync(ctx.Request.ProjectId, token);
 
-            ContextSnapshot contextSnapshot = await _contextIngestionService.IngestAsync(ctx.Request, ct);
-            await SaveContextAsync(contextSnapshot, uow, ct);
+            ContextSnapshot contextSnapshot = await _contextIngestionService.IngestAsync(ctx.Request, token);
+            await SaveContextAsync(contextSnapshot, uow, token);
             ctx.ContextSnapshot = contextSnapshot;
 
             run.ContextSnapshotId = contextSnapshot.SnapshotId;
-            await UpdateRunAsync(run, uow, ct);
-        }
+            await UpdateRunAsync(run, uow, token);
+        }, ct);
 
-        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.graph"))
+        await ExecuteStageAsync(ctx, "authority.graph", "graph", async (_, token) =>
         {
-            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
                 ctx.PriorCommittedContext,
                 ctx.ContextSnapshot!,
                 run.RunId,
                 _knowledgeGraphService,
                 _graphSnapshotRepository,
-                ct);
+                token);
 
             ctx.GraphResolution = graphResolution;
             GraphSnapshot graphSnapshot = graphResolution.Snapshot;
@@ -133,44 +132,42 @@ public sealed class AuthorityPipelineStagesExecutor(
                     graphSnapshot.GraphSnapshotId);
             }
 
-            await SaveGraphAsync(graphSnapshot, uow, ct);
+            await SaveGraphAsync(graphSnapshot, uow, token);
 
             run.GraphSnapshotId = graphSnapshot.GraphSnapshotId;
-            await UpdateRunAsync(run, uow, ct);
-        }
+            await UpdateRunAsync(run, uow, token);
+        }, ct);
 
-        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.findings"))
+        await ExecuteStageAsync(ctx, "authority.findings", "findings", async (_, token) =>
         {
-            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             FindingsSnapshot findingsSnapshot = await _findingsOrchestrator.GenerateFindingsSnapshotAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
-                ct);
+                token);
 
-            await SaveFindingsAsync(findingsSnapshot, uow, ct);
+            await SaveFindingsAsync(findingsSnapshot, uow, token);
             ctx.FindingsSnapshot = findingsSnapshot;
 
             run.FindingsSnapshotId = findingsSnapshot.FindingsSnapshotId;
-            await UpdateRunAsync(run, uow, ct);
-        }
+            await UpdateRunAsync(run, uow, token);
+        }, ct);
 
-        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.decisioning"))
+        await ExecuteStageAsync(ctx, "authority.decisioning", "decisioning", async (_, token) =>
         {
-            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
             (GoldenManifest manifest, DecisionTrace trace) = await _decisionEngine.DecideAsync(
                 run.RunId,
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
                 ctx.FindingsSnapshot!,
-                ct);
+                token);
 
             ApplyScope(trace, scope);
             ApplyScope(manifest, scope);
             manifest.ManifestHash = _manifestHashService.ComputeHash(manifest);
 
-            await SaveTraceAsync(trace, uow, ct);
-            await SaveManifestAsync(manifest, uow, ct);
+            await SaveTraceAsync(trace, uow, token);
+            await SaveManifestAsync(manifest, uow, token);
 
             await _auditService.LogAsync(
                 new AuditEvent
@@ -186,20 +183,19 @@ public sealed class AuthorityPipelineStagesExecutor(
                         },
                         AuditJsonSerializationOptions.Instance)
                 },
-                ct);
+                token);
 
             ctx.Manifest = manifest;
             ctx.Trace = trace;
 
             run.DecisionTraceId = trace.RequireRuleAudit().DecisionTraceId;
             run.GoldenManifestId = manifest.ManifestId;
-            await UpdateRunAsync(run, uow, ct);
-        }
+            await UpdateRunAsync(run, uow, token);
+        }, ct);
 
-        using (Activity? a = ArchLucidInstrumentation.AuthorityRun.StartActivity("authority.artifacts"))
+        await ExecuteStageAsync(ctx, "authority.artifacts", "artifacts", async (_, token) =>
         {
-            a?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
-            ArtifactBundle artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, ct);
+            ArtifactBundle artifactBundle = await _artifactSynthesisService.SynthesizeAsync(ctx.Manifest!, token);
 
             if (_logger.IsEnabled(LogLevel.Information))
             {
@@ -211,7 +207,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                     artifactBundle.Trace.TraceId);
             }
 
-            await SaveArtifactBundleAsync(artifactBundle, uow, ct);
+            await SaveArtifactBundleAsync(artifactBundle, uow, token);
 
             await _auditService.LogAsync(
                 new AuditEvent
@@ -227,12 +223,53 @@ public sealed class AuthorityPipelineStagesExecutor(
                         },
                         AuditJsonSerializationOptions.Instance)
                 },
-                ct);
+                token);
 
             ctx.ArtifactBundle = artifactBundle;
 
             run.ArtifactBundleId = artifactBundle.BundleId;
-            await UpdateRunAsync(run, uow, ct);
+            await UpdateRunAsync(run, uow, token);
+        }, ct);
+    }
+
+    private async Task ExecuteStageAsync(
+        AuthorityPipelineContext ctx,
+        string activityName,
+        string stageName,
+        Func<Activity?, CancellationToken, Task> stageWork,
+        CancellationToken ct)
+    {
+        ActivityContext parentContext = ctx.RunActivity?.Context ?? default;
+
+        using Activity? activity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
+            activityName,
+            ActivityKind.Internal,
+            parentContext);
+
+        activity?.SetTag("archlucid.run_id", ctx.Run.RunId.ToString("D"));
+        activity?.SetTag("archlucid.stage.name", stageName);
+
+        long startTicks = Stopwatch.GetTimestamp();
+        string outcome = "success";
+
+        try
+        {
+            await stageWork(activity, ct);
+        }
+        catch (Exception ex)
+        {
+            outcome = "error";
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            activity?.SetTag("error.type", ex.GetType().Name);
+            throw;
+        }
+        finally
+        {
+            double elapsedMs = Stopwatch.GetElapsedTime(startTicks).TotalMilliseconds;
+            ArchLucidInstrumentation.AuthorityPipelineStageDurationMilliseconds.Record(
+                elapsedMs,
+                new KeyValuePair<string, object?>("stage", stageName),
+                new KeyValuePair<string, object?>("outcome", outcome));
         }
     }
 

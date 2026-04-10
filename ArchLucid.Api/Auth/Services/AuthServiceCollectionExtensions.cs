@@ -3,7 +3,6 @@ using System.Security.Claims;
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Authentication;
 using ArchLucid.Api.Configuration;
-using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,7 +12,7 @@ namespace ArchLucid.Api.Auth.Services;
 
 public static class AuthServiceCollectionExtensions
 {
-    /// <summary>Well-known scheme name used when <c>ArchLucidAuth:Mode</c> (or legacy <c>ArchiForgeAuth:Mode</c>) is <c>ApiKey</c>.</summary>
+    /// <summary>Well-known scheme name used when <c>ArchLucidAuth:Mode</c> is <c>ApiKey</c>.</summary>
     public const string ApiKeySchemeName = "ApiKey";
 
     public static IServiceCollection AddArchLucidAuth(
@@ -21,15 +20,6 @@ public static class AuthServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.Configure<ArchLucidAuthOptions>(configuration.GetSection(ArchLucidAuthOptions.SectionName));
-        services.PostConfigure<ArchLucidAuthOptions>(opts =>
-        {
-            IConfigurationSection lucid = configuration.GetSection(ArchLucidConfigurationBridge.ArchLucidAuthSectionName);
-
-            if (lucid.Exists())
-            {
-                lucid.Bind(opts);
-            }
-        });
 
         ArchLucidAuthOptions authOptions = ArchLucidAuthConfigurationBridge.Resolve(configuration);
 

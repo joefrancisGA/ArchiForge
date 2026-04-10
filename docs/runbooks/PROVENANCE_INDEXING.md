@@ -11,7 +11,7 @@ After a successful authority commit, **retrieval indexing** may run via **`IRetr
 
 ## Observability
 
-- Tracing: **`ArchLucid.Retrieval.Index`** **`ActivitySource`** (tag **`archiforge.run_id`**) when OTLP tracing includes **`AddSource`** for ArchLucid sources.
+- Tracing: **`ArchLucid.Retrieval.Index`** **`ActivitySource`** (tag **`archlucid.run_id`**) when OTLP tracing includes **`AddSource`** for ArchLucid sources.
 
 ## Mitigation (v1)
 

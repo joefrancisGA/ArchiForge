@@ -315,7 +315,7 @@ jobs:
 
       - name: Test — full solution
         env:
-          ARCHIFORGE_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests"
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
         run: dotnet test ArchLucid.sln --no-build -c Release --settings coverage.runsettings --collect:"XPlat Code Coverage" --results-directory "${{ runner.temp }}/coverage-full"
 
       - name: Merge coverage (HTML + GitHub job summary)
@@ -392,7 +392,7 @@ jobs:
             -c Release \
             -o "${RUNNER_TEMP}/nuget" \
             /p:SourceRevisionId=$(git rev-parse HEAD) \
-            /p:ArchiForgeApiClientPackageVersion=1.0.${{ github.run_number }}
+            /p:ArchLucidApiClientPackageVersion=1.0.${{ github.run_number }}
 
       - uses: actions/upload-artifact@v6
         with:

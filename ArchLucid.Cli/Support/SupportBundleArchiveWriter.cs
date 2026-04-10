@@ -9,8 +9,10 @@ namespace ArchLucid.Cli.Support;
 public static class SupportBundleArchiveWriter
 {
     public const string ManifestFileName = "manifest.json";
+    public const string ReadmeFileName = "README.txt";
     public const string BuildFileName = "build.json";
     public const string HealthFileName = "health.json";
+    public const string ApiContractFileName = "api-contract.json";
     public const string ConfigFileName = "config-summary.json";
     public const string EnvironmentFileName = "environment.json";
     public const string WorkspaceFileName = "workspace.json";
@@ -28,8 +30,16 @@ public static class SupportBundleArchiveWriter
         Directory.CreateDirectory(outputDirectory);
 
         WriteFile(Path.Combine(outputDirectory, ManifestFileName), SupportBundleCollector.SerializeIndented(payload.Manifest));
+        string readme = SupportBundleReadme.Build(
+            payload.Manifest.CreatedUtc,
+            string.IsNullOrWhiteSpace(payload.ConfigSummary.ApiBaseUrlRedacted)
+                ? "(unknown)"
+                : payload.ConfigSummary.ApiBaseUrlRedacted,
+            payload.Manifest.CliWorkingDirectory);
+        WriteFile(Path.Combine(outputDirectory, ReadmeFileName), readme);
         WriteFile(Path.Combine(outputDirectory, BuildFileName), SupportBundleCollector.SerializeIndented(payload.Build));
         WriteFile(Path.Combine(outputDirectory, HealthFileName), SupportBundleCollector.SerializeIndented(payload.Health));
+        WriteFile(Path.Combine(outputDirectory, ApiContractFileName), SupportBundleCollector.SerializeIndented(payload.ApiContract));
         WriteFile(Path.Combine(outputDirectory, ConfigFileName), SupportBundleCollector.SerializeIndented(payload.ConfigSummary));
         WriteFile(Path.Combine(outputDirectory, EnvironmentFileName), SupportBundleCollector.SerializeIndented(payload.Environment));
         WriteFile(Path.Combine(outputDirectory, WorkspaceFileName), SupportBundleCollector.SerializeIndented(payload.Workspace));

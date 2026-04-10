@@ -4,9 +4,9 @@ Thin Next.js App Router UI for runs, manifest summary, **artifact review**, **gr
 
 ## Change Set 55R (operator workflow)
 
-**First-time operators:** open **Home** (`/`) and use the collapsible **First-run workflow** panel (step-by-step links: new run wizard → runs list → commit → artifacts → compare/replay → export). **Hide guide** stores preference in `localStorage` (`archlucid_operator_workflow_guide_v1`).
+**First-time operators:** open **Home** (`/`) — the page title is **Operator home** — and use the collapsible **First-run workflow (V1 checklist)** panel (step-by-step links: new run wizard → runs list → commit → artifacts → compare/replay → export). **Hide checklist** stores preference in `localStorage` (`archlucid_operator_workflow_guide_v1`). The header row **Start here · runs & review** includes **New run**, **Runs**, **Graph**, **Compare two runs**, and **Replay a run**. Use **Tab** first for **Skip to main content** (keyboard).
 
-**End-to-end path:** Home → **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** (or manifest page) → preview + download → optional **Compare runs** / **Replay** / **Graph** from breadcrumbs or run actions.
+**End-to-end path:** Home → **New run** or **Runs** → **Open run** → manifest summary & **Artifacts** table → **Review** (or manifest page) → preview + download → optional **Compare two runs** / **Replay a run** / **Graph** from breadcrumbs or run actions.
 
 - **Artifact review:** List (`[]` when empty), descriptor metadata, in-shell preview with raw disclosure, stable table order (name, then id — aligned with API).
 - **Graph:** One run ID, multiple graph modes — for **visual** provenance/architecture, not two-run diff.
@@ -48,18 +48,18 @@ cp .env.example .env.local
 
 Edit `.env.local`:
 
-- **`ARCHLUCID_API_BASE_URL`** — ArchLucid API base (default in repo: `http://localhost:5128` per `ArchLucid.Api` launchSettings). Legacy `ARCHIFORGE_API_BASE_URL` is still read if unset.
-- **`ARCHLUCID_API_KEY`** — Required when the API has `Authentication:ApiKey:Enabled` = `true`. Sent from the Next.js server (RSC + `/api/proxy`). Legacy `ARCHIFORGE_API_KEY` is still read if unset. Keep server-only in production.
+- **`ARCHLUCID_API_BASE_URL`** — ArchLucid API base (default in repo: `http://localhost:5128` per `ArchLucid.Api` launchSettings).
+- **`ARCHLUCID_API_KEY`** — Required when the API has `Authentication:ApiKey:Enabled` = `true`. Sent from the Next.js server (RSC + `/api/proxy`). Keep server-only in production.
 
 Optional:
 
-- **`NEXT_PUBLIC_ARCHLUCID_API_BASE_URL`** — Public fallback (documentation / tooling; browser calls use `/api/proxy`). Legacy `NEXT_PUBLIC_ARCHIFORGE_API_BASE_URL` still read if unset.
+- **`NEXT_PUBLIC_ARCHLUCID_API_BASE_URL`** — Public fallback (documentation / tooling; browser calls use `/api/proxy`).
 
 ### OIDC / JWT (Entra ID)
 
-When the API uses **JWT bearer** auth (see `ArchLucid.Api/appsettings.Entra.sample.json` and API `ArchLucidAuth` / legacy `ArchiForgeAuth` sections):
+When the API uses **JWT bearer** auth (see `ArchLucid.Api/appsettings.Entra.sample.json` and API **`ArchLucidAuth`** section):
 
-1. Set **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt`** (or `jwt-bearer`; legacy `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` still works).
+1. Set **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE=jwt`** (or `jwt-bearer`).
 2. Register a **single-page application** client in Entra; add redirect URI **`http://localhost:3000/auth/callback`** (and production origins).
 3. Expose an API scope on the ArchLucid API app registration; grant the SPA **delegated** permission to that scope.
 4. Set **`NEXT_PUBLIC_OIDC_AUTHORITY`**, **`NEXT_PUBLIC_OIDC_CLIENT_ID`**, and **`NEXT_PUBLIC_OIDC_SCOPES`** (must include `openid` and your API scope so the access token validates against the API audience).
@@ -109,6 +109,6 @@ Downloads use **`/api/proxy/...`** so the browser receives files without attachi
 
 ## Auth
 
-- **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE`**: `development-bypass` (default) matches the API’s development-bypass auth mode (no real sign-in; API authenticates a dev principal). Legacy `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` still works.
+- **`NEXT_PUBLIC_ARCHLUCID_AUTH_MODE`**: `development-bypass` (default) matches the API’s development-bypass auth mode (no real sign-in; API authenticates a dev principal).
 - For **`JwtBearer`** API mode, set `ARCHLUCID_API_KEY` only if you still use a gateway key; otherwise forward **`Authorization: Bearer`** from the browser (proxy passes it through) and implement `getBearerToken()` in `src/lib/api.ts`.
 - Verify the API principal: `GET /api/auth/me` (requires Reader+).

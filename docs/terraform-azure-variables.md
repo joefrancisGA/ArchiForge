@@ -6,7 +6,7 @@
 
 | Variable / setting | Used for | Notes |
 |--------------------|----------|--------|
-| `sql_connection_string` (secret) | **`ConnectionStrings:ArchLucid`** (legacy: **`ConnectionStrings:ArchiForge`**) | Prefer **private endpoint** SQL; no public `0.0.0.0/0`. |
+| `sql_connection_string` (secret) | **`ConnectionStrings:ArchLucid`** | Prefer **private endpoint** SQL; no public `0.0.0.0/0`. |
 | `storage_account_name` + keys / MI | Artifacts, optional file connectors | **Private endpoint**; **no public SMB 445** exposure. |
 | `key_vault_uri` | Secrets, connection strings | App Service / Container Apps **Key Vault references**. |
 | `cors_allowed_origins` | Browser SPA origins | Must match **`Cors:AllowedOrigins`** array in app config. |
@@ -29,7 +29,7 @@ flowchart TB
 |--------------------|----------|--------|
 | `enable_api_management` | Turn APIM on | **`false` by default** — laptop / local dev leaves this off. Set **`true`** only when applying Terraform against Azure. |
 | `apim_name` | `azurerm_api_management` | Globally unique; **`Consumption_0`** SKU only (see `infra/terraform/`). |
-| `archiforge_api_backend_url` | API `service_url` | HTTPS URL the Consumption gateway can reach (typically public App Service origin). |
+| `archiforge_api_backend_url` | API `service_url` | HTTPS URL the Consumption gateway can reach (typically public App Service origin). Terraform **identifier** still uses `archiforge` until Phase 7.5 `state mv`; value is the ArchLucid API origin. |
 | `apim_openapi_spec_url` | Optional OpenAPI import | e.g. `https://<host>/swagger/v1/swagger.json`; empty uses bootstrap spec then re-apply with URL. |
 | `apim_api_path_suffix` | Gateway path segment | Public base: `https://<apim>.azure-api.net/<suffix>/...` |
 
@@ -58,11 +58,11 @@ flowchart TB
 | Variable / setting | Used for | Notes |
 |--------------------|----------|--------|
 | `enable_entra_api_app` | App registration + SP | **`false` by default** — **`infra/terraform-entra/`**. |
-| `api_identifier_uri` | JWT **audience** | Must match **`ArchiForgeAuth:Audience`** in the API. |
+| `api_identifier_uri` | JWT **audience** | Must match **`ArchLucidAuth:Audience`** in the API. |
 
 **Implementation:** `infra/terraform-entra/README.md`; sample config **`ArchLucid.Api/appsettings.Entra.sample.json`**.
 
 ## Constraints
 
 - Align with org **landing zone** (subnets, DNS zones, private endpoints).
-- Keep **DDL** in the single SQL file discipline (`ArchLucid.Persistence/Scripts/ArchiForge.sql`) and apply via pipeline.
+- Keep **DDL** in the single SQL file discipline (`ArchLucid.Persistence/Scripts/ArchLucid.sql`) and apply via pipeline.

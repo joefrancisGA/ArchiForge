@@ -9,7 +9,7 @@ output "api_management_gateway_url" {
 }
 
 output "api_management_api_base_path" {
-  description = "Relative path segment for the ArchiForge API on the gateway."
+  description = "Relative path segment for the ArchLucid API on the gateway."
   value       = var.enable_api_management ? var.apim_api_path_suffix : null
 }
 

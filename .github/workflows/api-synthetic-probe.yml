@@ -85,4 +85,4 @@ jobs:
           probe_one "/health/live" "GET /health/live"
           probe_one "/version" "GET /version"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Authoritative monthly availability remains **Prometheus** (\`archiforge:slo:http_availability:ratio\`); this job is an external canary." >> "$GITHUB_STEP_SUMMARY"
+          echo "Authoritative monthly availability remains **Prometheus** (\`archlucid:slo:http_availability:ratio\`); this job is an external canary." >> "$GITHUB_STEP_SUMMARY"

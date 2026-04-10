@@ -1,3 +1,5 @@
+using ArchLucid.Host.Core.Configuration;
+
 using Microsoft.OpenApi;
 
 namespace ArchLucid.Api.Swagger;
@@ -36,15 +38,15 @@ internal static class OpenApiAuthDocumentMutator
 
     private static OpenApiSecurityScheme CreateBearerScheme(IConfiguration configuration)
     {
-        string? audience = configuration["ArchiForgeAuth:Audience"]?.Trim();
-        string? authority = configuration["ArchiForgeAuth:Authority"]?.Trim();
+        string? audience = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Audience");
+        string? authority = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Authority");
 
         string audienceNote = string.IsNullOrEmpty(audience)
-            ? "Configure ArchLucidAuth:Audience (or ArchiForgeAuth:Audience) to match your Entra application ID URI (e.g. api://your-api)."
+            ? "Configure ArchLucidAuth:Audience to match your Entra application ID URI (e.g. api://your-api)."
             : $"JWT **aud** must match **`{audience}`**.";
 
         string authorityNote = string.IsNullOrEmpty(authority)
-            ? "Set ArchLucidAuth:Authority (or ArchiForgeAuth:Authority) to your tenant issuer (e.g. https://login.microsoftonline.com/{tenant-id}/v2.0)."
+            ? "Set ArchLucidAuth:Authority to your tenant issuer (e.g. https://login.microsoftonline.com/{tenant-id}/v2.0)."
             : $"Tokens must be issued by **`{authority}`**.";
 
         return new OpenApiSecurityScheme
@@ -70,7 +72,7 @@ internal static class OpenApiAuthDocumentMutator
             In = ParameterLocation.Header,
             Description =
                 "Static API key. Send **`X-Api-Key`** on each request. "
-                + "Configure **Authentication:ApiKey:*** and set **ArchLucidAuth:Mode** (or **ArchiForgeAuth:Mode**) to **ApiKey**."
+                + "Configure **Authentication:ApiKey:*** and set **ArchLucidAuth:Mode** to **ApiKey**."
         };
     }
 }

@@ -15,5 +15,6 @@ public interface IArtifactPackagingService
         Guid manifestId,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         string manifestJson,
-        string? traceJson = null);
+        string? traceJson = null,
+        RunExportReadmeContext? readmeContext = null);
 }

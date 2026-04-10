@@ -4,6 +4,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
@@ -46,8 +47,11 @@ public sealed class DataArchivalCoordinator(
         if (options.RunsRetentionDays > 0)
         {
             DateTimeOffset cutoff = now.AddDays(-options.RunsRetentionDays);
-            int n = await _runRepository.ArchiveRunsCreatedBeforeAsync(cutoff, ct);
-            _logger.LogInformation("Data archival: archived {Count} runs created before {Cutoff:O}.", n, cutoff);
+            RunArchiveBatchResult archivedRuns = await _runRepository.ArchiveRunsCreatedBeforeAsync(cutoff, ct);
+            _logger.LogInformation(
+                "Data archival: archived {Count} runs created before {Cutoff:O}.",
+                archivedRuns.UpdatedCount,
+                cutoff);
         }
 
         if (options.DigestsRetentionDays > 0)

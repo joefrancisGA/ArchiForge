@@ -27,6 +27,16 @@ public interface IAuthorityQueryService
         int take,
         CancellationToken ct);
 
+    /// <summary>
+    /// Lists a page of runs for <paramref name="projectId"/> (newest first) with total count for pagination.
+    /// </summary>
+    Task<(IReadOnlyList<RunSummaryDto> Items, int TotalCount)> ListRunsByProjectPagedAsync(
+        ScopeContext scope,
+        string projectId,
+        int skip,
+        int take,
+        CancellationToken ct);
+
     /// <summary>Loads a single run’s summary by id within <paramref name="scope"/>.</summary>
     /// <returns>The summary, or <see langword="null"/> when the run is missing or out of scope.</returns>
     Task<RunSummaryDto?> GetRunSummaryAsync(
@@ -40,6 +50,8 @@ public interface IAuthorityQueryService
     /// <returns>Aggregated detail, or <see langword="null"/> when the run is missing or out of scope.</returns>
     /// <remarks>
     /// Missing child rows (e.g. deleted snapshot) surface as <see langword="null"/> properties on <see cref="RunDetailDto"/> rather than failing the whole call.
+    /// The artifact bundle is resolved with <c>GetByManifestIdAsync</c> whenever <see cref="RunRecord.GoldenManifestId"/> is set;
+    /// <see cref="RunRecord.ArtifactBundleId"/> is optional denormalization and is not required to load the bundle for replay/export/detail.
     /// </remarks>
     Task<RunDetailDto?> GetRunDetailAsync(
         ScopeContext scope,

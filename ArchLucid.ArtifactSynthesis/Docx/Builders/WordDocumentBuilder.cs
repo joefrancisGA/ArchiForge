@@ -1,5 +1,6 @@
 using ArchLucid.Decisioning.Manifest.Sections;
 
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace ArchLucid.ArtifactSynthesis.Docx.Builders;
@@ -44,6 +45,34 @@ public static class WordDocumentBuilder
             string line = block.Trim();
             if (line.Length > 0)
                 AddBodyText(body, line);
+        }
+    }
+
+    /// <summary>Preserves line breaks; Consolas for Mermaid or code excerpts embedded in exports.</summary>
+    public static void AddMonospaceSourceLines(Body body, string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            AddBodyText(body, "(empty)");
+            return;
+        }
+
+        foreach (string rawLine in text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n'))
+        {
+            string line = rawLine ?? string.Empty;
+            Run run = new Run(
+                new RunProperties(
+                    new RunFonts
+                    {
+                        Ascii = "Consolas",
+                        HighAnsi = "Consolas",
+                        ComplexScript = "Consolas",
+                    }),
+                new Text(line) { Space = SpaceProcessingModeValues.Preserve });
+            body.AppendChild(
+                new Paragraph(
+                    new ParagraphProperties(new ParagraphStyleId { Val = DocxStyleIds.BodyText }),
+                    run));
         }
     }
 

@@ -161,6 +161,13 @@ public static class ArchLucidInstrumentation
             "archlucid_authority_runs_completed_total",
             description: "Authority runs completed through FinalizeCommittedPipelineAsync.");
 
+    /// <summary>Per-stage wall time inside the authority pipeline (labels: <c>stage</c>, <c>outcome</c>=success|error).</summary>
+    public static readonly Histogram<double> AuthorityPipelineStageDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_authority_pipeline_stage_duration_ms",
+            unit: "ms",
+            description: "Per-stage wall time inside the authority pipeline (labels: stage, outcome).");
+
     /// <summary>Production agent handler completions (label: <c>agent_type_key</c>, <c>outcome</c>=success|error).</summary>
     public static readonly Counter<long> AgentHandlerInvocationsTotal =
         AppMeter.CreateCounter<long>(

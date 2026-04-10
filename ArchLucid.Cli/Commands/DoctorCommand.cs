@@ -131,7 +131,7 @@ internal static class DoctorCommand
         if (config is null)
         {
             Console.WriteLine(
-                $"No archiforge.json in '{cwd}' (skipped local outputs/brief checks). API checks still run.");
+                $"No archlucid.json in '{cwd}' (skipped local outputs/brief checks). API checks still run.");
 
             Console.WriteLine();
 
@@ -150,7 +150,7 @@ internal static class DoctorCommand
         try
         {
             Directory.CreateDirectory(outputsDir);
-            string probe = Path.Combine(outputsDir, ".archiforge-write-probe");
+            string probe = Path.Combine(outputsDir, ".archlucid-write-probe");
             File.WriteAllText(probe, "ok");
             File.Delete(probe);
             Console.WriteLine($"Outputs dir: OK — {config.Outputs.LocalCacheDir} is writable");

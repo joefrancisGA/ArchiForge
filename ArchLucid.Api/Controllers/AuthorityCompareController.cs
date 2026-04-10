@@ -29,17 +29,29 @@ public sealed class AuthorityCompareController(
     /// <param name="leftManifestId">First manifest.</param>
     /// <param name="rightManifestId">Second manifest.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns><see cref="ManifestComparisonResponse"/>, or 404 when either id is missing or manifests are not in the same scope.</returns>
+    /// <returns><see cref="ManifestComparisonResponse"/>, 404 when either id is missing in scope, or 409 when both exist but belong to different stored scopes.</returns>
     [HttpGet("manifests")]
     [ProducesResponseType(typeof(ManifestComparisonResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CompareManifests(
         [FromQuery] Guid leftManifestId,
         [FromQuery] Guid rightManifestId,
         CancellationToken ct = default)
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
-        ManifestComparisonResult? result = await compareService.CompareManifestsAsync(scope, leftManifestId, rightManifestId, ct);
+
+        ManifestComparisonResult? result;
+
+        try
+        {
+            result = await compareService.CompareManifestsAsync(scope, leftManifestId, rightManifestId, ct);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+
         if (result is null)
             return this.NotFoundProblem(
                 $"One or both manifests ('{leftManifestId}', '{rightManifestId}') were not found in the current scope.",

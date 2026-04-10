@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Cli.Commands;
@@ -70,8 +71,7 @@ public sealed class ArchLucidApiClient
         };
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
-        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY")
-            ?? Environment.GetEnvironmentVariable("ARCHIFORGE_API_KEY");
+        string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
         if (!string.IsNullOrWhiteSpace(apiKey))
         {
             http.DefaultRequestHeaders.Remove("X-Api-Key");
@@ -82,9 +82,7 @@ public sealed class ArchLucidApiClient
     }
 
     public static string GetDefaultBaseUrl() =>
-        Environment.GetEnvironmentVariable("ARCHLUCID_API_URL")
-        ?? Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL")
-        ?? "http://localhost:5128";
+        Environment.GetEnvironmentVariable("ARCHLUCID_API_URL") ?? "http://localhost:5128";
 
     /// <summary>
     /// Returns a human-readable reason when the value cannot be used as an absolute HTTP API base URL, or null when valid.
@@ -93,7 +91,7 @@ public sealed class ArchLucidApiClient
     {
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
-            return "API base URL is empty. Set apiUrl in archiforge.json in the project folder or ARCHLUCID_API_URL (legacy ARCHIFORGE_API_URL) (example: http://localhost:5128).";
+            return "API base URL is empty. Set apiUrl in archlucid.json in the project folder or ARCHLUCID_API_URL (example: http://localhost:5128).";
         }
 
         string trimmed = baseUrl.Trim();
@@ -110,7 +108,7 @@ public sealed class ArchLucidApiClient
         return null;
     }
 
-    /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHLUCID_API_URL (legacy ARCHIFORGE_API_URL) &gt; default.</summary>
+    /// <summary>Resolve API base URL: config.ApiUrl (when set) &gt; ARCHLUCID_API_URL &gt; default.</summary>
     public static string ResolveBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         return !string.IsNullOrWhiteSpace(config?.ApiUrl) ? config.ApiUrl.Trim().TrimEnd('/') : GetDefaultBaseUrl().TrimEnd('/');
@@ -176,6 +174,61 @@ public sealed class ArchLucidApiClient
             LogCliFailure($"GET {normalized}", ex);
 
             return (0, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// GET a path and capture at most <paramref name="maxBytes"/> of the UTF-8 body (for compact support-bundle probes).
+    /// </summary>
+    public async Task<(int StatusCode, string BodyPreview, bool BodyTruncated)> GetBoundedUtf8BodyAsync(
+        string relativePath,
+        int maxBytes,
+        CancellationToken ct = default)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxBytes, 1);
+
+        string normalized = relativePath.StartsWith("/", StringComparison.Ordinal)
+            ? relativePath
+            : "/" + relativePath;
+
+        try
+        {
+            using HttpResponseMessage response = await _http.GetAsync(normalized, HttpCompletionOption.ResponseHeadersRead, ct);
+            int code = (int)response.StatusCode;
+            await using Stream stream = await response.Content.ReadAsStreamAsync(ct);
+            using MemoryStream accumulator = new();
+
+            byte[] buffer = new byte[8192];
+
+            while (accumulator.Length < maxBytes + 1)
+            {
+                int toRead = (int)Math.Min(buffer.Length, maxBytes + 1 - accumulator.Length);
+
+
+                if (toRead <= 0)
+                    break;
+
+                int n = await stream.ReadAsync(buffer.AsMemory(0, toRead), ct);
+
+
+                if (n == 0)
+                    break;
+
+                accumulator.Write(buffer, 0, n);
+            }
+
+            byte[] all = accumulator.ToArray();
+            bool truncated = all.Length > maxBytes;
+            int useLen = truncated ? maxBytes : all.Length;
+            string text = Encoding.UTF8.GetString(all, 0, useLen);
+
+            return (code, text, truncated);
+        }
+        catch (Exception ex)
+        {
+            LogCliFailure($"GET {normalized} (bounded)", ex);
+
+            return (0, ex.GetType().Name + ": " + ex.Message, false);
         }
     }
 

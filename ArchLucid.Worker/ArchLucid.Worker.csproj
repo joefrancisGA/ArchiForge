@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ArchLucid.Worker</RootNamespace>
     <AssemblyName>ArchLucid.Worker</AssemblyName>
-    <UserSecretsId>archiforge-worker-host</UserSecretsId>
+    <UserSecretsId>archlucid-worker-host</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

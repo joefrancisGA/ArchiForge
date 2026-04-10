@@ -72,9 +72,28 @@ Correlation ids are **diagnostic identifiers**, not secrets. They may appear in 
 5. `using IDisposable _ = LogContext.PushProperty("CorrelationId", syntheticId);` for the same scope as the activity.
 6. Add a **Core** unit test with `ActivityListener` and literal source name string in `ShouldListenTo`.
 
-## 10. References
+## 10. Authority pipeline stage spans (`ArchLucid.AuthorityRun`)
+
+The synchronous authority path (`AuthorityRunOrchestrator` → `AuthorityPipelineStagesExecutor`) uses the same **`ActivitySource`** as the run span. Each major stage is a **child span** explicitly parented to **`AuthorityPipelineContext.RunActivity`** (the orchestrator’s run activity), not only to **`Activity.Current`**. That keeps the trace tree correct when intermediate code starts other activities.
+
+| Span (operation name) | Tag `archlucid.stage.name` | Purpose |
+|------------------------|----------------------------|---------|
+| `authority.context_ingestion` | `context_ingestion` | Prior context + ingest + persist |
+| `authority.graph` | `graph` | Graph resolution + persist |
+| `authority.findings` | `findings` | Findings snapshot + persist |
+| `authority.decisioning` | `decisioning` | Decision engine + manifest/trace + audit |
+| `authority.artifacts` | `artifacts` | Synthesis + bundle + audit |
+
+**Common tags:** `archlucid.run_id` on every stage; on failure, `error.type` and span status **Error** with the exception message.
+
+**Metric (same `ArchLucid` meter):** `archlucid_authority_pipeline_stage_duration_ms` (unit **ms**), labels **`stage`** (values above) and **`outcome`** (`success` | `error`). See [OBSERVABILITY.md](OBSERVABILITY.md).
+
+**Tests:** `ArchLucid.Persistence.Tests` — `AuthorityPipelineStagesExecutorTests` (`Suite=Core`).
+
+## 11. References
 
 - `ArchLucid.Core.Diagnostics.ArchLucidInstrumentation`
 - `ArchLucid.Core.Diagnostics.ActivityCorrelation`
 - `ArchLucid.Host.Core.Startup.ObservabilityExtensions`
+- `docs/OBSERVABILITY.md` — meters, histograms, and activity sources
 - `docs/TEST_EXECUTION_MODEL.md` (`Suite=Core`)

@@ -8,6 +8,7 @@ import {
   OperatorEmptyState,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
+  OperatorTryNext,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -266,7 +267,7 @@ function CompareForm() {
           <p style={{ margin: 0 }}>
             Enter a <strong>base</strong> and <strong>target</strong> run ID before comparing. Query
             parameters <code>leftRunId</code> and <code>rightRunId</code> prefill these fields. Get IDs from{" "}
-            <Link href="/runs?projectId=default">Runs</Link> or the <strong>Compare runs (base = this run)</strong>{" "}
+            <Link href="/runs?projectId=default">Runs</Link> or the <strong>Compare two runs (base = this run)</strong>{" "}
             link on run detail.
           </p>
         </OperatorEmptyState>
@@ -311,14 +312,25 @@ function CompareForm() {
             fallbackMessage={legacyFailure.message}
             correlationId={legacyFailure.correlationId}
           />
+          <OperatorTryNext>
+            Confirm both run IDs exist and are in scope (same tenant/project as the shell). Re-copy IDs from{" "}
+            <Link href="/runs?projectId=default">Runs</Link> or run detail, then click <strong>Compare</strong> again.
+            Use the correlation ID in API logs if you escalate.
+          </OperatorTryNext>
         </>
       )}
 
       {legacyMalformed && (
-        <OperatorMalformedCallout>
-          <strong>Legacy comparison response was not usable.</strong>
-          <p style={{ margin: "8px 0 0" }}>{legacyMalformed}</p>
-        </OperatorMalformedCallout>
+        <>
+          <OperatorMalformedCallout>
+            <strong>Legacy comparison response was not usable.</strong>
+            <p style={{ margin: "8px 0 0" }}>{legacyMalformed}</p>
+          </OperatorMalformedCallout>
+          <OperatorTryNext>
+            Align API and UI versions (<code>GET /version</code>). If structured compare succeeded below, use that
+            section for review while legacy is investigated.
+          </OperatorTryNext>
+        </>
       )}
 
       {goldenFailure && (
@@ -335,14 +347,24 @@ function CompareForm() {
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>
             The legacy comparison may still have succeeded; check the sections below.
           </p>
+          <OperatorTryNext>
+            Verify both runs have committed golden manifests in scope. If only legacy diff is needed for now, scroll
+            to <strong>Legacy authority diff</strong> after confirming the pair in the summary panel.
+          </OperatorTryNext>
         </>
       )}
 
       {goldenMalformed && (
-        <OperatorMalformedCallout>
-          <strong>Structured comparison JSON did not match the UI contract.</strong>
-          <p style={{ margin: "8px 0 0" }}>{goldenMalformed}</p>
-        </OperatorMalformedCallout>
+        <>
+          <OperatorMalformedCallout>
+            <strong>Structured comparison JSON did not match the UI contract.</strong>
+            <p style={{ margin: "8px 0 0" }}>{goldenMalformed}</p>
+          </OperatorMalformedCallout>
+          <OperatorTryNext>
+            Treat this as contract drift—compare deployed API vs UI. The legacy diff section may still render if that
+            response was valid.
+          </OperatorTryNext>
+        </>
       )}
 
       {aiFailure && (
@@ -356,14 +378,23 @@ function CompareForm() {
             correlationId={aiFailure.correlationId}
             variant="warning"
           />
+          <OperatorTryNext>
+            AI is optional—use structured and legacy tables above for the authoritative diff. If this should work,
+            check API LLM configuration, quotas, and proxy timeouts, then retry <strong>Explain changes (AI)</strong>.
+          </OperatorTryNext>
         </>
       )}
 
       {aiMalformed && (
-        <OperatorMalformedCallout>
-          <strong>AI explanation response was not usable.</strong>
-          <p style={{ margin: "8px 0 0" }}>{aiMalformed}</p>
-        </OperatorMalformedCallout>
+        <>
+          <OperatorMalformedCallout>
+            <strong>AI explanation response was not usable.</strong>
+            <p style={{ margin: "8px 0 0" }}>{aiMalformed}</p>
+          </OperatorMalformedCallout>
+          <OperatorTryNext>
+            Fall back to structured/legacy compare. Capture the correlation ID and API version if filing a defect.
+          </OperatorTryNext>
+        </>
       )}
 
       {pairAligned && !loading && lastComparedPair !== null && (
@@ -465,7 +496,10 @@ function CompareSuspenseFallback() {
     <main>
       <OperatorLoadingNotice>
         <strong>Loading compare.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Reading URL parameters for this page…</p>
+        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          Reading <code>leftRunId</code> / <code>rightRunId</code> from the URL so shared compare links open with
+          fields prefilled…
+        </p>
       </OperatorLoadingNotice>
     </main>
   );

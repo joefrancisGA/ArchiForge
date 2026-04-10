@@ -38,7 +38,7 @@ internal static class RunCommand
         if (briefContent.Length < 10)
         {
             Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
-            await Console.Error.WriteLineAsync("Next: Edit inputs/brief.md (or the path in archiforge.json) with a longer description.");
+            await Console.Error.WriteLineAsync("Next: Edit inputs/brief.md (or the path in archlucid.json) with a longer description.");
 
             return 1;
         }

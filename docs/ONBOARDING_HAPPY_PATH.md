@@ -50,7 +50,7 @@ flowchart LR
 ## Local development
 
 - **SQL + dependencies:** `docker compose up -d` (see `docker-compose.yml`).
-- **Full .NET regression with SQL:** `scripts/run-full-regression-docker-sql.ps1` or `.sh` (sets `ARCHIFORGE_SQL_TEST`).
+- **Full .NET regression with SQL:** `scripts/run-full-regression-docker-sql.ps1` or `.sh` (sets `ARCHLUCID_SQL_TEST`).
 - **Test tiers:** `docs/TEST_EXECUTION_MODEL.md`
 
 ## Architecture decisions

@@ -1,10 +1,12 @@
 # Pilot guide (Change Set 56R)
 
-**Audience:** Design partners and early pilots who need to run **ArchLucid** locally or in a test environment **without** walking through internal design docs. *(Repository projects and packages still use the `ArchiForge.*` prefix until the directory rename completes.)*
+**Audience:** Design partners and early pilots who need to run **ArchLucid** locally or in a test environment **without** walking through internal design docs.
 
 **Scope:** For a decisive **V1 boundary** (in scope, out of scope, happy path, release gates), read **[V1_SCOPE.md](V1_SCOPE.md)** first; this guide is the practical onboarding narrative.
 
-**CLI naming:** Docs sometimes show the global tool form `archiforge …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchLucid.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
+**What you ship in V1:** An HTTP API plus optional **operator UI** for reviewing runs, manifests, and artifacts; SQL-backed storage and health/version endpoints for operations. Narrative scope and gates: **[V1_SCOPE.md](V1_SCOPE.md)** / **[V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md)**. **Release notes:** summarized in **[CHANGELOG.md](CHANGELOG.md)**; breaking operational changes in **[BREAKING_CHANGES.md](../BREAKING_CHANGES.md)**.
+
+**CLI naming:** Docs sometimes show the global tool form `archlucid …`. From a **clone without** `dotnet tool install`, use **`dotnet run --project ArchLucid.Cli -- <command>`** from the repo root (same as [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) and the **`release-smoke.ps1`** script).
 
 **Support:** See **[When you report an issue](#when-you-report-an-issue)** below and [TROUBLESHOOTING.md](TROUBLESHOOTING.md). Prefer a **support bundle** (sanitized JSON) plus **build/version** identity so we can reproduce quickly.
 
@@ -28,15 +30,15 @@ Default local setups often use a **simulator** for agents so you do not need clo
 |------|--------|
 | **.NET 10 SDK** | [Download](https://dotnet.microsoft.com/download). |
 | **SQL Server** | LocalDB, Express, Docker (`dotnet run --project ArchLucid.Cli -- dev up`), or an existing instance. |
-| **Connection string** | Set `ConnectionStrings:ArchiForge` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
-| **Storage mode** | For a normal pilot, use **`ArchiForge:StorageProvider`** = **`Sql`** (typical default in appsettings). |
+| **Connection string** | Set `ConnectionStrings:ArchLucid` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
+| **Storage mode** | For a normal pilot, use **`ArchLucid:StorageProvider`** = **`Sql`** (typical default in appsettings). |
 | **Node.js 22+** | Optional; only for the **operator UI** in `archlucid-ui/`. |
 
 Clone or unpack the repo, then from `ArchLucid.Api`:
 
 ```bash
 cd ArchLucid.Api
-dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
+dotnet user-secrets set "ConnectionStrings:ArchLucid" "Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
 ```
 
 *(Adjust the connection string for your SQL instance.)*
@@ -120,9 +122,9 @@ This creates a project folder, submits from `inputs/brief.md`, seeds simulated r
 
 | Where | What to do |
 |-------|------------|
-| **Operator UI** | Start API, then in `archlucid-ui/`: `npm ci`, copy `.env.example` → `.env.local`, set **`ARCHIFORGE_API_BASE_URL`**, run **`npm run dev`**. Open **Runs** → your run → **Artifacts** → **Review** / **Download**. Details: [operator-shell.md](operator-shell.md), [archlucid-ui/README.md](../archlucid-ui/README.md). |
+| **Operator UI** | Start API, then in `archlucid-ui/`: `npm ci`, copy `.env.example` → `.env.local`, set **`ARCHLUCID_API_BASE_URL`**, run **`npm run dev`**. Open **Runs** → your run → **Artifacts** → **Review** / **Download**. Details: [operator-shell.md](operator-shell.md), [archlucid-ui/README.md](../archlucid-ui/README.md). |
 | **API** | List/download via artifact endpoints (see Swagger under artifacts/manifests). Empty list `[]` means “no files for this manifest,” not always an error. |
-| **CLI** | `dotnet run --project ArchLucid.Cli -- artifacts <runId>` (add `--save` to write manifest JSON under `outputs/`). Same via global tool: `archiforge artifacts …`. |
+| **CLI** | `dotnet run --project ArchLucid.Cli -- artifacts <runId>` (add `--save` to write manifest JSON under `outputs/`). Same via global tool: `archlucid artifacts …`. |
 
 Authoritative artifact content lives in the **database** (and streams through the API); local `outputs/` from the CLI is a **cache**, not the source of truth.
 
@@ -144,20 +146,20 @@ For a **full V1-style release gate** (scope freeze, recovery drill, export check
 |------|---------------------|--------|
 | **Quick gate** — Release build + fast core tests + Vitest (if Node installed) | `run-readiness-check.cmd` or `.\run-readiness-check.ps1` | On failure, the script prints a **triage** block (**Stage**, **Category**, **Next:** hints). [RELEASE_LOCAL.md](RELEASE_LOCAL.md) |
 | **Skip UI tests** | `.\run-readiness-check.ps1 -SkipUi` | |
-| **Deep smoke** — above + temporary API + CLI **`run --quick`** + artifact check | Set `ARCHIFORGE_SMOKE_SQL`, then `release-smoke.cmd` or `.\release-smoke.ps1` | Needs SQL and port **5128** (or `-ApiBaseUrl`). [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
+| **Deep smoke** — above + temporary API + CLI **`run --quick`** + artifact check | Set `ARCHLUCID_SMOKE_SQL`, then `release-smoke.cmd` or `.\release-smoke.ps1` | Needs SQL and port **5128** (or `-ApiBaseUrl`). [RELEASE_SMOKE.md](RELEASE_SMOKE.md) |
 | **Smoke without E2E** (no SQL for the script) | `.\release-smoke.ps1 -SkipE2E` | Build + tests (+ UI if Node present) only |
 
 ---
 
 ## Support bundle (for support tickets)
 
-From a machine where the **API is reachable** (set `ARCHIFORGE_API_URL` if not `http://localhost:5128`):
+From a machine where the **API is reachable** (set **`ARCHLUCID_API_URL`** if not `http://localhost:5128`):
 
 ```bash
 dotnet run --project ArchLucid.Cli -- support-bundle --zip
 ```
 
-Creates a UTC-stamped folder and a **zip** of JSON sections (build/version, health, non-secret config summary, filtered environment, workspace summary). **No secrets** in normal use — still **review** before sending externally. Optional: `--output <dir>` for a fixed folder name.
+Creates a UTC-stamped folder and a **zip**: start with **`README.txt`** inside the folder for triage order; **`manifest.json`** lists the same order as **`triageReadOrder`**. Includes **`api-contract.json`** (bounded **`GET /openapi/v1.json`**) plus build/version, health, config summary, filtered environment, workspace, references, logs. **No secrets** in normal use — still **review** before sending externally. Optional: `--output <dir>` for a fixed folder name.
 
 Details: [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [CLI_USAGE.md](CLI_USAGE.md).
 
@@ -203,7 +205,7 @@ Scripts: `test-fast-core.cmd`, `test-core.cmd` (and `.ps1`). Full tier list: [TE
 | **API logs** | **Console / host stdout** (Serilog). Search for **`RunId=`**, **`RequestId=`**, **`GraphResolutionMode=`** (authority path), and errors after failed requests. |
 | **Published API** | If you used **`package-release`**, the DLLs are under **`artifacts/release/api/`** (gitignored). The parent folder also has **`PACKAGE-HANDOFF.txt`**, **`metadata.json`**, **`release-manifest.json`**, and **`checksums-sha256.txt`** for support and integrity checks — see [RELEASE_LOCAL.md](RELEASE_LOCAL.md). |
 | **Synthesized architecture artifacts** | Stored **in the database**; exposed through the API and UI (not a shared folder on disk by default). |
-| **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchLucid.Cli -- artifacts <runId> --save`** (or `archiforge artifacts --save` if the tool is installed). |
+| **CLI `outputs/`** | Optional local copies when you use **`dotnet run --project ArchLucid.Cli -- artifacts <runId> --save`** (or `archlucid artifacts --save` if the tool is installed). |
 | **UI proxy diagnostics** | Next.js server logs may include JSON lines from **`archlucid-ui-proxy`** when the upstream API returns errors (see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)). |
 
 ---

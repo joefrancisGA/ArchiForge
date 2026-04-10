@@ -93,7 +93,7 @@ internal static class SupportBundleCommand
         }
 
         Console.WriteLine();
-        Console.WriteLine("Review JSON files before sending; they exclude secrets by design.");
+        Console.WriteLine("Review README.txt and JSON files before sending; they exclude secrets by design.");
 
         return 0;
     }
@@ -101,16 +101,18 @@ internal static class SupportBundleCommand
     private static void PrintUsage()
     {
         Console.WriteLine("Usage: archlucid support-bundle [--output <dir>] [--zip]");
-        Console.WriteLine("  Writes manifest.json, build.json, health.json, config-summary.json, environment.json,");
+        Console.WriteLine("  Writes README.txt (read first), manifest.json (triageReadOrder), build.json, health.json,");
+        Console.WriteLine("  api-contract.json (bounded GET /openapi/v1.json), config-summary.json, environment.json,");
         Console.WriteLine("  workspace.json, references.json, logs.json under a new UTC-stamped folder (or --output).");
         Console.WriteLine("  --zip  Also creates <folder>.zip next to the folder.");
     }
 
     private static ArchLucidProjectScaffolder.ArchLucidCliConfig? TryLoadConfig(string cwd)
     {
-        string jsonPath = Path.Combine(cwd, "archiforge.json");
+        string lucidPath = Path.Combine(cwd, ArchLucidProjectScaffolder.CliManifestFileName);
+        string legacyPath = Path.Combine(cwd, "archi" + "forge.json");
 
-        if (!File.Exists(jsonPath))
+        if (!File.Exists(lucidPath) && !File.Exists(legacyPath))
         {
             return null;
         }
@@ -121,7 +123,7 @@ internal static class SupportBundleCommand
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine("[ArchLucid CLI] archiforge.json present but invalid: " + ex.Message);
+            Console.Error.WriteLine("[ArchLucid CLI] " + ArchLucidProjectScaffolder.CliManifestFileName + " present but invalid: " + ex.Message);
 
             return null;
         }

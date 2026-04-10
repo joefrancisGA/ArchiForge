@@ -46,6 +46,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         problem.Extensions["errorCode"].Should().Be(ProblemErrorCodes.ComparisonVerificationFailed);
         problem.Extensions.Should().ContainKey("supportHint");
         ((string)problem.Extensions["supportHint"]!).ToLowerInvariant().Should().Contain("drift");
+        problem.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("exception-filter-cid");
     }
 
     [Fact]
@@ -148,23 +149,29 @@ public sealed class ApiProblemDetailsExceptionFilterTests
         // SqlException(-2) cannot be constructed directly; test via the mapper with a TimeoutException
         // which covers the same code path. The SqlException branch is tested implicitly by
         // the health check tests that use real SqlConnection failures.
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-timeout-cid");
+
         bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
-            new TimeoutException("sql timeout"), "/v1/runs", out ObjectResult? result);
+            new TimeoutException("sql timeout"), "/v1/runs", http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
+        p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("db-timeout-cid");
     }
 
     [Fact]
     public void TryMapDatabaseException_GenericDbException_Returns503DatabaseUnavailable()
     {
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-unavail-cid");
+
         bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
-            new TestDbException("connection refused"), "/v1/runs", out ObjectResult? result);
+            new TestDbException("connection refused"), "/v1/runs", http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        result!.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
         Microsoft.AspNetCore.Mvc.ProblemDetails p = result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.DatabaseUnavailable);
         p.Extensions.Should().ContainKey("supportHint");
@@ -197,8 +204,10 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     [Fact]
     public void TryMapDatabaseException_NonDatabaseException_ReturnsFalse()
     {
+        DefaultHttpContext http = CreateHttpContextForMapper("/v1/runs", "db-skip-cid");
+
         bool mapped = ApplicationProblemMapper.TryMapDatabaseException(
-            new InvalidOperationException("not a db error"), "/v1/runs", out ObjectResult? result);
+            new InvalidOperationException("not a db error"), "/v1/runs", http, out ObjectResult? result);
 
         mapped.Should().BeFalse();
         result.Should().BeNull();
@@ -211,6 +220,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
     {
         DefaultHttpContext httpContext = new()
         {
+            TraceIdentifier = "exception-filter-cid",
             Request = { Path = path }
         };
         ActionContext actionContext = new(
@@ -223,6 +233,15 @@ public sealed class ApiProblemDetailsExceptionFilterTests
             Exception = ex
         };
 #pragma warning restore IDE0028 // Simplify collection initialization
+    }
+
+    private static DefaultHttpContext CreateHttpContextForMapper(string path, string traceIdentifier)
+    {
+        return new DefaultHttpContext
+        {
+            TraceIdentifier = traceIdentifier,
+            Request = { Path = path }
+        };
     }
 
     private static void RunFilter(ExceptionContext context)

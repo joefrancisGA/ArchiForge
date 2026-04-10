@@ -21,10 +21,11 @@ API error responses may include:
 - **`detail`** — what went wrong (safe for operators; not stack traces).
 - **`extensions.errorCode`** — stable machine-readable code (e.g. `RUN_NOT_FOUND`).
 - **`extensions.supportHint`** — short **next step** for common situations (no secrets).
+- **`correlationId`** — same id as response header **`X-Correlation-ID`** (serialized at the JSON root with ASP.NET Core); use it to match **server logs** and **audit** rows when a HAR or support bundle omits response headers.
 
 The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures, aligned with the same guidance.
 
-**Operator UI:** JSON error bodies from **`/api/proxy/*`** may include **`supportHint`** when the proxy cannot reach the API (502) or when upstream URL configuration is invalid (503).
+**Operator UI:** JSON error bodies from **`/api/proxy/*`** include **`correlationId`** and **`supportHint`** for proxy-originated failures (502, 413, 429, bad upstream URL); upstream API errors pass through **`X-Correlation-ID`** and may include **`correlationId`** in problem JSON.
 
 ---
 
@@ -32,16 +33,16 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 
 | Symptom | Likely cause | What to try |
 |--------|----------------|-------------|
-| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix **`ConnectionStrings:ArchLucid`** (or legacy **`ConnectionStrings:ArchiForge`**). Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](BUILD.md), [SQL_SCRIPTS.md](SQL_SCRIPTS.md) |
+| API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix **`ConnectionStrings:ArchLucid`**. Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](BUILD.md), [SQL_SCRIPTS.md](SQL_SCRIPTS.md) |
 | **`/health/ready`** returns **503** | Database (when using Sql), schema files, rule pack, or temp directory check failed | Read JSON body for which check failed. Fix config/paths/permissions. |
-| **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchiForgeAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [README.md](../README.md#api-authentication-archiforgeauth) |
+| **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchLucidAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [README.md](../README.md#api-authentication-archlucidauth) |
 | **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
 | **`404`** on run or manifest | Wrong **run ID**, wrong **scope** (tenant/workspace/project), or data not in that scope | Re-use default scope headers or match the scope used at create time. |
 | **`409`** on commit | Run state / idempotency conflict | Follow message; may need to re-fetch run status or use a fresh run. [API_CONTRACTS.md](API_CONTRACTS.md) |
-| UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHIFORGE_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archlucid-ui/.env.local`. Restart `npm run dev`. |
+| UI shows **503** JSON “Invalid upstream API configuration” | **`ARCHLUCID_API_BASE_URL`** missing or invalid in **`.env.local`** | Set server-side base URL in `archlucid-ui/.env.local`. Restart `npm run dev`. |
 | UI loads but API calls fail | Proxy or CORS | Check **browser network** tab and **Next server logs** (look for **`archlucid-ui-proxy`** JSON warnings). Confirm API URL and that API allows your UI origin under **`Cors:AllowedOrigins`**. |
 | **`run --quick` / execute** fails with LLM or timeout errors | **Real agent** mode without valid Azure OpenAI config | For pilots, prefer **simulator** / default dev settings so no cloud keys are required. Check `AgentExecution` / related appsettings. |
-| .NET tests fail with SQL errors | No SQL Server for integration tests | Set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** (Linux/macOS/CI), or run **fast core** only. [BUILD.md](BUILD.md) |
+| .NET tests fail with SQL errors | No SQL Server for integration tests | Set **`ARCHLUCID_SQL_TEST`** or **`ARCHLUCID_API_TEST_SQL`** (Linux/macOS/CI), or run **fast core** only. [BUILD.md](BUILD.md) |
 
 ---
 
@@ -49,14 +50,14 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 
 1. Read the **console output** from first line to first `InvalidOperationException` / stack stop.
 2. **Configuration validation** runs **right after** the host is built: errors are logged as **`Startup configuration error:`** — fix each listed setting.
-3. If **`ConnectionStrings:ArchLucid`** / legacy **`ConnectionStrings:ArchiForge`** is unset while **`ArchiForge:StorageProvider`** is **`Sql`**, startup will fail once DB is required.
+3. If **`ConnectionStrings:ArchLucid`** is unset while **`ArchLucid:StorageProvider`** is **`Sql`**, startup will fail once DB is required.
 
 ---
 
 ## Logs — what to search for
 
 - **`RunId=`** — ties log lines to a single architecture run.
-- **`X-Correlation-ID`** you sent on the request (or the ID the server returned) — ties client attempts to server handling.
+- **`X-Correlation-ID`** you sent on the request (or the ID the server returned) — ties client attempts to server handling; if you only have a **problem JSON** body, use **`correlationId`** there (same value).
 - **`Authority pipeline`** / **`Architecture run execution failed`** — authority vs application run paths.
 - **`archlucid-ui-proxy`** — UI server-side forwarder problems (upstream status, bad base URL).
 
@@ -75,11 +76,13 @@ See [operator-shell.md](operator-shell.md) and [API_CONTRACTS.md](API_CONTRACTS.
 
 ## Support bundle (attach to tickets)
 
-With the **API running**, from repo root (or set **`ARCHIFORGE_API_URL`** to your API base):
+With the **API running**, from repo root (or set **`ARCHLUCID_API_URL`** to your API base):
 
 ```bash
 dotnet run --project ArchLucid.Cli -- support-bundle --zip
 ```
+
+**When to run it:** first-line pilot triage before deep log archaeology — attach the zip to tickets after a quick review (health/version/contract failures are obvious from the ordered files).
 
 Default output: folder **`support-bundle-<yyyyMMdd-HHmmss>Z`** in the current directory, plus a **`.zip`** of the same files when **`--zip`** is set.
 
@@ -87,7 +90,7 @@ Default output: folder **`support-bundle-<yyyyMMdd-HHmmss>Z`** in the current di
 dotnet run --project ArchLucid.Cli -- support-bundle --output ./my-bundle --zip
 ```
 
-**Contents (JSON only):** `manifest.json`, `build.json` (CLI build + raw **`GET /version`**), `health.json` (`/health/live`, `/health/ready`, `/health`, truncated bodies), `config-summary.json`, `environment.json` (filtered), `workspace.json`, `references.json`, `logs.json`. Secrets are not copied literally: sensitive env names are **`(set)`** / **`(not set)`**; **`ARCHIFORGE_*`** keys containing **`SQL`** never expose values; HTTP URLs may be redacted. **Review** before sending externally.
+**Contents:** **`README.txt`** (read this first — suggested open order), **`manifest.json`** (`bundleFormatVersion` **1.1**, `triageReadOrder`, `archlucidJsonPresent`), **`build.json`** (CLI build + raw **`GET /version`**), **`health.json`** (`/health/live`, `/health/ready`, `/health`, truncated bodies), **`api-contract.json`** (bounded **`GET /openapi/v1.json`** preview — proves the contract endpoint responds), **`config-summary.json`**, **`environment.json`** (filtered), **`workspace.json`**, **`references.json`**, **`logs.json`**. Secrets are not copied literally: sensitive env names are **`(set)`** / **`(not set)`**; **`ARCHLUCID_*`** keys containing **`SQL`** never expose values; HTTP URLs may be redacted. **Review** before sending externally.
 
 Full CLI flags: [CLI_USAGE.md](CLI_USAGE.md).
 

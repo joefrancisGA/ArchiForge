@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <!-- DbUp does not create AuditEvents / ProvenanceSnapshots / Conversation* tables. We apply a minimal
-       supplement only — not full ArchiForge.sql — because the consolidated script adds FK hardening
+       supplement only — not full ArchLucid.sql — because the consolidated script adds FK hardening
        (ContextSnapshots->Runs, ComparisonRecords->ArchitectureRuns, etc.) that breaks integration tests. -->
   <ItemGroup>
     <None Include="Scripts\PersistenceContractSupplement.sql">

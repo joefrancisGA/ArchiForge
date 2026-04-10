@@ -1,6 +1,6 @@
 # Build & project hygiene
 
-> **Product naming:** Documentation refers to the product as **ArchLucid** where it helps readers; repository folders, .NET assemblies (`ArchiForge.*`), and many CLI paths still use the `ArchiForge` prefix until later rename phases (see `docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+> **Product naming:** Documentation refers to the product as **ArchLucid**. Phase 7 retired legacy `ArchiForge*` configuration and CLI naming; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred items (Terraform state, repo path, etc.).
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment, and **[RELEASE_LOCAL.md](RELEASE_LOCAL.md)** (56R) for `build-release` / `package-release` / `run-readiness-check`.
 
@@ -76,10 +76,10 @@ Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTes
 
 ### Persistence tests (`ArchLucid.Persistence.Tests`)
 
-1. Set **`ARCHIFORGE_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
-2. On **Windows**, omit it and use **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchiForgePersistenceTests`**) when LocalDB is installed.
+1. Set **`ARCHLUCID_SQL_TEST`** to a full ADO.NET connection string (including **`Initial Catalog`**), **or**
+2. On **Windows**, omit it and use **LocalDB** (`(localdb)\mssqllocaldb`, catalog **`ArchLucidPersistenceTests`**) when LocalDB is installed.
 
-**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHIFORGE_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL). The **`dotnet-fast-core`** job **depends on** the Terraform **`terraform-validate-private`** and **`terraform-validate-public-stacks`** jobs so invalid IaC fails before the .NET corset runs.
+**CI:** The **`dotnet-full-regression`** job in **`.github/workflows/ci.yml`** sets **`ARCHLUCID_SQL_TEST`** against the **SQL Server 2022** service container (the **`dotnet-fast-core`** job does not start SQL). The **`dotnet-fast-core`** job **depends on** the Terraform **`terraform-validate-private`** and **`terraform-validate-public-stacks`** jobs so invalid IaC fails before the .NET corset runs.
 
 ### Application layer unit tests (`ArchLucid.Application.Tests`)
 
@@ -87,20 +87,20 @@ Shared resolution lives in **`ArchLucid.TestSupport`** (`SqlServerIntegrationTes
 
 ### API integration tests (`ArchLucid.Api.Tests`)
 
-**One-command local SQL regression (Docker):** from repo root run **`scripts/run-full-regression-docker-sql.ps1`** (Windows) or **`scripts/run-full-regression-docker-sql.sh`** (Linux/macOS). These start **`docker compose`** `sqlserver`, set **`ARCHIFORGE_SQL_TEST`** to match **`docker-compose.yml`** credentials, then run **`dotnet test ArchLucid.sln`**.
+**One-command local SQL regression (Docker):** from repo root run **`scripts/run-full-regression-docker-sql.ps1`** (Windows) or **`scripts/run-full-regression-docker-sql.sh`** (Linux/macOS). These start **`docker compose`** `sqlserver`, set **`ARCHLUCID_SQL_TEST`** to match **`docker-compose.yml`** credentials, then run **`dotnet test ArchLucid.sln`**.
 
-**`ArchiForgeApiFactory`** creates an ephemeral database per factory (`ArchiForgeTest_*` or `ArchiForgeAlertTest_*`) on the **same SQL Server instance** you configure:
+**`ArchLucidApiFactory`** creates an ephemeral database per factory (`ArchLucidTest_*` or `ArchLucidAlertTest_*`) on the **same SQL Server instance** you configure:
 
 | Priority | Variable | Value |
 |----------|----------|--------|
-| 1 | **`ARCHIFORGE_API_TEST_SQL`** | Connection string for server + auth; **`Initial Catalog`** is replaced per factory. |
-| 2 | **`ARCHIFORGE_SQL_TEST`** | Reuses server and credentials; catalog name is replaced per factory (works well with CI’s single container). |
+| 1 | **`ARCHLUCID_API_TEST_SQL`** | Connection string for server + auth; **`Initial Catalog`** is replaced per factory. |
+| 2 | **`ARCHLUCID_SQL_TEST`** | Reuses server and credentials; catalog name is replaced per factory (works well with CI’s single container). |
 | 3 | *(Windows only)* | **`localhost`** + integrated security if neither variable is set. |
-| — | Linux / macOS | **Must** set **`ARCHIFORGE_SQL_TEST`** or **`ARCHIFORGE_API_TEST_SQL`** (e.g. Docker SQL Server on `127.0.0.1,1433`). |
+| — | Linux / macOS | **Must** set **`ARCHLUCID_SQL_TEST`** or **`ARCHLUCID_API_TEST_SQL`** (e.g. Docker SQL Server on `127.0.0.1,1433`). |
 
-**Docker (local):** run SQL Server 2022 (or Azure SQL edge) and point **`ARCHIFORGE_SQL_TEST`** at it; API tests will piggyback the same server for ephemeral DBs.
+**Docker (local):** run SQL Server 2022 (or Azure SQL edge) and point **`ARCHLUCID_SQL_TEST`** at it; API tests will piggyback the same server for ephemeral DBs.
 
-Keep **one DDL source of truth** (`ArchLucid.Persistence/Scripts/ArchiForge.sql` + **`ArchLucid.Persistence/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
+Keep **one DDL source of truth** (`ArchLucid.Persistence/Scripts/ArchLucid.sql` + **`ArchLucid.Persistence/Migrations/*.sql`**) and let **`DatabaseMigrator`** apply embedded migrations to each test database.
 
 ## Central Package Management (CPM)
 
@@ -125,7 +125,7 @@ Typical gaps we fixed:
 | **ArchLucid.ContextIngestion.Tests** | **ContextIngestion**, **Contracts** (mapper tests) |
 | **ArchLucid.Decisioning.Tests** | **Contracts** (for `ManifestDeltaProposal`, `AgentResult`, etc.) |
 
-**Quick audit:** search new `using ArchiForge.*` in a project; if the namespace’s assembly is not referenced by that **.csproj**, add the project reference.
+**Quick audit:** search new `using ArchLucid.*` in a project; if the namespace’s assembly is not referenced by that **.csproj**, add the project reference.
 
 ## Decisioning — JSON Schema / options dependency bundle
 

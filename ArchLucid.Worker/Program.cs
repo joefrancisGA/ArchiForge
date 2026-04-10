@@ -2,6 +2,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Auth.Services;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
@@ -32,6 +33,8 @@ public static class Program
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, ArchLucidHostingRole.Worker);
 
         WebApplication app = builder.Build();
+
+        ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
 
         IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,

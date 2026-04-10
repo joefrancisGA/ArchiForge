@@ -5,12 +5,12 @@ This guide gets a **fresh SQL-backed** environment to a repeatable demo state: t
 ## Prerequisites
 
 - .NET 10 SDK
-- SQL Server connection string in `ConnectionStrings:ArchiForge` (LocalDB, Docker from `archiforge dev up`, or your own instance)
-- `ArchiForge:StorageProvider` = `Sql` in configuration (not `InMemory`) so the same database receives DbUp migrations and demo rows
+- SQL Server connection string in `ConnectionStrings:ArchLucid` (LocalDB, Docker via `dotnet run --project ArchLucid.Cli -- dev up`, or your own instance)
+- `ArchLucid:StorageProvider` = `Sql` in configuration (not `InMemory`) so the same database receives DbUp migrations and demo rows
 
 ## 1. Migrations (DbUp)
 
-On API startup, when `ConnectionStrings:ArchiForge` is set, [DatabaseMigrator](../ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) runs embedded scripts whose resource name contains **`.Migrations.`** (i.e. files under `ArchLucid.Persistence/Migrations/`) in **lexicographic** order. Console output lists each script. Governance workflow DDL is in **`017_GovernanceWorkflow.sql`** (approval requests, promotion records, environment activations).
+On API startup, when `ConnectionStrings:ArchLucid` is set, [DatabaseMigrator](../ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs) runs embedded scripts whose resource name contains **`.Migrations.`** (i.e. files under `ArchLucid.Persistence/Migrations/`) in **lexicographic** order. Console output lists each script. Governance workflow DDL is in **`017_GovernanceWorkflow.sql`** (approval requests, promotion records, environment activations).
 
 If migration fails, the process throws and the host does not start.
 
@@ -34,7 +34,7 @@ Configuration section: **`Demo`** (see [DemoOptions](../ArchLucid.Api/Configurat
 }
 ```
 
-Also set `ArchiForge:StorageProvider` to `Sql` and a valid SQL Server connection string (e.g. via user secrets).
+Also set `ArchLucid:StorageProvider` to `Sql` and a valid SQL Server connection string (e.g. via user secrets).
 
 ### Option B — explicit HTTP call
 
@@ -71,7 +71,7 @@ Replace base URL and version as needed (`v1.0`).
 
 ## 5. Tests
 
-[DemoSeedServiceTests](../ArchLucid.Api.Tests/DemoSeedServiceTests.cs) cover idempotency, canonical run detail, and governance environment comparison against the **`ArchiForgeApiFactory`** SQL Server test database.
+[DemoSeedServiceTests](../ArchLucid.Api.Tests/DemoSeedServiceTests.cs) cover idempotency, canonical run detail, and governance environment comparison against the **`ArchLucidApiFactory`** SQL Server test database.
 
 ## Safety
 

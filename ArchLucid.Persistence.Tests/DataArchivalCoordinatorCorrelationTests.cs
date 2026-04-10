@@ -5,6 +5,7 @@ using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -32,7 +33,7 @@ public sealed class DataArchivalCoordinatorCorrelationTests
         Mock<IRunRepository> runs = new();
         runs
             .Setup(r => r.ArchiveRunsCreatedBeforeAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(0);
+            .ReturnsAsync(new RunArchiveBatchResult { UpdatedCount = 0, ArchivedRuns = [] });
         Mock<IArchitectureDigestRepository> digests = new();
         Mock<IConversationThreadRepository> threads = new();
 

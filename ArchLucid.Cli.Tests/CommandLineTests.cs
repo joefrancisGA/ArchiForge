@@ -1,3 +1,5 @@
+using ArchLucid.Cli;
+
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -82,10 +84,10 @@ public sealed class CommandLineTests
 
                 exitCode.Should().Be(0);
                 string projectDir = Path.Combine(temp.Path, "TestProject");
-                string archiforgeJson = Path.Combine(projectDir, "archiforge.json");
+                string manifestPath = Path.Combine(projectDir, ArchLucidProjectScaffolder.CliManifestFileName);
                 string briefMd = Path.Combine(projectDir, "inputs", "brief.md");
 
-                File.Exists(archiforgeJson).Should().BeTrue("archiforge.json should be created");
+                File.Exists(manifestPath).Should().BeTrue("archlucid.json should be created");
                 File.Exists(briefMd).Should().BeTrue("inputs/brief.md should be created");
             }
             finally

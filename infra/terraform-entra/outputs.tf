@@ -15,7 +15,7 @@ output "api_application_client_id" {
 
 output "api_identifier_uri" {
   value       = var.enable_entra_api_app ? var.api_identifier_uri : null
-  description = "Configured App ID URI (ArchiForgeAuth:Audience in JwtBearer mode)."
+  description = "Configured App ID URI (ArchLucidAuth:Audience in JwtBearer mode)."
 }
 
 output "api_service_principal_object_id" {

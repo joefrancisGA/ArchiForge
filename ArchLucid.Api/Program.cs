@@ -8,6 +8,7 @@ using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup;
@@ -53,6 +54,8 @@ public partial class Program
         builder.Services.AddScoped<IGovernancePreviewService, GovernancePreviewService>();
 
         WebApplication app = builder.Build();
+
+        ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
 
         IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
             app.Configuration,

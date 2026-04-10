@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
+using ArchLucid.Core.Diagrams;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Diagrams;
@@ -24,20 +26,21 @@ public sealed class MermaidCliDiagramImageRenderer(
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(mermaidDiagram))
-        
+        {
             return null;
-        
+        }
 
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-mermaid", Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDir);
-
-        string inputPath = Path.Combine(tempDir, "diagram.mmd");
-        string outputPath = Path.Combine(tempDir, "diagram.png");
-
-        await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
 
         try
         {
+            Directory.CreateDirectory(tempDir);
+
+            string inputPath = Path.Combine(tempDir, "diagram.mmd");
+            string outputPath = Path.Combine(tempDir, "diagram.png");
+
+            await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
+
             ProcessStartInfo psi = new()
             {
                 FileName = "mmdc",
@@ -45,11 +48,12 @@ public sealed class MermaidCliDiagramImageRenderer(
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
             };
 
             using CancellationTokenSource timeoutCts = new(ProcessTimeout);
-            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+            using CancellationTokenSource linkedCts =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
 
             using Process process = new();
             process.StartInfo = psi;
@@ -61,26 +65,38 @@ public sealed class MermaidCliDiagramImageRenderer(
             await process.WaitForExitAsync(linkedCts.Token);
 
             if (process.ExitCode != 0)
-            
-                throw new InvalidOperationException(
-                    $"Mermaid CLI failed with exit code {process.ExitCode}. STDERR: {stdErr}");
-            
+            {
+                logger.LogWarning(
+                    "Mermaid CLI exited with code {ExitCode}. STDERR: {StdErr}",
+                    process.ExitCode,
+                    stdErr);
+
+                return null;
+            }
 
             if (!File.Exists(outputPath))
-            
-                throw new InvalidOperationException("Mermaid CLI did not produce an output PNG.");
-            
+            {
+                logger.LogWarning("Mermaid CLI reported success but output PNG was missing at {OutputPath}.", outputPath);
+
+                return null;
+            }
 
             return await File.ReadAllBytesAsync(outputPath, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Mermaid CLI diagram render failed; callers should fall back to Mermaid source text.");
+
+            return null;
         }
         finally
         {
             try
             {
                 if (Directory.Exists(tempDir))
-                
+                {
                     Directory.Delete(tempDir, recursive: true);
-                
+                }
             }
             catch (Exception ex)
             {

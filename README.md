@@ -1,6 +1,8 @@
 # ArchLucid
 
-ArchLucid (repository and packages may still use the **ArchiForge** name) is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
+ArchLucid is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
+
+**Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md)** for what to commit vs regenerate.
 
 ## Getting started
 
@@ -14,11 +16,14 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 | **[docs/GOLDEN_PATH.md](docs/GOLDEN_PATH.md)** | **Environment setup order:** role-based entry (developer / SRE / security), one diagram (**zero → local → prod-like dev → Azure**), phased checklists, **advanced appendix** for optional paths |
 | [docs/onboarding/README.md](docs/onboarding/README.md) | **Week-one tickets:** 3–5 checkboxes per role (dev, SRE, security) |
 | [docs/diagrams/c4/README.md](docs/diagrams/c4/README.md) | **C4 PNG set** (context, container, API components) for exec/security + `.mmd` sources |
-| [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, DecisionEngine bundle |
+| [docs/BUILD.md](docs/BUILD.md) | Build, CPM, project references, decisioning / merge pipeline (`ArchLucid.Decisioning`) |
+| [docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md) | **Clone hygiene:** committed vs generated output, `artifacts/`, API client `Generated/` |
 | [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md) | **56R:** Release build, package API to `artifacts/release/`, readiness script, pilot run instructions |
-| [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchiForge does, first run, artifacts, logs, tests |
+| [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) | **56R:** Pilot onboarding — what ArchLucid does, first run, artifacts, logs, tests |
 | [docs/V1_SCOPE.md](docs/V1_SCOPE.md) | **V1 scope contract:** in/out of scope, operator happy path, minimum release criteria |
 | [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md) | **V1 release checklist:** actionable gates (deploy, health, operator flow, exports, recovery) |
+| [docs/V1_RC_DRILL.md](docs/V1_RC_DRILL.md) | **V1 RC drill:** ordered E2E validation (deploy → runs → artifacts → compare → replay → export → bundle); **`v1-rc-drill.ps1`** |
+| [docs/V1_READINESS_SUMMARY.md](docs/V1_READINESS_SUMMARY.md) | **V1 readiness:** what is done, deferred, risky, pilot-good-enough, first after V1 |
 | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) | **56R:** Copy-paste command list for operators |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | **56R:** Common failures, health/auth/SQL/UI proxy, triage hints |
 | [docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md) | **56R + 57R:** `release-smoke` — API+CLI+artifact gate; optional **`-RunPlaywright`** for mock-backed UI operator journeys (see doc) |
@@ -45,7 +50,7 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 
 **Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Start here:** [docs/PILOT_GUIDE.md](docs/PILOT_GUIDE.md) (narrative), [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) (commands). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
-**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHIFORGE_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
+**Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
 **Build / version:** **`GET /version`** on the API, or **`dotnet run --project ArchLucid.Cli -- doctor`**. **Diagnostics:** **`dotnet run --project ArchLucid.Cli -- support-bundle --zip`** (review before sharing). **Reporting issues:** [docs/PILOT_GUIDE.md#when-you-report-an-issue](docs/PILOT_GUIDE.md#when-you-report-an-issue) (version, correlation ID, logs, bundle).
 
@@ -53,23 +58,23 @@ ArchLucid (repository and packages may still use the **ArchiForge** name) is an 
 
 - **Health:** `GET /health/live` (liveness), `GET /health/ready` (readiness: DB when using Sql storage, schema files, compliance rule pack, temp dir), `GET /health` (all checks). See [docs/BUILD.md](docs/BUILD.md) for startup vs migration failure behavior.
 - **Versioned API:** Routes are under `/v1/...`. Send optional **`X-Correlation-ID`** on requests for support correlation (see [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md)).
-- **Auth:** Configure **`ArchiForgeAuth`** (`DevelopmentBypass` locally, `JwtBearer` in production). Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
+- **Auth:** Configure **`ArchLucidAuth`** (`DevelopmentBypass` locally, `JwtBearer` in production). Policies map to `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` (see **API authentication** below).
 - **SMB / storage:** Do not expose file shares (SMB, port 445) on the public internet; use private endpoints and controlled boundaries for any Azure storage or hybrid file access.
 
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- SQL Server (LocalDB, Express, or full) with a database for ArchiForge
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archiforge dev up`)
+- SQL Server (LocalDB, Express, or full) with a database for ArchLucid
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (optional; for `archlucid dev up`)
 - Node.js 22+ (optional; for the operator UI in `archlucid-ui/` — aligns with CI)
 
 ## Operator UI (`archlucid-ui`)
 
 A thin Next.js shell for runs, manifest summary, artifacts, compare, replay, graphs, and ZIP downloads. **Operator workflow and 55R contract notes:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archlucid-ui/README.md](archlucid-ui/README.md).
 
-## API authentication (`ArchiForgeAuth`)
+## API authentication (`ArchLucidAuth`)
 
-Configure in `appsettings.*` under **`ArchiForgeAuth`**:
+Configure in `appsettings.*` under **`ArchLucidAuth`**:
 
 | Mode | Purpose |
 |------|---------|
@@ -77,11 +82,11 @@ Configure in `appsettings.*` under **`ArchiForgeAuth`**:
 | **`JwtBearer`** | Production-style JWT validation using `Authority` and optional `Audience`. Map app roles to `Admin` / `Operator` / `Reader` in your IdP. |
 | **`ApiKey`** | Header-based API keys via **`Authentication:ApiKey`** (`Enabled`, `AdminKey` / `ReadOnlyKey`). Use when you need a simple service-to-service gate; production rules also require keys when this mode is selected (see startup validation). |
 
-Role claims are mapped to legacy **`permission`** claims via `ArchiForgeRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**.
+Role claims are mapped to legacy **`permission`** claims via `ArchLucidRoleClaimsTransformation` so existing policies (`CanCommitRuns`, etc.) keep working. Policies: **`ReadAuthority`** (Reader+), **`ExecuteAuthority`** (Operator+), **`AdminAuthority`** (Admin only). Debug principal: **`GET /api/auth/me`**.
 
-## Development environment (`archiforge dev up`)
+## Development environment (`archlucid dev up`)
 
-From the ArchiForge repo directory (or any directory containing `docker-compose.yml`), run:
+From the ArchLucid repo directory (or any directory containing `docker-compose.yml`), run:
 
 ```bash
 dotnet run --project ArchLucid.Cli -- dev up
@@ -92,17 +97,17 @@ This starts SQL Server, Azurite, and Redis in Docker (default profile — for ho
 Use this connection string with the API:
 
 ```
-Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;
+Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;
 ```
 
 ## Database Setup
 
-1. Create a database (e.g. `ArchiForge2`), or use `archiforge dev up` to run SQL Server in Docker.
-2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchiForge.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
+1. Create a database (for example `ArchLucid`, or a pilot-specific name), or use `archlucid dev up` to run SQL Server in Docker.
+2. Migrations run automatically on startup via [DbUp](https://dbup.readthedocs.io/). Scripts in `ArchLucid.Persistence/Migrations/` are applied in order; add new `00x_Description.sql` files for schema changes. If the connection string is set and migration fails, the API throws and does not start (no fallback). Integration tests use **SQL Server** (per-test databases; **DbUp** runs on the test host). Full detail: **[docs/SQL_SCRIPTS.md](docs/SQL_SCRIPTS.md)** (consolidated `ArchLucid.sql`, Persistence bootstrap, two “run” tables). Governance workflow tables ship as **`017_GovernanceWorkflow.sql`**.
 
 ### Optional: Contoso trusted-baseline demo (Corrected 50R)
 
-For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations; export history row optional), see **[docs/demo-quickstart.md](docs/demo-quickstart.md)** and the honesty boundary in **[docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md)**. Summary: set `ArchiForge:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for automatic startup seed), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true. Startup logs label schema bootstrap, DbUp, and demo seed in order.
+For a deterministic **baseline vs hardened** story (runs, manifests, governance approvals, environment activations; export history row optional), see **[docs/demo-quickstart.md](docs/demo-quickstart.md)** and the honesty boundary in **[docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md)**. Summary: set `ArchLucid:StorageProvider` to `Sql`, configure `Demo:Enabled` / `Demo:SeedOnStartup` (Development only for automatic startup seed), or call **`POST /v1.0/demo/seed`** when `Demo:Enabled` is true. Startup logs label schema bootstrap, DbUp, and demo seed in order.
 
 ## Secrets (development)
 
@@ -114,7 +119,7 @@ From the repo root:
 cd ArchLucid.Api
 
 # Required: database connection (use your own connection string or the dev Docker one below)
-dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;"
+dotnet user-secrets set "ConnectionStrings:ArchLucid" "Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;"
 
 # Optional: only if using real agents (AgentExecution:Mode != Simulator) with Azure OpenAI
 dotnet user-secrets set "AzureOpenAI:Endpoint" "https://your-resource.openai.azure.com/"
@@ -139,7 +144,7 @@ The API listens on the URLs configured for the project (default `http://localhos
 In Development:
 
 - **Swagger UI**: `/swagger`
-- **Health checks**: `GET /health/live` for process-only liveness; `GET /health/ready` for dependencies before taking traffic; `GET /health` for the full set. Returns 503 when any included check is Unhealthy. Use for load balancers and runbooks. CLI: `archiforge doctor`.
+- **Health checks**: `GET /health/live` for process-only liveness; `GET /health/ready` for dependencies before taking traffic; `GET /health` for the full set. Returns 503 when any included check is Unhealthy. Use for load balancers and runbooks. CLI: `archlucid doctor`.
 
 **Rate limiting:** Applied to `/v1/architecture/*` endpoints. When a policy limit is exceeded, the API returns **429 Too Many Requests**.
 
@@ -151,7 +156,7 @@ In Development:
 
 Override in `appsettings.json` or via environment variables.
 
-**CORS:** Configure allowed origins with **`Cors:AllowedOrigins`** (array of origins). The API uses the policy name **`ArchiForge`** (`UseCors("ArchiForge")`). If the array is empty or missing, no origins are allowed (`SetIsOriginAllowed(_ => false)`). Use this for SPA or cross-origin API clients.
+**CORS:** Configure allowed origins with **`Cors:AllowedOrigins`** (array of origins). The API uses the policy name **`ArchLucid`** (`UseCors("ArchLucid")`). If the array is empty or missing, no origins are allowed (`SetIsOriginAllowed(_ => false)`). Use this for SPA or cross-origin API clients.
 
 **Authentication:** Send the **`X-Api-Key`** header with every request to protected endpoints. Config: **`Authentication:ApiKey:Enabled`** (default `false`; when `false`, all requests are treated as authenticated with full permissions for local dev). When enabled, set **`Authentication:ApiKey:AdminKey`** and optionally **`Authentication:ApiKey:ReadOnlyKey`** (e.g. in User Secrets or environment). Authorization policies require these permission claims: **`commit:run`**, **`seed:results`**, **`export:consulting-docx`**, **`replay:comparisons`**, **`replay:diagnostics`**. Admin key receives all; read-only key receives a subset.
 
@@ -173,7 +178,7 @@ dotnet test ArchLucid.sln
 cd archlucid-ui && npm ci && npm test
 ```
 
-**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchiForgeApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
+**ArchLucid.Api.Tests** integration tests need a reachable **SQL Server**; **`ArchLucidApiFactory`** creates ephemeral databases and runs **DbUp**. See **[docs/BUILD.md](docs/BUILD.md)** for CPM, connection strings, and DecisionEngine’s Microsoft.Extensions bundle.
 
 **Notable API behavior:** comparison replay with `replayMode: verify` returns **422** (problem+json with drift fields) when regenerated output does not match the stored comparison—not HTTP 200 with a failure flag. End-to-end run compare uses **`#run-not-found`** when a run ID is missing. See [docs/API_CONTRACTS.md](docs/API_CONTRACTS.md).
 
@@ -215,7 +220,7 @@ The DOCX export produces a stakeholder-grade Word report: run metadata, evidence
 
 ## CLI (ArchLucid.Cli)
 
-The ArchiForge CLI is wired to the ArchiForge API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. For a full command and config reference, see [docs/CLI_USAGE.md](docs/CLI_USAGE.md). Run commands with:
+The ArchLucid CLI is wired to the ArchLucid API over HTTP: all of `run`, `status`, `commit`, `seed`, and `artifacts` call the API. It lets you create projects, run architecture requests, and inspect results. For a full command and config reference, see [docs/CLI_USAGE.md](docs/CLI_USAGE.md). Run commands with:
 
 ```bash
 dotnet run --project ArchLucid.Cli -- <command> [options]
@@ -223,7 +228,7 @@ dotnet run --project ArchLucid.Cli -- <command> [options]
 
 ## Comparison replay
 
-ArchiForge can persist comparison records (end-to-end run comparisons and export-record diffs) and later **replay** them to regenerate summaries or export artifacts (Markdown, HTML, DOCX, PDF). Replays can also be run in **verify** mode to detect drift between stored and regenerated comparisons, and can optionally be **persisted as new comparison records** for a full audit trail.
+ArchLucid can persist comparison records (end-to-end run comparisons and export-record diffs) and later **replay** them to regenerate summaries or export artifacts (Markdown, HTML, DOCX, PDF). Replays can also be run in **verify** mode to detect drift between stored and regenerated comparisons, and can optionally be **persisted as new comparison records** for a full audit trail.
 
 For details, including replay modes, supported formats, headers, and example curl commands, see [docs/COMPARISON_REPLAY.md](docs/COMPARISON_REPLAY.md).
 
@@ -236,16 +241,16 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
 ### Prerequisites
 
 - .NET 10 SDK
-- ArchiForge API running (e.g. `dotnet run --project ArchLucid.Api`)
-- For `run`, `status`, `commit`, `seed`, `artifacts`: a project directory with `archiforge.json` and `inputs/brief.md`
+- ArchLucid API running (e.g. `dotnet run --project ArchLucid.Api`)
+- For `run`, `status`, `commit`, `seed`, `artifacts`: a project directory with `archlucid.json` and `inputs/brief.md`
 
 ### Commands
 
 | Command | Description |
 |---------|-------------|
-| `new <projectName>` | Create a new project skeleton with `archiforge.json`, `inputs/brief.md`, `outputs/`, and Terraform stubs |
+| `new <projectName>` | Create a new project skeleton with `archlucid.json`, `inputs/brief.md`, `outputs/`, and Terraform stubs |
 | `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root) |
-| `run` | Submit an architecture request to the API. Reads `archiforge.json` and `inputs/brief.md` |
+| `run` | Submit an architecture request to the API. Reads `archlucid.json` and `inputs/brief.md` |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (Development only) |
 | `status <runId>` | Show run status, tasks, and submitted results |
 | `submit <runId> <result.json>` | Submit an agent result for a run (JSON file must match AgentResult schema) |
@@ -253,7 +258,7 @@ See [docs/DECISIONING_TYPED_FINDINGS.md](docs/DECISIONING_TYPED_FINDINGS.md).
 | `commit <runId>` | Merge results and produce a versioned manifest |
 | `artifacts <runId>` | Fetch and display the committed manifest for a run |
 | `artifacts <runId> --save` | Same, and save the manifest to `outputs/manifest-{version}.json` (requires project dir) |
-| `health` | Check connectivity to the ArchiForge API (`GET /health`). Use to verify the API is running before run/status/commit/seed/artifacts. |
+| `health` | Check connectivity to the ArchLucid API (`GET /health`). Use to verify the API is running before run/status/commit/seed/artifacts. |
 | `doctor` / `check` | Run local project checks and print `GET /health/live`, `/health/ready`, and `/health` (readiness diagnostics). |
 
 ### Typical workflow
@@ -283,7 +288,7 @@ dotnet run --project ArchLucid.Cli -- artifacts <runId>
 
 ### Configuration
 
-- **API URL**: Set `apiUrl` in `archiforge.json` or the `ARCHIFORGE_API_URL` environment variable. Default: `http://localhost:5128`.
+- **API URL**: Set `apiUrl` in `archlucid.json` or the `ARCHLUCID_API_URL` environment variable. Default: `http://localhost:5128`.
 
 ### Installing as a global .NET tool
 
@@ -297,9 +302,9 @@ dotnet pack ArchLucid.Cli/ArchLucid.Cli.csproj -c Release -o nupkg
 dotnet tool install -g ArchLucid.Cli --add-source ./nupkg
 
 # Run (no need for dotnet run)
-archiforge new MyProject
-archiforge run
-archiforge status <runId>
+archlucid new MyProject
+archlucid run
+archlucid status <runId>
 ```
 
 To update: `dotnet tool update -g ArchLucid.Cli --add-source ./nupkg`
@@ -313,12 +318,12 @@ To update: `dotnet tool update -g ArchLucid.Cli --add-source ./nupkg`
 | ArchLucid.Contracts | DTOs, request/response types, manifest models |
 | ArchLucid.Coordinator | Run creation, task generation |
 | ArchLucid.Decisioning | Governance, findings, comparisons, alerts — plus manifest merge (`ArchLucid.Decisioning.Merge`) and JSON schema validation (`ArchLucid.Decisioning.Validation`) |
-| ArchLucid.Persistence (`Data.*` sub-namespaces) | Workflow Dapper repos, DbUp migrations, `IDbConnectionFactory`, consolidated `Scripts/ArchiForge.sql` |
-| ArchLucid.Cli | ArchiForge CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
+| ArchLucid.Persistence (`Data.*` sub-namespaces) | Workflow Dapper repos, DbUp migrations, `IDbConnectionFactory`, consolidated `Scripts/ArchLucid.sql` |
+| ArchLucid.Cli | ArchLucid CLI: `new`, `run`, `status`, `commit`, `seed`, `artifacts`, `dev up` |
 
 ## Architecture docs (internal)
 
-For a deeper understanding of how ArchiForge fits together:
+For a deeper understanding of how ArchLucid fits together:
 
 - `docs/ARCHITECTURE_INDEX.md` – starting point; links to all other docs.
 - `docs/ARCHITECTURE_CONTEXT.md` – high-level system context and qualities.

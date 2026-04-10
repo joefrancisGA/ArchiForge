@@ -109,6 +109,41 @@ public abstract class RunRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task ListByProjectPagedAsync_returns_total_and_page_slice_newest_first()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunRepository repo = CreateRepository();
+        ScopeContext scope = NewScope();
+        string slug = "paged_proj_" + Guid.NewGuid().ToString("N");
+        DateTime t0 = DateTime.UtcNow.AddMinutes(-30);
+        DateTime t1 = DateTime.UtcNow.AddMinutes(-20);
+        DateTime t2 = DateTime.UtcNow.AddMinutes(-10);
+
+        RunRecord a = NewRun(scope, slug, t0);
+        RunRecord b = NewRun(scope, slug, t1);
+        RunRecord c = NewRun(scope, slug, t2);
+
+        await repo.SaveAsync(a, CancellationToken.None);
+        await repo.SaveAsync(b, CancellationToken.None);
+        await repo.SaveAsync(c, CancellationToken.None);
+
+        (IReadOnlyList<RunRecord> page1, int total1) =
+            await repo.ListByProjectPagedAsync(scope, slug, skip: 0, take: 2, CancellationToken.None);
+
+        total1.Should().Be(3);
+        page1.Should().HaveCount(2);
+        page1[0].RunId.Should().Be(c.RunId);
+        page1[1].RunId.Should().Be(b.RunId);
+
+        (IReadOnlyList<RunRecord> page2, int total2) =
+            await repo.ListByProjectPagedAsync(scope, slug, skip: 2, take: 2, CancellationToken.None);
+
+        total2.Should().Be(3);
+        page2.Should().HaveCount(1);
+        page2[0].RunId.Should().Be(a.RunId);
+    }
+
+    [SkippableFact]
     public async Task UpdateAsync_changes_fields_visible_on_GetById()
     {
         SkipIfSqlServerUnavailable();
@@ -142,9 +177,10 @@ public abstract class RunRepositoryContractTests
 
         await repo.SaveAsync(oldRun, CancellationToken.None);
 
-        int updated = await repo.ArchiveRunsCreatedBeforeAsync(DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None);
+        RunArchiveBatchResult batch =
+            await repo.ArchiveRunsCreatedBeforeAsync(DateTimeOffset.UtcNow.AddDays(-1), CancellationToken.None);
 
-        updated.Should().Be(1);
+        batch.UpdatedCount.Should().Be(1);
 
         RunRecord? after = await repo.GetByIdAsync(scope, oldRun.RunId, CancellationToken.None);
 

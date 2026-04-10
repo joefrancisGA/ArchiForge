@@ -4,32 +4,24 @@ using FluentAssertions;
 
 namespace ArchLucid.Core.Tests.Integration;
 
-[Trait("Suite", "Core")]
-[Trait("Category", "Unit")]
 public sealed class IntegrationEventTypesTests
 {
     [Fact]
-    public void MapToCanonical_maps_legacy_v1_integration_event_type_strings()
+    public void MapToCanonical_trims_whitespace()
     {
-        IntegrationEventTypes.MapToCanonical(IntegrationEventTypes.AuthorityRunCompletedLegacyV1)
-            .Should().Be(IntegrationEventTypes.AuthorityRunCompletedV1);
-
-        IntegrationEventTypes.MapToCanonical(IntegrationEventTypes.AlertFiredLegacyV1)
-            .Should().Be(IntegrationEventTypes.AlertFiredV1);
+        IntegrationEventTypes.MapToCanonical($"  {IntegrationEventTypes.AuthorityRunCompletedV1}  ")
+            .Should()
+            .Be(IntegrationEventTypes.AuthorityRunCompletedV1);
     }
 
     [Fact]
-    public void AreEquivalent_treats_legacy_and_canonical_as_same()
+    public void AreEquivalent_matches_trimmed_identical_types()
     {
         IntegrationEventTypes.AreEquivalent(
-                IntegrationEventTypes.GovernancePromotionActivatedV1,
-                IntegrationEventTypes.GovernancePromotionActivatedLegacyV1)
-            .Should().BeTrue();
-
-        IntegrationEventTypes.AreEquivalent(
-                IntegrationEventTypes.AdvisoryScanCompletedLegacyV1,
-                IntegrationEventTypes.AdvisoryScanCompletedV1)
-            .Should().BeTrue();
+                $" {IntegrationEventTypes.AlertFiredV1}",
+                $"{IntegrationEventTypes.AlertFiredV1} ")
+            .Should()
+            .BeTrue();
     }
 
     [Fact]
@@ -38,6 +30,14 @@ public sealed class IntegrationEventTypesTests
         IntegrationEventTypes.AreEquivalent(
                 IntegrationEventTypes.AlertFiredV1,
                 IntegrationEventTypes.AlertResolvedV1)
-            .Should().BeFalse();
+            .Should()
+            .BeFalse();
+    }
+
+    [Fact]
+    public void AreEquivalent_false_when_either_side_empty()
+    {
+        IntegrationEventTypes.AreEquivalent("", IntegrationEventTypes.AlertFiredV1).Should().BeFalse();
+        IntegrationEventTypes.AreEquivalent(IntegrationEventTypes.AlertFiredV1, "   ").Should().BeFalse();
     }
 }

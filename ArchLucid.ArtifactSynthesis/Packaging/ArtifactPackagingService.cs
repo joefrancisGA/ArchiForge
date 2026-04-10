@@ -91,7 +91,8 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
         Guid manifestId,
         IReadOnlyList<SynthesizedArtifact> artifacts,
         string manifestJson,
-        string? traceJson = null)
+        string? traceJson = null,
+        RunExportReadmeContext? readmeContext = null)
     {
         ArgumentNullException.ThrowIfNull(artifacts);
         ArgumentException.ThrowIfNullOrWhiteSpace(manifestJson);
@@ -112,15 +113,45 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
             WriteTextEntry(archive, "manifest.json", manifestJson);
 
             if (!string.IsNullOrWhiteSpace(traceJson))
-            
+            {
                 WriteTextEntry(archive, "decision-trace.json", traceJson);
-            
+            }
 
             StringBuilder readme = new StringBuilder()
-                .AppendLine("ArchLucid Export Package")
+                .AppendLine("ArchLucid run export package")
+                .AppendLine("===========================")
+                .AppendLine()
                 .AppendLine($"Run ID: {runId}")
-                .AppendLine($"Manifest ID: {manifestId}")
-                .AppendLine($"Artifact Count: {artifacts.Count}");
+                .AppendLine($"Manifest ID: {manifestId}");
+
+            if (readmeContext is not null)
+            {
+                if (!string.IsNullOrWhiteSpace(readmeContext.ManifestDisplayName))
+                {
+                    readme.AppendLine($"Manifest name: {readmeContext.ManifestDisplayName}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(readmeContext.RuleSetLabel))
+                {
+                    readme.AppendLine($"Rule set: {readmeContext.RuleSetLabel}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(readmeContext.ManifestHash))
+                {
+                    readme.AppendLine($"Manifest hash: {readmeContext.ManifestHash}");
+                }
+            }
+
+            readme.AppendLine($"Artifact file count: {artifacts.Count}");
+            readme.AppendLine();
+            readme.AppendLine("Contents:");
+            readme.AppendLine("  manifest.json          — committed GoldenManifest (JSON)");
+            readme.AppendLine("  decision-trace.json    — authority decision trace when the API included one");
+            readme.AppendLine("  artifacts/             — synthesized artifact files (UTF-8 text)");
+            readme.AppendLine("  package-metadata.json  — export metadata (UTC timestamp, ids, counts)");
+            readme.AppendLine("  README.txt             — this file");
+            readme.AppendLine();
+            readme.AppendLine("Regenerate Word packages or consulting reports from the API or operator shell when needed.");
             WriteTextEntry(archive, "README.txt", readme.ToString());
 
             WritePackageMetadata(

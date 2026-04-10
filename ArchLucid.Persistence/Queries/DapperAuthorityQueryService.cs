@@ -39,6 +39,20 @@ public sealed class DapperAuthorityQueryService(
     }
 
     /// <inheritdoc />
+    public async Task<(IReadOnlyList<RunSummaryDto> Items, int TotalCount)> ListRunsByProjectPagedAsync(
+        ScopeContext scope,
+        string projectId,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        (IReadOnlyList<RunRecord> runs, int total) =
+            await runRepository.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
+
+        return (runs.Select(MapSummary).ToList(), total);
+    }
+
+    /// <inheritdoc />
     public async Task<RunSummaryDto?> GetRunSummaryAsync(ScopeContext scope, Guid runId, CancellationToken ct)
     {
         RunRecord? run = await runRepository.GetByIdAsync(scope, runId, ct);
@@ -66,7 +80,7 @@ public sealed class DapperAuthorityQueryService(
         Task<GoldenManifest?> manifestTask = run.GoldenManifestId.HasValue
             ? goldenManifestRepository.GetByIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<GoldenManifest?>(null);
-        Task<ArtifactBundle?> bundleTask = run is { ArtifactBundleId: not null, GoldenManifestId: not null }
+        Task<ArtifactBundle?> bundleTask = run.GoldenManifestId.HasValue
             ? artifactBundleRepository.GetByManifestIdAsync(scope, run.GoldenManifestId.Value, ct)
             : Task.FromResult<ArtifactBundle?>(null);
 

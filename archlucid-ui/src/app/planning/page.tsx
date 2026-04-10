@@ -8,7 +8,11 @@ import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import {
+  OperatorEmptyState,
+  OperatorLoadingNotice,
+  OperatorTryNext,
+} from "@/components/OperatorShellMessage";
 import { fetchLearningPlanningListBundle } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -127,9 +131,10 @@ export default function PlanningPage() {
       ) : null}
 
       {loading && summary !== null ? (
-        <p style={{ color: "#64748b", fontSize: 13, marginBottom: 16 }} role="status">
-          Updating…
-        </p>
+        <OperatorLoadingNotice>
+          <strong>Refreshing planning data.</strong>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Re-fetching summary, themes, and plans from the API…</p>
+        </OperatorLoadingNotice>
       ) : null}
 
       {failure !== null ? (
@@ -139,16 +144,33 @@ export default function PlanningPage() {
             fallbackMessage={failure.message}
             correlationId={failure.correlationId}
           />
+          <OperatorTryNext>
+            Confirm learning/planning API routes are enabled for this environment, then click <strong>Refresh</strong>.
+            For data entry and triage, use{" "}
+            <Link href="/product-learning" style={{ color: "#1d4ed8" }}>
+              Pilot feedback
+            </Link>
+            —this page is read-only aggregation.
+          </OperatorTryNext>
         </div>
       ) : null}
 
       {empty && !loading ? (
-        <OperatorEmptyState title="No themes or plans in this scope yet">
-          <p style={{ margin: 0, fontSize: 14 }}>
-            When 59R themes and improvement plans are persisted for the current tenant / workspace / project, they will
-            appear here. Scope follows the operator shell defaults unless you configure proxy scope overrides.
-          </p>
-        </OperatorEmptyState>
+        <>
+          <OperatorEmptyState title="No themes or plans in this scope yet">
+            <p style={{ margin: 0, fontSize: 14 }}>
+              When 59R themes and improvement plans are persisted for the current tenant / workspace / project, they will
+              appear here. Scope follows the operator shell defaults unless you configure proxy scope overrides.
+            </p>
+          </OperatorEmptyState>
+          <OperatorTryNext>
+            Capture or import pilot feedback on{" "}
+            <Link href="/product-learning" style={{ color: "#1d4ed8" }}>
+              Pilot feedback
+            </Link>
+            , then return here after processing jobs have run.
+          </OperatorTryNext>
+        </>
       ) : null}
 
       {summary !== null ? (

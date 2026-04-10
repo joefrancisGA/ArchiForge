@@ -36,7 +36,7 @@ jobs:
             --no-restore \
             -c Release \
             -o "${RUNNER_TEMP}/nuget" \
-            /p:ArchiForgeApiClientPackageVersion=${{ inputs.package_version }}
+            /p:ArchLucidApiClientPackageVersion=${{ inputs.package_version }}
 
       - uses: actions/upload-artifact@v6
         with:

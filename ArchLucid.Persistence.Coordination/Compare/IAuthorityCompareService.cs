@@ -27,7 +27,8 @@ public interface IAuthorityCompareService
     /// <summary>
     /// Loads both manifests in <paramref name="scope"/> and produces a flat list of added/removed/changed facets.
     /// </summary>
-    /// <returns>Comparison result, or <see langword="null"/> if either manifest is missing or tenant/workspace/project do not match across manifests.</returns>
+    /// <returns>Comparison result, or <see langword="null"/> if either manifest is missing in <paramref name="scope"/>.</returns>
+    /// <exception cref="InvalidOperationException">Both manifests were found but their stored tenant/workspace/project keys differ (illegal comparison).</exception>
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>
     /// <param name="leftManifestId">First manifest id (baseline).</param>
     /// <param name="rightManifestId">Second manifest id (target).</param>
@@ -40,6 +41,7 @@ public interface IAuthorityCompareService
 
     /// <summary>
     /// Compares two runs’ summaries and, when both reference golden manifests, nests <see cref="CompareManifestsAsync"/>.
+    /// Run-level diffs include <c>GoldenManifestId</c> so callers can see asymmetry when nested manifest comparison is omitted.
     /// </summary>
     /// <returns>Result with run-level diffs and optional manifest comparison, or <see langword="null"/> if either run summary is missing.</returns>
     /// <param name="scope">Caller scope for tenant/workspace/project isolation.</param>

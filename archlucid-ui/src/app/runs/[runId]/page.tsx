@@ -131,7 +131,7 @@ export default async function RunDetailPage({
         {" · "}
         <Link href="/graph">Graph</Link>
         {" · "}
-        <Link href="/compare">Compare runs</Link>
+        <Link href="/compare">Compare two runs</Link>
         {" · "}
         <Link href={`/runs/${runId}/provenance`}>Provenance</Link>
       </p>
@@ -297,7 +297,7 @@ export default async function RunDetailPage({
         <h3>Actions</h3>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
-            Compare runs (base = this run)
+            Compare two runs (base = this run)
           </Link>
           <Link href={`/replay?runId=${encodeURIComponent(resolvedDetail.run.runId)}`}>Replay this run</Link>
         </div>

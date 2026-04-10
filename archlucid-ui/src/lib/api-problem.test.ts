@@ -64,6 +64,19 @@ describe("tryParseApiProblemDetails", () => {
     });
   });
 
+  it("reads correlationId from root", () => {
+    const problem = tryParseApiProblemDetails(
+      JSON.stringify({
+        title: "Error",
+        detail: "x",
+        correlationId: "cid-from-api",
+      }),
+      "application/problem+json",
+    );
+
+    expect(problem).toMatchObject({ correlationId: "cid-from-api" });
+  });
+
   it("reads errorCode and supportHint from extensions object", () => {
     const problem = tryParseApiProblemDetails(
       JSON.stringify({

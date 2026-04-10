@@ -10,6 +10,8 @@ export type ApiProblemDetails = {
   instance?: string;
   errorCode?: string;
   supportHint?: string;
+  /** Echoes API **X-Correlation-ID** / proxy **correlationId** when present in JSON (RFC 7807 extension promoted to root). */
+  correlationId?: string;
 };
 
 function readTrimmedString(obj: Record<string, unknown>, key: string): string | undefined {
@@ -24,7 +26,11 @@ function readTrimmedString(obj: Record<string, unknown>, key: string): string | 
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function readExtensions(obj: Record<string, unknown>): { errorCode?: string; supportHint?: string } {
+function readExtensions(obj: Record<string, unknown>): {
+  errorCode?: string;
+  supportHint?: string;
+  correlationId?: string;
+} {
   const extensions = obj.extensions;
 
   if (extensions === null || extensions === undefined || typeof extensions !== "object") {
@@ -40,6 +46,7 @@ function readExtensions(obj: Record<string, unknown>): { errorCode?: string; sup
   return {
     errorCode: readTrimmedString(ext, "errorCode"),
     supportHint: readTrimmedString(ext, "supportHint"),
+    correlationId: readTrimmedString(ext, "correlationId"),
   };
 }
 
@@ -95,6 +102,8 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
   const instance = readTrimmedString(record, "instance");
   const errorCode = readTrimmedString(record, "errorCode") ?? fromExt.errorCode;
   const supportHint = readTrimmedString(record, "supportHint") ?? fromExt.supportHint;
+  const correlationId =
+    readTrimmedString(record, "correlationId") ?? fromExt.correlationId;
   const status = readOptionalNumber(record, "status");
 
   if (!title && !detail && !type && !errorCode) {
@@ -129,6 +138,10 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   if (supportHint) {
     problem.supportHint = supportHint;
+  }
+
+  if (correlationId) {
+    problem.correlationId = correlationId;
   }
 
   return problem;

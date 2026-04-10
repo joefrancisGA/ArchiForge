@@ -13,7 +13,7 @@ variable "resource_group_name" {
 variable "name_prefix" {
   type        = string
   description = "Short prefix for alert rule and action group names (alphanumeric, no spaces)."
-  default     = "archiforge"
+  default     = "archlucid"
 }
 
 variable "alert_email_address" {
@@ -62,7 +62,7 @@ variable "enable_managed_grafana" {
 variable "grafana_name" {
   type        = string
   description = "Azure Managed Grafana instance name (DNS segment)."
-  default     = "archiforge-grafana"
+  default     = "archlucid-grafana"
 }
 
 variable "grafana_location" {

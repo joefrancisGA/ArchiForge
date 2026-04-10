@@ -6,6 +6,7 @@ import {
   OperatorEmptyState,
   OperatorErrorCallout,
   OperatorMalformedCallout,
+  OperatorTryNext,
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -67,10 +68,11 @@ export default async function ManifestDetailPage({
           fallbackMessage={summaryFailure.message}
           correlationId={summaryFailure.correlationId}
         />
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-          Typical causes: unknown manifest ID (404), auth, or API unavailability. This is not an
-          empty artifact list.
-        </p>
+        <OperatorTryNext>
+          Typical causes: unknown manifest ID (404), auth, or API unavailability—this is not an empty artifact list.
+          Re-open the manifest link from <Link href="/runs?projectId=default">Runs</Link> → run detail, or confirm the
+          ID in the URL matches a committed manifest in scope.
+        </OperatorTryNext>
         <p style={{ fontSize: 14 }}>
           <Link href="/">Home</Link>
           {" · "}
@@ -88,6 +90,10 @@ export default async function ManifestDetailPage({
           <strong>Manifest summary response was not usable.</strong>
           <p style={{ margin: "8px 0 0" }}>{summaryMalformed}</p>
         </OperatorMalformedCallout>
+        <OperatorTryNext>
+          Align API and UI versions (<code>GET /version</code>). If you followed a stale bookmark, open the manifest
+          again from <Link href="/runs?projectId=default">Runs</Link>.
+        </OperatorTryNext>
         <p style={{ fontSize: 14 }}>
           <Link href="/">Home</Link>
           {" · "}
@@ -104,9 +110,14 @@ export default async function ManifestDetailPage({
         <OperatorErrorCallout>
           <strong>Manifest summary missing.</strong>
           <p style={{ margin: "8px 0 0" }}>
-            No summary was returned without an explicit error. Retry or verify API behavior.
+            The API returned no summary object and no parseable error payload—an unexpected empty success path. Retry
+            once; if it persists, capture <code>GET /version</code> and request logs for the manifest ID in the URL.
           </p>
         </OperatorErrorCallout>
+        <OperatorTryNext>
+          Hard-refresh, confirm proxy scope headers match the manifest&apos;s tenant/project, then navigate from run
+          detail instead of a pasted ID.
+        </OperatorTryNext>
         <p style={{ fontSize: 14 }}>
           <Link href="/">Home</Link>
           {" · "}
@@ -173,18 +184,25 @@ export default async function ManifestDetailPage({
               correlationId={artifactsFailure.correlationId}
               variant="warning"
             />
-            <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-              The artifacts request failed (network, 404, or server error)—distinct from an empty
-              list or malformed JSON.
-            </p>
+            <OperatorTryNext>
+              The artifacts request failed (network, 404, or server error)—distinct from an empty list or malformed
+              JSON. Summary above may still be valid; retry the page or open <strong>Download bundle (ZIP)</strong> if
+              the list endpoint alone fails.
+            </OperatorTryNext>
           </>
         )}
 
         {!artifactsFailure && artifactsMalformed && (
-          <OperatorMalformedCallout>
-            <strong>Artifact list response was not usable.</strong>
-            <p style={{ margin: "8px 0 0" }}>{artifactsMalformed}</p>
-          </OperatorMalformedCallout>
+          <>
+            <OperatorMalformedCallout>
+              <strong>Artifact list response was not usable.</strong>
+              <p style={{ margin: "8px 0 0" }}>{artifactsMalformed}</p>
+            </OperatorMalformedCallout>
+            <OperatorTryNext>
+              Compare API/UI versions. You can still use bundle download when the list contract drifts but storage is
+              intact—watch for 404 vs manifest-not-found in ProblemDetails.
+            </OperatorTryNext>
+          </>
         )}
 
         {!artifactsFailure && !artifactsMalformed && artifacts.length === 0 && (

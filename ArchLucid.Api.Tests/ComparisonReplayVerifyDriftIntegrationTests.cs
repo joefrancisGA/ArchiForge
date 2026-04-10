@@ -16,7 +16,7 @@ namespace ArchLucid.Api.Tests;
 /// End-to-end: persisted comparison payload is tampered, then verify replay returns 422 (real pipeline, not a stub service).
 /// </summary>
 /// <remarks>
-/// Default integration hosts use <c>ArchiForge:StorageProvider=InMemory</c>, so <c>ComparisonRecords</c> are not written to SQL.
+/// Default integration hosts use <c>ArchLucid:StorageProvider=InMemory</c>, so <c>ComparisonRecords</c> are not written to SQL.
 /// Payload is read via GET, then mutated in the in-memory repository through <see cref="InMemoryComparisonRecordRepository.ReplacePayloadJsonForIntegrationTest"/>.
 /// </remarks>
 [Trait("Category", "Integration")]

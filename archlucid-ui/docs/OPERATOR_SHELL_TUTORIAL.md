@@ -742,7 +742,7 @@ describe("myGuard", () => {
 |----------|----------|-----------|---------|
 | `ARCHLUCID_API_BASE_URL` | Yes | Server (RSC + proxy) | C# API URL |
 | `ARCHLUCID_API_KEY` | When API key auth is on | Server (proxy) | Sent as `X-Api-Key` |
-| `NEXT_PUBLIC_ARCHIFORGE_AUTH_MODE` | No | Client + server | `"development-bypass"` (default) |
+| `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE` | No | Client + server | `"development-bypass"` (default) |
 | `NEXT_PUBLIC_ARCHLUCID_API_BASE_URL` | No | Fallback | Documentation / legacy |
 
 **Important:** Variables starting with `NEXT_PUBLIC_` are visible in browser JavaScript. Everything else is server-only. Never put secrets in `NEXT_PUBLIC_*`.

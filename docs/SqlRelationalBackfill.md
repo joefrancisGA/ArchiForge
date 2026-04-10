@@ -37,27 +37,27 @@ Use **`ArchLucid.Backfill.Cli --readiness`** to confirm per-slice relational cov
 
 **Connection string** (first match wins):
 
-1. Environment variable: `ARCHIFORGE_SQL`
+1. Environment variable: `ARCHLUCID_SQL`
 2. `--connection` / `-c` followed by the ADO.NET connection string
 3. First positional argument that is not a flag (legacy)
 
 **Example (PowerShell):**
 
 ```powershell
-$env:ARCHIFORGE_SQL = "Server=localhost;Database=ArchiForge;User Id=...;Password=...;TrustServerCertificate=True"
+$env:ARCHLUCID_SQL = "Server=localhost;Database=ArchLucid;User Id=...;Password=...;TrustServerCertificate=True"
 dotnet run --project ArchLucid.Backfill.Cli
 ```
 
 **Example (positional):**
 
 ```powershell
-dotnet run --project ArchLucid.Backfill.Cli -- "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
+dotnet run --project ArchLucid.Backfill.Cli -- "Server=.;Database=ArchLucid;Integrated Security=true;TrustServerCertificate=True"
 ```
 
 **Example (explicit connection + scope):**
 
 ```powershell
-dotnet run --project ArchLucid.Backfill.Cli -- -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True" --only context,graph
+dotnet run --project ArchLucid.Backfill.Cli -- -c "Server=.;Database=ArchLucid;Integrated Security=true;TrustServerCertificate=True" --only context,graph
 ```
 
 **Scope flags:**
@@ -86,7 +86,7 @@ Call `ISqlRelationalBackfillService.RunAsync(options, cancellationToken)` and in
 
 ## Tests
 
-Integration tests: `ArchLucid.Persistence.Tests` → `SqlRelationalBackfillServiceSqlIntegrationTests` (requires SQL Server: set **`ARCHIFORGE_SQL_TEST`** or use LocalDB on Windows; CI uses a SQL Server service container).
+Integration tests: `ArchLucid.Persistence.Tests` → `SqlRelationalBackfillServiceSqlIntegrationTests` (requires SQL Server: set **`ARCHLUCID_SQL_TEST`** or use LocalDB on Windows; CI uses a SQL Server service container).
 
 Filter:
 
@@ -105,13 +105,13 @@ dotnet test ArchLucid.Persistence.Tests --filter "FullyQualifiedName~SqlRelation
 Run the **readiness report** to verify that every header row has relational children across all monitored slices (read-only; no data is modified). Use it before assuming **relational-only** reads will return full data for legacy databases.
 
 ```powershell
-dotnet run --project ArchLucid.Backfill.Cli -- --readiness -c "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
+dotnet run --project ArchLucid.Backfill.Cli -- --readiness -c "Server=.;Database=ArchLucid;Integrated Security=true;TrustServerCertificate=True"
 ```
 
 Or with the environment variable:
 
 ```powershell
-$env:ARCHIFORGE_SQL = "Server=.;Database=ArchiForge;Integrated Security=true;TrustServerCertificate=True"
+$env:ARCHLUCID_SQL = "Server=.;Database=ArchLucid;Integrated Security=true;TrustServerCertificate=True"
 dotnet run --project ArchLucid.Backfill.Cli -- --readiness
 ```
 

@@ -17,6 +17,7 @@ import type {
   RunDetail,
   RunSummary,
 } from "@/types/authority";
+import type { PagedResponse } from "@/types/pagination";
 import type {
   AskResponse,
   ConversationMessage,
@@ -233,6 +234,21 @@ export async function getArchitectureRunProvenance(runId: string): Promise<Archi
 export async function listRunsByProject(projectId: string, take = 20): Promise<RunSummary[]> {
   return apiGet<RunSummary[]>(
     `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?take=${take}`,
+  );
+}
+
+/** Paged runs for a project (GET with `page` + `pageSize` — returns PagedResponse). */
+export async function listRunsByProjectPaged(
+  projectId: string,
+  page: number,
+  pageSize: number,
+): Promise<PagedResponse<RunSummary>> {
+  const q = new URLSearchParams();
+  q.set("page", String(page));
+  q.set("pageSize", String(pageSize));
+
+  return apiGet<PagedResponse<RunSummary>>(
+    `/v1/authority/projects/${encodeURIComponent(projectId)}/runs?${q}`,
   );
 }
 
@@ -680,6 +696,20 @@ export async function listAlerts(status: string | null, take = 100): Promise<Ale
   q.set("take", String(take));
   const suffix = q.toString();
   return apiGet<AlertRecord[]>(`/v1/alerts${suffix ? `?${suffix}` : ""}`);
+}
+
+/** Paged alerts (GET with `page` + `pageSize` — returns PagedResponse). */
+export async function listAlertsPaged(
+  status: string | null,
+  page: number,
+  pageSize: number,
+): Promise<PagedResponse<AlertRecord>> {
+  const q = new URLSearchParams();
+  if (status) q.set("status", status);
+  q.set("page", String(page));
+  q.set("pageSize", String(pageSize));
+
+  return apiGet<PagedResponse<AlertRecord>>(`/v1/alerts?${q}`);
 }
 
 /** Row from `GET /v1/audit` / `GET /v1/audit/search` (camelCase JSON). */

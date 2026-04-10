@@ -1,6 +1,6 @@
 {
-  "rulePackId": "archiforge-compliance-default-v1",
-  "name": "ArchiForge Default Compliance Rules",
+  "rulePackId": "archlucid-compliance-default-v1",
+  "name": "ArchLucid Default Compliance Rules",
   "version": "1.0.0",
   "rules": [
     {

@@ -25,10 +25,11 @@ describe("HomePage (55R smoke — landing)", () => {
   it("renders start heading and quick links", () => {
     render(<HomePage />);
 
-    expect(screen.getByRole("heading", { level: 2, name: "Start here" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Operator home" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Quick links" })).toBeInTheDocument();
     expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
-    expect(screen.getByRole("main").textContent).toContain("New to this environment");
+    expect(screen.getByRole("main").textContent).toMatch(/new to this environment/i);
+    expect(screen.getByText("Typical V1 path:")).toBeInTheDocument();
   });
 
   it("exposes primary workflow destinations matching shell review paths", () => {
@@ -44,10 +45,10 @@ describe("HomePage (55R smoke — landing)", () => {
       .filter((el) => el.getAttribute("href") === "/graph");
     expect(graphLinks.length).toBeGreaterThan(0);
 
-    const compare = screen.getByRole("link", { name: "Compare runs" });
-    expect(compare).toHaveAttribute("href", "/compare");
+    const compareLinks = screen.getAllByRole("link", { name: "Compare two runs" });
+    expect(compareLinks.some((el) => el.getAttribute("href") === "/compare")).toBe(true);
 
-    const replay = screen.getByRole("link", { name: "Replay run" });
-    expect(replay).toHaveAttribute("href", "/replay");
+    const replayLinks = screen.getAllByRole("link", { name: "Replay a run" });
+    expect(replayLinks.some((el) => el.getAttribute("href") === "/replay")).toBe(true);
   });
 });

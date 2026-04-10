@@ -2,7 +2,7 @@
 # Used by gitleaks/gitleaks-action in CI. Allowlist entries are for documented,
 # non-production credentials that appear in-repo by design (local Docker SQL, CI service container).
 
-title = "ArchiForge"
+title = "ArchLucid"
 
 [extend]
 useDefault = true
@@ -11,5 +11,6 @@ useDefault = true
 description = "Published dev/CI SQL passwords only — rotate if you reuse outside this repo"
 regexes = [
   "ArchiForge_Dev_Pass123!",
+  "ArchLucid_Dev_Pass123!",
   "LocalTesting123!",
 ]

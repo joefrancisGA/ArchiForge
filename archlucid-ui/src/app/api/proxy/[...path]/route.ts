@@ -48,8 +48,33 @@ function buildUpstreamHeaders(request: NextRequest): Headers {
 }
 
 /** One-line JSON for operators scraping UI server logs (no response bodies). */
-function logProxyDiagnostic(event: string, fields: Record<string, string | number>): void {
-  console.warn(JSON.stringify({ component: "archlucid-ui-proxy", event, ...fields }));
+function logProxyDiagnostic(
+  event: string,
+  fields: Record<string, string | number | undefined>,
+): void {
+  const cleaned: Record<string, string | number> = {};
+
+  for (const [k, v] of Object.entries(fields)) {
+    if (v !== undefined) {
+      cleaned[k] = v;
+    }
+  }
+
+  console.warn(JSON.stringify({ component: "archlucid-ui-proxy", event, ...cleaned }));
+}
+
+/** Proxy-originated problem JSON: same shape as API hints; includes body + **X-Correlation-ID** for triage. */
+function respondWithProxyProblem(
+  status: number,
+  body: Record<string, unknown>,
+  correlationId: string,
+): NextResponse {
+  const id =
+    correlationId.trim().length > 0 ? correlationId.trim() : generateCorrelationId();
+  const res = NextResponse.json({ ...body, correlationId: id }, { status });
+  res.headers.set(CORRELATION_ID_HEADER, id);
+
+  return res;
 }
 
 /** Forwards a request to the upstream ArchLucid API, preserving query string and method. */
@@ -58,11 +83,19 @@ async function forward(
   pathSegments: string[],
   method: "GET" | "POST",
 ): Promise<NextResponse> {
+  const upstreamHeaders = buildUpstreamHeaders(request);
+  const correlationId =
+    upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();
+
   const resolved = resolveUpstreamApiBaseUrlForProxy();
 
   if (!resolved.ok) {
-    logProxyDiagnostic("upstream_config_invalid", { detail: resolved.detail });
-    return NextResponse.json(
+    logProxyDiagnostic("upstream_config_invalid", {
+      detail: resolved.detail,
+      correlationId,
+    });
+    return respondWithProxyProblem(
+      503,
       {
         type: "about:blank",
         title: "Invalid upstream API configuration",
@@ -71,7 +104,7 @@ async function forward(
         supportHint:
           "Set ARCHLUCID_API_BASE_URL in archlucid-ui/.env.local to the API root (e.g. http://localhost:5128). Restart the dev server after editing.",
       },
-      { status: 503 },
+      correlationId,
     );
   }
 
@@ -81,7 +114,7 @@ async function forward(
   const targetUrl = `${base}/${path}${search}`;
   const pathForLog = path.length > 0 ? path : "_";
 
-  const headers = buildUpstreamHeaders(request);
+  const headers = upstreamHeaders;
   if (method === "POST") {
     const tooLargeByHeader = declaredPostBodyExceedsLimit(
       request.headers.get("content-length"),
@@ -94,15 +127,17 @@ async function forward(
         path: pathForLog,
         declaredLength: tooLargeByHeader.declaredLength,
         maxBytes: PROXY_MAX_BODY_BYTES,
+        correlationId,
       });
-      return NextResponse.json(
+      return respondWithProxyProblem(
+        413,
         {
           type: "about:blank",
           title: "Payload too large",
           status: 413,
           detail: `Request body (${tooLargeByHeader.declaredLength} bytes) exceeds the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes.`,
         },
-        { status: 413 },
+        correlationId,
       );
     }
 
@@ -116,15 +151,17 @@ async function forward(
         method,
         path: pathForLog,
         maxBytes: PROXY_MAX_BODY_BYTES,
+        correlationId,
       });
-      return NextResponse.json(
+      return respondWithProxyProblem(
+        413,
         {
           type: "about:blank",
           title: "Payload too large",
           status: 413,
           detail: `Request body exceeded the proxy limit of ${PROXY_MAX_BODY_BYTES} bytes during streaming read.`,
         },
-        { status: 413 },
+        correlationId,
       );
     }
 
@@ -142,8 +179,10 @@ async function forward(
         method,
         path: pathForLog,
         message,
+        correlationId,
       });
-      return NextResponse.json(
+      return respondWithProxyProblem(
+        502,
         {
           type: "about:blank",
           title: "Upstream API unreachable",
@@ -152,7 +191,7 @@ async function forward(
           supportHint:
             "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
         },
-        { status: 502 },
+        correlationId,
       );
     }
 
@@ -161,6 +200,7 @@ async function forward(
         method,
         path: pathForLog,
         status: res.status,
+        correlationId,
       });
     }
 
@@ -180,17 +220,19 @@ async function forward(
       method,
       path: pathForLog,
       message,
+      correlationId,
     });
-    return NextResponse.json(
+    return respondWithProxyProblem(
+      502,
       {
         type: "about:blank",
         title: "Upstream API unreachable",
         status: 502,
         detail: message,
-          supportHint:
-            "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
+        supportHint:
+          "Confirm the ArchLucid API is running and reachable from this machine. Check ARCHLUCID_API_BASE_URL and see docs/TROUBLESHOOTING.md.",
       },
-      { status: 502 },
+      correlationId,
     );
   }
 
@@ -199,6 +241,7 @@ async function forward(
       method,
       path: pathForLog,
       status: res.status,
+      correlationId,
     });
   }
 

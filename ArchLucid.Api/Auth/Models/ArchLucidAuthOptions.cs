@@ -4,7 +4,7 @@ namespace ArchLucid.Api.Auth.Models;
 
 public class ArchLucidAuthOptions
 {
-    public const string SectionName = "ArchiForgeAuth";
+    public const string SectionName = "ArchLucidAuth";
 
     /// <summary>DevelopmentBypass | JwtBearer | ApiKey</summary>
     public string Mode { get; set; } = "DevelopmentBypass";

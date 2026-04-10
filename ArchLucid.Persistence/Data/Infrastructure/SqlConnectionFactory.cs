@@ -10,9 +10,8 @@ namespace ArchLucid.Persistence.Data.Infrastructure;
 public sealed class SqlConnectionFactory(IConfiguration configuration) : IDbConnectionFactory
 {
     private readonly string _connectionString = configuration.GetConnectionString("ArchLucid")
-                                                ?? configuration.GetConnectionString("ArchiForge")
                                                 ?? throw new InvalidOperationException(
-                                                    "Connection string 'ArchLucid' (or legacy 'ArchiForge') was not found.");
+                                                    "Connection string 'ArchLucid' was not found.");
 
     public IDbConnection CreateConnection()
     {

@@ -13,7 +13,7 @@ public sealed class ComparisonDriftAnalyzerTests
     [Fact]
     public void Analyze_IdenticalObjects_NoDrift()
     {
-        object payload = new { Name = "ArchiForge", Version = 1 };
+        object payload = new { Name = "ArchLucid", Version = 1 };
 
         DriftAnalysisResult result = _sut.Analyze(payload, payload);
 

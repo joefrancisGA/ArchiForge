@@ -30,6 +30,7 @@ public static class ProblemDetailsExtensions
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -56,6 +57,7 @@ public static class ProblemDetailsExtensions
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -79,6 +81,7 @@ public static class ProblemDetailsExtensions
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -105,6 +108,7 @@ public static class ProblemDetailsExtensions
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -131,6 +135,7 @@ public static class ProblemDetailsExtensions
         };
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
         return new ObjectResult(problem)
         {
             StatusCode = problem.Status,
@@ -153,6 +158,7 @@ public static class ProblemDetailsExtensions
         return ApplicationProblemMapper.MapInvalidOperation(
             exception,
             instance,
-            badRequestType);
+            badRequestType,
+            controller.HttpContext);
     }
 }

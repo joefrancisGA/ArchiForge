@@ -3,7 +3,7 @@ using FluentAssertions;
 namespace ArchLucid.Cli.Tests;
 
 /// <summary>
-/// Tests for Archi Forge Api Client.
+/// Tests for <see cref="ArchLucidApiClient"/> URL resolution.
 /// </summary>
 [Trait("Category", "Unit")]
 public sealed class ArchLucidApiClientTests
@@ -22,44 +22,38 @@ public sealed class ArchLucidApiClientTests
     }
 
     [Fact]
-    public void ResolveBaseUrl_WhenConfigNull_ReturnsDefaultOrEnv()
+    public void ResolveBaseUrl_WhenConfigNull_ReturnsDefaultWhenEnvUnset()
     {
         string? priorLucid = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
-        string? priorLegacy = Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL");
 
         try
         {
             Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", null);
-            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", null);
             string result = ArchLucidApiClient.ResolveBaseUrl(null);
             result.Should().Be("http://localhost:5128");
         }
         finally
         {
             Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", priorLucid);
-            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", priorLegacy);
         }
     }
 
     [Fact]
-    public void ResolveBaseUrl_WhenConfigNull_prefers_ARCHLUCID_API_URL_over_legacy()
+    public void ResolveBaseUrl_WhenConfigNull_uses_ARCHLUCID_API_URL()
     {
         string? priorLucid = Environment.GetEnvironmentVariable("ARCHLUCID_API_URL");
-        string? priorLegacy = Environment.GetEnvironmentVariable("ARCHIFORGE_API_URL");
 
         try
         {
-            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", "http://preferred:7070");
-            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", "http://legacy:6060");
+            Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", "http://from-env:7070");
 
             string result = ArchLucidApiClient.ResolveBaseUrl(null);
 
-            result.Should().Be("http://preferred:7070");
+            result.Should().Be("http://from-env:7070");
         }
         finally
         {
             Environment.SetEnvironmentVariable("ARCHLUCID_API_URL", priorLucid);
-            Environment.SetEnvironmentVariable("ARCHIFORGE_API_URL", priorLegacy);
         }
     }
 

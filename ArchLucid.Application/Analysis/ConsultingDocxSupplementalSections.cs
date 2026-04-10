@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diagrams;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;

@@ -151,7 +151,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         string connectionString = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration)
                                   ?? throw new InvalidOperationException(
-                                      "Missing connection string 'ArchLucid' (or legacy 'ArchiForge').");
+                                      "Missing connection string 'ArchLucid'.");
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
 
@@ -211,7 +211,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         Assembly persistenceAssembly = typeof(SqlSchemaBootstrapper).Assembly;
         string dir = Path.GetDirectoryName(persistenceAssembly.Location) ?? AppContext.BaseDirectory;
-        string scriptPath = Path.Combine(dir, "Scripts", "ArchiForge.sql");
+        string scriptPath = Path.Combine(dir, "Scripts", "ArchLucid.sql");
 
         services.AddScoped<ISchemaBootstrapper>(sp =>
             new SqlSchemaBootstrapper(

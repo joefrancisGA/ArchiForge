@@ -11,8 +11,8 @@ One **deterministic** end-to-end check for **pilot / commercial confidence** on 
 3. **Optional: full Core** — `-FullCore` adds `Suite=Core` (may require SQL for integration tests).
 4. **Operator UI** — when Node is on `PATH`: `npm ci`, **Vitest**, **`npm run build`** (production bundle). Skip with **`-SkipUi`**.
 5. **API readiness** — starts the **`ArchLucid.Api`** project (Release, **http** profile, port **5128**), waits for **`GET /health/ready`** and **`GET /health/live`**.
-6. **Sample run** — CLI **`new ArchiForgeSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
-7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /api/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
+6. **Sample run** — CLI **`new ArchLucidSmokeRc`** in a temp folder, then **`run --quick`** (Development seed + commit).
+7. **Artifacts** — **`GET /v1/architecture/run/{runId}`** must show **`goldenManifestId`**; **`GET /v1/artifacts/manifests/{manifestId}`** must return **≥ 1** descriptor.
 8. **Optional: Playwright** — **`-RunPlaywright`** runs **`archlucid-ui`** **`npm run test:e2e`** (with **`CI=1`**) **after** the steps above. Not run by default.
 
 **Not included (unless opted in):** Playwright (use **`-RunPlaywright`**), SQL container contract tests, multi-tenant matrix, performance — by design.
@@ -28,7 +28,7 @@ It is **not** a full browser regression suite. Authoritative detail: **[archluci
 ## Prerequisites (full smoke)
 
 - **.NET 10 SDK**
-- **SQL Server** and a valid **`ConnectionStrings:ArchiForge`**-style string for the **E2E** block
+- **SQL Server** and a valid **`ConnectionStrings:ArchLucid`**-style string for the **E2E** block
 - **Node.js 22+** (optional; UI steps skipped if `node` is missing unless **`-SkipUi`**)
 - **Port 5128** free (or override **`-ApiBaseUrl`** and ensure the API profile matches — default script assumes **5128**)
 
@@ -38,8 +38,8 @@ It is **not** a full browser regression suite. Authoritative detail: **[archluci
 
 | Variable | Purpose |
 |----------|---------|
-| **`ARCHIFORGE_SMOKE_SQL`** | Preferred: ADO.NET connection string for the temporary API process |
-| **`ConnectionStrings__ArchiForge`** | Alternative if already set in the shell |
+| **`ARCHLUCID_SMOKE_SQL`** | Preferred: ADO.NET connection string for the temporary API process |
+| **`ConnectionStrings__ArchLucid`** | Alternative if already set in the shell |
 
 You can also pass **`-SqlConnectionString '...'`** (quote for special characters).
 
@@ -50,7 +50,7 @@ You can also pass **`-SqlConnectionString '...'`** (quote for special characters
 **Full smoke (E2E + UI when Node present):**
 
 ```powershell
-$env:ARCHIFORGE_SMOKE_SQL = 'Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=...;TrustServerCertificate=True;'
+$env:ARCHLUCID_SMOKE_SQL = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=...;TrustServerCertificate=True;'
 .\release-smoke.ps1
 ```
 

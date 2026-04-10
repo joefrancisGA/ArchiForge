@@ -19,7 +19,7 @@ public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program
             config.AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchiForge:StorageProvider"] = "InMemory",
+                    ["ArchLucid:StorageProvider"] = "InMemory",
                     ["ConnectionStrings:ArchLucid"] = "",
                     ["AgentExecution:Mode"] = "Simulator",
                     ["AzureOpenAI:Endpoint"] = "",

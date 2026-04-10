@@ -82,6 +82,12 @@ public sealed class AuthorityCompareService(
 
         AddRunDiff(result.RunLevelDiffs, "Run", "ProjectId", leftRun.ProjectId, rightRun.ProjectId);
         AddRunDiff(result.RunLevelDiffs, "Run", "Description", leftRun.Description, rightRun.Description);
+        AddRunDiff(
+            result.RunLevelDiffs,
+            "Run",
+            "GoldenManifestId",
+            leftRun.GoldenManifestId?.ToString(),
+            rightRun.GoldenManifestId?.ToString());
 
         if (leftRun.GoldenManifestId.HasValue && rightRun.GoldenManifestId.HasValue)
         

@@ -8,11 +8,11 @@ Repository-specific plan for **ArchLucid**: CLI calling the ArchLucid API. Inclu
 
 | Component | Status | Location |
 |-----------|--------|----------|
-| Config + URL resolution | Done | `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs`, `ArchLucid.Cli/Program.cs` |
+| Config + URL resolution | Done | `ArchLucid.Cli/ArchLucidProjectScaffolder.cs`, `ArchLucid.Cli/Program.cs` |
 | HTTP client (ArchLucidApiClient) | Done | `ArchLucid.Cli/ArchLucidApiClient.cs` |
 | CLI commands (run, status, submit, commit, seed, artifacts, health, dev up, new) | Done | `ArchLucid.Cli/Program.cs` |
 | CLI test project | Done | `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` |
-| Config / URL resolution tests | Done | `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs`, `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` |
+| Config / URL resolution tests | Done | `ArchLucid.Cli.Tests/ArchLucidCliConfigTests.cs` (`ArchLucidConfigTests`), `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` |
 | API client unit tests (mocked HTTP) | Done | `ArchLucid.Cli.Tests/ArchLucidApiClientHttpTests.cs` |
 | Command-line / exit-code tests | Done | `ArchLucid.Cli.Tests/CommandLineTests.cs` |
 | Smoke tests | Done | `ArchLucid.Cli.Tests/CliSmokeTests.cs` |
@@ -93,10 +93,8 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 | File | Purpose |
 |------|---------|
-| `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs` | Tests for `ArchiForgeProjectScaffolder.LoadConfig` and validation. |
+| `ArchLucid.Cli.Tests/ArchLucidCliConfigTests.cs` | Tests for `ArchLucidProjectScaffolder.LoadConfig` and validation (inline JSON in temp dirs; no checked-in fixtures). |
 | `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` | Tests for `ArchLucidApiClient.ResolveBaseUrl` (and optionally `GetDefaultBaseUrl` with env). |
-| `ArchLucid.Cli.Tests/Fixtures/archiforge-valid.json` | Minimal valid config for tests (schemaVersion, projectName, inputs.brief, outputs.localCacheDir, plugins.lockFile, infra.terraform). |
-| `ArchLucid.Cli.Tests/Fixtures/archiforge-invalid.json` | Invalid JSON or missing required field (e.g. `{}` or missing `projectName`). |
 
 ### Files to modify
 
@@ -104,13 +102,13 @@ Do the phases in this order. Later phases depend on earlier ones.
 
 ### Tests to add
 
-**In `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs`:**
+**In `ArchLucid.Cli.Tests/ArchLucidCliConfigTests.cs` (`ArchLucidConfigTests`):**
 
 | Test name | Behavior |
 |-----------|----------|
-| `LoadConfig_ValidJsonAndFilesExist_ReturnsConfig` | Create temp dir with valid `archiforge.json`, `inputs/brief.md`, `plugins/plugin-lock.json`; call `LoadConfig(tempDir)`; assert config.ProjectName and required fields. |
-| `LoadConfig_MissingManifestFile_ThrowsFileNotFoundException` | Call `LoadConfig(pathToEmptyDir)` where no `archiforge.json` exists; assert throws `FileNotFoundException`. |
-| `LoadConfig_InvalidJson_ThrowsInvalidDataException` | Write invalid JSON to `archiforge.json` in temp dir; assert throws `InvalidDataException` (or `JsonException`). |
+| `LoadConfig_ValidJsonAndFilesExist_ReturnsConfig` | Create temp dir with valid `archlucid.json`, `inputs/brief.md`, `plugins/plugin-lock.json`; call `LoadConfig(tempDir)`; assert config.ProjectName and required fields. |
+| `LoadConfig_MissingManifestFile_ThrowsFileNotFoundException` | Call `LoadConfig(pathToEmptyDir)` where no `archlucid.json` exists; assert throws `FileNotFoundException`. |
+| `LoadConfig_InvalidJson_ThrowsInvalidDataException` | Write invalid JSON to `archlucid.json` in temp dir; assert throws `InvalidDataException` (or `JsonException`). |
 | `LoadConfig_MissingBriefFile_Throws` | Valid JSON but `inputs/brief.md` missing under project root; assert throws (per `ValidateConfigOrThrow`). |
 
 **In `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs`:**
@@ -118,12 +116,12 @@ Do the phases in this order. Later phases depend on earlier ones.
 | Test name | Behavior |
 |-----------|----------|
 | `ResolveBaseUrl_WhenConfigHasApiUrl_ReturnsConfigUrl` | Create config with `ApiUrl = "https://custom:9090"`; assert `ResolveBaseUrl(config)` equals `"https://custom:9090"`. |
-| `ResolveBaseUrl_WhenConfigNull_ReturnsDefaultOrEnv` | Call `ResolveBaseUrl(null)`; assert result is default (e.g. `"http://localhost:5128"`) or set `ARCHIFORGE_API_URL` and assert then clear in finally. |
+| `ResolveBaseUrl_WhenConfigNull_ReturnsDefaultOrEnv` | Call `ResolveBaseUrl(null)`; assert result is default (e.g. `"http://localhost:5128"`) or set `ARCHLUCID_API_URL` and assert then clear in finally. |
 | `ResolveBaseUrl_WhenConfigHasApiUrlWithTrailingSlash_TrimsSlash` | Config `ApiUrl = "http://localhost:5128/"`; assert result is `"http://localhost:5128"`. |
 
 ### Validation
 
-- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchiForgeConfigTests|FullyQualifiedName~ArchLucidApiClientTests"` passes.
+- `dotnet test ArchLucid.Cli.Tests --filter "FullyQualifiedName~ArchLucidConfigTests|FullyQualifiedName~ArchLucidApiClientTests"` passes.
 
 ---
 
@@ -192,7 +190,7 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 | `NoArgs_Returns1_AndPrintsUsage` | Call with `args = []`; assert exit code 1 and console output contains "Please provide a command" or "Available commands". |
 | `UnknownCommand_Returns1_AndPrintsUnknown` | Call with `args = ["invalid"]`; assert exit code 1 and output contains "Unknown command". |
 | `Health_WhenApiUnreachable_Returns1` | Call with `args = ["health"]` (no API running); assert exit code 1. |
-| `New_WithProjectName_Returns0_AndCreatesFiles` | Call with `args = ["new", "TestProject"]` in a temp directory; assert exit code 0 and that `TestProject/archiforge.json`, `TestProject/inputs/brief.md` exist. |
+| `New_WithProjectName_Returns0_AndCreatesFiles` | Call with `args = ["new", "TestProject"]` in a temp directory; assert exit code 0 and that `TestProject/archlucid.json`, `TestProject/inputs/brief.md` exist. |
 
 ### Validation
 
@@ -208,14 +206,14 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 
 | File | Purpose |
 |------|---------|
-| `docs/CLI_USAGE.md` | Reference: all commands, `archiforge.json` fields, `ARCHIFORGE_API_URL`, default API URL (`http://localhost:5128`). |
+| `docs/CLI_USAGE.md` | Reference: all commands, `archlucid.json` fields, `ARCHLUCID_API_URL`, default API URL (`http://localhost:5128`). |
 
 ### Files to modify
 
 | File | Change |
 |------|--------|
-| `README.md` | Add a **CLI** section: how to run the CLI (`dotnet run --project ArchLucid.Cli` or `dotnet tool install` if published), commands `new`, `run`, `status`, `submit`, `commit`, `seed`, `artifacts`, `health`, `dev up`; note that the API must be running (or set `ARCHIFORGE_API_URL`). Mention default URL from `ArchLucid.Api` launchSettings (e.g. `http://localhost:5128`). |
-| `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs` | Optional: remove or gate the direct `SqlConnection` / `INSERT INTO PROJECTS` block (around lines 84–107) so scaffolding does not require SQL Server. Replace with no-op or a config flag "registerProject" default false. |
+| `README.md` | Add a **CLI** section: how to run the CLI (`dotnet run --project ArchLucid.Cli` or `dotnet tool install` if published), commands `new`, `run`, `status`, `submit`, `commit`, `seed`, `artifacts`, `health`, `dev up`; note that the API must be running (or set `ARCHLUCID_API_URL`). Mention default URL from `ArchLucid.Api` launchSettings (e.g. `http://localhost:5128`). |
+| `ArchLucid.Cli/ArchLucidProjectScaffolder.cs` | Optional: remove or gate the direct `SqlConnection` / `INSERT INTO PROJECTS` block (around lines 84–107) so scaffolding does not require SQL Server. Replace with no-op or a config flag "registerProject" default false. |
 
 ### Tests to add
 
@@ -229,17 +227,15 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 |------|--------|
 | `ArchLucid.Cli.Tests/ArchLucid.Cli.Tests.csproj` | **Create** – test project. |
 | `ArchLucid.sln` | **Modify** – add ArchLucid.Cli.Tests under tests folder. |
-| `ArchLucid.Cli.Tests/ArchiForgeConfigTests.cs` | **Create** – 4 tests for LoadConfig. |
+| `ArchLucid.Cli.Tests/ArchLucidCliConfigTests.cs` | **Create** – 4 tests for LoadConfig. |
 | `ArchLucid.Cli.Tests/ArchLucidApiClientTests.cs` | **Create** – 3 tests for ResolveBaseUrl. |
 | `ArchLucid.Cli.Tests/ArchLucidApiClientHttpTests.cs` | **Create** – 7 tests for client with mocked HTTP. |
 | `ArchLucid.Cli.Tests/CommandLineTests.cs` | **Create** – 4 tests for exit codes/output. |
-| `ArchLucid.Cli.Tests/Fixtures/archiforge-valid.json` | **Create** – valid config fixture. |
-| `ArchLucid.Cli.Tests/Fixtures/archiforge-invalid.json` | **Create** – invalid config fixture. |
 | `ArchLucid.Cli/ArchLucidApiClient.cs` | **Modify** (optional) – add constructor taking `HttpClient` for tests. |
 | `ArchLucid.Cli/Program.cs` | **Modify** (optional) – expose `RunAsync(args)` for tests. |
 | `README.md` | **Modify** – add CLI section. |
 | `docs/CLI_USAGE.md` | **Create** (optional) – full CLI reference. |
-| `ArchLucid.Cli/ArchiForgeProjectScaffolder.cs` | **Modify** (optional) – gate or remove direct SQL in scaffolder. |
+| `ArchLucid.Cli/ArchLucidProjectScaffolder.cs` | **Modify** (optional) – gate or remove direct SQL in scaffolder. |
 
 ---
 
@@ -255,4 +251,4 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 | GET | `/v1/architecture/manifest/{version}` | Get manifest by version. |
 | POST | `/v1/architecture/run/{runId}/seed-fake-results` | Dev only; seed fake results. |
 
-Base URL default: `http://localhost:5128` (from `ARCHIFORGE_API_URL` or `archiforge.json` `apiUrl`). All JSON camelCase; errors use RFC 7807-style `detail`/`title` or legacy `error`/`errors`.
+Base URL default: `http://localhost:5128` (from `ARCHLUCID_API_URL` or `archlucid.json` `apiUrl`). All JSON camelCase; errors use RFC 7807-style `detail`/`title` or legacy `error`/`errors`.

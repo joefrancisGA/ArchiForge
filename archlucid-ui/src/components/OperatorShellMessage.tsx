@@ -73,6 +73,17 @@ export function OperatorLoadingNotice({ children }: { children: ReactNode }) {
 }
 
 /**
+ * Consistent “what to do next” line after HTTP or contract failures (place below OperatorApiProblem or callouts).
+ */
+export function OperatorTryNext({ children }: { children: ReactNode }) {
+  return (
+    <div style={{ marginTop: 12, maxWidth: 720, fontSize: 14, lineHeight: 1.55, color: "#475569" }}>
+      <strong style={{ color: "#334155" }}>Try next:</strong> {children}
+    </div>
+  );
+}
+
+/**
  * Unexpected JSON shape or contract drift (distinct from HTTP error).
  */
 export function OperatorMalformedCallout({ children }: { children: ReactNode }) {

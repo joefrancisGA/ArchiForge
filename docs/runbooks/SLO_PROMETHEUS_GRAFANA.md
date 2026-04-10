@@ -17,7 +17,7 @@ Give operators a **repeatable** way to:
 ## 3. Constraints
 
 - Burn-rate math assumes **5xx** on the HTTP server span/request counter is an acceptable proxy for “bad” requests (no weighting for 4xx SLOs here).
-- **LLM** recording rules (`archiforge:slo:llm_prompt_tokens_per_second`) are **throughput** SLIs for capacity/cost dashboards, not an availability ratio; do **not** feed them directly into the HTTP burn-rate formula without defining a separate good/total SLI (e.g. span success vs total LLM spans).
+- **LLM** recording rules (`archlucid:slo:llm_prompt_tokens_per_second`) are **throughput** SLIs for capacity/cost dashboards, not an availability ratio; do **not** feed them directly into the HTTP burn-rate formula without defining a separate good/total SLI (e.g. span success vs total LLM spans).
 
 ## 4. Architecture overview
 
@@ -30,7 +30,7 @@ Give operators a **repeatable** way to:
 | Piece | Location | Role |
 |-------|----------|------|
 | **API SLO definitions + synthetic slice** | `docs/API_SLOS.md`, `.github/workflows/api-synthetic-probe.yml` | Human-readable SLO table; **external** scheduled `GET /health/live` + `GET /version` (secrets `SYNTHETIC_API_BASE_URL`, optional `SYNTHETIC_API_PROBE_KEY`). Optional separate `GET /health/ready` uses **summary** JSON only (no exception text). `GET /health` (full detail) is **authenticated** (`ReadAuthority`) and is not part of the default anonymous synthetic probe. |
-| SLO recording + burn alerts | `infra/prometheus/archlucid-slo-rules.yml` | `archiforge:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archiforge:slo:http_p99_seconds`) + `ArchiForgeSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
+| SLO recording + burn alerts | `infra/prometheus/archlucid-slo-rules.yml` | `archlucid:slo:http_availability:ratio`, burn-rate alerts, **p99** recording (`archlucid:slo:http_p99_seconds`) + `ArchLucidSloHttpP99High`, simple **5xx ratio** alert, combined **outbox depth** alert |
 | Threshold / backlog alerts | `infra/prometheus/archlucid-alerts.yml` | Outbox depth, integration backlog, etc. |
 | Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |
 | Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
@@ -41,7 +41,7 @@ Give operators a **repeatable** way to:
 ## 6. Data flow
 
 1. **Counters** increment per HTTP request (status label).
-2. **`archiforge:slo:http_availability:ratio`** ≈ non-5xx rate / total rate over 5m.
+2. **`archlucid:slo:http_availability:ratio`** ≈ non-5xx rate / total rate over 5m.
 3. **Burn** (conceptually) = `(1 − availability) / 0.005` for a **0.5%** budget.
 4. **Fast burn alert** fires when **both** short (**5m**) and longer (**1h**) windows show burn **> 14.4×**.
 5. **Slow burn alert** fires when **30m** and **6h** windows both exceed **6×**.

@@ -8,6 +8,7 @@ import {
   OperatorEmptyState,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
+  OperatorTryNext,
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -66,7 +67,7 @@ function ReplayForm() {
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
         {" · "}
-        <Link href="/compare">Compare runs</Link>
+        <Link href="/compare">Compare two runs</Link>
       </p>
       <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
         Re-run the stored authority chain for a run. Choose a mode, then read validation flags and notes
@@ -106,23 +107,39 @@ function ReplayForm() {
       {loading && runId && (
         <OperatorLoadingNotice>
           <strong>Replay in progress.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>Waiting for the API to finish the replay…</p>
+          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            Waiting for the API to finish the authority-chain replay. Large manifests or artifact rebuild modes can
+            take longer—avoid navigating away until this clears.
+          </p>
         </OperatorLoadingNotice>
       )}
 
       {failure !== null && (
-        <OperatorApiProblem
-          problem={failure.problem}
-          fallbackMessage={failure.message}
-          correlationId={failure.correlationId}
-        />
+        <>
+          <OperatorApiProblem
+            problem={failure.problem}
+            fallbackMessage={failure.message}
+            correlationId={failure.correlationId}
+          />
+          <OperatorTryNext>
+            Confirm the run exists, you have operator permissions, and the API is healthy. Retry with a lighter mode
+            (e.g. <code>ReconstructOnly</code>) before <code>RebuildArtifacts</code>. Copy the correlation ID for API
+            logs.
+          </OperatorTryNext>
+        </>
       )}
 
       {malformedMessage && (
-        <OperatorMalformedCallout>
-          <strong>Replay response was not usable.</strong>
-          <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
-        </OperatorMalformedCallout>
+        <>
+          <OperatorMalformedCallout>
+            <strong>Replay response was not usable.</strong>
+            <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
+          </OperatorMalformedCallout>
+          <OperatorTryNext>
+            Compare API and UI versions. If HTTP succeeded but validation JSON drifted, open a defect with{" "}
+            <code>GET /version</code> and the correlation ID from any paired failing request.
+          </OperatorTryNext>
+        </>
       )}
 
       {result && (
@@ -237,7 +254,9 @@ function ReplaySuspenseFallback() {
     <main>
       <OperatorLoadingNotice>
         <strong>Loading replay.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Reading URL parameters for this page…</p>
+        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          Reading <code>runId</code> from the URL so “Replay this run” deep links open with the field prefilled…
+        </p>
       </OperatorLoadingNotice>
     </main>
   );

@@ -374,7 +374,7 @@ The checked-in Playwright suite under **`e2e/`** is **smoke / operator-journey**
 
 | File | What it asserts |
 |------|-----------------|
-| **`e2e/smoke.spec.ts`** | Home renders **ArchLucid** (h1) and **Start here** (h2). |
+| **`e2e/smoke.spec.ts`** | Home renders **ArchLucid** (h1) and **Operator home** (h2). |
 | **`e2e/run-manifest-journey.spec.ts`** | Run detail (mock API) → open manifest link → manifest summary, artifacts table, bundle affordance → **Run detail** back. |
 | **`e2e/manifest-empty-artifacts.spec.ts`** | Manifest whose artifact list is **`200` + `[]`**: valid-empty status region and copy; **no** “could not be loaded” failure callouts; bundle link present; no artifact table headers. |
 | **`e2e/compare-journey.spec.ts`** | **`/compare?leftRunId&rightRunId`** prefills inputs; **Compare** runs mocked legacy + structured responses; structured-before-legacy guidance and **Review order** nav; **Last compare request** outcome region. |
@@ -404,7 +404,7 @@ Optional: **`npm run typecheck:e2e`** — TypeScript check for **`e2e/`** only.
 
 ### Manual testing against a live API
 
-To exercise the shell against a real **`ArchLucid.Api`**, run **`npm run dev`**, set **`ARCHLUCID_API_BASE_URL`** in **`.env.local`** (legacy `ARCHIFORGE_*` names still work), start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
+To exercise the shell against a real **`ArchLucid.Api`**, run **`npm run dev`**, set **`ARCHLUCID_API_BASE_URL`** in **`.env.local`**, start the API, and use the browser manually (or add **local-only** tests). The committed Playwright suite is intentionally **mock-backed** so CI does not depend on SQL or the .NET stack.
 
 ### How to write a Playwright test
 
@@ -462,7 +462,7 @@ resolve: {
 **Cause:** Usually a server component threw an error (API unreachable, missing env var, bad import).  
 **Fix:**
 1. Check the terminal where `npm run dev` is running — error messages appear there.
-2. Verify `.env.local` has `ARCHLUCID_API_BASE_URL=http://localhost:5128` (or legacy `ARCHIFORGE_API_BASE_URL`).
+2. Verify `.env.local` has `ARCHLUCID_API_BASE_URL=http://localhost:5128`.
 3. Verify the C# API is running: `curl http://localhost:5128/api/authority/projects/default/runs`.
 
 ### "I get CORS errors in the browser console"

@@ -7,8 +7,8 @@ cd "$ROOT"
 echo "Starting SQL Server (docker compose sqlserver)..."
 docker compose up -d sqlserver
 
-export ARCHIFORGE_SQL_TEST="Server=127.0.0.1,1433;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;Initial Catalog=ArchiForgePersistenceTests"
-echo "ARCHIFORGE_SQL_TEST set."
+export ARCHLUCID_SQL_TEST="Server=127.0.0.1,1433;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+echo "ARCHLUCID_SQL_TEST set."
 
 echo "Waiting for SQL healthcheck (~35s)..."
 sleep 35

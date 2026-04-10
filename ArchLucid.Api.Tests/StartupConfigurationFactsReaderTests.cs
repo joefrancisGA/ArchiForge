@@ -21,10 +21,10 @@ public sealed class StartupConfigurationFactsReaderTests
         Dictionary<string, string?> data = new()
         {
             ["ConnectionStrings:ArchLucid"] = "Server=.;Database=x;",
-            ["ArchiForge:StorageProvider"] = "Sql",
+            ["ArchLucid:StorageProvider"] = "Sql",
             ["Retrieval:VectorIndex"] = "InMemory",
             ["AgentExecution:Mode"] = "Simulator",
-            ["ArchiForgeAuth:Mode"] = "DevelopmentBypass",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
             ["Authentication:ApiKey:Enabled"] = "true",
             ["Authentication:ApiKey:AdminKey"] = "secret",
             ["RateLimiting:FixedWindow:PermitLimit"] = "50",

@@ -53,7 +53,7 @@ internal static class DevUpCommand
             Console.WriteLine();
             Console.WriteLine("Connection string for ArchLucid API (User Secrets or env):");
             Console.WriteLine(
-                "  Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=ArchiForge_Dev_Pass123!;TrustServerCertificate=True;");
+                "  Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;");
             Console.WriteLine();
 
             return Task.FromResult(0);

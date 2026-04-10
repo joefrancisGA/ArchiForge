@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// API host with <c>ArchiForge:StorageProvider=InMemory</c> so advisory scans use in-memory authority + alert stores (same DI graph as production, different backing stores).
+/// API host with <c>ArchLucid:StorageProvider=InMemory</c> so advisory scans use in-memory authority + alert stores (same DI graph as production, different backing stores).
 /// </summary>
 public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
 {
@@ -25,13 +25,13 @@ public sealed class AlertLifecycleWebAppFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Development");
 
         builder.UseSetting("ConnectionStrings:ArchLucid", _connectionString);
-        builder.UseSetting("ArchiForge:StorageProvider", "InMemory");
+        builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ArchiForge:StorageProvider"] = "InMemory",
+                ["ArchLucid:StorageProvider"] = "InMemory",
                 ["ConnectionStrings:ArchLucid"] = _connectionString
             });
         });

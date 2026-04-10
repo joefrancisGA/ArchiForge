@@ -3,6 +3,7 @@ using ArchLucid.ArtifactSynthesis.Docx.Helpers;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Advisory.Models;
 using ArchLucid.Decisioning.Advisory.Services;
@@ -16,9 +17,12 @@ using DocumentFormat.OpenXml.Wordprocessing;
 namespace ArchLucid.ArtifactSynthesis.Docx;
 
 /// <summary>
-/// <see cref="IDocxExportService"/> implementation using embedded template, <see cref="IImprovementAdvisorService"/> for advisory sections, and OpenXML builders.
+/// <see cref="IDocxExportService"/> implementation using embedded template, <see cref="IImprovementAdvisorService"/> for advisory sections,
+/// <see cref="IDiagramImageRenderer"/> for optional Mermaid→PNG rasterization, and OpenXML builders.
 /// </summary>
-public sealed class DocxExportService(IImprovementAdvisorService improvementAdvisorService) : IDocxExportService
+public sealed class DocxExportService(
+    IImprovementAdvisorService improvementAdvisorService,
+    IDiagramImageRenderer diagramImageRenderer) : IDocxExportService
 {
     /// <inheritdoc />
     public async Task<DocxExportResult> ExportAsync(
@@ -52,7 +56,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             foreach (OpenXmlElement child in body.ChildElements.ToList())
                 child.Remove();
 
-            BuildDocument(doc, body, request, manifest, artifacts, improvementPlan);
+            await BuildDocumentAsync(doc, body, request, manifest, artifacts, improvementPlan, ct);
 
             if (sectPr is not null)
                 body.AppendChild(sectPr);
@@ -87,13 +91,14 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
             Findings = []
         };
 
-    private static void BuildDocument(
+    private async Task BuildDocumentAsync(
         WordprocessingDocument doc,
         Body body,
         DocxExportRequest request,
         GoldenManifest manifest,
         IReadOnlyList<SynthesizedArtifact> artifacts,
-        ImprovementPlan improvementPlan)
+        ImprovementPlan improvementPlan,
+        CancellationToken ct)
     {
         WordDocumentBuilder.AddStyledParagraph(body, request.DocumentTitle, DocxStyleIds.Title);
         WordDocumentBuilder.AddBodyText(body, request.Subtitle);
@@ -116,16 +121,7 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
 
         if (request.IncludeArchitectureDiagram)
         {
-            WordDocumentBuilder.AddHeading(body, "Architecture Diagram");
-            ImageHelper.AddPngToBody(
-                doc,
-                body,
-                DiagramPlaceholderBytes.Png.ToArray(),
-                "Architecture overview (placeholder)");
-            WordDocumentBuilder.AddBodyText(
-                body,
-                "Placeholder image — future releases can embed Mermaid renders or knowledge-graph snapshots.");
-            WordDocumentBuilder.AddSpacer(body, 2);
+            await AppendArchitectureDiagramSectionAsync(doc, body, manifest, artifacts, ct);
         }
 
         if (request.IncludeCoverageSection)
@@ -308,6 +304,154 @@ public sealed class DocxExportService(IImprovementAdvisorService improvementAdvi
                 ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
             ],
             headerRow: true);
+    }
+
+    private const int MaxEmbeddedMermaidChars = 48_000;
+
+    private async Task AppendArchitectureDiagramSectionAsync(
+        WordprocessingDocument doc,
+        Body body,
+        GoldenManifest manifest,
+        IReadOnlyList<SynthesizedArtifact> artifacts,
+        CancellationToken ct)
+    {
+        WordDocumentBuilder.AddHeading(body, "Architecture diagram");
+        byte[]? pngBytes = TryGetPngBytesFromArtifacts(artifacts);
+
+        if (pngBytes is not null)
+        {
+            ImageHelper.AddPngToBody(doc, body, pngBytes, "Architecture diagram");
+            WordDocumentBuilder.AddBodyText(
+                body,
+                "Raster image embedded from a synthesized artifact on this manifest (PNG supplied as base64 in storage).");
+        }
+        else if (TryGetMermaidDiagramSource(artifacts) is { } mermaid)
+        {
+            byte[]? rendered = await diagramImageRenderer.RenderMermaidPngAsync(mermaid, ct);
+
+            if (rendered is not null && rendered.Length > 0)
+            {
+                ImageHelper.AddPngToBody(doc, body, rendered, "Architecture diagram");
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    "Raster image rendered from the Mermaid source in the artifact bundle (Mermaid CLI on the API host when enabled).");
+            }
+            else
+            {
+                WordDocumentBuilder.AddBodyText(
+                    body,
+                    "Mermaid source is embedded below. Enable ArchLucid:MermaidCli:Enabled and install the mmdc CLI on the API host to rasterize this diagram automatically, or render architecture.mmd from the bundle externally.");
+                WordDocumentBuilder.AddMonospaceSourceLines(body, mermaid);
+            }
+        }
+        else
+        {
+            WordDocumentBuilder.AddBodyText(
+                body,
+                "No diagram image or Mermaid source was synthesized for this manifest.");
+            AppendManifestTopologySummaryForDiagramFallback(body, manifest);
+        }
+
+        WordDocumentBuilder.AddSpacer(body, 2);
+    }
+
+    private static byte[]? TryGetPngBytesFromArtifacts(IReadOnlyList<SynthesizedArtifact> artifacts)
+    {
+        ReadOnlySpan<byte> pngSignature = stackalloc byte[]
+        {
+            0x89,
+            (byte)'P',
+            (byte)'N',
+            (byte)'G',
+            0x0D,
+            0x0A,
+            0x1A,
+            0x0A,
+        };
+
+        foreach (SynthesizedArtifact a in artifacts)
+        {
+            if (string.IsNullOrWhiteSpace(a.Content))
+            {
+                continue;
+            }
+
+            string format = a.Format.Trim();
+
+            if (!format.Equals("png", StringComparison.OrdinalIgnoreCase) &&
+                !format.Equals("image/png", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            string trimmed = a.Content.Trim();
+            byte[] bytes;
+
+            try
+            {
+                bytes = Convert.FromBase64String(trimmed);
+            }
+            catch (FormatException)
+            {
+                continue;
+            }
+
+            if (bytes.Length < pngSignature.Length)
+            {
+                continue;
+            }
+
+            if (!bytes.AsSpan(0, pngSignature.Length).SequenceEqual(pngSignature))
+            {
+                continue;
+            }
+
+            return bytes;
+        }
+
+        return null;
+    }
+
+    private static string? TryGetMermaidDiagramSource(IReadOnlyList<SynthesizedArtifact> artifacts)
+    {
+        foreach (SynthesizedArtifact a in artifacts)
+        {
+            if (string.IsNullOrWhiteSpace(a.Content))
+            {
+                continue;
+            }
+
+            bool isMermaidType = string.Equals(a.ArtifactType, ArtifactType.MermaidDiagram, StringComparison.Ordinal);
+            bool isMermaidFormat = a.Format.Equals("mermaid", StringComparison.OrdinalIgnoreCase);
+            bool isMmdName = a.Name.EndsWith(".mmd", StringComparison.OrdinalIgnoreCase);
+
+            if (!isMermaidType && !isMermaidFormat && !isMmdName)
+            {
+                continue;
+            }
+
+            string s = a.Content;
+
+            if (s.Length > MaxEmbeddedMermaidChars)
+            {
+                return s[..MaxEmbeddedMermaidChars] + "\n\n… (truncated for Word document size)";
+            }
+
+            return s;
+        }
+
+        return null;
+    }
+
+    private static void AppendManifestTopologySummaryForDiagramFallback(Body body, GoldenManifest manifest)
+    {
+        int resourceCount = manifest.Topology.Resources.Count;
+        int patternCount = manifest.Topology.SelectedPatterns.Count;
+        int decisionCount = manifest.Decisions.Count;
+
+        WordDocumentBuilder.AddBodyText(
+            body,
+            $"Committed manifest includes {resourceCount} topology resource(s), {patternCount} selected pattern(s), and {decisionCount} decision(s). See Topology Posture and Decisions below for full detail.");
     }
 
     private static void AppendManifestComparison(Body body, ComparisonResult c)

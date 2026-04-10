@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: ArchiForge API (bootstrap)
+  title: ArchLucid API (bootstrap)
   description: >
     Minimal spec so APIM can be created before a full Swagger import.
     Set apim_openapi_spec_url to https://<your-api-host>/swagger/v1/swagger.json and re-apply to replace operations.

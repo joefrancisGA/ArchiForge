@@ -1,8 +1,9 @@
+using Microsoft.Extensions.Configuration;
+
 namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>
-/// Merges <c>ArchLucid*</c> configuration over legacy <c>ArchiForge*</c> keys during the product rename.
-/// Sunset: remove fallbacks in Phase 7 per <c>docs/ARCHLUCID_RENAME_CHECKLIST.md</c>.
+/// Resolves ArchLucid-first configuration (connection string, product section, auth section).
 /// </summary>
 public static class ArchLucidConfigurationBridge
 {
@@ -10,40 +11,25 @@ public static class ArchLucidConfigurationBridge
 
     public const string ArchLucidAuthSectionName = "ArchLucidAuth";
 
-    public const string LegacyAuthSectionName = "ArchiForgeAuth";
-
     public const string PrimarySqlConnectionName = "ArchLucid";
 
-    public const string LegacySqlConnectionName = "ArchiForge";
-
-    public const string LegacyProductSectionName = "ArchiForge";
-
-    /// <summary>SQL connection string: <c>ConnectionStrings:ArchLucid</c> wins when set (legacy <c>ArchiForge</c> fallback).</summary>
+    /// <summary>SQL connection string: <c>ConnectionStrings:ArchLucid</c> only.</summary>
     public static string? ResolveSqlConnectionString(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        return configuration.GetConnectionString(PrimarySqlConnectionName)
-               ?? configuration.GetConnectionString(LegacySqlConnectionName);
+        return configuration.GetConnectionString(PrimarySqlConnectionName);
     }
 
     /// <summary>
-    /// Effective product options: legacy <c>ArchiForge</c> section as base, then <c>ArchLucid</c> section (same shape),
-    /// then flat <c>ArchLucid:StorageProvider</c> (highest precedence).
+    /// Effective product options from <c>ArchLucid</c> section and flat <c>ArchLucid:StorageProvider</c>.
     /// </summary>
     public static ArchLucidOptions ResolveArchLucidOptions(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
         ArchLucidOptions options =
-            configuration.GetSection(LegacyProductSectionName).Get<ArchLucidOptions>() ?? new ArchLucidOptions();
-
-        ArchLucidOptions? lucidSection = configuration.GetSection(ArchLucidSectionName).Get<ArchLucidOptions>();
-
-        if (lucidSection is not null && !string.IsNullOrWhiteSpace(lucidSection.StorageProvider))
-        {
-            options.StorageProvider = lucidSection.StorageProvider;
-        }
+            configuration.GetSection(ArchLucidSectionName).Get<ArchLucidOptions>() ?? new ArchLucidOptions();
 
         string? lucidStorage = configuration[$"{ArchLucidSectionName}:StorageProvider"]?.Trim();
 
@@ -55,13 +41,11 @@ public static class ArchLucidConfigurationBridge
         return options;
     }
 
-    /// <summary>Auth setting with <c>ArchLucidAuth:*</c> overriding <c>ArchiForgeAuth:*</c>.</summary>
+    /// <summary>Auth setting from <c>ArchLucidAuth:*</c> only.</summary>
     public static string? ResolveAuthConfigurationValue(IConfiguration configuration, string relativeKey)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        string? lucid = configuration[$"{ArchLucidAuthSectionName}:{relativeKey}"]?.Trim();
-
-        return !string.IsNullOrEmpty(lucid) ? lucid : configuration[$"{LegacyAuthSectionName}:{relativeKey}"]?.Trim();
+        return configuration[$"{ArchLucidAuthSectionName}:{relativeKey}"]?.Trim();
     }
 }

@@ -72,6 +72,31 @@ public sealed class InMemoryRunRepository : IRunRepository
         return Task.FromResult<IReadOnlyList<RunRecord>>(list);
     }
 
+    public Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+        ScopeContext scope,
+        string projectId,
+        int skip,
+        int take,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
+        int safeSkip = Math.Max(skip, 0);
+
+        List<RunRecord> ordered = _store.Values
+            .Where(r =>
+                MatchesScope(r, scope) &&
+                !r.ArchivedUtc.HasValue &&
+                string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
+            .OrderByDescending(r => r.CreatedUtc)
+            .ToList();
+
+        int total = ordered.Count;
+        IReadOnlyList<RunRecord> page = ordered.Skip(safeSkip).Take(safeTake).ToList();
+
+        return Task.FromResult<(IReadOnlyList<RunRecord>, int)>((page, total));
+    }
+
     private static bool MatchesScope(RunRecord r, ScopeContext scope) =>
         r.TenantId == scope.TenantId &&
         r.WorkspaceId == scope.WorkspaceId &&
@@ -115,27 +140,38 @@ public sealed class InMemoryRunRepository : IRunRepository
     }
 
     /// <inheritdoc />
-    public Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         DateTime cutoff = cutoffUtc.UtcDateTime;
         DateTime stamp = DateTime.UtcNow;
-        int count = 0;
+        List<ArchivedRunScopeRow> archived = [];
 
         foreach (KeyValuePair<Guid, RunRecord> kv in _store.ToArray())
         {
             RunRecord r = kv.Value;
 
             if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
-            
+            {
                 continue;
-            
+            }
+
+            archived.Add(new ArchivedRunScopeRow
+            {
+                RunId = r.RunId,
+                TenantId = r.TenantId,
+                WorkspaceId = r.WorkspaceId,
+                ScopeProjectId = r.ScopeProjectId
+            });
 
             r.ArchivedUtc = stamp;
             _store[kv.Key] = r;
-            count++;
         }
 
-        return Task.FromResult(count);
+        return Task.FromResult(new RunArchiveBatchResult
+        {
+            UpdatedCount = archived.Count,
+            ArchivedRuns = archived
+        });
     }
 }

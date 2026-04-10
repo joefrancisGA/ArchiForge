@@ -1,3 +1,7 @@
+# NOTE: Resource addresses in this file use the historical `archiforge` token to avoid Terraform state disruption.
+# Rename via `terraform state mv` during a planned maintenance window.
+# Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
+
 locals {
   apim_resource_group_name = local.apim_enabled ? (
     var.create_resource_group ? azurerm_resource_group.apim[0].name : data.azurerm_resource_group.apim_target[0].name

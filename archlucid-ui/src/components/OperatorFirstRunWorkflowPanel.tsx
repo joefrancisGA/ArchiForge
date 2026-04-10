@@ -53,7 +53,7 @@ const steps: WorkflowStep[] = [
     secondary: (
       <>
         Or browse existing runs on the{" "}
-        <Link href="/runs?projectId=default" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link" href="/runs?projectId=default" style={{ color: "#0f766e" }}>
           Runs list
         </Link>
         .
@@ -64,7 +64,7 @@ const steps: WorkflowStep[] = [
     title: "Let the pipeline run, then open the run",
     body: "After creation, the coordinator fills snapshots and authority steps. Watch progress on the wizard’s last step or open run detail anytime.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Go to runs list",
+    primaryLabel: "Open runs list",
     secondary: (
       <>
         Tip: from the wizard (step 4), use <strong>Open run detail</strong> for the new ID.
@@ -75,7 +75,7 @@ const steps: WorkflowStep[] = [
     title: "Commit the golden manifest",
     body: "Until commit, there is no manifest link or artifact exports. Commit through the API or CLI when the run is ready.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Pick your run → open detail",
+    primaryLabel: "Choose run → open detail",
     secondary: (
       <>
         See <code>docs/OPERATOR_QUICKSTART.md</code> in the repo for commit examples.
@@ -97,14 +97,14 @@ const steps: WorkflowStep[] = [
     title: "Compare or replay",
     body: "Diff two runs structurally, or replay authority validation for one run. Run detail has shortcuts prefilled for this run.",
     primaryHref: "/compare",
-    primaryLabel: "Compare runs",
+    primaryLabel: "Compare two runs",
     secondary: (
       <>
-        <Link href="/replay" style={{ color: "#0f766e" }}>
-          Replay run
+        <Link className="workflow-inline-link" href="/replay" style={{ color: "#0f766e" }}>
+          Replay a run
         </Link>{" "}
         ·{" "}
-        <Link href="/graph" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link" href="/graph" style={{ color: "#0f766e" }}>
           Graph (visual)
         </Link>
       </>
@@ -114,7 +114,7 @@ const steps: WorkflowStep[] = [
     title: "Export a package",
     body: "On run detail (with a manifest), use Download bundle (ZIP) and Download run export (ZIP) under Artifacts.",
     primaryHref: "/runs?projectId=default",
-    primaryLabel: "Runs → open run → Artifacts",
+    primaryLabel: "Runs: open run → Artifacts",
   },
 ];
 
@@ -167,6 +167,9 @@ export function OperatorFirstRunWorkflowPanel() {
         <button
           type="button"
           onClick={expand}
+          aria-expanded={false}
+          aria-controls="first-run-workflow-panel"
+          className="auth-panel-focus"
           style={{
             fontSize: 14,
             padding: "8px 14px",
@@ -177,14 +180,14 @@ export function OperatorFirstRunWorkflowPanel() {
             color: "#0f172a",
           }}
         >
-          Show first-run workflow
+          Show V1 workflow checklist
         </button>
       </div>
     );
   }
 
   return (
-    <section style={panelWrap} aria-labelledby="first-run-workflow-heading">
+    <section id="first-run-workflow-panel" style={panelWrap} aria-labelledby="first-run-workflow-heading">
       <div
         style={{
           display: "flex",
@@ -196,11 +199,14 @@ export function OperatorFirstRunWorkflowPanel() {
         }}
       >
         <h2 id="first-run-workflow-heading" style={{ margin: 0, fontSize: 18, color: "#0c4a6e" }}>
-          First-run workflow
+          First-run workflow (V1 checklist)
         </h2>
         <button
           type="button"
           onClick={minimize}
+          aria-expanded={true}
+          aria-controls="first-run-workflow-panel"
+          className="auth-panel-focus"
           style={{
             fontSize: 13,
             padding: "6px 12px",
@@ -211,7 +217,7 @@ export function OperatorFirstRunWorkflowPanel() {
             color: "#0369a1",
           }}
         >
-          Hide guide
+          Hide checklist
         </button>
       </div>
       <p style={{ margin: "0 0 16px", fontSize: 14, color: "#334155", lineHeight: 1.55, maxWidth: 760 }}>
@@ -226,7 +232,7 @@ export function OperatorFirstRunWorkflowPanel() {
             </strong>
             <span style={{ fontSize: 14, color: "#475569" }}>{step.body}</span>
             <div>
-              <Link href={step.primaryHref} style={primaryLink}>
+              <Link className="workflow-primary-action" href={step.primaryHref} style={primaryLink}>
                 {step.primaryLabel}
               </Link>
             </div>
@@ -235,8 +241,14 @@ export function OperatorFirstRunWorkflowPanel() {
         ))}
       </ol>
       <p style={{ margin: "18px 0 0", fontSize: 13, color: "#64748b" }}>
-        More orientation: <Link href="/onboarding">Onboarding</Link> ·{" "}
-        <Link href="/">Home overview</Link>
+        More orientation:{" "}
+        <Link className="workflow-inline-link" href="/onboarding" style={{ color: "#0f766e" }}>
+          Onboarding
+        </Link>{" "}
+        ·{" "}
+        <Link className="workflow-inline-link" href="/" style={{ color: "#0f766e" }}>
+          Home overview
+        </Link>
       </p>
     </section>
   );

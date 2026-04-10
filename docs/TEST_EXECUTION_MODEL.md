@@ -1,6 +1,6 @@
 # Test execution model (54R — release readiness)
 
-This document is the **canonical reference** for how the ArchLucid product codebase (`ArchiForge.*` assemblies today) classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.
+This document is the **canonical reference** for how the ArchLucid product codebase (`ArchLucid.*` assemblies) classifies and runs automated tests. It aligns local scripts, contributor docs, and CI behavior.
 
 **See also:** [TEST_STRUCTURE.md](TEST_STRUCTURE.md) (**54R operator cheat sheet** — copy-paste commands), [BUILD.md](BUILD.md) (SQL Server setup for tests), [RELEASE_LOCAL.md](RELEASE_LOCAL.md) (**56R** — `build-release`, `package-release`, `run-readiness-check`), [RELEASE_SMOKE.md](RELEASE_SMOKE.md) (**56R** — `release-smoke` E2E gate).
 
@@ -38,7 +38,7 @@ dotnet test ArchLucid.sln --filter "Suite=Core"
 - **GitHub Actions** job **“.NET: fast core (corset)”** runs the same filter as the Fast core subset below (`Suite=Core&Category!=Slow&Category!=Integration`), which **includes** `OpenApiContractSnapshotTests` — any OpenAPI drift fails CI until the snapshot is regenerated.
 - Not every test in the solution is (or should be) in Core. Adding `Suite=Core` is a deliberate choice.
 - Some Core classes are also tagged `Category=Integration` or `Category=Slow`; they still run in the full Core filter.
-- **OpenAPI contract snapshot:** `OpenApiContractSnapshotTests` (`ArchLucid.Api.Tests`, `Suite=Core`) compares live `GET /openapi/v1.json` (Microsoft `MapOpenApi` document) to `Contracts/openapi-v1.contract.snapshot.json`. **Regenerate after intentional API surface changes:** `ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test ArchLucid.Api.Tests --filter OpenApiContractSnapshotTests` (from repo root), then commit the updated JSON. Operator-oriented narrative: [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md).
+- **OpenAPI contract snapshot:** `OpenApiContractSnapshotTests` (`ArchLucid.Api.Tests`, `Suite=Core`) compares live `GET /openapi/v1.json` (Microsoft `MapOpenApi` document) to `Contracts/openapi-v1.contract.snapshot.json`. **Regenerate after intentional API surface changes:** `ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test ArchLucid.Api.Tests --filter OpenApiContractSnapshotTests` (from repo root), then commit the updated JSON. Operator-oriented narrative: [OPENAPI_CONTRACT_DRIFT.md](OPENAPI_CONTRACT_DRIFT.md).
 
 ---
 
@@ -104,7 +104,7 @@ dotnet test ArchLucid.Persistence.Tests --filter "Category=SqlServerContainer"
 
 **Scripts:** `test-sqlserver-integration.cmd` / `test-sqlserver-integration.ps1`
 
-**Requires:** `ARCHIFORGE_SQL_TEST` set to a full ADO.NET connection string (see [BUILD.md](BUILD.md)), or Windows LocalDB. Resolution is centralized in **`ArchLucid.TestSupport`**. If SQL is unavailable, tests **skip** via `SkippableFact` / fixture checks where implemented.
+**Requires:** `ARCHLUCID_SQL_TEST` set to a full ADO.NET connection string (see [BUILD.md](BUILD.md)), or Windows LocalDB. Resolution is centralized in **`ArchLucid.TestSupport`**. If SQL is unavailable, tests **skip** via `SkippableFact` / fixture checks where implemented.
 
 This path is the **default** for “did we break Dapper + SQL DDL + migrations?” without spinning the full API host.
 
@@ -122,9 +122,9 @@ dotnet test ArchLucid.sln
 
 **Scripts:** `test-full.cmd` / `test-full.ps1`
 
-**CI:** GitHub Actions runs this (Release configuration, with `ARCHIFORGE_SQL_TEST` for Persistence tests). This is the **.NET release gate** alongside **Vitest** and **Playwright** UI jobs.
+**CI:** GitHub Actions runs this (Release configuration, with `ARCHLUCID_SQL_TEST` for Persistence tests). This is the **.NET release gate** alongside **Vitest** and **Playwright** UI jobs.
 
-**Local parity:** `scripts/run-full-regression-docker-sql.ps1` / `.sh` starts Compose SQL and sets `ARCHIFORGE_SQL_TEST` to the dev password from `docker-compose.yml` (see [BUILD.md](BUILD.md)).
+**Local parity:** `scripts/run-full-regression-docker-sql.ps1` / `.sh` starts Compose SQL and sets `ARCHLUCID_SQL_TEST` to the dev password from `docker-compose.yml` (see [BUILD.md](BUILD.md)).
 
 ---
 
@@ -190,7 +190,7 @@ Workflow: `.github/workflows/ci.yml` — **five jobs**, tiered for clarity and f
 |------|-----|-----------|
 | **0** | **`gitleaks`** | Full-history secret scan (`gitleaks/gitleaks-action`, **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
 | **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
-| **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHIFORGE_SQL_TEST` (entire solution). |
+| **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
 | **3a** | **`ui-unit`** | `archlucid-ui`: `npm ci`, `npm run test` (Vitest / jsdom), **CycloneDX** npm SBOM (artifact **`sbom-npm`**). |
 | **3b** | **`ui-e2e-smoke`** | `archlucid-ui`: `npm ci`, Playwright Chromium, `npx playwright test` (build + start via Playwright `webServer`). Browser-heavy. |
 

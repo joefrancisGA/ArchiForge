@@ -25,10 +25,16 @@ public static class SupportBundleCollector
     {
         ArgumentNullException.ThrowIfNull(client);
 
+        string createdUtc = DateTime.UtcNow.ToString("O", System.Globalization.CultureInfo.InvariantCulture);
+        string archLucidJsonPath = Path.Combine(workingDirectory, "archlucid.json");
+
         SupportBundleManifest manifest = new()
         {
-            CreatedUtc = DateTime.UtcNow.ToString("O", System.Globalization.CultureInfo.InvariantCulture),
+            CreatedUtc = createdUtc,
             CliWorkingDirectory = workingDirectory,
+            ArchLucidJsonPath = archLucidJsonPath,
+            ArchLucidJsonPresent = File.Exists(archLucidJsonPath),
+            TriageReadOrder = SupportBundleTriageCatalog.Entries,
         };
 
         (string? versionJson, string? versionErr) = await TryGetVersionAsync(client, cancellationToken);
@@ -47,6 +53,8 @@ public static class SupportBundleCollector
             Combined = await ProbeAsync(client, "/health", cancellationToken),
         };
 
+        SupportBundleApiContractSection apiContract = await CollectApiContractSectionAsync(client, cancellationToken);
+
         SupportBundleConfigSummary configSummary = BuildConfigSummary(config);
         SupportBundleEnvironmentSection env = BuildEnvironmentSection();
         SupportBundleWorkspaceSection workspace = BuildWorkspaceSection(workingDirectory, config);
@@ -60,11 +68,35 @@ public static class SupportBundleCollector
             manifest,
             build,
             health,
+            apiContract,
             configSummary,
             env,
             workspace,
             references,
             logs);
+    }
+
+    private static async Task<SupportBundleApiContractSection> CollectApiContractSectionAsync(
+        ArchLucidApiClient client,
+        CancellationToken ct)
+    {
+        const string openApiPath = "/openapi/v1.json";
+        const int maxCaptureBytes = 65_536;
+
+        (int status, string preview, bool truncated) =
+            await client.GetBoundedUtf8BodyAsync(openApiPath, maxCaptureBytes, ct);
+
+        return new SupportBundleApiContractSection
+        {
+            MicrosoftOpenApiV1 = new SupportBundleBoundedHttpProbe
+            {
+                Path = openApiPath,
+                HttpStatus = status,
+                BodyPreview = preview,
+                BodyTruncated = truncated,
+                MaxBytesCaptured = maxCaptureBytes,
+            },
+        };
     }
 
     private static SupportBundleCliBuildInfo ReadCliBuildInfo()
@@ -242,9 +274,12 @@ public static class SupportBundleCollector
                 "GET /health/live — liveness",
                 "GET /health/ready — readiness (summary JSON; no exception text)",
                 "GET /health — combined checks (detailed JSON; requires ReadAuthority / API key when configured)",
+                "GET /openapi/v1.json — Microsoft OpenAPI document (bounded capture in api-contract.json)",
             ],
             Documentation =
             [
+                "Open README.txt in this folder first for triage order; manifest.json lists triageReadOrder as JSON.",
+                "Correlate failures: response header X-Correlation-ID and problem JSON correlationId (API and operator proxy) match structured logs on the API host.",
                 "docs/TROUBLESHOOTING.md",
                 "docs/OPERATOR_QUICKSTART.md",
                 "docs/CLI_USAGE.md",

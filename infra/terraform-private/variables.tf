@@ -23,7 +23,7 @@ variable "location" {
 variable "virtual_network_name" {
   type        = string
   description = "Name of the VNet that will host the private endpoint subnet."
-  default     = "vnet-archiforge-data"
+  default     = "vnet-archlucid-data"
 }
 
 variable "vnet_address_space" {

@@ -16,7 +16,7 @@ public sealed class SwaggerOpenApiAuthTests
     public void ResolveSecuritySchemeId_returns_scheme_for_auth_modes(string mode, string expectedId)
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
-            new Dictionary<string, string?> { ["ArchiForgeAuth:Mode"] = mode }).Build();
+            new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = mode }).Build();
 
         string? id = SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration);
 
@@ -27,7 +27,7 @@ public sealed class SwaggerOpenApiAuthTests
     public void ResolveSecuritySchemeId_returns_null_for_DevelopmentBypass()
     {
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(
-            new Dictionary<string, string?> { ["ArchiForgeAuth:Mode"] = "DevelopmentBypass" }).Build();
+            new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "DevelopmentBypass" }).Build();
 
         SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration).Should().BeNull();
     }

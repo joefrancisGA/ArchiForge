@@ -13,7 +13,7 @@ dotnet run --project ArchLucid.Cli -- <command> [options]
 Or install as a global .NET tool (after `dotnet pack`):
 
 ```bash
-archiforge <command> [options]
+archlucid <command> [options]
 ```
 
 ---
@@ -22,8 +22,8 @@ archiforge <command> [options]
 
 The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
-1. **`apiUrl`** in `archiforge.json` (if set)
-2. **`ARCHIFORGE_API_URL`** environment variable
+1. **`apiUrl`** in `archlucid.json` (if set)
+2. **`ARCHLUCID_API_URL`** environment variable
 3. **Default:** `http://localhost:5128` (matches `ArchLucid.Api` launchSettings)
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
@@ -36,9 +36,9 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 
 | Command | Description |
 |--------|-------------|
-| `new <projectName>` | Create a new project: `archiforge.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. |
+| `new <projectName>` | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. |
 | `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root). |
-| `run` | Submit an architecture request. Reads `archiforge.json` and `inputs/brief.md` from current directory. |
+| `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
 | `submit <runId> <result.json>` | Submit an agent result for a run (JSON must match `AgentResult` schema). |
@@ -47,8 +47,8 @@ The API must be running for `run`, `status`, `submit`, `commit`, `seed`, `artifa
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
 | `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
-| `doctor` / `check` | Readiness diagnostics: CLI build info, local `archiforge.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
-| `support-bundle` | Writes a **pilot/support** folder of JSON files (and optional `--zip`): build/version, health probes, non-secret `archiforge.json` summary, safe `ARCHIFORGE_*` / `DOTNET_*` env snapshot, outputs folder stats, doc references. No connection strings or API key **values**. Default folder name `support-bundle-<utc-timestamp>Z` in the current directory. Flags: `--output <dir>`, `--zip`. |
+| `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
+| `support-bundle` | Writes a **pilot/support** folder (and optional `--zip`): **`README.txt`** (triage order), **`manifest.json`** (format **1.1**, `triageReadOrder`), **`build.json`**, **`health.json`**, **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`**, **`environment.json`**, **`workspace.json`**, **`references.json`**, **`logs.json`**. No connection strings or API key **values**. Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, `--zip`. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
 | `comparisons replay <comparisonRecordId>` | Replay a saved comparison record and export it again to a file (Markdown/HTML/DOCX/PDF depending on type). |
 | `comparisons replay-batch <id1,id2,...>` | Replay multiple comparison records and download a ZIP of the exported artifacts. |
@@ -66,7 +66,7 @@ The CLI can search and replay persisted comparison records.
 ### List comparisons
 
 ```bash
-archiforge comparisons list [filters]
+archlucid comparisons list [filters]
 ```
 
 Supported flags:
@@ -90,17 +90,17 @@ Examples:
 
 ```bash
 # Page through end-to-end comparisons
-archiforge comparisons list --type end-to-end-replay --limit 20 --skip 0 --table
-archiforge comparisons list --type end-to-end-replay --limit 20 --skip 20 --table
+archlucid comparisons list --type end-to-end-replay --limit 20 --skip 0 --table
+archlucid comparisons list --type end-to-end-replay --limit 20 --skip 20 --table
 
 # Filter by tag and label
-archiforge comparisons list --tags incident,urgent --label incident-42 --json
+archlucid comparisons list --tags incident,urgent --label incident-42 --json
 ```
 
 ### Replay a comparison (export to file)
 
 ```bash
-archiforge comparisons replay <comparisonRecordId> [options]
+archlucid comparisons replay <comparisonRecordId> [options]
 ```
 
 Options:
@@ -118,39 +118,39 @@ Examples:
 
 ```bash
 # Replay as DOCX into a directory (creates the directory if missing)
-archiforge comparisons replay <id> --format docx --out outputs --force
+archlucid comparisons replay <id> --format docx --out outputs --force
 
 # Verify replay and persist the replayed record
-archiforge comparisons replay <id> --mode verify --persist
+archlucid comparisons replay <id> --mode verify --persist
 ```
 
 ### Batch replay (download ZIP)
 
 ```bash
-archiforge comparisons replay-batch <id1,id2,...> [--format docx] [--out outputs] [--force]
+archlucid comparisons replay-batch <id1,id2,...> [--format docx] [--out outputs] [--force]
 ```
 
 ### Summary
 
 ```bash
-archiforge comparisons summary <comparisonRecordId> [--json]
+archlucid comparisons summary <comparisonRecordId> [--json]
 ```
 
 ### Drift analysis
 
 ```bash
-archiforge comparisons drift <comparisonRecordId> [--json]
+archlucid comparisons drift <comparisonRecordId> [--json]
 ```
 
 ### Replay diagnostics
 
 ```bash
-archiforge comparisons diagnostics [--limit 50] [--json|--table]
+archlucid comparisons diagnostics [--limit 50] [--json|--table]
 ```
 
 This endpoint requires the API permission claim `replay:diagnostics`.
 
-## archiforge.json
+## archlucid.json
 
 Single source of truth for project configuration. Required for `run`, `status`, `submit`, `commit`, `seed`, `artifacts`.
 
@@ -184,7 +184,7 @@ Example (minimal valid):
 
 | Variable | Description |
 |----------|-------------|
-| `ARCHIFORGE_API_URL` | API base URL when not set in `archiforge.json`. Default: `http://localhost:5128`. |
+| `ARCHLUCID_API_URL` | API base URL when not set in `archlucid.json`. Default: `http://localhost:5128`. |
 
 ---
 

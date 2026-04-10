@@ -12,7 +12,7 @@
 ## Run (example)
 
 ```bash
-k6 run --vus 30 --duration 60s -e ARCHIFORGE_BASE_URL=https://localhost:7123 scripts/load/k6-expensive-rate-limit.js
+k6 run --vus 30 --duration 60s -e ARCHLUCID_BASE_URL=https://localhost:7123 scripts/load/k6-expensive-rate-limit.js
 ```
 
 ## Interpretation

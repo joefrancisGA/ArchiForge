@@ -7,11 +7,6 @@ public sealed class SupportBundleConfigSummary
     [JsonPropertyName("hasArchlucidJson")]
     public bool HasArchlucidJson { get; init; }
 
-    /// <summary>Legacy bundle key; omitted when writing new bundles.</summary>
-    [JsonPropertyName("hasArchiforgeJson")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWriting)]
-    public bool? HasArchiforgeJson { get; init; }
-
     [JsonPropertyName("projectName")]
     public string? ProjectName { get; init; }
 

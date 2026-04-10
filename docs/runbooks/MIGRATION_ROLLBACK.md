@@ -7,7 +7,7 @@ Describe how operators recover when a **forward-only** DbUp migration is wrong, 
 ## Assumptions
 
 - Production schema evolves via **embedded scripts** under **`ArchLucid.Persistence/Migrations/`**, applied in lexicographic order by **`DatabaseMigrator`**.
-- **`ArchiForge.sql`** is the consolidated reference for greenfield bootstrap; brownfield servers may have run the same logical change through a numbered migration first.
+- **`ArchLucid.sql`** is the consolidated reference for greenfield bootstrap; brownfield servers may have run the same logical change through a numbered migration first.
 - **DbUp does not ship “down” scripts**; rollback is a **manual** DBA operation with a **restore-first** bias.
 
 ## Constraints
@@ -21,7 +21,7 @@ Describe how operators recover when a **forward-only** DbUp migration is wrong, 
 | Component | Role |
 |-----------|------|
 | **`Migrations/NNN_*.sql`** | Ordered, idempotent-forward deltas. |
-| **`ArchiForge.sql`** | Full bootstrap parity (includes post-migration sections). |
+| **`ArchLucid.sql`** | Full bootstrap parity (includes post-migration sections). |
 | **Backup / PITR** | Primary rollback mechanism for production. |
 
 ## Data flow (rollback decision)
@@ -42,7 +42,7 @@ Describe how operators recover when a **forward-only** DbUp migration is wrong, 
 
 - **After restore:** Re-run DbUp from a clean baseline only if the **`SchemaVersions`** (or DbUp journal) table matches the restored DB; mismatches require **manual journal alignment** (expert-only).
 - **028 archival columns example:** `ArchivedUtc` on **`dbo.Runs`**, **`dbo.ArchitectureDigests`**, **`dbo.ConversationThreads`** is nullable and additive. Reversing it is `ALTER TABLE ... DROP COLUMN ArchivedUtc` **only** if no app version depends on the column (coordinate blue/green).
-- **Test environments:** Prefer **throwaway database** restore or recreate from **`ArchiForge.sql`** + migrations over editing production.
+- **Test environments:** Prefer **throwaway database** restore or recreate from **`ArchLucid.sql`** + migrations over editing production.
 
 ## Cost / scalability / reliability
 

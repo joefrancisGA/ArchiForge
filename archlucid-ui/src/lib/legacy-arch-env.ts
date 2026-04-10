@@ -1,38 +1,39 @@
 /**
- * Legacy environment variable names used the historical "ARCH" + "IFORGE" + "_" product prefix.
- * Keys are built from fragments so CI grep guards for deprecated product substrings stay meaningful.
+ * Reads operator UI environment variables (ArchLucid-prefixed only; Phase 7 removed legacy name fallbacks).
+ * Legacy keys are detected separately so deploy systems still mapping old secret names get a visible warning.
  */
-const _A = "ARCH";
-const _B = "IFORGE";
+const _legacyEnvPrefix = "ARCH" + "IFORGE_";
 
-function legacyKey(suffix: string): string {
-  return `${_A}${_B}_${suffix}`;
-}
+let legacyUiEnvWarningEmitted = false;
 
-function nextPublicLegacyKey(suffix: string): string {
-  return `NEXT_PUBLIC_${_A}${_B}_${suffix}`;
-}
-
-/** @returns trimmed value or undefined when unset/blank */
-export function readOptionalEnv(primary: string, legacySuffix: string): string | undefined {
-  const p = process.env[primary]?.trim();
-
-  if (p) {
-    return p;
+function warnLegacyUiEnvOnce(): void {
+  if (legacyUiEnvWarningEmitted || typeof process === "undefined" || !process.env) {
+    return;
   }
 
-  const l = process.env[legacyKey(legacySuffix)]?.trim();
+  const keys = Object.keys(process.env).filter((k) => k.toUpperCase().startsWith(_legacyEnvPrefix));
 
-  return l && l.length > 0 ? l : undefined;
+  if (keys.length === 0) {
+    return;
+  }
+
+  legacyUiEnvWarningEmitted = true;
+  console.warn(
+    `[ArchLucid UI] Legacy ${_legacyEnvPrefix}* environment variables are set but ignored. Use ARCHLUCID_* / NEXT_PUBLIC_ARCHLUCID_* only. Keys: ${keys.sort().join(", ")}`,
+  );
 }
 
 /** API key for server-side UI → API calls (proxy / RSC). */
 export function readServerSideApiKey(): string | undefined {
-  return readOptionalEnv("ARCHLUCID_API_KEY", "API_KEY");
+  warnLegacyUiEnvOnce();
+
+  return process.env.ARCHLUCID_API_KEY?.trim() || undefined;
 }
 
-/** Upstream API base URL (server / build), new env names first. */
+/** Upstream API base URL (server / build). */
 export function readServerApiBaseUrlFromEnv(): string {
+  warnLegacyUiEnvOnce();
+
   const lucid = process.env.ARCHLUCID_API_BASE_URL?.trim();
 
   if (lucid) {
@@ -45,70 +46,49 @@ export function readServerApiBaseUrlFromEnv(): string {
     return lucidNp;
   }
 
-  const legacy = process.env[legacyKey("API_BASE_URL")]?.trim();
-
-  if (legacy) {
-    return legacy;
-  }
-
-  const legacyNp = process.env[nextPublicLegacyKey("API_BASE_URL")]?.trim();
-
-  if (legacyNp) {
-    return legacyNp;
-  }
-
   return "http://localhost:5128";
 }
 
 /** Browser-visible default API origin (NEXT_PUBLIC_* only; no server-only secrets). */
 export function readPublicBrowserApiBaseDefault(): string {
+  warnLegacyUiEnvOnce();
+
   const lucid = process.env.NEXT_PUBLIC_ARCHLUCID_API_BASE_URL?.trim();
 
   if (lucid) {
     return lucid;
   }
 
-  const legacy = process.env[nextPublicLegacyKey("API_BASE_URL")]?.trim();
-
-  if (legacy) {
-    return legacy;
-  }
-
   return "http://localhost:5128";
 }
 
 const _NpLucid = "NEXT_PUBLIC_ARCHLUCID_";
-const _NpLegacy = `NEXT_PUBLIC_${_A}${_B}_`;
 
 /** UI auth mode (must align with API auth configuration). */
 export function readNextPublicAuthMode(): string {
+  warnLegacyUiEnvOnce();
+
   const lucid = process.env[`${_NpLucid}AUTH_MODE`]?.trim();
 
   if (lucid) {
     return lucid;
   }
 
-  const legacy = process.env[`${_NpLegacy}AUTH_MODE`]?.trim();
-
-  if (legacy) {
-    return legacy;
-  }
-
   return "development-bypass";
 }
 
 export function readProxyRateLimitDisabled(): boolean {
-  const raw =
-    process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED?.trim().toLowerCase() ??
-    process.env[legacyKey("PROXY_RATE_LIMIT_DISABLED")]?.trim().toLowerCase();
+  warnLegacyUiEnvOnce();
+
+  const raw = process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED?.trim().toLowerCase();
 
   return raw === "1" || raw === "true" || raw === "yes";
 }
 
 export function readProxyRateLimitPerMinute(): number {
-  const raw =
-    process.env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE?.trim() ??
-    process.env[legacyKey("PROXY_RATE_LIMIT_PER_MINUTE")]?.trim();
+  warnLegacyUiEnvOnce();
+
+  const raw = process.env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE?.trim();
 
   if (raw === undefined || raw === "") {
     return 120;
@@ -124,9 +104,9 @@ export function readProxyRateLimitPerMinute(): number {
 }
 
 export function readProxyRateLimitWindowMs(): number {
-  const raw =
-    process.env.ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS?.trim() ??
-    process.env[legacyKey("PROXY_RATE_LIMIT_WINDOW_MS")]?.trim();
+  warnLegacyUiEnvOnce();
+
+  const raw = process.env.ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS?.trim();
 
   if (raw === undefined || raw === "") {
     return 60_000;

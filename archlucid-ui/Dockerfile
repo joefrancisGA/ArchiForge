@@ -1,4 +1,4 @@
-# ── ArchiForge Operator UI ──────────────────────────────────────────
+# ── ArchLucid Operator UI ───────────────────────────────────────────
 # Multi-stage build: install + build → Alpine runtime with standalone output.
 # Build context is the archlucid-ui directory.
 #
@@ -48,15 +48,15 @@ RUN apk update \
     && ( [ ! -d /opt ] || find /opt -maxdepth 1 -type d -name 'yarn-v*' -exec rm -rf {} + ) \
     && rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg
 
-RUN addgroup -S archiforge && adduser -S archiforge -G archiforge
+RUN addgroup -S archlucid && adduser -S archlucid -G archlucid
 
 # Standalone output includes a minimal node_modules and server.js.
-COPY --from=build --chown=archiforge:archiforge /app/.next/standalone ./
+COPY --from=build --chown=archlucid:archlucid /app/.next/standalone ./
 # Static assets and public folder must be copied separately.
-COPY --from=build --chown=archiforge:archiforge /app/.next/static ./.next/static
-COPY --from=build --chown=archiforge:archiforge /app/public ./public
+COPY --from=build --chown=archlucid:archlucid /app/.next/static ./.next/static
+COPY --from=build --chown=archlucid:archlucid /app/public ./public
 
-USER archiforge
+USER archlucid
 
 EXPOSE 3000
 

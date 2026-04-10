@@ -7,12 +7,12 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 ## Assumptions
 
 - Production and shared dev databases evolve via **DbUp** embedded scripts under **`ArchLucid.Persistence/Migrations/`** (`DatabaseMigrator`).
-- Greenfield SQL Server installs, Persistence **bootstrap**, and human operators may run **`ArchLucid.Persistence/Scripts/ArchiForge.sql`** (batched by `GO`, idempotent `IF OBJECT_ID` / `IF NOT EXISTS` patterns).
+- Greenfield SQL Server installs, Persistence **bootstrap**, and human operators may run **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** (batched by `GO`, idempotent `IF OBJECT_ID` / `IF NOT EXISTS` patterns).
 - **Integration tests** use **SQL Server** (per-test databases); **DbUp** runs on test host startup (see **`ArchLucid.Api.Tests`** / **`TEST_STRUCTURE.md`**).
 
 ## Constraints
 
-- **One consolidated SQL Server DDL file per logical database:** **`ArchiForge.sql`** (not split per feature area for the canonical reference).
+- **One consolidated SQL Server DDL file per logical database:** **`ArchLucid.sql`** (not split per feature area for the canonical reference).
 - **Additive migrations** use new **`NNN_Description.sql`** files; DbUp order is **lexicographic on the embedded resource name**—keep **`NNN_`** prefixes zero-padded.
 
 ## Architecture overview
@@ -20,17 +20,17 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 | Artifact | Role |
 |----------|------|
 | **`Migrations/*.sql`** | Brownfield deltas applied in order by DbUp. |
-| **`ArchiForge.sql`** | Full reference + bootstrap parity (includes objects that also appeared first in migrations, e.g. outbox **019**, indexes **020**, idempotency **021**). |
+| **`ArchLucid.sql`** | Full reference + bootstrap parity (includes objects that also appeared first in migrations, e.g. outbox **019**, indexes **020**, idempotency **021**). |
 
 ## Component breakdown
 
 - **`ArchLucid.Persistence.Data.*`** — embeds migrations, ships SQL files, exposes **`DatabaseMigrator`**.
-- **`ArchLucid.Persistence`** — MSBuild **link** copies **`ArchiForge.sql`** to output **`Scripts/ArchiForge.sql`** for **`SqlSchemaBootstrapper`** (see **`ArchLucidStorageServiceCollectionExtensions`**).
+- **`ArchLucid.Persistence`** — MSBuild **link** copies **`ArchLucid.sql`** to output **`Scripts/ArchLucid.sql`** for **`SqlSchemaBootstrapper`** (see **`ArchLucidStorageServiceCollectionExtensions`**).
 
 ## Data flow
 
 1. **New column/table/index:** add **`ArchLucid.Persistence/Migrations/NNN_....sql`** (idempotent `IF NOT EXISTS` where possible).
-2. **Mirror** the same logical object into **`ArchiForge.sql`**.
+2. **Mirror** the same logical object into **`ArchLucid.sql`**.
 3. Run **`DatabaseMigrator`** in CI or locally against SQL Server test instances (see **`ArchLucid.Persistence.Tests`** / **`TEST_STRUCTURE.md`**).
 
 ## Security model
@@ -40,7 +40,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 ## Operational considerations
 
-- **Drift detection:** Compare migration list to sections appended in **`ArchiForge.sql`** when reviewing PRs (this document’s inventory below).
+- **Drift detection:** Compare migration list to sections appended in **`ArchLucid.sql`** when reviewing PRs (this document’s inventory below).
 - **Rollback:** DbUp does not auto-generate down scripts; use **`docs/runbooks/MIGRATION_ROLLBACK.md`** and **`NEXT_REFACTORINGS.md`** item **249**.
 
 ## Migration inventory (SQL Server, embedded)
@@ -49,7 +49,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 |--------|---------|
 | `001_InitialSchema.sql` – `029_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). **`028_ArchivalSoftFlags.sql`**: nullable **`ArchivedUtc`** on **`Runs`**, **`ArchitectureDigests`**, **`ConversationThreads`** (skipped when table absent). **`029_PolicyPackAssignments_ArchivedUtc.sql`**: **`ArchivedUtc`** on **`PolicyPackAssignments`**. |
 
-**Consolidated script parity:** **`ArchiForge.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
+**Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
 ## Cost / scalability / reliability
 

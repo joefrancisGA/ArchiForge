@@ -1,42 +1,24 @@
-# Configuration bridge (ArchLucid over ArchiForge) — sunset plan
+# Configuration bridge — removed (Phase 7)
 
-## 1. Objective
+## Status
 
-Document **why** legacy `ArchiForge*` configuration keys still work, **what** overrides them, and **when** to delete the bridge without breaking deployed environments.
+**Phase 7 (2026-04-08):** Dual-read configuration bridges for legacy `ArchiForge*` product sections, `ArchiForgeAuth`, `ConnectionStrings:ArchiForge`, CLI/UI `ARCHIFORGE_*` environment variables, and OIDC `archiforge_oidc_*` session keys have been **removed** from application code.
 
-## 2. Assumptions
+## Operator impact
 
-- Rename proceeds in **phases** (`docs/ARCHLUCID_RENAME_CHECKLIST.md`); Phase 7 removes bridges **after** environments adopt new keys.
+- **API / Worker:** Only **`ConnectionStrings:ArchLucid`**, **`ArchLucid:*`**, and **`ArchLucidAuth:*`** are honored. If legacy keys are still present in configuration (for example Key Vault secret names mapped to old keys), **`ArchLucidLegacyConfigurationWarnings`** logs a **single warning** at startup listing which legacy keys were detected; those values are **not** applied.
+- **CLI:** Global tool command is **`archlucid`**; project manifest file is **`archlucid.json`** (with a one-time stderr notice if only the legacy manifest filename exists).
+- **Operator UI:** Only **`ARCHLUCID_*`** / **`NEXT_PUBLIC_ARCHLUCID_*`** are read; legacy **`ARCHIFORGE_*`** env vars trigger a **console warning** and are ignored.
 
-## 3. Constraints
+## Historical context
 
-- **Never** remove fallbacks in the same change as an unrelated feature without an explicit migration note.
-- **OIDC storage keys** and **environment variables** follow the same pattern: read new name first, then legacy (see checklist Phase 2.6 / 7.2).
+Earlier phases documented merge behavior under `ArchLucidConfigurationBridge` / auth binding. That documentation applied before Phase 7; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` and git history for the retired behavior.
 
-## 4. Architecture overview
+## Security model
 
-**Nodes:** `IConfiguration` providers (appsettings, env vars, Key Vault).  
-**Edges:** `ArchiForgeConfigurationBridge` and `ArchiForgeAuthConfigurationBridge` merge **ArchLucid** sections over **ArchiForge** before startup gates and early DI branches.
+Removing silent fallbacks avoids the case where operators believe the system is using new-key configuration while old keys still drive behavior.
 
-## 5. Component breakdown
+## References
 
-| Bridge | Location | Behavior |
-|--------|----------|----------|
-| Storage + general options | `ArchiForgeConfigurationBridge.ResolveArchiForgeOptions` | Binds `ArchiForge` section, then applies `ArchLucid:StorageProvider` if set. |
-| Auth | `ArchiForgeAuthConfigurationBridge.Resolve` + `PostConfigure<ArchiForgeAuthOptions>` | Binds `ArchiForgeAuth`, then binds `ArchLucidAuth` **over** when that section exists. |
-| Auth scalar reads | `ResolveAuthConfigurationValue` | Used by validation rules for production auth checks. |
-
-**Call sites** that previously used `GetSection(ArchiForgeOptions.SectionName).Get<ArchiForgeOptions>()` for **early branching** now use **`ResolveArchiForgeOptions`** so behavior matches **`IOptions`** + PostConfigure.
-
-## 6. Data flow
-
-Configuration load → bridge merge → `ArchiForgeOptions` / `ArchiForgeAuthOptions` → DI and `Program.cs` guards.
-
-## 7. Security model
-
-- Misconfiguration (e.g. production + development bypass) is blocked in validation (`ArchLucidConfigurationRules`) using **resolved** auth values so **ArchLucidAuth** cannot be accidentally ignored.
-
-## 8. Operational considerations
-
-- **Sunset:** checklist **Phase 7.1–7.3** — remove `ArchiForge*` keys and env fallbacks after telemetry shows no legacy usage in target environments.
-- **UI:** proxy prefers **`ARCHLUCID_API_KEY`**, falls back to **`ARCHIFORGE_API_KEY`** (`archlucid-ui/.env.example`).
+- `docs/ARCHLUCID_RENAME_CHECKLIST.md` — Phase 7 items and deferred infrastructure renames (Terraform state mv, repo rename, Entra, workspace path).
+- `docs/CONFIGURATION_KEY_VAULT.md` — secret and key naming for deployments.

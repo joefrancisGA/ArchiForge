@@ -15,8 +15,8 @@ public sealed class ArchLucidAuthOptionsConfigurationTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
-            ["ArchiForgeAuth:NameClaimType"] = "preferred_username",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:NameClaimType"] = "preferred_username",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
@@ -34,7 +34,7 @@ public sealed class ArchLucidAuthOptionsConfigurationTests
     {
         Dictionary<string, string?> data = new()
         {
-            ["ArchiForgeAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();

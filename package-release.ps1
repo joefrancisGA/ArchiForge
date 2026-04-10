@@ -14,7 +14,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $apiOut = Join-Path $root 'artifacts/release/api'
 New-Item -ItemType Directory -Force -Path $apiOut | Out-Null
-dotnet publish (Join-Path $root 'ArchiForge.Api/ArchiForge.Api.csproj') -c Release -o $apiOut --no-build
+dotnet publish (Join-Path $root 'ArchLucid.Api/ArchLucid.Api.csproj') -c Release -o $apiOut --no-build
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $uiProductionBuildIncluded = $false
@@ -52,5 +52,5 @@ catch {
 
 Write-Host ''
 Write-Host "Release package: API published to $apiOut"
-Write-Host 'Run the API: dotnet ArchiForge.Api.dll (from that folder; requires .NET 10 runtime). See artifacts/release/PACKAGE-HANDOFF.txt and docs/RELEASE_LOCAL.md'
+Write-Host 'Run the API: dotnet ArchLucid.Api.dll (from that folder; requires .NET 10 runtime). See artifacts/release/PACKAGE-HANDOFF.txt and docs/RELEASE_LOCAL.md'
 exit 0

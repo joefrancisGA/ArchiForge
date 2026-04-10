@@ -30,7 +30,7 @@ flowchart LR
 ### Docker Compose
 
 1. `docker compose ps` — `redis` should be `healthy`.
-2. `docker exec -it archiforge-redis redis-cli ping` — expect `PONG`.
+2. `docker exec -it archlucid-redis redis-cli ping` — expect `PONG`.
 
 ### Application
 

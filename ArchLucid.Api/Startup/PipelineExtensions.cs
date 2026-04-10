@@ -1,5 +1,6 @@
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Middleware;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Middleware;
 
@@ -35,12 +36,14 @@ internal static class PipelineExtensions
                     Type = ProblemTypes.InternalError,
                     Title = "An unexpected error occurred.",
                     Status = StatusCodes.Status500InternalServerError,
-                    Detail = "An unhandled exception has occurred. Use the trace identifier when contacting support.",
+                    Detail =
+                        "An unhandled exception has occurred. Use the correlationId value in this response (and the X-Correlation-ID header) when contacting support.",
                     Instance = context.Request.Path,
                     Extensions = { ["traceId"] = context.TraceIdentifier }
                 };
                 ProblemErrorCodes.AttachErrorCode(problem, ProblemTypes.InternalError);
                 ProblemSupportHints.AttachForProblemType(problem);
+                ProblemCorrelation.Attach(problem, context);
                 context.Response.StatusCode = problem.Status ?? 500;
                 context.Response.ContentType = "application/problem+json";
                 await context.Response.WriteAsJsonAsync(problem);

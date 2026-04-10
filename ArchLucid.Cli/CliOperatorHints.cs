@@ -14,7 +14,7 @@ internal static class CliOperatorHints
             errorMessage.Contains("Cannot connect to ArchLucid API", StringComparison.OrdinalIgnoreCase))
         {
             stderr.WriteLine(
-                "Next: Start the API (dotnet run --project ArchLucid.Api), set ARCHLUCID_API_URL (or legacy ARCHIFORGE_API_URL) or apiUrl in archiforge.json, and confirm the port is reachable.");
+                "Next: Start the API (dotnet run --project ArchLucid.Api), set ARCHLUCID_API_URL or apiUrl in archlucid.json, and confirm the port is reachable.");
 
             return;
         }
@@ -54,7 +54,7 @@ internal static class CliOperatorHints
     {
         stderr ??= Console.Error;
         stderr.WriteLine(
-            $"Next: Create the file at {relativeBriefPath} (minimum 10 characters) or update inputs.brief in archiforge.json.");
+            $"Next: Create the file at {relativeBriefPath} (minimum 10 characters) or update inputs.brief in archlucid.json.");
     }
 
     private static string? LineForHttpStatus(int? code) =>
@@ -68,7 +68,8 @@ internal static class CliOperatorHints
             Status422 or Status400 => "Next: Fix the request body using the API problem detail.",
             Status429 => "Next: Wait and retry, or relax RateLimiting in non-production.",
             Status503 => "Next: GET /health/ready on the API; SQL availability and migrations are common causes.",
-            >= Status500 => "Next: Retry once; if it persists, use the response correlation ID and server logs (RunId when present).",
+            >= Status500 =>
+                "Next: Retry once; if it persists, use X-Correlation-ID (or correlationId in problem JSON) with server logs (RunId when present).",
             _ => null
         };
 

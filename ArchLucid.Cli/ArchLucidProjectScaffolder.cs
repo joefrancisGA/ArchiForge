@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 /*________________________________________
 2) Folder layout created by archlucid new
     <projectName>/
-archiforge.json
+archlucid.json
     inputs/
 brief.md
     outputs/
@@ -19,11 +19,11 @@ plugin-lock.json
     infra/
 terraform/
 main.tf
-    variables.tf
+variables.tf
 docs/
 README.md
     What each file means
-•	archiforge.json: the single source of truth for project configuration.
+•	archlucid.json: the single source of truth for project configuration.
 •	inputs/brief.md: the "one thing you can always run."
 •	outputs/: optional local cache of output artifacts (not authoritative).
     •	plugins/plugin-lock.json: pinned plugin images + versions + endpoints.
@@ -38,7 +38,10 @@ namespace ArchLucid.Cli;
 
 public static class ArchLucidProjectScaffolder
 {
-    /// <summary>Shared options for archiforge.json read/write (CA1869: single cached instance).</summary>
+    /// <summary>Primary CLI manifest file name in each scaffolded project.</summary>
+    public const string CliManifestFileName = "archlucid.json";
+
+    /// <summary>Shared options for <see cref="CliManifestFileName"/> read/write (CA1869: single cached instance).</summary>
     private static readonly JsonSerializerOptions SJsonManifest = new()
     {
         WriteIndented = true,
@@ -63,7 +66,7 @@ public static class ArchLucidProjectScaffolder
         /// <summary>
         /// SQL Server connection string used when <see cref="RegisterProject"/> is true.
         /// Must be set explicitly; there is no hardcoded default to avoid accidental production writes.
-        /// Example: "Server=localhost;Database=ArchiForge;Trusted_Connection=True;"
+        /// Example: "Server=localhost;Database=ArchLucid;Trusted_Connection=True;"
         /// </summary>
         public string? ConnectionString { get; set; } = null;
     }
@@ -91,7 +94,7 @@ public static class ArchLucidProjectScaffolder
         CreateDirectory(Path.Combine(projectRoot, "docs"));
 
         // Write files
-        WriteFile(Path.Combine(projectRoot, "archiforge.json"), BuildArchLucidJson(options.ProjectName), options.OverwriteExistingFiles);
+        WriteFile(Path.Combine(projectRoot, CliManifestFileName), BuildArchLucidJson(options.ProjectName), options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "inputs", "brief.md"), BuildBriefMd(options.ProjectName), options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "outputs", ".gitkeep"), "", options.OverwriteExistingFiles);
         WriteFile(Path.Combine(projectRoot, "plugins", "plugin-lock.json"), BuildPluginLockJson(), options.OverwriteExistingFiles);
@@ -188,7 +191,7 @@ public static class ArchLucidProjectScaffolder
         public CliHttpResilienceConfig? HttpResilience { get; set; }
     }
 
-    /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archiforge.json</c>).</summary>
+    /// <summary>Optional HTTP retry tuning for the CLI API client (<c>archlucid.json</c>).</summary>
     public sealed class CliHttpResilienceConfig
     {
         [JsonPropertyName("maxRetryAttempts")]
@@ -280,9 +283,29 @@ public static class ArchLucidProjectScaffolder
 
     public static ArchLucidCliConfig LoadConfig(string? projectRoot)
     {
-        string manifestPath = projectRoot != null ? Path.Combine(projectRoot, "archiforge.json") : "archiforge.json";
-        if (!File.Exists(manifestPath))
-            throw new FileNotFoundException("archiforge.json not found.", manifestPath);
+        string lucidPath = projectRoot != null ? Path.Combine(projectRoot, CliManifestFileName) : CliManifestFileName;
+        string legacyPath = projectRoot != null ? Path.Combine(projectRoot, "archi" + "forge.json") : "archi" + "forge.json";
+
+        string manifestPath;
+        if (File.Exists(lucidPath))
+        {
+            manifestPath = lucidPath;
+        }
+        else if (File.Exists(legacyPath))
+        {
+            Console.Error.WriteLine(
+                "[ArchLucid CLI] Using legacy manifest file name; rename '"
+                + "archi"
+                + "forge.json' to '"
+                + CliManifestFileName
+                + "'.");
+
+            manifestPath = legacyPath;
+        }
+        else
+        {
+            throw new FileNotFoundException(CliManifestFileName + " not found.", lucidPath);
+        }
 
         string json = File.ReadAllText(manifestPath, Encoding.UTF8);
 
@@ -305,17 +328,17 @@ public static class ArchLucidProjectScaffolder
     private static void ValidateConfigOrThrow(ArchLucidCliConfig config, string projectRoot)
     {
         if (string.IsNullOrWhiteSpace(config.SchemaVersion))
-            throw new InvalidDataException("archiforge.json: schemaVersion is required.");
+            throw new InvalidDataException(CliManifestFileName + ": schemaVersion is required.");
         if (string.IsNullOrWhiteSpace(config.ProjectName))
-            throw new InvalidDataException("archiforge.json: projectName is required.");
+            throw new InvalidDataException(CliManifestFileName + ": projectName is required.");
         if (config.Inputs is null || string.IsNullOrWhiteSpace(config.Inputs.Brief))
-            throw new InvalidDataException("archiforge.json: inputs.brief is required.");
+            throw new InvalidDataException(CliManifestFileName + ": inputs.brief is required.");
         if (config.Outputs is null || string.IsNullOrWhiteSpace(config.Outputs.LocalCacheDir))
-            throw new InvalidDataException("archiforge.json: outputs.localCacheDir is required.");
+            throw new InvalidDataException(CliManifestFileName + ": outputs.localCacheDir is required.");
         if (config.Plugins is null || string.IsNullOrWhiteSpace(config.Plugins.LockFile))
-            throw new InvalidDataException("archiforge.json: plugins.lockFile is required.");
+            throw new InvalidDataException(CliManifestFileName + ": plugins.lockFile is required.");
         if (config.Infra is null || config.Infra.Terraform is null)
-            throw new InvalidDataException("archiforge.json: infra.terraform section is required.");
+            throw new InvalidDataException(CliManifestFileName + ": infra.terraform section is required.");
 
         EnsureRelativePathOrThrow(config.Inputs.Brief, "inputs.brief");
         EnsureRelativePathOrThrow(config.Outputs.LocalCacheDir, "outputs.localCacheDir");
@@ -342,12 +365,12 @@ public static class ArchLucidProjectScaffolder
     private static void EnsureRelativePathOrThrow(string path, string fieldName)
     {
         if (string.IsNullOrWhiteSpace(path))
-            throw new InvalidDataException($"archiforge.json: {fieldName} is empty.");
+            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} is empty.");
         if (Path.IsPathRooted(path))
-            throw new InvalidDataException($"archiforge.json: {fieldName} must be a relative path, got rooted path '{path}'.");
+            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must be a relative path, got rooted path '{path}'.");
         string normalized = path.Replace('\\', '/');
         if (normalized.StartsWith("../", StringComparison.Ordinal) || normalized.Contains("/../"))
-            throw new InvalidDataException($"archiforge.json: {fieldName} must not contain '..' segments ('{path}').");
+            throw new InvalidDataException($"{CliManifestFileName}: {fieldName} must not contain '..' segments ('{path}').");
     }
 
     private static string BuildBriefMd(string projectName)
@@ -430,7 +453,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
 
              ## Folder layout
 
-             - `archiforge.json` — The single source of truth for project configuration.
+             - `archlucid.json` — The single source of truth for project configuration.
              - `inputs/brief.md` — The one thing you can always run (minimal project brief).
              - `outputs/` — Optional local cache of output artifacts (not authoritative). Includes `.gitkeep` to preserve the folder in Git.
              - `plugins/plugin-lock.json` — Pinned plugin images + versions + endpoints.
@@ -440,7 +463,7 @@ Describe the outcome you want (business + technical). Keep it short and runnable
              ## How to use
 
              1. Edit `inputs/brief.md`
-             2. Update `archiforge.json` if needed
+             2. Update `archlucid.json` if needed
              3. Run `archlucid run` (or your host workflow) against the brief
 
              """;

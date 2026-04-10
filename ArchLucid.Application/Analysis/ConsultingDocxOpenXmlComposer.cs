@@ -1,4 +1,4 @@
-using ArchLucid.Application.Diagrams;
+using ArchLucid.Core.Diagrams;
 
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;

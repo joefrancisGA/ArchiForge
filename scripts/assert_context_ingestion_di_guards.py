@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # Context ingestion DI lives in Host.Composition partials (moved out of the API project).
 _COMPOSITION_STARTUP_CANDIDATES = (
     ROOT / "ArchLucid.Host.Composition" / "Startup",
-    ROOT / "ArchiForge.Host.Composition" / "Startup",
+    ROOT / "ArchLucid.Host.Composition" / "Startup",
 )
 
 

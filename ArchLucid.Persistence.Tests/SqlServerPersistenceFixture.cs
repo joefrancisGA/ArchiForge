@@ -19,7 +19,7 @@ namespace ArchLucid.Persistence.Tests;
 public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 {
     /// <summary>Database name used when the connection string omits Initial Catalog.</summary>
-    public const string DefaultTestDatabaseName = "ArchiForgePersistenceTests";
+    public const string DefaultTestDatabaseName = "ArchLucidPersistenceTests";
 
     /// <summary>Full SQL Server connection string; when set, this is the only source tried and failures fail the fixture.</summary>
     public const string EnvironmentConnectionStringVariable = TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable;
@@ -111,7 +111,7 @@ public sealed class SqlServerPersistenceFixture : IAsyncLifetime
 
     /// <summary>
     /// Applies <c>PersistenceContractSupplement.sql</c>: tables DbUp does not create, without the
-    /// FK-hardening blocks from full <c>ArchiForge.sql</c> (those require seeded authority-chain rows).
+    /// FK-hardening blocks from full <c>ArchLucid.sql</c> (those require seeded authority-chain rows).
     /// </summary>
     private static async Task RunPersistenceContractSupplementAsync(string connectionString)
     {

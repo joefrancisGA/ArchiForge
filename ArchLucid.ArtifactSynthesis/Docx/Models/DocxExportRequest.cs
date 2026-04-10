@@ -33,7 +33,11 @@ public class DocxExportRequest
     /// <summary>When <see langword="true"/>, emits unresolved issues section.</summary>
     public bool IncludeIssuesSection { get; set; } = true;
 
-    /// <summary>Embeds a diagram image (v1: PNG placeholder; later Mermaid/graph render).</summary>
+    /// <summary>
+    /// When <see langword="true"/>, emits an architecture diagram section: PNG from a base64 artifact when present,
+    /// else rasterized Mermaid when the host registers a working diagram image renderer,
+    /// else Mermaid source text, else a short manifest topology summary.
+    /// </summary>
     public bool IncludeArchitectureDiagram { get; set; } = true;
 
     /// <summary>When set, appends an architecture comparison section (base = this export run).</summary>

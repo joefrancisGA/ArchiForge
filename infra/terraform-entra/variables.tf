@@ -12,8 +12,8 @@ variable "api_application_display_name" {
 
 variable "api_identifier_uri" {
   type        = string
-  description = "Application ID URI (must be unique in the tenant), used as JWT audience. Example: api://archiforge-api-contoso"
-  default     = "api://archiforge-api"
+  description = "Application ID URI (must be unique in the tenant), used as JWT audience. Example: api://archlucid-api-contoso"
+  default     = "api://archlucid-api"
 }
 
 variable "expose_roles_in_tokens" {

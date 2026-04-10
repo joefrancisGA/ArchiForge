@@ -6,12 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>archiforge</ToolCommandName>
+    <ToolCommandName>archlucid</ToolCommandName>
     <PackageId>ArchLucid.Cli</PackageId>
     <Version>1.0.0</Version>
     <Authors>ArchLucid</Authors>
     <Description>CLI for ArchLucid: create projects, run architecture requests, and inspect results.</Description>
-    <PackageTags>architecture;cli;archiforge</PackageTags>
+    <PackageTags>architecture;cli;archlucid</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,6 +4,8 @@
 
 Use **this page** as the single front door. It orients you in a few minutes, then points to role-specific checklists and deeper architecture docs.
 
+**Local vs committed output:** See **[REPO_HYGIENE.md](REPO_HYGIENE.md)** for `artifacts/`, the checked-in API client `Generated/` file, and paths that should stay out of git.
+
 ---
 
 ## Five-minute architecture overview

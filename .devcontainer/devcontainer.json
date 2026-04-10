@@ -1,5 +1,5 @@
 {
-  "name": "ArchiForge (.NET + Node)",
+  "name": "ArchLucid (.NET + Node)",
   "image": "mcr.microsoft.com/devcontainers/dotnet:10.0-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
@@ -14,7 +14,7 @@
   },
   "forwardPorts": [5128, 3000],
   "portsAttributes": {
-    "5128": { "label": "ArchiForge API (host-run)" },
+    "5128": { "label": "ArchLucid API (host-run)" },
     "3000": { "label": "Operator UI (host-run)" }
   }
 }

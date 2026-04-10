@@ -9,6 +9,7 @@ import {
   OperatorEmptyState,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
+  OperatorTryNext,
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -18,7 +19,10 @@ const GraphViewer = dynamic(
   {
     ssr: false,
     loading: () => (
-      <OperatorLoadingNotice>Loading graph viewer…</OperatorLoadingNotice>
+      <OperatorLoadingNotice>
+        <strong>Loading graph viewer.</strong>
+        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Preparing the interactive canvas (client-only bundle)…</p>
+      </OperatorLoadingNotice>
     ),
   },
 );
@@ -110,7 +114,7 @@ export default function GraphPage() {
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
         {" · "}
-        <Link href="/compare">Compare runs</Link>
+        <Link href="/compare">Compare two runs</Link>
       </p>
       <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
         Load provenance (decisions, findings, rules) or the architecture graph for a run. Copy the run ID from
@@ -198,29 +202,38 @@ export default function GraphPage() {
             fallbackMessage={loadFailure.message}
             correlationId={loadFailure.correlationId}
           />
-          <p style={{ margin: "12px 0 0", fontSize: 14 }}>
-            This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed
-            JSON body.
-          </p>
+          <OperatorTryNext>
+            This is usually a network, proxy, or HTTP error from the graph endpoint—not a malformed JSON body.
+            Confirm the run ID exists in <Link href="/runs?projectId=default">Runs</Link>, retry{" "}
+            <strong>Load graph</strong>, and check the browser network tab for the failing{" "}
+            <code>/v1/…/graph</code> call.
+          </OperatorTryNext>
         </>
       )}
 
       {malformedMessage && (
-        <OperatorMalformedCallout>
-          <strong>Unexpected graph response shape.</strong>
-          <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-            The call succeeded but the payload did not match the expected GraphViewModel (nodes and
-            edges arrays). Check API version alignment.
-          </p>
-        </OperatorMalformedCallout>
+        <>
+          <OperatorMalformedCallout>
+            <strong>Unexpected graph response shape.</strong>
+            <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
+            <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+              The call succeeded but the payload did not match the expected GraphViewModel (nodes and
+              edges arrays). Check API version alignment.
+            </p>
+          </OperatorMalformedCallout>
+          <OperatorTryNext>
+            Compare <code>GET /version</code> on the API with your UI deployment. Try another run from{" "}
+            <Link href="/runs?projectId=default">Runs</Link> in case this run has legacy or partial graph storage.
+          </OperatorTryNext>
+        </>
       )}
 
       {!graph && !loading && loadFailure === null && !malformedMessage && (
         <OperatorEmptyState title="No graph loaded yet">
           <p style={{ margin: 0 }}>
-            Enter a run ID, choose a graph mode, then use <strong>Load graph</strong>. An empty node
-            list after a successful load is shown separately from this idle state.
+            Enter a run ID from <Link href="/runs?projectId=default">Runs</Link> (or run detail), choose a graph mode,
+            then use <strong>Load graph</strong>. An empty node list after a successful load is shown in the viewer
+            below—this callout only covers the idle form.
           </p>
         </OperatorEmptyState>
       )}

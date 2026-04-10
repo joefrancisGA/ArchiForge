@@ -47,6 +47,26 @@ describe("buildApiRequestErrorFromParts", () => {
       expect(err.problem?.title).toBe("E");
     }
   });
+
+  it("falls back to correlationId in JSON body when header missing", () => {
+    const bodyText = JSON.stringify({
+      title: "Upstream API unreachable",
+      status: 502,
+      detail: "fetch failed",
+      correlationId: "proxy-body-cid",
+    });
+    const response = new Response(bodyText, {
+      status: 502,
+      headers: { "content-type": "application/json" },
+    });
+
+    const err = buildApiRequestErrorFromParts(response, bodyText);
+
+    expect(isApiRequestError(err)).toBe(true);
+    if (isApiRequestError(err)) {
+      expect(err.correlationId).toBe("proxy-body-cid");
+    }
+  });
 });
 
 describe("readApiFailureMessage", () => {

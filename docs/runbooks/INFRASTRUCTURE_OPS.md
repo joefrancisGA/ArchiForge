@@ -55,7 +55,7 @@ Give operators a single place to orient on **multiple Terraform roots**, what ea
 
 - **Validate fails in CI:** Fix HCL or provider version mismatches; ensure required variables have defaults for validate-only runs.
 - **Plan shows unexpected destroys:** Stop; review state and module upgrades; avoid auto-apply.
-- **Entra / JWT issues after Entra stack changes:** See `docs/CUSTOMER_TRUST_AND_ACCESS.md` and API `ArchiForgeAuth` settings.
+- **Entra / JWT issues after Entra stack changes:** See `docs/CUSTOMER_TRUST_AND_ACCESS.md` and API `ArchLucidAuth` settings.
 
 ## Scalability
 

@@ -11,7 +11,7 @@ Describe how operators rotate credentials and TLS-related material for ArchLucid
 
 ## Constraints
 
-- Rotating **`ConnectionStrings:ArchLucid`** (or legacy **`ConnectionStrings:ArchiForge`**) requires the API to restart (or reload config if you implement hot reload for that section — not the default).
+- Rotating **`ConnectionStrings:ArchLucid`** requires the API to restart (or reload config if you implement hot reload for that section — not the default).
 - Rotating **JWT signing keys** invalidates existing bearer tokens unless you use overlapping keys (not modeled in the default template).
 - **Webhook HMAC** secrets (`WebhookDelivery:HmacSha256SharedSecret`) require coordinated updates with every subscriber that verifies signatures.
 
@@ -38,9 +38,9 @@ flowchart LR
 
 | Asset | Typical location | Consumer | Notes |
 |-------|------------------|----------|--------|
-| SQL login / AAD auth | Key Vault reference or App Service setting | API (`ConnectionStrings:ArchLucid` / legacy `ConnectionStrings:ArchiForge`) | Prefer Entra ID auth to SQL where supported; avoid plaintext in repo. |
+| SQL login / AAD auth | Key Vault reference or App Service setting | API (`ConnectionStrings:ArchLucid`) | Prefer Entra ID auth to SQL where supported; avoid plaintext in repo. |
 | API keys (`ApiKeys:*`) | App settings / Key Vault | API | Rotating a key strands clients still sending the old value; publish a cutover date. |
-| JWT authority / audience | `ArchiForgeAuth:*` | API | Wrong metadata URL causes 401 for all JWT clients until fixed. |
+| JWT authority / audience | `ArchLucidAuth:*` | API | Wrong metadata URL causes 401 for all JWT clients until fixed. |
 | Webhook HMAC | `WebhookDelivery:HmacSha256SharedSecret` | API outbound webhooks | Update digest subscribers before or in sync with API change. |
 | TLS certificate (custom domain) | App Service managed cert or Key Vault | App Service / front door | Plan renewal before expiry; monitor expiry in your WAF or Key Vault. |
 | OpenAI / embedding keys | `AgentExecution:*`, retrieval sections | API | Rate limits and spend caps may apply after key swap. |
@@ -66,7 +66,7 @@ flowchart LR
 ## Recovery
 
 - Mis-rotated SQL string: restore previous Key Vault version or roll back App Service deployment slot.
-- Broken JWT config: revert `ArchiForgeAuth` settings and restart; clients clear cached tokens if needed.
+- Broken JWT config: revert `ArchLucidAuth` settings and restart; clients clear cached tokens if needed.
 - Webhook signature storms: temporarily disable HMAC enforcement only if product policy allows (document exception); fix secret alignment.
 
 ## Related documentation

@@ -22,8 +22,8 @@ public sealed class SupportBundleTests
     [Fact]
     public void IsSensitiveEnvironmentVariableName_detects_common_secret_patterns()
     {
-        SupportBundleRedactor.IsSensitiveEnvironmentVariableName("ARCHIFORGE_API_KEY").Should().BeTrue();
-        SupportBundleRedactor.IsSensitiveEnvironmentVariableName("ARCHIFORGE_SOME_PASSWORD").Should().BeTrue();
+        SupportBundleRedactor.IsSensitiveEnvironmentVariableName("ARCHLUCID_API_KEY").Should().BeTrue();
+        SupportBundleRedactor.IsSensitiveEnvironmentVariableName("ARCHLUCID_SOME_PASSWORD").Should().BeTrue();
         SupportBundleRedactor.IsSensitiveEnvironmentVariableName("DOTNET_ROOT").Should().BeFalse();
     }
 
@@ -61,6 +61,9 @@ public sealed class SupportBundleTests
             payload.Build.Cli.InformationalVersion.Should().NotBeNullOrWhiteSpace();
             payload.Build.ApiVersionJson.Should().Contain("informationalVersion");
             payload.Health.Ready.HttpStatus.Should().Be(200);
+            payload.ApiContract.MicrosoftOpenApiV1.HttpStatus.Should().Be(200);
+            payload.ApiContract.MicrosoftOpenApiV1.BodyPreview.Should().Contain("openapi");
+            payload.Manifest.TriageReadOrder.Should().NotBeEmpty();
             payload.ConfigSummary.HasArchlucidJson.Should().BeTrue();
             payload.Workspace.FileCount.Should().Be(1);
         }
@@ -80,6 +83,7 @@ public sealed class SupportBundleTests
             new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/tmp" },
             new SupportBundleBuildSection(),
             new SupportBundleHealthSection(),
+            new SupportBundleApiContractSection(),
             new SupportBundleConfigSummary(),
             new SupportBundleEnvironmentSection(),
             new SupportBundleWorkspaceSection(),
@@ -93,8 +97,11 @@ public sealed class SupportBundleTests
             SupportBundleArchiveWriter.WriteDirectory(payload, dir);
 
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should().BeTrue();
+            File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().BeTrue();
             File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.HealthFileName)).Should().BeTrue();
+            File.Exists(Path.Combine(dir, SupportBundleArchiveWriter.ApiContractFileName)).Should().BeTrue();
             File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ManifestFileName)).Should().Contain("bundleFormatVersion");
+            File.ReadAllText(Path.Combine(dir, SupportBundleArchiveWriter.ReadmeFileName)).Should().Contain("health.json");
         }
         finally
         {
@@ -112,6 +119,7 @@ public sealed class SupportBundleTests
             new SupportBundleManifest { CreatedUtc = "2026-01-01T00:00:00Z", CliWorkingDirectory = "/x" },
             new SupportBundleBuildSection(),
             new SupportBundleHealthSection(),
+            new SupportBundleApiContractSection(),
             new SupportBundleConfigSummary(),
             new SupportBundleEnvironmentSection(),
             new SupportBundleWorkspaceSection(),
@@ -150,11 +158,10 @@ public sealed class SupportBundleTests
             string json;
 
             if (string.Equals(path, "/version", StringComparison.Ordinal))
-            
                 json = """{"application":"ArchLucid.Api","informationalVersion":"1.0-test"}""";
-            
+            else if (string.Equals(path, "/openapi/v1.json", StringComparison.Ordinal))
+                json = """{"openapi":"3.0.1","info":{"title":"ArchLucid"}}""";
             else
-            
                 json = """{"status":"Healthy"}""";
             
 

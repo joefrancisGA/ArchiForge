@@ -2,7 +2,7 @@
 
 **Last updated:** 7 April 2026 (Persistence split into Persistence + Persistence.Coordination delivered).
 
-**ArchLucid rename (Phases 5–6):** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). **`ConnectionStrings:ArchLucid`** is preferred with legacy **`ArchiForge`** fallback; CORS policy **`ArchLucid`**; comparison replay headers **`X-ArchLucid-*`**. Configuration sections **`ArchiForge:*`**, **`ArchiForgeAuth`**, and OIDC/storage bridges remain until Phase 7 cleanup (`docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+**ArchLucid rename:** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). Use **`ConnectionStrings:ArchLucid`**, CORS policy **`ArchLucid`**, and comparison replay headers **`X-ArchLucid-*`**. Phase 7 removed legacy **`ArchiForge*`** configuration keys and env-var bridges; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred work (Terraform `state mv`, repo folder rename).
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
@@ -1802,14 +1802,14 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 198. Api.Tests: retrieval index + query smoke (fake vector) — `RetrievalQuerySmokeIntegrationTests` (index documents via DI, query via `GET api/retrieval/search`, empty index, topK clamp, validation).
 - [x] 199. Api.Tests: Ask thread + fake LLM — `AskThreadIntegrationTests` (POST `api/ask` with seeded authority run, verify thread, follow-up on same thread, messages list, validation).
 - [x] 200. Committed OpenAPI snapshot diff in CI.
-  - **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** + **`OpenApiContractSnapshotTests`** (`Suite=Core`): compares **`GET /openapi/v1.json`** to the snapshot (regenerate: **`ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT=1`**). Runs in **fast core** (Tier 1). See **`docs/TEST_EXECUTION_MODEL.md`**.
+  - **`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`** + **`OpenApiContractSnapshotTests`** (`Suite=Core`): compares **`GET /openapi/v1.json`** to the snapshot (regenerate: **`ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1`**). Runs in **fast core** (Tier 1). See **`docs/TEST_EXECUTION_MODEL.md`**.
 - [x] 201. Load test: expensive rate-limit boundary.
-  - **`docs/runbooks/LOAD_TEST_RATE_LIMITS.md`** + **`scripts/load/k6-expensive-rate-limit.js`** (configure **`ARCHIFORGE_EXPENSIVE_PATH`** + auth for real 429s).
+  - **`docs/runbooks/LOAD_TEST_RATE_LIMITS.md`** + **`scripts/load/k6-expensive-rate-limit.js`** (configure **`ARCHLUCID_EXPENSIVE_PATH`** + auth for real 429s).
 - [x] 202. Resilience: SQL timeout → health / problem details — `ApplicationProblemMapper.TryMapDatabaseException` maps `SqlException(-2)` / `TimeoutException` → 503 `DatabaseTimeout`, `DbException` → 503 `DatabaseUnavailable`; `SqlConnectionHealthCheck` reports `Degraded` for transient SQL errors (timeout, Azure throttling); `ProblemTypes.DatabaseTimeout` / `DatabaseUnavailable` constants; `ProblemDetailsExtensions.ServiceUnavailableProblem` helper; unit tests in `ApiProblemDetailsExceptionFilterTests` + `SqlConnectionHealthCheckTests`.
 - [x] 203. CI: migrate from N−1 schema.
   - **`DatabaseMigrator.RunExcludingTrailingScripts`** (**`ArchLucid.Persistence`**, `Data/Infrastructure/DatabaseMigrator.cs`) + **`DatabaseMigratorUpgradePathSqlIntegrationTests`** (`SqlServerContainer`): N−1 pass then full **`Run`**.
 - [x] 204. UI e2e: policy assign + effective-content.
-  - **`archlucid-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archiforge-api-server`** (`v1/policy-packs` POST/GET).
+  - **`archlucid-ui/e2e/policy-packs-journey.spec.ts`** + extended **`mock-archlucid-api-server`** (`v1/policy-packs` POST/GET).
 
 ### Observability & reliability (205–214)
 
@@ -1840,7 +1840,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 - [x] 215. Entra ID app roles migration from long-lived API keys.
   - **`infra/terraform-entra/`**: optional **`azuread_application`** with **Admin / Operator / Reader** roles; **`enable_entra_api_app`** default **false**.
-  - **`ArchLucid.Api`**: **`ArchiForgeAuth:NameClaimType`** (e.g. **`preferred_username`**); JWT **`RoleClaimType = "roles"`**; **`appsettings.Entra.sample.json`**.
+  - **`ArchLucid.Api`**: **`ArchLucidAuth:NameClaimType`** (e.g. **`preferred_username`**); JWT **`RoleClaimType = "roles"`**; **`appsettings.Entra.sample.json`**.
   - **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**: customer narrative and cutover notes (includes OpenAPI auth summary; **238**).
 - [x] 216. Key Vault references for all secrets in config samples.
   - **`ArchLucid.Api/appsettings.KeyVault.sample.json`**: example `@Microsoft.KeyVault(...)` values for SQL, Azure OpenAI, API key auth.
@@ -1856,7 +1856,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`docs/BUILD.md`**: local/CI reminder.
 - [x] 221. Secret scanning in CI.
   - **`.github/workflows/ci.yml`**: job **`gitleaks`** (`gitleaks/gitleaks-action@v2.3.9`, **`fetch-depth: 0`**); all other jobs **`needs: gitleaks`**.
-  - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchiForge_Dev_Pass123!`**, **`LocalTesting123!`**).
+  - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchiForge_Dev_Pass123!`** / **`ArchLucid_Dev_Pass123!`**, **`LocalTesting123!`**).
 - [x] 222. Row-level security design for multi-tenant SQL.
   - **`docs/security/MULTI_TENANT_RLS.md`**: SESSION_CONTEXT / policy sketch, defense-in-depth vs app authZ, ops + Terraform alignment.
 - [x] 223. PII classification + retention for conversations.
@@ -1869,8 +1869,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Performance & cost (227–234)
 
 - [x] 227. SQL index review (alerts, runs, graphs, digests).
-  - **`020_PerformanceIndexes_HotLists.sql`**: **`IX_Runs_Scope_Project_CreatedUtc`** on **`dbo.Runs`** for **`SqlRunRepository.ListByProjectAsync`** filters (`TenantId`, `WorkspaceId`, `ScopeProjectId`, `ProjectId`, `ORDER BY CreatedUtc DESC`). **AlertRecords**, **ArchitectureDigests**, **ConversationThreads**, **GraphSnapshots** already had scope/time indexes in **`ArchiForge.sql`**; no change required beyond Runs.
-  - **`ArchiForge.sql`**: same index on **`Runs`** for greenfield/bootstrap parity.
+  - **`020_PerformanceIndexes_HotLists.sql`**: **`IX_Runs_Scope_Project_CreatedUtc`** on **`dbo.Runs`** for **`SqlRunRepository.ListByProjectAsync`** filters (`TenantId`, `WorkspaceId`, `ScopeProjectId`, `ProjectId`, `ORDER BY CreatedUtc DESC`). **AlertRecords**, **ArchitectureDigests**, **ConversationThreads**, **GraphSnapshots** already had scope/time indexes in **`ArchLucid.sql`**; no change required beyond Runs.
+  - **`ArchLucid.sql`**: same index on **`Runs`** for greenfield/bootstrap parity.
 - [x] 228. Remove N+1 on hot `ListByScope` paths.
   - **`IAlertRecordRepository.ListByScopePagedAsync`** / **`IConversationThreadRepository.ListByScopePagedAsync`**: COUNT + `OFFSET`/`FETCH` (Dapper) or in-memory skip/take; `AlertsController` / `ConversationController` use `PagedResponseBuilder.FromDatabasePage` instead of loading `MaxPageSize * 10` rows.
   - **`DapperAuthorityQueryService` / `InMemoryAuthorityQueryService` `GetRunDetailAsync`**: parallel `Task.WhenAll` for snapshot/manifest/bundle loads (single run hot path).
@@ -1899,13 +1899,13 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`MapComparisonVerificationFailed`**, **`ProblemDetailsExtensions`** (BadRequest/NotFound/Conflict/503), **`PipelineExtensions`** (500): attach `errorCode`.
   - **Tests**: `ApiProblemDetailsExceptionFilterTests` asserts `errorCode` on conflict, run-not-found, comparison verification, circuit breaker.
 - [x] 238. OpenAPI `securitySchemes` for Entra when enabled.
-  - **`OpenApiAuthSecurityDocumentFilter`** / **`OpenApiAuthSecurityOperationFilter`**: **`Bearer`** (JWT) when **`ArchiForgeAuth:Mode`** is **`JwtBearer`**; **`ApiKey`** (**`X-Api-Key`**) when **`ApiKey`**; document-level **`security`** + optional **`security: []`** for **`AllowAnonymous`** (explored actions only). Filters read **`IConfiguration` at document generation** so **`WebApplicationFactory`** overrides apply.
+  - **`OpenApiAuthSecurityDocumentFilter`** / **`OpenApiAuthSecurityOperationFilter`**: **`Bearer`** (JWT) when **`ArchLucidAuth:Mode`** is **`JwtBearer`**; **`ApiKey`** (**`X-Api-Key`**) when **`ApiKey`**; document-level **`security`** + optional **`security: []`** for **`AllowAnonymous`** (explored actions only). Filters read **`IConfiguration` at document generation** so **`WebApplicationFactory`** overrides apply.
   - **`CustomSchemaIds`**: full type name fixes Swashbuckle clash (**`DecisionTrace`** in Decisioning vs Contracts).
   - **Tests**: **`SwaggerOpenApiAuthTests`**, **`SwaggerJsonSecuritySchemesIntegrationTests`**, **`SwaggerDocumentGenerationSmokeTests`**.
 - [x] 239. Webhook HMAC for digest/alert channels.
   - **`WebhookDelivery:HmacSha256SharedSecret`**, **`WebhookHmacEnvelopePoster`**, **`HttpWebhookPoster`** (see **`WebhookDeliveryOptions`**).
 - [x] 240. Optional `Idempotency-Key` on create run.
-  - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchiForge.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
+  - **`021_ArchitectureRunIdempotency.sql`** + **`ArchitectureRunIdempotency`** in **`ArchLucid.sql`**; **`IArchitectureRunIdempotencyRepository`** / **`ArchitectureRunIdempotencyRepository`**.
   - **`ArchitectureRunService`**: optional **`CreateRunIdempotencyState`**; replay → **`CreateRunResult.IdempotentReplay`**; key + different body → **`ConflictException`** (409).
   - **`RunsController`**: header **`Idempotency-Key`**, **200** + **`Idempotency-Replayed`** on replay; **`ConflictException`** before **`InvalidOperationException`** catch.
   - **`docs/API_CONTRACTS.md`**: contract table + cross-store limitation note.
@@ -1919,7 +1919,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 ### Data & persistence (243–249)
 
 - [x] 243. Archival for old runs / digests / conversations.
-  - **`ArchivedUtc`** on **`dbo.Runs`**, **`dbo.ArchitectureDigests`**, **`dbo.ConversationThreads`** (migration **`028_ArchivalSoftFlags.sql`**, **`ArchiForge.sql`** CREATE + parity). List/get SQL and in-memory repos exclude archived rows. **`DataArchivalOptions`** (`DataArchival:*`), **`IDataArchivalCoordinator`** / **`DataArchivalCoordinator`**, **`DataArchivalHostedService`** (scoped coordinator + retention days). Default **`DataArchival:Enabled`** false.
+  - **`ArchivedUtc`** on **`dbo.Runs`**, **`dbo.ArchitectureDigests`**, **`dbo.ConversationThreads`** (migration **`028_ArchivalSoftFlags.sql`**, **`ArchLucid.sql`** CREATE + parity). List/get SQL and in-memory repos exclude archived rows. **`DataArchivalOptions`** (`DataArchival:*`), **`IDataArchivalCoordinator`** / **`DataArchivalCoordinator`**, **`DataArchivalHostedService`** (scoped coordinator + retention days). Default **`DataArchival:Enabled`** false.
 - [x] 244. Soft-delete policy for governance assignments.
   - Migration **`029_PolicyPackAssignments_ArchivedUtc.sql`**, **`ArchivedUtc`** on **`PolicyPackAssignment`**, list filter + **`ArchiveAsync`**, **`POST v1/policy-packs/assignments/{id}/archive`**, audit **`PolicyPackAssignmentArchived`**.
 - [x] 245. Connection resilience (retry + backoff).
@@ -1938,8 +1938,8 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **Dapper subclasses** (`DapperAlertRuleRepositoryContractTests`, `DapperArchitectureDigestRepositoryContractTests`): `Category=SqlServerContainer`, reuse `SqlServerPersistenceFixture`.
   - All files in `ArchLucid.Persistence.Tests/Contracts/`.
 - [x] 248. Single DDL file discipline audit.
-  - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchiForge.sql`**, DbUp migration pairing, inventory **019–021**.
-  - **`ArchiForge.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
+  - **`docs/SQL_DDL_DISCIPLINE.md`**: single-file rule for **`ArchLucid.sql`**, DbUp migration pairing, inventory **019–021**.
+  - **`ArchLucid.sql`** trailing section aligned with **019** (**`RetrievalIndexingOutbox`**), **020** (Runs index), **021** (idempotency table).
 - [x] 249. Migration rollback documentation.
   - **`docs/runbooks/MIGRATION_ROLLBACK.md`**: restore-first, forward-fix vs manual DDL, **028** column-drop note, journal alignment warning.
 
@@ -1979,7 +1979,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 - [x] 263. **RLS / session context** — integration coverage for tenant-scoped SQL access where applicable.
 - [x] 264. **Terraform App Service** — private stack / VNet-related alignment (see `infra/terraform-private`).
 - [x] 265. **Stryker manifest / workflow** + **`docs/OPENAPI_CONTRACT_DRIFT.md`** (or equivalent contract drift doc) as completed in the same delivery batch.
-- [x] 266. **In-memory DI for comparison records** — when **`ArchiForge:StorageProvider=InMemory`**, register **`InMemoryComparisonRecordRepository`** for **`IComparisonRecordRepository`** in **`RegisterComparisonReplayAndDrift`** (singleton; avoids SQL **`ComparisonRecordRepository`** on in-memory hosts).
+- [x] 266. **In-memory DI for comparison records** — when **`ArchLucid:StorageProvider=InMemory`**, register **`InMemoryComparisonRecordRepository`** for **`IComparisonRecordRepository`** in **`RegisterComparisonReplayAndDrift`** (singleton; avoids SQL **`ComparisonRecordRepository`** on in-memory hosts).
 - [x] 267. **`SessionContextSqlConnectionFactoryTests`** — when **`IRlsSessionContextApplicator.ApplyAsync`** throws, the opened **`SqlConnection`** is disposed and the exception propagates.
 - [x] 268. **`DataArchivalHostHealthCheckTests`** — disabled → Healthy; enabled + no attempt → Healthy; enabled + last failure → Degraded; enabled + last success → Healthy.
 - [x] 269. **Runbook** — **`docs/runbooks/DATA_ARCHIVAL_HEALTH.md`**: degraded meaning, triage, recovery.
@@ -2063,7 +2063,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Governance InMemory, contracts, Application tests, ADRs & ops docs (329–338)
 
-- [x] 329. **`RegisterGovernance`** — when **`ArchiForge:StorageProvider=InMemory`**, register singleton **`InMemoryGovernanceApprovalRequestRepository`**, **`InMemoryGovernancePromotionRecordRepository`**, **`InMemoryGovernanceEnvironmentActivationRepository`**; otherwise scoped Dapper implementations.
+- [x] 329. **`RegisterGovernance`** — when **`ArchLucid:StorageProvider=InMemory`**, register singleton **`InMemoryGovernanceApprovalRequestRepository`**, **`InMemoryGovernancePromotionRecordRepository`**, **`InMemoryGovernanceEnvironmentActivationRepository`**; otherwise scoped Dapper implementations.
 - [x] 330. **Persistence contract tests** — abstract bases + InMemory + Dapper for the three governance repository interfaces (ordering and activation **`UpdateAsync`** semantics aligned with SQL).
 - [x] 331. **`ArchLucid.Application.Tests`** — **`RunDetailQueryServiceApplicationTests`** (`HasBrokenManifestReference`, trace load when manifest present).
 - [x] 332. **`ArchLucid.Application.Tests`** — **`AgentResultDiffServiceApplicationTests`** and **`ManifestDiffServiceApplicationTests`** (extra scenarios vs Api.Tests).

@@ -7,5 +7,5 @@ namespace ArchLucid.Persistence.GraphSnapshots;
 /// </summary>
 internal static class GraphSnapshotEdgeRelationalConstants
 {
-    internal const string StoredLabelPropertyKey = "$ArchiForge:EdgeLabel";
+    internal const string StoredLabelPropertyKey = "$ArchLucid:EdgeLabel";
 }

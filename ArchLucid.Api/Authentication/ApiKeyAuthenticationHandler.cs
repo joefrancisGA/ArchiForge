@@ -31,7 +31,7 @@ public class ApiKeyAuthenticationHandler(
         bool developmentBypassAll = configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false);
 
         // Previously, Enabled=false authenticated every request as a synthetic admin-equivalent principal. That meant
-        // any host misconfigured with ArchLucidAuth:Mode=ApiKey (or ArchiForgeAuth:Mode=ApiKey) but keys "off" silently granted full access to anonymous callers.
+        // any host misconfigured with ArchLucidAuth:Mode=ApiKey but keys "off" silently granted full access to anonymous callers.
         if (!enabled)
         {
             if (!developmentBypassAll)

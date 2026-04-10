@@ -20,7 +20,7 @@ public sealed class DatabaseMigratorUpgradePathSqlIntegrationTests(SqlServerPers
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
 
         string suffix = Guid.NewGuid().ToString("N")[..10];
-        string databaseName = "ArchiForgeMigr_" + suffix;
+        string databaseName = "ArchLucidMigr_" + suffix;
 
         SqlConnectionStringBuilder builder = new(fixture.ConnectionString)
         {

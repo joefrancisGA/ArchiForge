@@ -56,7 +56,7 @@ internal static class CliCommandShared
 
         Console.WriteLine($"Cannot connect to ArchLucid API at {baseUrl}");
         Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
-        Console.WriteLine("Or set apiUrl in archiforge.json / ARCHLUCID_API_URL (legacy ARCHIFORGE_API_URL) environment variable.");
+        Console.WriteLine("Or set apiUrl in archlucid.json / ARCHLUCID_API_URL environment variable.");
         CliOperatorHints.WriteAfterHealthUnreachable(baseUrl);
 
         return false;

@@ -6,13 +6,6 @@ import {
 } from "@/lib/oidc/config";
 import { loadDiscoveryDocument } from "@/lib/oidc/discovery";
 import {
-  LEGACY_OIDC_ACCESS_TOKEN_KEY,
-  LEGACY_OIDC_CODE_VERIFIER_KEY,
-  LEGACY_OIDC_EXPIRES_AT_MS_KEY,
-  LEGACY_OIDC_ID_TOKEN_KEY,
-  LEGACY_OIDC_NONCE_KEY,
-  LEGACY_OIDC_OAUTH_STATE_KEY,
-  LEGACY_OIDC_REFRESH_TOKEN_KEY,
   OIDC_ACCESS_TOKEN_KEY,
   OIDC_CODE_VERIFIER_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
@@ -27,79 +20,65 @@ import type { OidcTokenResponse } from "@/lib/oidc/token-client";
 
 const EXPIRY_SKEW_MS = 60_000;
 
-/** Prefer the ArchLucid key; if only the legacy browser storage key exists, copy forward and drop legacy. */
-function readSessionMigrateForward(newKey: string, legacyKey: string): string | null {
+function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
     return null;
   }
 
-  const primary = sessionStorage.getItem(newKey);
+  const value = sessionStorage.getItem(key);
 
-  if (primary !== null && primary.length > 0) {
-    return primary;
-  }
-
-  const legacy = sessionStorage.getItem(legacyKey);
-
-  if (legacy === null || legacy.length === 0) {
+  if (value === null || value.length === 0) {
     return null;
   }
 
-  sessionStorage.setItem(newKey, legacy);
-  sessionStorage.removeItem(legacyKey);
-
-  return legacy;
+  return value;
 }
 
-function removeOidcKeyPair(newKey: string, legacyKey: string): void {
-  sessionStorage.removeItem(newKey);
-  sessionStorage.removeItem(legacyKey);
+function removeOidcKeys(keys: readonly string[]): void {
+  for (const key of keys) {
+    sessionStorage.removeItem(key);
+  }
 }
 
 export function persistTokenResponse(tokens: OidcTokenResponse): void {
   sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, tokens.access_token);
-  sessionStorage.removeItem(LEGACY_OIDC_ACCESS_TOKEN_KEY);
 
   if (tokens.refresh_token) {
     sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, tokens.refresh_token);
-    sessionStorage.removeItem(LEGACY_OIDC_REFRESH_TOKEN_KEY);
   }
 
   if (tokens.id_token) {
     sessionStorage.setItem(OIDC_ID_TOKEN_KEY, tokens.id_token);
-    sessionStorage.removeItem(LEGACY_OIDC_ID_TOKEN_KEY);
   }
 
   const expiresInSec = typeof tokens.expires_in === "number" ? tokens.expires_in : 3600;
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));
-  sessionStorage.removeItem(LEGACY_OIDC_EXPIRES_AT_MS_KEY);
 }
 
 export function clearOidcSession(): void {
-  removeOidcKeyPair(OIDC_ACCESS_TOKEN_KEY, LEGACY_OIDC_ACCESS_TOKEN_KEY);
-  removeOidcKeyPair(OIDC_REFRESH_TOKEN_KEY, LEGACY_OIDC_REFRESH_TOKEN_KEY);
-  removeOidcKeyPair(OIDC_EXPIRES_AT_MS_KEY, LEGACY_OIDC_EXPIRES_AT_MS_KEY);
-  removeOidcKeyPair(OIDC_ID_TOKEN_KEY, LEGACY_OIDC_ID_TOKEN_KEY);
-  removeOidcKeyPair(OIDC_OAUTH_STATE_KEY, LEGACY_OIDC_OAUTH_STATE_KEY);
-  removeOidcKeyPair(OIDC_CODE_VERIFIER_KEY, LEGACY_OIDC_CODE_VERIFIER_KEY);
-  removeOidcKeyPair(OIDC_NONCE_KEY, LEGACY_OIDC_NONCE_KEY);
+  removeOidcKeys([
+    OIDC_ACCESS_TOKEN_KEY,
+    OIDC_REFRESH_TOKEN_KEY,
+    OIDC_EXPIRES_AT_MS_KEY,
+    OIDC_ID_TOKEN_KEY,
+    OIDC_OAUTH_STATE_KEY,
+    OIDC_CODE_VERIFIER_KEY,
+    OIDC_NONCE_KEY,
+  ]);
 }
 
 export function storePkceState(state: string, codeVerifier: string, nonce: string): void {
   sessionStorage.setItem(OIDC_OAUTH_STATE_KEY, state);
-  sessionStorage.removeItem(LEGACY_OIDC_OAUTH_STATE_KEY);
   sessionStorage.setItem(OIDC_CODE_VERIFIER_KEY, codeVerifier);
-  sessionStorage.removeItem(LEGACY_OIDC_CODE_VERIFIER_KEY);
   sessionStorage.setItem(OIDC_NONCE_KEY, nonce);
-  sessionStorage.removeItem(LEGACY_OIDC_NONCE_KEY);
 }
 
 export function readPkceState(): { state: string; codeVerifier: string; nonce: string } | null {
-  const state = readSessionMigrateForward(OIDC_OAUTH_STATE_KEY, LEGACY_OIDC_OAUTH_STATE_KEY);
-  const codeVerifier = readSessionMigrateForward(OIDC_CODE_VERIFIER_KEY, LEGACY_OIDC_CODE_VERIFIER_KEY);
-  const nonce = readSessionMigrateForward(OIDC_NONCE_KEY, LEGACY_OIDC_NONCE_KEY);
+  const state = readSessionKey(OIDC_OAUTH_STATE_KEY);
+  const codeVerifier = readSessionKey(OIDC_CODE_VERIFIER_KEY);
+  const nonce = readSessionKey(OIDC_NONCE_KEY);
 
   if (!state || !codeVerifier || !nonce) {
     return null;
@@ -115,16 +94,13 @@ export function consumePkceState(): { state: string; codeVerifier: string; nonce
     return null;
   }
 
-  removeOidcKeyPair(OIDC_OAUTH_STATE_KEY, LEGACY_OIDC_OAUTH_STATE_KEY);
-  removeOidcKeyPair(OIDC_CODE_VERIFIER_KEY, LEGACY_OIDC_CODE_VERIFIER_KEY);
-  removeOidcKeyPair(OIDC_NONCE_KEY, LEGACY_OIDC_NONCE_KEY);
+  removeOidcKeys([OIDC_OAUTH_STATE_KEY, OIDC_CODE_VERIFIER_KEY, OIDC_NONCE_KEY]);
 
   return pair;
 }
 
 function getExpiresAtMs(): number {
-  const raw =
-    readSessionMigrateForward(OIDC_EXPIRES_AT_MS_KEY, LEGACY_OIDC_EXPIRES_AT_MS_KEY) ?? "0";
+  const raw = readSessionKey(OIDC_EXPIRES_AT_MS_KEY) ?? "0";
 
   return Number(raw);
 }
@@ -143,7 +119,7 @@ export function getAccessTokenForApi(): string | undefined {
     return undefined;
   }
 
-  const token = readSessionMigrateForward(OIDC_ACCESS_TOKEN_KEY, LEGACY_OIDC_ACCESS_TOKEN_KEY);
+  const token = readSessionKey(OIDC_ACCESS_TOKEN_KEY);
 
   return token && token.length > 0 ? token : undefined;
 }
@@ -157,8 +133,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
   }
 
   const exp = getExpiresAtMs();
-  const refresh =
-    readSessionMigrateForward(OIDC_REFRESH_TOKEN_KEY, LEGACY_OIDC_REFRESH_TOKEN_KEY) ?? "";
+  const refresh = readSessionKey(OIDC_REFRESH_TOKEN_KEY) ?? "";
   const authority = getOidcAuthority();
   const clientId = getOidcClientId();
 
@@ -189,8 +164,8 @@ export function readSignedInDisplayName(): string | null {
     return null;
   }
 
-  const access = readSessionMigrateForward(OIDC_ACCESS_TOKEN_KEY, LEGACY_OIDC_ACCESS_TOKEN_KEY);
-  const idTok = readSessionMigrateForward(OIDC_ID_TOKEN_KEY, LEGACY_OIDC_ID_TOKEN_KEY);
+  const access = readSessionKey(OIDC_ACCESS_TOKEN_KEY);
+  const idTok = readSessionKey(OIDC_ID_TOKEN_KEY);
 
   if (access) {
     const fromAccess = pickDisplayNameFromPayload(decodeJwtPayload(access));
@@ -212,7 +187,7 @@ export function isLikelySignedIn(): boolean {
     return false;
   }
 
-  const token = readSessionMigrateForward(OIDC_ACCESS_TOKEN_KEY, LEGACY_OIDC_ACCESS_TOKEN_KEY);
+  const token = readSessionKey(OIDC_ACCESS_TOKEN_KEY);
 
   return Boolean(token && token.length > 0 && Date.now() < getExpiresAtMs() - EXPIRY_SKEW_MS);
 }
@@ -225,8 +200,7 @@ export async function signOutAndRedirectHome(): Promise<void> {
     return;
   }
 
-  const idToken =
-    readSessionMigrateForward(OIDC_ID_TOKEN_KEY, LEGACY_OIDC_ID_TOKEN_KEY) ?? undefined;
+  const idToken = readSessionKey(OIDC_ID_TOKEN_KEY) ?? undefined;
   const authority = getOidcAuthority();
 
   clearOidcSession();

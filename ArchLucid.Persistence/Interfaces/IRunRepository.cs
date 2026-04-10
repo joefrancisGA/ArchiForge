@@ -53,6 +53,19 @@ public interface IRunRepository
     Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take, CancellationToken ct);
 
     /// <summary>
+    /// Returns a page of runs for <paramref name="projectId"/> within <paramref name="scope"/>, ordered by
+    /// <c>CreatedUtc</c> descending, plus the total matching row count (excluding archived).
+    /// </summary>
+    /// <param name="skip">Zero-based offset (number of rows to skip after ordering).</param>
+    /// <param name="take">Maximum rows on this page (clamped by the implementation, typically 1–200).</param>
+    Task<(IReadOnlyList<RunRecord> Items, int TotalCount)> ListByProjectPagedAsync(
+        ScopeContext scope,
+        string projectId,
+        int skip,
+        int take,
+        CancellationToken ct);
+
+    /// <summary>
     /// Applies an update to an existing run row. Callers may pass an existing
     /// <paramref name="connection"/> and <paramref name="transaction"/> to participate
     /// in a multi-statement transaction.
@@ -69,7 +82,7 @@ public interface IRunRepository
 
     /// <summary>
     /// Sets <see cref="RunRecord.ArchivedUtc"/> for runs with <c>CreatedUtc</c> strictly before <paramref name="cutoffUtc"/>
-    /// that are not yet archived. Returns the number of rows updated.
+    /// that are not yet archived. Returns the count and scope keys for each archived row (for cache eviction).
     /// </summary>
-    Task<int> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
+    Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 }

@@ -4,7 +4,7 @@
 
 **How to use:** Work top to bottom. Check boxes when the item is **done for this release** (build ID / environment recorded in your run notes). This is **operational**, not a substitute for full automated CI.
 
-**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
+**Scope:** Aligned with [V1_SCOPE.md](V1_SCOPE.md). **Automated gates:** [RELEASE_LOCAL.md](RELEASE_LOCAL.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md), [TEST_STRUCTURE.md](TEST_STRUCTURE.md). **RC environment drill (API already running):** [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`v1-rc-drill.ps1`**.
 
 ---
 
@@ -21,7 +21,8 @@
 
 - [ ] **Release build** succeeds: `build-release.ps1` (or `dotnet build ArchLucid.sln -c Release`) per [RELEASE_LOCAL.md](RELEASE_LOCAL.md).
 - [ ] **Readiness script** green for the agreed filter: `run-readiness-check.ps1` (use `-SkipUi` only if UI is out of scope for this handoff).
-- [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with `ARCHIFORGE_SMOKE_SQL` or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
+- [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
+- [ ] **RC drill** (staged/prod-like API URL): run **`v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
 - [ ] **Package handoff** (if distributing bits): `package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 - [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchiForge`** or **`ArchLucid`** per bridge), **`ArchiForge:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchiForgeAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../README.md), [BUILD.md](BUILD.md)).
 - [ ] **Containers** (if used): image tags recorded; compose profile documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).

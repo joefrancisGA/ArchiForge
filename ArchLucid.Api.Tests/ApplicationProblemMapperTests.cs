@@ -28,34 +28,39 @@ public sealed class ApplicationProblemMapperTests
             Summary = "x"
         };
         ComparisonVerificationFailedException ex = new("verify", drift);
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-verify");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(422);
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.ComparisonVerificationFailed);
+        p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("corr-verify");
     }
 
     [Fact]
     public void TryMapUnhandledException_Conflict_Returns409()
     {
         ConflictException ex = new("c");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-409");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
         MvcProblemDetails p = result.Value.Should().BeOfType<MvcProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);
+        p.Extensions[ProblemCorrelation.ExtensionKey].Should().Be("corr-409");
     }
 
     [Fact]
     public void TryMapUnhandledException_RunNotFound_Returns404()
     {
         RunNotFoundException ex = new("missing");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-404");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(404);
@@ -67,8 +72,9 @@ public sealed class ApplicationProblemMapperTests
     public void TryMapUnhandledException_LlmTokenQuotaExceeded_Returns429()
     {
         LlmTokenQuotaExceededException ex = new("quota");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-429");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
@@ -80,8 +86,9 @@ public sealed class ApplicationProblemMapperTests
     public void TryMapUnhandledException_InvalidOperation_Returns400()
     {
         InvalidOperationException ex = new("bad op");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-400");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(400);
@@ -93,8 +100,9 @@ public sealed class ApplicationProblemMapperTests
     public void TryMapUnhandledException_ArgumentException_Returns400Validation()
     {
         ArgumentException ex = new("arg");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-arg");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(400);
@@ -106,8 +114,9 @@ public sealed class ApplicationProblemMapperTests
     public void TryMapUnhandledException_ArgumentNullException_Returns400Validation()
     {
         ArgumentNullException ex = new("p");
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-null");
 
-        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, "/p", out ObjectResult? result);
+        bool mapped = ApplicationProblemMapper.TryMapUnhandledException(ex, http, out ObjectResult? result);
 
         mapped.Should().BeTrue();
         result!.StatusCode.Should().Be(400);
@@ -118,12 +127,23 @@ public sealed class ApplicationProblemMapperTests
     [Fact]
     public void TryMapUnhandledException_UnmappedException_ReturnsFalse()
     {
+        DefaultHttpContext http = CreateHttpContext("/p", "corr-none");
+
         bool mapped = ApplicationProblemMapper.TryMapUnhandledException(
             new NotSupportedException(),
-            "/p",
+            http,
             out ObjectResult? result);
 
         mapped.Should().BeFalse();
         result.Should().BeNull();
+    }
+
+    private static DefaultHttpContext CreateHttpContext(string path, string traceIdentifier)
+    {
+        return new DefaultHttpContext
+        {
+            TraceIdentifier = traceIdentifier,
+            Request = { Path = path }
+        };
     }
 }

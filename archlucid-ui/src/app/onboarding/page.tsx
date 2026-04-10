@@ -23,8 +23,8 @@ export default function OnboardingPage() {
           <Link href="/" title="Home with first-run workflow">
             Home
           </Link>
-          , expand <strong>First-run workflow</strong> for step-by-step links (create run → commit → artifacts →
-          compare/replay → export).
+          , expand <strong>First-run workflow</strong> (V1 checklist) for step-by-step links (create run → commit →
+          artifacts → compare/replay → export).
         </li>
         <li style={{ marginBottom: 14 }}>
           <strong>Confirm API reachability.</strong> Ensure the UI proxy can reach the API (see{" "}
@@ -52,11 +52,11 @@ export default function OnboardingPage() {
         <li style={{ marginBottom: 14 }}>
           <strong>Compare or replay.</strong> Use{" "}
           <Link href="/compare" title="Compare two architecture runs">
-            Compare runs
+            Compare two runs
           </Link>{" "}
           and{" "}
           <Link href="/replay" title="Replay authority chain for a run">
-            Replay run
+            Replay a run
           </Link>{" "}
           for regression analysis.
         </li>

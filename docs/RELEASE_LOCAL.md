@@ -2,7 +2,7 @@
 
 Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [PILOT_GUIDE.md](PILOT_GUIDE.md).
 
-**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchiForge:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [BUILD.md](BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
+**Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download), SQL Server when using `ArchLucid:StorageProvider=Sql`, and optionally **Node.js 22+** for operator UI build/tests. See [BUILD.md](BUILD.md) and [TEST_STRUCTURE.md](TEST_STRUCTURE.md).
 
 ---
 
@@ -43,6 +43,8 @@ The operator UI remains developed from `archlucid-ui/` in the repo (or deploy vi
 2. **Package:** `package-release.cmd` (or `.ps1`).
 3. **Hand off:** Share the **repository** (or archive) plus **`artifacts/release/`** (include **`PACKAGE-HANDOFF.txt`** and **`metadata.json`** for support). Verify file integrity with **`checksums-sha256.txt`** after copy when present.
 
+**After deploy:** For a **full V1 path** on the running API (health, two runs, compare, replay, export, support bundle), use [V1_RC_DRILL.md](V1_RC_DRILL.md) and **`v1-rc-drill.ps1`** from the repo root.
+
 ### Support-friendly handoff
 
 - **`metadata.json`** — paste **`informationalVersion`** and **`commitSha`** into support tickets (matches **`GET /version`** when the same bits are running).
@@ -58,7 +60,7 @@ From `artifacts/release/api/` (after `package-release`):
 # Requires .NET 10 runtime (ASP.NET Core hosting bundle on Windows servers if needed).
 $env:ASPNETCORE_ENVIRONMENT = 'Production'
 # Example: SQL (adjust for your server; use User Secrets or env vars — do not commit secrets)
-$env:ConnectionStrings__ArchiForge = 'Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=...;TrustServerCertificate=True;'
+$env:ConnectionStrings__ArchLucid = 'Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=...;TrustServerCertificate=True;'
 dotnet .\ArchLucid.Api.dll
 ```
 
@@ -87,6 +89,12 @@ npm start
 ```
 
 Point the UI at the API using `archlucid-ui` env conventions (e.g. upstream base URL for the proxy — see [archlucid-ui/README.md](../archlucid-ui/README.md) and [operator-shell.md](operator-shell.md)).
+
+---
+
+## Repository hygiene
+
+**`artifacts/release/`** is the only packaging output this doc requires; it is **gitignored**. For a full map of **committed vs generated** paths (including `ArchLucid.Api.Client/Generated/` and common scratch files), see **[REPO_HYGIENE.md](REPO_HYGIENE.md)**.
 
 ---
 

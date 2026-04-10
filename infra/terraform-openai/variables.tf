@@ -19,7 +19,7 @@ variable "openai_consumption_budget_account_resource_ids" {
 variable "openai_consumption_budget_name" {
   type        = string
   description = "Budget name (unique within the resource group scope in Cost Management)."
-  default     = "archiforge-openai-monthly"
+  default     = "archlucid-openai-monthly"
 
   validation {
     condition     = length(var.openai_consumption_budget_name) >= 1 && length(var.openai_consumption_budget_name) <= 63

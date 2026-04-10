@@ -46,12 +46,6 @@ public static class SupportBundleRedactor
             return false;
 
 
-        if (name.StartsWith("ARCHIFORGE_", StringComparison.OrdinalIgnoreCase)
-            && name.Contains("SQL", StringComparison.OrdinalIgnoreCase))
-
-            return true;
-
-
         if (name.StartsWith("ARCHLUCID_", StringComparison.OrdinalIgnoreCase)
             && name.Contains("SQL", StringComparison.OrdinalIgnoreCase))
 
@@ -88,7 +82,6 @@ public static class SupportBundleRedactor
 
 
             if (!key.StartsWith("ARCHLUCID_", StringComparison.OrdinalIgnoreCase)
-                && !key.StartsWith("ARCHIFORGE_", StringComparison.OrdinalIgnoreCase)
                 && !key.StartsWith("DOTNET_", StringComparison.OrdinalIgnoreCase))
 
                 continue;
@@ -104,8 +97,7 @@ public static class SupportBundleRedactor
             {
                 string raw = entry.Value?.ToString() ?? string.Empty;
 
-                if ((string.Equals(key, "ARCHLUCID_API_URL", StringComparison.OrdinalIgnoreCase)
-                     || string.Equals(key, "ARCHIFORGE_API_URL", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(key, "ARCHLUCID_API_URL", StringComparison.OrdinalIgnoreCase)
                     && raw.StartsWith("http", StringComparison.OrdinalIgnoreCase))
 
                     result[key] = RedactHttpUrl(raw);

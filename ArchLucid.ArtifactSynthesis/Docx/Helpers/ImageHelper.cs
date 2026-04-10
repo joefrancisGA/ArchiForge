@@ -15,7 +15,7 @@ namespace ArchLucid.ArtifactSynthesis.Docx.Helpers;
 /// <summary>Embeds PNG images into WordprocessingML (body or header).</summary>
 public static class ImageHelper
 {
-    /// <summary>EMU: ~5.5&quot; wide at default DPI for placeholder diagrams.</summary>
+    /// <summary>EMU: ~5.5&quot; wide at default DPI for embedded diagram PNGs.</summary>
     public const long DefaultDiagramWidthEmu = 5_500_000L;
 
     public const long DefaultDiagramHeightEmu = 3_000_000L;

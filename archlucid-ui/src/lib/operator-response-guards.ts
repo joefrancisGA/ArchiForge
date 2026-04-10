@@ -1,6 +1,7 @@
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { GraphViewModel } from "@/types/graph";
 import type { ComparisonExplanation } from "@/types/explanation";
+import type { PagedResponse } from "@/types/pagination";
 import type {
   ArtifactDescriptor,
   ManifestSummary,
@@ -38,6 +39,63 @@ export function coerceRunSummaryList(
   }
 
   return { ok: true, items };
+}
+
+/**
+ * Ensures a paged runs response has numeric paging fields and an items array of run summaries.
+ */
+export function coerceRunSummaryPaged(
+  data: unknown,
+):
+  | { ok: true; value: PagedResponse<RunSummary> }
+  | { ok: false; message: string } {
+  if (!isRecord(data)) {
+    return { ok: false, message: "Expected a JSON object for paged runs." };
+  }
+
+  if (!Array.isArray(data.items)) {
+    return { ok: false, message: 'Paged runs response is missing an "items" array.' };
+  }
+
+  const items: RunSummary[] = [];
+
+  for (const row of data.items) {
+    if (!isRecord(row) || typeof row.runId !== "string") {
+      return {
+        ok: false,
+        message: "One or more paged run rows are missing a string runId.",
+      };
+    }
+
+    items.push(row as RunSummary);
+  }
+
+  if (typeof data.totalCount !== "number" || !Number.isFinite(data.totalCount)) {
+    return { ok: false, message: "Paged runs response has invalid totalCount." };
+  }
+
+  if (typeof data.page !== "number" || !Number.isFinite(data.page)) {
+    return { ok: false, message: "Paged runs response has invalid page." };
+  }
+
+  if (typeof data.pageSize !== "number" || !Number.isFinite(data.pageSize)) {
+    return { ok: false, message: "Paged runs response has invalid pageSize." };
+  }
+
+  if (typeof data.hasMore !== "boolean") {
+    return { ok: false, message: "Paged runs response has invalid hasMore." };
+  }
+
+  return {
+    ok: true,
+    value: {
+      items,
+      totalCount: data.totalCount,
+      page: data.page,
+      pageSize: data.pageSize,
+      hasMore: data.hasMore,
+    },
+  };
 }
 
 /**

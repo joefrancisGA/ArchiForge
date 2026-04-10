@@ -2,7 +2,7 @@
 
 → New here? Start at [docs/START_HERE.md](START_HERE.md) instead.
 
-The shipped product is **ArchLucid**; this repository and .NET projects still use the **`ArchiForge.*`** naming until the Phase 5–6 bulk rename.
+The shipped product is **ArchLucid**; .NET projects use the **`ArchLucid.*`** naming (solution: **`ArchLucid.sln`**). The workspace or remote repository folder may still be named **`ArchiForge`** until Phase 7.6.
 
 **Where does this fit?** For the full **clone → Azure** narrative (not just build/tests), see **[GOLDEN_PATH.md](GOLDEN_PATH.md)**.
 
@@ -10,7 +10,7 @@ The shipped product is **ArchLucid**; this repository and .NET projects still us
 
 ```bash
 git clone <repo>
-cd ArchiForge
+cd <repository-root>
 dotnet restore
 dotnet build
 ```
@@ -35,7 +35,7 @@ See **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** for project layout and traits, an
 
 ## Optional integration against SQL Server
 
-See **[BUILD.md](BUILD.md)** (SQL Server for persistence tests: `ARCHIFORGE_SQL_TEST` or LocalDB).
+See **[BUILD.md](BUILD.md)** (SQL Server for persistence tests: `ARCHLUCID_SQL_TEST` or LocalDB).
 
 ## Where to start reading
 

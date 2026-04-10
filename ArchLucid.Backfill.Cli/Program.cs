@@ -23,7 +23,7 @@ internal static class Program
         if (!TryParseConnectionString(args, out string? connectionString) || string.IsNullOrWhiteSpace(connectionString))
         {
             await Console.Error.WriteLineAsync(
-                "Set ARCHLUCID_SQL (or legacy ARCHIFORGE_SQL), or pass --connection \"...\", or a positional connection string. Use --help for scope flags.");
+                "Set ARCHLUCID_SQL, or pass --connection \"...\", or a positional connection string. Use --help for scope flags.");
             return 1;
         }
 
@@ -114,7 +114,7 @@ internal static class Program
             ArchLucid.Backfill.Cli — one-time JSON → relational backfill and cutover readiness.
 
             Connection (first match wins):
-              ARCHLUCID_SQL environment variable (legacy ARCHIFORGE_SQL still read)
+              ARCHLUCID_SQL environment variable
               --connection|-c "<ADO.NET connection string>"
               first positional argument (if not a flag)
 
@@ -142,8 +142,7 @@ internal static class Program
 
     private static bool TryParseConnectionString(string[] args, out string? connectionString)
     {
-        connectionString = Environment.GetEnvironmentVariable("ARCHLUCID_SQL")
-            ?? Environment.GetEnvironmentVariable("ARCHIFORGE_SQL");
+        connectionString = Environment.GetEnvironmentVariable("ARCHLUCID_SQL");
 
         for (int i = 0; i < args.Length; i++)
         {

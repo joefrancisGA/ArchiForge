@@ -8,7 +8,7 @@ Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; *
 
 ```bash
 cd ArchLucid.Api
-dotnet user-secrets set "ConnectionStrings:ArchiForge" "Server=localhost,1433;Database=ArchiForge;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
+dotnet user-secrets set "ConnectionStrings:ArchLucid" "Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;"
 ```
 
 ```bash
@@ -51,7 +51,7 @@ dotnet run --project ArchLucid.Cli -- doctor
 dotnet run --project ArchLucid.Cli -- support-bundle --zip
 ```
 
-Creates a timestamped folder (and zip) of JSON diagnostics without secrets — see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
+Creates a timestamped folder (and zip): open **`README.txt`** first for triage order; includes bounded OpenAPI probe — see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#support-bundle-attach-to-tickets).
 
 ---
 
@@ -95,7 +95,7 @@ cd archlucid-ui
 cp .env.example .env.local
 ```
 
-Edit **`.env.local`**: `ARCHIFORGE_API_BASE_URL=http://localhost:5128` (match your API).
+Edit **`.env.local`**: `ARCHLUCID_API_BASE_URL=http://localhost:5128` (match your API).
 
 ```bash
 npm ci
@@ -124,10 +124,10 @@ run-readiness-check.cmd
 .\run-readiness-check.ps1
 ```
 
-**Full E2E release smoke** (needs `ARCHIFORGE_SMOKE_SQL` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)):
+**Full E2E release smoke** (needs `ARCHLUCID_SMOKE_SQL` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md)):
 
 ```powershell
-$env:ARCHIFORGE_SMOKE_SQL = 'Server=...;Database=...;...'
+$env:ARCHLUCID_SMOKE_SQL = 'Server=...;Database=...;...'
 .\release-smoke.ps1
 ```
 
