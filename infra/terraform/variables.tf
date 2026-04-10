@@ -40,7 +40,7 @@ variable "apim_publisher_email" {
   default     = "admin@example.com"
 }
 
-variable "archiforge_api_backend_url" {
+variable "archlucid_api_backend_url" {
   type        = string
   description = "HTTPS origin URL for the ArchLucid API backend as reached from APIM (trailing slash stripped), e.g. https://archlucid-api.azurewebsites.net"
   default     = ""

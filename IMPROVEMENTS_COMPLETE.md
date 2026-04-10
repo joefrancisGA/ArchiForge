@@ -77,7 +77,7 @@ Or in Visual Studio:
 ### Step 2: Verify Package Versions
 The project uses **.NET 10** which requires compatible package versions. The project files have been updated with:
 
-**ArchiForge.DecisionEngine.csproj:**
+**ArchLucid.DecisionEngine.csproj:**
 ```xml
 <PackageReference Include="JsonSchema.Net" Version="*" />
 <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
@@ -88,7 +88,7 @@ The project uses **.NET 10** which requires compatible package versions. The pro
 <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
 ```
 
-**ArchiForge.DecisionEngine.Tests.csproj:**
+**ArchLucid.DecisionEngine.Tests.csproj:**
 ```xml
 <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
 <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
@@ -248,7 +248,7 @@ if (!result.IsValid)
 ## 📚 Documentation
 
 Full documentation is available in:
-- `ArchiForge.DecisionEngine\Validation\README.md`
+- `ArchLucid.DecisionEngine\Validation\README.md`
 
 ## ✅ Summary
 

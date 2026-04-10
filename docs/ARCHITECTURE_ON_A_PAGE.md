@@ -12,8 +12,8 @@ Give architects and operators a **single-page** view of **nodes, edges, and trus
 ## 3. Constraints
 
 - **No public SMB (445)**; blob/queue access via private endpoints and managed identity where possible.
-- **Single DDL source per database** (`ArchiForge.sql` master script + forward-only migrations for new work).
-- **Configuration rename in flight**: `ArchiForge*` keys remain valid with **`ArchLucid*` overrides** until Phase 7 (see [CONFIG_BRIDGE_SUNSET.md](CONFIG_BRIDGE_SUNSET.md)).
+- **Single DDL source per database** (`ArchLucid.sql` master script + forward-only migrations for new work).
+- **Configuration rename in flight**: `ArchLucid*` keys remain valid with **`ArchLucid*` overrides** until Phase 7 (see [CONFIG_BRIDGE_SUNSET.md](CONFIG_BRIDGE_SUNSET.md)).
 
 ## 4. Architecture overview
 
@@ -74,7 +74,7 @@ flowchart LR
 
 - **Post-deploy validation:** CD runs **`scripts/ci/cd-post-deploy-verify.sh`**: **`/health/live`**, **`/health/ready`** (JSON **`.status` must be `Healthy`**), **`/openapi/v1.json`**, **`/version`**, plus **`SMOKE_SYNTHETIC_PATH`** when not **`/version`** (see **`docs/DEPLOYMENT_CD_PIPELINE.md`**).
 - **Rollback:** Container Apps revision deactivation for **API and worker** when **`CD_ROLLBACK_ON_SMOKE_FAILURE`** is true and the worker app secret is set (see `.github/workflows/cd.yml`).
-- **Metrics:** `infra/prometheus/archlucid-alerts.yml` targets **ArchiForge** meter outbox gauges fed by **`OutboxOperationalMetricsHostedService`**.
+- **Metrics:** `infra/prometheus/archlucid-alerts.yml` targets **ArchLucid** meter outbox gauges fed by **`OutboxOperationalMetricsHostedService`**.
 - **Cost / capacity:** see [CAPACITY_AND_COST_PLAYBOOK.md](CAPACITY_AND_COST_PLAYBOOK.md).
 
 ## 9. Deeper reading

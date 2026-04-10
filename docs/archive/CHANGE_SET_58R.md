@@ -2,13 +2,13 @@
 
 ## 1. Objective
 
-Give product and pilot stakeholders a **disciplined, queryable trail** of how ArchiForge outputs are received: what is trusted, rejected, or repeatedly revised, and which **repeat patterns** deserve engineering investment — **without** autonomous adaptation or silent policy changes in this change set.
+Give product and pilot stakeholders a **disciplined, queryable trail** of how ArchLucid outputs are received: what is trusted, rejected, or repeatedly revised, and which **repeat patterns** deserve engineering investment — **without** autonomous adaptation or silent policy changes in this change set.
 
 ## 2. Assumptions
 
 - Feedback is **human-entered** (operators, pilots, or internal product roles), not inferred from model logits alone.
 - **Tenant / workspace / project** scope continues to partition data; aggregation stays within scope unless a later prompt adds cross-tenant analytics (explicitly out of scope here).
-- **SQL Server** is the system of record when `ArchiForge:StorageProvider` is `Sql`; **InMemory** uses the same repository interface for local dev.
+- **SQL Server** is the system of record when `ArchLucid:StorageProvider` is `Sql`; **InMemory** uses the same repository interface for local dev.
 
 ## 3. Constraints
 
@@ -29,7 +29,7 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 |--------|----------------|
 | **Contracts** (`ArchLucid.Contracts.ProductLearning`) | Stable strings + `ProductLearningPilotSignalRecord` DTO. |
 | **Persistence** | `IProductLearningPilotSignalRepository`, Dapper + in-memory implementations. |
-| **SQL** | DbUp `031_*.sql` + `ArchiForge.sql` parity. |
+| **SQL** | DbUp `031_*.sql` + `ArchLucid.sql` parity. |
 | **API** | `ProductLearningController`: summary, opportunities, trends, triage queue, triage report (`markdown` / `json`). |
 | **UI** | Operator shell **Pilot feedback** (`/product-learning`), export links; nav distinct from **Learning** (recommendation learning). |
 | **Docs** | [PRODUCT_LEARNING.md](PRODUCT_LEARNING.md) — operator & product-owner workflow. |
@@ -49,7 +49,7 @@ Give product and pilot stakeholders a **disciplined, queryable trail** of how Ar
 ## 8. Operational considerations
 
 - **DbUp** applies `031_ProductLearningPilotSignals.sql` on API startup against SQL Server.
-- **Persistence bootstrap** (`ArchiForge.sql`) creates the same objects on greenfield databases.
+- **Persistence bootstrap** (`ArchLucid.sql`) creates the same objects on greenfield databases.
 - **Indexes** support scope + time, scope + disposition, and filtered **pattern** lookups.
 
 ---

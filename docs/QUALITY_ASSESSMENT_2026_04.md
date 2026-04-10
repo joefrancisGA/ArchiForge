@@ -171,14 +171,14 @@
 
 ### 7. Cognitive Load — 62 / 100
 
-**Justification**: The `Host.Core` to `Host.Composition` split reduced DI complexity. Clear domain boundaries across 15+ projects help. But the sheer number of projects (42 `.csproj`), the deep Persistence project (297 `.cs` files), the large Decisioning project (239 files), and the ongoing product rename (ArchiForge → ArchLucid) create navigational friction. The Navigation rule helps but covers only high-traffic paths.
+**Justification**: The `Host.Core` to `Host.Composition` split reduced DI complexity. Clear domain boundaries across 15+ projects help. But the sheer number of projects (42 `.csproj`), the deep Persistence project (297 `.cs` files), the large Decisioning project (239 files), and the ongoing product rename (ArchLucid → ArchLucid) create navigational friction. The Navigation rule helps but covers only high-traffic paths.
 
 **Evidence**:
 - 42 `.csproj` files across the solution.
 - `ArchLucid.Persistence`: 297 `.cs` files with mixed concerns (repositories, orchestration, blob store, caching, archival, connections, migrations).
 - `ArchLucid.Decisioning`: 239 `.cs` files (findings, alerts, governance, compliance, advisory).
 - `.cursor/rules/Navigation.mdc` covers ~10 entry points.
-- Naming: ~~`ArchiForge.DecisionEngine` vs `ArchLucid.Decisioning`~~ addressed — merge and validation live in **`ArchLucid.Decisioning.Merge`** / **`ArchLucid.Decisioning.Validation`** (single project).
+- Naming: ~~`ArchLucid.DecisionEngine` vs `ArchLucid.Decisioning`~~ addressed — merge and validation live in **`ArchLucid.Decisioning.Merge`** / **`ArchLucid.Decisioning.Validation`** (single project).
 - DI composition root: 8 partial files — manageable but requires knowing the decomposition.
 
 **Tradeoffs**: Fine-grained project boundaries enable independent testing and clear ownership. But 42 projects is at the upper edge for a single-team product.
@@ -281,10 +281,10 @@
 
 ### 12. Data Consistency — 68 / 100
 
-**Justification**: Strong transactional patterns — `IArchiForgeUnitOfWork` for orchestrator writes, `TransactionScope` in application services, `IDbTransaction` in repositories. Idempotency via `IArchitectureRunIdempotencyRepository` with unique violation detection. Optimistic concurrency via `ROWVERSION` on runs. But `TransactionScope` and explicit `IDbTransaction` coexist (dual transaction patterns), archival uses soft-delete without cascading to child tables, and there is no outbox pattern for cross-boundary consistency (e.g., run completion → webhook delivery).
+**Justification**: Strong transactional patterns — `IArchLucidUnitOfWork` for orchestrator writes, `TransactionScope` in application services, `IDbTransaction` in repositories. Idempotency via `IArchitectureRunIdempotencyRepository` with unique violation detection. Optimistic concurrency via `ROWVERSION` on runs. But `TransactionScope` and explicit `IDbTransaction` coexist (dual transaction patterns), archival uses soft-delete without cascading to child tables, and there is no outbox pattern for cross-boundary consistency (e.g., run completion → webhook delivery).
 
 **Evidence**:
-- UoW: `IArchiForgeUnitOfWork` in `AuthorityRunOrchestrator`.
+- UoW: `IArchLucidUnitOfWork` in `AuthorityRunOrchestrator`.
 - TransactionScope: `ArchitectureRunService`, `GovernanceWorkflowService.ActivateAsync`.
 - Idempotency: `ArchitectureRunIdempotencyRepository.TryInsertAsync` — unique constraint.
 - Optimistic concurrency: `RunRecord.RowVersion`, `RunConcurrencyConflictException`.
@@ -294,7 +294,7 @@
 **Tradeoffs**: Dual transaction patterns work but increase cognitive load. An outbox would add complexity but guarantee at-least-once delivery.
 
 **Recommendations**:
-1. Standardize on `IArchiForgeUnitOfWork` and deprecate raw `TransactionScope` usage.
+1. Standardize on `IArchLucidUnitOfWork` and deprecate raw `TransactionScope` usage.
 2. Add a transactional outbox for webhook/alert delivery to guarantee at-least-once.
 3. Document the archival cascade strategy (what happens to child records when a run is archived?).
 4. Add integration tests for concurrent write conflict scenarios.
@@ -349,9 +349,9 @@
 **Justification**: Comprehensive observability stack — Serilog structured logging with correlation IDs, OpenTelemetry tracing (ASP.NET Core, HTTP, SQL, custom `ActivitySource`), Prometheus metrics with authenticated scrape endpoint, custom counters/histograms for authority runs and LLM tokens, Grafana dashboards, and Prometheus alert rules. But there is no distributed tracing export to Jaeger/Tempo by default, no SLO burn-rate alerting (only threshold alerts), the Grafana dashboards are committed JSON (no Terraform provisioning), and there is no log-based alerting.
 
 **Evidence**:
-- Logging: `ArchiForgeSerilogConfiguration`, `CorrelationIdMiddleware` (`LogContext.PushProperty`).
+- Logging: `ArchLucidSerilogConfiguration`, `CorrelationIdMiddleware` (`LogContext.PushProperty`).
 - Tracing: `ObservabilityExtensions.AddOpenTelemetry()` — ASP.NET, HTTP, SQL, custom sources.
-- Metrics: `ArchLucidInstrumentation` — `Meter("ArchiForge")`, counters for runs, tokens, alert evaluation.
+- Metrics: `ArchLucidInstrumentation` — `Meter("ArchLucid")`, counters for runs, tokens, alert evaluation.
 - Prometheus: Scrape endpoint with optional Basic auth, `archlucid-alerts.yml`, `archlucid-slo-rules.yml`.
 - Grafana: 3 dashboard JSON files in `infra/grafana/`.
 - OTLP exporter: Optional in `ObservabilityExtensions`.
@@ -455,7 +455,7 @@
 **Evidence**:
 - Constant-time key comparison: `ConstantTimeKeyEquals` in `ApiKeyAuthenticationHandler`.
 - JWT: `AddJwtBearer` with `ValidateAudience`, `RoleClaimType`.
-- RBAC: `ArchiForgePolicies`, `ArchiForgeRoles`, `ArchiForgeRoleClaimsTransformation`.
+- RBAC: `ArchLucidPolicies`, `ArchLucidRoles`, `ArchLucidRoleClaimsTransformation`.
 - RLS: `RlsSessionContextApplicator`, enforced in production via `ArchLucidConfigurationRules`.
 - Input validation: `AddFluentValidationAutoValidation()`.
 - CSP: `script-src 'self' 'unsafe-inline' 'unsafe-eval'` (Next.js limitation).
@@ -477,7 +477,7 @@
 
 ### 21. Documentation — 82 / 100
 
-**Justification**: Extensive documentation corpus — ~100 markdown files covering architecture (context, containers, components, flows), deployment, operations, security, testing, onboarding (day-one developer, SRE, security), CLI usage, API contracts, ADRs, runbooks (13 operational procedures), pilot guide, troubleshooting, and changelogs. The Navigation rule provides a quick-start map. But some docs reference stale names (ArchiForge → ArchLucid rename in progress), there are no auto-generated API docs beyond the OpenAPI spec, and the ADR series is small (11 entries) for the project's complexity.
+**Justification**: Extensive documentation corpus — ~100 markdown files covering architecture (context, containers, components, flows), deployment, operations, security, testing, onboarding (day-one developer, SRE, security), CLI usage, API contracts, ADRs, runbooks (13 operational procedures), pilot guide, troubleshooting, and changelogs. The Navigation rule provides a quick-start map. But some docs reference stale names (ArchLucid → ArchLucid rename in progress), there are no auto-generated API docs beyond the OpenAPI spec, and the ADR series is small (11 entries) for the project's complexity.
 
 **Evidence**:
 - ~100 `.md` files across `docs/`, `archlucid-ui/docs/`, project READMEs.

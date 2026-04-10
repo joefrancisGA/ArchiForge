@@ -34,7 +34,7 @@ When **`WebhookDelivery:HmacSha256SharedSecret`** is set (prefer **Key Vault** r
 - Header: **`X-ArchLucid-Webhook-Signature`**
 - Value: **`sha256=`** + lowercase **hex** digest (see **`WebhookSignature`** / **`HttpWebhookPoster`**).
 
-Integrators should compute HMAC-SHA256 over the **raw request body bytes** with the same shared secret and compare using a **constant-time** equality check. If the secret is unset, the header is omitted and receivers should not expect integrity protection from ArchiForge.
+Integrators should compute HMAC-SHA256 over the **raw request body bytes** with the same shared secret and compare using a **constant-time** equality check. If the secret is unset, the header is omitted and receivers should not expect integrity protection from ArchLucid.
 
 ## Simulation & tuning
 

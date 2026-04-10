@@ -2,7 +2,7 @@
 
 **Last updated:** 7 April 2026 (Persistence split into Persistence + Persistence.Coordination delivered).
 
-**ArchLucid rename:** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). Use **`ConnectionStrings:ArchLucid`**, CORS policy **`ArchLucid`**, and comparison replay headers **`X-ArchLucid-*`**. Phase 7 removed legacy **`ArchiForge*`** configuration keys and env-var bridges; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred work (Terraform `state mv`, repo folder rename).
+**ArchLucid rename:** Solution is **`ArchLucid.sln`**; product assemblies live under **`ArchLucid.*`** with aligned type names (`ArchLucidConfigurationBridge`, `IArchLucidUnitOfWork`, `AddArchLucid*` host extensions, NSwag **`ArchLucidApiClient`** / **`ArchLucidApiException`**). Use **`ConnectionStrings:ArchLucid`**, CORS policy **`ArchLucid`**, and comparison replay headers **`X-ArchLucid-*`**. Phase 7 removed legacy **`ArchLucid*`** configuration keys and env-var bridges; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred work (Terraform `state mv`, repo folder rename).
 
 Early items **1–7** (JSON test options, `ComparisonReplayTestFixture`, comparison facade decision, health and replay validation docs, fixture reuse, Api.Tests JSON audit) are **done**. Their original write-ups are preserved under [Archive (completed items 1–7)](#archive-completed-items-17) near the bottom of this file (immediately before batch §88).
 
@@ -977,7 +977,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 **What was built:**
 - `SchemaValidationOptions.EnableResultCaching` (bool, default false) and `ResultCacheMaxSize` (int, default 256).
 - `SchemaValidationService`: when caching is enabled, results are keyed by SHA-256(`schemaName|json`) in a `ConcurrentDictionary`. Cache is cleared (not evicted) when it reaches `ResultCacheMaxSize`.
-- OTel `Meter` (`ArchLucid.Decisioning.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name. (Legacy dashboards may still filter on `ArchiForge.DecisionEngine.SchemaValidation`.)
+- OTel `Meter` (`ArchLucid.Decisioning.SchemaValidation`): `schema_validation_total` counter tagged by schema name + outcome; `schema_validation_duration_ms` histogram tagged by schema name. (Legacy dashboards may still filter on `ArchLucid.DecisionEngine.SchemaValidation`.)
 - `ValidateCore` replaces the old `Validate` private method; caching is an outer wrapper.
 
 **Future:**
@@ -1856,7 +1856,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`docs/BUILD.md`**: local/CI reminder.
 - [x] 221. Secret scanning in CI.
   - **`.github/workflows/ci.yml`**: job **`gitleaks`** (`gitleaks/gitleaks-action@v2.3.9`, **`fetch-depth: 0`**); all other jobs **`needs: gitleaks`**.
-  - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchiForge_Dev_Pass123!`** / **`ArchLucid_Dev_Pass123!`**, **`LocalTesting123!`**).
+  - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchLucid_Dev_Pass123!`**, **`LocalTesting123!`**, plus any legacy literals still listed for brownfield compose snippets).
 - [x] 222. Row-level security design for multi-tenant SQL.
   - **`docs/security/MULTI_TENANT_RLS.md`**: SESSION_CONTEXT / policy sketch, defense-in-depth vs app authZ, ops + Terraform alignment.
 - [x] 223. PII classification + retention for conversations.
@@ -2076,13 +2076,13 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
 
 ### Data vs Persistence consolidation (339–341)
 
-- [x] 339. **Consolidate coordinator / legacy SQL repositories** — Former **`ArchiForge.Data`** assembly merged into **`ArchLucid.Persistence`** as **`ArchLucid.Persistence.Data.Infrastructure`** and **`ArchLucid.Persistence.Data.Repositories`** (DbUp migrations, consolidated SQL, Dapper workflow repos). **`ArchiForge.Data`** / **`ArchiForge.Data.Tests`** removed from the solution.
+- [x] 339. **Consolidate coordinator / legacy SQL repositories** — Former **`ArchLucid.Data`** assembly merged into **`ArchLucid.Persistence`** as **`ArchLucid.Persistence.Data.Infrastructure`** and **`ArchLucid.Persistence.Data.Repositories`** (DbUp migrations, consolidated SQL, Dapper workflow repos). **`ArchLucid.Data`** / **`ArchLucid.Data.Tests`** removed from the solution.
 - [x] 340. **Optional compatibility shim** — Skipped; consumers use **`ArchLucid.Persistence.Data.*`** directly.
 - [ ] 341. **Connection factory alignment** — Prefer **`ISqlConnectionFactory`** / `CreateOpenConnectionAsync` for new and migrated code; phase out or wrap sync **`IDbConnectionFactory`** / `CreateConnection` where it forces blocking or diverges from RLS/resilience paths. **Risks:** mixed async/sync call chains, scoped resolution (`SqlScopedResolutionDbConnectionFactory`) assumptions, and test doubles that only implement one factory abstraction.
 
 ### Post-merge follow-up (342)
 
-- [x] 342. **Doc / ADR sweep** — Grep across **`docs/**/*.md`**, **`*.csproj`**, and **`*.cs`**: no stale **`ArchiForge.Data`** references remain in maintained docs or code. Remaining hits are historical build/test logs at repo root (**`test_results.txt`**, **`commit*-log.txt`**, **`getrun-test-log.txt`**) and this checklist’s intentional mention of the old assembly name.
+- [x] 342. **Doc / ADR sweep** — Grep across **`docs/**/*.md`**, **`*.csproj`**, and **`*.cs`**: no stale **`ArchLucid.Data`** references remain in maintained docs or code. Remaining hits are historical build/test logs at repo root (**`test_results.txt`**, **`commit*-log.txt`**, **`getrun-test-log.txt`**) and this checklist’s intentional mention of the old assembly name.
 
 
 ---

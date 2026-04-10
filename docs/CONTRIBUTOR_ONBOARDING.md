@@ -2,7 +2,7 @@
 
 → New here? Start at [docs/START_HERE.md](START_HERE.md) instead.
 
-The shipped product is **ArchLucid**; .NET projects use the **`ArchLucid.*`** naming (solution: **`ArchLucid.sln`**). The workspace or remote repository folder may still be named **`ArchiForge`** until Phase 7.6.
+The shipped product is **ArchLucid**; .NET projects use the **`ArchLucid.*`** naming (solution: **`ArchLucid.sln`**). The workspace or remote repository folder may still be named **`ArchLucid`** until Phase 7.6.
 
 **Where does this fit?** For the full **clone → Azure** narrative (not just build/tests), see **[GOLDEN_PATH.md](GOLDEN_PATH.md)**.
 

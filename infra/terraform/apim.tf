@@ -17,7 +17,7 @@ locals {
     }
   ) : null
 
-  backend_url_normalized = local.apim_enabled ? trimsuffix(var.archiforge_api_backend_url, "/") : ""
+  backend_url_normalized = local.apim_enabled ? trimsuffix(var.archlucid_api_backend_url, "/") : ""
 }
 
 resource "azurerm_api_management" "archiforge" {

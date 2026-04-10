@@ -2,7 +2,7 @@
 
 ## 1. Objective
 
-Describe how ArchiForge enforces **tenant / workspace / project isolation in SQL Server** so a compromised application tier or query bug cannot read or mutate another customer’s rows, while keeping the current **application-level scope** model (`IScopeContextProvider`) as the primary authorization gate.
+Describe how ArchLucid enforces **tenant / workspace / project isolation in SQL Server** so a compromised application tier or query bug cannot read or mutate another customer’s rows, while keeping the current **application-level scope** model (`IScopeContextProvider`) as the primary authorization gate.
 
 ## 2. Assumptions
 
@@ -78,7 +78,7 @@ flowchart LR
 - **Scalability:** Predicate simplicity keeps plans stable; indexes already lead with scope columns on most advisory/alert tables.
 - **Reliability:** Connection resiliency (`ResilientSqlConnectionFactory`) re-applies session context when **SessionContextSqlConnectionFactory** wraps the connection.
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.
-- **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchLucid.Persistence/Scripts/ArchiForge.sql` for greenfield parity.
+- **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchLucid.Persistence/Scripts/ArchLucid.sql` for greenfield parity.
 
 ## 9. Covered tables and known gaps (DbUp 036)
 
@@ -109,6 +109,6 @@ flowchart LR
 
 Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030.
 
-Integration tests: `ArchLucid.Persistence.Tests/RlsArchiforgeScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`** and **`dbo.AuditEvents`** with the policy temporarily set to `STATE = ON`.
+Integration tests: `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`** and **`dbo.AuditEvents`** with the policy temporarily set to `STATE = ON`.
 
 Later, consider **separate database per tenant** only if compliance or noisy-neighbor isolation demands it (higher ops cost).

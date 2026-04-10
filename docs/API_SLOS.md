@@ -41,7 +41,7 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 
 ## 6. Data flow
 
-1. **In-cluster:** Each HTTP request updates OTel metrics → Prometheus → `archiforge:slo:http_availability:ratio` and burn-rate alerts.
+1. **In-cluster:** Each HTTP request updates OTel metrics → Prometheus → `archlucid:slo:http_availability:ratio` and burn-rate alerts.
 2. **External:** On a schedule, CI runs `curl` (or equivalent) to `{base}/health/live` and `{base}/version`, records **HTTP status** and **round-trip time**, fails the job on non-success or slow responses (configurable ceiling).
 3. **Interpretation:** Prometheus shows **aggregate** user traffic health; synthetic shows **reachability + minimal app stack** from outside. Divergence (e.g. synthetic green, burn red) often points to **specific routes**, **dependencies**, or **auth** issues—not the probe paths.
 
@@ -59,10 +59,10 @@ This document defines **customer-visible** HTTP objectives for the ArchLucid API
 |-----|--------|--------------------|----------------|----------------|
 | **Availability** | **99.5%** | 30 days rolling | Ratio of successful requests: **non-5xx** / **all** (server-side) | Prometheus recording rules; Grafana |
 | **Error rate** | ≤ **0.5%** 5xx (budget) | Same | 5xx count / all requests | Same |
-| **Latency** | **p95 under 2 s** for API requests (initial guardrail; tune per environment) | 5m (Prometheus) | Histogram `http.server.request.duration` p95 | `archiforge:slo:http_p95_seconds`; alert policy optional |
+| **Latency** | **p95 under 2 s** for API requests (initial guardrail; tune per environment) | 5m (Prometheus) | Histogram `http.server.request.duration` p95 | `archlucid:slo:http_p95_seconds`; alert policy optional |
 | **Synthetic reachability** | **100%** of scheduled runs succeed (both endpoints **HTTP 2xx**, latency under ceiling) | Per run | `GET /health/live` + `GET /version` | GitHub Actions workflow; job summary |
 
-**Note:** The **latency SLO** row is a **starting guardrail**; product owners should align it with pilot SLAs. Prometheus already records **p99** with `ArchiForgeSloHttpP99High` at 5s as a **warning**—adjust thresholds to match the table once agreed.
+**Note:** The **latency SLO** row is a **starting guardrail**; product owners should align it with pilot SLAs. Prometheus already records **p99** with `ArchLucidSloHttpP99High` at 5s as a **warning**—adjust thresholds to match the table once agreed.
 
 ### Rolling up synthetic results
 

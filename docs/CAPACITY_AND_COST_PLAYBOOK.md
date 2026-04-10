@@ -2,7 +2,7 @@
 
 ## 1. Objective
 
-Give operators a **first-principles** way to scale ArchLucid/ArchiForge and control **Azure spend** without over-provisioning from day one.
+Give operators a **first-principles** way to scale ArchLucid/ArchLucid and control **Azure spend** without over-provisioning from day one.
 
 ## 2. Assumptions
 
@@ -24,7 +24,7 @@ Give operators a **first-principles** way to scale ArchLucid/ArchiForge and cont
 |-------|--------------|------------------|
 | **Container Apps** | CPU throttling, revision restarts | Increase CPU/memory; split API vs Worker replicas; min replicas in prod. |
 | **SQL** | DTU/vCore maxed, long query store | Scale tier; index/outbox retention; archive cold runs. |
-| **Outboxes** | Gauges in `ArchiForge` meter | Add worker instances; fix poison messages; use admin DLQ tools. |
+| **Outboxes** | Gauges in `ArchLucid` meter | Add worker instances; fix poison messages; use admin DLQ tools. |
 | **LLM** | `archlucid_llm_*_tokens_total` | Cheaper deployment, caching, smaller prompts, quota per tenant. |
 | **Front Door / APIM** | 429/latency at edge | Caching rules, rate limits, regional PoPs. |
 

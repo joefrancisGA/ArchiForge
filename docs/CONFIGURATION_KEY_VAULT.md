@@ -4,13 +4,13 @@ Production and shared environments should **not** store SQL connection strings, 
 
 ## Pattern
 
-1. Create an Azure Key Vault and store each secret (e.g. `archiforge-sql-connection-string`, `archiforge-azure-openai-api-key`).
+1. Create an Azure Key Vault and store each secret (e.g. `archlucid-sql-connection-string`, `archlucid-azure-openai-api-key`).
 2. Grant the API’s managed identity **Get** permission on secrets.
 3. In **Azure App Service** → **Configuration** → **Application settings**, set each setting to a [Key Vault reference](https://learn.microsoft.com/azure/app-service/app-service-key-vault-references):
 
-   - `ConnectionStrings__ArchiForge` → `@Microsoft.KeyVault(VaultName=...;SecretName=archiforge-sql-connection-string)`
+   - `ConnectionStrings__ArchLucid` → `@Microsoft.KeyVault(VaultName=...;SecretName=archlucid-sql-connection-string)`
    - `AzureOpenAI__ApiKey` → `@Microsoft.KeyVault(...)`
-   - `Authentication__ApiKey__AdminKey` / `Authentication__ApiKey__ReadOnlyKey` → `@Microsoft.KeyVault(...)` (when `ArchiForgeAuth:Mode` is `ApiKey` and API key auth is enabled)
+   - `Authentication__ApiKey__AdminKey` / `Authentication__ApiKey__ReadOnlyKey` → `@Microsoft.KeyVault(...)` (when `ArchLucidAuth:Mode` is `ApiKey` and API key auth is enabled)
 
 Double underscores (`__`) map to nested JSON sections in ASP.NET Core configuration.
 

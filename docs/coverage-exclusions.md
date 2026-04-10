@@ -45,8 +45,8 @@ These classes open live SQL Server connections, execute `sp_set_session_context`
 | `SqlConnectionFactory` | Data | Opens `SqlConnection` via `IConfiguration` |
 | `RlsSessionContextApplicator` | Persistence | Executes `sp_set_session_context` via `SqlCommand` |
 | `SessionContextSqlConnectionFactory` | Persistence | Decorator over `ResilientSqlConnectionFactory` + RLS applicator |
-| `DapperArchiForgeUnitOfWork` | Persistence | Wraps `IDbConnection`/`IDbTransaction` commit/rollback |
-| `DapperArchiForgeUnitOfWorkFactory` | Persistence | Opens connection and begins transaction |
+| `DapperArchLucidUnitOfWork` | Persistence | Wraps `IDbConnection`/`IDbTransaction` commit/rollback |
+| `DapperArchLucidUnitOfWorkFactory` | Persistence | Opens connection and begins transaction |
 
 **Note:** `ResilientSqlConnectionFactory` is **not** excluded because its `ComputeDelay` method contains testable exponential-backoff logic.
 

@@ -25,7 +25,7 @@ Turn **58R product-learning aggregates** into **structured improvement themes** 
 
 ### Prompt 1 — persistence foundation
 
-- **DbUp** `032_ProductLearningPlanningBridge.sql` + **`ArchiForge.sql`** parity.
+- **DbUp** `032_ProductLearningPlanningBridge.sql` + **`ArchLucid.sql`** parity.
 - **Contracts** under `ArchLucid.Contracts/ProductLearning/Planning/`.
 - **Persistence:** `IProductLearningPlanningRepository`, `DapperProductLearningPlanningRepository`, `InMemoryProductLearningPlanningRepository`, validation + JSON helpers.
 - **DI:** registered in `ArchLucidStorageServiceCollectionExtensions` (scoped SQL / singleton in-memory).

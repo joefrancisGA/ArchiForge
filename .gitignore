@@ -63,6 +63,15 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
+# Local Docker publish diagnostics / R2R probes (not source; regenerate from Docker builds)
+_docker_publish_diag/
+_docker_publish_test/
+_docker_publish_worker/
+_docker_r2r_noflag/
+
+# Benchmark JSON outputs under repo root (regenerate with BenchmarkDotNet locally)
+artifacts-bench/results/
+
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 

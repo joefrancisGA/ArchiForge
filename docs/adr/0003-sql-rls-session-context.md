@@ -9,7 +9,7 @@ Multi-tenant data in SQL Server should be isolated even if application bugs omit
 
 ## Decision
 
-Deploy RLS policies with **`SqlServer:RowLevelSecurity:ApplySessionContext=true`** in **Production** when `ArchiForge:StorageProvider=Sql`. The applicator sets `SESSION_CONTEXT` keys for tenant/workspace/project per connection.
+Deploy RLS policies with **`SqlServer:RowLevelSecurity:ApplySessionContext=true`** in **Production** when `ArchLucid:StorageProvider=Sql`. The applicator sets `SESSION_CONTEXT` keys for tenant/workspace/project per connection.
 
 ## Consequences
 

@@ -1,6 +1,6 @@
 # Product learning (pilot feedback) — operator & product owner guide (58R)
 
-**Audience:** Operators and product / architecture owners reviewing how ArchiForge outputs are received in a pilot.
+**Audience:** Operators and product / architecture owners reviewing how ArchLucid outputs are received in a pilot.
 
 **Not the same as** **Learning** in the operator shell ([operator-shell.md](operator-shell.md)): that page is **recommendation learning** (advisory acceptance weights). **Pilot feedback** (this doc) is **cross-cutting judgment** on runs, manifests, and artifacts, stored per tenant/workspace/project.
 
@@ -9,7 +9,7 @@
 ## 1. How data is captured
 
 - Each **signal** is a **human judgment**: trust, reject, revise, follow-up, etc., plus **subject** (what was rated), optional **pattern key**, optional short **comment**, and optional link to an **architecture run**.
-- Rows are stored in **`ProductLearningPilotSignals`** (SQL when `ArchiForge:StorageProvider` is **`Sql`**). Scope is always **tenant + workspace + project** (same headers/claims as other operator APIs: `x-tenant-id`, `x-workspace-id`, `x-project-id`, or defaults in Development).
+- Rows are stored in **`ProductLearningPilotSignals`** (SQL when `ArchLucid:StorageProvider` is **`Sql`**). Scope is always **tenant + workspace + project** (same headers/claims as other operator APIs: `x-tenant-id`, `x-workspace-id`, `x-project-id`, or defaults in Development).
 - **Nothing in 58R auto-changes** prompts, rule packs, or agents from this data.
 - **Insert path today** is through **application integration** (code that uses the product-learning repository). The shipped API focuses on **read**, dashboard, and **export**; a first-party **HTTP POST** for pilots may arrive in a later change. Until then, empty dashboards simply mean **no rows in scope**.
 

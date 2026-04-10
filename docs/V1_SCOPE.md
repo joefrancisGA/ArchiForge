@@ -4,7 +4,7 @@
 
 **Status:** Contract for the current codebase and docs. It describes what is **implemented and supportable today**, not a roadmap of net-new capabilities.
 
-**Naming:** User-facing product name is **ArchLucid**. Application configuration uses **`ArchLucid*`** keys post–Phase 7; **historical** SQL migration filenames, some **RLS** object names, and **Terraform resource addresses** may still contain **`archiforge`** until follow-up work ([BREAKING_CHANGES.md](../BREAKING_CHANGES.md), [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)). See [GLOSSARY.md](GLOSSARY.md) and [README.md](../README.md).
+**Naming:** User-facing product name is **ArchLucid**. Application configuration uses **`ArchLucid*`** keys post–Phase 7; **historical** SQL migration filenames, some **RLS** object names, and **Terraform resource addresses** may still contain **`archlucid`** until follow-up work ([BREAKING_CHANGES.md](../BREAKING_CHANGES.md), [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)). See [GLOSSARY.md](GLOSSARY.md) and [README.md](../README.md).
 
 ---
 

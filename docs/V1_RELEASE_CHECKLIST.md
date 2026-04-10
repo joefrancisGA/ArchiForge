@@ -24,7 +24,7 @@
 - [ ] **Smoke with SQL** (when V1 includes Sql persistence): `release-smoke.ps1` with **`ARCHLUCID_SMOKE_SQL`** (or **`ConnectionStrings__ArchLucid`**) or `-SqlConnectionString` — see [RELEASE_SMOKE.md](RELEASE_SMOKE.md).
 - [ ] **RC drill** (staged/prod-like API URL): run **`v1-rc-drill.ps1`** against the candidate deployment or run the manual steps in [V1_RC_DRILL.md](V1_RC_DRILL.md) (two runs, compare, authority replay, export ZIP, support bundle).
 - [ ] **Package handoff** (if distributing bits): `package-release.ps1`; verify `artifacts/release/` contains **`metadata.json`**, **`PACKAGE-HANDOFF.txt`**, and checksums when required ([RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
-- [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchiForge`** or **`ArchLucid`** per bridge), **`ArchiForge:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchiForgeAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../README.md), [BUILD.md](BUILD.md)).
+- [ ] **Runtime config** documented for target environment: connection string key (**`ConnectionStrings:ArchLucid`** or **`ArchLucid`** per bridge), **`ArchLucid:StorageProvider`** / **`ArchLucid:StorageProvider`**, **`ArchLucidAuth`** / **`ArchLucidAuth`**, agent mode (**`AgentExecution:Mode`**) ([README.md](../README.md), [BUILD.md](BUILD.md)).
 - [ ] **Containers** (if used): image tags recorded; compose profile documented ([CONTAINERIZATION.md](CONTAINERIZATION.md)).
 - [ ] **Migrations:** DbUp applies cleanly on a fresh DB and on upgrade from **previous supported** schema ([SQL_SCRIPTS.md](SQL_SCRIPTS.md)).
 
@@ -69,7 +69,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 ## 6. Naming consistency
 
 - [ ] **User-facing** copy (UI, Swagger titles where customized, CLI operator strings) says **ArchLucid** where product-facing ([V1_SCOPE.md](V1_SCOPE.md) naming note).
-- [ ] **Legacy config keys** (`ArchiForge*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../README.md), [GLOSSARY.md](GLOSSARY.md)).
+- [ ] **Legacy config keys** (`ArchLucid*`, `ARCHIFORGE_*`) documented in runbook; **bridge** behavior verified if both old and new keys appear ([README.md](../README.md), [GLOSSARY.md](GLOSSARY.md)).
 - [ ] **Integration event type strings** — canonical vs legacy aliases understood if consumers exist ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 - [ ] **Image / container names** in deploy docs match what was actually pushed ([CONTAINERIZATION.md](CONTAINERIZATION.md), [RELEASE_LOCAL.md](RELEASE_LOCAL.md)).
 

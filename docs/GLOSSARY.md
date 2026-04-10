@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-04-05
 
-Short definitions for domain terms used across the codebase, docs, and runbooks. **ArchLucid** is the product name; legacy identifiers may still read **ArchiForge** in code and configuration (rename is incremental; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Deeper context is linked from each entry.
+Short definitions for domain terms used across the codebase, docs, and runbooks. **ArchLucid** is the product name; legacy identifiers may still read **ArchLucid** in code and configuration (rename is incremental; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Deeper context is linked from each entry.
 
 ---
 
@@ -80,8 +80,8 @@ The three-level hierarchical identifier that isolates data between customers and
 
 ## Storage provider
 
-**`ArchiForge:StorageProvider`** (`InMemory` / `Sql`). Switches the entire persistence graph between in-memory singletons (dev/test) and Dapper SQL repositories (production). See **ADR 0011** (`docs/adr/0011-inmemory-vs-sql-storage-provider.md`).
+**`ArchLucid:StorageProvider`** (`InMemory` / `Sql`). Switches the entire persistence graph between in-memory singletons (dev/test) and Dapper SQL repositories (production). See **ADR 0011** (`docs/adr/0011-inmemory-vs-sql-storage-provider.md`).
 
 ## Unit of work (UoW)
 
-**`IArchiForgeUnitOfWork`** — wraps a SQL connection + transaction. Repositories that implement `SupportsExternalTransaction` can enlist in the same transaction as the calling orchestrator, ensuring e.g. authority commit + outbox enqueue are atomic. Created by **`IArchLucidUnitOfWorkFactory`**.
+**`IArchLucidUnitOfWork`** — wraps a SQL connection + transaction. Repositories that implement `SupportsExternalTransaction` can enlist in the same transaction as the calling orchestrator, ensuring e.g. authority commit + outbox enqueue are atomic. Created by **`IArchLucidUnitOfWorkFactory`**.

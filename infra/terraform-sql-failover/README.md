@@ -5,7 +5,7 @@ Optional root that manages **`azurerm_mssql_failover_group`** so the **read/writ
 ## Objective
 
 - Encode **auto-failover group** settings (partner server, database membership, read/write policy) in Terraform.
-- Emit outputs suitable for **Key Vault / app settings** (`ConnectionStrings:ArchiForge`) so apps follow the **current primary** after failover.
+- Emit outputs suitable for **Key Vault / app settings** (`ConnectionStrings:ArchLucid`) so apps follow the **current primary** after failover.
 
 ## Assumptions
 
@@ -27,7 +27,7 @@ Optional root that manages **`azurerm_mssql_failover_group`** so the **read/writ
 | **Primary SQL server** | Hosts `azurerm_mssql_failover_group`; holds read/write endpoint until failover. |
 | **Partner SQL server** | Geo-secondary; replication target. |
 | **Failover group** | Logical listener + membership of replicated databases. |
-| **ArchiForge API** | Consumes **listener FQDN** in the connection string (edge from app to listener). |
+| **ArchLucid API** | Consumes **listener FQDN** in the connection string (edge from app to listener). |
 
 **Flow:** App → TLS to **listener FQDN** → current primary server; Azure moves the read/write endpoint on failover.
 

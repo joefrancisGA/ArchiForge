@@ -1,6 +1,6 @@
 # Deployment and rollback (umbrella)
 
-This document ties together how **ArchLucid** (product; repository and assemblies still use `ArchiForge.*` until rename Phase 5–6) is released, how database changes roll forward, and where to find deeper procedures. It is aimed at operators and release managers, not at local `docker compose`-only workflows (see **`docs/BUILD.md`** and **`docs/CONTAINERIZATION.md`**).
+This document ties together how **ArchLucid** (product; repository and assemblies still use `ArchLucid.*` until rename Phase 5–6) is released, how database changes roll forward, and where to find deeper procedures. It is aimed at operators and release managers, not at local `docker compose`-only workflows (see **`docs/BUILD.md`** and **`docs/CONTAINERIZATION.md`**).
 
 **New to the repo?** Phased checklist from laptop to Azure: **`docs/GOLDEN_PATH.md`**.
 
@@ -11,7 +11,7 @@ This document ties together how **ArchLucid** (product; repository and assemblie
 
 ## Assumptions
 
-- Production uses **`ArchiForge:StorageProvider=Sql`** (see [ADR 0011 — InMemory vs Sql](adr/0011-inmemory-vs-sql-storage-provider.md)).
+- Production uses **`ArchLucid:StorageProvider=Sql`** (see [ADR 0011 — InMemory vs Sql](adr/0011-inmemory-vs-sql-storage-provider.md)).
 - SQL is reachable only from **private network paths** (private endpoint / VNet integration), not from the public internet.
 - Optional components (Redis, Azure AI Search, etc.) follow the same “config-gated” pattern as in **`infra/`** Terraform roots.
 

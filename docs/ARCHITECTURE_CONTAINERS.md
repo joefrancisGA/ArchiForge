@@ -1,6 +1,6 @@
 ## ArchLucid architecture (Containers)
 
-**Product name:** **ArchLucid**. **`ArchiForge.*`** below refers to deployable projects and libraries until the bulk rename phases in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
+**Product name:** **ArchLucid**. **`ArchLucid.*`** below refers to deployable projects and libraries until the bulk rename phases in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.
 
 This is a pragmatic C4 “containers” view: **deployable processes** and major libraries, with their responsibilities and relationships.
 

@@ -1,6 +1,6 @@
 # Infrastructure (Terraform)
 
-ArchiForge splits Azure infrastructure into **optional Terraform roots** so local and laptop workflows stay default-off. Each root has its own `README.md`, `terraform.tfvars.example`, and `.terraform.lock.hcl`.
+ArchLucid splits Azure infrastructure into **optional Terraform roots** so local and laptop workflows stay default-off. Each root has its own `README.md`, `terraform.tfvars.example`, and `.terraform.lock.hcl`.
 
 **First-time path:** **`docs/GOLDEN_PATH.md`** (Phase 3 Azure + **advanced appendix** for optional roots like edge, failover group, APIM).
 
@@ -18,8 +18,8 @@ ArchiForge splits Azure infrastructure into **optional Terraform roots** so loca
 ## Suggested order
 
 1. If using **Container Apps** with large-payload offload, apply **`terraform-storage/`** first (or have a storage account + containers), then **`terraform-container-apps/`** (it requires **`artifact_blob_service_uri`** / **`artifact_storage_account_id`** when **`enable_container_apps = true`**). Otherwise deploy compute and data (your landing zone, **`terraform-container-apps/`**, or App Service — your choice).
-2. Optionally apply **`terraform-private/`** before cutting over connection strings and disabling public SQL/storage access. If you use a **failover group listener**, optionally apply **`terraform-sql-failover/`** when servers and geo databases exist, then point **`ConnectionStrings:ArchiForge`** at **`read_write_listener_fqdn`** (see **`docs/runbooks/DATABASE_FAILOVER.md`**).
-3. Optionally apply **`terraform-entra/`**, then configure the API with **`ArchiForgeAuth:Mode = JwtBearer`** (see **`ArchLucid.Api/appsettings.Entra.sample.json`**).
+2. Optionally apply **`terraform-private/`** before cutting over connection strings and disabling public SQL/storage access. If you use a **failover group listener**, optionally apply **`terraform-sql-failover/`** when servers and geo databases exist, then point **`ConnectionStrings:ArchLucid`** at **`read_write_listener_fqdn`** (see **`docs/runbooks/DATABASE_FAILOVER.md`**).
+3. Optionally apply **`terraform-entra/`**, then configure the API with **`ArchLucidAuth:Mode = JwtBearer`** (see **`ArchLucid.Api/appsettings.Entra.sample.json`**).
 4. Optionally apply **`terraform-edge/`** and route customer traffic to the Front Door hostname.
 
 Customer-facing narrative: **`docs/CUSTOMER_TRUST_AND_ACCESS.md`**.

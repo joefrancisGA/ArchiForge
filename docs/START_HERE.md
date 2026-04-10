@@ -1,6 +1,6 @@
 # Start here — ArchLucid for new contributors
 
-**Shipped product name:** **ArchLucid** (repository folders and some .NET assemblies may still say **ArchiForge** during rename — see [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)).
+**Shipped product name:** **ArchLucid** (repository folders and some .NET assemblies may still say **ArchLucid** during rename — see [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)).
 
 Use **this page** as the single front door. It orients you in a few minutes, then points to role-specific checklists and deeper architecture docs.
 
@@ -98,7 +98,7 @@ Request and domain logic flow **inward** through contracts, then **out** through
 |------|-------------------|
 | **Restore + build** | `dotnet restore` then `dotnet build` at repo root — [BUILD.md](BUILD.md), [CONTRIBUTOR_ONBOARDING.md](CONTRIBUTOR_ONBOARDING.md) |
 | **Tests (fast core, CI-like)** | `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` — [TEST_STRUCTURE.md](TEST_STRUCTURE.md) |
-| **Run API locally** | Configure user secrets / `ConnectionStrings:ArchiForge`, then `dotnet run --project ArchLucid.Api` — root [README.md](../README.md#secrets-development) |
+| **Run API locally** | Configure user secrets / `ConnectionStrings:ArchLucid`, then `dotnet run --project ArchLucid.Api` — root [README.md](../README.md#secrets-development) |
 | **SQL + sidecars in Docker** | `dotnet run --project ArchLucid.Cli -- dev up` or `docker compose up -d` — [CONTAINERIZATION.md](CONTAINERIZATION.md) |
 | **Full .NET regression + SQL** | `scripts/run-full-regression-docker-sql.ps1` or `.sh` — [BUILD.md](BUILD.md) |
 | **API + Worker in containers** | `docker compose --profile full-stack up -d --build` — [CONTAINERIZATION.md](CONTAINERIZATION.md) |

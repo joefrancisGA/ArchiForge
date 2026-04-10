@@ -1,4 +1,4 @@
-# ADR 0011: `ArchiForge:StorageProvider` — InMemory vs Sql
+# ADR 0011: `ArchLucid:StorageProvider` — InMemory vs Sql
 
 - **Status:** Accepted
 - **Date:** 2026-04-04
@@ -14,13 +14,13 @@ A single configuration switch avoids duplicating entire host graphs.
 
 ## Decision
 
-Use **`ArchiForge:StorageProvider`** with supported values:
+Use **`ArchLucid:StorageProvider`** with supported values:
 
 - **`InMemory`** — singleton in-memory repositories for components bound to this option (see **`AddArchLucidStorage`**, **`RegisterCoordinatorDecisionEngineAndRepositories`**, **`RegisterComparisonReplayAndDrift`**, **`RegisterRunExportAndArchitectureAnalysis`**, **`RegisterGovernance`**). Suitable for development and automated tests; data is not durable and is shared per process for singleton stores.
 
 - **`Sql`** (default) — Dapper repositories with scoped lifetimes where appropriate, `IDbConnectionFactory` / SQL connection stack from **`AddArchLucidStorage`** and API data infrastructure.
 
-Governance repositories (**`IGovernanceApprovalRequestRepository`**, **`IGovernancePromotionRecordRepository`**, **`IGovernanceEnvironmentActivationRepository`**) follow the **same** `ArchiForge:StorageProvider` flag: InMemory registrations are **singleton**; Sql registrations remain **scoped** alongside **`IGovernanceWorkflowService`**.
+Governance repositories (**`IGovernanceApprovalRequestRepository`**, **`IGovernancePromotionRecordRepository`**, **`IGovernanceEnvironmentActivationRepository`**) follow the **same** `ArchLucid:StorageProvider` flag: InMemory registrations are **singleton**; Sql registrations remain **scoped** alongside **`IGovernanceWorkflowService`**.
 
 ## Consequences
 

@@ -3,11 +3,11 @@
 
 enable_sql_failover_group = false
 
-# failover_group_name     = "archiforge-prod-sqlfg"
+# failover_group_name     = "archlucid-prod-sqlfg"
 # primary_sql_server_resource_id   = "/subscriptions/.../resourceGroups/rg-primary/providers/Microsoft.Sql/servers/sql-primary"
 # partner_sql_server_resource_id   = "/subscriptions/.../resourceGroups/rg-secondary/providers/Microsoft.Sql/servers/sql-secondary"
 # database_resource_ids = [
-#   "/subscriptions/.../resourceGroups/rg-primary/providers/Microsoft.Sql/servers/sql-primary/databases/ArchiForge",
+#   "/subscriptions/.../resourceGroups/rg-primary/providers/Microsoft.Sql/servers/sql-primary/databases/ArchLucid",
 # ]
 
 # read_write_failover_mode         = "Automatic"

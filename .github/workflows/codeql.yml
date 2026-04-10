@@ -12,7 +12,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Operator UI package directory (renamed from archiforge-ui — keep CodeQL source-root in sync).
+  # Operator UI package directory (`archlucid-ui/`; keep CodeQL source-root in sync with CI).
   ARCHLUCID_UI_DIR: archlucid-ui
 
 concurrency:

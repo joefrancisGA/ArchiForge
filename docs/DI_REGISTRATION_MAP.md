@@ -26,12 +26,12 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 
 1. `IDemoSeedService`
 2. **`AddArchLucidFeatureManagement`** → `FeatureManagement` section
-3. **`AddArchLucidStorage`** → **`ArchiForge:StorageProvider`** (`Sql` vs `InMemory`) — see below (Phase 7: prefer **`ArchLucid:StorageProvider`** when bridges are removed)
+3. **`AddArchLucidStorage`** → **`ArchLucid:StorageProvider`** (`Sql` vs `InMemory`) — see below (Phase 7: prefer **`ArchLucid:StorageProvider`** when bridges are removed)
 4. **`RegisterAdvisoryScheduling`** — **role:** `Combined` \| `Worker` → `AdvisoryScanHostedService`
 5. **`RegisterDigestDelivery`** → `WebhookDelivery` (+ HTTP client named **`ArchLucidWebhooks`**)
 6. **`RegisterIntegrationEventPublishing`** → `IntegrationEvents` / Service Bus publisher (or null publisher when unset)
 7. **`RegisterAlerts`** — evaluators, channels, dispatcher, `IAlertService`
-8. **`RegisterDataInfrastructure`** — only when **`ArchiForge:StorageProvider=InMemory`**: registers `IDbConnectionFactory` → `SqlConnectionFactory` (test/local SQL helpers)
+8. **`RegisterDataInfrastructure`** — only when **`ArchLucid:StorageProvider=InMemory`**: registers `IDbConnectionFactory` → `SqlConnectionFactory` (test/local SQL helpers)
 9. **`RegisterBackgroundJobs`** → **`BackgroundJobs`** (`Mode`: `Durable` vs in-memory); **role** gates queue processor vs API queue sender — see below
 10. **`RegisterRunExportAndArchitectureAnalysis`** — gated **`IRunExportRecordRepository`** by `StorageProvider`
 11. **`RegisterComparisonReplayAndDrift`** → `ReplayDiagnostics`
@@ -41,7 +41,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**
 16. **`RegisterArtifactSynthesis`**
 17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
-18. **`RegisterGovernance`** → **`ArchiForge:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
+18. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
 19. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
 20. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
 21. **`RegisterIntegrationEventOutbox`** — **role:** `Combined` \| `Worker` → `IntegrationEventOutboxHostedService`
@@ -52,7 +52,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 
 ## `AddArchLucidStorage` (`ArchLucidStorageServiceCollectionExtensions`)
 
-**Gate:** `ArchiForge:StorageProvider` (Phase 7: **`ArchLucid:StorageProvider`**)
+**Gate:** `ArchLucid:StorageProvider` (Phase 7: **`ArchLucid:StorageProvider`**)
 
 ### `InMemory`
 
@@ -64,13 +64,13 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 
 ### `Sql` (default production shape)
 
-- **`ConnectionStrings:ArchLucid`** required (legacy fallback: **`ConnectionStrings:ArchiForge`**)
+- **`ConnectionStrings:ArchLucid`** required (legacy fallback: **`ConnectionStrings:ArchLucid`**)
 - **`SqlServer`** section — RLS session context, read-replica routing (`ReadReplicaRoutedConnectionFactory` for list/governance/manifest lookup routes)
 - **`ISqlConnectionFactory`** — resilient open + optional `SessionContextSqlConnectionFactory`
 - Dapper/SQL implementations for the same repository surface as InMemory
 - **`IAsyncAuthorityPipelineModeResolver`** → `FeatureManagementAuthorityPipelineModeResolver` (coordinates with **`FeatureManagement`**)
 - **`IData.Infrastructure.IDbConnectionFactory`** → `SqlScopedResolutionDbConnectionFactory` (scoped resolution for legacy Data access)
-- Schema bootstrap via `ISqlConnectionFactory` + embedded **`ArchiForge.sql`** (Phase 7: rename script coordinated with deploy)
+- Schema bootstrap via `ISqlConnectionFactory` + embedded **`ArchLucid.sql`** (Phase 7: rename script coordinated with deploy)
 - **`ArtifactLargePayload`**, **`HotPathCache`**, LLM completion cache options as applicable
 
 ---
@@ -104,7 +104,7 @@ Related options: `AgentPromptCatalog`, `LlmTokenQuota`, `LlmTelemetry`.
 
 ## `RegisterGovernance`
 
-**Gate:** `ArchiForge:StorageProvider=InMemory` → singleton in-memory governance repos; else scoped Dapper repos.
+**Gate:** `ArchLucid:StorageProvider=InMemory` → singleton in-memory governance repos; else scoped Dapper repos.
 
 Always: `IGovernanceWorkflowService` scoped.
 

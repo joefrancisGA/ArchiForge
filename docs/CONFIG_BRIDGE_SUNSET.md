@@ -2,13 +2,13 @@
 
 ## Status
 
-**Phase 7 (2026-04-08):** Dual-read configuration bridges for legacy `ArchiForge*` product sections, `ArchiForgeAuth`, `ConnectionStrings:ArchiForge`, CLI/UI `ARCHIFORGE_*` environment variables, and OIDC `archiforge_oidc_*` session keys have been **removed** from application code.
+**Phase 7 (2026-04-08):** Dual-read configuration bridges that merged **historic** keys (see **`BREAKING_CHANGES.md`**) have been **removed** from application code. Only **`ArchLucid*`**, **`ArchLucidAuth*`**, **`ConnectionStrings:ArchLucid`**, **`ARCHLUCID_*`**, and **`NEXT_PUBLIC_ARCHLUCID_*`** are read; obsolete keys/env names surface **warnings** only.
 
 ## Operator impact
 
 - **API / Worker:** Only **`ConnectionStrings:ArchLucid`**, **`ArchLucid:*`**, and **`ArchLucidAuth:*`** are honored. If legacy keys are still present in configuration (for example Key Vault secret names mapped to old keys), **`ArchLucidLegacyConfigurationWarnings`** logs a **single warning** at startup listing which legacy keys were detected; those values are **not** applied.
 - **CLI:** Global tool command is **`archlucid`**; project manifest file is **`archlucid.json`** (with a one-time stderr notice if only the legacy manifest filename exists).
-- **Operator UI:** Only **`ARCHLUCID_*`** / **`NEXT_PUBLIC_ARCHLUCID_*`** are read; legacy **`ARCHIFORGE_*`** env vars trigger a **console warning** and are ignored.
+- **Operator UI:** Only **`ARCHLUCID_*`** / **`NEXT_PUBLIC_ARCHLUCID_*`** are read; obsolete operator env names trigger a **console warning** and are ignored (see **`BREAKING_CHANGES.md`**).
 
 ## Historical context
 

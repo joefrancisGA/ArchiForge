@@ -75,7 +75,7 @@ sequenceDiagram
 
 ## Feature flags (Microsoft.FeatureManagement)
 
-Section `FeatureManagement:FeatureFlags` in configuration. Used for gradual rollout of authority pipeline behavior. See `AuthorityPipeline:QueueContextAndGraph` and related options under `ArchiForge:AuthorityPipeline`.
+Section `FeatureManagement:FeatureFlags` in configuration. Used for gradual rollout of authority pipeline behavior. See `AuthorityPipeline:QueueContextAndGraph` and related options under `ArchLucid:AuthorityPipeline`.
 
 ---
 

@@ -1,8 +1,8 @@
 ## ArchLucid data model (pragmatic)
 
-This document summarizes the persisted data model used by ArchiForge. It is based on the migration scripts in `ArchLucid.Persistence/Migrations/*` and the `ArchLucid.Contracts.Metadata` records.
+This document summarizes the persisted data model used by ArchLucid. It is based on the migration scripts in `ArchLucid.Persistence/Migrations/*` and the `ArchLucid.Contracts.Metadata` records.
 
-**SQL mechanics (how scripts run, idempotency, change workflow):** see **[SQL_SCRIPTS.md](SQL_SCRIPTS.md)** — canonical reference for `ArchiForge.sql`, DbUp migrations, and Persistence bootstrap.
+**SQL mechanics (how scripts run, idempotency, change workflow):** see **[SQL_SCRIPTS.md](SQL_SCRIPTS.md)** — canonical reference for `ArchLucid.sql`, DbUp migrations, and Persistence bootstrap.
 
 ---
 
@@ -70,9 +70,9 @@ This document summarizes the persisted data model used by ArchiForge. It is base
 
 ---
 
-### Authority chain / context & graph (`ArchLucid.Persistence/Scripts/ArchiForge.sql`)
+### Authority chain / context & graph (`ArchLucid.Persistence/Scripts/ArchLucid.sql`)
 
-These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchLucid.Persistence.Data.*` API schema. The same DDL is applied at runtime via `Scripts/ArchiForge.sql` (linked from `ArchLucid.Persistence/Scripts/ArchiForge.sql` in the Persistence build output).
+These tables support the persisted authority pipeline (context → graph → findings → decisions → artifacts). They complement the legacy `ArchLucid.Persistence.Data.*` API schema. The same DDL is applied at runtime via `Scripts/ArchLucid.sql` (linked from `ArchLucid.Persistence/Scripts/ArchLucid.sql` in the Persistence build output).
 
 #### `ContextSnapshots`
 
@@ -84,7 +84,7 @@ These tables support the persisted authority pipeline (context → graph → fin
 
 #### `GraphSnapshots`, `FindingsSnapshots`, …
 
-Linked to runs and context snapshots; see the authority section in `ArchLucid.Persistence/Scripts/ArchiForge.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
+Linked to runs and context snapshots; see the authority section in `ArchLucid.Persistence/Scripts/ArchLucid.sql` for full DDL. **Graph** node/edge JSON and semantics: **`docs/KNOWLEDGE_GRAPH.md`**.
 
 ---
 

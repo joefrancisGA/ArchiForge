@@ -5,7 +5,7 @@
 
 ## Context
 
-ArchiForge runs HTTP APIs, background jobs (advisory, outbox, durable exports), and optional combined dev hosts. Operators need clear deployment units.
+ArchLucid runs HTTP APIs, background jobs (advisory, outbox, durable exports), and optional combined dev hosts. Operators need clear deployment units.
 
 ## Decision
 

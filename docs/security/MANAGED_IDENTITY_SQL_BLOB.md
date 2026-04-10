@@ -7,7 +7,7 @@ Give operators a **repeatable pattern** for connecting the API to **Azure SQL** 
 ## 2. Assumptions
 
 - The API runs on Azure with a **user-assigned or system-assigned managed identity**.
-- SQL is **Azure SQL**; storage is **Azure Storage** with blob containers used by ArchiForge features that target blob.
+- SQL is **Azure SQL**; storage is **Azure Storage** with blob containers used by ArchLucid features that target blob.
 - Network path uses **private endpoints** where required by policy (see `infra/terraform-private/`).
 
 ## 3. Constraints
@@ -54,7 +54,7 @@ Give operators a **repeatable pattern** for connecting the API to **Azure SQL** 
 
 Use the pattern recommended for your driver version, for example:
 
-`Server=tcp:your-server.database.windows.net,1433;Database=ArchiForge;Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False`
+`Server=tcp:your-server.database.windows.net,1433;Database=ArchLucid;Authentication=Active Directory Default;Encrypt=True;TrustServerCertificate=False`
 
 Adjust to `Active Directory Managed Identity` with `User Id` / client id when using a **user-assigned** identity, per Microsoft documentation for `Microsoft.Data.SqlClient`.
 

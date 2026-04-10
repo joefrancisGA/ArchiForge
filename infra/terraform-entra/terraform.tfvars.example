@@ -1,7 +1,7 @@
 enable_entra_api_app = true
 
-api_application_display_name = "ArchiForge API (Production)"
+api_application_display_name = "ArchLucid API (Production)"
 # Must be unique in the tenant — include customer name or environment.
-api_identifier_uri = "api://archiforge-api-contoso-prod"
+api_identifier_uri = "api://archlucid-api-contoso-prod"
 
 expose_roles_in_tokens = true

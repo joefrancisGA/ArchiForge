@@ -1,6 +1,6 @@
 # Customer trust and access
 
-This document explains how ArchiForge balances **ease of use** (simple URLs, standard Microsoft sign-in, clear operator flows) with **data safety** (private connectivity, edge protection, identity-backed access). It ties together optional Terraform roots under **`infra/`** and API configuration.
+This document explains how ArchLucid balances **ease of use** (simple URLs, standard Microsoft sign-in, clear operator flows) with **data safety** (private connectivity, edge protection, identity-backed access). It ties together optional Terraform roots under **`infra/`** and API configuration.
 
 ---
 
@@ -43,7 +43,7 @@ This document explains how ArchiForge balances **ease of use** (simple URLs, sta
 | API Management | `infra/terraform/` | Optional Consumption gateway in front of the API. |
 | Private endpoints | `infra/terraform-private/` | VNet, `privatelink.database.windows.net`, `privatelink.blob.core.windows.net`, endpoints for SQL and blob. |
 | Entra app + roles | `infra/terraform-entra/` | App registration, **Admin / Operator / Reader** roles, identifier URI for **audience**. |
-| JWT + API key auth | `ArchLucid.Api` | **`ArchiForgeAuth`** section; **`appsettings.Entra.sample.json`** for Entra mode. |
+| JWT + API key auth | `ArchLucid.Api` | **`ArchLucidAuth`** section; **`appsettings.Entra.sample.json`** for Entra mode. |
 
 ---
 
@@ -51,7 +51,7 @@ This document explains how ArchiForge balances **ease of use** (simple URLs, sta
 
 1. **Inbound request:** Client calls the public hostname (**Front Door** or **APIM** or direct API). **WAF** inspects the request when Front Door is enabled.
 2. **Authentication:** With **JwtBearer**, the API validates the token (issuer, audience, **`roles`** claim). With **ApiKey**, keys are compared server-side (see **`Authentication:ApiKey`**).
-3. **Data access:** The API uses **`ConnectionStrings:ArchiForge`** and storage configuration. With private endpoints and VNet-integrated compute, SQL and blob hostnames resolve to **private IPs** inside Azure.
+3. **Data access:** The API uses **`ConnectionStrings:ArchLucid`** and storage configuration. With private endpoints and VNet-integrated compute, SQL and blob hostnames resolve to **private IPs** inside Azure.
 
 ```mermaid
 flowchart LR
@@ -80,7 +80,7 @@ flowchart LR
 
 - **Correlation:** Send **`X-Correlation-ID`** from clients; it flows through Front Door and the API for support and incident alignment.
 - **Cutover:** Apply private endpoints, validate connectivity from integrated compute, then **disable public** SQL/storage access per runbook.
-- **Entra:** After Terraform registers the API app, assign roles to users or service principals; update **`ArchiForgeAuth`** and redeploy the API.
-- **Backlog:** Optional **AI Search** private endpoints remain a future enhancement. OpenAPI **`securitySchemes`** for Entra is implemented when **`ArchiForgeAuth:Mode`** is **`JwtBearer`** (see **`docs/API_CONTRACTS.md`**).
+- **Entra:** After Terraform registers the API app, assign roles to users or service principals; update **`ArchLucidAuth`** and redeploy the API.
+- **Backlog:** Optional **AI Search** private endpoints remain a future enhancement. OpenAPI **`securitySchemes`** for Entra is implemented when **`ArchLucidAuth:Mode`** is **`JwtBearer`** (see **`docs/API_CONTRACTS.md`**).
 
 For variable-level checklists, see **`docs/terraform-azure-variables.md`**.

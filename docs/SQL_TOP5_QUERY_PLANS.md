@@ -2,7 +2,7 @@
 
 ## Objective
 
-Document the **five highest-churn read SQL shapes** used on hot API paths (authority lists, governance resolution, manifest materialization), with **how to capture real execution plans** in Azure SQL and **expected plan shapes** from the current schema in `ArchLucid.Persistence/Scripts/ArchiForge.sql`.
+Document the **five highest-churn read SQL shapes** used on hot API paths (authority lists, governance resolution, manifest materialization), with **how to capture real execution plans** in Azure SQL and **expected plan shapes** from the current schema in `ArchLucid.Persistence/Scripts/ArchLucid.sql`.
 
 ## Assumptions
 

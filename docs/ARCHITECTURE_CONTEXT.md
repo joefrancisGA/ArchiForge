@@ -1,6 +1,6 @@
 ## ArchLucid architecture (Context)
 
-**Product name:** **ArchLucid**. Legacy identifiers may still read **ArchiForge** in code and configuration (incremental rename; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Project and namespace names below use **`ArchiForge.*`** until Phase 5–6 of that checklist.
+**Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist.
 
 ### Purpose
 
@@ -52,14 +52,14 @@ This document is written for **internal engineers** and is intentionally pragmat
 
 - **Database**
   - SQL Server in production, dev, and **ArchLucid.Api.Tests** integration tests (per-test databases; **DbUp** on host startup).
-  - Migrations are applied with DbUp when `ConnectionStrings:ArchiForge` is set.
+  - Migrations are applied with DbUp when `ConnectionStrings:ArchLucid` is set.
 
 - **Azure OpenAI (optional)**
   - Used when `AgentExecution:Mode` is not `Simulator`.
   - In simulator mode, the system uses deterministic fake agent outputs for repeatable testing.
 
 - **Local dev dependencies (optional)**
-  - Docker compose for SQL Server / Azurite / Redis (`archiforge dev up`)
+  - Docker compose for SQL Server / Azurite / Redis (`archlucid dev up`)
 
 ---
 

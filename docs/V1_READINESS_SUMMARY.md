@@ -30,7 +30,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 
 | Item | Why / pointer |
 |------|----------------|
-| **Terraform `state mv`** (Phase **7.5**) | Resource **addresses** may still contain `archiforge`; human-facing defaults moved where safe—coordinate with deploy window ([ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)). |
+| **Terraform `state mv`** (Phase **7.5**) | Resource **addresses** may still contain `archlucid`; human-facing defaults moved where safe—coordinate with deploy window ([ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)). |
 | **GitHub repo rename, Entra apps, workspace path** (Phase **7.6–7.8**) | External / org coordination; checklist marks **deferred**. |
 | **Product-learning “brains”** | Storage/API exist; deterministic theme derivation and plan-draft builder called out as deferred ([V1_DEFERRED.md](V1_DEFERRED.md) §1). |
 | **Full audit parity** | Some mutating flows do not emit `dbo.AuditEvents`; documented as **known gaps** ([AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md), [V1_DEFERRED.md](V1_DEFERRED.md) §2). |

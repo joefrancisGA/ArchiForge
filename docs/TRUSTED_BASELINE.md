@@ -5,13 +5,13 @@ This document defines what the repo treats as **intentionally complete and demo-
 ## Corrected 51R — actor, auth, mutation audit (baseline only)
 
 - **Actor resolution:** Application code resolves the acting principal via **`IActorContext`** (namespace **`ArchLucid.Application`**, source under `ArchLucid.Application/Common/`), backed by **`IHttpContextAccessor`**. When no identity name is present, the fallback is the non-empty string **`api-user`** (not an empty string). Baseline services should use **`IActorContext`** instead of reading **`HttpContext.User`** directly.
-- **Auth on baseline controllers:** **`RunsController`**, **`GovernanceController`**, and **`RunComparisonController`** use the existing **`ReadAuthority`** / **`ExecuteAuthority`** policy split consistent with **`ArchiForgePolicies`**. Controllers outside this set may still differ until intentionally aligned.
+- **Auth on baseline controllers:** **`RunsController`**, **`GovernanceController`**, and **`RunComparisonController`** use the existing **`ReadAuthority`** / **`ExecuteAuthority`** policy split consistent with **`ArchLucidPolicies`**. Controllers outside this set may still differ until intentionally aligned.
 - **Mutation audit (logging, not SQL `AuditEvents`):** Successful and failed **trusted baseline mutations** emit structured **`ILogger`** lines via **`IBaselineMutationAuditService`** / **`BaselineMutationAuditService`**. This is separate from **`ArchLucid.Core.Audit.IAuditService`**, which persists to the database for other scenarios. Event type strings live in **`AuditEventTypes`** (e.g. **`Architecture.RunStarted`**, **`Architecture.RunCompleted`**, **`Governance.ManifestPromoted`**). Failed or blocked operations must not log a **success** event; blocked commits and merge failures emit **`Architecture.RunFailed`** with a short reason.
 
 ## What is trusted (Category A)
 
-- **Startup:** `Program.cs` — config load, optional `ISchemaBootstrapper` when `ArchiForge:StorageProvider` = `Sql`, **DbUp** over embedded `ArchLucid.Persistence/Migrations/*.sql`, optional demo seed, then the HTTP pipeline.
-- **DbUp:** `ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs` — applies embedded **`ArchLucid.Persistence/Migrations/*.sql`** when `ConnectionStrings:ArchiForge` is set, with deterministic `NNN_Name.sql` ordering.
+- **Startup:** `Program.cs` — config load, optional `ISchemaBootstrapper` when `ArchLucid:StorageProvider` = `Sql`, **DbUp** over embedded `ArchLucid.Persistence/Migrations/*.sql`, optional demo seed, then the HTTP pipeline.
+- **DbUp:** `ArchLucid.Persistence/Data/Infrastructure/DatabaseMigrator.cs` — applies embedded **`ArchLucid.Persistence/Migrations/*.sql`** when `ConnectionStrings:ArchLucid` is set, with deterministic `NNN_Name.sql` ordering.
 - **Canonical run detail:** `IRunDetailQueryService` / `RunDetailQueryService` — single aggregate for run, tasks, results, manifest, traces.
 - **Compare (trusted):** Manifest compare by version (`ManifestsController`), agent result compare between runs (`RunComparisonController` + `IAgentResultDiffService`).
 - **Governance workflow (trusted for demo):** Tables from `017_GovernanceWorkflow.sql`; seed creates approval, promotion, environment activations used by **governance preview** (`IGovernancePreviewService`).
@@ -32,7 +32,7 @@ This document defines what the repo treats as **intentionally complete and demo-
 
 ## Proof checklist (local)
 
-1. Configure `ConnectionStrings:ArchiForge` (SQL Server) and `ArchiForge:StorageProvider` = `Sql` if using the full SQL stack.
+1. Configure `ConnectionStrings:ArchLucid` (SQL Server) and `ArchLucid:StorageProvider` = `Sql` if using the full SQL stack.
 2. Start API → logs show schema bootstrap (if applicable), DbUp, optional demo seed.
 3. `GET /health` → healthy.
 4. `GET /v1/architecture/run/run-baseline-demo` (with auth) → 200 with manifest.

@@ -1,10 +1,10 @@
 # ArchLucid.Host.Composition
 
-**Dependency-injection registration** for ArchiForge (storage, agents, scheduling, health checks, hosted services). Extracted from `ArchLucid.Host.Core` so the host assembly stays focused on HTTP/worker pipeline, middleware, Serilog, and OpenTelemetry wiring.
+**Dependency-injection registration** for ArchLucid (storage, agents, scheduling, health checks, hosted services). Extracted from `ArchLucid.Host.Core` so the host assembly stays focused on HTTP/worker pipeline, middleware, Serilog, and OpenTelemetry wiring.
 
 ## Consumers
 
-- `ArchLucid.Api` — calls `AddArchiForgeApplicationServices` after auth/OpenTelemetry registration.
+- `ArchLucid.Api` — calls `AddArchLucidApplicationServices` after auth/OpenTelemetry registration.
 - `ArchLucid.Worker` — same for the worker role.
 
 ## Relationship
@@ -14,5 +14,5 @@
 
 ## Extension entry point
 
-- `ServiceCollectionExtensions.AddArchiForgeApplicationServices(...)` in namespace `ArchLucid.Host.Composition`.
-- `ArchiForgeStorageServiceCollectionExtensions.AddArchiForgeStorage(...)` in the same namespace.
+- `ServiceCollectionExtensions.AddArchLucidApplicationServices(...)` in namespace `ArchLucid.Host.Composition`.
+- `ArchLucidStorageServiceCollectionExtensions.AddArchLucidStorage(...)` in the same namespace.

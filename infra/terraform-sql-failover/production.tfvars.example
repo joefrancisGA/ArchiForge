@@ -9,7 +9,7 @@ primary_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-
 partner_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-secondary/providers/Microsoft.Sql/servers/sql-secondary"
 
 database_resource_ids = [
-  "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary/providers/Microsoft.Sql/servers/sql-primary/databases/ArchiForge",
+  "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary/providers/Microsoft.Sql/servers/sql-primary/databases/ArchLucid",
 ]
 
 read_write_failover_mode             = "Automatic"

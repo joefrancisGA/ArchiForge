@@ -2,7 +2,7 @@
 
 ## 1. Objective
 
-Give operators and engineers a **first-principles frame** for what might constitute **personally identifiable information (PII)** in ArchiForge **conversation / Ask** artifacts, how long to keep them, and how to reduce risk without blocking product value.
+Give operators and engineers a **first-principles frame** for what might constitute **personally identifiable information (PII)** in ArchLucid **conversation / Ask** artifacts, how long to keep them, and how to reduce risk without blocking product value.
 
 ## 2. Assumptions
 

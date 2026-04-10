@@ -10,7 +10,7 @@ Optional Terraform root for **private data-plane** connectivity: VNet, **private
 ## What you must do after apply
 
 1. **Disable public network access** on the SQL server and storage account (or restrict with firewall rules) so data is not still reachable publicly — Terraform here does not flip those flags by design (avoid locking you out mid-migration).
-2. Update **`ConnectionStrings:ArchiForge`** to use the **same server FQDN**; with private DNS linked to the VNet, `*.database.windows.net` resolves to the private IP inside the VNet.
+2. Update **`ConnectionStrings:ArchLucid`** to use the **same server FQDN**; with private DNS linked to the VNet, `*.database.windows.net` resolves to the private IP inside the VNet.
 3. Integrate **compute** (App Service, Container Apps, AKS) with this VNet (**VNet integration** or subnet injection) so the API resolves private DNS.
 
 ## Variables

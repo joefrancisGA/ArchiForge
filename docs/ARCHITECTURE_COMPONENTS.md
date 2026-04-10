@@ -1,6 +1,6 @@
 ## ArchLucid architecture (Components)
 
-**Product name:** **ArchLucid**. Solution/projects use **`ArchLucid.*`**; configuration may still show legacy **`ArchiForge:*`** / **`ArchiForgeAuth`** keys until Phase 7 (`docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+**Product name:** **ArchLucid**. Solution/projects use **`ArchLucid.*`**; configuration may still show legacy **`ArchLucid:*`** / **`ArchLucidAuth`** keys until Phase 7 (`docs/ARCHLUCID_RENAME_CHECKLIST.md`).
 
 This document zooms into the most important components inside each container/library. It is not exhaustive; it focuses on the pieces engineers tend to touch when extending “run → export → compare → replay”.
 
@@ -10,7 +10,7 @@ This document zooms into the most important components inside each container/lib
 
 | Area | Role | Typical types |
 |------|------|----------------|
-| **`ArchLucid.Persistence.Data.*`** | ADO.NET/Dapper for the **run/commit/agent** workflow: repositories used by `ArchLucid.Application` and HTTP services for requests, runs, tasks, evidence, governance entities, background jobs, `IDbConnectionFactory`, DbUp **`DatabaseMigrator`**, consolidated **`Scripts/ArchiForge.sql`**. | `ArchitectureRequestRepository`, `SqlConnectionFactory`, `IArchitectureRunRepository` |
+| **`ArchLucid.Persistence.Data.*`** | ADO.NET/Dapper for the **run/commit/agent** workflow: repositories used by `ArchLucid.Application` and HTTP services for requests, runs, tasks, evidence, governance entities, background jobs, `IDbConnectionFactory`, DbUp **`DatabaseMigrator`**, consolidated **`Scripts/ArchLucid.sql`**. | `ArchitectureRequestRepository`, `SqlConnectionFactory`, `IArchitectureRunRepository` |
 | **Rest of `ArchLucid.Persistence`** | **Authority and decisioning** ports: unit of work, orchestration (`AuthorityRunOrchestrator`), snapshot repos for context/graph/findings/manifests, caching decorators (`CachingRunRepository`), archival, retrieval outbox, RLS session context. | `IRunRepository` (`Models.RunRecord`), `IArchLucidUnitOfWork`, `SqlContextSnapshotRepository` |
 
 **Configuration:** SQL security and read-scale-out are grouped under **`SqlServer`** in appsettings (`RowLevelSecurity`, `ReadReplica`). See `ArchLucid.Persistence/Connections/SqlServerOptions.cs`.
@@ -28,11 +28,11 @@ This document zooms into the most important components inside each container/lib
 #### Dual manifest / trace repository interfaces
 
 - **`ArchLucid.Decisioning.Interfaces.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: authority-oriented contracts (`SaveAsync`, scoped `GetByIdAsync`). Implemented by **`SqlGoldenManifestRepository`**, **`SqlDecisionTraceRepository`**, and in-memory counterparts; registered in **`AddArchLucidStorage`**.
-- **`ArchLucid.Persistence.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces. When **`ArchiForge:StorageProvider=InMemory`**, the same registration block uses **`InMemoryCoordinatorGoldenManifestRepository`** and **`InMemoryCoordinatorDecisionTraceRepository`** (singleton), plus the other coordinator in-memory Data repos (**`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** with request lookup, **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, evidence/execution trace packages, tasks/results, idempotency). **`RegisterRunExportAndArchitectureAnalysis`** registers **`InMemoryRunExportRecordRepository`** in that mode so exports do not require SQL.
+- **`ArchLucid.Persistence.Data.Repositories.IGoldenManifestRepository`** / **`IDecisionTraceRepository`**: run/commit pipeline contracts (`CreateAsync`, `GetByVersionAsync`, batch traces). Implemented by **`GoldenManifestRepository`**, **`DecisionTraceRepository`** (Dapper); registered in **`RegisterCoordinatorDecisionEngineAndRepositories`** with **fully qualified** interface types so they are not confused with the Decisioning interfaces. When **`ArchLucid:StorageProvider=InMemory`**, the same registration block uses **`InMemoryCoordinatorGoldenManifestRepository`** and **`InMemoryCoordinatorDecisionTraceRepository`** (singleton), plus the other coordinator in-memory Data repos (**`InMemoryArchitectureRequestRepository`**, **`InMemoryArchitectureRunRepository`** with request lookup, **`InMemoryAgentEvaluationRepository`**, **`InMemoryDecisionNodeRepository`**, evidence/execution trace packages, tasks/results, idempotency). **`RegisterRunExportAndArchitectureAnalysis`** registers **`InMemoryRunExportRecordRepository`** in that mode so exports do not require SQL.
 
 #### Governance persistence
 
-- **`IGovernanceApprovalRequestRepository`**, **`IGovernancePromotionRecordRepository`**, **`IGovernanceEnvironmentActivationRepository`**: Dapper repos when **`ArchiForge:StorageProvider`** is Sql; **`InMemoryGovernanceApprovalRequestRepository`**, **`InMemoryGovernancePromotionRecordRepository`**, **`InMemoryGovernanceEnvironmentActivationRepository`** (singleton) in InMemory mode via **`RegisterGovernance`**. **`IGovernanceWorkflowService`** is scoped and uses **`IRunDetailQueryService`** for canonical run reads.
+- **`IGovernanceApprovalRequestRepository`**, **`IGovernancePromotionRecordRepository`**, **`IGovernanceEnvironmentActivationRepository`**: Dapper repos when **`ArchLucid:StorageProvider`** is Sql; **`InMemoryGovernanceApprovalRequestRepository`**, **`InMemoryGovernancePromotionRecordRepository`**, **`InMemoryGovernanceEnvironmentActivationRepository`** (singleton) in InMemory mode via **`RegisterGovernance`**. **`IGovernanceWorkflowService`** is scoped and uses **`IRunDetailQueryService`** for canonical run reads.
 
 #### Rate limiting on controllers
 
@@ -155,7 +155,7 @@ This document zooms into the most important components inside each container/lib
 
 - **Role**: Persistence for runs, tasks, results, manifests, export records, comparison records, traces, evidence.
 - **Pattern**: Each aggregate has an `I*Repository` + `*Repository` implementation; queries are explicit SQL strings.
-- **SQL connectivity**: repositories take **`IDbConnectionFactory`**; on the API host with **`ArchiForge:StorageProvider`** = SQL, the registered factory is **`SqlScopedResolutionDbConnectionFactory`**, which delegates async opens to scoped **`ISqlConnectionFactory`** (see Api components above).
+- **SQL connectivity**: repositories take **`IDbConnectionFactory`**; on the API host with **`ArchLucid:StorageProvider`** = SQL, the registered factory is **`SqlScopedResolutionDbConnectionFactory`**, which delegates async opens to scoped **`ISqlConnectionFactory`** (see Api components above).
 
 #### Contract test coverage (persistence)
 
@@ -170,7 +170,7 @@ This document zooms into the most important components inside each container/lib
 
 #### `InMemoryComparisonRecordRepository`
 
-- Used when the API is configured with **`ArchiForge:StorageProvider=InMemory`**: same **`IComparisonRecordRepository`** contract as Dapper/SQL without a database (singleton registration alongside other in-memory repositories).
+- Used when the API is configured with **`ArchLucid:StorageProvider=InMemory`**: same **`IComparisonRecordRepository`** contract as Dapper/SQL without a database (singleton registration alongside other in-memory repositories).
 
 ---
 

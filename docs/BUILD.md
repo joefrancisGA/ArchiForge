@@ -1,6 +1,6 @@
 # Build & project hygiene
 
-> **Product naming:** Documentation refers to the product as **ArchLucid**. Phase 7 retired legacy `ArchiForge*` configuration and CLI naming; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred items (Terraform state, repo path, etc.).
+> **Product naming:** Documentation refers to the product as **ArchLucid**. Phase 7 retired legacy `ArchLucid*` configuration and CLI naming; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred items (Terraform state, repo path, etc.).
 
 See also [TEST_STRUCTURE.md](TEST_STRUCTURE.md) for test categories and filtering, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** (54R) for Core / Fast core / Integration / SQL / Full regression scripts and CI alignment, and **[RELEASE_LOCAL.md](RELEASE_LOCAL.md)** (56R) for `build-release` / `package-release` / `run-readiness-check`.
 

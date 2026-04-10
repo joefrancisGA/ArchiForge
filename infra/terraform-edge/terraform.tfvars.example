@@ -3,22 +3,22 @@
 
 enable_front_door_waf = true
 create_resource_group = true
-resource_group_name   = "rg-archiforge-edge"
+resource_group_name   = "rg-archlucid-edge"
 location              = "eastus2"
 
 # Globally unique name (alphanumeric + hyphen).
-front_door_profile_name = "archiforge-dev-fd"
+front_door_profile_name = "archlucid-dev-fd"
 
-# Origin: APIM gateway hostname (no scheme), e.g. archiforge-dev-apim.azure-api.net
-backend_hostname = "archiforge-dev-apim.azure-api.net"
+# Origin: APIM gateway hostname (no scheme), e.g. archlucid-dev-apim.azure-api.net
+backend_hostname = "archlucid-dev-apim.azure-api.net"
 
-# ArchiForge API readiness (default). UI-only origin: use "/".
+# ArchLucid API readiness (default). UI-only origin: use "/".
 # front_door_health_probe_path = "/health/ready"
 
 # Optional passive standby (paired region APIM or API hostname). Empty = single origin.
-# secondary_backend_hostname = "archiforge-dev-apim-westus2.azure-api.net"
+# secondary_backend_hostname = "archlucid-dev-apim-westus2.azure-api.net"
 
 tags = {
-  workload = "archiforge"
+  workload = "archlucid"
   layer    = "edge-waf"
 }

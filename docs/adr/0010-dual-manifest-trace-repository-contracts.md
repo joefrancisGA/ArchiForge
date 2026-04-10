@@ -7,7 +7,7 @@
 
 ArchLucid persists golden manifests and decision traces in two different lifecycles:
 
-1. **Run / commit pipeline (coordinator)** — manifests and traces are created and read with run-scoped APIs (`CreateAsync`, `GetByVersionAsync`, batch traces by run). These contracts live in **`ArchLucid.Persistence.Data.Repositories`** (`IGoldenManifestRepository`, `IDecisionTraceRepository`) and are implemented with Dapper against coordinator SQL tables, or with in-memory types when `ArchiForge:StorageProvider=InMemory`.
+1. **Run / commit pipeline (coordinator)** — manifests and traces are created and read with run-scoped APIs (`CreateAsync`, `GetByVersionAsync`, batch traces by run). These contracts live in **`ArchLucid.Persistence.Data.Repositories`** (`IGoldenManifestRepository`, `IDecisionTraceRepository`) and are implemented with Dapper against coordinator SQL tables, or with in-memory types when `ArchLucid:StorageProvider=InMemory`.
 
 2. **Authority / decisioning persistence** — manifests and traces are saved and loaded with authority-oriented shapes (`SaveAsync`, scoped `GetByIdAsync`) for advisory and policy flows. These contracts live in **`ArchLucid.Decisioning.Interfaces`** and are registered in `AddArchLucidStorage`, with SQL or in-memory implementations that are distinct from the Data-layer types.
 

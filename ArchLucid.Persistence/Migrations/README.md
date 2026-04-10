@@ -8,4 +8,4 @@ SQL Server **incremental** migrations consumed by **DbUp** at API startup.
 
 **Catalog, consolidated scripts, Persistence bootstrap, and change workflow:** [../../docs/SQL_SCRIPTS.md](../../docs/SQL_SCRIPTS.md).
 
-After editing migrations, update **`Scripts/ArchiForge.sql`** so greenfield installs stay aligned.
+After editing migrations, update **`Scripts/ArchLucid.sql`** so greenfield installs stay aligned.

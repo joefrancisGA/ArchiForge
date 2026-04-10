@@ -107,24 +107,24 @@ From a project directory configured to talk to the API:
 - **List comparisons**:
 
 ```bash
-archiforge comparisons list --type end-to-end-replay --limit 10
+archlucid comparisons list --type end-to-end-replay --limit 10
 ```
 
 - **Replay to file**:
 
 ```bash
-archiforge comparisons replay <comparisonRecordId> --format markdown --mode verify --out ./replays --persist
+archlucid comparisons replay <comparisonRecordId> --format markdown --mode verify --out ./replays --persist
 ```
 
 - **Drift summary**:
 
 ```bash
-archiforge comparisons drift <comparisonRecordId>
+archlucid comparisons drift <comparisonRecordId>
 ```
 
 - **Replay diagnostics**:
 
 ```bash
-archiforge comparisons diagnostics --limit 20
+archlucid comparisons diagnostics --limit 20
 ```
 

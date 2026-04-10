@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "ArchiForge.Worker": {
+    "ArchLucid.Worker": {
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",

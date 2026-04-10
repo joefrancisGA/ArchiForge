@@ -2,7 +2,7 @@
 
 ## Objective
 
-Give operators a single map of **Terraform roots** under `infra/`, how they compose, and what they intentionally **do not** replace (pipelines, org policy). ArchLucid uses **Terraform only** for Azure IaC in this repository (no Bicep roots here). Resource paths and variable names may still say `archiforge` until infra rename batches (see `docs/ARCHLUCID_RENAME_CHECKLIST.md`).
+Give operators a single map of **Terraform roots** under `infra/`, how they compose, and what they intentionally **do not** replace (pipelines, org policy). ArchLucid uses **Terraform only** for Azure IaC in this repository (no Bicep roots here). Resource paths and variable names may still say `archlucid` until infra rename batches (see `docs/ARCHLUCID_RENAME_CHECKLIST.md`).
 
 ## Assumptions
 
@@ -62,12 +62,12 @@ flowchart LR
 
 - **Identity:** Prefer **managed identity** from compute to SQL, Key Vault, and storage APIs; fall back to Key Vault–backed secrets only where required.
 - **Network:** Private endpoints for data planes; no public SQL; align with workspace SMB rule for any file share access.
-- **RLS:** Production hosts with `ArchiForge:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup — see `ArchLucidConfigurationRules`).
+- **RLS:** Production hosts with `ArchLucid:StorageProvider=Sql` must set `SqlServer:RowLevelSecurity:ApplySessionContext=true` (validated at startup — see `ArchLucidConfigurationRules`).
 
 ## Operational considerations
 
 - **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
-- **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchiForge`** label on created resources for Azure Cost Management filters.
+- **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchLucid`** label on created resources for Azure Cost Management filters.
 - **Consumption budgets:** Enable **`enable_container_apps_consumption_budget`** in `infra/terraform-container-apps`, **`enable_sql_consumption_budget`** in `infra/terraform-sql-failover`, and/or **`enable_openai_consumption_budget`** in `infra/terraform-openai` to emit **`azurerm_consumption_budget_resource_group`** resources with Cost Management notifications (amounts and `*_time_period_start` are variables per root).
 - **Plan/apply:** Run `terraform init` / `plan` / `apply` per root; compose order is usually **network → data → compute → edge → monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.

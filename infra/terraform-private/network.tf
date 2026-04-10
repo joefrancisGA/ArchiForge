@@ -58,7 +58,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "blob" {
 resource "azurerm_private_endpoint" "sql" {
   count = local.pe_enabled ? 1 : 0
 
-  name                = "pe-archiforge-sql"
+  name                = "pe-archlucid-sql"
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id
@@ -80,7 +80,7 @@ resource "azurerm_private_endpoint" "sql" {
 resource "azurerm_private_endpoint" "blob" {
   count = local.pe_enabled ? 1 : 0
 
-  name                = "pe-archiforge-blob"
+  name                = "pe-archlucid-blob"
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id
@@ -120,7 +120,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "search" {
 resource "azurerm_private_endpoint" "search" {
   count = local.pe_enabled && length(trimspace(var.search_service_id)) > 0 ? 1 : 0
 
-  name                = "pe-archiforge-search"
+  name                = "pe-archlucid-search"
   location            = local.pe_location
   resource_group_name = local.pe_resource_group_name
   subnet_id           = azurerm_subnet.private_endpoints[0].id

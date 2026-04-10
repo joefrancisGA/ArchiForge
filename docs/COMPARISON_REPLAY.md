@@ -258,7 +258,7 @@ Comparison records support an optional **label** (short string, e.g. `release-1.
 - **GET** `/v1/architecture/comparisons?tag=release-1.2` returns only records that have that tag.
 - **GET** `/v1/architecture/comparisons?skip=0&limit=20&sortBy=createdUtc&sortDir=desc` supports paging and sorting.
 - **Cursor paging**: `/v1/architecture/comparisons?limit=20&sortBy=createdUtc&sortDir=desc` returns `nextCursor`, which you can pass back as `cursor=<nextCursor>` to fetch the next page (cursor format: `<utcTicks>:<comparisonRecordId>`).
-- CLI: `archiforge comparisons list` shows label and tags; `archiforge comparisons tag <id> --label x --tag t1 --tag t2` updates them.
+- CLI: `archlucid comparisons list` shows label and tags; `archlucid comparisons tag <id> --label x --tag t1 --tag t2` updates them.
 
 ### Batch replay
 

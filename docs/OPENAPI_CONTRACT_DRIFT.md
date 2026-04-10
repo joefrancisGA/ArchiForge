@@ -40,7 +40,7 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 ## 7. Security model
 
 - No secrets in the snapshot; the document describes public routes and schemas.
-- Auth schemes in the document depend on `ArchiForgeAuth:Mode` at document generation time (see `API_CONTRACTS.md`).
+- Auth schemes in the document depend on `ArchLucidAuth:Mode` at document generation time (see `API_CONTRACTS.md`).
 
 ## 8. Operational considerations
 
@@ -48,7 +48,7 @@ Prevent accidental HTTP surface changes: the committed OpenAPI document for **v1
 
 ```bash
 # Repo root (PowerShell)
-$env:ARCHIFORGE_UPDATE_OPENAPI_SNAPSHOT = "1"
+$env:ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT = "1"
 dotnet test ArchLucid.Api.Tests --filter "OpenApiContractSnapshotTests"
 ```
 

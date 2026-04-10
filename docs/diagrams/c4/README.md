@@ -4,7 +4,7 @@
 
 | File | C4 level | Description |
 |------|----------|-------------|
-| [c4-context.mmd](c4-context.mmd) | **1 — Context** | People, ArchiForge, and main external systems (SQL, blob, Entra, Azure OpenAI). |
+| [c4-context.mmd](c4-context.mmd) | **1 — Context** | People, ArchLucid, and main external systems (SQL, blob, Entra, Azure OpenAI). |
 | [c4-container.mmd](c4-container.mmd) | **2 — Containers** | API, Worker, optional UI, data plane, identity, LLM. |
 | [c4-component-api.mmd](c4-component-api.mmd) | **3 — Components (API only)** | Simplified internals of the API process. |
 

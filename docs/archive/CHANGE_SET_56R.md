@@ -14,16 +14,16 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 ### Prompt 2 — configuration & environment validation (current)
 
 - **API fail-fast:** `ArchLucidConfigurationRules.CollectErrors` runs **immediately after** `WebApplication.Build()` and **before** schema bootstrap / DbUp. Any error → log each line and **`InvalidOperationException`** (process exit). Replaces the late **`IHostedService`** validator so misconfiguration is not masked in Development.
-- **SQL vs InMemory:** `ConnectionStrings:ArchiForge` is **required** only when **`ArchiForge:StorageProvider`** is **Sql** (including default `Sql` when the section is absent). **InMemory** allows no SQL connection string.
+- **SQL vs InMemory:** `ConnectionStrings:ArchLucid` is **required** only when **`ArchLucid:StorageProvider`** is **Sql** (including default `Sql` when the section is absent). **InMemory** allows no SQL connection string.
 - **Policy/schema files:** Validates **SchemaValidation** JSON schema paths are **relative**, stay **under** `AppContext.BaseDirectory`, and **exist on disk** at startup (matches `SchemaValidationService` load semantics).
 - **CLI:** `ArchLucidApiClient.GetInvalidApiBaseUrlReason` + constructor guard; `EnsureApiConnectedAsync` and **`health`** print stderr guidance for bad URLs.
 - **UI:** `resolveUpstreamApiBaseUrlForProxy()` returns **503** JSON problem from `/api/proxy/*` when the upstream base URL is empty, malformed, or non-http(s).
-- **Artifacts:** No separate on-disk artifact root in API config (exports are streams/DB-backed); **CLI** `archiforge run` already validates brief path and creates `outputs` from `archiforge.json` — unchanged.
+- **Artifacts:** No separate on-disk artifact root in API config (exports are streams/DB-backed); **CLI** `archlucid run` already validates brief path and creates `outputs` from `archlucid.json` — unchanged.
 
 ### Prompt 3 — startup readiness checks
 
 - **HTTP:** `GET /health/live` — process liveness only. `GET /health/ready` — database (skipped when `StorageProvider=InMemory`), JSON schema files, bundled compliance rule pack, writable temp directory. `GET /health` — all registered checks (live + ready).
-- **CLI:** `archiforge doctor` or `archiforge check` — local project checks + calls the three endpoints and prints JSON (truncated) with clear section headers.
+- **CLI:** `archlucid doctor` or `archlucid check` — local project checks + calls the three endpoints and prints JSON (truncated) with clear section headers.
 - **Tags:** `ArchLucid.Api.Health.ReadinessTags` (`live` / `ready`); no extra framework beyond `IHealthCheck`.
 
 ### Prompt 5 — packaging and local release scripts
@@ -57,7 +57,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ### Prompt 10 — release-candidate coherence (final pass)
 
-- **Docs:** README **`ArchiForgeAuth`** table aligned with **`ApiKey`** mode; pilot guide uses **`dotnet run --project ArchLucid.Cli`** consistently with scripts; **RELEASE_SMOKE** CMD/`;` caveat.
+- **Docs:** README **`ArchLucidAuth`** table aligned with **`ApiKey`** mode; pilot guide uses **`dotnet run --project ArchLucid.Cli`** consistently with scripts; **RELEASE_SMOKE** CMD/`;` caveat.
 - **Logging:** Single startup **configuration snapshot** log now includes **`ContentRoot`**; removed redundant “host built” **Information** line before validation.
 
 ### Deferred to later prompts (56R backlog)
@@ -97,9 +97,9 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 ### Prompt 3 (regen) — CLI support bundle export
 
-- **CLI:** `archiforge support-bundle` — writes a UTC-stamped folder (default `support-bundle-<yyyyMMdd-HHmmss>Z`) with explicit JSON sections; **`--output <dir>`** and **`--zip`** supported.
+- **CLI:** `archlucid support-bundle` — writes a UTC-stamped folder (default `support-bundle-<yyyyMMdd-HHmmss>Z`) with explicit JSON sections; **`--output <dir>`** and **`--zip`** supported.
 - **Modules (reviewable):** `SupportBundleRedactor`, `SupportBundleCollector`, `SupportBundleArchiveWriter`, `SupportBundleCommand`, and one file per bundle DTO under `ArchLucid.Cli/Support/`.
-- **Contents:** `manifest.json`, `build.json` (CLI build + raw `GET /version` JSON), `health.json` (`/health/live`, `/health/ready`, `/health` with truncated bodies), `config-summary.json` (non-secret `archiforge.json` fields + redacted API base URL), `environment.json` (machine/OS/runtime + filtered env: `ARCHIFORGE_*` / `DOTNET_*` only; secrets as `(set)`; SQL-related ArchiForge keys never show values; `ARCHIFORGE_API_URL` userinfo stripped), `workspace.json` (outputs dir file count/size + sample names), `references.json` (endpoint/doc hints), `logs.json` (guidance + optional small `outputs/last-run.log` excerpt).
+- **Contents:** `manifest.json`, `build.json` (CLI build + raw `GET /version` JSON), `health.json` (`/health/live`, `/health/ready`, `/health` with truncated bodies), `config-summary.json` (non-secret `archlucid.json` fields + redacted API base URL), `environment.json` (machine/OS/runtime + filtered env: `ARCHIFORGE_*` / `DOTNET_*` only; secrets as `(set)`; SQL-related ArchLucid keys never show values; `ARCHIFORGE_API_URL` userinfo stripped), `workspace.json` (outputs dir file count/size + sample names), `references.json` (endpoint/doc hints), `logs.json` (guidance + optional small `outputs/last-run.log` excerpt).
 - **Tests:** `ArchLucid.Cli.Tests/SupportBundleTests.cs` — redactor, mock HTTP collect, directory and zip writers.
 - **Docs:** `CLI_USAGE.md`, `TROUBLESHOOTING.md`.
 
@@ -107,7 +107,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 - **Shared:** `scripts/OperatorDiagnostics.ps1` — phase headers, **`--- FAILURE (triage) ---`** blocks (**Stage**, **Category**, **Next:** hints), HTTP probe helper, readiness JSON parser (**first unhealthy check** among `entries[]`, then others sorted by **name** for deterministic output).
 - **`run-readiness-check.ps1`:** Numbered phases (`[1/n]`…`[3/n]` when UI runs); triage on build, fast core, `npm ci`, Vitest failures; dynamic `n` when UI skipped or Node missing.
-- **`release-smoke.ps1`:** Triage on each gate (build, core, optional full core, UI, SQL misconfig, API start/early exit, readiness **timeout** + post-timeout `/health/ready` + `/health` snapshot, liveness, CLI `new` / `run --quick`, artifacts API, Playwright); readiness wait uses **`Get-ArchiForgeHttpProbe`** (captures non-200 bodies without throwing away JSON).
+- **`release-smoke.ps1`:** Triage on each gate (build, core, optional full core, UI, SQL misconfig, API start/early exit, readiness **timeout** + post-timeout `/health/ready` + `/health` snapshot, liveness, CLI `new` / `run --quick`, artifacts API, Playwright); readiness wait uses **`Get-ArchLucidHttpProbe`** (captures non-200 bodies without throwing away JSON).
 - **Docs:** [RELEASE_SMOKE.md](RELEASE_SMOKE.md) — “Failure triage (script output)”; [RELEASE_LOCAL.md](RELEASE_LOCAL.md) — readiness script triage note.
 
 **Still for later regen prompts:** further pilot supportability (e.g. API-hosted bundle).
@@ -116,7 +116,7 @@ Harden configuration, startup, logging/observability, packaging, and operator-fa
 
 - **`scripts/Write-ReleasePackageArtifacts.ps1`** — single writer invoked from **`package-release.ps1`** / **`package-release.cmd`** after publish (and optional UI build).
 - **`metadata.json`** (extended): `schemaVersion` **1.1**, `packageKind`, `assemblyVersion`, `fileVersion` (Win32 file info), `apiPublishPathRelative`, `uiProductionBuildIncluded`; retains informational version, commit, UTC timestamp, SDK, packager host.
-- **`release-manifest.json`**: `packageKind` **ArchiForge.ReleaseHandoff**, summary counts/bytes, full **`apiPublishFiles`** list with sizes, operator UI note, `companionFiles`, `checksumsSha256Generated`.
+- **`release-manifest.json`**: `packageKind` **ArchLucid.ReleaseHandoff**, summary counts/bytes, full **`apiPublishFiles`** list with sizes, operator UI note, `companionFiles`, `checksumsSha256Generated`.
 - **`checksums-sha256.txt`**: SHA-256 per file under `api/` (deterministic path order aligned with manifest); optional **`-SkipChecksums`** on **`.ps1`** only.
 - **`PACKAGE-HANDOFF.txt`**: concise pilot-facing blurb and pointers to docs.
 - **`docs/RELEASE_LOCAL.md`** — handoff table and **`-SkipChecksums`** note.

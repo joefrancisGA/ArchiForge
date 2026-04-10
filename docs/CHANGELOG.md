@@ -11,7 +11,7 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 ## Phase 7 — ArchLucid rename (code-level)
 
 **Area:** Rename / operator breaking changes  
-**Summary:** Removed legacy `ArchiForge*` configuration keys, `ARCHIFORGE_*` / UI OIDC storage bridges, and renamed CLI manifest (`archlucid.json`), global tool command (`archlucid`), SQL DDL file (`ArchLucid.sql`), and dev Docker/compose defaults. **`com.archiforge.*` integration event type strings are no longer emitted or aliased** — only canonical `com.archlucid.*` types apply. See **`BREAKING_CHANGES.md`** for migration steps. Terraform resource **addresses** using `archiforge` remain until a planned `state mv` (checklist 7.5).
+**Summary:** Removed legacy **`ArchiForge*`** configuration keys, **`ARCHIFORGE_*`** / UI OIDC storage bridges, and renamed CLI manifest (`archlucid.json`), global tool command (`archlucid`), SQL DDL file (`ArchLucid.sql`), and dev Docker/compose defaults. **`com.archiforge.*` integration event type strings are no longer emitted or aliased** — only canonical **`com.archlucid.*`** types apply. See **`BREAKING_CHANGES.md`** for migration steps. Terraform resource **addresses** using the historical **`archiforge`** token remain until a planned `state mv` (checklist 7.5); the APIM backend URL **variable** is now **`archlucid_api_backend_url`**.
 
 ---
 

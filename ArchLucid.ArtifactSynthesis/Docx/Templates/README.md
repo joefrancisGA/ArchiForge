@@ -4,7 +4,7 @@
 
 If this file is present next to `ArchLucid.ArtifactSynthesis.dll` under `Docx/Templates/`, it is used as the **branded shell** (header, footer, fonts, styles, logo you add in Word).
 
-If the file is **missing**, a built-in template is generated in memory (ArchiForge header/footer + custom paragraph styles).
+If the file is **missing**, a built-in template is generated in memory (ArchLucid header/footer + custom paragraph styles).
 
 ### Layout contract
 

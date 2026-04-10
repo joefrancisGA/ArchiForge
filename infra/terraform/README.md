@@ -1,4 +1,4 @@
-# ArchiForge — Azure Terraform (API Management, Consumption)
+# ArchLucid — Azure Terraform (API Management, Consumption)
 
 For the full map of Terraform roots (Container Apps, storage, private networking, edge, monitoring, Entra), see **`docs/DEPLOYMENT_TERRAFORM.md`**.
 
@@ -11,7 +11,7 @@ When `enable_api_management = true`:
 | Resource | Notes |
 |----------|--------|
 | `azurerm_api_management` | **Consumption** tier only (`sku_name = Consumption_0`). Serverless pricing model suitable for dev/small traffic. |
-| `azurerm_api_management_api` | Single API with path suffix `apim_api_path_suffix` (default `v1`), backend `archiforge_api_backend_url`. |
+| `azurerm_api_management_api` | Single API with path suffix `apim_api_path_suffix` (default `v1`), backend `archlucid_api_backend_url`. |
 | Optional `azurerm_resource_group` | Only if `create_resource_group = true`. |
 
 **Not included here (follow-up):** Azure Front Door / Application Gateway **WAF**, private endpoints, and APIM-to-private-backend routing. Consumption APIM reaches backends over **public HTTPS** unless you add a different topology (e.g. Premium + VNet).

@@ -95,8 +95,9 @@ RUN dotnet restore ArchLucid.Api/ArchLucid.Api.csproj -r linux-musl-x64 /p:Publi
 # ── Stage 3: runtime ───────────────────────────────────────────────
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.23 AS runtime
 
-# ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image)
-RUN apk add --no-cache icu-libs
+# ICU for globalisation; wget for HEALTHCHECK (already present in Alpine aspnet image).
+# apk upgrade pulls Alpine security fixes (e.g. OpenSSL) before the base aspnet tag is republished.
+RUN apk update && apk upgrade --no-cache && apk add --no-cache icu-libs
 
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 

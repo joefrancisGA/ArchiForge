@@ -153,7 +153,7 @@ No new migration is required unless you add type-specific columns to `Comparison
 If you do:
 
 1. Create `ArchLucid.Persistence/Migrations/0NN_MyNewTypeComparisonColumns.sql` (idempotent `IF NOT EXISTS`).
-2. Add the same columns to `ArchiForge.sql` (SQL Server consolidated).
+2. Add the same columns to `ArchLucid.sql` (SQL Server consolidated).
 3. Update `docs/DATA_MODEL.md` and `docs/SQL_SCRIPTS.md`.
 
 See `docs/SQL_SCRIPTS.md` §5 for the full change checklist.

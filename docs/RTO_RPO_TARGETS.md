@@ -37,7 +37,7 @@ Document **Recovery Time Objective (RTO)** and **Recovery Point Objective (RPO)*
 
 - **Intent:** Committed transactions on the **current primary** should appear on the **secondary** within a few minutes under normal load, so a regional failover loses at most roughly **five minutes** of writes (organization-specific; monitor **replication lag** in Azure Monitor).
 - **Mechanism:** **Azure SQL auto-failover group** (preferred) or **geo-replication** with a defined failover procedure.
-- **Application:** `ConnectionStrings:ArchiForge` (and read-replica settings if used) must use the **failover group listener** hostname so the app follows the primary after failover — see `docs/runbooks/DATABASE_FAILOVER.md`.
+- **Application:** `ConnectionStrings:ArchLucid` (and read-replica settings if used) must use the **failover group listener** hostname so the app follows the primary after failover — see `docs/runbooks/DATABASE_FAILOVER.md`.
 
 ### Production — RTO &lt; 1 hour
 

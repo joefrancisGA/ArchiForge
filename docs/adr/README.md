@@ -16,7 +16,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0008](0008-alert-dedupe-scopes.md) | Alert deduplication scopes |
 | [0009](0009-digest-delivery-failure-semantics.md) | Digest delivery failure semantics |
 | [0010](0010-dual-manifest-trace-repository-contracts.md) | Dual manifest and decision-trace repository contracts |
-| [0011](0011-inmemory-vs-sql-storage-provider.md) | `ArchiForge:StorageProvider` — InMemory vs Sql |
+| [0011](0011-inmemory-vs-sql-storage-provider.md) | `ArchLucid:StorageProvider` — InMemory vs Sql |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 
