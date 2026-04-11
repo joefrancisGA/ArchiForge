@@ -2,6 +2,8 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Data.Repositories;
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — contract tests for legacy InMemoryArchitectureRunRepository.
+
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Trait("Category", "Unit")]
@@ -29,3 +31,5 @@ public sealed class InMemoryArchitectureRunRepositoryContractTests : Architectur
             ct);
     }
 }
+
+#pragma warning restore CS0618

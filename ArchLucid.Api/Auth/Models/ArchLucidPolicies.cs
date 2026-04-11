@@ -21,4 +21,10 @@ public static class ArchLucidPolicies
 
     /// <summary>Required for triggering comparison replay and persisting replay results.</summary>
     public const string CanReplayComparisons = "CanReplayComparisons";
+
+    /// <summary>Required to merge agent results and persist a golden manifest (<c>commit:run</c> permission).</summary>
+    public const string CanCommitRuns = "CanCommitRuns";
+
+    /// <summary>Required to export consulting-template DOCX analysis reports (<c>export:consulting-docx</c> permission).</summary>
+    public const string CanExportConsultingDocx = "CanExportConsultingDocx";
 }

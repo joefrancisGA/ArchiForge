@@ -112,6 +112,44 @@ public sealed class DetailedHealthCheckResponseWriterTests
     }
 
     [Fact]
+    public async Task WriteAsync_detailed_includes_data_when_health_entry_has_dictionary()
+    {
+        Dictionary<string, object> checkData = new()
+        {
+            ["gates"] = new List<object>
+            {
+                new Dictionary<string, object> { ["name"] = "OpenAiCompletion", ["state"] = "Closed" },
+            },
+        };
+
+        Dictionary<string, HealthReportEntry> entries = new()
+        {
+            ["circuit_breakers"] = new HealthReportEntry(
+                HealthStatus.Healthy,
+                "All OpenAI circuit breakers closed.",
+                TimeSpan.FromMilliseconds(2),
+                exception: null,
+                data: checkData),
+        };
+
+        HealthReport report = new(entries, TimeSpan.FromMilliseconds(5));
+        DefaultHttpContext httpContext = new();
+        httpContext.Response.Body = new MemoryStream();
+
+        await DetailedHealthCheckResponseWriter.WriteAsync(httpContext, report);
+
+        httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        using JsonDocument doc = await JsonDocument.ParseAsync(httpContext.Response.Body);
+        JsonElement entry = doc.RootElement.GetProperty("entries")[0];
+
+        entry.TryGetProperty("data", out JsonElement dataEl).Should().BeTrue();
+        dataEl.GetProperty("gates").GetArrayLength().Should().Be(1);
+        JsonElement gate0 = dataEl.GetProperty("gates")[0];
+        gate0.GetProperty("name").GetString().Should().Be("OpenAiCompletion");
+        gate0.GetProperty("state").GetString().Should().Be("Closed");
+    }
+
+    [Fact]
     public async Task WriteAsync_summary_omits_version_duration_and_error()
     {
         Dictionary<string, HealthReportEntry> entries = new()

@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
@@ -6,7 +8,9 @@ using ArchLucid.Api.Services;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -33,7 +37,8 @@ public sealed class ExportsController(
     IComparisonAuditService comparisonAuditService,
     IExportReplayService exportReplayService,
     IExportRecordDiffService exportRecordDiffService,
-    IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter) : ControllerBase
+    IExportRecordDiffSummaryFormatter exportRecordDiffSummaryFormatter,
+    IAuditService auditService) : ControllerBase
 {
     [HttpGet("run/{runId}/exports")]
     [ProducesResponseType(typeof(RunExportHistoryResponse), StatusCodes.Status200OK)]
@@ -147,6 +152,8 @@ public sealed class ExportsController(
             },
             cancellationToken);
 
+        await TryLogReplayExportRecordedAsync(result, request.RecordReplayExport, cancellationToken);
+
         return ReplayArtifactResponseFactory.FromExportReplay(Request, result);
     }
 
@@ -170,6 +177,8 @@ public sealed class ExportsController(
             },
             cancellationToken);
 
+        await TryLogReplayExportRecordedAsync(result, request.RecordReplayExport, cancellationToken);
+
         return Ok(new ReplayExportMetadataResponse
         {
             ExportRecordId = result.ExportRecordId,
@@ -179,6 +188,36 @@ public sealed class ExportsController(
     }
 
     // ── Private helpers ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Durable audit when replay persisted a new export row (<see cref="ArchLucid.Application.Analysis.ReplayExportRequest.RecordReplayExport"/>).
+    /// </summary>
+    private async Task TryLogReplayExportRecordedAsync(
+        ReplayExportResult result,
+        bool recordReplayExport,
+        CancellationToken cancellationToken)
+    {
+        if (!recordReplayExport || string.IsNullOrWhiteSpace(result.RecordedReplayExportRecordId))
+            return;
+
+        Guid? auditRunId = Guid.TryParse(result.RunId, out Guid parsedRunId) ? parsedRunId : null;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ReplayExportRecorded,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        sourceExportRecordId = result.ExportRecordId,
+                        recordedReplayExportRecordId = result.RecordedReplayExportRecordId,
+                        runId = result.RunId,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+    }
 
     /// <summary>
     /// Validates query parameters and loads both export records.

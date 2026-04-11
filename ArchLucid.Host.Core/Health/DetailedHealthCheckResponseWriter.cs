@@ -75,6 +75,7 @@ public static class DetailedHealthCheckResponseWriter
                 durationMs = entry.Value.Duration.TotalMilliseconds,
                 description = entry.Value.Description,
                 error = entry.Value.Exception?.Message,
+                data = entry.Value.Data is { Count: > 0 } ? entry.Value.Data : null,
             }),
         };
 

@@ -18,6 +18,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — integration fixture uses InMemoryArchitectureRunRepository (TreatWarningsAsErrors).
+
 namespace ArchLucid.Application.Tests;
 
 /// <summary>
@@ -160,3 +162,5 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
         updatedRun.CurrentManifestVersion.Should().Be(version);
     }
 }
+
+#pragma warning restore CS0618

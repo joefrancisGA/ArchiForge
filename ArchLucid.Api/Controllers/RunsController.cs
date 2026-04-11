@@ -274,6 +274,7 @@ public sealed partial class RunsController(
     /// </summary>
     [HttpPost("run/{runId}/commit")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.CanCommitRuns)]
     [ProducesResponseType(typeof(CommitRunResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

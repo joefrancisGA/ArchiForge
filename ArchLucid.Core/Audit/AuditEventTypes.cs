@@ -11,6 +11,15 @@ public static class AuditEventTypes
     public const string BundleDownloaded = "BundleDownloaded";
     public const string RunExported = "RunExported";
 
+    /// <summary>Emitted when a structured architecture analysis report is built via the primary analysis-report API (<c>POST .../analysis-report</c>).</summary>
+    public const string ArchitectureAnalysisReportGenerated = "ArchitectureAnalysisReportGenerated";
+
+    /// <summary>Emitted when the architecture-package DOCX export completes successfully (<c>GET .../docx/runs/{{runId}}/architecture-package</c>).</summary>
+    public const string ArchitectureDocxExportGenerated = "ArchitectureDocxExportGenerated";
+
+    /// <summary>Emitted when a replay export persists a new run export row (<c>RecordReplayExport</c> on replay POST).</summary>
+    public const string ReplayExportRecorded = "ReplayExportRecorded";
+
     public const string RecommendationGenerated = "RecommendationGenerated";
     public const string RecommendationAccepted = "RecommendationAccepted";
     public const string RecommendationRejected = "RecommendationRejected";

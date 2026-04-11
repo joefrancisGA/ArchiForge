@@ -2,6 +2,8 @@ using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.Core.Resilience;
 
 /// <summary>
@@ -16,7 +18,9 @@ public sealed class CircuitBreakerGate
 {
     private readonly string _gateName;
 
-    private readonly CircuitBreakerOptions _options;
+    private readonly CircuitBreakerOptions? _options;
+
+    private readonly IOptionsMonitor<CircuitBreakerOptions>? _optionsMonitor;
 
     private readonly Func<DateTimeOffset> _utcNow;
 
@@ -47,8 +51,40 @@ public sealed class CircuitBreakerGate
         options.ApplyDefaults();
         _gateName = gateName;
         _options = options;
+        _optionsMonitor = null;
         _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
         _onAuditEntry = onAuditEntry;
+    }
+
+    /// <param name="optionsMonitor">Named options monitor; <see cref="IOptionsMonitor{TOptions}.Get"/> uses <paramref name="gateName"/>.</param>
+    public CircuitBreakerGate(
+        string gateName,
+        IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
+        Func<DateTimeOffset>? utcNow = null,
+        Action<CircuitBreakerAuditEntry>? onAuditEntry = null)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
+        ArgumentNullException.ThrowIfNull(optionsMonitor);
+        _gateName = gateName;
+        _options = null;
+        _optionsMonitor = optionsMonitor;
+        _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
+        _onAuditEntry = onAuditEntry;
+    }
+
+    /// <summary>Stable low-cardinality gate label (e.g. keyed DI name).</summary>
+    public string GateName => _gateName;
+
+    /// <summary>Thread-safe snapshot of the internal state (<c>Closed</c>, <c>Open</c>, or <c>HalfOpen</c>).</summary>
+    public string CurrentState
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _state.ToString();
+            }
+        }
     }
 
     /// <summary>
@@ -124,28 +160,30 @@ public sealed class CircuitBreakerGate
     {
         lock (_sync)
         {
+            CircuitBreakerOptions opts = ResolveOptions();
+
             if (_state == State.HalfOpen)
             {
                 EmitProbeOutcome("failure");
                 EmitStateTransition("HalfOpen", "Open");
                 _state = State.Open;
-                _openUntilUtc = _utcNow().AddSeconds(_options.DurationOfBreakSeconds);
+                _openUntilUtc = _utcNow().AddSeconds(opts.DurationOfBreakSeconds);
                 _probeInFlight = false;
-                _consecutiveFailures = _options.FailureThreshold;
+                _consecutiveFailures = opts.FailureThreshold;
 
                 return;
             }
 
             _consecutiveFailures++;
 
-            if (_consecutiveFailures < _options.FailureThreshold)
+            if (_consecutiveFailures < opts.FailureThreshold)
             {
                 return;
             }
 
             EmitStateTransition("Closed", "Open");
             _state = State.Open;
-            _openUntilUtc = _utcNow().AddSeconds(_options.DurationOfBreakSeconds);
+            _openUntilUtc = _utcNow().AddSeconds(opts.DurationOfBreakSeconds);
         }
     }
 
@@ -222,6 +260,19 @@ public sealed class CircuitBreakerGate
         {
             // Audit callbacks must never break the circuit breaker.
         }
+    }
+
+    private CircuitBreakerOptions ResolveOptions()
+    {
+        if (_optionsMonitor is not null)
+        {
+            CircuitBreakerOptions resolved = _optionsMonitor.Get(_gateName);
+            resolved.ApplyDefaults();
+
+            return resolved;
+        }
+
+        return _options!;
     }
 
     private enum State

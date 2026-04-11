@@ -857,12 +857,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(CreateGovernanceApprovalRequest body);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(CreateGovernanceApprovalRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -884,12 +884,12 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(CreateGovernancePromotionRequest body);
+        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body);
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(CreateGovernancePromotionRequest body, System.Threading.CancellationToken cancellationToken);
+        System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body, System.Threading.CancellationToken cancellationToken);
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
@@ -11186,15 +11186,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(CreateGovernanceApprovalRequest body)
+        public virtual System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body)
         {
-            return ApprovalRequestsAsync(body, System.Threading.CancellationToken.None);
+            return ApprovalRequestsAsync(dryRun, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(CreateGovernanceApprovalRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernanceApprovalRequest> ApprovalRequestsAsync(bool? dryRun, CreateGovernanceApprovalRequest body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -11213,6 +11213,12 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "v1/governance/approval-requests"
                     urlBuilder_.Append("v1/governance/approval-requests");
+                    urlBuilder_.Append('?');
+                    if (dryRun != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("dryRun")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(dryRun, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -11542,15 +11548,15 @@ namespace ArchLucid.Api.Client.Generated
 
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(CreateGovernancePromotionRequest body)
+        public virtual System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body)
         {
-            return PromotionsAsync(body, System.Threading.CancellationToken.None);
+            return PromotionsAsync(dryRun, body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="ArchLucidApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(CreateGovernancePromotionRequest body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<GovernancePromotionRecord> PromotionsAsync(bool? dryRun, CreateGovernancePromotionRequest body, System.Threading.CancellationToken cancellationToken)
         {
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -11569,6 +11575,12 @@ namespace ArchLucid.Api.Client.Generated
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
                     // Operation Path: "v1/governance/promotions"
                     urlBuilder_.Append("v1/governance/promotions");
+                    urlBuilder_.Append('?');
+                    if (dryRun != null)
+                    {
+                        urlBuilder_.Append(System.Uri.EscapeDataString("dryRun")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(dryRun, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    }
+                    urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);
 

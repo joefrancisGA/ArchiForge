@@ -47,6 +47,7 @@ public sealed class GovernanceWorkflowService(
         string targetEnvironment,
         string requestedBy,
         string? requestComment,
+        bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -70,6 +71,9 @@ public sealed class GovernanceWorkflowService(
             RequestComment = requestComment,
             RequestedUtc = DateTime.UtcNow
         };
+
+        if (dryRun)
+            return request;
 
         await approvalRepo.CreateAsync(request, cancellationToken);
 
@@ -254,6 +258,7 @@ public sealed class GovernanceWorkflowService(
         string promotedBy,
         string? approvalRequestId,
         string? notes,
+        bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -264,6 +269,8 @@ public sealed class GovernanceWorkflowService(
 
         _ = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken)
             ?? throw new RunNotFoundException(runId);
+
+        GovernanceApprovalRequest? prodApprovalToMarkPromoted = null;
 
         if (string.Equals(targetEnvironment, GovernanceEnvironment.Prod, StringComparison.OrdinalIgnoreCase))
         {
@@ -302,8 +309,7 @@ public sealed class GovernanceWorkflowService(
                     $"not '{targetEnvironment}'. Use an approval request that matches the target environment.");
 
 
-            approvalRequest.Status = GovernanceApprovalStatus.Promoted;
-            await approvalRepo.UpdateAsync(approvalRequest, cancellationToken);
+            prodApprovalToMarkPromoted = approvalRequest;
         }
 
         GovernancePromotionRecord record = new()
@@ -317,6 +323,15 @@ public sealed class GovernanceWorkflowService(
             ApprovalRequestId = approvalRequestId,
             Notes = notes
         };
+
+        if (dryRun)
+            return record;
+
+        if (prodApprovalToMarkPromoted is not null)
+        {
+            prodApprovalToMarkPromoted.Status = GovernanceApprovalStatus.Promoted;
+            await approvalRepo.UpdateAsync(prodApprovalToMarkPromoted, cancellationToken);
+        }
 
         await promotionRepo.CreateAsync(record, cancellationToken);
 

@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — Moq exercises obsolete IArchitectureRunRepository.UpdateStatusAsync (TreatWarningsAsErrors).
+
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -666,3 +668,5 @@ public sealed class ArchitectureApplicationServiceTests
 
     #endregion
 }
+
+#pragma warning restore CS0618

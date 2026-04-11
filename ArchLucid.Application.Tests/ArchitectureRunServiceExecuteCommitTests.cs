@@ -16,10 +16,10 @@ using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
-
 using Microsoft.Extensions.Logging.Abstractions;
-
 using Moq;
+
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — Moq exercises obsolete IArchitectureRunRepository.UpdateStatusAsync (TreatWarningsAsErrors).
 
 namespace ArchLucid.Application.Tests;
 
@@ -598,3 +598,5 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }
+
+#pragma warning restore CS0618

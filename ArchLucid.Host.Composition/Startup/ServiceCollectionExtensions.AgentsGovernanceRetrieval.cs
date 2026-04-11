@@ -446,13 +446,12 @@ public static partial class ServiceCollectionExtensions
 
     private static CircuitBreakerGate CreateOpenAiCircuitBreakerGate(IServiceProvider serviceProvider, string gateName)
     {
-        IOptionsFactory<CircuitBreakerOptions> factory =
-            serviceProvider.GetRequiredService<IOptionsFactory<CircuitBreakerOptions>>();
-        CircuitBreakerOptions options = factory.Create(gateName);
+        IOptionsMonitor<CircuitBreakerOptions> monitor =
+            serviceProvider.GetRequiredService<IOptionsMonitor<CircuitBreakerOptions>>();
 
         CircuitBreakerAuditBridge? bridge = serviceProvider.GetService<CircuitBreakerAuditBridge>();
         Action<CircuitBreakerAuditEntry>? onAudit = bridge?.CreateCallback();
 
-        return new CircuitBreakerGate(gateName, options, onAuditEntry: onAudit);
+        return new CircuitBreakerGate(gateName, monitor, onAuditEntry: onAudit);
     }
 }

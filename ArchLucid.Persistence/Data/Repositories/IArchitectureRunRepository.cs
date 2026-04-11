@@ -12,6 +12,7 @@ public interface IArchitectureRunRepository
     /// <summary>Creates a new run record in storage.</summary>
     /// <param name="run">The run to persist.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
+    [Obsolete("RunsAuthorityConvergence write-freeze 2026-09-30: migrate to dbo.Runs. See docs/adr/0012.", error: false)]
     Task CreateAsync(
         ArchitectureRun run,
         CancellationToken cancellationToken = default,
@@ -33,6 +34,7 @@ public interface IArchitectureRunRepository
     /// <c>CurrentManifestVersion</c> is only overwritten when <paramref name="currentManifestVersion"/>
     /// is non-<see langword="null"/>; passing <see langword="null"/> preserves the existing value.
     /// </summary>
+    [Obsolete("RunsAuthorityConvergence write-freeze 2026-09-30: migrate to dbo.Runs. See docs/adr/0012.", error: false)]
     Task UpdateStatusAsync(
         string runId,
         Contracts.Common.ArchitectureRunStatus status,
@@ -54,6 +56,7 @@ public interface IArchitectureRunRepository
     /// <summary>
     /// After a deferred authority pipeline completes, updates snapshot pointers on the architecture run and sets status to <see cref="Contracts.Common.ArchitectureRunStatus.TasksGenerated"/>.
     /// </summary>
+    [Obsolete("RunsAuthorityConvergence write-freeze 2026-09-30: migrate to dbo.Runs. See docs/adr/0012.", error: false)]
     Task ApplyDeferredAuthoritySnapshotsAsync(
         string runId,
         string? contextSnapshotId,

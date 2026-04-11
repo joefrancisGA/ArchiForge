@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Api.Mapping;
@@ -7,6 +9,8 @@ using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
@@ -47,6 +51,7 @@ public sealed class AnalysisReportsController(
     AppConsultingDocxExportProfileSelector consultingDocxExportProfileSelector,
     IRunExportAuditService runExportAuditService,
     IBackgroundJobQueue jobs,
+    IAuditService auditService,
     ILogger<AnalysisReportsController> logger)
     : ControllerBase
 {
@@ -72,6 +77,31 @@ public sealed class AnalysisReportsController(
         try
         {
             ArchitectureAnalysisReport report = await architectureAnalysisService.BuildAsync(request, cancellationToken);
+
+            Guid? auditRunId = Guid.TryParse(runId, out Guid parsedRunId) ? parsedRunId : null;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureAnalysisReportGenerated,
+                    RunId = auditRunId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            runId,
+                            manifestVersion = report.Manifest?.Metadata.ManifestVersion,
+                            warningCount = report.Warnings.Count,
+                            request.IncludeEvidence,
+                            request.IncludeExecutionTraces,
+                            request.IncludeManifest,
+                            request.IncludeDiagram,
+                            request.IncludeSummary,
+                            request.IncludeDeterminismCheck,
+                        },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                cancellationToken);
+
             return Ok(new ArchitectureAnalysisReportResponse { Report = report });
         }
         catch (InvalidOperationException ex)
@@ -235,6 +265,7 @@ public sealed class AnalysisReportsController(
     }
 
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting")]
+    [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -312,6 +343,7 @@ public sealed class AnalysisReportsController(
     }
 
     [HttpPost("run/{runId}/analysis-report/export/docx/consulting/async")]
+    [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(AsyncJobResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

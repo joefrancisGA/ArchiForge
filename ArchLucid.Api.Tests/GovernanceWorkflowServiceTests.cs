@@ -177,6 +177,36 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [Fact]
+    public async Task SubmitApprovalRequest_DryRun_DoesNotPersist()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+
+        GovernanceApprovalRequest result = await _sut.SubmitApprovalRequestAsync(
+            "run-1", "v1", "dev", "test", "alice", null, dryRun: true);
+
+        result.Status.Should().Be(GovernanceApprovalStatus.Submitted);
+        result.RunId.Should().Be("run-1");
+
+        _approvalRepo.Verify(
+            r => r.CreateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task SubmitApprovalRequest_when_transactional_outbox_enqueues_without_direct_publish()
     {
         _integrationEventOptions.Setup(m => m.CurrentValue)
@@ -438,6 +468,24 @@ public sealed class GovernanceWorkflowServiceTests
     }
 
     [Fact]
+    public async Task Promote_DryRun_FailsValidation_WhenNoApproval()
+    {
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+
+        Func<Task<GovernancePromotionRecord>> act = () => _sut.PromoteAsync(
+            "run-1", "v1", "test", GovernanceEnvironment.Prod,
+            "alice", null, null, dryRun: true);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*approved approval request*");
+
+        _promotionRepo.Verify(
+            r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Promote_ToProd_WithUnapprovedRequest_ThrowsInvalidOperationException()
     {
         GovernanceApprovalRequest pendingApproval = new()
@@ -521,6 +569,52 @@ public sealed class GovernanceWorkflowServiceTests
                 It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceManifestPromoted),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Promote_DryRun_ValidatesApprovalChain_ButDoesNotPersist()
+    {
+        GovernanceApprovalRequest approvedRequest = new()
+        {
+            ApprovalRequestId = "apr-approved",
+            Status = GovernanceApprovalStatus.Approved,
+            RunId = "run-1",
+            ManifestVersion = "v1",
+            TargetEnvironment = GovernanceEnvironment.Prod
+        };
+
+        _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DetailForRun("run-1"));
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-approved", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(approvedRequest);
+
+        GovernancePromotionRecord result = await _sut.PromoteAsync(
+            "run-1", "v1", "test", GovernanceEnvironment.Prod,
+            "alice", "apr-approved", "prod ready", dryRun: true);
+
+        result.TargetEnvironment.Should().Be(GovernanceEnvironment.Prod);
+        result.ApprovalRequestId.Should().Be("apr-approved");
+        approvedRequest.Status.Should().Be(GovernanceApprovalStatus.Approved);
+
+        _approvalRepo.Verify(
+            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _promotionRepo.Verify(
+            r => r.CreateAsync(It.IsAny<GovernancePromotionRecord>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _durableAudit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

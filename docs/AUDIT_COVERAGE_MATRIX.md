@@ -7,7 +7,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 A third string registry, `ArchLucid.Application.Governance.GovernanceAuditEventTypes`, mirrors governance event names for documentation and workflow code paths. **`GovernanceWorkflowService`** dual-writes: `IBaselineMutationAuditService` (structured logs) **and** `IAuditService` with Core `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated`.
 
-<!-- audit-core-const-count:52 -->
+<!-- audit-core-const-count:55 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -51,6 +51,9 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON) |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
+| Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
+| Architecture package DOCX download | `DocxExportController` | `ArchitectureDocxExportGenerated` | RunId, ManifestId | `runId`, `compareWithRunId`, `byteCount` |
+| Replay export persisted as new row | `ExportsController` (replay POST + metadata POST when `RecordReplayExport`) | `ReplayExportRecorded` | RunId when parseable | `sourceExportRecordId`, `recordedReplayExportRecordId`, `runId` |
 | Data archival host failure | `DataArchivalHostIteration` | `DataArchivalHostLoopFailed` | — | exception summary |
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
 
@@ -70,13 +73,12 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-| Area | Suggested Core `AuditEventTypes` name (new) | Notes |
-|------|-----------------------------------------------|-------|
-| `AnalysisReportsController` (report generation persistence) | `ArchitectureAnalysisReportGenerated` | Creates stored report content; today may use other persistence without audit row. |
-| `ExportsController` / comparison replay flows | `RunExportRecorded` or reuse `RunExported` with clear payload | Uses `IComparisonAuditService` / export tables, not necessarily `AuditEvents`. |
-| `ConversationController` (threads / messages) | `ConversationThreadCreated`, `ConversationMessageAppended` | No `IAuditService` usage found. |
-| `DocxExportController` | `ArchitectureDocxExportGenerated` | Parallel to analysis artifacts. |
-| `GovernanceController` (HTTP surface beyond workflow service) | Align with `Governance.*` or Core governance types | Verify each POST/PATCH; add `IAuditService` where missing. |
+No open gaps are tracked here for the areas previously listed. Notes:
+
+- **ConversationController** — Removed from the gap list: the controller is read-only (GET endpoints only); there are no state mutations to audit.
+- **GovernanceController** — Removed from the gap list: all POST actions delegate to `GovernanceWorkflowService`, which already dual-writes `IAuditService` (Core governance event types) and `IBaselineMutationAuditService`.
+
+**Note:** `ExportsController` `POST .../exports/compare/summary` with `persist: true` still records via `IComparisonAuditService` only (comparison audit tables). That path is separate from replay-export persistence and does not emit a Core `ReplayExportRecorded` row.
 
 ---
 
@@ -84,10 +86,10 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` constants** | 52 (see CI marker above) |
-| **`await *auditService.LogAsync` production call sites** | ~40 (excluding tests; includes bridge) |
+| **Core `AuditEventTypes` constants** | 55 (see CI marker above) |
+| **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
-| **Gaps listed** | 5 rows in table above (plus “dual registry” governance note) |
+| **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
 
 ---
 
@@ -103,6 +105,9 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | `ArtifactDownloaded` | `ArtifactDownloaded` | `ArtifactExportController` |
 | `BundleDownloaded` | `BundleDownloaded` | `ArtifactExportController` |
 | `RunExported` | `RunExported` | `ArtifactExportController` |
+| `ArchitectureAnalysisReportGenerated` | `ArchitectureAnalysisReportGenerated` | `AnalysisReportsController` |
+| `ArchitectureDocxExportGenerated` | `ArchitectureDocxExportGenerated` | `DocxExportController` |
+| `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
 | `RecommendationRejected` | `RecommendationRejected` | `AdvisoryController` |

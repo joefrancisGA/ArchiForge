@@ -12,6 +12,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// <summary>
 /// Dapper-backed persistence for <see cref="ArchitectureRun"/> entities.
 /// </summary>
+[Obsolete("RunsAuthorityConvergence write-freeze 2026-09-30: migrate to dbo.Runs. See docs/adr/0012.", error: false)]
 [ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
 public sealed class ArchitectureRunRepository(IDbConnectionFactory connectionFactory) : IArchitectureRunRepository
 {

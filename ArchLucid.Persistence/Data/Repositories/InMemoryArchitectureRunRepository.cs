@@ -11,6 +11,7 @@ namespace ArchLucid.Persistence.Data.Repositories;
 /// Thread-safe in-memory <see cref="IArchitectureRunRepository"/> for tests.
 /// When <see cref="IArchitectureRequestRepository"/> is supplied, <see cref="ListAsync"/> resolves <see cref="ArchitectureRunListItem.SystemName"/> from stored requests.
 /// </summary>
+[Obsolete("RunsAuthorityConvergence write-freeze 2026-09-30: migrate to dbo.Runs. See docs/adr/0012.", error: false)]
 public sealed class InMemoryArchitectureRunRepository(IArchitectureRequestRepository? requestLookup = null)
     : IArchitectureRunRepository
 {

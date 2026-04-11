@@ -223,6 +223,9 @@ jobs:
             exit 1
           fi
 
+      - name: Guard — ArchitectureRuns write surface requires RunsAuthorityConvergence pragma
+        run: python3 scripts/ci/assert_architecture_run_write_pragma.py
+
       - name: Generate .NET SBOM (CycloneDX)
         run: |
           dotnet tool install CycloneDX --tool-path "${RUNNER_TEMP}/cdx" --verbosity quiet

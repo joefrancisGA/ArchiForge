@@ -258,6 +258,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
             await _resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
             await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await _runRepository.UpdateStatusAsync(
                 runId,
                 ArchitectureRunStatus.ReadyForCommit,
@@ -267,12 +268,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 expectedStatus: expectedStatus,
                 connection: uow.Connection,
                 transaction: uow.Transaction);
+#pragma warning restore CS0618
         }
         else
         {
             await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
             await _resultRepository.CreateManyAsync(results, cancellationToken);
             await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await _runRepository.UpdateStatusAsync(
                 runId,
                 ArchitectureRunStatus.ReadyForCommit,
@@ -280,6 +283,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 completedUtc: null,
                 cancellationToken: cancellationToken,
                 expectedStatus: expectedStatus);
+#pragma warning restore CS0618
         }
     }
 }

@@ -247,6 +247,7 @@ public sealed class ArchitectureApplicationService(
 
             if (newStatus != run.Status)
             {
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
                 await runRepository.UpdateStatusAsync(
                     runId,
                     newStatus,
@@ -255,6 +256,7 @@ public sealed class ArchitectureApplicationService(
                     cancellationToken: cancellationToken,
                     connection: uow.Connection,
                     transaction: uow.Transaction);
+#pragma warning restore CS0618
             }
 
             return newStatus;
@@ -270,12 +272,14 @@ public sealed class ArchitectureApplicationService(
 
         if (newStatusMemory != run.Status)
         {
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await runRepository.UpdateStatusAsync(
                 runId,
                 newStatusMemory,
                 currentManifestVersion: run.CurrentManifestVersion,
                 completedUtc: null,
                 cancellationToken: cancellationToken);
+#pragma warning restore CS0618
         }
 
         return newStatusMemory;
@@ -307,6 +311,7 @@ public sealed class ArchitectureApplicationService(
         if (uow.SupportsExternalTransaction)
         {
             await resultRepository.CreateManyAsync(fakeResults, cancellationToken, uow.Connection, uow.Transaction);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await runRepository.UpdateStatusAsync(
                 runId,
                 newStatus,
@@ -315,16 +320,19 @@ public sealed class ArchitectureApplicationService(
                 cancellationToken: cancellationToken,
                 connection: uow.Connection,
                 transaction: uow.Transaction);
+#pragma warning restore CS0618
         }
         else
         {
             await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await runRepository.UpdateStatusAsync(
                 runId,
                 newStatus,
                 currentManifestVersion: run.CurrentManifestVersion,
                 completedUtc: null,
                 cancellationToken: cancellationToken);
+#pragma warning restore CS0618
         }
     }
 }

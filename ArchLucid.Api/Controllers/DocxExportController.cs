@@ -1,9 +1,12 @@
+using System.Text.Json;
+
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
@@ -11,6 +14,7 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Serialization;
 using ArchLucid.Provenance;
 
 using Asp.Versioning;
@@ -37,7 +41,8 @@ public sealed class DocxExportController(
     IComparisonService comparisonService,
     IExplanationService explanationService,
     IProvenanceSnapshotRepository provenanceSnapshotRepository,
-    IScopeContextProvider scopeProvider)
+    IScopeContextProvider scopeProvider,
+    IAuditService auditService)
     : ControllerBase
 {
     /// <summary>Streams a DOCX architecture package for <paramref name="runId"/>.</summary>
@@ -48,6 +53,7 @@ public sealed class DocxExportController(
     /// <param name="ct">Cancellation token.</param>
     /// <returns>DOCX file download, or 404 when primary (or compare) run/manifest is missing.</returns>
     [HttpGet("runs/{runId:guid}/architecture-package")]
+    [Authorize(Policy = ArchLucidPolicies.CanExportConsultingDocx)]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ExportRunDocx(
@@ -105,6 +111,23 @@ public sealed class DocxExportController(
                 runDetail.FindingsSnapshot),
             manifest,
             artifacts,
+            ct);
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ArchitectureDocxExportGenerated,
+                RunId = runId,
+                ManifestId = manifest.ManifestId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        runId,
+                        compareWithRunId,
+                        byteCount = result.Content.Length,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
             ct);
 
         return File(result.Content, result.ContentType, result.FileName);

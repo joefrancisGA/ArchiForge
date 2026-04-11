@@ -4,6 +4,8 @@ using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — contract tests for legacy IArchitectureRunRepository implementations.
+
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>
@@ -125,3 +127,5 @@ public abstract class ArchitectureRunRepositoryContractTests
         };
     }
 }
+
+#pragma warning restore CS0618

@@ -107,9 +107,11 @@ public sealed class ExportReplayService(
 
         string replayFileName = BuildReplayFileName(record.FileName);
 
+        string? recordedReplayExportRecordId = null;
+
         if (recordReplayExport)
-        
-            await runExportAuditService.RecordAsync(
+        {
+            RunExportRecord persisted = await runExportAuditService.RecordAsync(
                 runId: record.RunId,
                 exportType: record.ExportType,
                 format: record.Format,
@@ -122,11 +124,14 @@ public sealed class ExportReplayService(
                 analysisRequest: persistedRequest,
                 notes: $"Replay generated from export record {record.ExportRecordId}.",
                 cancellationToken: cancellationToken);
-        
+
+            recordedReplayExportRecordId = persisted.ExportRecordId;
+        }
 
         return new ReplayExportResult
         {
             ExportRecordId = record.ExportRecordId,
+            RecordedReplayExportRecordId = recordedReplayExportRecordId,
             RunId = record.RunId,
             ExportType = record.ExportType,
             Format = record.Format,

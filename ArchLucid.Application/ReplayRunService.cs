@@ -78,7 +78,9 @@ public sealed class ReplayRunService(
             CreatedUtc = DateTime.UtcNow
         };
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
         await runRepository.CreateAsync(replayRun, cancellationToken);
+#pragma warning restore CS0618
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -157,6 +159,7 @@ public sealed class ReplayRunService(
             {
                 await manifestRepository.CreateAsync(manifest, cancellationToken, uow.Connection, uow.Transaction);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken, uow.Connection, uow.Transaction);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
                 await runRepository.UpdateStatusAsync(
                     replayRunId,
                     ArchitectureRunStatus.Committed,
@@ -165,17 +168,20 @@ public sealed class ReplayRunService(
                     cancellationToken: cancellationToken,
                     connection: uow.Connection,
                     transaction: uow.Transaction);
+#pragma warning restore CS0618
             }
             else
             {
                 await manifestRepository.CreateAsync(manifest, cancellationToken);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
                 await runRepository.UpdateStatusAsync(
                     replayRunId,
                     ArchitectureRunStatus.Committed,
                     currentManifestVersion: manifest.Metadata.ManifestVersion,
                     completedUtc: DateTime.UtcNow,
                     cancellationToken: cancellationToken);
+#pragma warning restore CS0618
             }
 
             await uow.CommitAsync(cancellationToken);

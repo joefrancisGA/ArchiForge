@@ -28,6 +28,8 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 
 ## Deprecation: dual persistence (`ArchitectureRuns` vs `Runs`)
 
+See **docs/adr/0012-runs-authority-convergence-write-freeze.md** for the complete write call site inventory.
+
 **Status:** Converge new features on **`dbo.Runs`** and Dapper repositories. **`ArchitectureRuns`** exists for historical and CLI/adjacent flows.
 
 ### Named milestone: **RunsAuthorityConvergence**
@@ -49,5 +51,6 @@ These dates are **planning defaults** for the product repo; your organization ma
 
 ## Related
 
-- `docs/adr/0002-dual-persistence-architecture-runs.md`
+- `docs/adr/0002-dual-persistence-architecture-runs-and-runs.md`
+- `docs/adr/0012-runs-authority-convergence-write-freeze.md` — **complete write call site inventory** for **`IArchitectureRunRepository`** / **`dbo.ArchitectureRuns`** (production audit)
 - `docs/ONBOARDING_HAPPY_PATH.md`

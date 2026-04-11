@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 
@@ -73,5 +74,34 @@ public sealed class HealthEndpointSecurityIntegrationTests(HealthEndpointSecurit
 
         JsonElement first = root.GetProperty("entries")[0];
         first.TryGetProperty("durationMs", out _).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Health_with_api_key_includes_circuit_breakers_entry_with_data()
+    {
+        using HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", HealthEndpointSecurityApiFactory.IntegrationTestAdminApiKey);
+
+        HttpResponseMessage response = await client.GetAsync("/health");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        string body = await response.Content.ReadAsStringAsync();
+
+        using JsonDocument doc = JsonDocument.Parse(body);
+        JsonElement root = doc.RootElement;
+
+        JsonElement circuitEntry = root
+            .GetProperty("entries")
+            .EnumerateArray()
+            .First(e =>
+                string.Equals(
+                    e.GetProperty("name").GetString(),
+                    "circuit_breakers",
+                    StringComparison.Ordinal));
+
+        circuitEntry.GetProperty("status").GetString().Should().Be("Healthy");
+        circuitEntry.TryGetProperty("data", out JsonElement data).Should().BeTrue("detailed health must surface HealthCheckResult.Data for operators");
+        data.TryGetProperty("gates", out JsonElement gates).Should().BeTrue();
+        gates.ValueKind.Should().Be(JsonValueKind.Array);
     }
 }

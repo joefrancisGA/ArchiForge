@@ -4,19 +4,21 @@ This document describes the classes and methods excluded from code coverage via 
 
 ## Enforced CI coverage gates
 
-After the **full solution** test run, CI merges Coverlet Cobertura fragments with ReportGenerator and runs **`scripts/ci/assert_merged_line_coverage_min.py`** on the merged **`Cobertura.xml`**. Shared parsing and the product-package filter are in **`scripts/ci/coverage_cobertura.py`** (`is_product_archlucid_package()` excludes test assemblies and **`ArchLucid.TestSupport`** from the per-package floor; packages with zero coverable `<line/>` rows are skipped).
+After the full-solution run, ReportGenerator merges Coverlet fragments to **`Cobertura.xml`**; **`scripts/ci/assert_merged_line_coverage_min.py`** enforces the floors below in **`.github/workflows/ci.yml`** job **`.NET: full regression (SQL)`** (`dotnet-full-regression`). Parsing and the product filter are in **`scripts/ci/coverage_cobertura.py`**. **`is_product_archlucid_package()`** applies the per-package gate only to production **`ArchLucid.*`** assemblies (excludes test projects and **`ArchLucid.TestSupport`**); packages with zero coverable `<line/>` rows are skipped.
 
-| Gate | Threshold | Where enforced | On failure |
-|------|-----------|----------------|------------|
-| Merged **line** | **70%** | Root `line-rate` × 100; default positional arg `70` in **`.github/workflows/ci.yml`** (job **.NET: full regression (SQL)**) | Non-zero exit **1** — merged line below floor (message to stdout). |
-| Merged **branch** | **50%** | Root `branch-rate` × 100; `--min-branch-pct 50` | Exit **1** if below floor; exit **2** if root `branch-rate` is missing (branch gate must not pass silently). |
-| Per **product** package **line** | **40%** | Each merged Cobertura `<package>` that is a product **`ArchLucid.*`** assembly with coverable lines; `--min-package-line-pct 40` | Exit **1** — lists packages under the floor or with missing `line-rate` despite coverable lines. |
+| Metric | Threshold | Script | CI job | Failure behavior |
+|--------|-----------|--------|--------|------------------|
+| Merged **line** | **70%** | [`scripts/ci/assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py) (positional `70` = `--min-line-pct`) | `.NET: full regression (SQL)` | Exit **1** if root `line-rate` × 100 is below the floor. |
+| Merged **branch** | **50%** | same (`--min-branch-pct 50`) | same | Exit **1** if root `branch-rate` × 100 is below the floor. |
+| Per-product **line** | **40%** | same (`--min-package-line-pct 40`) | same | Exit **1** if any gated package is below the floor or has coverable lines but missing `line-rate`. |
 
-**Rationale:** **70%** line on the **merged** report is a solution-wide floor (Coverlet per-assembly thresholds are not used because they misrepresent tree-wide coverage). **50%** branch on the merged root rewards meaningful conditional coverage without chasing perfection on generated or thin code. **40%** per product package catches projects that effectively lack tests, while still allowing narrow production assemblies with high exclusion ratios to stay above a lower bar than the global line target.
+**Exit 2** (script-wide): merged file missing/unparseable, or root **`line-rate`** or **`branch-rate`** missing so gates cannot be evaluated without silently passing.
 
-**PR comment (informational only):** **`scripts/ci/build_coverage_pr_comment.py`** may emit a **50%** per-project **line** warning for visibility in the sticky coverage comment; that warning is **not** blocking. The **hard** per-package floor remains **40%** above.
+**Rationale:** **70%** merged line is the solution-wide bar (per-assembly Coverlet thresholds are not used—they do not match tree-wide coverage). **50%** merged branch adds conditional coverage without demanding perfect branches on generated or thin code. **40%** per product package catches effectively untested projects while allowing a lower bar than the global line target for small production assemblies.
 
-**Mutation testing** (Stryker score baselines vs committed JSON) is a separate guard; see **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
+**Informational vs blocking:** **`scripts/ci/build_coverage_pr_comment.py`** may show a **50%** per-project **line** warning on PRs; that is **not** a gate. The **hard** per-product-package floor remains **40%** ([`assert_merged_line_coverage_min.py`](../scripts/ci/assert_merged_line_coverage_min.py)).
+
+Mutation testing (Stryker baselines) is documented separately in **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
 
 ## Exclusion Policy
 

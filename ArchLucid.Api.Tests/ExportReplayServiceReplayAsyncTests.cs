@@ -192,12 +192,39 @@ public sealed class ExportReplayServiceReplayAsyncTests
         standardDocx.Setup(s => s.GenerateDocxAsync(built, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        await sut.ReplayAsync(
+        RunExportRecord persistedRow = new()
+        {
+            ExportRecordId = "persisted-replay-export-id",
+            RunId = record.RunId,
+            ExportType = record.ExportType,
+            Format = record.Format,
+            FileName = "x.docx",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        audit.Setup(a => a.RecordAsync(
+                record.RunId,
+                record.ExportType,
+                record.Format,
+                It.IsAny<string>(),
+                record.TemplateProfile,
+                record.TemplateProfileDisplayName,
+                record.WasAutoSelected,
+                record.ResolutionReason,
+                It.IsAny<string?>(),
+                It.IsAny<PersistedAnalysisExportRequest?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(persistedRow);
+
+        ReplayExportResult replayResult = await sut.ReplayAsync(
             new ReplayExportRequest
             {
                 ExportRecordId = record.ExportRecordId,
                 RecordReplayExport = true
             });
+
+        replayResult.RecordedReplayExportRecordId.Should().Be("persisted-replay-export-id");
 
         audit.Verify(
             a => a.RecordAsync(

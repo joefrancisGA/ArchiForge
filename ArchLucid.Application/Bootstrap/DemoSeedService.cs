@@ -108,7 +108,9 @@ public sealed class DemoSeedService(
             CurrentManifestVersion = null
         };
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
         await runRepository.CreateAsync(run, cancellationToken);
+#pragma warning restore CS0618
 
         AgentTask task = new()
         {
@@ -166,6 +168,7 @@ public sealed class DemoSeedService(
 
         await decisionTraceRepository.CreateManyAsync([trace], cancellationToken);
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
         await runRepository.UpdateStatusAsync(
                 runId,
                 ArchitectureRunStatus.Committed,
@@ -173,6 +176,7 @@ public sealed class DemoSeedService(
                 completedUtc: DemoUtc,
                 cancellationToken: cancellationToken)
             ;
+#pragma warning restore CS0618
     }
 
     private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened)

@@ -16,6 +16,8 @@ using FluentAssertions;
 
 using Moq;
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — Moq exercises obsolete IArchitectureRunRepository write API (TreatWarningsAsErrors).
+
 namespace ArchLucid.Application.Tests;
 
 /// <summary>
@@ -360,3 +362,5 @@ public sealed class ReplayRunServiceTests
             Times.Once);
     }
 }
+
+#pragma warning restore CS0618

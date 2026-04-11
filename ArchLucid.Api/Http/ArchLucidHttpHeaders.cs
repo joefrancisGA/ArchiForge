@@ -51,4 +51,10 @@ public static class ArchLucidHttpHeaders
     /// Value is <c>true</c>.
     /// </summary>
     public const string BatchReplayPartial = "X-ArchLucid-Batch-Partial";
+
+    /// <summary>
+    /// Set on governance workflow responses when <c>?dryRun=true</c> was used: validation ran but nothing was persisted.
+    /// Value is <c>true</c>.
+    /// </summary>
+    public const string DryRun = "X-ArchLucid-DryRun";
 }

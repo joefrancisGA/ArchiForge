@@ -128,6 +128,57 @@ public sealed class IntegrationEventPayloadContractTests
         AssertPayloadMatchesCommittedSchema("advisory-scan-completed.v1.schema.json", payload);
     }
 
+    [Fact]
+    public void Catalog_entries_match_schema_files_on_disk()
+    {
+        string integrationEventsDir = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events");
+        Directory.Exists(integrationEventsDir).Should().BeTrue();
+
+        string[] schemaFilesOnDisk = Directory.GetFiles(integrationEventsDir, "*.v1.schema.json")
+            .Select(Path.GetFileName)
+            .OfType<string>()
+            .OrderBy(static f => f, StringComparer.Ordinal)
+            .ToArray();
+
+        string catalogPath = Path.Combine(integrationEventsDir, "catalog.json");
+        File.Exists(catalogPath).Should().BeTrue();
+
+        string catalogText = File.ReadAllText(catalogPath);
+        using JsonDocument catalogDoc = JsonDocument.Parse(catalogText);
+        JsonElement catalogRoot = catalogDoc.RootElement;
+        JsonElement events = catalogRoot.GetProperty("events");
+
+        Dictionary<string, string> expectedFileToEventType = new(StringComparer.Ordinal)
+        {
+            ["authority-run-completed.v1.schema.json"] = IntegrationEventTypes.AuthorityRunCompletedV1,
+            ["governance-approval-submitted.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+            ["governance-promotion-activated.v1.schema.json"] = IntegrationEventTypes.GovernancePromotionActivatedV1,
+            ["alert-fired.v1.schema.json"] = IntegrationEventTypes.AlertFiredV1,
+            ["alert-resolved.v1.schema.json"] = IntegrationEventTypes.AlertResolvedV1,
+            ["advisory-scan-completed.v1.schema.json"] = IntegrationEventTypes.AdvisoryScanCompletedV1,
+        };
+
+        HashSet<string> catalogSchemaFiles = new(StringComparer.Ordinal);
+
+        foreach (JsonElement eventEntry in events.EnumerateArray())
+        {
+            string schemaFile = eventEntry.GetProperty("schemaFile").GetString()!;
+            catalogSchemaFiles.Add(schemaFile);
+
+            string schemaPath = Path.Combine(integrationEventsDir, schemaFile);
+            File.Exists(schemaPath).Should().BeTrue($"catalog entry references missing file: {schemaFile}");
+
+            eventEntry.GetProperty("schemaVersion").GetInt32().Should().Be(1);
+
+            string eventType = eventEntry.GetProperty("eventType").GetString()!;
+            expectedFileToEventType.TryGetValue(schemaFile, out string? expectedType).Should().BeTrue(
+                because: $"unexpected schemaFile in catalog: {schemaFile}");
+            eventType.Should().Be(expectedType);
+        }
+
+        catalogSchemaFiles.Should().BeEquivalentTo(schemaFilesOnDisk);
+    }
+
     private static void AssertPayloadMatchesCommittedSchema(string schemaFileName, object payload)
     {
         string path = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events", schemaFileName);

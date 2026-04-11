@@ -57,6 +57,12 @@ Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (includ
 
 ---
 
+## Health JSON (detailed)
+
+**`GET /health`** (authenticated; **ReadAuthority**; detailed response writer) includes a **`circuit_breakers`** check whose **`data.gates`** array lists each OpenAI breaker (**`name`**, **`state`**: `Closed` / `Open` / `HalfOpen`). Use it alongside **`archlucid_circuit_breaker_*`** metrics for live triage. **`/health/live`** and **`/health/ready`** omit this check (it has no readiness/liveness tags).
+
+---
+
 ## Related documents
 
 - [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) — background jobs + authority stage hierarchy.

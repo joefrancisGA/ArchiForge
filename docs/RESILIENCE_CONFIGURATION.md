@@ -21,9 +21,7 @@ Operators can tune retry and circuit-breaker behavior without recompiling. This 
 
 Deployed environments that only set the legacy flat `AzureOpenAI:CircuitBreaker` block continue to work for **both** gates.
 
-**Why `IOptions<T>` / `IOptionsFactory<T>.Create(name)` and not `IOptionsMonitor<T>` for the gate**
-
-`CircuitBreakerGate` is a keyed singleton with mutable internal state (`_consecutiveFailures`, `_state`, `_probeInFlight`). Reloading thresholds while that state is in flight would make behavior ambiguous (for example, changing `FailureThreshold` mid-count). Options are therefore **resolved once** when the gate is constructed. Named `Configure` / `PostConfigure` still give consistent binding and testability without hot-reloading the gate.
+**Threshold changes are picked up automatically via `IOptionsMonitor<CircuitBreakerOptions>` — no restart required.** Production keyed gates read current named options when evaluating failures (`RecordFailure`); configuration reload updates **`FailureThreshold`** / **`DurationOfBreakSeconds`** for subsequent counts. Internal state (open/half-open, consecutive failures) is not reset by a reload. Tests may still construct **`CircuitBreakerGate`** with a frozen **`CircuitBreakerOptions`** instance.
 
 ### SQL connection open retries
 

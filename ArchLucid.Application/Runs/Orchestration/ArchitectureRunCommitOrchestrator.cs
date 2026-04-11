@@ -305,12 +305,14 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 $"Merge failed: {detail}",
                 cancellationToken);
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
         await _runRepository.UpdateStatusAsync(
             runId,
             ArchitectureRunStatus.Failed,
             currentManifestVersion,
             DateTime.UtcNow,
             cancellationToken);
+#pragma warning restore CS0618
 
         throw new InvalidOperationException(
             $"CommitRun failed: {detail}");
@@ -348,6 +350,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
             await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken, uow.Connection, uow.Transaction);
             await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken, uow.Connection, uow.Transaction);
             await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken, uow.Connection, uow.Transaction);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await _runRepository.UpdateStatusAsync(
                 runId,
                 ArchitectureRunStatus.Committed,
@@ -357,12 +360,14 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 expectedStatus: ArchitectureRunStatus.ReadyForCommit,
                 connection: uow.Connection,
                 transaction: uow.Transaction);
+#pragma warning restore CS0618
         }
         else
         {
             await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
             await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
             await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await _runRepository.UpdateStatusAsync(
                 runId,
                 ArchitectureRunStatus.Committed,
@@ -370,6 +375,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 DateTime.UtcNow,
                 cancellationToken,
                 expectedStatus: ArchitectureRunStatus.ReadyForCommit);
+#pragma warning restore CS0618
         }
     }
 

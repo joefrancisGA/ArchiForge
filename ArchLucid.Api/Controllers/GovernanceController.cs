@@ -1,4 +1,5 @@
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -41,7 +42,8 @@ public sealed class GovernanceController(
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SubmitApprovalRequest(
         [FromBody] CreateGovernanceApprovalRequest? request,
-        CancellationToken cancellationToken)
+        [FromQuery] bool dryRun = false,
+        CancellationToken cancellationToken = default)
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -57,7 +59,11 @@ public sealed class GovernanceController(
                 request.TargetEnvironment,
                 requestedBy,
                 request.RequestComment,
+                dryRun,
                 cancellationToken);
+
+            if (dryRun)
+                Response.Headers[ArchLucidHttpHeaders.DryRun] = "true";
 
             return Ok(result);
         }
@@ -140,7 +146,8 @@ public sealed class GovernanceController(
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Promote(
         [FromBody] CreateGovernancePromotionRequest? request,
-        CancellationToken cancellationToken)
+        [FromQuery] bool dryRun = false,
+        CancellationToken cancellationToken = default)
     {
         if (request is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
@@ -159,7 +166,11 @@ public sealed class GovernanceController(
                 promotedBy,
                 request.ApprovalRequestId,
                 request.Notes,
+                dryRun,
                 cancellationToken);
+
+            if (dryRun)
+                Response.Headers[ArchLucidHttpHeaders.DryRun] = "true";
 
             return Ok(result);
         }

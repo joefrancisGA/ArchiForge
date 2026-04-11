@@ -1,7 +1,7 @@
 asyncapi: 2.6.0
 info:
   title: ArchLucid outbound webhooks & integration events
-  version: 1.3.0
+  version: 1.4.0
   description: |
     ArchLucid **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
     This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
@@ -18,6 +18,8 @@ info:
 
     **Bindings:** channels below map to Azure Service Bus **topic** publish (see `infra/terraform-servicebus`).
     Consumer subscriptions use `IntegrationEvents:SubscriptionName` on the worker when `ConsumerEnabled` is true.
+
+    **Integration event payloads** (`integration*` channels) use `payload.$ref` into **JSON Schema Draft 2020-12** files under `schemas/integration-events/` (canonical with committed `.schema.json` assets).
 
 defaultContentType: application/json
 channels:
@@ -100,7 +102,6 @@ channels:
       operationId: publishAuthorityRunCompleted
       message:
         name: AuthorityRunCompletedV1
-        schemaFormat: application/schema+json;version=draft-2020-12
         payload:
           $ref: '../../schemas/integration-events/authority-run-completed.v1.schema.json'
 
@@ -115,7 +116,6 @@ channels:
       operationId: publishGovernanceApprovalSubmitted
       message:
         name: GovernanceApprovalSubmittedV1
-        schemaFormat: application/schema+json;version=draft-2020-12
         payload:
           $ref: '../../schemas/integration-events/governance-approval-submitted.v1.schema.json'
 
@@ -130,7 +130,6 @@ channels:
       operationId: publishGovernancePromotionActivated
       message:
         name: GovernancePromotionActivatedV1
-        schemaFormat: application/schema+json;version=draft-2020-12
         payload:
           $ref: '../../schemas/integration-events/governance-promotion-activated.v1.schema.json'
 
@@ -145,7 +144,6 @@ channels:
       operationId: publishAlertFired
       message:
         name: AlertFiredV1
-        schemaFormat: application/schema+json;version=draft-2020-12
         payload:
           $ref: '../../schemas/integration-events/alert-fired.v1.schema.json'
 
@@ -160,7 +158,6 @@ channels:
       operationId: publishAlertResolved
       message:
         name: AlertResolvedV1
-        schemaFormat: application/schema+json;version=draft-2020-12
         payload:
           $ref: '../../schemas/integration-events/alert-resolved.v1.schema.json'
 
@@ -175,6 +172,5 @@ channels:
       operationId: publishAdvisoryScanCompleted
       message:
         name: AdvisoryScanCompletedV1
-        schemaFormat: application/schema+json;version=draft-2020-12
         payload:
           $ref: '../../schemas/integration-events/advisory-scan-completed.v1.schema.json'

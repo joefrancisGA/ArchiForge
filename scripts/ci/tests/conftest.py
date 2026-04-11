@@ -1,14 +1,10 @@
-"""
-Pytest bootstrap: allow `pytest scripts/ci/tests/` from repo root or `pytest tests/` from scripts/ci.
-
-CI: dotnet-fast-core runs `cd scripts/ci && python3 -m pytest tests/ -v` (see .github/workflows/ci.yml).
-"""
+"""Pytest configuration: ensure sibling CI scripts are importable as top-level modules."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-_CI_DIR = Path(__file__).resolve().parents[1]
-if str(_CI_DIR) not in sys.path:
-    sys.path.insert(0, str(_CI_DIR))
+_CI_ROOT = Path(__file__).resolve().parent.parent
+if str(_CI_ROOT) not in sys.path:
+    sys.path.insert(0, str(_CI_ROOT))

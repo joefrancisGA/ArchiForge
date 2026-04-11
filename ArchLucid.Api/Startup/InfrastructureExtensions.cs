@@ -43,11 +43,11 @@ internal static class InfrastructureExtensions
                 policy.RequireAuthenticatedUser();
                 policy.RequireRole(ArchLucidRoles.Admin);
             })
-            .AddPolicy("CanCommitRuns", policy =>
+            .AddPolicy(ArchLucidPolicies.CanCommitRuns, policy =>
                 policy.RequireClaim("permission", "commit:run"))
             .AddPolicy("CanSeedResults", policy =>
                 policy.RequireClaim("permission", "seed:results"))
-            .AddPolicy("CanExportConsultingDocx", policy =>
+            .AddPolicy(ArchLucidPolicies.CanExportConsultingDocx, policy =>
                 policy.RequireClaim("permission", "export:consulting-docx"))
             .AddPolicy("CanReplayComparisons", policy =>
                 policy.RequireClaim("permission", "replay:comparisons"))

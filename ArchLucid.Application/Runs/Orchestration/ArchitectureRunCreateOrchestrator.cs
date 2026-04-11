@@ -165,7 +165,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (uow.SupportsExternalTransaction)
         {
             await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await _runRepository.CreateAsync(coordination.Run, cancellationToken, uow.Connection, uow.Transaction);
+#pragma warning restore CS0618
             await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
 
             if (coordination.Tasks.Count > 0)
@@ -174,7 +176,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
         else
         {
             await _requestRepository.CreateAsync(request, cancellationToken);
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await _runRepository.CreateAsync(coordination.Run, cancellationToken);
+#pragma warning restore CS0618
             await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
 
             if (coordination.Tasks.Count > 0)

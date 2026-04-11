@@ -28,7 +28,7 @@ curl -s http://localhost:5128/health/ready
 
 - **`GET /version`** — returns JSON with `informationalVersion`, `assemblyVersion`, `commitSha`, `runtimeFramework`, and `environment`. No authentication required.
 - **Startup log** — look for **`Pilot/support configuration snapshot`** (includes `BuildInformationalVersion`, `BuildAssemblyVersion`, `BuildFileVersion`, `BuildCommitSha`, `RuntimeFramework`).
-- **`/health/ready`** and **`/health`** — detailed JSON includes `version` (same value as **`GET /version`** field `informationalVersion`) and `commitSha`, plus per-check status and durations.
+- **`/health/ready`** and **`/health`** — detailed JSON includes `version` (same value as **`GET /version`** field `informationalVersion`) and `commitSha`, plus per-check status and durations. Authenticated **`/health`** also includes **`circuit_breakers`** with **`data.gates[]`** (**`name`**, **`state`**) for Azure OpenAI completion/embedding breakers ([OBSERVABILITY.md](OBSERVABILITY.md) § Health JSON).
 - Set CI or local publish with **`/p:SourceRevisionId=$(git rev-parse HEAD)`** to embed the commit SHA automatically.
 
 ```bash

@@ -17,6 +17,10 @@ public interface IGovernanceWorkflowService
     /// <param name="targetEnvironment">The environment the manifest is being promoted to.</param>
     /// <param name="requestedBy">Identity of the user or system submitting the request.</param>
     /// <param name="requestComment">Optional comment explaining the reason for promotion.</param>
+    /// <param name="dryRun">
+    /// When <see langword="true"/>, validates inputs and run existence and returns the request shape without persisting,
+    /// auditing, or publishing integration events.
+    /// </param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The newly created <see cref="GovernanceApprovalRequest"/>.</returns>
     /// <exception cref="RunNotFoundException">Thrown when <paramref name="runId"/> does not exist.</exception>
@@ -27,6 +31,7 @@ public interface IGovernanceWorkflowService
         string targetEnvironment,
         string requestedBy,
         string? requestComment,
+        bool dryRun = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -78,6 +83,10 @@ public interface IGovernanceWorkflowService
     /// Must reference an approved request for the same run and manifest version.
     /// </param>
     /// <param name="notes">Optional free-text notes recorded on the promotion record.</param>
+    /// <param name="dryRun">
+    /// When <see langword="true"/>, runs the same validation (including prod approval-chain checks) and returns the
+    /// promotion record shape without persisting, updating approval status, auditing, or publishing events.
+    /// </param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The newly created <see cref="GovernancePromotionRecord"/>.</returns>
     /// <exception cref="RunNotFoundException">Thrown when <paramref name="runId"/> does not exist.</exception>
@@ -93,6 +102,7 @@ public interface IGovernanceWorkflowService
         string promotedBy,
         string? approvalRequestId,
         string? notes,
+        bool dryRun = false,
         CancellationToken cancellationToken = default);
 
     /// <summary>

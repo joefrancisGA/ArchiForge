@@ -1,55 +1,49 @@
-# Security
+# Security policy
 
-Responsible disclosure for **ArchLucid** — this repository, published **container images** (for example API and operator UI), and **NuGet** packages (for example the generated API client) produced from it.
+ArchLucid takes security seriously. This document describes how to report vulnerabilities, what we consider in scope, and how we harden the product. Additional detail appears in the repository under `docs/security/` and in [README.md](README.md).
 
-## How to report
+## Reporting vulnerabilities
 
-**Preferred:** Use **[GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability)** to submit a **private** report for this repository.
+**Please do not open public GitHub issues for security vulnerabilities.** Public disclosure can put users at risk before a fix is available.
 
-**Alternative (placeholder — update before GA):** Email **security@archlucid.dev**. Treat this address as a **stand-in** until your team publishes a verified security contact.
+Instead, email **security@archlucid.dev** with:
 
-Please **do not** open public issues for undisclosed vulnerabilities.
+- A clear description of the issue and its impact
+- Steps to reproduce (or proof-of-concept), if possible
+- Affected components or versions, if known
 
-## What to include
+We will send an **initial acknowledgment within 48 hours** and aim to provide a **substantive update or resolution within 10 business days** for valid reports in scope. Complex issues may require more time; we will keep you informed.
 
-- Clear description of the issue and impact (confidentiality, integrity, availability).
-- Steps to reproduce or a safe proof-of-concept (no exploitation of production systems you do not own).
-- Affected **versions**, **commits**, **images**, or **packages** when known.
-- Suggested **severity** (optional).
+## Scope
 
-Do not send production secrets, live credentials, or unnecessary personal data.
+**In scope**
 
-## Our response
+- ArchLucid **API** host, **Worker** host, **CLI**, and **operator UI** (`archlucid-ui`)
+- **Terraform** modules and stacks in this repository
+- **Dockerfiles** and published **container images** built from this repo
+- **GitHub Actions** workflows defined in `.github/workflows/` (misconfigurations that affect supply chain or secrets)
 
-- **Acknowledgment** within **5 business days** of a report we can act on.
-- **Initial assessment** (severity, scope, and direction) within **15 business days**.
+**Out of scope**
 
-Timelines assume good-faith reports with enough detail to triage; complex issues may need follow-up.
+- Vulnerabilities in **third-party dependencies** (report to the upstream maintainer; we track upgrades via NuGet/npm, SBOMs, and scanners)
+- **Social engineering** or physical attacks
+- **Denial-of-service** against non-production or best-effort demo environments
+- Issues requiring **compromised operator credentials** or **misconfigured** Entra ID / Key Vault / network boundaries outside our default reference architecture
 
-## Coordinated disclosure
+## Security posture (summary)
 
-Do **not** publicly disclose details (blogs, CVEs, social posts) until **maintainers** confirm a **fix or agreed mitigation** is available and a disclosure timeline is coordinated (**responsible disclosure**).
+- **Authentication:** Entra ID (JWT Bearer) and optional **API key** mode; sensitive comparisons use fixed-time helpers (e.g. `CryptographicOperations.FixedTimeEquals`) where applicable.
+- **Authorization:** **RBAC** (three app roles mapped to five authorization policies) and **SQL row-level security (RLS)** enforced for production SQL deployments — see [docs/security/MULTI_TENANT_RLS.md](docs/security/MULTI_TENANT_RLS.md).
+- **Transport:** **HTTPS** for production-style deployments; **HSTS** enabled in production hosting paths.
+- **HTTP security headers:** Baseline headers include **Content-Security-Policy** (`default-src 'none'` for API JSON responses), **X-Frame-Options: DENY**, and **X-Content-Type-Options: nosniff** (see `ArchLucid.Host.Core` middleware).
+- **Secrets:** Prefer **Azure Key Vault**; CI runs **gitleaks**; production startup validation rejects **placeholder API keys**.
+- **Dependencies & artifacts:** **Trivy** (including container and IaC scans where configured), **CodeQL**, **NuGet** vulnerability audit in CI, and **CycloneDX** SBOM generation for supply-chain visibility.
+- **Network:** **Private endpoints** for SQL and Blob-style storage; **SMB (port 445) is not exposed publicly** — align deployments with private connectivity and controlled boundaries.
 
 ## Supported versions
 
-Security fixes are applied to **`main`** and the **latest release** built from it. **Older tags** or branches receive fixes at **maintainer discretion**.
+Security patches are applied to the **latest release branch / current default branch** of this repository. Older tags or forks may not receive backports unless explicitly communicated in release notes.
 
-## Product security documentation
+## PGP / encrypted email
 
-Deeper design and controls (not duplicated here):
-
-- [docs/security/ASK_RAG_THREAT_MODEL.md](docs/security/ASK_RAG_THREAT_MODEL.md) — Ask / RAG threat model  
-- [docs/security/MULTI_TENANT_RLS.md](docs/security/MULTI_TENANT_RLS.md) — Multi-tenant RLS  
-- [docs/security/MANAGED_IDENTITY_SQL_BLOB.md](docs/security/MANAGED_IDENTITY_SQL_BLOB.md) — Managed identity, SQL, Blob  
-- [docs/security/PII_RETENTION_CONVERSATIONS.md](docs/security/PII_RETENTION_CONVERSATIONS.md) — PII retention (conversations)
-
-## CI security tooling (summary)
-
-Pipelines include automated checks such as:
-
-- **Gitleaks** — secret scanning in repository content.  
-- **Trivy** — IaC and container image vulnerability scanning.  
-- **CodeQL** — static analysis (C#, JavaScript/TypeScript).  
-- **NuGet** — package vulnerability audit in .NET builds.  
-- **CycloneDX** — SBOM generation for supply-chain visibility.  
-- **OWASP ZAP** — baseline dynamic scanning against the API where configured.
+**PGP encryption for vulnerability reports is not currently supported.** This section will be updated when a key is provisioned.

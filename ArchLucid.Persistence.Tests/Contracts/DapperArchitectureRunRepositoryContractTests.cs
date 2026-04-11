@@ -4,6 +4,8 @@ using ArchLucid.Persistence.Tests.Support;
 
 using Microsoft.Data.SqlClient;
 
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — contract tests for legacy ArchitectureRunRepository.
+
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 [Collection(nameof(SqlServerPersistenceCollection))]
@@ -28,3 +30,5 @@ public sealed class DapperArchitectureRunRepositoryContractTests(SqlServerPersis
         await ArchitectureCommitTestSeed.InsertArchitectureRequestOnlyAsync(connection, requestId, systemName, ct);
     }
 }
+
+#pragma warning restore CS0618

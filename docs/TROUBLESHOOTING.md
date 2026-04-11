@@ -12,6 +12,8 @@
 
 If still stuck, use **[When you report an issue](PILOT_GUIDE.md#when-you-report-an-issue)** in [PILOT_GUIDE.md](PILOT_GUIDE.md).
 
+**OpenAI / embedding failures:** With reader credentials, **`GET /health`** includes **`circuit_breakers`**. **`state` = `Open`** means the breaker tripped; after **`DurationOfBreakSeconds`** (see **`AzureOpenAI:CircuitBreaker:*`** in [RESILIENCE_CONFIGURATION.md](RESILIENCE_CONFIGURATION.md)) the gate allows a single half-open probe before closing or re-opening.
+
 ---
 
 ## Problem Details (`application/problem+json`) and `supportHint`

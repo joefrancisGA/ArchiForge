@@ -128,12 +128,14 @@ public sealed class AuthorityPipelineWorkProcessor(
 
         if (architectureRun.Status == ArchitectureRunStatus.Created)
         {
+#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
             await architectureRunRepository.ApplyDeferredAuthoritySnapshotsAsync(
                 runIdN,
                 completed.ContextSnapshotId?.ToString("N"),
                 completed.GraphSnapshotId,
                 completed.ArtifactBundleId,
                 cancellationToken);
+#pragma warning restore CS0618
         }
 
         ArchitectureRun? refreshed =
