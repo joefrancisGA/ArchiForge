@@ -2,6 +2,22 @@
 
 This document describes the classes and methods excluded from code coverage via `[ExcludeFromCodeCoverage]` and the justification for each exclusion.
 
+## Enforced CI coverage gates
+
+After the **full solution** test run, CI merges Coverlet Cobertura fragments with ReportGenerator and runs **`scripts/ci/assert_merged_line_coverage_min.py`** on the merged **`Cobertura.xml`**. Shared parsing and the product-package filter are in **`scripts/ci/coverage_cobertura.py`** (`is_product_archlucid_package()` excludes test assemblies and **`ArchLucid.TestSupport`** from the per-package floor; packages with zero coverable `<line/>` rows are skipped).
+
+| Gate | Threshold | Where enforced | On failure |
+|------|-----------|----------------|------------|
+| Merged **line** | **70%** | Root `line-rate` × 100; default positional arg `70` in **`.github/workflows/ci.yml`** (job **.NET: full regression (SQL)**) | Non-zero exit **1** — merged line below floor (message to stdout). |
+| Merged **branch** | **50%** | Root `branch-rate` × 100; `--min-branch-pct 50` | Exit **1** if below floor; exit **2** if root `branch-rate` is missing (branch gate must not pass silently). |
+| Per **product** package **line** | **40%** | Each merged Cobertura `<package>` that is a product **`ArchLucid.*`** assembly with coverable lines; `--min-package-line-pct 40` | Exit **1** — lists packages under the floor or with missing `line-rate` despite coverable lines. |
+
+**Rationale:** **70%** line on the **merged** report is a solution-wide floor (Coverlet per-assembly thresholds are not used because they misrepresent tree-wide coverage). **50%** branch on the merged root rewards meaningful conditional coverage without chasing perfection on generated or thin code. **40%** per product package catches projects that effectively lack tests, while still allowing narrow production assemblies with high exclusion ratios to stay above a lower bar than the global line target.
+
+**PR comment (informational only):** **`scripts/ci/build_coverage_pr_comment.py`** may emit a **50%** per-project **line** warning for visibility in the sticky coverage comment; that warning is **not** blocking. The **hard** per-package floor remains **40%** above.
+
+**Mutation testing** (Stryker score baselines vs committed JSON) is a separate guard; see **[MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md)**.
+
 ## Exclusion Policy
 
 Code is excluded from coverage only when:
@@ -12,6 +28,8 @@ Code is excluded from coverage only when:
 4. The effort to unit-test the code **exceeds the risk** it represents, and the code is covered by integration or E2E tests instead.
 
 Code with testable pure logic is **never** excluded, even when it lives in a class that also has untestable infrastructure code. In those cases, only the untestable method is excluded (e.g., `SqlSchemaBootstrapper.EnsureSchemaAsync`).
+
+Exclusions change Cobertura denominators; CI still enforces **merged line**, **merged branch**, and **per-product line** gates on the merged report (see **Enforced CI coverage gates**).
 
 ---
 
@@ -138,14 +156,6 @@ Pure data-transfer objects used by Dapper for SQL result mapping. They contain o
 
 The improvement is due to removing untestable SQL infrastructure code from the denominator, giving an accurate picture of how well the testable codebase is covered.
 
-## Repo-wide minimum (merged Cobertura)
+## Cobertura merge (why no Coverlet `<Threshold>`)
 
-`coverage.runsettings` intentionally does **not** set Coverlet `<Threshold>`: VSTest runs collectors **per test assembly**, so a single global percentage would fail assemblies that only cover part of the tree. CI merges Cobertura files with ReportGenerator (see `.github/workflows/ci.yml`), then **`scripts/ci/assert_merged_line_coverage_min.py`** enforces, on merged **`Cobertura.xml`**:
-
-| Gate | Threshold | Source |
-|------|-----------|--------|
-| Merged **line** | **70%** | Root `line-rate` |
-| Merged **branch** | **50%** | Root `branch-rate` (required; missing → fail) |
-| Per **product** package line | **40%** | Each Cobertura `<package>` matching `ArchLucid.*` (excluding tests/TestSupport) with at least one coverable `<line/>`; packages with zero coverable lines are skipped |
-
-Shared parsing and the product-package filter live in **`scripts/ci/coverage_cobertura.py`** (also used by **`scripts/ci/build_coverage_pr_comment.py`**).
+`coverage.runsettings` does **not** set Coverlet `<Threshold>`: collectors run **per test assembly**, so a single assembly-wide threshold would not match solution-wide coverage. CI merges fragments with ReportGenerator in **.NET: full regression (SQL)**, then applies the gates in **Enforced CI coverage gates**. **`scripts/ci/build_coverage_pr_comment.py`** reuses **`coverage_cobertura.py`** for PR summary text (informational per-project line warning vs blocking floors — see that section).

@@ -1,7 +1,7 @@
 /**
  * Reads operator UI environment variables (ArchLucid-prefixed first).
- * Server-side API base still accepts `NEXT_PUBLIC_*ARCHIFORGE*_API_BASE_URL` when the Lucid public var is unset (migration).
- * Other legacy `ARCHIFORGE_*` keys are warned once and ignored for reads here.
+ * Server-side API base still accepts `NEXT_PUBLIC_${_legacyEnvPrefix}API_BASE_URL` when `NEXT_PUBLIC_ARCHLUCID_API_BASE_URL` is unset (migration).
+ * Other env keys whose names start with `_legacyEnvPrefix` are warned once and ignored for reads here.
  */
 const _legacyEnvPrefix = "ARCH" + "IFORGE_";
 

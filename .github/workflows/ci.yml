@@ -241,6 +241,11 @@ jobs:
       - name: List endpoint pagination audit
         run: python scripts/ci/assert_list_endpoint_pagination.py
 
+      - name: CI Python scripts (pytest)
+        run: |
+          python3 -m pip install --quiet pytest
+          cd scripts/ci && python3 -m pytest tests/ -v
+
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.

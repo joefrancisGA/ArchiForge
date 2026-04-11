@@ -22,7 +22,24 @@ Each config enables **`json`** alongside `progress` and `html` so CI can parse *
 
 Scheduled CI runs all five targets (matrix) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.15** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (still **60**).
 
-**Baselines** are bumped **only intentionally** after a green scheduled run (or local run): open the workflow artifact or `StrykerOutput/**/mutation-report.json`, read the reported mutation score, and update the matching matrix label in `stryker-baselines.json`. Do not lower baselines to silence failures without a product decision.
+**Why baselines must sit above `break`:** If every baseline equals **`thresholds.break` (60)**, a project can lose most of its mutation-kill rate while still passing Stryker’s own break gate, and the assert script will not fail (floor = baseline − 0.15). Baselines should reflect **observed green scores** (rounded **down** to one decimal, e.g. 78.37 → **78.3**) so slow regressions inside the passing band are caught.
+
+### Refreshing `stryker-baselines.json` (calibrated scores)
+
+From the repository root (after **`dotnet tool restore`**):
+
+```bash
+python3 scripts/ci/refresh_stryker_baselines.py
+```
+
+This runs **`dotnet dotnet-stryker`** once per matrix target (clears **`StrykerOutput/`** before each run), reads the newest **`mutation-report.json`**, floors each score to one decimal, and rewrites **`scripts/ci/stryker-baselines.json`** with a top-level **`_measuredDate`** (ISO date, informational only; the assert script ignores it).
+
+- **CPU / time:** expect on the order of tens of minutes per target; run on a quiet machine or overnight.
+- **Subset + merge** (re-measure one project without re-running all five):  
+  `python3 scripts/ci/refresh_stryker_baselines.py --only Decisioning --merge-existing`  
+  (requires an existing baseline file with the other four labels.)
+
+**Manual fallback:** open the scheduled workflow artifact or **`StrykerOutput/**/mutation-report.json`**, read the reported mutation score, and update the matching matrix label (still apply **round-down** to one decimal). Do **not** lower baselines to silence failures without a product decision.
 
 Full table: **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)** (Stryker configs).
 
@@ -57,3 +74,5 @@ Mutation testing is **not** part of the default GitHub Actions workflow: it is s
 ## Reliability
 
 Flaky tests will show as “survived” or inconsistent mutants. Fix test isolation before trusting mutation scores.
+
+On **Windows**, stop other **`dotnet test`** / **`testhost`** processes before local Stryker runs; locked **`bin\Debug\*.dll`** copies under unrelated test projects can make Stryker’s compile step fail with “file is being used by another process.”
