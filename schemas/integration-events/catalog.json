@@ -8,42 +8,54 @@
       "eventType": "com.archlucid.authority.run.completed",
       "schemaVersion": 1,
       "schemaFile": "authority-run-completed.v1.schema.json",
-      "transport": "azure-service-bus",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/authority-run-completed.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
       "description": "Emitted when an authority run completes successfully."
     },
     {
       "eventType": "com.archlucid.governance.approval.submitted",
       "schemaVersion": 1,
       "schemaFile": "governance-approval-submitted.v1.schema.json",
-      "transport": "azure-service-bus",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-approval-submitted.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
       "description": "Emitted when a governance approval request is submitted."
     },
     {
       "eventType": "com.archlucid.governance.promotion.activated",
       "schemaVersion": 1,
       "schemaFile": "governance-promotion-activated.v1.schema.json",
-      "transport": "azure-service-bus",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-promotion-activated.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
       "description": "Emitted when a governance promotion environment activation completes."
     },
     {
       "eventType": "com.archlucid.alert.fired",
       "schemaVersion": 1,
       "schemaFile": "alert-fired.v1.schema.json",
-      "transport": "azure-service-bus",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-fired.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
       "description": "Emitted when an alert is raised for a scope (run/comparison context)."
     },
     {
       "eventType": "com.archlucid.alert.resolved",
       "schemaVersion": 1,
       "schemaFile": "alert-resolved.v1.schema.json",
-      "transport": "azure-service-bus",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
       "description": "Emitted when an alert is resolved."
     },
     {
       "eventType": "com.archlucid.advisory.scan.completed",
       "schemaVersion": 1,
       "schemaFile": "advisory-scan-completed.v1.schema.json",
-      "transport": "azure-service-bus",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/advisory-scan-completed.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
       "description": "Emitted when a scheduled advisory scan execution completes."
     }
   ]

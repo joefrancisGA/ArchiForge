@@ -18,7 +18,11 @@ public sealed class CircuitBreakerGateMetricsTests
 
         using MeasurementCapture capture = MeasurementCapture.Start();
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new("test-gate", options);
         gate.RecordFailure();
 
@@ -37,7 +41,11 @@ public sealed class CircuitBreakerGateMetricsTests
 
         using MeasurementCapture capture = MeasurementCapture.Start();
 
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 10
+        };
         CircuitBreakerGate gate = new("reject-gate", options);
         gate.RecordFailure();
 
@@ -59,7 +67,11 @@ public sealed class CircuitBreakerGateMetricsTests
         using MeasurementCapture capture = MeasurementCapture.Start();
 
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("probe-gate", options, clock.ToFunc());
 
         gate.RecordFailure();
@@ -80,11 +92,9 @@ public sealed class CircuitBreakerGateMetricsTests
             && m.Tags.Any(t => t.Key == "to_state" && string.Equals(t.Value as string, "Closed", StringComparison.Ordinal)));
     }
 
-    private sealed class MutableUtcClock
+    private sealed class MutableUtcClock(DateTimeOffset start)
     {
-        private DateTimeOffset _now;
-
-        public MutableUtcClock(DateTimeOffset start) => _now = start;
+        private DateTimeOffset _now = start;
 
         public void Advance(TimeSpan delta) => _now = _now.Add(delta);
 

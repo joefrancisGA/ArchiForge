@@ -33,7 +33,7 @@ public sealed class GovernanceWorkflowPropertyTests
 {
 #pragma warning disable xUnit1031 // FsCheck properties are synchronous; workflow methods are async.
 
-    [Property(Arbitrary = new[] { typeof(GovernanceWorkflowArbitraries) }, MaxTest = 30)]
+    [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 30)]
     public void ApproveOnlyLegalFromDraftOrSubmitted(GovernanceStatusSample sample)
     {
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateForApprove(sample.Status);
@@ -52,7 +52,7 @@ public sealed class GovernanceWorkflowPropertyTests
         }
     }
 
-    [Property(Arbitrary = new[] { typeof(GovernanceWorkflowArbitraries) }, MaxTest = 30)]
+    [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 30)]
     public void RejectOnlyLegalFromDraftOrSubmitted(GovernanceStatusSample sample)
     {
         GovernanceWorkflowService sut = GovernanceWorkflowTestFactory.CreateForApprove(sample.Status);
@@ -71,7 +71,7 @@ public sealed class GovernanceWorkflowPropertyTests
         }
     }
 
-    [Property(Arbitrary = new[] { typeof(GovernanceWorkflowArbitraries) }, MaxTest = 30)]
+    [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 30)]
     public void StatusAfterApproveIsAlwaysApproved(DraftOrSubmittedSample sample)
     {
         Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
@@ -98,7 +98,7 @@ public sealed class GovernanceWorkflowPropertyTests
         updated!.Status.Should().Be(GovernanceApprovalStatus.Approved);
     }
 
-    [Property(Arbitrary = new[] { typeof(GovernanceWorkflowArbitraries) }, MaxTest = 30)]
+    [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 30)]
     public void StatusAfterRejectIsAlwaysRejected(DraftOrSubmittedSample sample)
     {
         Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
@@ -125,7 +125,7 @@ public sealed class GovernanceWorkflowPropertyTests
         updated!.Status.Should().Be(GovernanceApprovalStatus.Rejected);
     }
 
-    [Property(Arbitrary = new[] { typeof(GovernanceWorkflowArbitraries) }, MaxTest = 25)]
+    [Property(Arbitrary = [typeof(GovernanceWorkflowArbitraries)], MaxTest = 25)]
     public void ActivateDeactivatesAllExistingActiveRecords(ActiveActivationCount count)
     {
         Mock<IGovernanceEnvironmentActivationRepository> activationRepo = new();

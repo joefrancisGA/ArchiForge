@@ -43,10 +43,10 @@ public sealed class ExportReplayService(
             cancellationToken);
 
         if (record is null)
-        
+
             throw new InvalidOperationException(
                 $"Export record '{request.ExportRecordId}' was not found.");
-        
+
 
         PersistedAnalysisExportRequest persistedRequest = AnalysisExportRequestRehydrator.Rehydrate(record)
                                                           ?? throw new InvalidOperationException(
@@ -109,24 +109,36 @@ public sealed class ExportReplayService(
 
         string? recordedReplayExportRecordId = null;
 
-        if (recordReplayExport)
-        {
-            RunExportRecord persisted = await runExportAuditService.RecordAsync(
-                runId: record.RunId,
-                exportType: record.ExportType,
-                format: record.Format,
-                fileName: replayFileName,
-                templateProfile: record.TemplateProfile,
-                templateProfileDisplayName: record.TemplateProfileDisplayName,
-                wasAutoSelected: record.WasAutoSelected,
-                resolutionReason: record.ResolutionReason,
-                manifestVersion: report.Manifest?.Metadata.ManifestVersion,
-                analysisRequest: persistedRequest,
-                notes: $"Replay generated from export record {record.ExportRecordId}.",
-                cancellationToken: cancellationToken);
+        if (!recordReplayExport)
+            return new ReplayExportResult
+            {
+                ExportRecordId = record.ExportRecordId,
+                RecordedReplayExportRecordId = recordedReplayExportRecordId,
+                RunId = record.RunId,
+                ExportType = record.ExportType,
+                Format = record.Format,
+                FileName = replayFileName,
+                Content = bytes,
+                TemplateProfile = record.TemplateProfile,
+                TemplateProfileDisplayName = record.TemplateProfileDisplayName,
+                WasAutoSelected = record.WasAutoSelected,
+                ResolutionReason = record.ResolutionReason
+            };
+        RunExportRecord persisted = await runExportAuditService.RecordAsync(
+            runId: record.RunId,
+            exportType: record.ExportType,
+            format: record.Format,
+            fileName: replayFileName,
+            templateProfile: record.TemplateProfile,
+            templateProfileDisplayName: record.TemplateProfileDisplayName,
+            wasAutoSelected: record.WasAutoSelected,
+            resolutionReason: record.ResolutionReason,
+            manifestVersion: report.Manifest?.Metadata.ManifestVersion,
+            analysisRequest: persistedRequest,
+            notes: $"Replay generated from export record {record.ExportRecordId}.",
+            cancellationToken: cancellationToken);
 
-            recordedReplayExportRecordId = persisted.ExportRecordId;
-        }
+        recordedReplayExportRecordId = persisted.ExportRecordId;
 
         return new ReplayExportResult
         {
@@ -151,9 +163,9 @@ public sealed class ExportReplayService(
     private static string BuildReplayFileName(string originalFileName)
     {
         if (string.IsNullOrWhiteSpace(originalFileName))
-        
+
             return FallbackReplayFileName;
-        
+
 
         string extension = Path.GetExtension(originalFileName);
         string baseName = Path.GetFileNameWithoutExtension(originalFileName);

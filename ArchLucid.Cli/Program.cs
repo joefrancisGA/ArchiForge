@@ -27,14 +27,12 @@ namespace ArchLucid.Cli
             switch (command)
             {
                 case "new":
-                    if (args.Length <= 1)
-                    {
-                        Console.WriteLine("Usage: archlucid new <projectName>");
+                    if (args.Length > 1)
+                        return await NewCommand.RunAsync(args[1]);
 
-                        return 1;
-                    }
+                    Console.WriteLine("Usage: archlucid new <projectName>");
 
-                    return await NewCommand.RunAsync(args[1]);
+                    return 1;
 
                 case "dev":
                     if (args.Length > 1 && args[1] == "up")

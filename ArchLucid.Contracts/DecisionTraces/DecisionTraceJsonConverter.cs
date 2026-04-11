@@ -35,11 +35,7 @@ public sealed class DecisionTraceJsonConverter : JsonConverter<DecisionTrace>
 
             RunEventTracePayload? payload = runEventElement.Deserialize<RunEventTracePayload>(options);
 
-            if (payload is null)
-
-                throw new JsonException("RunEvent trace \"runEvent\" deserialized to null.");
-
-            return RunEventTrace.From(payload);
+            return payload is null ? throw new JsonException("RunEvent trace \"runEvent\" deserialized to null.") : RunEventTrace.From(payload);
         }
 
         if (kind == DecisionTraceKind.RuleAudit)
@@ -50,11 +46,7 @@ public sealed class DecisionTraceJsonConverter : JsonConverter<DecisionTrace>
 
             RuleAuditTracePayload? payload = ruleAuditElement.Deserialize<RuleAuditTracePayload>(options);
 
-            if (payload is null)
-
-                throw new JsonException("RuleAudit trace \"ruleAudit\" deserialized to null.");
-
-            return RuleAuditTrace.From(payload);
+            return payload is null ? throw new JsonException("RuleAudit trace \"ruleAudit\" deserialized to null.") : RuleAuditTrace.From(payload);
         }
 
         throw new JsonException($"Unsupported decision trace kind '{kind}'.");

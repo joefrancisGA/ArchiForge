@@ -12,7 +12,11 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
     [Fact]
     public void GateName_returns_constructor_value()
     {
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 1 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 1
+        };
         CircuitBreakerGate gate = new("my-gate", options);
 
         gate.GateName.Should().Be("my-gate");
@@ -22,7 +26,11 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
     public void CurrentState_reflects_transitions()
     {
         MutableUtcClock clock = new(new DateTimeOffset(2026, 3, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 30 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 30
+        };
         CircuitBreakerGate gate = new("state-gate", options, clock.ToFunc());
 
         gate.CurrentState.Should().Be("Closed");
@@ -41,7 +49,11 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
     [Fact]
     public void OptionsMonitor_reload_changes_failure_threshold()
     {
-        CircuitBreakerOptions live = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions live = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
         TestOptionsMonitor monitor = new(live);
         CircuitBreakerGate gate = new("reload-gate", monitor);
 
@@ -55,11 +67,9 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
         gate.CurrentState.Should().Be("Open");
     }
 
-    private sealed class MutableUtcClock
+    private sealed class MutableUtcClock(DateTimeOffset start)
     {
-        private DateTimeOffset _now;
-
-        public MutableUtcClock(DateTimeOffset start) => _now = start;
+        private DateTimeOffset _now = start;
 
         public void Advance(TimeSpan delta) => _now = _now.Add(delta);
 
@@ -67,15 +77,11 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
     }
 
     /// <summary>Stub monitor: <see cref="Get"/> returns the same options instance (mutable for reload simulation).</summary>
-    private sealed class TestOptionsMonitor : IOptionsMonitor<CircuitBreakerOptions>
+    private sealed class TestOptionsMonitor(CircuitBreakerOptions instance) : IOptionsMonitor<CircuitBreakerOptions>
     {
-        private readonly CircuitBreakerOptions _instance;
+        public CircuitBreakerOptions CurrentValue => instance;
 
-        public TestOptionsMonitor(CircuitBreakerOptions instance) => _instance = instance;
-
-        public CircuitBreakerOptions CurrentValue => _instance;
-
-        public CircuitBreakerOptions Get(string? name) => _instance;
+        public CircuitBreakerOptions Get(string? name) => instance;
 
         public IDisposable OnChange(Action<CircuitBreakerOptions, string> listener) => NoopDisposable.Instance;
 

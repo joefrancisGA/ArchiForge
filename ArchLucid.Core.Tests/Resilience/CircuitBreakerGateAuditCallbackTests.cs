@@ -131,11 +131,9 @@ public sealed class CircuitBreakerGateAuditCallbackTests
         act.Should().NotThrow();
     }
 
-    private sealed class MutableUtcClock
+    private sealed class MutableUtcClock(DateTimeOffset start)
     {
-        private DateTimeOffset _now;
-
-        public MutableUtcClock(DateTimeOffset start) => _now = start;
+        private DateTimeOffset _now = start;
 
         public void Advance(TimeSpan delta) => _now = _now.Add(delta);
 

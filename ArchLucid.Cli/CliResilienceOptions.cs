@@ -36,12 +36,12 @@ public sealed class CliResilienceOptions
             return result;
         }
 
-        if (section.MaxRetryAttempts is int maxRetries)
+        if (section.MaxRetryAttempts is { } maxRetries)
         {
             result.MaxRetryAttempts = maxRetries;
         }
 
-        if (section.InitialDelaySeconds is int delaySec)
+        if (section.InitialDelaySeconds is { } delaySec)
         {
             result.InitialDelaySeconds = delaySec;
         }

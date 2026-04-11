@@ -2,10 +2,12 @@ using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Provenance;
+using ArchLucid.Provenance.Analysis;
 
 using Asp.Versioning;
 
@@ -179,6 +181,12 @@ public sealed class AuthorityQueryController(
             detail.GoldenManifest,
             detail.AuthorityTrace,
             artifacts);
+
+        ProvenanceCompletenessResult completeness = ProvenanceCompletenessAnalyzer.Analyze(graph);
+
+        ArchLucidInstrumentation.ProvenanceCompleteness.Record(
+            completeness.CoverageRatio,
+            new KeyValuePair<string, object?>("surface", "authority_query"));
 
         return Ok(graph);
     }

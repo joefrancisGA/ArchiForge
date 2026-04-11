@@ -330,7 +330,9 @@ public sealed class EvolutionSimulationService(
         int WarningCount);
 
     private sealed record EvolutionOutcomeEnvelopeV2(
-        [property: JsonPropertyName("schemaVersion")] string SchemaVersion,
+        [property: JsonPropertyName("schemaVersion")]
+        [UsedImplicitly]
+        string SchemaVersion,
         [property: JsonPropertyName("shadow")] ShadowOutcomeDto Shadow,
         [property: JsonPropertyName("evaluation")] EvaluationScore? Evaluation,
         [property: JsonPropertyName("explanationSummary")] string? ExplanationSummary,

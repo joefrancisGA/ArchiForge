@@ -47,7 +47,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             throw new ArgumentOutOfRangeException(nameof(maxCompletionTokens), maxCompletionTokens, "Must be at least 1.");
         }
 
-        Uri endpointUri = new Uri(endpoint);
+        Uri endpointUri = new(endpoint);
         AzureOpenAIClient azureClient = new(
             endpointUri,
             new ApiKeyCredential(apiKey));

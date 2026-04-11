@@ -17,7 +17,7 @@ public sealed class SchemaValidationIntegrationTests
     [Fact]
     public void ServiceRegistration_WithConfiguration_RegistersSuccessfully()
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddLogging();
 
         services.AddSchemaValidation(options =>

@@ -33,12 +33,7 @@ public static class AgentTypeKeys
     {
         ArgumentNullException.ThrowIfNull(task);
 
-        if (!string.IsNullOrWhiteSpace(task.AgentTypeKey))
-        {
-            return task.AgentTypeKey.Trim();
-        }
-
-        return FromEnum(task.AgentType);
+        return !string.IsNullOrWhiteSpace(task.AgentTypeKey) ? task.AgentTypeKey.Trim() : FromEnum(task.AgentType);
     }
 
     /// <summary>When <paramref name="agentTypeKey"/> matches a built-in key, returns the enum; otherwise <see langword="null"/>.</summary>

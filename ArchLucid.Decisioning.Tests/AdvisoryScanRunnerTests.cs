@@ -15,7 +15,6 @@ using ArchLucid.Decisioning.Comparison;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence;
-using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
@@ -276,15 +275,14 @@ public sealed class AdvisoryScanRunnerTests
         delivery.Verify(x => x.DeliverAsync(It.Is<ArchitectureDigest>(d => d.DigestId == digestId), It.IsAny<CancellationToken>()), Times.Once);
 
         lastResultJson.Should().NotBeNull();
-        using (JsonDocument doc = JsonDocument.Parse(lastResultJson!))
-        {
-            JsonElement root = doc.RootElement;
-            root.GetProperty("schemaVersion").GetInt32().Should().Be(1);
-            JsonElement tc = root.GetProperty("traceCompleteness");
-            tc.GetProperty("totalFindings").GetInt32().Should().Be(0);
-            tc.GetProperty("overallCompletenessRatio").GetDouble().Should().Be(0.0);
-            tc.GetProperty("byEngine").GetArrayLength().Should().Be(0);
-        }
+
+        using JsonDocument doc = JsonDocument.Parse(lastResultJson!);
+        JsonElement root = doc.RootElement;
+        root.GetProperty("schemaVersion").GetInt32().Should().Be(1);
+        JsonElement tc = root.GetProperty("traceCompleteness");
+        tc.GetProperty("totalFindings").GetInt32().Should().Be(0);
+        tc.GetProperty("overallCompletenessRatio").GetDouble().Should().Be(0.0);
+        tc.GetProperty("byEngine").GetArrayLength().Should().Be(0);
     }
 
     private static IOptionsMonitor<IntegrationEventsOptions> OptionsMonitor(bool transactionalOutbox = false)

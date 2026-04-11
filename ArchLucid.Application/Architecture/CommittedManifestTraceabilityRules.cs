@@ -18,10 +18,7 @@ public static class CommittedManifestTraceabilityRules
     {
         ArgumentNullException.ThrowIfNull(detail);
 
-        if (detail.Run.Status != ArchitectureRunStatus.Committed)
-            return [];
-
-        return GetLinkageGaps(detail.Manifest, detail.DecisionTraces);
+        return detail.Run.Status != ArchitectureRunStatus.Committed ? [] : GetLinkageGaps(detail.Manifest, detail.DecisionTraces);
     }
 
     /// <summary>
@@ -37,15 +34,12 @@ public static class CommittedManifestTraceabilityRules
         List<string> gaps = [];
         HashSet<string> idsOnManifest = new(StringComparer.OrdinalIgnoreCase);
 
-        if (manifest.Metadata.DecisionTraceIds is not null)
+        foreach (string id in manifest.Metadata.DecisionTraceIds)
         {
-            foreach (string id in manifest.Metadata.DecisionTraceIds)
-            {
-                if (string.IsNullOrWhiteSpace(id))
-                    gaps.Add("Manifest.Metadata.DecisionTraceIds contains an empty entry.");
-                else
-                    idsOnManifest.Add(id);
-            }
+            if (string.IsNullOrWhiteSpace(id))
+                gaps.Add("Manifest.Metadata.DecisionTraceIds contains an empty entry.");
+            else
+                idsOnManifest.Add(id);
         }
 
         List<string> coordinatorTraceIds = [];

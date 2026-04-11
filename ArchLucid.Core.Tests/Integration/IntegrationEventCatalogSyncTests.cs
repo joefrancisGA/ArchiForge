@@ -23,7 +23,7 @@ public sealed class IntegrationEventCatalogSyncTests
         JsonElement root = catalogDoc.RootElement;
         JsonElement eventsElement = root.GetProperty("events");
 
-        List<(string EventType, string SchemaFile, string SchemaUri)> catalogRows = new();
+        List<(string EventType, string SchemaFile, string SchemaUri)> catalogRows = [];
 
         foreach (JsonElement eventElement in eventsElement.EnumerateArray())
         {
@@ -68,7 +68,7 @@ public sealed class IntegrationEventCatalogSyncTests
 
         List<string> values = typeof(IntegrationEventTypes)
             .GetFields(flags)
-            .Where(field => field is { IsLiteral: true, FieldType: not null } && field.FieldType == typeof(string))
+            .Where(field => field is { IsLiteral: true } && field.FieldType == typeof(string))
             .Where(field => field.Name != nameof(IntegrationEventTypes.WildcardEventType))
             .Select(field => (string)field.GetRawConstantValue()!)
             .Where(value => !string.IsNullOrWhiteSpace(value))

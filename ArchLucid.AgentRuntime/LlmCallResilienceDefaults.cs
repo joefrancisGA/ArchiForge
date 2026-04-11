@@ -1,6 +1,5 @@
 using System.ClientModel;
 using System.Diagnostics;
-using System.Net;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
@@ -49,7 +48,7 @@ public static class LlmCallResilienceDefaults
                 ShouldHandle = new PredicateBuilder().Handle<Exception>(ShouldRetryLlmException),
                 OnRetry = args =>
                 {
-                    TagList metricTags = new TagList();
+                    TagList metricTags = [];
 
                     if (!string.IsNullOrEmpty(gateName))
                     {
@@ -63,7 +62,7 @@ public static class LlmCallResilienceDefaults
 
                     ArchLucidInstrumentation.LlmCallRetries.Add(1, metricTags);
 
-                    if (logger is not null && args.Outcome.Exception is Exception ex)
+                    if (logger is not null && args.Outcome.Exception is { } ex)
                     {
                         logger.LogWarning(
                             ex,
@@ -82,7 +81,7 @@ public static class LlmCallResilienceDefaults
     /// <summary>Used by chaos/retry composition tests (Simmy) aligned with the same classification rules.</summary>
     internal static bool ShouldRetryLlmException(Exception ex)
     {
-        if (ex is OperationCanceledException oce && oce.CancellationToken.IsCancellationRequested)
+        if (ex is OperationCanceledException { CancellationToken.IsCancellationRequested: true })
         {
             return false;
         }
@@ -97,30 +96,28 @@ public static class LlmCallResilienceDefaults
             return false;
         }
 
-        if (ex is TaskCanceledException tce && !tce.CancellationToken.IsCancellationRequested)
+        if (ex is TaskCanceledException { CancellationToken.IsCancellationRequested: false })
         {
             return true;
         }
 
         if (ex is HttpRequestException hre)
         {
-            if (hre.StatusCode is HttpStatusCode sc)
-            {
-                int code = (int)sc;
+            if (hre.StatusCode is not { } sc)
+                return true;
 
-                return code is 429 or 500 or 502 or 503 or 504;
-            }
+            int code = (int)sc;
 
-            return true;
+            return code is 429 or 500 or 502 or 503 or 504;
+
         }
 
-        if (ex is ClientResultException cre)
-        {
-            int status = cre.Status;
+        if (ex is not ClientResultException cre)
+            return false;
 
-            return status is 429 or 500 or 502 or 503 or 504;
-        }
+        int status = cre.Status;
 
-        return false;
+        return status is 429 or 500 or 502 or 503 or 504;
+
     }
 }

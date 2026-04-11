@@ -52,7 +52,7 @@ public sealed class DecisionEngineV2PropertyTests
 
 #pragma warning disable xUnit1031 // FsCheck runs properties synchronously; DecisionEngineV2 exposes Task-only API.
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 80)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 80)]
     public void AlwaysProducesThreeDecisions_WhenTopologyPairExists(DecisionEngineTopologyInput input)
     {
         IReadOnlyList<DecisionNode> decisions = Resolve(input);
@@ -64,7 +64,7 @@ public sealed class DecisionEngineV2PropertyTests
             "ComplexityDisposition");
     }
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 80)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 80)]
     public void EveryDecisionNodeHasNonEmptyRunId(DecisionEngineTopologyInput input)
     {
         IReadOnlyList<DecisionNode> decisions = Resolve(input);
@@ -75,7 +75,7 @@ public sealed class DecisionEngineV2PropertyTests
         }
     }
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 80)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 80)]
     public void EveryDecisionNodeHasASelectedOption(DecisionEngineTopologyInput input)
     {
         IReadOnlyList<DecisionNode> decisions = Resolve(input);
@@ -88,7 +88,7 @@ public sealed class DecisionEngineV2PropertyTests
         }
     }
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 80)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 80)]
     public void StructuralDeterminism_SameInputsSameTopicAndSelection(DecisionEngineTopologyInput input)
     {
         IReadOnlyList<DecisionNode> first = Resolve(input);
@@ -108,7 +108,7 @@ public sealed class DecisionEngineV2PropertyTests
         }
     }
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 100)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 100)]
     public void NeverThrows_ForAnyValidInputCombination(DecisionEngineAnyValidInput input)
     {
         Action act = () => _engine.ResolveAsync(
@@ -124,7 +124,7 @@ public sealed class DecisionEngineV2PropertyTests
         act.Should().NotThrow();
     }
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 80)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 80)]
     public void OpposingEvaluationIds_AreSubsetOfInputEvaluations(DecisionEngineTopologyInput input)
     {
         HashSet<string> evaluationIds = input.Evaluations.Select(e => e.EvaluationId).ToHashSet(StringComparer.Ordinal);
@@ -139,7 +139,7 @@ public sealed class DecisionEngineV2PropertyTests
         }
     }
 
-    [Property(Arbitrary = new[] { typeof(DecisionEngineArbitraries) }, MaxTest = 80)]
+    [Property(Arbitrary = [typeof(DecisionEngineArbitraries)], MaxTest = 80)]
     public void SupportingEvaluationIds_AreSubsetOfInputEvaluations(DecisionEngineTopologyInput input)
     {
         HashSet<string> evaluationIds = input.Evaluations.Select(e => e.EvaluationId).ToHashSet(StringComparer.Ordinal);
@@ -191,42 +191,42 @@ public static class DecisionEngineArbitraries
     private static Gen<DecisionEngineTopologyInput> TopologyPairGen()
     {
         return from seedBundle in SeedBundleGen()
-            select DecisionEngineInputBuilder.BuildTopologyPair(seedBundle);
+               select DecisionEngineInputBuilder.BuildTopologyPair(seedBundle);
     }
 
     private static Gen<DecisionEngineAnyValidInput> TopologyTaskOnlyGen()
     {
         return from s1 in Arb.Default.Int32().Generator
-            from s2 in Arb.Default.Int32().Generator
-            from s3 in Arb.Default.Int32().Generator
-            from s4 in Arb.Default.Int32().Generator
-            from s5 in Arb.Default.Int32().Generator
-            from s6 in Arb.Default.Int32().Generator
-            from s7 in Arb.Default.Int32().Generator
-            select DecisionEngineInputBuilder.BuildTopologyTaskOnly(s1, s2, s3, s4, s5, s6, s7);
+               from s2 in Arb.Default.Int32().Generator
+               from s3 in Arb.Default.Int32().Generator
+               from s4 in Arb.Default.Int32().Generator
+               from s5 in Arb.Default.Int32().Generator
+               from s6 in Arb.Default.Int32().Generator
+               from s7 in Arb.Default.Int32().Generator
+               select DecisionEngineInputBuilder.BuildTopologyTaskOnly(s1, s2, s3, s4, s5, s6, s7);
     }
 
     private static Gen<DecisionEngineAnyValidInput> NoTopologyGen()
     {
         return from s1 in Arb.Default.Int32().Generator
-            from s2 in Arb.Default.Int32().Generator
-            from s3 in Arb.Default.Int32().Generator
-            from s4 in Arb.Default.Int32().Generator
-            select DecisionEngineInputBuilder.BuildNoTopology(s1, s2, s3, s4);
+               from s2 in Arb.Default.Int32().Generator
+               from s3 in Arb.Default.Int32().Generator
+               from s4 in Arb.Default.Int32().Generator
+               select DecisionEngineInputBuilder.BuildNoTopology(s1, s2, s3, s4);
     }
 
     private static Gen<(int, int, int, int, int, int, int, int, int)> SeedBundleGen()
     {
         return from a in Arb.Default.Int32().Generator
-            from b in Arb.Default.Int32().Generator
-            from c in Arb.Default.Int32().Generator
-            from d in Arb.Default.Int32().Generator
-            from e in Arb.Default.Int32().Generator
-            from f in Arb.Default.Int32().Generator
-            from g in Arb.Default.Int32().Generator
-            from h in Arb.Default.Int32().Generator
-            from i in Arb.Default.Int32().Generator
-            select (a, b, c, d, e, f, g, h, i);
+               from b in Arb.Default.Int32().Generator
+               from c in Arb.Default.Int32().Generator
+               from d in Arb.Default.Int32().Generator
+               from e in Arb.Default.Int32().Generator
+               from f in Arb.Default.Int32().Generator
+               from g in Arb.Default.Int32().Generator
+               from h in Arb.Default.Int32().Generator
+               from i in Arb.Default.Int32().Generator
+               select (a, b, c, d, e, f, g, h, i);
     }
 }
 

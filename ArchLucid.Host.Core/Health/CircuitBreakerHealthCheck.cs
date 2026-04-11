@@ -1,7 +1,6 @@
 using ArchLucid.Core.Resilience;
 using ArchLucid.Host.Core.Resilience;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Host.Core.Health;
@@ -23,23 +22,7 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
         CancellationToken cancellationToken = default)
     {
         List<Dictionary<string, object>> gateRows = [];
-
-        foreach (string key in GateKeys)
-        {
-            CircuitBreakerGate? gate = serviceProvider.GetKeyedService<CircuitBreakerGate>(key);
-
-            if (gate is null)
-            {
-                continue;
-            }
-
-            gateRows.Add(
-                new Dictionary<string, object>
-                {
-                    ["name"] = gate.GateName,
-                    ["state"] = gate.CurrentState,
-                });
-        }
+        gateRows.AddRange(GateKeys.Select(key => serviceProvider.GetKeyedService<CircuitBreakerGate>(key)).OfType<CircuitBreakerGate>().Select(gate => new Dictionary<string, object> { ["name"] = gate.GateName, ["state"] = gate.CurrentState, }));
 
         IReadOnlyDictionary<string, object> data =
             new Dictionary<string, object> { ["gates"] = gateRows };
@@ -50,11 +33,8 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
                 HealthCheckResult.Healthy("OpenAI circuit breakers not registered.", data));
         }
 
-        foreach (Dictionary<string, object> row in gateRows)
+        foreach (string state in gateRows.Select(row => (string)row["state"]))
         {
-            string state = (string)row["state"];
-
-
             if (state is "Open" or "HalfOpen")
             {
                 return Task.FromResult(

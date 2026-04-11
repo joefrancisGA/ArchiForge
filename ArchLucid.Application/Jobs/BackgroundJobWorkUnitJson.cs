@@ -5,7 +5,10 @@ namespace ArchLucid.Application.Jobs;
 /// <summary>Shared JSON options for persisting <see cref="BackgroundJobWorkUnit"/>.</summary>
 public static class BackgroundJobWorkUnitJson
 {
-    public static JsonSerializerOptions Options { get; } = new()
+    public static JsonSerializerOptions Options
+    {
+        get;
+    } = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false
@@ -15,14 +18,11 @@ public static class BackgroundJobWorkUnitJson
     {
         ArgumentNullException.ThrowIfNull(workUnit);
 
-        return JsonSerializer.Serialize<BackgroundJobWorkUnit>(workUnit, Options);
+        return JsonSerializer.Serialize(workUnit, Options);
     }
 
     public static BackgroundJobWorkUnit? Deserialize(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
-            return null;
-
-        return JsonSerializer.Deserialize<BackgroundJobWorkUnit>(json, Options);
+        return string.IsNullOrWhiteSpace(json) ? null : JsonSerializer.Deserialize<BackgroundJobWorkUnit>(json, Options);
     }
 }

@@ -118,6 +118,13 @@ public static class ArchLucidInstrumentation
         "archlucid_explainability_trace_completeness_ratio",
         description: "Per-scan trace completeness ratio (0.0–1.0).");
 
+    /// <summary>
+    /// Per provenance response: fraction of manifest decisions with finding, rule, and graph-context edges (0.0–1.0).
+    /// </summary>
+    public static readonly Histogram<double> ProvenanceCompleteness = AppMeter.CreateHistogram<double>(
+        "archlucid_provenance_completeness_ratio",
+        description: "Decision provenance traceability completeness ratio (0.0–1.0).");
+
     /// <summary>Circuit breaker state changes (labels: <c>gate</c>, <c>from_state</c>, <c>to_state</c>).</summary>
     public static readonly Counter<long> CircuitBreakerStateTransitions =
         AppMeter.CreateCounter<long>(

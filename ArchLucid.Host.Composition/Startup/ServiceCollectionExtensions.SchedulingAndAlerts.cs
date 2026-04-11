@@ -15,7 +15,6 @@ using ArchLucid.Host.Core.Integration;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Services.Delivery;
 using ArchLucid.Persistence;
-using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Simulation;

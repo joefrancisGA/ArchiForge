@@ -74,14 +74,13 @@ public sealed class MermaidCliDiagramImageRenderer(
                 return null;
             }
 
-            if (!File.Exists(outputPath))
-            {
-                logger.LogWarning("Mermaid CLI reported success but output PNG was missing at {OutputPath}.", outputPath);
+            if (File.Exists(outputPath))
+                return await File.ReadAllBytesAsync(outputPath, cancellationToken);
 
-                return null;
-            }
+            logger.LogWarning("Mermaid CLI reported success but output PNG was missing at {OutputPath}.", outputPath);
 
-            return await File.ReadAllBytesAsync(outputPath, cancellationToken);
+            return null;
+
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

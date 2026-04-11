@@ -8,6 +8,4 @@ namespace ArchLucid.AgentRuntime;
 /// Production: <see cref="AzureOpenAiCompletionClient"/> (optionally wrapped by <see cref="CachingAgentCompletionClient"/> and <see cref="CircuitBreakingAgentCompletionClient"/>); tests/dev: <see cref="FakeAgentCompletionClient"/>.
 /// For vendor metadata and metrics, use <see cref="ILlmCompletionProvider"/> or <see cref="ILlmProvider.Descriptor"/>.
 /// </remarks>
-public interface IAgentCompletionClient : ILlmProvider
-{
-}
+public interface IAgentCompletionClient : ILlmProvider;

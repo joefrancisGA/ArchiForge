@@ -72,11 +72,10 @@ public sealed class ArchLucidApiClient
         http.DefaultRequestHeaders.Add("Accept", "application/json");
 
         string? apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY");
-        if (!string.IsNullOrWhiteSpace(apiKey))
-        {
-            http.DefaultRequestHeaders.Remove("X-Api-Key");
-            http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-        }
+        if (string.IsNullOrWhiteSpace(apiKey))
+            return http;
+        http.DefaultRequestHeaders.Remove("X-Api-Key");
+        http.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
 
         return http;
     }
@@ -275,10 +274,13 @@ public sealed class ArchLucidApiClient
             Gen.AgentResult? genResult = MapToGenerated(result);
             if (genResult is null)
             {
-                return new SubmitResultResult(false, null, "Invalid agent result payload.", null);
+                return new SubmitResultResult(false, null, "Invalid agent result payload.");
             }
 
-            Gen.SubmitAgentResultRequest req = new() { Result = genResult };
+            Gen.SubmitAgentResultRequest req = new()
+            {
+                Result = genResult
+            };
             Gen.SubmitAgentResultResponse parsed = await _api.ResultAsync(runId, req, ct);
 
             return new SubmitResultResult(true, parsed.ResultId, null);
@@ -661,12 +663,18 @@ public sealed class ArchLucidApiClient
     {
         public string Category { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
-        public string? Description { get; set; }
+        public string? Description
+        {
+            get; set;
+        }
     }
 
     public sealed class DriftAnalysis
     {
-        public bool DriftDetected { get; set; }
+        public bool DriftDetected
+        {
+            get; set;
+        }
         public string Summary { get; set; } = string.Empty;
         public List<DriftItem> Items { get; set; } = [];
     }
@@ -694,16 +702,34 @@ public sealed class ArchLucidApiClient
 
     public sealed class ReplayDiagnosticsEntry
     {
-        public DateTime TimestampUtc { get; set; }
+        public DateTime TimestampUtc
+        {
+            get; set;
+        }
         public string ComparisonRecordId { get; set; } = string.Empty;
         public string ComparisonType { get; set; } = string.Empty;
         public string Format { get; set; } = string.Empty;
         public string ReplayMode { get; set; } = string.Empty;
-        public long DurationMs { get; set; }
-        public bool Success { get; set; }
-        public bool MetadataOnly { get; set; }
-        public string? PersistedReplayRecordId { get; set; }
-        public string? ErrorMessage { get; set; }
+        public long DurationMs
+        {
+            get; set;
+        }
+        public bool Success
+        {
+            get; set;
+        }
+        public bool MetadataOnly
+        {
+            get; set;
+        }
+        public string? PersistedReplayRecordId
+        {
+            get; set;
+        }
+        public string? ErrorMessage
+        {
+            get; set;
+        }
     }
 
     public async Task<ReplayDiagnostics?> GetReplayDiagnosticsAsync(int maxCount, CancellationToken ct = default)
@@ -751,19 +777,40 @@ public sealed class ArchLucidApiClient
     public sealed class ComparisonHistoryResult
     {
         public List<ComparisonRecordSummary> Records { get; set; } = [];
-        public string? NextCursor { get; set; }
+        public string? NextCursor
+        {
+            get; set;
+        }
     }
 
     public sealed class ComparisonRecordSummary
     {
         public string ComparisonRecordId { get; set; } = string.Empty;
         public string ComparisonType { get; set; } = string.Empty;
-        public string? LeftRunId { get; set; }
-        public string? RightRunId { get; set; }
-        public string? LeftExportRecordId { get; set; }
-        public string? RightExportRecordId { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public string? Label { get; set; }
+        public string? LeftRunId
+        {
+            get; set;
+        }
+        public string? RightRunId
+        {
+            get; set;
+        }
+        public string? LeftExportRecordId
+        {
+            get; set;
+        }
+        public string? RightExportRecordId
+        {
+            get; set;
+        }
+        public DateTime CreatedUtc
+        {
+            get; set;
+        }
+        public string? Label
+        {
+            get; set;
+        }
         public List<string> Tags { get; set; } = [];
     }
 
@@ -795,25 +842,21 @@ public sealed class ArchLucidApiClient
     private static string ResolveApiErrorMessage(Gen.ArchLucidApiException ex)
     {
         string? fromBody = TryParseError(ex.Response ?? string.Empty);
+
         if (!string.IsNullOrWhiteSpace(fromBody))
         {
             return fromBody;
         }
 
-        if (ex is Gen.ArchLucidApiException<Gen.ProblemDetails> typed)
-        {
-            if (!string.IsNullOrWhiteSpace(typed.Result?.Detail))
-            {
-                return typed.Result.Detail;
-            }
+        if (ex is not Gen.ArchLucidApiException<Gen.ProblemDetails> typed)
+            return ex.Message;
 
-            if (!string.IsNullOrWhiteSpace(typed.Result?.Title))
-            {
-                return typed.Result.Title;
-            }
+        if (!string.IsNullOrWhiteSpace(typed.Result?.Detail))
+        {
+            return typed.Result.Detail;
         }
 
-        return ex.Message;
+        return !string.IsNullOrWhiteSpace(typed.Result?.Title) ? typed.Result.Title : ex.Message;
     }
 
     /// <summary>
@@ -869,19 +912,37 @@ public sealed class ArchLucidApiClient
     {
         public string RunId { get; set; } = "";
         public string RequestId { get; set; } = "";
-        public int Status { get; set; }
-        public DateTime CreatedUtc { get; set; }
-        public DateTime? CompletedUtc { get; set; }
-        public string? CurrentManifestVersion { get; set; }
+        public int Status
+        {
+            get; set;
+        }
+        public DateTime CreatedUtc
+        {
+            get; set;
+        }
+        public DateTime? CompletedUtc
+        {
+            get; set;
+        }
+        public string? CurrentManifestVersion
+        {
+            get; set;
+        }
     }
 
     public sealed class AgentTaskInfo
     {
         public string TaskId { get; set; } = "";
         public string RunId { get; set; } = "";
-        public int AgentType { get; set; }
+        public int AgentType
+        {
+            get; set;
+        }
         public string Objective { get; set; } = "";
-        public int Status { get; set; }
+        public int Status
+        {
+            get; set;
+        }
     }
 
     public sealed class GetRunResult
@@ -917,7 +978,10 @@ public sealed class ArchLucidApiClient
     {
         public string Message { get; set; } = "";
         public string RunId { get; set; } = "";
-        public int ResultCount { get; set; }
+        public int ResultCount
+        {
+            get; set;
+        }
     }
 
     public sealed record SubmitResultResult(bool Success, string? ResultId, string? Error, int? HttpStatusCode = null);

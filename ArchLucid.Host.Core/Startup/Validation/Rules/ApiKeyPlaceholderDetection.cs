@@ -51,27 +51,16 @@ internal static class ApiKeyPlaceholderDetection
 
         string trimmed = value.Trim();
 
-        foreach (string token in ExactBlocklist)
-        {
-            if (string.Equals(trimmed, token, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        foreach (string fragment in SubstringBlocklist)
-        {
-            if (trimmed.Contains(fragment, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        if (trimmed.Length < MinimumProductionKeyLength)
+        if (ExactBlocklist.Any(token => string.Equals(trimmed, token, StringComparison.OrdinalIgnoreCase)))
         {
             return true;
         }
 
-        return false;
+        if (SubstringBlocklist.Any(fragment => trimmed.Contains(fragment, StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        return trimmed.Length < MinimumProductionKeyLength;
     }
 }

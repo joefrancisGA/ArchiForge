@@ -77,26 +77,6 @@ public sealed class ArchitectureRunProvenanceService(
         List<ArchitectureLinkageEdge> edges = [];
         List<ArchitectureTraceTimelineEntry> timeline = [];
 
-        void AddNode(ArchitectureLinkageNode node)
-        {
-            nodes[node.Id] = node;
-        }
-
-        void AddEdge(string type, string fromId, string toId, Dictionary<string, string>? metadata = null)
-        {
-            edges.Add(
-                new ArchitectureLinkageEdge
-                {
-                    Id = Guid.NewGuid().ToString("N"),
-                    Type = type,
-                    FromNodeId = fromId,
-                    ToNodeId = toId,
-                    Metadata = metadata is null
-                        ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-                        : new Dictionary<string, string>(metadata, StringComparer.OrdinalIgnoreCase)
-                });
-        }
-
         string requestNodeId = $"request:{run.RequestId}";
         AddNode(
             new ArchitectureLinkageNode
@@ -184,7 +164,7 @@ public sealed class ArchitectureRunProvenanceService(
                     ReferenceId = task.TaskId
                 });
 
-            if (task.CompletedUtc is DateTime completed)
+            if (task.CompletedUtc is { } completed)
                 timeline.Add(
                     new ArchitectureTraceTimelineEntry
                     {
@@ -214,10 +194,8 @@ public sealed class ArchitectureRunProvenanceService(
 
             string taskKey = $"task:{result.TaskId}";
 
-            if (nodes.ContainsKey(taskKey))
-                AddEdge(ArchitectureLinkageKinds.Edges.TaskYieldedResult, taskKey, resultNodeId);
-            else
-                AddEdge(ArchitectureLinkageKinds.Edges.TaskYieldedResult, runNodeId, resultNodeId);
+            AddEdge(ArchitectureLinkageKinds.Edges.TaskYieldedResult, nodes.ContainsKey(taskKey) ? taskKey : runNodeId,
+                resultNodeId);
 
             timeline.Add(
                 new ArchitectureTraceTimelineEntry
@@ -361,7 +339,7 @@ public sealed class ArchitectureRunProvenanceService(
                 });
         }
 
-        if (run.CompletedUtc is DateTime doneUtc)
+        if (run.CompletedUtc is { } doneUtc)
             timeline.Add(
                 new ArchitectureTraceTimelineEntry
                 {
@@ -380,6 +358,26 @@ public sealed class ArchitectureRunProvenanceService(
         graph.Timeline = [.. timeline.OrderBy(x => x.TimestampUtc).ThenBy(x => x.ReferenceId, StringComparer.Ordinal)];
 
         return graph;
+
+        void AddEdge(string type, string fromId, string toId, Dictionary<string, string>? metadata = null)
+        {
+            edges.Add(
+                new ArchitectureLinkageEdge
+                {
+                    Id = Guid.NewGuid().ToString("N"),
+                    Type = type,
+                    FromNodeId = fromId,
+                    ToNodeId = toId,
+                    Metadata = metadata is null
+                        ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                        : new Dictionary<string, string>(metadata, StringComparer.OrdinalIgnoreCase)
+                });
+        }
+
+        void AddNode(ArchitectureLinkageNode node)
+        {
+            nodes[node.Id] = node;
+        }
     }
 
     private static void AddSnapshotNodes(
@@ -404,7 +402,7 @@ public sealed class ArchitectureRunProvenanceService(
             addEdge(ArchitectureLinkageKinds.Edges.RunReferencesSnapshot, runNodeId, id, null);
         }
 
-        if (run.GraphSnapshotId is Guid graphId)
+        if (run.GraphSnapshotId is { } graphId)
         {
             string id = $"graph:{graphId:N}";
             addNode(
@@ -420,7 +418,7 @@ public sealed class ArchitectureRunProvenanceService(
             addEdge(ArchitectureLinkageKinds.Edges.RunReferencesSnapshot, runNodeId, id, null);
         }
 
-        if (run.FindingsSnapshotId is Guid findingsId)
+        if (run.FindingsSnapshotId is { } findingsId)
         {
             string id = $"findings:{findingsId:N}";
             addNode(
@@ -436,7 +434,7 @@ public sealed class ArchitectureRunProvenanceService(
             addEdge(ArchitectureLinkageKinds.Edges.RunReferencesSnapshot, runNodeId, id, null);
         }
 
-        if (run.GoldenManifestId is Guid goldenId)
+        if (run.GoldenManifestId is { } goldenId)
         {
             string id = $"goldenPointer:{goldenId:N}";
             addNode(
@@ -452,7 +450,8 @@ public sealed class ArchitectureRunProvenanceService(
             addEdge(ArchitectureLinkageKinds.Edges.RunReferencesSnapshot, runNodeId, id, null);
         }
 
-        if (run.ArtifactBundleId is Guid artifactBundleId)
+        if (run.ArtifactBundleId is not { } artifactBundleId)
+            return;
         {
             string id = $"artifactBundle:{artifactBundleId:N}";
             addNode(

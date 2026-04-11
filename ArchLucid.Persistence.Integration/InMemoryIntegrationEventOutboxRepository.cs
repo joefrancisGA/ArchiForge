@@ -6,7 +6,7 @@ namespace ArchLucid.Persistence;
 public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEventOutboxRepository
 {
     private readonly List<IntegrationEventOutboxEntry> _rows = [];
-    private readonly object _gate = new();
+    private readonly Lock _gate = new();
 
     /// <inheritdoc />
     public Task EnqueueAsync(
@@ -19,7 +19,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         Guid projectId,
         CancellationToken ct)
     {
-        return EnqueueCoreAsync(runId, eventType, messageId, payloadUtf8, tenantId, workspaceId, projectId, ct);
+        return EnqueueCoreAsync(runId, eventType, messageId, payloadUtf8, tenantId, workspaceId, projectId);
     }
 
     /// <inheritdoc />
@@ -38,7 +38,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentNullException.ThrowIfNull(transaction);
 
-        return EnqueueCoreAsync(runId, eventType, messageId, payloadUtf8, tenantId, workspaceId, projectId, ct);
+        return EnqueueCoreAsync(runId, eventType, messageId, payloadUtf8, tenantId, workspaceId, projectId);
     }
 
     private Task EnqueueCoreAsync(
@@ -48,8 +48,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
         ReadOnlyMemory<byte> payloadUtf8,
         Guid tenantId,
         Guid workspaceId,
-        Guid projectId,
-        CancellationToken ct)
+        Guid projectId)
     {
         IntegrationEventOutboxEntry entry = new()
         {

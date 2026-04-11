@@ -8,6 +8,8 @@ using ArchLucid.Application.Diffs;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.Manifest;
 
+using JetBrains.Annotations;
+
 namespace ArchLucid.Application.Evolution;
 
 /// <summary>
@@ -122,12 +124,7 @@ public sealed class SimulationEvaluationService(
 
     private static string FormatDeterminism(double? determinismScore)
     {
-        if (determinismScore is null)
-        {
-            return "n/a";
-        }
-
-        return string.Format(CultureInfo.InvariantCulture, "{0:F3}", determinismScore.Value);
+        return determinismScore is null ? "n/a" : string.Format(CultureInfo.InvariantCulture, "{0:F3}", determinismScore.Value);
     }
 
     private (ManifestDiffResult? Diff, bool UsedPrecomputed, bool UsedComputed) ResolveManifestDiff(
@@ -172,27 +169,26 @@ public sealed class SimulationEvaluationService(
             return new DeterminismResolution(request.BaselineReport.Determinism, "BaselineReport");
         }
 
-        if (options?.InvokeLiveDeterminismCheck == true)
-        {
-            string runId = !string.IsNullOrWhiteSpace(options.BaselineArchitectureRunIdForDeterminism)
-                ? options.BaselineArchitectureRunIdForDeterminism.Trim()
-                : request.BaselineArchitectureRunId!.Trim();
+        if (options?.InvokeLiveDeterminismCheck != true)
+            return new DeterminismResolution(null, "None");
 
-            int iterations = Math.Max(2, options.DeterminismIterations);
+        string runId = !string.IsNullOrWhiteSpace(options.BaselineArchitectureRunIdForDeterminism)
+            ? options.BaselineArchitectureRunIdForDeterminism.Trim()
+            : request.BaselineArchitectureRunId!.Trim();
 
-            DeterminismCheckResult live = await determinismCheckService.RunAsync(
-                new DeterminismCheckRequest
-                {
-                    RunId = runId,
-                    Iterations = iterations,
-                    CommitReplays = false,
-                },
-                cancellationToken);
+        int iterations = Math.Max(2, options.DeterminismIterations);
 
-            return new DeterminismResolution(live, "Live");
-        }
+        DeterminismCheckResult live = await determinismCheckService.RunAsync(
+            new DeterminismCheckRequest
+            {
+                RunId = runId,
+                Iterations = iterations,
+                CommitReplays = false,
+            },
+            cancellationToken);
 
-        return new DeterminismResolution(null, "None");
+        return new DeterminismResolution(live, "Live");
+
     }
 
     private static double? ComputeRegressionRiskScore(ManifestDiffResult? diff)
@@ -340,7 +336,7 @@ public sealed class SimulationEvaluationService(
     private sealed record DeterminismResolution(DeterminismCheckResult? Result, string Source);
 
     private sealed record EvaluationExplanationDto(
-        string RuleVersion,
+        [UsedImplicitly] string RuleVersion,
         int BaselineWarningCount,
         int? SimulatedWarningCount,
         bool UsedPrecomputedManifestDiff,

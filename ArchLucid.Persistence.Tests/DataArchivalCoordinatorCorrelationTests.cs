@@ -1,7 +1,6 @@
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Persistence.Advisory;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Interfaces;
@@ -44,7 +43,10 @@ public sealed class DataArchivalCoordinatorCorrelationTests
             threads.Object,
             NullLogger<DataArchivalCoordinator>.Instance);
 
-        DataArchivalOptions options = new() { RunsRetentionDays = 1 };
+        DataArchivalOptions options = new()
+        {
+            RunsRetentionDays = 1
+        };
 
         await sut.RunOnceAsync(options, CancellationToken.None);
 

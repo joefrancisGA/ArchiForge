@@ -183,7 +183,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                                 evidence,
                                 task,
                                 innerCt),
-                            ct),
+                            ct, ct),
                     cancellationToken);
 
                 ArchLucidInstrumentation.AgentHandlerInvocationsTotal.Add(
