@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

@@ -110,6 +110,25 @@ public sealed class DapperPolicyPackAssignmentRepository(
     }
 
     /// <inheritdoc />
+    public async Task<PolicyPackAssignment?> GetByTenantAndAssignmentIdAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP 1
+                AssignmentId, TenantId, WorkspaceId, ProjectId,
+                PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc
+            FROM dbo.PolicyPackAssignments
+            WHERE TenantId = @TenantId
+              AND AssignmentId = @AssignmentId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        PolicyPackAssignment? row = await connection.QuerySingleOrDefaultAsync<PolicyPackAssignment>(
+            new CommandDefinition(sql, new { TenantId = tenantId, AssignmentId = assignmentId }, cancellationToken: ct));
+
+        return row;
+    }
+
+    /// <inheritdoc />
     public async Task<bool> ArchiveAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
     {
         const string sql = """

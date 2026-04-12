@@ -1,7 +1,7 @@
 using System.Data;
 
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 
 namespace ArchLucid.Persistence.Governance;
 

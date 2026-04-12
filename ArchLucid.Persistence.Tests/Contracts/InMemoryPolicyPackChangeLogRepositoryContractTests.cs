@@ -1,4 +1,4 @@
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Governance;
 
 namespace ArchLucid.Persistence.Tests.Contracts;

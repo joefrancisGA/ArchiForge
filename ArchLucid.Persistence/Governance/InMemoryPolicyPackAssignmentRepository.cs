@@ -80,6 +80,19 @@ public sealed class InMemoryPolicyPackAssignmentRepository : IPolicyPackAssignme
     }
 
     /// <inheritdoc />
+    public Task<PolicyPackAssignment?> GetByTenantAndAssignmentIdAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            PolicyPackAssignment? row = _items.FirstOrDefault(
+                x => x.TenantId == tenantId && x.AssignmentId == assignmentId);
+
+            return Task.FromResult(row);
+        }
+    }
+
+    /// <inheritdoc />
     public Task<bool> ArchiveAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();

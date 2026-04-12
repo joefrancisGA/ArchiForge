@@ -2,8 +2,8 @@ using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Persistence.Connections;
-using ArchLucid.Persistence.Data.Repositories;
 
 using Dapper;
 

@@ -133,6 +133,23 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task GetByTenantAndAssignmentId_after_Create_returns_row()
+    {
+        SkipIfSqlServerUnavailable();
+        IPolicyPackAssignmentRepository repo = CreateRepository();
+        PolicyPackAssignment row = CreateAssignment(TenantA, WorkspaceW, ProjectP, GovernanceScopeLevel.Project);
+
+        await repo.CreateAsync(row, CancellationToken.None);
+
+        PolicyPackAssignment? found =
+            await repo.GetByTenantAndAssignmentIdAsync(TenantA, row.AssignmentId, CancellationToken.None);
+
+        found.Should().NotBeNull();
+        found!.AssignmentId.Should().Be(row.AssignmentId);
+        found.PolicyPackId.Should().Be(row.PolicyPackId);
+    }
+
+    [SkippableFact]
     public async Task ArchiveAsync_unknown_assignment_returns_false()
     {
         SkipIfSqlServerUnavailable();
