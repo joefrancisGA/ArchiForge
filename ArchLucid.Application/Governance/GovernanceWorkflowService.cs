@@ -132,6 +132,8 @@ public sealed class GovernanceWorkflowService(
         GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
 
+        await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, cancellationToken);
+
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
 
             throw new InvalidOperationException(
@@ -196,6 +198,8 @@ public sealed class GovernanceWorkflowService(
 
         GovernanceApprovalRequest request = await approvalRepo.GetByIdAsync(approvalRequestId, cancellationToken)
                                             ?? throw new InvalidOperationException($"Approval request '{approvalRequestId}' was not found.");
+
+        await EnforceSegregationOfDutiesForReviewAsync(request, approvalRequestId, reviewedBy, cancellationToken);
 
         if (request.Status is not (GovernanceApprovalStatus.Draft or GovernanceApprovalStatus.Submitted))
 
@@ -500,6 +504,35 @@ public sealed class GovernanceWorkflowService(
         }
 
         return activation;
+    }
+
+    private async Task EnforceSegregationOfDutiesForReviewAsync(
+        GovernanceApprovalRequest request,
+        string approvalRequestId,
+        string reviewedBy,
+        CancellationToken cancellationToken)
+    {
+        if (!string.Equals(request.RequestedBy, reviewedBy, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        Guid? auditRunId = Guid.TryParse(request.RunId, out Guid runGuid) ? runGuid : null;
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.GovernanceSelfApprovalBlocked,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        approvalRequestId,
+                        requestedBy = request.RequestedBy,
+                        attemptedReviewerBy = reviewedBy,
+                    },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        throw new GovernanceSelfApprovalException(approvalRequestId, reviewedBy);
     }
 
     private Task TryPublishGovernanceApprovalSubmittedAsync(

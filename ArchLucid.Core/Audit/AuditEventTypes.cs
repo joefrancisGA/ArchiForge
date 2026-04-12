@@ -69,6 +69,10 @@ public static class AuditEventTypes
     public const string GovernanceApprovalSubmitted = "GovernanceApprovalSubmitted";
     public const string GovernanceApprovalApproved = "GovernanceApprovalApproved";
     public const string GovernanceApprovalRejected = "GovernanceApprovalRejected";
+
+    /// <summary>Durable audit when a reviewer is blocked from approving or rejecting their own governance request (segregation of duties).</summary>
+    public const string GovernanceSelfApprovalBlocked = "GovernanceSelfApprovalBlocked";
+
     public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 

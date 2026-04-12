@@ -2,6 +2,14 @@
 
 ArchLucid governance covers **approval requests**, **manifest promotions** between deployment environments, and **environment activation** (which manifest version is live in a given environment). The primary HTTP API is under `POST /v1/governance/...` (`GovernanceController`). The durable audit path dual-writes `IAuditService` and baseline mutation logs from `GovernanceWorkflowService` (see `docs/AUDIT_COVERAGE_MATRIX.md`).
 
+## Segregation of duties (approve / reject)
+
+A reviewer **must not** approve or reject a governance approval request they **submitted**. `GovernanceApprovalRequest.RequestedBy` (set at submission) is compared to the review identity (`reviewedBy` on `ApproveAsync` / `RejectAsync`) using **ordinal, case-insensitive** matching.
+
+- **Violation:** `GovernanceWorkflowService` emits a durable `IAuditService` event with type **`GovernanceSelfApprovalBlocked`** and `DataJson` `{ approvalRequestId, requestedBy, attemptedReviewerBy }`, then throws **`GovernanceSelfApprovalException`** (subclass of `InvalidOperationException`) with a message naming the actor and request id.
+- **HTTP API:** `GovernanceController` maps that exception to **400 Bad Request** with RFC 7807 problem type **`ProblemTypes.GovernanceSelfApproval`** (`https://archlucid.example.org/errors#governance-self-approval`).
+- **Promotion (`PromoteAsync`)** is unchanged; prod promotion continues to validate the approval chain separately.
+
 ## Dry-run mode (`?dryRun=true`)
 
 Operators can validate whether a **submit approval** or **promotion** request would pass business rules **without** persisting data, writing audit rows, or publishing integration events.

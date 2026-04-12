@@ -16,6 +16,10 @@ public static class ProblemTypes
     public const string UnavailableInProduction = Base + "#unavailable-in-production";
     public const string InternalError = Base + "#internal-error";
     public const string BadRequest = Base + "#bad-request";
+
+    /// <summary>Reviewer attempted to approve or reject their own governance request (segregation of duties).</summary>
+    public const string GovernanceSelfApproval = Base + "#governance-self-approval";
+
     public const string ResourceNotFound = Base + "#resource-not-found";
 
     /// <summary>59R learning plan not found for the current scope.</summary>

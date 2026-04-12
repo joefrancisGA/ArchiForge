@@ -278,7 +278,8 @@ public sealed class GovernanceWorkflowServiceTests
             ApprovalRequestId = "apr-1",
             RunId = "run-1",
             ManifestVersion = "v1",
-            Status = GovernanceApprovalStatus.Submitted
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "alice",
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-1", It.IsAny<CancellationToken>()))
@@ -319,7 +320,8 @@ public sealed class GovernanceWorkflowServiceTests
         GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-draft",
-            Status = GovernanceApprovalStatus.Draft
+            Status = GovernanceApprovalStatus.Draft,
+            RequestedBy = "alice",
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-draft", It.IsAny<CancellationToken>()))
@@ -369,6 +371,94 @@ public sealed class GovernanceWorkflowServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task Approve_SameUserAsSubmitter_ThrowsSelfApprovalException()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-sod",
+            RunId = "run-1",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "bob",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-sod", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-sod", "bob", null);
+
+        FluentAssertions.Specialized.ExceptionAssertions<GovernanceSelfApprovalException> selfApprovalThrown =
+            await act.Should().ThrowAsync<GovernanceSelfApprovalException>();
+
+        selfApprovalThrown.Which.ApprovalRequestId.Should().Be("apr-sod");
+        selfApprovalThrown.Which.Actor.Should().Be("bob");
+        selfApprovalThrown.Which.Message.Should().Contain("Segregation of duties violation");
+        selfApprovalThrown.Which.Message.Should().Contain("bob");
+        selfApprovalThrown.Which.Message.Should().Contain("apr-sod");
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(
+                    e =>
+                        e.EventType == CoreAuditEventTypes.GovernanceSelfApprovalBlocked
+                        && e.DataJson != null
+                        && e.DataJson.Contains("\"approvalRequestId\":\"apr-sod\"", StringComparison.Ordinal)
+                        && e.DataJson.Contains("\"requestedBy\":\"bob\"", StringComparison.Ordinal)
+                        && e.DataJson.Contains("\"attemptedReviewerBy\":\"bob\"", StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _approvalRepo.Verify(
+            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Approve_SameUserCaseInsensitive_ThrowsSelfApprovalException()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-sod-ci",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "Alice",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-sod-ci", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.ApproveAsync("apr-sod-ci", "alice", null);
+
+        await act.Should().ThrowAsync<GovernanceSelfApprovalException>();
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceSelfApprovalBlocked),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _approvalRepo.Verify(
+            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     // ── Reject ───────────────────────────────────────────────────────────────
 
     [Fact]
@@ -377,7 +467,8 @@ public sealed class GovernanceWorkflowServiceTests
         GovernanceApprovalRequest existing = new()
         {
             ApprovalRequestId = "apr-2",
-            Status = GovernanceApprovalStatus.Submitted
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "alice",
         };
 
         _approvalRepo.Setup(r => r.GetByIdAsync("apr-2", It.IsAny<CancellationToken>()))
@@ -435,6 +526,48 @@ public sealed class GovernanceWorkflowServiceTests
 
         _durableAudit.Verify(
             a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Reject_SameUserAsSubmitter_ThrowsSelfApprovalException()
+    {
+        GovernanceApprovalRequest existing = new()
+        {
+            ApprovalRequestId = "apr-rej-sod",
+            Status = GovernanceApprovalStatus.Submitted,
+            RequestedBy = "dana",
+        };
+
+        _approvalRepo.Setup(r => r.GetByIdAsync("apr-rej-sod", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        Func<Task<GovernanceApprovalRequest>> act = () => _sut.RejectAsync("apr-rej-sod", "dana", "no");
+
+        FluentAssertions.Specialized.ExceptionAssertions<GovernanceSelfApprovalException> selfApprovalThrown =
+            await act.Should().ThrowAsync<GovernanceSelfApprovalException>();
+
+        selfApprovalThrown.Which.ApprovalRequestId.Should().Be("apr-rej-sod");
+        selfApprovalThrown.Which.Actor.Should().Be("dana");
+        selfApprovalThrown.Which.Message.Should().Contain("Segregation of duties violation");
+
+        _durableAudit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == CoreAuditEventTypes.GovernanceSelfApprovalBlocked),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        _approvalRepo.Verify(
+            r => r.UpdateAsync(It.IsAny<GovernanceApprovalRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        _baselineAudit.Verify(
+            a => a.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
