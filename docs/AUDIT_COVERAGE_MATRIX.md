@@ -26,6 +26,18 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 
 ---
 
+## Audit retrieval and export (read paths; no new `IAuditService` row)
+
+Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RETENTION_POLICY.md`**.
+
+| Capability | HTTP | Notes |
+|------------|------|--------|
+| Paginated audit (UI / API, newest first) | `GET /v1/audit` | Cap **500** rows per request. **Hot** tier (see retention doc). |
+| Filtered audit search | `GET /v1/audit/search` | Cap **500**; keyset and filters. **Hot** tier. |
+| Bulk export (compliance / archival) | `GET /v1/audit/export` | **`Accept: application/json`** or **`Accept: text/csv`**; UTC range **`fromUtc` / `toUtc`** (half-open); max **90 days** per request; **`maxRows`** clamped **1–10 000**; CSV sets **`Content-Disposition: attachment`**. **Warm** tier extraction to blob is **operator-scheduled** (see **`docs/AUDIT_RETENTION_POLICY.md`**). |
+
+---
+
 ## Operations → durable audit (`IAuditService` → `dbo.AuditEvents`)
 
 | Operation | Controller / service | Event type constant | Scope fields (RunId / ManifestId / ArtifactId) | DataJson (representative) |

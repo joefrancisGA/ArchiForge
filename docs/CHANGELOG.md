@@ -8,6 +8,12 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-12 — Audit export and retention policy
+
+Added audit export endpoint (`GET /v1/audit/export`) with CSV/JSON support and 90-day range limit. Created audit retention policy document (`docs/AUDIT_RETENTION_POLICY.md`). Database-enforced append-only on `dbo.AuditEvents` (Migration **051**).
+
+---
+
 ## 2026-04-12 — CI hardening
 
 CI hardening: Simmy chaos tests now block PRs (burn-in complete). Per-package line coverage gate raised from 50% to 60%.

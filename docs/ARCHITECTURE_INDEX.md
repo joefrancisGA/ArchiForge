@@ -83,6 +83,8 @@
 
 - **HTTP contracts** – status codes, validation, problem details  
   - `docs/API_CONTRACTS.md`
+- **Audit retention and export tiers** – hot/warm/cold lifecycle, `GET /v1/audit/export`, Migration **051** append-only, blob archival guidance  
+  - `docs/AUDIT_RETENTION_POLICY.md`
 - **Alerts** – rules, evaluation, delivery, persistence  
   - `docs/ALERTS.md`
 - **Typed findings schema** – payloads and versioning  
