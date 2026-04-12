@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 
@@ -7,6 +8,7 @@ namespace ArchLucid.Cli.Commands;
 /// Operator-facing readiness diagnostics: CLI build identity, local project layout,
 /// API <c>GET /version</c>, and API <c>/health/live</c>, <c>/health/ready</c>, and optional combined <c>/health</c> (requires API key or JWT with read authority).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "CLI doctor orchestrates HTTP probes via ArchLucidApiClient (excluded from coverage); exercised manually against a running API.")]
 internal static class DoctorCommand
 {
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };

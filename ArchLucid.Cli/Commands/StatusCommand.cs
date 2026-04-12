@@ -1,7 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI status subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class StatusCommand
 {
     public static async Task<int> RunAsync(string runId)

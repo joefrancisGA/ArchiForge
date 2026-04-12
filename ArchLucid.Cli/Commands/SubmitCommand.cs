@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI submit subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class SubmitCommand
 {
     public static async Task<int> RunAsync(string runId, string resultFilePath)

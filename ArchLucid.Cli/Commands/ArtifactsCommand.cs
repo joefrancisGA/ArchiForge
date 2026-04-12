@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI artifacts subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class ArtifactsCommand
 {
     public static async Task<int> RunAsync(string runId, bool saveArtifacts)

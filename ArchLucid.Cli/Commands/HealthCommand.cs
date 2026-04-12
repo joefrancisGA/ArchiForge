@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI health checks reachability via ArchLucidApiClient (excluded from coverage); smoke-tested via Program integration tests.")]
 internal static class HealthCommand
 {
     public static async Task<int> RunAsync()

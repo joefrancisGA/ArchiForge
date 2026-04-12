@@ -33,6 +33,18 @@
 
 UI alignment: **`docs/operator-shell.md`**.
 
+## Explain (`/v1/explain`)
+
+All routes require **ReadAuthority** and use versioned paths under **`/v1/explain`**. Response JSON uses **camelCase** property names.
+
+| Method | Path | Response | Notes |
+|--------|------|----------|--------|
+| `GET` | **`/v1/explain/runs/{runId}/explain`** | **`ExplanationResult`** | Stakeholder narrative + `structured` envelope, optional provenance and top-level `confidence`. **404** if run/manifest missing in scope. |
+| `GET` | **`/v1/explain/runs/{runId}/aggregate`** | **`RunExplanationSummary`** | Same nested **`explanation`** as above, plus **`themeSummaries`**, **`overallAssessment`**, **`riskPosture`**, and manifest/findings **counts**. **404** if run/manifest missing in scope. |
+| `GET` | **`/v1/explain/compare/explain`** | **`ComparisonExplanationResult`** | Query: **`baseRunId`**, **`targetRunId`**. **404** if either run lacks a golden manifest in scope. |
+
+Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Operator UI: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
+
 ## List pagination (runs and alerts)
 
 Several list endpoints support **two response shapes** so existing clients keep working:

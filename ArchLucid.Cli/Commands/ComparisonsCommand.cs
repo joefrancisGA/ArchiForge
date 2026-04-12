@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI comparisons subcommands orchestrate HTTP via ArchLucidApiClient (excluded from coverage); exercised via manual CLI and API integration.")]
 internal static class ComparisonsCommand
 {
     public static async Task<int> RunAsync(string[] args)

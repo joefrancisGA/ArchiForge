@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Cli.Support;
 
 namespace ArchLucid.Cli.Commands;
@@ -5,6 +7,7 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>
 /// CLI entry for <c>archlucid support-bundle</c>: writes a reviewable JSON bundle (and optional zip).
 /// </summary>
+[ExcludeFromCodeCoverage(Justification = "Thin CLI wrapper over SupportBundleCollector and IO; collector logic is unit-tested.")]
 internal static class SupportBundleCommand
 {
     /// <summary>

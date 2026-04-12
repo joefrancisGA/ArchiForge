@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI run subcommand orchestrates HTTP and filesystem via ArchLucidApiClient (excluded from coverage); exercised via manual CLI.")]
 internal static class RunCommand
 {
     public static async Task<int> RunAsync(bool quick)

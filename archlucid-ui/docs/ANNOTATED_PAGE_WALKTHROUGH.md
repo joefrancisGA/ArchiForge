@@ -313,6 +313,23 @@ In JavaScript, `.map()` transforms each element of an array into something else 
 
 ---
 
+## Run detail page — Explanation section (`src/app/runs/[runId]/page.tsx`)
+
+When the run has a **`goldenManifestId`**, the server also calls **`getRunExplanationSummary(runId)`** → **`GET /v1/explain/runs/{runId}/aggregate`** (after manifest summary loads, before artifacts). The **Explanation** `<section>` renders **`RunExplanationSection`** (`src/components/RunExplanationSection.tsx`).
+
+**What operators see**
+
+- **Overall assessment** — One executive line from the API (includes **risk posture** label and counts of unresolved issues / compliance gaps when non-zero, then the model **summary**).
+- **Risk posture** — **Low** / **Medium** / **High** / **Critical** badge. This is **not** the model’s opinion: it is computed from **unresolved issue severities** on the golden manifest (see **`docs/EXPLANATION_SCHEMA.md`** → *Risk posture derivation*).
+- **Model confidence** — A **0–100%** progress bar when the nested explanation includes a **confidence** score (**model-estimated**, 0.0–1.0); otherwise **“Not available”**. Same value as **`structured.confidence`** on the API; nullable when the model did not return a score.
+- **Themes** — Bullet list of **theme summaries** (drivers grouped by decision **category**).
+- **Key drivers** / **Risk implications** — Copied from the nested **`explanation`** payload (manifest-derived bullets + LLM narrative context).
+- **Provenance metadata** (collapsed **`<details>`**) — **Agent type**, **model ID**, optional **prompt template id/version** and **content hash**. Use this to answer “what configuration produced this text?” without reading **`rawText`**.
+
+If the aggregate request fails (network, **404**, etc.), the page shows **`OperatorApiProblem`** in warning style for that section only; run metadata and artifacts can still load.
+
+---
+
 ## Reading any other page
 
 Every server page in this codebase follows the exact same structure:

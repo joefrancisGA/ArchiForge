@@ -14,6 +14,12 @@ CI hardening: Simmy chaos tests now block PRs (burn-in complete). Per-package li
 
 ---
 
+## 2026-04-12 — Aggregate run explanation
+
+Added aggregate run explanation endpoint (`/v1/explain/runs/{runId}/aggregate`) with theme summaries, risk posture, confidence score, and explanation provenance. Surfaced in run detail UI.
+
+---
+
 ## Phase 7 — ArchLucid rename (code-level)
 
 **Area:** Rename / operator breaking changes  

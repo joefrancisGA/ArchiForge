@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI commit subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
 internal static class CommitCommand
 {
     public static async Task<int> RunAsync(string runId)

@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ArchLucid.Cli.Commands;
 
+[ExcludeFromCodeCoverage(Justification = "CLI dev up invokes Docker Compose from the host; environment-dependent; exercised manually.")]
 internal static class DevUpCommand
 {
     public static Task<int> RunAsync()
