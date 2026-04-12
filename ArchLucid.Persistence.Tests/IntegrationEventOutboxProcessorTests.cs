@@ -1,4 +1,5 @@
 using ArchLucid.Core.Integration;
+using ArchLucid.Persistence;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -154,6 +155,57 @@ public sealed class IntegrationEventOutboxProcessorTests
                 null,
                 It.Is<DateTime?>(d => d.HasValue),
                 It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_on_failure_truncates_error_message_to_2048_chars()
+    {
+        string huge = new('x', 3000);
+        Mock<IIntegrationEventPublisher> publisher = new();
+        publisher
+            .Setup(p => p.PublishAsync(It.IsAny<string>(), It.IsAny<ReadOnlyMemory<byte>>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(huge));
+
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Guid id = Guid.NewGuid();
+
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new IntegrationEventOutboxEntry
+                {
+                    OutboxId = id,
+                    RunId = null,
+                    EventType = "t",
+                    MessageId = null,
+                    PayloadUtf8 = [1],
+                    TenantId = Guid.NewGuid(),
+                    WorkspaceId = Guid.NewGuid(),
+                    ProjectId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow,
+                    RetryCount = 0
+                }
+            ]);
+
+        IntegrationEventsOptions opts = new()
+        {
+            OutboxMaxPublishAttempts = 2,
+            OutboxMaxBackoffSeconds = 60
+        };
+        IntegrationEventOutboxProcessor sut = CreateProcessor(outbox.Object, publisher.Object, opts);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(
+            o => o.RecordPublishFailureAsync(
+                id,
+                1,
+                It.IsAny<DateTime?>(),
+                null,
+                It.Is<string?>(s => s != null && s.Length == 2048),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

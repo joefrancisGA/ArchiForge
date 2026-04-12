@@ -4,6 +4,7 @@ using ArchLucid.Core.Integration;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
@@ -204,5 +205,59 @@ public sealed class OutboxAwareIntegrationEventPublishingTests
             CancellationToken.None);
 
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task TryPublishOrEnqueueAsync_when_serialization_fails_logs_and_returns()
+    {
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Mock<IIntegrationEventPublisher> publisher = new();
+        Mock<ILogger> logger = new();
+        logger.Setup(l => l.IsEnabled(LogLevel.Warning)).Returns(true);
+
+        CyclePayload payload = new();
+        payload.Self = payload;
+
+        await OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            outbox.Object,
+            publisher.Object,
+            new IntegrationEventsOptions { TransactionalOutboxEnabled = true },
+            logger.Object,
+            IntegrationEventTypes.AlertFiredV1,
+            payload,
+            null,
+            null,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            null,
+            null,
+            CancellationToken.None);
+
+        outbox.Verify(
+            o => o.EnqueueAsync(
+                It.IsAny<Guid?>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<ReadOnlyMemory<byte>>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        logger.Verify(
+            l => l.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, _) => true),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.AtLeastOnce);
+    }
+
+    private sealed class CyclePayload
+    {
+        public CyclePayload? Self { get; set; }
     }
 }
