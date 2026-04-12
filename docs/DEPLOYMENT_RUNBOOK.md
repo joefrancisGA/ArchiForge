@@ -89,6 +89,16 @@ Then **`GET /version`** and **`GET /health/ready`** again.
 
 ---
 
+## Observability — production trace sampling
+
+For **Azure Container Apps**, set a head-based sampling ratio so OTLP trace volume stays manageable in production (see [OBSERVABILITY.md](OBSERVABILITY.md) §Sampling strategy).
+
+**Recommended:** add environment variable **`Observability__Tracing__SamplingRatio`** = **`0.1`** on the **API** and **worker** container apps (double underscores match nested JSON `Observability:Tracing:SamplingRatio`). Omit the variable or use **`1.0`** in non-production. Default in code and **`appsettings.json`** remains **`1.0`** so existing environments are unchanged until operators opt in.
+
+**UI (archlucid-ui):** optional build-time / runtime public env **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** — URL with **`{traceId}`** placeholder so the run detail and provenance pages can render **View trace** (see [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)). The UI proxy forwards **`X-Trace-Id`** (and **`traceparent`**) from the API response for browser-side fetches.
+
+---
+
 ## Related links
 
 | Topic | Document |

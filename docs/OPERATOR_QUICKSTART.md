@@ -97,6 +97,14 @@ cp .env.example .env.local
 
 Edit **`.env.local`**: `ARCHLUCID_API_BASE_URL=http://localhost:5128` (match your API).
 
+**Optional — trace viewer deep link:** set **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** to a URL containing the literal **`{traceId}`** placeholder (replaced with the **`X-Trace-Id`** value from the API response). If unset, the UI still shows a short trace id preview and copy control when the header is present; the **View trace** link is hidden.
+
+Examples:
+
+- **Jaeger:** `https://jaeger.example.com/trace/{traceId}`
+- **Grafana Tempo (Explore):** `https://grafana.example.com/explore?left=["now-1h","now","Tempo",{"query":"{traceId}"}]` (URL-encode the template value in real deployments as needed)
+- **Application Insights:** `https://portal.azure.com/#blade/AppInsightsExtension/DetailsV2Blade/DataModel/trace/traceId/{traceId}`
+
 ```bash
 npm ci
 npm run dev

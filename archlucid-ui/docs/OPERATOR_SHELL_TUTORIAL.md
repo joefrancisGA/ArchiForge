@@ -462,10 +462,11 @@ The order matters: **error → malformed → empty → data**. This is determini
 
 **File:** `app/runs/[runId]/page.tsx` (server component)  
 **API calls (in order):**
-1. `getRunDetail(runId)` → run envelope
+1. `getRunDetail(runId)` → `{ data: run envelope, traceId }` (trace id from **`X-Trace-Id`** on the same response)
 2. `getManifestSummary(manifestId)` → if manifest exists
 3. `listArtifacts(manifestId)` → if manifest exists  
 **Response guards:** `coerceRunDetail`, `coerceManifestSummary`, `coerceArtifactDescriptorList`  
+**Trace viewer:** when **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** is set (see repo **`.env.example`**), **`RunTraceViewerLink`** shows **View trace** plus a short id preview and copy control.  
 **States:**
 - Run failed → full-page `OperatorErrorCallout` with back link
 - Run malformed → full-page `OperatorMalformedCallout`

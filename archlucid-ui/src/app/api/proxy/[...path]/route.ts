@@ -263,6 +263,16 @@ function passThrough(res: Response): NextResponse {
     out.headers.set(CORRELATION_ID_HEADER, correlation.trim());
   }
 
+  const traceId = res.headers.get("X-Trace-Id");
+  if (traceId && traceId.trim().length > 0) {
+    out.headers.set("X-Trace-Id", traceId.trim());
+  }
+
+  const traceParent = res.headers.get("traceparent");
+  if (traceParent && traceParent.trim().length > 0) {
+    out.headers.set("traceparent", traceParent.trim());
+  }
+
   return out;
 }
 

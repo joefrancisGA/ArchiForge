@@ -9,6 +9,9 @@ public sealed class ObservabilityHostOptions
 
     /// <summary>Prometheus scrape endpoint and optional Basic auth (child keys under <c>Observability:Prometheus</c>).</summary>
     public ObservabilityPrometheusOptions Prometheus { get; set; } = new();
+
+    /// <summary>Trace sampling (child keys under <c>Observability:Tracing</c>).</summary>
+    public ObservabilityTracingOptions Tracing { get; set; } = new();
 }
 
 /// <summary>Binding for <c>Observability:Prometheus</c>.</summary>

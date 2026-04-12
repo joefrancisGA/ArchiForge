@@ -2,9 +2,11 @@ import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
+import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { getArchitectureRunProvenance } from "@/lib/api";
+import { type ApiResponseWithTrace, getArchitectureRunProvenance } from "@/lib/api";
+import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
 
 function formatUtc(iso: string): string {
   const d = new Date(iso);
@@ -23,15 +25,15 @@ export default async function RunProvenancePage({
 }) {
   const { runId } = await params;
   let loadFailure: ApiLoadFailureState | null = null;
-  let graph: Awaited<ReturnType<typeof getArchitectureRunProvenance>> | null = null;
+  let provenanceResponse: ApiResponseWithTrace<ArchitectureRunProvenanceGraph> | null = null;
 
   try {
-    graph = await getArchitectureRunProvenance(runId);
+    provenanceResponse = await getArchitectureRunProvenance(runId);
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
   }
 
-  if (loadFailure || !graph) {
+  if (loadFailure || !provenanceResponse) {
     const fallback =
       loadFailure?.message ?? "Provenance could not be loaded (run missing, broken manifest reference, or transport error).";
 
@@ -54,13 +56,19 @@ export default async function RunProvenancePage({
     );
   }
 
+  const graph = provenanceResponse.data;
+  const provenanceTraceId = provenanceResponse.traceId;
+
   return (
     <main>
       <h2>Provenance</h2>
-      <p style={{ fontSize: 14, marginBottom: 16 }}>
+      <p style={{ fontSize: 14, marginBottom: 8 }}>
         Run <code>{graph.runId}</code> — {graph.nodes.length} nodes, {graph.edges.length} edges,{" "}
         {graph.timeline.length} timeline events.
       </p>
+      <div style={{ marginBottom: 16 }}>
+        <RunTraceViewerLink traceId={provenanceTraceId} />
+      </div>
 
       {graph.traceabilityGaps.length > 0 ? (
         <section

@@ -13,14 +13,16 @@ import {
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
+  type ApiResponseWithTrace,
   getBundleDownloadUrl,
   getManifestSummary,
   getRunDetail,
   getRunExportDownloadUrl,
   listArtifacts,
 } from "@/lib/api";
-import type { ArtifactDescriptor, ManifestSummary } from "@/types/authority";
+import type { ArtifactDescriptor, ManifestSummary, RunDetail } from "@/types/authority";
 
 /** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, artifacts, and downloads. */
 export default async function RunDetailPage({
@@ -30,16 +32,16 @@ export default async function RunDetailPage({
 }) {
   const { runId } = await params;
 
-  let detail: Awaited<ReturnType<typeof getRunDetail>> | null = null;
+  let runDetailResponse: ApiResponseWithTrace<RunDetail> | null = null;
   let loadFailure: ApiLoadFailureState | null = null;
 
   try {
-    detail = await getRunDetail(runId);
+    runDetailResponse = await getRunDetail(runId);
   } catch (e) {
     loadFailure = toApiLoadFailure(e);
   }
 
-  if (loadFailure || !detail) {
+  if (loadFailure || !runDetailResponse) {
     const fallback =
       loadFailure?.message ?? "Run not found or could not be loaded.";
 
@@ -61,7 +63,7 @@ export default async function RunDetailPage({
     );
   }
 
-  const envelope = coerceRunDetail(detail);
+  const envelope = coerceRunDetail(runDetailResponse.data);
 
   if (!envelope.ok) {
     return (
@@ -84,6 +86,7 @@ export default async function RunDetailPage({
 
   const resolvedDetail = envelope.value;
   const manifestId = resolvedDetail.run.goldenManifestId;
+  const runDetailTraceId = runDetailResponse.traceId;
 
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
@@ -144,6 +147,7 @@ export default async function RunDetailPage({
         <p>
           <strong>Run ID:</strong> {resolvedDetail.run.runId}
         </p>
+        <RunTraceViewerLink traceId={runDetailTraceId} />
         <p>
           <strong>Project:</strong> {resolvedDetail.run.projectId}
         </p>

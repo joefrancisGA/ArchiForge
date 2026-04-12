@@ -67,6 +67,17 @@ import type {
   EvolutionSimulateResponse,
 } from "@/types/evolution";
 
+/** JSON GET result plus optional distributed trace id from the upstream `X-Trace-Id` response header. */
+export interface ApiResponseWithTrace<T> {
+  data: T;
+  traceId: string | null;
+}
+
+/** Returns the trace id from the `X-Trace-Id` response header, or null if absent. */
+export function extractTraceId(response: Response): string | null {
+  return response.headers.get("X-Trace-Id") ?? null;
+}
+
 /** Returns true when executing in the browser (client component), false on the Node.js server (RSC). */
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -160,8 +171,7 @@ function withCorrelationHeaders(headers: HeadersInit): Headers {
   return h;
 }
 
-/** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
-export async function apiGet<T>(path: string): Promise<T> {
+async function apiGetJsonWithTrace<T>(path: string): Promise<ApiResponseWithTrace<T>> {
   await ensureOidcBearerReady();
   const { url, headers } = resolveRequest(path);
   const h = withCorrelationHeaders(headers);
@@ -170,12 +180,20 @@ export async function apiGet<T>(path: string): Promise<T> {
     headers: h,
   });
   const text = await response.text();
+  const traceId = extractTraceId(response);
 
   if (!response.ok) {
     throw buildApiRequestErrorFromParts(response, text);
   }
 
-  return JSON.parse(text) as T;
+  return { data: JSON.parse(text) as T, traceId };
+}
+
+/** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
+export async function apiGet<T>(path: string): Promise<T> {
+  const { data } = await apiGetJsonWithTrace<T>(path);
+
+  return data;
 }
 
 /** POSTs a JSON body to the ArchLucid API and returns the parsed response. Throws on HTTP errors. */
@@ -251,8 +269,10 @@ export async function createArchitectureRun(
 }
 
 /** Linkage graph + trace timeline for a coordinator architecture run. */
-export async function getArchitectureRunProvenance(runId: string): Promise<ArchitectureRunProvenanceGraph> {
-  return apiGet<ArchitectureRunProvenanceGraph>(
+export async function getArchitectureRunProvenance(
+  runId: string,
+): Promise<ApiResponseWithTrace<ArchitectureRunProvenanceGraph>> {
+  return apiGetJsonWithTrace<ArchitectureRunProvenanceGraph>(
     `/v1/architecture/runs/${encodeURIComponent(runId)}/provenance`,
   );
 }
@@ -285,8 +305,8 @@ export async function getRunSummary(runId: string): Promise<RunSummary> {
 }
 
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
-export async function getRunDetail(runId: string): Promise<RunDetail> {
-  return apiGet<RunDetail>(`/v1/authority/runs/${runId}`);
+export async function getRunDetail(runId: string): Promise<ApiResponseWithTrace<RunDetail>> {
+  return apiGetJsonWithTrace<RunDetail>(`/v1/authority/runs/${runId}`);
 }
 
 /** Structural provenance graph for a completed authority run (422 if snapshots incomplete). */

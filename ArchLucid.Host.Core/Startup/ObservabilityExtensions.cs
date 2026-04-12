@@ -16,6 +16,15 @@ public static class ObservabilityExtensions
     /// </summary>
     /// <remarks>
     /// <para>
+    /// <strong>Trace sampling:</strong> <c>Observability:Tracing:SamplingRatio</c> (default <c>1.0</c>) enables head-based
+    /// <see cref="OpenTelemetry.Trace.TraceIdRatioBasedSampler"/> for root spans when below <c>1.0</c>, wrapped in
+    /// <see cref="OpenTelemetry.Trace.ParentBasedSampler"/> so remote parent decisions are respected. Unparseable values
+    /// fall back to <c>1.0</c> so a typo does not fail startup.
+    /// Optional <c>Observability:Tracing:AlwaysSampleActivitySources</c> is bound for future use; per-source always-on
+    /// sampling in-process is not available until the SDK exposes source name on sampling parameters — use collector
+    /// tail sampling for high-value sources (see <c>ObservabilityTraceSamplingConfigurator</c>).
+    /// </para>
+    /// <para>
     /// <strong>OTLP:</strong> When <c>Observability:Otlp:Endpoint</c> is non-empty, trace and metric OTLP exporters
     /// are registered by default. Set <c>Observability:Otlp:Enabled</c> to <c>false</c> to force OTLP off even if
     /// an endpoint string is present (kill-switch). When the endpoint is empty, OTLP is always off.
@@ -70,6 +79,8 @@ public static class ObservabilityExtensions
                     serviceInstanceId: Environment.MachineName))
             .WithTracing(tracing =>
             {
+                ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling(tracing, configuration);
+
                 tracing.AddAspNetCoreInstrumentation();
                 tracing.AddHttpClientInstrumentation();
                 tracing.AddSqlClientInstrumentation();

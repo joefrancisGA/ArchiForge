@@ -11,6 +11,7 @@
 | `key_vault_uri` | Secrets, connection strings | App Service / Container Apps **Key Vault references**. |
 | `cors_allowed_origins` | Browser SPA origins | Must match **`Cors:AllowedOrigins`** array in app config. |
 | `app_insights_connection_string` | OTel / logs | Optional; align with **`Observability:*`** settings. |
+| `Observability__Tracing__SamplingRatio` (env) | Trace head sampling | Production: typically **`0.1`**–**`0.25`** on API + worker Container Apps (maps to **`Observability:Tracing:SamplingRatio`**); default **`1.0`** if unset. See [OBSERVABILITY.md](OBSERVABILITY.md). |
 
 ## Diagram (dependencies)
 
