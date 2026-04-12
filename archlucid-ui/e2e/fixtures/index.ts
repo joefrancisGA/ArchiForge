@@ -15,3 +15,4 @@ export {
 } from "./ids";
 export { fixtureManifestSummary, fixtureManifestSummaryEmptyArtifacts } from "./manifest-summary";
 export { fixtureRunDetail } from "./run-detail";
+export { fixtureRunExplanationSummary } from "./run-explanation-summary";

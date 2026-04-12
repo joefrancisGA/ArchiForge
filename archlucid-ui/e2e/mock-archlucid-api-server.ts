@@ -20,6 +20,7 @@ import {
   fixtureManifestSummary,
   fixtureManifestSummaryEmptyArtifacts,
   fixtureRunDetail,
+  fixtureRunExplanationSummary,
 } from "./fixtures/index";
 
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
@@ -243,6 +244,20 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           sendJson(res, 200, fixtureRunDetail());
         } else {
           sendJson(res, 404, { detail: "Run not found." });
+        }
+
+        return;
+      }
+
+      const explainAggregateMatch = /^\/v1\/explain\/runs\/([^/]+)\/aggregate$/.exec(pathname);
+
+      if (explainAggregateMatch) {
+        const runId = explainAggregateMatch[1];
+
+        if (runId === FIXTURE_RUN_ID) {
+          sendJson(res, 200, fixtureRunExplanationSummary());
+        } else {
+          sendJson(res, 404, { detail: "Aggregate explanation not found." });
         }
 
         return;

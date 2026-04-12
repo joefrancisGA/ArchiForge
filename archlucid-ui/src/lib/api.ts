@@ -7,7 +7,11 @@ import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
-import type { ComparisonExplanation, RunExplanation } from "@/types/explanation";
+import type {
+  ComparisonExplanation,
+  RunExplanation,
+  RunExplanationSummary,
+} from "@/types/explanation";
 import type {
   ArtifactDescriptor,
   DecisionProvenanceGraph,
@@ -419,6 +423,11 @@ export async function explainComparisonRuns(
 /** Requests an AI-generated explanation of a single run's decisions and implications. */
 export async function explainRun(runId: string): Promise<RunExplanation> {
   return apiGet<RunExplanation>(`/v1/explain/runs/${encodeURIComponent(runId)}/explain`);
+}
+
+/** Aggregate executive explanation (themes, posture, counts) with nested full explanation payload. */
+export async function getRunExplanationSummary(runId: string): Promise<RunExplanationSummary> {
+  return apiGet<RunExplanationSummary>(`/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`);
 }
 
 /** Sends a natural-language question to the ArchLucid conversational AI endpoint. */

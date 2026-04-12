@@ -2,9 +2,13 @@ import { expect, test } from "@playwright/test";
 
 import { formatViolations, runAxe } from "./helpers/axe-helper";
 
+/** Stable run id from `e2e/fixtures/ids.ts` (mock API serves run detail + aggregate explanation). */
+const FIXTURE_RUN_ID = "e2e-fixture-run-001";
+
 const PAGES = [
   { name: "Home", path: "/" },
   { name: "Runs", path: "/runs?projectId=default" },
+  { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },
   { name: "Audit", path: "/audit" },
   { name: "Policy packs", path: "/policy-packs" },
   { name: "Alerts", path: "/alerts" },

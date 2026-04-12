@@ -17,6 +17,7 @@
 8. [Compare sub-components](#8-compare-sub-components)
 9. [Layout and navigation](#9-layout-and-navigation)
 10. [Helper libraries](#10-helper-libraries)
+11. [RunExplanationSection](#11-runexplanationsection)
 
 ---
 
@@ -37,6 +38,7 @@
 | `StructuredComparisonView` | `components/compare/StructuredComparisonView.tsx` | Client | Golden manifest delta tables |
 | `LegacyRunComparisonView` | `components/compare/LegacyRunComparisonView.tsx` | Client | Flat diff display |
 | `AiComparisonExplanationView` | `components/compare/AiComparisonExplanationView.tsx` | Client | LLM explanation display |
+| `RunExplanationSection` | `components/RunExplanationSection.tsx` | Client | Aggregate run explanation (themes, posture, confidence, provenance) |
 
 ---
 
@@ -313,6 +315,7 @@ Next.js uses this to set `<title>` and `<meta name="description">` in the HTML h
 | `listRunsByProject(projectId, take)` | GET | `/api/authority/projects/{id}/runs` |
 | `getRunSummary(runId)` | GET | `/api/authority/runs/{id}/summary` |
 | `getRunDetail(runId)` | GET | `/api/authority/runs/{id}` |
+| `getRunExplanationSummary(runId)` | GET | `/v1/explain/runs/{id}/aggregate` (aggregate explanation + themes) |
 | `getManifestSummary(manifestId)` | GET | `/api/authority/manifests/{id}/summary` |
 | `listArtifacts(manifestId)` | GET | `/api/artifacts/manifests/{id}` |
 | `getArtifactDescriptor(manifestId, artifactId)` | GET | Artifact metadata (no body) |
@@ -380,3 +383,32 @@ All return `{ ok: true, value/items }` or `{ ok: false, message }`.
 | Export | Purpose |
 |--------|---------|
 | `AUTH_MODE` | Auth mode string from `NEXT_PUBLIC_ARCHLUCID_AUTH_MODE` |
+
+---
+
+## 11. RunExplanationSection
+
+**File:** `src/components/RunExplanationSection.tsx`  
+**Type:** Client component (`"use client"`)
+
+### Purpose
+
+Renders the **aggregate** run explanation from `GET /v1/explain/runs/{runId}/aggregate` (`getRunExplanationSummary` in `api.ts`): executive assessment, risk posture badge, model confidence (`Progress` from shadcn/ui), theme bullets, key drivers / risk implications from the nested `explanation`, and optional provenance in a `<details>` block.
+
+### Props
+
+```ts
+{
+  summary: RunExplanationSummary | null;
+  loading: boolean;
+  error: string | null;
+}
+```
+
+On **run detail** (`/runs/[runId]`), the server component fetches the summary when a golden manifest exists; failures use `OperatorApiProblem` above this component (warning variant), matching manifest summary / artifacts.
+
+### Exports
+
+| Export | Purpose |
+|--------|---------|
+| `riskPostureBadgeColors(posture)` | Maps `Low` / `Medium` / `High` / `Critical` (case-insensitive) to badge colors for the posture pill. |

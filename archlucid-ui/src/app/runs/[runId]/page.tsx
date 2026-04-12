@@ -13,18 +13,21 @@ import {
   coerceRunDetail,
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
+import { RunExplanationSection } from "@/components/RunExplanationSection";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
   type ApiResponseWithTrace,
   getBundleDownloadUrl,
   getManifestSummary,
   getRunDetail,
+  getRunExplanationSummary,
   getRunExportDownloadUrl,
   listArtifacts,
 } from "@/lib/api";
 import type { ArtifactDescriptor, ManifestSummary, RunDetail } from "@/types/authority";
+import type { RunExplanationSummary } from "@/types/explanation";
 
-/** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, artifacts, and downloads. */
+/** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, aggregate explanation, artifacts, and downloads. */
 export default async function RunDetailPage({
   params,
 }: {
@@ -94,6 +97,8 @@ export default async function RunDetailPage({
   let manifestSummaryMalformed: string | null = null;
   let artifactsFailure: ApiLoadFailureState | null = null;
   let artifactsMalformed: string | null = null;
+  let explanationSummary: RunExplanationSummary | null = null;
+  let explanationFailure: ApiLoadFailureState | null = null;
 
   if (manifestId) {
     try {
@@ -121,6 +126,12 @@ export default async function RunDetailPage({
       }
     } catch (e) {
       artifactsFailure = toApiLoadFailure(e);
+    }
+
+    try {
+      explanationSummary = await getRunExplanationSummary(runId);
+    } catch (e) {
+      explanationFailure = toApiLoadFailure(e);
     }
   }
 
@@ -240,6 +251,31 @@ export default async function RunDetailPage({
           <p>
             <strong>Unresolved issues:</strong> {manifestSummary.unresolvedIssueCount}
           </p>
+        </section>
+      )}
+
+      {manifestId && (
+        <section style={{ marginBottom: 24 }} aria-labelledby="run-explanation-section-title">
+          <h3 id="run-explanation-section-title">Explanation</h3>
+          {explanationFailure && (
+            <>
+              <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+                Aggregate explanation could not be loaded.
+              </p>
+              <OperatorApiProblem
+                problem={explanationFailure.problem}
+                fallbackMessage={explanationFailure.message}
+                correlationId={explanationFailure.correlationId}
+                variant="warning"
+              />
+              <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+                The run and manifest loaded, but the explanation aggregate request failed (HTTP / transport / 404).
+              </p>
+            </>
+          )}
+          {!explanationFailure && (
+            <RunExplanationSection summary={explanationSummary} loading={false} error={null} />
+          )}
         </section>
       )}
 
