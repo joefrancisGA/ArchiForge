@@ -3,7 +3,10 @@ using ArchLucid.Application.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.TestSupport;
 
@@ -21,7 +24,8 @@ namespace ArchLucid.Api.Tests;
 public sealed class ReplayRunServiceTests
 {
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<IArchitectureRunRepository> _runRepository = new();
+    private readonly Mock<IRunRepository> _authorityRunRepository = new();
+    private readonly Mock<IScopeContextProvider> _scopeContextProvider = new();
     private readonly Mock<IArchitectureRequestRepository> _requestRepository = new();
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
     private readonly Mock<IAgentExecutorResolver> _executorResolver = new();
@@ -32,12 +36,24 @@ public sealed class ReplayRunServiceTests
 
     public ReplayRunServiceTests()
     {
+        _scopeContextProvider.Setup(p => p.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        });
+        _authorityRunRepository.Setup(r => r.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
+            .Returns(Task.CompletedTask);
+        _authorityRunRepository.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
         _sut = new ReplayRunService(
             _executorResolver.Object,
             _decisionEngine.Object,
             _requestRepository.Object,
             _runDetailQueryService.Object,
-            _runRepository.Object,
+            _authorityRunRepository.Object,
+            _scopeContextProvider.Object,
             _manifestRepository.Object,
             _decisionTraceRepository.Object,
             _evidenceRepository.Object,
@@ -54,7 +70,7 @@ public sealed class ReplayRunServiceTests
         Func<Task<ReplayRunResult>> act = async () => await _sut.ReplayAsync("missing");
 
         await act.Should().ThrowAsync<RunNotFoundException>();
-        _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _authorityRunRepository.Verify(r => r.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null), Times.Never);
     }
 
     [Fact]

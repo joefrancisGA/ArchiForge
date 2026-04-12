@@ -144,6 +144,28 @@ public abstract class RunRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task ListRecentInScopeAsync_orders_newest_first_and_spans_project_slugs()
+    {
+        SkipIfSqlServerUnavailable();
+        IRunRepository repo = CreateRepository();
+        ScopeContext scope = NewScope();
+        DateTime older = DateTime.UtcNow.AddMinutes(-10);
+        DateTime newer = DateTime.UtcNow.AddMinutes(-5);
+
+        RunRecord first = NewRun(scope, "slug_a", older);
+        RunRecord second = NewRun(scope, "slug_b", newer);
+
+        await repo.SaveAsync(first, CancellationToken.None);
+        await repo.SaveAsync(second, CancellationToken.None);
+
+        IReadOnlyList<RunRecord> list = await repo.ListRecentInScopeAsync(scope, take: 10, CancellationToken.None);
+
+        list.Should().HaveCount(2);
+        list[0].RunId.Should().Be(second.RunId);
+        list[1].RunId.Should().Be(first.RunId);
+    }
+
+    [SkippableFact]
     public async Task UpdateAsync_changes_fields_visible_on_GetById()
     {
         SkipIfSqlServerUnavailable();

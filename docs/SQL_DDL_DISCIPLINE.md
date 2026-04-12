@@ -55,4 +55,4 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 - **Cost:** Index **020** trades small storage for fewer scans on **`dbo.Runs`** list-by-project queries.
 - **Scalability:** Idempotency table is keyed by scope + 32-byte hash; volume is bounded by distinct client keys.
-- **Reliability:** Idempotency replay avoids duplicate **`ArchitectureRuns`** for retries; cross-store atomicity with authority **`dbo.Runs`** is **best-effort** (documented in **`API_CONTRACTS.md`**).
+- **Reliability:** Idempotency replay avoids duplicate run headers for retries; authority **`dbo.Runs`** is the durable correlation point (documented in **`API_CONTRACTS.md`**).

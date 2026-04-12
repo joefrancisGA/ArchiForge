@@ -17,6 +17,18 @@ public sealed class RunRecord
     public Guid? DecisionTraceId { get; set; }
     public Guid? ArtifactBundleId { get; set; }
 
+    /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
+    public string? ArchitectureRequestId { get; set; }
+
+    /// <summary>String form of lifecycle enum (<c>ArchitectureRunStatus</c>) for API/read parity with legacy rows.</summary>
+    public string? LegacyRunStatus { get; set; }
+
+    /// <summary>UTC when the run reached a terminal lifecycle state.</summary>
+    public DateTime? CompletedUtc { get; set; }
+
+    /// <summary>Latest committed manifest version key.</summary>
+    public string? CurrentManifestVersion { get; set; }
+
     /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
     public DateTime? ArchivedUtc { get; set; }
 

@@ -1,22 +1,22 @@
 # ADR 0002: Dual persistence (ArchitectureRuns vs dbo.Runs)
 
-- **Status:** Accepted (convergence in progress)
+- **Status:** Superseded — see **ADR 0012** (completed 2026-04-12): legacy **`dbo.ArchitectureRuns`** and **`IArchitectureRunRepository`** removed; **`dbo.Runs`** is the sole run header table.
 - **Date:** 2026-04-04
 
-## Context
+## Context (historical)
 
-Historical **`dbo.ArchitectureRuns`** (string run id) coexists with authority **`dbo.Runs`** (GUID). Some idempotency and CLI paths still touch the legacy table.
+Historical **`dbo.ArchitectureRuns`** (string run id) coexisted with authority **`dbo.Runs`** (GUID). Idempotency and coordinator paths used the string key while authority artifacts used the GUID header.
 
-## Decision
+## Decision (historical)
 
-Treat **`dbo.Runs`** as the **authority source of truth** for new features. **`ArchitectureRuns`** remains for compatibility until fully migrated.
+Treat **`dbo.Runs`** as the **authority source of truth** for new features. **`ArchitectureRuns`** remained for compatibility until fully migrated.
 
-## Consequences
+## Consequences (historical)
 
 - **Positive:** Clear direction for new code; ROWVERSION and RLS target authority tables first.
-- **Negative:** Idempotency and rare races cannot assume a single global transaction across both tables — see `docs/DATA_CONSISTENCY_MATRIX.md`.
-- **Schedule:** Product default dates and epic tag **`RunsAuthorityConvergence`** are in **`docs/DATA_CONSISTENCY_MATRIX.md`** (write freeze, read convergence, legacy removal). Extend only via ADR.
+- **Negative:** Idempotency and rare races could not assume a single global transaction across both tables — see archived **`docs/DATA_CONSISTENCY_MATRIX.md`** revisions pre-049.
 
 ## Links
 
+- `docs/adr/0012-runs-authority-convergence-write-freeze.md` — completion record
 - `docs/DATA_CONSISTENCY_MATRIX.md`

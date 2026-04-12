@@ -55,10 +55,6 @@ public static partial class ServiceCollectionExtensions
         if (ArchLucidOptions.EffectiveIsInMemory(coordinatorStorage.StorageProvider))
         {
             services.AddSingleton<IArchitectureRequestRepository, InMemoryArchitectureRequestRepository>();
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            services.AddSingleton<IArchitectureRunRepository>(sp =>
-                new InMemoryArchitectureRunRepository(sp.GetRequiredService<IArchitectureRequestRepository>()));
-#pragma warning restore CS0618
             services.AddSingleton<IArchitectureRunIdempotencyRepository, InMemoryArchitectureRunIdempotencyRepository>();
             services.AddSingleton<IAgentTaskRepository, InMemoryAgentTaskRepository>();
             services.AddSingleton<IAgentResultRepository, InMemoryAgentResultRepository>();
@@ -75,9 +71,6 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IAgentEvaluationRepository, AgentEvaluationRepository>();
             services.AddScoped<IDecisionNodeRepository, DecisionNodeRepository>();
             services.AddScoped<IArchitectureRequestRepository, ArchitectureRequestRepository>();
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            services.AddScoped<IArchitectureRunRepository, ArchitectureRunRepository>();
-#pragma warning restore CS0618
             services.AddScoped<IArchitectureRunIdempotencyRepository, ArchitectureRunIdempotencyRepository>();
             services.AddScoped<IAgentTaskRepository, AgentTaskRepository>();
             services.AddScoped<IAgentResultRepository, AgentResultRepository>();

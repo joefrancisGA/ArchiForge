@@ -66,6 +66,12 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    /// Returns up to <paramref name="take"/> runs in <paramref name="scope"/> (all project slugs), ordered by
+    /// <c>CreatedUtc</c> descending. Excludes archived rows.
+    /// </summary>
+    Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct);
+
+    /// <summary>
     /// Applies an update to an existing run row. Callers may pass an existing
     /// <paramref name="connection"/> and <paramref name="transaction"/> to participate
     /// in a multi-statement transaction.

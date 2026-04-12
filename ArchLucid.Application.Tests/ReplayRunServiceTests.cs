@@ -8,15 +8,16 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
 
 using Moq;
-
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — Moq exercises obsolete IArchitectureRunRepository write API (TreatWarningsAsErrors).
 
 namespace ArchLucid.Application.Tests;
 
@@ -27,6 +28,13 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ReplayRunServiceTests
 {
+    private static ScopeContext TestScope() => new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+    };
+
     [Fact]
     public async Task ReplayAsync_when_run_missing_throws_RunNotFoundException()
     {
@@ -37,7 +45,10 @@ public sealed class ReplayRunServiceTests
         detail.Setup(x => x.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        Mock<IArchitectureRunRepository> runRepo = new();
+        Mock<IRunRepository> authorityRuns = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
+
         Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
@@ -47,7 +58,8 @@ public sealed class ReplayRunServiceTests
             decision.Object,
             requestRepo.Object,
             detail.Object,
-            runRepo.Object,
+            authorityRuns.Object,
+            scopeProvider.Object,
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
@@ -56,6 +68,9 @@ public sealed class ReplayRunServiceTests
         Func<Task> act = async () => await sut.ReplayAsync("missing", ExecutionModes.Current, false, null, CancellationToken.None);
 
         await act.Should().ThrowAsync<RunNotFoundException>();
+        authorityRuns.Verify(
+            r => r.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Never);
     }
 
     [Fact]
@@ -143,9 +158,14 @@ public sealed class ReplayRunServiceTests
 
         Mock<IDecisionEngineService> decision = new();
 
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.CreateAsync(It.IsAny<ArchitectureRun>(), It.IsAny<CancellationToken>()))
+        Mock<IRunRepository> authorityRuns = new();
+        authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
+        authorityRuns.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
         Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
@@ -155,7 +175,8 @@ public sealed class ReplayRunServiceTests
             decision.Object,
             requestRepo.Object,
             detail.Object,
-            runRepo.Object,
+            authorityRuns.Object,
+            scopeProvider.Object,
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
@@ -174,19 +195,17 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<IReadOnlyCollection<DecisionNode>>(),
                 It.IsAny<string?>()),
             Times.Never);
-        runRepo.Verify(
-            x => x.UpdateStatusAsync(
-                It.IsAny<string>(),
-                ArchitectureRunStatus.Committed,
-                It.IsAny<string?>(),
-                It.IsAny<DateTime?>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<ArchitectureRunStatus?>()),
+        Guid replayGuid = Guid.Parse(output.ReplayRunId);
+        authorityRuns.Verify(
+            r => r.SaveAsync(It.Is<RunRecord>(rr => rr.RunId == replayGuid && rr.ProjectId == "S"), It.IsAny<CancellationToken>(), null, null),
+            Times.Once);
+        authorityRuns.Verify(
+            r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null),
             Times.Never);
     }
 
     [Fact]
-    public async Task ReplayAsync_commitReplay_true_persists_manifest_and_marks_committed()
+    public async Task ReplayAsync_commitReplay_true_persists_manifest_and_saves_authority_run()
     {
         string originalRunId = Guid.NewGuid().ToString("N");
         string requestId = "req-rep2-" + Guid.NewGuid().ToString("N");
@@ -311,17 +330,14 @@ public sealed class ReplayRunServiceTests
                     Errors = [],
                 });
 
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.CreateAsync(It.IsAny<ArchitectureRun>(), It.IsAny<CancellationToken>()))
+        Mock<IRunRepository> authorityRuns = new();
+        authorityRuns.Setup(x => x.SaveAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null))
             .Returns(Task.CompletedTask);
-        runRepo.Setup(x => x.UpdateStatusAsync(
-                It.IsAny<string>(),
-                ArchitectureRunStatus.Committed,
-                It.IsAny<string?>(),
-                It.IsAny<DateTime?>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<ArchitectureRunStatus?>()))
-            .Returns(Task.CompletedTask);
+        authorityRuns.Setup(x => x.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(TestScope());
 
         Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         manifestRepo.Setup(x => x.CreateAsync(It.IsAny<GoldenManifest>(), It.IsAny<CancellationToken>()))
@@ -336,7 +352,8 @@ public sealed class ReplayRunServiceTests
             decision.Object,
             requestRepo.Object,
             detail.Object,
-            runRepo.Object,
+            authorityRuns.Object,
+            scopeProvider.Object,
             manifestRepo.Object,
             traceRepo.Object,
             evidenceRepo.Object,
@@ -351,16 +368,12 @@ public sealed class ReplayRunServiceTests
         traceRepo.Verify(
             x => x.CreateManyAsync(It.Is<IEnumerable<DecisionTrace>>(t => t.Count() == 1), It.IsAny<CancellationToken>()),
             Times.Once);
-        runRepo.Verify(
-            x => x.UpdateStatusAsync(
-                It.IsAny<string>(),
-                ArchitectureRunStatus.Committed,
-                "v-override",
-                It.IsAny<DateTime?>(),
-                It.IsAny<CancellationToken>(),
-                It.IsAny<ArchitectureRunStatus?>()),
+        Guid replayGuid = Guid.Parse(output.ReplayRunId);
+        authorityRuns.Verify(
+            r => r.SaveAsync(It.Is<RunRecord>(rr => rr.RunId == replayGuid), It.IsAny<CancellationToken>(), null, null),
             Times.Once);
+        authorityRuns.Verify(
+            r => r.UpdateAsync(It.IsAny<RunRecord>(), It.IsAny<CancellationToken>(), null, null),
+            Times.Never);
     }
 }
-
-#pragma warning restore CS0618

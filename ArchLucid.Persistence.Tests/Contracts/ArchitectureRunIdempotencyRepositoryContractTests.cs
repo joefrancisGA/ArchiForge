@@ -15,7 +15,7 @@ public abstract class ArchitectureRunIdempotencyRepositoryContractTests
 
     protected abstract IArchitectureRunIdempotencyRepository CreateRepository();
 
-    /// <summary>SQL tests seed <c>dbo.ArchitectureRuns</c> for FK; in-memory skips.</summary>
+    /// <summary>SQL tests seed <c>dbo.Runs</c> for a logical run header; in-memory skips.</summary>
     protected virtual Task PrepareRunRowForIdempotencyAsync(string runId, CancellationToken ct)
     {
         _ = runId;

@@ -35,14 +35,16 @@ public sealed class SqlRunRepository(
             (
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
             )
             OUTPUT inserted.RowVersionStamp
             VALUES
             (
                 @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
                 @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
-                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc
+                @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
+                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion
             );
             """;
 
@@ -69,6 +71,7 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion,
                 RowVersionStamp AS RowVersion
             FROM dbo.Runs
             WHERE RunId = @RunId
@@ -104,7 +107,8 @@ public sealed class SqlRunRepository(
             SELECT TOP (@Take)
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
             FROM dbo.Runs
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
@@ -157,7 +161,8 @@ public sealed class SqlRunRepository(
             SELECT
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
-                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
             FROM dbo.Runs
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
@@ -195,6 +200,41 @@ public sealed class SqlRunRepository(
         return (rows.ToList(), total);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        const string sql = """
+            SELECT TOP (@Take)
+                RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
+                ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
+                GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
+            FROM dbo.Runs
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ScopeProjectId = @ScopeProjectId
+              AND ArchivedUtc IS NULL
+            ORDER BY CreatedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await authorityRunListConnectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<RunRecord> rows = await connection.QueryAsync<RunRecord>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    ScopeProjectId = scope.ProjectId,
+                    Take = Math.Clamp(take <= 0 ? 200 : take, 1, 200)
+                },
+                cancellationToken: ct));
+
+        return rows.ToList();
+    }
+
     public async Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,
@@ -217,7 +257,11 @@ public sealed class SqlRunRepository(
                 GoldenManifestId = @GoldenManifestId,
                 DecisionTraceId = @DecisionTraceId,
                 ArtifactBundleId = @ArtifactBundleId,
-                ArchivedUtc = @ArchivedUtc
+                ArchivedUtc = @ArchivedUtc,
+                ArchitectureRequestId = @ArchitectureRequestId,
+                LegacyRunStatus = @LegacyRunStatus,
+                CompletedUtc = @CompletedUtc,
+                CurrentManifestVersion = @CurrentManifestVersion
             OUTPUT inserted.RowVersionStamp
             WHERE RunId = @RunId
               AND (@RowVersion IS NULL OR RowVersionStamp = @RowVersion);
@@ -259,6 +303,10 @@ public sealed class SqlRunRepository(
                     run.DecisionTraceId,
                     run.ArtifactBundleId,
                     run.ArchivedUtc,
+                    run.ArchitectureRequestId,
+                    run.LegacyRunStatus,
+                    run.CompletedUtc,
+                    run.CurrentManifestVersion,
                     RowVersion = run.RowVersion
                 },
                 transaction: transaction,

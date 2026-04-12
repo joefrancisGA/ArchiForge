@@ -8,7 +8,7 @@ Short definitions for domain terms used across the codebase, docs, and runbooks.
 
 ## Architecture run (run)
 
-The top-level work unit: an **`ArchitectureRequest`** submitted by an operator or integrator that passes through ingestion, knowledge-graph build, findings, decisioning, artifact synthesis, and optional agent invocation, then results in a committed **golden manifest**. Tracked in **`dbo.Runs`** (GUID-keyed authority table). The older **`dbo.ArchitectureRuns`** (string `RunId`) is legacy — see **`docs/DATA_CONSISTENCY_MATRIX.md`**.
+The top-level work unit: an **`ArchitectureRequest`** submitted by an operator or integrator that passes through ingestion, knowledge-graph build, findings, decisioning, artifact synthesis, and optional agent invocation, then results in a committed **golden manifest**. Tracked in **`dbo.Runs`** (GUID-keyed authority table). See **`docs/DATA_CONSISTENCY_MATRIX.md`**.
 
 ## Artifact bundle
 

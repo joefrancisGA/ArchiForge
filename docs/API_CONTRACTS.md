@@ -128,7 +128,7 @@ Fingerprint is **SHA-256** of the canonical **`ArchitectureRequest`** JSON using
 
 **Scope:** Keys are isolated per **`x-tenant-id` / `x-workspace-id` / `x-project-id`** (or JWT claims) via **`IScopeContextProvider`**.
 
-**Concurrency:** Under extreme parallel duplicate-key pressure, a losing request may roll back legacy **`ArchitectureRuns`** rows while authority-side **`dbo.Runs`** work may already be committed; operators should treat idempotency as **retry-safe** for typical client behaviour, not a distributed two-phase guarantee across both stores. See **`docs/SQL_DDL_DISCIPLINE.md`**.
+**Concurrency:** Under extreme parallel duplicate-key pressure, idempotency is **retry-safe** for typical client behaviour but not a serializable global guarantee; authority state is **`dbo.Runs`** and related coordinator rows. See **`docs/SQL_DDL_DISCIPLINE.md`**.
 
 ## Policy packs (`/v1/policy-packs`)
 

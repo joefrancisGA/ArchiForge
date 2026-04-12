@@ -62,22 +62,20 @@ There is **no** remaining `001_AuthorityStore.sql` under Persistence; authority 
 
 Read the file top-down; major comment banners include:
 
-1. **`/* ---- Core ---- */`** — `ArchitectureRequests`, `ArchitectureRuns` (string `RunId` for API), FK to requests.
+1. **`/* ---- Core ---- */`** — `ArchitectureRequests` (requests are still keyed here; run header is **`dbo.Runs`**).
 2. **`/* ---- Agents ---- */`** — `AgentTasks`, `AgentResults`, FK batches.
 3. **`/* ---- Manifest / evidence ---- */`** — `GoldenManifestVersions`, `EvidenceBundles`, `DecisionTraces`, `AgentEvidencePackages`, `AgentExecutionTraces`.
-4. **`/* ---- RunExportRecords ---- */`** — Export records linked to `ArchitectureRuns`.
+4. **`/* ---- RunExportRecords ---- */`** — Export records linked by string `RunId` (correlates with **`dbo.Runs.RunId`** as **N** hex).
 5. **`/* ---- ComparisonRecords ---- */`** — Comparisons, replay payloads, label/tags, FKs.
 6. **`/* ---- Decision Engine v2 ---- */`** — `DecisionNodes`, `AgentEvaluations`.
-7. **`/* ---- Authority / Dapper … */`** — **`dbo.Runs`** (`UNIQUEIDENTIFIER` **RunId** — **not** the same as `ArchitectureRuns.RunId`), snapshots, manifests, bundles, audit, provenance, conversations, then decisioning tables (`RecommendationRecords`, advisory, digests, alerts, policy packs, etc.).
+7. **`/* ---- Authority / Dapper … */`** — **`dbo.Runs`** (`UNIQUEIDENTIFIER` **RunId** — sole persisted run header), snapshots, manifests, bundles, audit, provenance, conversations, then decisioning tables (`RecommendationRecords`, advisory, digests, alerts, policy packs, etc.).
 
-### 3.5 Two different “run” tables (common confusion)
+### 3.5 Run identity (post–049)
 
-| Table | `RunId` type | Used by |
-|-------|----------------|--------|
-| **`dbo.ArchitectureRuns`** | `NVARCHAR(64)` | Legacy API orchestration, agents, exports, comparisons, decision nodes. |
-| **`dbo.Runs`** | `UNIQUEIDENTIFIER` | Authority pipeline, Dapper `IRunRepository`, context/graph/findings/manifest/bundle chain. |
-
-They are **different domains**; names overlap conceptually but not at the database type level.
+| Layer | `RunId` shape | Notes |
+|-------|----------------|------|
+| **`dbo.Runs.RunId`** | `UNIQUEIDENTIFIER` | Authority header; lifecycle strings may appear on **`LegacyRunStatus`**. |
+| Coordinator tables (`AgentTasks`, `GoldenManifestVersions`, …) | `NVARCHAR(64)` | Logical correlation key — same value as **`dbo.Runs.RunId`** formatted **`N`** (no dashes). **No FK** to a second run table after **047**/**049**. |
 
 ### 3.6 Indexes
 
@@ -121,6 +119,8 @@ They are **different domains**; names overlap conceptually but not at the databa
 | **031_ProductLearningPilotSignals.sql** | **58R:** Scoped pilot/product signals (trust / reject / revise / follow-up) with optional **`PatternKey`** for aggregation. |
 | **036_RlsArchiforgeTenantScope.sql** | RLS **`rls.ArchiforgeTenantScope`** on all scope-keyed authority tables (replaces pilot **`RunsScopeFilter`**). See **`docs/security/MULTI_TENANT_RLS.md`**. |
 | **032_ProductLearningPlanningBridge.sql** | **59R:** Improvement themes, bounded plans (`BoundedActionsJson`), links to **`ArchitectureRuns`**, **`ProductLearningPilotSignals`**, and authority bundle artifacts / pilot hints. |
+| **047_DropForeignKeysToArchitectureRuns.sql** | Drops **15** FK constraints from coordinator / learning tables to **`dbo.ArchitectureRuns`** (see migration header for names). Does **not** add FKs to **`dbo.Runs`** (**`UNIQUEIDENTIFIER`** vs legacy **`NVARCHAR(64)`** **`RunId`**). |
+| **049_DropArchitectureRunsTable.sql** | **`DROP TABLE dbo.ArchitectureRuns`** when present (after **047**). Greenfield **`ArchLucid.sql`** no longer creates **`ArchitectureRuns`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 

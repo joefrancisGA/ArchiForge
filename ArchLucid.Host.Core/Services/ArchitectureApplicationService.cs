@@ -18,12 +18,11 @@ namespace ArchLucid.Host.Core.Services;
 /// </summary>
 /// <remarks>
 /// All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
-/// data-loading path. State-changing operations (result submission, status transitions) execute
-/// inside <see cref="IArchLucidUnitOfWork"/> to guarantee atomicity.
+/// data-loading path. Result and evidence writes execute inside <see cref="IArchLucidUnitOfWork"/> for atomicity;
+/// Authority <c>dbo.Runs</c> lifecycle is updated by dedicated orchestrators, not this application service.
 /// </remarks>
 public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
-    IArchitectureRunRepository runRepository,
     IAgentResultRepository resultRepository,
     ICoordinatorGoldenManifestRepository manifestRepository,
     IArchitectureRequestRepository requestRepository,
@@ -245,20 +244,6 @@ public sealed class ArchitectureApplicationService(
                 ? ArchitectureRunStatus.ReadyForCommit
                 : ArchitectureRunStatus.WaitingForResults;
 
-            if (newStatus != run.Status)
-            {
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-                await runRepository.UpdateStatusAsync(
-                    runId,
-                    newStatus,
-                    currentManifestVersion: run.CurrentManifestVersion,
-                    completedUtc: null,
-                    cancellationToken: cancellationToken,
-                    connection: uow.Connection,
-                    transaction: uow.Transaction);
-#pragma warning restore CS0618
-            }
-
             return newStatus;
         }
 
@@ -269,18 +254,6 @@ public sealed class ArchitectureApplicationService(
         ArchitectureRunStatus newStatusMemory = hasAllRequired
             ? ArchitectureRunStatus.ReadyForCommit
             : ArchitectureRunStatus.WaitingForResults;
-
-        if (newStatusMemory != run.Status)
-        {
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await runRepository.UpdateStatusAsync(
-                runId,
-                newStatusMemory,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken);
-#pragma warning restore CS0618
-        }
 
         return newStatusMemory;
     }
@@ -311,28 +284,10 @@ public sealed class ArchitectureApplicationService(
         if (uow.SupportsExternalTransaction)
         {
             await resultRepository.CreateManyAsync(fakeResults, cancellationToken, uow.Connection, uow.Transaction);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await runRepository.UpdateStatusAsync(
-                runId,
-                newStatus,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken,
-                connection: uow.Connection,
-                transaction: uow.Transaction);
-#pragma warning restore CS0618
         }
         else
         {
             await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await runRepository.UpdateStatusAsync(
-                runId,
-                newStatus,
-                currentManifestVersion: run.CurrentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken);
-#pragma warning restore CS0618
         }
     }
 }

@@ -10,7 +10,7 @@ This document zooms into the most important components inside each container/lib
 
 | Area | Role | Typical types |
 |------|------|----------------|
-| **`ArchLucid.Persistence.Data.*`** | ADO.NET/Dapper for the **run/commit/agent** workflow: repositories used by `ArchLucid.Application` and HTTP services for requests, runs, tasks, evidence, governance entities, background jobs, `IDbConnectionFactory`, DbUp **`DatabaseMigrator`**, consolidated **`Scripts/ArchLucid.sql`**. | `ArchitectureRequestRepository`, `SqlConnectionFactory`, `IArchitectureRunRepository` |
+| **`ArchLucid.Persistence.Data.*`** | ADO.NET/Dapper for the **run/commit/agent** workflow: repositories used by `ArchLucid.Application` and HTTP services for requests, runs, tasks, evidence, governance entities, background jobs, `IDbConnectionFactory`, DbUp **`DatabaseMigrator`**, consolidated **`Scripts/ArchLucid.sql`**. | `ArchitectureRequestRepository`, `IRunRepository`, `SqlConnectionFactory` |
 | **Rest of `ArchLucid.Persistence`** | **Authority and decisioning** ports: unit of work, orchestration (`AuthorityRunOrchestrator`), snapshot repos for context/graph/findings/manifests, caching decorators (`CachingRunRepository`), archival, retrieval outbox, RLS session context. | `IRunRepository` (`Models.RunRecord`), `IArchLucidUnitOfWork`, `SqlContextSnapshotRepository` |
 
 **Configuration:** SQL security and read-scale-out are grouped under **`SqlServer`** in appsettings (`RowLevelSecurity`, `ReadReplica`). See `ArchLucid.Persistence/Connections/SqlServerOptions.cs`.

@@ -7,10 +7,17 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Persistence.Tests.Support;
 
 /// <summary>
-/// Minimal <c>dbo.ArchitectureRequests</c> / <c>dbo.ArchitectureRuns</c> / <c>dbo.AgentTasks</c> rows for Data-layer SQL contract tests (FK chain).
+/// Minimal <c>dbo.ArchitectureRequests</c> and <c>dbo.Runs</c> rows for Data-layer SQL contract tests (logical run header).
 /// </summary>
 public static class ArchitectureCommitTestSeed
 {
+    /// <summary>Aligned with SQL contract idempotency tests' tenant/workspace/project GUIDs.</summary>
+    private static readonly Guid SeedTenantId = Guid.Parse("10101010-1010-1010-1010-101010101010");
+
+    private static readonly Guid SeedWorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020");
+
+    private static readonly Guid SeedScopeProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030");
+
     /// <summary>Inserts <c>dbo.ArchitectureRequests</c> only (idempotent on <paramref name="requestId"/>).</summary>
     public static async Task InsertArchitectureRequestOnlyAsync(
         SqlConnection connection,
@@ -39,13 +46,18 @@ public static class ArchitectureCommitTestSeed
                 cancellationToken: ct));
     }
 
-    /// <summary>Inserts request + run (idempotent on <paramref name="requestId"/> / <paramref name="runId"/>).</summary>
+    /// <summary>Inserts request + authority <c>dbo.Runs</c> row (idempotent on <paramref name="requestId"/> / <paramref name="runId"/>).</summary>
     public static async Task InsertRequestAndRunAsync(
         SqlConnection connection,
         string requestId,
         string runId,
         CancellationToken ct)
     {
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid))
+        {
+            throw new ArgumentException("runId must be a 32-character hexadecimal GUID (N format).", nameof(runId));
+        }
+
         const string insertRequest = """
             IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRequests WHERE RequestId = @RequestId)
             INSERT INTO dbo.ArchitectureRequests
@@ -67,10 +79,10 @@ public static class ArchitectureCommitTestSeed
                 cancellationToken: ct));
 
         const string insertRun = """
-            IF NOT EXISTS (SELECT 1 FROM dbo.ArchitectureRuns WHERE RunId = @RunId)
-            INSERT INTO dbo.ArchitectureRuns
-            (RunId, RequestId, Status, CreatedUtc, CompletedUtc, CurrentManifestVersion, ContextSnapshotId, GraphSnapshotId, ArtifactBundleId)
-            VALUES (@RunId, @RequestId, @Status, SYSUTCDATETIME(), NULL, NULL, NULL, NULL, NULL);
+            IF NOT EXISTS (SELECT 1 FROM dbo.Runs WHERE RunId = @RunGuid)
+            INSERT INTO dbo.Runs
+            (RunId, ProjectId, Description, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId, ArchitectureRequestId, LegacyRunStatus)
+            VALUES (@RunGuid, N'ContractSeed', N'SQL contract test seed', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId, @RequestId, N'Created');
             """;
 
         await connection.ExecuteAsync(
@@ -78,9 +90,11 @@ public static class ArchitectureCommitTestSeed
                 insertRun,
                 new
                 {
-                    RunId = runId,
+                    RunGuid = runGuid,
                     RequestId = requestId,
-                    Status = "Created",
+                    TenantId = SeedTenantId,
+                    WorkspaceId = SeedWorkspaceId,
+                    ScopeProjectId = SeedScopeProjectId,
                 },
                 cancellationToken: ct));
     }

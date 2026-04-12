@@ -16,7 +16,7 @@ public abstract class CoordinatorGoldenManifestRepositoryContractTests
 
     protected abstract ICoordinatorGoldenManifestRepository CreateRepository();
 
-    /// <summary>SQL: ensures <c>dbo.ArchitectureRuns</c> exists for <paramref name="runId"/> (FK on manifest insert).</summary>
+    /// <summary>SQL: ensures <c>dbo.Runs</c> + <c>dbo.ArchitectureRequests</c> exist for coordinator manifest insert.</summary>
     protected virtual Task PrepareRunForCoordinatorDataAsync(string requestId, string runId, CancellationToken ct)
     {
         _ = requestId;
@@ -49,7 +49,7 @@ public abstract class CoordinatorGoldenManifestRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         ICoordinatorGoldenManifestRepository repo = CreateRepository();
-        string runId = "run-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
         string requestId = "req-" + Guid.NewGuid().ToString("N");
         await PrepareRunForCoordinatorDataAsync(requestId, runId, CancellationToken.None);
         GoldenManifest manifest = NewManifest(runId, "v-coord-1");

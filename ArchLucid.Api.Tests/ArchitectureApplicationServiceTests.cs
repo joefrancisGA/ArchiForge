@@ -15,8 +15,6 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — Moq exercises obsolete IArchitectureRunRepository.UpdateStatusAsync (TreatWarningsAsErrors).
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -28,7 +26,6 @@ namespace ArchLucid.Api.Tests;
 public sealed class ArchitectureApplicationServiceTests
 {
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
-    private readonly Mock<IArchitectureRunRepository> _runRepository;
     private readonly Mock<IAgentResultRepository> _resultRepository;
     private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository;
     private readonly Mock<IArchitectureRequestRepository> _requestRepository;
@@ -39,7 +36,6 @@ public sealed class ArchitectureApplicationServiceTests
     public ArchitectureApplicationServiceTests()
     {
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
-        _runRepository = new Mock<IArchitectureRunRepository>();
         _resultRepository = new Mock<IAgentResultRepository>();
         _manifestRepository = new Mock<ICoordinatorGoldenManifestRepository>();
         _requestRepository = new Mock<IArchitectureRequestRepository>();
@@ -70,7 +66,6 @@ public sealed class ArchitectureApplicationServiceTests
 
         _sut = new ArchitectureApplicationService(
             _runDetailQueryService.Object,
-            _runRepository.Object,
             _resultRepository.Object,
             _manifestRepository.Object,
             _requestRepository.Object,
@@ -204,7 +199,7 @@ public sealed class ArchitectureApplicationServiceTests
     #region SubmitAgentResultAsync
 
     [Fact]
-    public async Task SubmitAgentResultAsync_WhenRunExists_StoresResultAndUpdatesStatus()
+    public async Task SubmitAgentResultAsync_WhenRunExists_StoresResult()
     {
         ArchitectureRun run = ValidRun();
         AgentResult result = ValidResult();
@@ -215,7 +210,6 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
-        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
 
@@ -234,7 +228,7 @@ public sealed class ArchitectureApplicationServiceTests
 
         result.Success.Should().BeFalse();
         result.Error.Should().Be("RunId is required.");
-        _runRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _runDetailQueryService.Verify(s => s.GetRunDetailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -279,12 +273,10 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([.. existingResults, result]);
-        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
 
         sutResult.Success.Should().BeTrue();
-        _runRepository.Verify(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -315,13 +307,10 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository.Setup(r => r.CreateAsync(result, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([.. existingResults, result]);
-        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
 
         sutResult.Success.Should().BeTrue();
-        _runRepository.Verify(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>()), Times.Once);
-        _runRepository.Verify(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -386,7 +375,6 @@ public sealed class ArchitectureApplicationServiceTests
         _resultRepository.Setup(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _resultRepository.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync([result]);
-        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.WaitingForResults, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SubmitResultResult sutResult = await _sut.SubmitAgentResultAsync("run-1", result);
 
@@ -513,7 +501,7 @@ public sealed class ArchitectureApplicationServiceTests
     }
 
     [Fact]
-    public async Task SeedFakeResultsAsync_WhenValid_SeedsResultsAndUpdatesStatus()
+    public async Task SeedFakeResultsAsync_WhenValid_SeedsResults()
     {
         ArchitectureRun run = ValidRun();
         ArchitectureRequest request = ValidRequest();
@@ -530,7 +518,6 @@ public sealed class ArchitectureApplicationServiceTests
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
         _resultRepository.Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
 
@@ -569,7 +556,6 @@ public sealed class ArchitectureApplicationServiceTests
         _requestRepository.Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>())).ReturnsAsync(request);
         _resultRepository.Setup(r => r.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _runRepository.Setup(r => r.UpdateStatusAsync("run-1", ArchitectureRunStatus.ReadyForCommit, null, null, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         SeedFakeResultsResult result = await _sut.SeedFakeResultsAsync("run-1");
 
@@ -596,7 +582,6 @@ public sealed class ArchitectureApplicationServiceTests
         result.Success.Should().BeFalse();
         result.Error.Should().Contain("does not accept results").And.Contain("ReadyForCommit");
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
-        _runRepository.Verify(r => r.UpdateStatusAsync(It.IsAny<string>(), It.IsAny<ArchitectureRunStatus>(), It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -663,10 +648,7 @@ public sealed class ArchitectureApplicationServiceTests
         result.ResultCount.Should().Be(0);
         result.Error.Should().BeNull();
         _resultRepository.Verify(r => r.CreateAsync(It.IsAny<AgentResult>(), It.IsAny<CancellationToken>()), Times.Never);
-        _runRepository.Verify(r => r.UpdateStatusAsync(It.IsAny<string>(), It.IsAny<ArchitectureRunStatus>(), It.IsAny<string?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     #endregion
 }
-
-#pragma warning restore CS0618

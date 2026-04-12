@@ -8,8 +8,11 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -27,6 +30,13 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
 {
+    private static readonly ScopeContext AuthorityTestScope = new()
+    {
+        TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+        WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+        ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")
+    };
+
     [Fact]
     public async Task CreateRunAsync_when_idempotency_replay_matches_skips_coordinator_and_marks_replay()
     {
@@ -73,10 +83,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
             },
         ];
 
-        Mock<IArchitectureRunRepository> runRepository = new();
-        runRepository
-            .Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(run);
+        (IRunRepository runRepository, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(run);
 
         Mock<IAgentTaskRepository> taskRepository = new();
         taskRepository
@@ -94,7 +101,8 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
         ArchitectureRunService sut = CreateSut(
             coordinator.Object,
             idempotencyRepository.Object,
-            runRepository.Object,
+            runRepository,
+            scopeProvider,
             taskRepository.Object,
             evidenceBundleRepository.Object,
             actorContext.Object);
@@ -144,10 +152,13 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(x => x.GetActor()).Returns("test-actor");
 
+        (IRunRepository runRepository, IScopeContextProvider scopeProvider) = CreateNullRunAuthorityMocks();
+
         ArchitectureRunService sut = CreateSut(
             coordinator.Object,
             idempotencyRepository.Object,
-            Mock.Of<IArchitectureRunRepository>(),
+            runRepository,
+            scopeProvider,
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IEvidenceBundleRepository>(),
             actorContext.Object);
@@ -169,10 +180,47 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
             Times.Never);
     }
 
+    private static (IRunRepository Repo, IScopeContextProvider Scope) CreateRunAuthorityMocks(ArchitectureRun run)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
+        Mock<IRunRepository> runRepo = new();
+        Guid g = Guid.ParseExact(run.RunId, "N");
+        RunRecord rec = new()
+        {
+            RunId = g,
+            TenantId = AuthorityTestScope.TenantId,
+            WorkspaceId = AuthorityTestScope.WorkspaceId,
+            ScopeProjectId = AuthorityTestScope.ProjectId,
+            ProjectId = "idempotency-proj",
+            ArchitectureRequestId = run.RequestId,
+            LegacyRunStatus = run.Status.ToString(),
+            CreatedUtc = run.CreatedUtc,
+            CompletedUtc = run.CompletedUtc,
+            CurrentManifestVersion = run.CurrentManifestVersion,
+        };
+        runRepo.Setup(r => r.GetByIdAsync(AuthorityTestScope, g, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(rec);
+
+        return (runRepo.Object, scopeProvider.Object);
+    }
+
+    private static (IRunRepository Repo, IScopeContextProvider Scope) CreateNullRunAuthorityMocks()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(r => r.GetByIdAsync(AuthorityTestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+
+        return (runRepo.Object, scopeProvider.Object);
+    }
+
     private static ArchitectureRunService CreateSut(
         ICoordinatorService coordinator,
         IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
-        IArchitectureRunRepository runRepository,
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
         IAgentTaskRepository taskRepository,
         IEvidenceBundleRepository evidenceBundleRepository,
         IActorContext actorContext)
@@ -184,6 +232,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 coordinator,
                 Mock.Of<IArchitectureRequestRepository>(),
                 runRepository,
+                scopeContextProvider,
                 evidenceBundleRepository,
                 taskRepository,
                 architectureRunIdempotencyRepository,
@@ -193,6 +242,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IArchitectureRequestRepository>(),
                 taskRepository,
                 Mock.Of<AgentSimulator.Services.IAgentExecutor>(),
@@ -207,6 +257,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IArchitectureRequestRepository>(),
                 taskRepository,
                 Mock.Of<IAgentResultRepository>(),

@@ -26,7 +26,6 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ApiDeprecationOptions>(configuration.GetSection(ApiDeprecationOptions.SectionName));
         services.Configure<DataArchivalOptions>(configuration.GetSection(DataArchivalOptions.SectionName));
         services.Configure<HostLeaderElectionOptions>(configuration.GetSection(HostLeaderElectionOptions.SectionName));
-        services.AddScoped<IDemoLegacyArchitectureRunSynchronizer, DemoLegacyArchitectureRunSynchronizer>();
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);

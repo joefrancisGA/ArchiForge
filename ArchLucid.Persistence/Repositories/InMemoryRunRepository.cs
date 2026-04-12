@@ -97,6 +97,24 @@ public sealed class InMemoryRunRepository : IRunRepository
         return Task.FromResult<(IReadOnlyList<RunRecord>, int)>((page, total));
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+        int n = Math.Clamp(take <= 0 ? 200 : take, 1, 200);
+
+        List<RunRecord> list = _store.Values
+            .Where(r =>
+                MatchesScope(r, scope) &&
+                !r.ArchivedUtc.HasValue)
+            .OrderByDescending(r => r.CreatedUtc)
+            .Take(n)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<RunRecord>>(list);
+    }
+
     private static bool MatchesScope(RunRecord r, ScopeContext scope) =>
         r.TenantId == scope.TenantId &&
         r.WorkspaceId == scope.WorkspaceId &&

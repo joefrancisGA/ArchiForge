@@ -191,7 +191,7 @@ export function ShellNav() {
       </div>
 
       <span
-        className="mt-2 block text-xs text-neutral-400"
+        className="mt-2 block text-xs text-neutral-600"
         aria-keyshortcuts="Shift+?"
       >
         Press Shift+? for keyboard shortcuts

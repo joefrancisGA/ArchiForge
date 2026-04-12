@@ -5,7 +5,7 @@ namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 /// <summary>
 /// In-memory 59R planning store for development/tests.
-/// Does not validate <c>ArchitectureRuns</c>, pilot signals, or authority artifacts (SQL repository does).
+/// Does not validate <c>dbo.Runs</c>, pilot signals, or authority artifacts (SQL repository does).
 /// </summary>
 public sealed class InMemoryProductLearningPlanningRepository : IProductLearningPlanningRepository
 {

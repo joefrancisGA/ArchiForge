@@ -14,6 +14,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Asp.Versioning;
 
@@ -43,7 +44,7 @@ public sealed partial class RunsController(
     IRunDetailQueryService runDetailQueryService,
     IArchitectureRunProvenanceService architectureRunProvenanceService,
     IDeterminismCheckService determinismCheckService,
-    IArchitectureRunRepository runRepository,
+    IRunRepository authorityRunRepository,
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
@@ -423,7 +424,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
 
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -453,7 +454,7 @@ public sealed partial class RunsController(
         [FromRoute] string runId,
         CancellationToken cancellationToken)
     {
-        if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
 
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -490,7 +491,7 @@ public sealed partial class RunsController(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
 
-        if (await runRepository.GetByIdAsync(runId, cancellationToken) is null)
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
 
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
@@ -540,6 +541,28 @@ public sealed partial class RunsController(
             .ToList();
 
         return Ok(response);
+    }
+
+    private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!TryParseRunId(runId, out Guid runGuid))
+        {
+            return false;
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
+    }
+
+    private static bool TryParseRunId(string runId, out Guid runGuid)
+    {
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+        {
+            return true;
+        }
+
+        return Guid.TryParse(runId, out runGuid);
     }
 
     private IActionResult MapApplicationServiceFailure(string? error, ApplicationServiceFailureKind? kind, string defaultBadRequestDetail)

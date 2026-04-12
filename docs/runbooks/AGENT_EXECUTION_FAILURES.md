@@ -10,7 +10,7 @@
 
 ## System boundaries (for diagrams)
 
-- **Nodes:** API → `ArchitectureRunService` → `IAgentExecutor` → per-`AgentType` handlers → optional LLM / tools; persistence: `AgentResults`, `AgentEvidencePackages`, `AgentExecutionTraces`, `ArchitectureRuns`.
+- **Nodes:** API → `ArchitectureRunService` → `IAgentExecutor` → per-`AgentType` handlers → optional LLM / tools; persistence: `AgentResults`, `AgentEvidencePackages`, `AgentExecutionTraces`, `Runs` (authority header).
 - **Edges:** Request + tasks + evidence package in; results + evaluations + status **ReadyForCommit** out.
 - **Flows:** Happy path persists evidence package, bulk results, evaluations, then status update inside a transaction.
 

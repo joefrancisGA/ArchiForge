@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
@@ -78,8 +79,8 @@ public sealed class AuthorityPipelineWorkProcessor(
         using IDisposable _ = AmbientScopeContext.Push(jobScope);
         IAuthorityRunOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IAuthorityRunOrchestrator>();
-        IArchitectureRunRepository architectureRunRepository =
-            scope.ServiceProvider.GetRequiredService<IArchitectureRunRepository>();
+        IRunRepository runRepository =
+            scope.ServiceProvider.GetRequiredService<IRunRepository>();
         IArchitectureRequestRepository requestRepository =
             scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();
         IEvidenceBundleRepository evidenceBundleRepository =
@@ -94,10 +95,10 @@ public sealed class AuthorityPipelineWorkProcessor(
             await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
 
         string runIdN = entry.RunId.ToString("N");
-        ArchitectureRun? architectureRun =
-            await architectureRunRepository.GetByIdAsync(runIdN, cancellationToken);
+        RunRecord? authorityHeader =
+            await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
 
-        if (architectureRun is null)
+        if (authorityHeader is null)
         {
             _logger.LogError(
                 "Architecture run {RunId} missing after authority completion; marking authority work processed.",
@@ -107,8 +108,18 @@ public sealed class AuthorityPipelineWorkProcessor(
             return;
         }
 
+        if (string.IsNullOrWhiteSpace(authorityHeader.ArchitectureRequestId))
+        {
+            _logger.LogError(
+                "Deferred promotion failed for run {RunId}: ArchitectureRequestId is not set on dbo.Runs.",
+                runIdN);
+            await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
+        }
+
         ArchitectureRequest? architectureRequest =
-            await requestRepository.GetByIdAsync(architectureRun.RequestId, cancellationToken);
+            await requestRepository.GetByIdAsync(authorityHeader.ArchitectureRequestId, cancellationToken);
 
         EvidenceBundle? evidenceBundle =
             await evidenceBundleRepository.GetByIdAsync(payload.EvidenceBundleId.Trim(), cancellationToken);
@@ -126,24 +137,27 @@ public sealed class AuthorityPipelineWorkProcessor(
         List<AgentTask> starterTasks =
             RunStarterTaskFactory.BuildStarterTasks(runIdN, evidenceBundle, architectureRequest);
 
-        if (architectureRun.Status == ArchitectureRunStatus.Created)
-        {
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await architectureRunRepository.ApplyDeferredAuthoritySnapshotsAsync(
-                runIdN,
-                completed.ContextSnapshotId?.ToString("N"),
-                completed.GraphSnapshotId,
-                completed.ArtifactBundleId,
-                cancellationToken);
-#pragma warning restore CS0618
-        }
+        // Deferred snapshot pointers and TasksGenerated transition live on dbo.Runs after CompleteQueuedAuthorityPipelineAsync;
+        // dbo.Runs header is patched elsewhere when the deferred authority pipeline completes.
 
-        ArchitectureRun? refreshed =
-            await architectureRunRepository.GetByIdAsync(runIdN, cancellationToken);
+        IReadOnlyList<AgentTask>? existingTasks =
+            await taskRepository.GetByRunIdAsync(runIdN, cancellationToken);
 
-        if (refreshed is not null && refreshed.TaskIds.Count == 0)
+        if (existingTasks is null || existingTasks.Count == 0)
         {
             await taskRepository.CreateManyAsync(starterTasks, cancellationToken);
+        }
+
+        RunRecord? statusPatch = await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
+
+        if (statusPatch is not null &&
+            !string.Equals(
+                statusPatch.LegacyRunStatus,
+                ArchitectureRunStatus.TasksGenerated.ToString(),
+                StringComparison.Ordinal))
+        {
+            statusPatch.LegacyRunStatus = ArchitectureRunStatus.TasksGenerated.ToString();
+            await runRepository.UpdateAsync(statusPatch, cancellationToken);
         }
 
         await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);

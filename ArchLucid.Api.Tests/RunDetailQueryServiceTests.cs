@@ -5,7 +5,10 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -21,7 +24,18 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class RunDetailQueryServiceTests
 {
-    private readonly Mock<IArchitectureRunRepository> _runRepo;
+    private readonly ScopeContext _scope = new()
+    {
+        TenantId = Guid.NewGuid(),
+        WorkspaceId = Guid.NewGuid(),
+        ProjectId = Guid.NewGuid()
+    };
+
+    private readonly Guid _runGuid1 = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private readonly Guid _runGuid2 = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+    private readonly Mock<IRunRepository> _runRepo;
+    private readonly Mock<IScopeContextProvider> _scopeProvider;
     private readonly Mock<IAgentTaskRepository> _taskRepo;
     private readonly Mock<IAgentResultRepository> _resultRepo;
     private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepo;
@@ -30,14 +44,18 @@ public sealed class RunDetailQueryServiceTests
 
     public RunDetailQueryServiceTests()
     {
-        _runRepo = new Mock<IArchitectureRunRepository>();
+        _runRepo = new Mock<IRunRepository>();
+        _scopeProvider = new Mock<IScopeContextProvider>();
         _taskRepo = new Mock<IAgentTaskRepository>();
         _resultRepo = new Mock<IAgentResultRepository>();
         _manifestRepo = new Mock<ICoordinatorGoldenManifestRepository>();
         _traceRepo = new Mock<ICoordinatorDecisionTraceRepository>();
 
+        _scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
+
         _sut = new RunDetailQueryService(
             _runRepo.Object,
+            _scopeProvider.Object,
             _taskRepo.Object,
             _resultRepo.Object,
             _manifestRepo.Object,
@@ -45,31 +63,41 @@ public sealed class RunDetailQueryServiceTests
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
+    private string Run1N => _runGuid1.ToString("N");
 
-    private static ArchitectureRun CommittedRun(string runId = "run-1", string manifestVersion = "v1") => new()
+    private string Run2N => _runGuid2.ToString("N");
+
+    private static GoldenManifest Manifest(string runId, string version = "v1") => new()
     {
         RunId = runId,
-        RequestId = "req-1",
-        Status = ArchitectureRunStatus.Committed,
+        SystemName = "TestSystem",
+        Metadata = new ManifestMetadata { ManifestVersion = version }
+    };
+
+    private RunRecord CommittedRunRecord(string manifestVersion = "v1") => new()
+    {
+        RunId = _runGuid1,
+        TenantId = _scope.TenantId,
+        WorkspaceId = _scope.WorkspaceId,
+        ScopeProjectId = _scope.ProjectId,
+        ProjectId = "proj",
+        ArchitectureRequestId = "req-1",
+        LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
         CreatedUtc = DateTime.UtcNow,
         CompletedUtc = DateTime.UtcNow,
         CurrentManifestVersion = manifestVersion
     };
 
-    private static ArchitectureRun InProgressRun(string runId = "run-2") => new()
+    private RunRecord InProgressRunRecord() => new()
     {
-        RunId = runId,
-        RequestId = "req-2",
-        Status = ArchitectureRunStatus.ReadyForCommit,
+        RunId = _runGuid2,
+        TenantId = _scope.TenantId,
+        WorkspaceId = _scope.WorkspaceId,
+        ScopeProjectId = _scope.ProjectId,
+        ProjectId = "proj",
+        ArchitectureRequestId = "req-2",
+        LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
         CreatedUtc = DateTime.UtcNow
-    };
-
-    private static GoldenManifest Manifest(string runId = "run-1", string version = "v1") => new()
-    {
-        RunId = runId,
-        SystemName = "TestSystem",
-        Metadata = new ManifestMetadata { ManifestVersion = version }
     };
 
     // ── GetRunDetailAsync ─────────────────────────────────────────────────────
@@ -77,10 +105,11 @@ public sealed class RunDetailQueryServiceTests
     [Fact]
     public async Task GetRunDetailAsync_RunNotFound_ReturnsNull()
     {
-        _runRepo.Setup(r => r.GetByIdAsync("missing", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ArchitectureRun?)null);
+        Guid missing = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, missing, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
 
-        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync("missing");
+        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(missing.ToString("N"));
 
         result.Should().BeNull();
     }
@@ -88,31 +117,31 @@ public sealed class RunDetailQueryServiceTests
     [Fact]
     public async Task GetRunDetailAsync_CommittedRunWithManifest_ReturnsFullDetail()
     {
-        ArchitectureRun run = CommittedRun();
-        GoldenManifest manifest = Manifest();
-        AgentTask task = new() { TaskId = "t1", RunId = run.RunId };
-        AgentResult agentResult = new() { ResultId = "r1", RunId = run.RunId };
-        DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = run.RunId });
+        RunRecord record = CommittedRunRecord();
+        GoldenManifest manifest = Manifest(Run1N);
+        AgentTask task = new() { TaskId = "t1", RunId = Run1N };
+        AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N };
+        DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
 
-        _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(run);
-        _taskRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _taskRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([task]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([agentResult]);
         _manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(manifest);
-        _traceRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _traceRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([trace]);
 
-        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync("run-1");
+        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(Run1N);
 
         result.Should().NotBeNull();
-        result.Run.RunId.Should().Be("run-1");
+        result.Run.RunId.Should().Be(Run1N);
         result.Tasks.Should().HaveCount(1);
         result.Results.Should().HaveCount(1);
         result.Manifest.Should().NotBeNull();
-        result.Manifest!.RunId.Should().Be("run-1");
+        result.Manifest!.RunId.Should().Be(Run1N);
         result.DecisionTraces.Should().HaveCount(1);
         result.IsCommitted.Should().BeTrue();
     }
@@ -120,48 +149,48 @@ public sealed class RunDetailQueryServiceTests
     [Fact]
     public async Task GetRunDetailAsync_RunNotYetCommitted_ReturnsDetailWithoutManifest()
     {
-        ArchitectureRun run = InProgressRun();
+        RunRecord record = InProgressRunRecord();
 
-        _runRepo.Setup(r => r.GetByIdAsync("run-2", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(run);
-        _taskRepo.Setup(r => r.GetByRunIdAsync("run-2", It.IsAny<CancellationToken>()))
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _taskRepo.Setup(r => r.GetByRunIdAsync(Run2N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync("run-2", It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(Run2N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync("run-2");
+        _manifestRepo.Setup(r => r.GetByVersionAsync($"v1-{Run2N}", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GoldenManifest?)null);
+
+        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(Run2N);
 
         result.Should().NotBeNull();
         result.Manifest.Should().BeNull();
         result.DecisionTraces.Should().BeEmpty();
         result.IsCommitted.Should().BeFalse();
 
-        // Manifest and trace repos must NOT be queried for uncommitted runs.
-        _manifestRepo.Verify(r => r.GetByVersionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _manifestRepo.Verify(r => r.GetByVersionAsync($"v1-{Run2N}", It.IsAny<CancellationToken>()), Times.Once);
         _traceRepo.Verify(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task GetRunDetailAsync_ManifestMissing_ReturnsDetailWithNullManifest()
     {
-        // Simulates storage corruption or replication lag: run says committed but manifest is gone.
-        ArchitectureRun run = CommittedRun();
+        RunRecord record = CommittedRunRecord();
 
-        _runRepo.Setup(r => r.GetByIdAsync("run-1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(run);
-        _taskRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+        _taskRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _resultRepo.Setup(r => r.GetByRunIdAsync("run-1", It.IsAny<CancellationToken>()))
+        _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         _manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 
-        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync("run-1");
+        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(Run1N);
 
         result.Should().NotBeNull();
-        result.Run.RunId.Should().Be("run-1");
+        result.Run.RunId.Should().Be(Run1N);
         result.Manifest.Should().BeNull();
-        // Decision traces must NOT be queried when manifest is unavailable.
         _traceRepo.Verify(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -172,30 +201,47 @@ public sealed class RunDetailQueryServiceTests
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
+    [Fact]
+    public async Task GetRunDetailAsync_InvalidRunId_ReturnsNull()
+    {
+        ArchitectureRunDetail? result = await _sut.GetRunDetailAsync("not-a-guid");
+
+        result.Should().BeNull();
+    }
+
     // ── ListRunSummariesAsync ─────────────────────────────────────────────────
 
     [Fact]
     public async Task ListRunSummariesAsync_ReturnsMappedSummaries()
     {
-        _runRepo.Setup(r => r.ListAsync(It.IsAny<CancellationToken>()))
+        Guid g1 = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        Guid g2 = Guid.Parse("44444444-4444-4444-4444-444444444444");
+
+        _runRepo.Setup(r => r.ListRecentInScopeAsync(_scope, 200, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new ArchitectureRunListItem
+                new RunRecord
                 {
-                    RunId = "run-1",
-                    RequestId = "req-1",
-                    Status = "Committed",
+                    RunId = g1,
+                    TenantId = _scope.TenantId,
+                    WorkspaceId = _scope.WorkspaceId,
+                    ScopeProjectId = _scope.ProjectId,
+                    ProjectId = "Sys",
+                    ArchitectureRequestId = "req-1",
+                    LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
                     CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-                    CurrentManifestVersion = "v1",
-                    SystemName = "Sys"
+                    CurrentManifestVersion = "v1"
                 },
-                new ArchitectureRunListItem
+                new RunRecord
                 {
-                    RunId = "run-2",
-                    RequestId = "req-2",
-                    Status = "ReadyForCommit",
-                    CreatedUtc = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc),
-                    SystemName = "Sys2"
+                    RunId = g2,
+                    TenantId = _scope.TenantId,
+                    WorkspaceId = _scope.WorkspaceId,
+                    ScopeProjectId = _scope.ProjectId,
+                    ProjectId = "Sys2",
+                    ArchitectureRequestId = "req-2",
+                    LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+                    CreatedUtc = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc)
                 }
             ]);
 
@@ -204,13 +250,13 @@ public sealed class RunDetailQueryServiceTests
         result.Should().HaveCount(2);
 
         RunSummary first = result[0];
-        first.RunId.Should().Be("run-1");
+        first.RunId.Should().Be(g1.ToString("N"));
         first.Status.Should().Be("Committed");
         first.CurrentManifestVersion.Should().Be("v1");
         first.SystemName.Should().Be("Sys");
 
         RunSummary second = result[1];
-        second.RunId.Should().Be("run-2");
+        second.RunId.Should().Be(g2.ToString("N"));
         second.Status.Should().Be("ReadyForCommit");
         second.CurrentManifestVersion.Should().BeNull();
     }
@@ -218,7 +264,7 @@ public sealed class RunDetailQueryServiceTests
     [Fact]
     public async Task ListRunSummariesAsync_EmptyRepository_ReturnsEmptyList()
     {
-        _runRepo.Setup(r => r.ListAsync(It.IsAny<CancellationToken>()))
+        _runRepo.Setup(r => r.ListRecentInScopeAsync(_scope, 200, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         IReadOnlyList<RunSummary> result = await _sut.ListRunSummariesAsync();

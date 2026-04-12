@@ -3,7 +3,7 @@
 
   DOCUMENTATION
     Full guide: docs/SQL_SCRIPTS.md (DbUp vs this file; migration catalog;
-    two Run tables; change checklist; troubleshooting).
+    run header model; change checklist; troubleshooting).
 
   EXECUTION
     - Persistence: SqlSchemaBootstrapper reads ArchiForge.Persistence/Scripts/ArchiForge.sql
@@ -19,13 +19,13 @@
 
   CONTENT OVERVIEW
     - Core / Agents / Manifest & evidence / RunExportRecords / ComparisonRecords /
-      DecisionNodes & AgentEvaluations (≈ DbUp 001–007 + labels/tags).
+      DecisionNodes & AgentEvaluations (≈ DbUp 001–007 + labels/tags; run header is dbo.Runs after 049).
     - Authority + Dapper + Decisioning: dbo.Runs (UNIQUEIDENTIFIER), snapshots, manifests,
       bundles, audit, provenance, conversations, recommendations, advisory, digests, alerts,
       composite rules, policy packs (aligned with Persistence repositories).
 
-  NOTE: dbo.ArchitectureRuns.RunId (NVARCHAR) and dbo.Runs.RunId (UNIQUEIDENTIFIER) are
-    different tables and purposes — see docs/SQL_SCRIPTS.md §3.5.
+  NOTE: Coordinator NVARCHAR RunId columns align with authority dbo.Runs.RunId as 32-char hex (N format);
+    dbo.Runs is the sole persisted run header (migration 049 dropped legacy dbo.ArchitectureRuns).
 
   SET ANSI_NULLS ON;
   SET QUOTED_IDENTIFIER ON;
@@ -51,40 +51,6 @@ BEGIN
 END
 GO
 
-IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.ArchitectureRuns
-    (
-        RunId                  NVARCHAR(64)  NOT NULL PRIMARY KEY,
-        RequestId              NVARCHAR(64)  NOT NULL,
-        Status                 NVARCHAR(50)  NOT NULL,
-        CreatedUtc             DATETIME2     NOT NULL,
-        CompletedUtc           DATETIME2     NULL,
-        CurrentManifestVersion NVARCHAR(50)  NULL,
-        ContextSnapshotId      NVARCHAR(64)  NULL,
-        GraphSnapshotId        UNIQUEIDENTIFIER NULL,
-        ArtifactBundleId       UNIQUEIDENTIFIER NULL,
-        CONSTRAINT FK_ArchitectureRuns_Request FOREIGN KEY (RequestId)
-            REFERENCES dbo.ArchitectureRequests (RequestId),
-        INDEX IX_ArchitectureRuns_RequestId NONCLUSTERED (RequestId),
-        INDEX IX_ArchitectureRuns_CreatedUtc NONCLUSTERED (CreatedUtc DESC),
-        INDEX IX_ArchitectureRuns_ContextSnapshotId NONCLUSTERED (ContextSnapshotId)
-            WHERE (ContextSnapshotId IS NOT NULL),
-        INDEX IX_ArchitectureRuns_GraphSnapshotId NONCLUSTERED (GraphSnapshotId)
-            WHERE (GraphSnapshotId IS NOT NULL)
-    );
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ArchitectureRuns_Request')
-   AND OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.ArchitectureRuns
-        ADD CONSTRAINT FK_ArchitectureRuns_Request FOREIGN KEY (RequestId)
-            REFERENCES dbo.ArchitectureRequests (RequestId);
-END
-GO
-
 /* ---- Agents ---- */
 
 IF OBJECT_ID(N'dbo.AgentTasks', N'U') IS NULL
@@ -99,19 +65,9 @@ BEGIN
         CreatedUtc         DATETIME2     NOT NULL,
         CompletedUtc       DATETIME2     NULL,
         EvidenceBundleRef  NVARCHAR(64)  NULL,
-        CONSTRAINT FK_AgentTasks_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
         INDEX IX_AgentTasks_RunId NONCLUSTERED (RunId),
         INDEX IX_AgentTasks_RunId_AgentType NONCLUSTERED (RunId, AgentType)
     );
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentTasks_Run')
-   AND OBJECT_ID(N'dbo.AgentTasks', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.AgentTasks ADD CONSTRAINT FK_AgentTasks_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -127,7 +83,6 @@ BEGIN
         ResultJson NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2     NOT NULL,
         CONSTRAINT FK_AgentResults_Task FOREIGN KEY (TaskId) REFERENCES dbo.AgentTasks (TaskId),
-        CONSTRAINT FK_AgentResults_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
         INDEX IX_AgentResults_RunId NONCLUSTERED (RunId),
         INDEX IX_AgentResults_TaskId NONCLUSTERED (TaskId),
         INDEX IX_AgentResults_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
@@ -140,9 +95,6 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Task')
         ALTER TABLE dbo.AgentResults ADD CONSTRAINT FK_AgentResults_Task FOREIGN KEY (TaskId)
             REFERENCES dbo.AgentTasks (TaskId);
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentResults_Run')
-        ALTER TABLE dbo.AgentResults ADD CONSTRAINT FK_AgentResults_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -158,8 +110,6 @@ BEGIN
         ManifestJson           NVARCHAR(MAX) NOT NULL,
         ParentManifestVersion  NVARCHAR(50)  NULL,
         CreatedUtc             DATETIME2     NOT NULL,
-        CONSTRAINT FK_GoldenManifestVersions_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_GoldenManifestVersions_Parent FOREIGN KEY (ParentManifestVersion)
             REFERENCES dbo.GoldenManifestVersions (ManifestVersion),
         INDEX IX_GoldenManifestVersions_RunId NONCLUSTERED (RunId)
@@ -169,9 +119,6 @@ GO
 
 IF OBJECT_ID(N'dbo.GoldenManifestVersions', N'U') IS NOT NULL
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Run')
-        ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_GoldenManifestVersions_Parent')
         ALTER TABLE dbo.GoldenManifestVersions ADD CONSTRAINT FK_GoldenManifestVersions_Parent
             FOREIGN KEY (ParentManifestVersion) REFERENCES dbo.GoldenManifestVersions (ManifestVersion);
@@ -200,18 +147,9 @@ BEGIN
         EventDescription NVARCHAR(MAX) NOT NULL,
         EventJson        NVARCHAR(MAX) NOT NULL,
         CreatedUtc       DATETIME2     NOT NULL,
-        CONSTRAINT FK_DecisionTraces_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
         INDEX IX_DecisionTraces_RunId NONCLUSTERED (RunId),
         INDEX IX_DecisionTraces_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DecisionTraces_Run')
-   AND OBJECT_ID(N'dbo.DecisionTraces', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.DecisionTraces ADD CONSTRAINT FK_DecisionTraces_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -227,8 +165,6 @@ BEGIN
         CloudProvider     NVARCHAR(50)  NOT NULL,
         EvidenceJson      NVARCHAR(MAX) NOT NULL,
         CreatedUtc        DATETIME2     NOT NULL,
-        CONSTRAINT FK_AgentEvidencePackages_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_AgentEvidencePackages_Request FOREIGN KEY (RequestId)
             REFERENCES dbo.ArchitectureRequests (RequestId),
         INDEX IX_AgentEvidencePackages_RunId NONCLUSTERED (RunId)
@@ -238,9 +174,6 @@ GO
 
 IF OBJECT_ID(N'dbo.AgentEvidencePackages', N'U') IS NOT NULL
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Run')
-        ALTER TABLE dbo.AgentEvidencePackages ADD CONSTRAINT FK_AgentEvidencePackages_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvidencePackages_Request')
         ALTER TABLE dbo.AgentEvidencePackages ADD CONSTRAINT FK_AgentEvidencePackages_Request
             FOREIGN KEY (RequestId) REFERENCES dbo.ArchitectureRequests (RequestId);
@@ -259,8 +192,6 @@ BEGIN
         ErrorMessage   NVARCHAR(MAX) NULL,
         TraceJson      NVARCHAR(MAX) NOT NULL,
         CreatedUtc     DATETIME2     NOT NULL,
-        CONSTRAINT FK_AgentExecutionTraces_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_AgentExecutionTraces_Task FOREIGN KEY (TaskId)
             REFERENCES dbo.AgentTasks (TaskId),
         INDEX IX_AgentExecutionTraces_RunId NONCLUSTERED (RunId),
@@ -271,9 +202,6 @@ GO
 
 IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Run')
-        ALTER TABLE dbo.AgentExecutionTraces ADD CONSTRAINT FK_AgentExecutionTraces_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentExecutionTraces_Task')
         ALTER TABLE dbo.AgentExecutionTraces ADD CONSTRAINT FK_AgentExecutionTraces_Task FOREIGN KEY (TaskId)
             REFERENCES dbo.AgentTasks (TaskId);
@@ -311,7 +239,6 @@ BEGIN
         CompareRunId                 NVARCHAR(64)  NULL,
         RecordJson                   NVARCHAR(MAX) NOT NULL,
         CreatedUtc                   DATETIME2     NOT NULL,
-        CONSTRAINT FK_RunExportRecords_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
         INDEX IX_RunExportRecords_RunId NONCLUSTERED (RunId),
         INDEX IX_RunExportRecords_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
@@ -319,14 +246,6 @@ END
 GO
 
 /* RunExportRecords: full column set is in CREATE above (matches DbUp 001); no per-column ALTERs. */
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_RunExportRecords_Run')
-   AND OBJECT_ID(N'dbo.RunExportRecords', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.RunExportRecords ADD CONSTRAINT FK_RunExportRecords_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
-END
-GO
 
 /* ---- ComparisonRecords ---- */
 
@@ -349,10 +268,6 @@ BEGIN
         CreatedUtc            DATETIME2     NOT NULL,
         Label                 NVARCHAR(256) NULL,
         Tags                  NVARCHAR(MAX) NULL,
-        CONSTRAINT FK_ComparisonRecords_LeftRun FOREIGN KEY (LeftRunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
-        CONSTRAINT FK_ComparisonRecords_RightRun FOREIGN KEY (RightRunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
         INDEX IX_ComparisonRecords_LeftRunId NONCLUSTERED (LeftRunId),
         INDEX IX_ComparisonRecords_RightRunId NONCLUSTERED (RightRunId),
         INDEX IX_ComparisonRecords_LeftExportRecordId NONCLUSTERED (LeftExportRecordId),
@@ -360,17 +275,6 @@ BEGIN
         INDEX IX_ComparisonRecords_ComparisonType_CreatedUtc NONCLUSTERED (ComparisonType, CreatedUtc DESC),
         INDEX IX_ComparisonRecords_Label NONCLUSTERED (Label) WHERE (Label IS NOT NULL)
     );
-END
-GO
-
-IF OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ComparisonRecords_LeftRun')
-        ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_LeftRun FOREIGN KEY (LeftRunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ComparisonRecords_RightRun')
-        ALTER TABLE dbo.ComparisonRecords ADD CONSTRAINT FK_ComparisonRecords_RightRun FOREIGN KEY (RightRunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -388,18 +292,9 @@ BEGIN
         Rationale        NVARCHAR(MAX) NOT NULL,
         DecisionJson     NVARCHAR(MAX) NOT NULL,
         CreatedUtc       DATETIME2     NOT NULL,
-        CONSTRAINT FK_DecisionNodes_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId),
         INDEX IX_DecisionNodes_RunId NONCLUSTERED (RunId),
         INDEX IX_DecisionNodes_CreatedUtc NONCLUSTERED (CreatedUtc DESC)
     );
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_DecisionNodes_Run')
-   AND OBJECT_ID(N'dbo.DecisionNodes', N'U') IS NOT NULL
-BEGIN
-    ALTER TABLE dbo.DecisionNodes ADD CONSTRAINT FK_DecisionNodes_Run FOREIGN KEY (RunId)
-        REFERENCES dbo.ArchitectureRuns (RunId);
 END
 GO
 
@@ -415,8 +310,6 @@ BEGIN
         Rationale          NVARCHAR(MAX) NOT NULL,
         EvaluationJson     NVARCHAR(MAX) NOT NULL,
         CreatedUtc         DATETIME2     NOT NULL,
-        CONSTRAINT FK_AgentEvaluations_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId),
         CONSTRAINT FK_AgentEvaluations_Task FOREIGN KEY (TargetAgentTaskId)
             REFERENCES dbo.AgentTasks (TaskId),
         INDEX IX_AgentEvaluations_RunId NONCLUSTERED (RunId),
@@ -427,16 +320,13 @@ GO
 
 IF OBJECT_ID(N'dbo.AgentEvaluations', N'U') IS NOT NULL
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvaluations_Run')
-        ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Run FOREIGN KEY (RunId)
-            REFERENCES dbo.ArchitectureRuns (RunId);
     IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_AgentEvaluations_Task')
         ALTER TABLE dbo.AgentEvaluations ADD CONSTRAINT FK_AgentEvaluations_Task FOREIGN KEY (TargetAgentTaskId)
             REFERENCES dbo.AgentTasks (TaskId);
 END
 GO
 
-/* ---- Authority / Dapper persistence + Decisioning (GUID Runs; not ArchitectureRuns) ---- */
+/* ---- Authority / Dapper persistence + Decisioning (GUID dbo.Runs) ---- */
 /*
   DecisioningTraces is used instead of DecisionTraces because dbo.DecisionTraces already
   exists for the API/commit trail above.
@@ -460,6 +350,10 @@ BEGIN
         WorkspaceId UNIQUEIDENTIFIER NOT NULL,
         ScopeProjectId UNIQUEIDENTIFIER NOT NULL,
         ArchivedUtc DATETIME2 NULL,
+        ArchitectureRequestId NVARCHAR(64) NULL,
+        LegacyRunStatus NVARCHAR(64) NULL,
+        CompletedUtc DATETIME2 NULL,
+        CurrentManifestVersion NVARCHAR(128) NULL,
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
@@ -1967,18 +1861,11 @@ IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
 GO
 
 /* -- First-wave CHECK constraints (obvious status domains only) ----
-   dbo.Runs (authority UNIQUEIDENTIFIER run header) has no Status — API lifecycle is dbo.ArchitectureRuns.Status
-   (see ArchitectureRunStatus / repository ToString() values).
+   dbo.Runs.LegacyRunStatus (nullable) may carry stringified ArchitectureRunStatus when populated by the application.
    No dbo.RunQueue table in this schema.
    No dbo.RecommendationActions table — workflow status is dbo.RecommendationRecords.Status (RecommendationStatus).
    Other candidate columns (e.g. PolicyPacks.Status, AlertDeliveryAttempts.Status) left unguarded until a later pass.
 */
-IF OBJECT_ID(N'dbo.ArchitectureRuns', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_ArchitectureRuns_Status')
-    ALTER TABLE dbo.ArchitectureRuns ADD CONSTRAINT CK_ArchitectureRuns_Status
-        CHECK (Status IN (N'Created', N'TasksGenerated', N'WaitingForResults', N'ReadyForCommit', N'Committed', N'Failed'));
-GO
-
 IF OBJECT_ID(N'dbo.RecommendationRecords', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_RecommendationRecords_Status')
     ALTER TABLE dbo.RecommendationRecords ADD CONSTRAINT CK_RecommendationRecords_Status
@@ -2081,8 +1968,7 @@ BEGIN
         RequestFingerprint VARBINARY(32) NOT NULL,
         RunId NVARCHAR(64) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
-        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash),
-        CONSTRAINT FK_ArchitectureRunIdempotency_Run FOREIGN KEY (RunId) REFERENCES dbo.ArchitectureRuns (RunId)
+        CONSTRAINT PK_ArchitectureRunIdempotency PRIMARY KEY (TenantId, WorkspaceId, ProjectId, IdempotencyKeyHash)
     );
 END;
 GO
@@ -2102,6 +1988,36 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH('dbo.Runs', 'ArchivedUtc') IS NULL
     ALTER TABLE dbo.Runs ADD ArchivedUtc DATETIME2 NULL;
+
+/* ---- DbUp 048 parity: lifecycle / request columns on dbo.Runs ---- */
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'ArchitectureRequestId') IS NULL
+    ALTER TABLE dbo.Runs ADD ArchitectureRequestId NVARCHAR(64) NULL;
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'LegacyRunStatus') IS NULL
+    ALTER TABLE dbo.Runs ADD LegacyRunStatus NVARCHAR(64) NULL;
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'CompletedUtc') IS NULL
+    ALTER TABLE dbo.Runs ADD CompletedUtc DATETIME2 NULL;
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'CurrentManifestVersion') IS NULL
+    ALTER TABLE dbo.Runs ADD CurrentManifestVersion NVARCHAR(128) NULL;
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.indexes
+    WHERE name = N'IX_Runs_Scope_CreatedUtc'
+      AND object_id = OBJECT_ID(N'dbo.Runs'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_Runs_Scope_CreatedUtc
+        ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, CreatedUtc DESC)
+        WHERE ArchivedUtc IS NULL;
+END;
+GO
 
 IF OBJECT_ID(N'dbo.ArchitectureDigests', N'U') IS NOT NULL
    AND COL_LENGTH('dbo.ArchitectureDigests', 'ArchivedUtc') IS NULL
@@ -2148,12 +2064,6 @@ BEGIN
             WHERE PatternKey IS NOT NULL
     );
 END;
-GO
-
-IF OBJECT_ID(N'dbo.ProductLearningPilotSignals', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProductLearningPilotSignals_ArchitectureRun')
-    ALTER TABLE dbo.ProductLearningPilotSignals ADD CONSTRAINT FK_ProductLearningPilotSignals_ArchitectureRun
-        FOREIGN KEY (ArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
 GO
 
 IF OBJECT_ID(N'dbo.ProductLearningPilotSignals', N'U') IS NOT NULL
@@ -2249,12 +2159,6 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_ProductLearningImprovementPlanArchitectureRuns_PlanId
         ON dbo.ProductLearningImprovementPlanArchitectureRuns (PlanId);
 END;
-GO
-
-IF OBJECT_ID(N'dbo.ProductLearningImprovementPlanArchitectureRuns', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ProductLearningImprovementPlanArchitectureRuns_Run')
-    ALTER TABLE dbo.ProductLearningImprovementPlanArchitectureRuns ADD CONSTRAINT FK_ProductLearningImprovementPlanArchitectureRuns_Run
-        FOREIGN KEY (ArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
 GO
 
 IF OBJECT_ID(N'dbo.ProductLearningImprovementPlanSignalLinks', N'U') IS NULL
@@ -2379,12 +2283,6 @@ IF OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U') IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_EvolutionSimulationRuns_ShadowOnly')
     ALTER TABLE dbo.EvolutionSimulationRuns ADD CONSTRAINT CK_EvolutionSimulationRuns_ShadowOnly
         CHECK (IsShadowOnly = 1);
-GO
-
-IF OBJECT_ID(N'dbo.EvolutionSimulationRuns', N'U') IS NOT NULL
-   AND NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_EvolutionSimulationRuns_ArchitectureRun')
-    ALTER TABLE dbo.EvolutionSimulationRuns ADD CONSTRAINT FK_EvolutionSimulationRuns_ArchitectureRun
-        FOREIGN KEY (BaselineArchitectureRunId) REFERENCES dbo.ArchitectureRuns (RunId);
 GO
 
 /* ---- Large artifact blob pointers (see Migrations/034_LargeArtifactBlobPointers.sql) ---- */

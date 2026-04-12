@@ -26,11 +26,11 @@ This document summarizes the persisted data model used by ArchLucid. It is based
 - **Stores**: request metadata + `RequestJson`
 - **Why it matters**: the source input for a run; used for auditability and report generation.
 
-#### `ArchitectureRuns`
+#### `Runs` (authority)
 
-- **Key**: `RunId`
-- **Fields**: `RequestId`, `Status`, `CreatedUtc`, `CompletedUtc`, `CurrentManifestVersion`
-- **Why it matters**: tracks lifecycle state and ties together tasks/results/manifests.
+- **Key**: `RunId` (`UNIQUEIDENTIFIER`)
+- **Fields**: scope (`TenantId`, `WorkspaceId`, `ScopeProjectId`), `ProjectId`, snapshot/manifest pointers, `ArchitectureRequestId`, `LegacyRunStatus`, `CompletedUtc`, `CurrentManifestVersion`, `ArchivedUtc`, `RowVersionStamp`
+- **Why it matters**: sole persisted run header; API lifecycle strings map via `LegacyRunStatus` when present (legacy table **`ArchitectureRuns`** removed in migration **049**).
 
 #### `AgentTasks`
 
@@ -136,7 +136,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 - **Key**: `SignalId` (`UNIQUEIDENTIFIER`)
 - **Scope**: `TenantId`, `WorkspaceId`, `ProjectId` (same pattern as advisory recommendations and policy assignments).
 - **Purpose**: capture **pilot or product-team** judgments on outputs — **trusted**, **rejected**, **revised**, or **needs follow-up** — without changing agent behavior in this change set.
-- **Optional links**: `ArchitectureRunId` (FK to `ArchitectureRuns`), `AuthorityRunId` (correlation only; no FK), `ManifestVersion`, `ArtifactHint`, `PatternKey` (normalized bucket for rollups), `DetailJson` for structured notes.
+- **Optional links**: `ArchitectureRunId` (string run id; **no FK** — validate against **`dbo.Runs`** in app/SQL where needed), `AuthorityRunId` (correlation only; no FK), `ManifestVersion`, `ArtifactHint`, `PatternKey` (normalized bucket for rollups), `DetailJson` for structured notes.
 - **Triage**: `TriageStatus` supports a lightweight internal backlog (`Open`, `Triaged`, `Backlog`, `Done`, `WontFix`).
 - **Access**: `ArchLucid.Persistence.ProductLearning.IProductLearningPilotSignalRepository` (Dapper SQL / in-memory).
 - **Rollups (58R Prompt 3):** same repository exposes scoped aggregations (run feedback rollups, artifact outcome trends, repeated comment prefixes, improvement-opportunity candidates) built with explicit SQL / deterministic in-memory equivalents — see `ProductLearningSignalAggregations`.
@@ -147,7 +147,7 @@ Comparison replay is built on `PayloadJson` as the durable artifact. This enable
 
 - **Tables**: `ProductLearningImprovementThemes`, `ProductLearningImprovementPlans`, `ProductLearningImprovementPlanArchitectureRuns`, `ProductLearningImprovementPlanSignalLinks`, `ProductLearningImprovementPlanArtifactLinks`.
 - **Scope**: same `TenantId` / `WorkspaceId` / `ProjectId` as pilot signals. **Theme** rows carry a scope-unique **`ThemeKey`** (deterministic idempotency token for future derivation from 58R aggregates). **Plan** rows reference **`ThemeId`** and store a bounded JSON action list (**`BoundedActionsJson`**, max length enforced in application code).
-- **Links**: plans attach to legacy **`ArchitectureRuns.RunId`**, to **`ProductLearningPilotSignals`** (optional **`TriageStatusSnapshot`** for explainability), and to authority **`ArtifactBundleArtifacts`** (when present) or free-text **`PilotArtifactHint`**.
+- **Links**: plans attach to string **`ArchitectureRunId`** (same convention as coordinator **`RunId`**; validated against **`dbo.Runs`** in SQL repositories), to **`ProductLearningPilotSignals`** (optional **`TriageStatusSnapshot`** for explainability), and to authority **`ArtifactBundleArtifacts`** (when present) or free-text **`PilotArtifactHint`**.
 - **Access**: `ArchLucid.Persistence.ProductLearning.Planning.IProductLearningPlanningRepository` (Dapper + in-memory). No autonomous mutation of generation or evaluation pipelines in this change set.
 
 ---

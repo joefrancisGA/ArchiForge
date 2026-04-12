@@ -1,8 +1,12 @@
+using ArchLucid.Application.Runs.Mapping;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +19,8 @@ namespace ArchLucid.Application;
 /// instead of assembling run metadata, tasks, results, manifest, and traces from repositories separately.
 /// </summary>
 public sealed class RunDetailQueryService(
-    IArchitectureRunRepository runRepository,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
     ICoordinatorGoldenManifestRepository manifestRepository,
@@ -30,44 +35,64 @@ public sealed class RunDetailQueryService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        ArchitectureRun? run = await runRepository.GetByIdAsync(runId, cancellationToken);
-        if (run is null)
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+        {
+            logger.LogDebug("RunDetailQueryService: run '{RunId}' is not a valid run identifier.", runId);
+            return null;
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? record =
+            await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (record is null)
         {
             logger.LogDebug("RunDetailQueryService: run '{RunId}' not found.", runId);
             return null;
         }
 
-        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
-        IReadOnlyList<AgentResult> results = await resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<AgentTask> tasks =
+            await taskRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
+
+        ArchitectureRun run = RunRecordToArchitectureRunMapper.ToArchitectureRun(
+            record,
+            tasks.Select(t => t.TaskId).ToList());
+
+        IReadOnlyList<AgentResult> results =
+            await resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
 
         Contracts.Manifest.GoldenManifest? manifest = null;
         List<DecisionTrace> decisionTraces = [];
 
-        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            return new ArchitectureRunDetail
-            {
-                Run = run,
-                Tasks = tasks.ToList(),
-                Results = results.ToList(),
-                Manifest = manifest,
-                DecisionTraces = decisionTraces,
-                HasBrokenManifestReference =
-                    !string.IsNullOrWhiteSpace(run.CurrentManifestVersion) && manifest is null
-            };
-        
-        manifest = await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion, cancellationToken);
+        // Legacy row may omit CurrentManifestVersion after commit (ADR-0012); first-commit convention matches commit orchestrator.
+        string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+            ? $"v1-{runId}"
+            : run.CurrentManifestVersion;
+
+        manifest = await manifestRepository.GetByVersionAsync(manifestVersionKey, cancellationToken);
+
+        if (manifest is not null && !string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
+        {
+            manifest = null;
+        }
 
         if (manifest is null)
-        
-            logger.LogWarning(
-                "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
-                runId,
-                run.CurrentManifestVersion);
-        
+        {
+            if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+            {
+                logger.LogWarning(
+                    "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
+                    runId,
+                    run.CurrentManifestVersion);
+            }
+        }
         else
-        
-            decisionTraces = (await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken)).ToList();
-        
+        {
+            IReadOnlyList<DecisionTrace>? traces =
+                await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+            decisionTraces = traces is null ? [] : traces.ToList();
+        }
 
         return new ArchitectureRunDetail
         {
@@ -84,19 +109,31 @@ public sealed class RunDetailQueryService(
     public async Task<IReadOnlyList<RunSummary>> ListRunSummariesAsync(
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<ArchitectureRunListItem> items = await runRepository.ListAsync(cancellationToken);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<Persistence.Models.RunRecord> records =
+            await runRepository.ListRecentInScopeAsync(scope, 200, cancellationToken);
 
-        return items
+        return records
             .Select(r => new RunSummary
             {
-                RunId = r.RunId,
-                RequestId = r.RequestId,
-                Status = r.Status,
+                RunId = r.RunId.ToString("N"),
+                RequestId = r.ArchitectureRequestId ?? string.Empty,
+                Status = r.LegacyRunStatus ?? ArchitectureRunStatus.Created.ToString(),
                 CreatedUtc = r.CreatedUtc,
                 CompletedUtc = r.CompletedUtc,
                 CurrentManifestVersion = r.CurrentManifestVersion,
-                SystemName = r.SystemName
+                SystemName = r.ProjectId
             })
             .ToList();
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+        {
+            return true;
+        }
+
+        return Guid.TryParse(runId, out runGuid);
     }
 }

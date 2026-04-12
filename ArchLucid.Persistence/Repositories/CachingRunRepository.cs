@@ -56,6 +56,14 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         CancellationToken ct) => _inner.ListByProjectPagedAsync(scope, projectId, skip, take, ct);
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<RunRecord>> ListRecentInScopeAsync(ScopeContext scope, int take, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return _inner.ListRecentInScopeAsync(scope, take, ct);
+    }
+
+    /// <inheritdoc />
     public async Task UpdateAsync(
         RunRecord run,
         CancellationToken ct,

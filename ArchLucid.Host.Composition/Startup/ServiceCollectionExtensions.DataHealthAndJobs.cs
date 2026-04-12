@@ -34,6 +34,8 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+
         IHealthChecksBuilder builder = services.AddHealthChecks()
             .AddCheck(
                 "liveness",
@@ -51,19 +53,6 @@ public static partial class ServiceCollectionExtensions
                 "circuit_breakers",
                 failureStatus: HealthStatus.Degraded,
                 tags: []);
-
-        ArchLucidOptions archLucidOptions = ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
-
-        if (!ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.StorageProvider))
-        {
-            services.Configure<DualPersistenceConsistencyHealthCheckOptions>(
-                configuration.GetSection(DualPersistenceConsistencyHealthCheckOptions.SectionName));
-
-            builder.AddCheck<DualPersistenceConsistencyHealthCheck>(
-                "dual_persistence_consistency",
-                failureStatus: HealthStatus.Degraded,
-                tags: []);
-        }
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
         {

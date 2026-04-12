@@ -86,14 +86,29 @@ public sealed class ArchitectureAnalysisService(
             
         }
 
-        if (request.IncludeManifest && !string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+        if (request.IncludeManifest)
         {
-            report.Manifest = primaryDetail?.Manifest
-                ?? await manifestRepository.GetByVersionAsync(run.CurrentManifestVersion!, cancellationToken);
+            report.Manifest = primaryDetail?.Manifest;
+
+            string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
+                ? $"v1-{run.RunId}"
+                : run.CurrentManifestVersion;
+
             if (report.Manifest is null)
-            
-                report.Warnings.Add($"Manifest '{run.CurrentManifestVersion}' was not found.");
-            
+            {
+                report.Manifest = await manifestRepository.GetByVersionAsync(manifestVersionKey, cancellationToken);
+
+                if (report.Manifest is not null &&
+                    !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
+                {
+                    report.Manifest = null;
+                }
+            }
+
+            if (report.Manifest is null)
+            {
+                report.Warnings.Add($"Manifest '{manifestVersionKey}' was not found.");
+            }
         }
 
         if (request.IncludeDiagram)

@@ -1,13 +1,16 @@
 using System.Security.Cryptography;
 
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +20,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 public sealed class ArchitectureRunCreateOrchestrator(
     ICoordinatorService coordinator,
     IArchitectureRequestRepository requestRepository,
-    IArchitectureRunRepository runRepository,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     IEvidenceBundleRepository evidenceBundleRepository,
     IAgentTaskRepository taskRepository,
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
@@ -28,7 +32,10 @@ public sealed class ArchitectureRunCreateOrchestrator(
 {
     private readonly ICoordinatorService _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
-    private readonly IArchitectureRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
     private readonly IEvidenceBundleRepository _evidenceBundleRepository = evidenceBundleRepository ?? throw new ArgumentNullException(nameof(evidenceBundleRepository));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private readonly IArchitectureRunIdempotencyRepository _architectureRunIdempotencyRepository =
@@ -166,9 +173,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
         if (uow.SupportsExternalTransaction)
         {
             await _requestRepository.CreateAsync(request, cancellationToken, uow.Connection, uow.Transaction);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await _runRepository.CreateAsync(coordination.Run, cancellationToken, uow.Connection, uow.Transaction);
-#pragma warning restore CS0618
             await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken, uow.Connection, uow.Transaction);
 
             if (coordination.Tasks.Count > 0)
@@ -177,9 +181,6 @@ public sealed class ArchitectureRunCreateOrchestrator(
         else
         {
             await _requestRepository.CreateAsync(request, cancellationToken);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await _runRepository.CreateAsync(coordination.Run, cancellationToken);
-#pragma warning restore CS0618
             await _evidenceBundleRepository.CreateAsync(coordination.EvidenceBundle, cancellationToken);
 
             if (coordination.Tasks.Count > 0)
@@ -273,8 +274,17 @@ public sealed class ArchitectureRunCreateOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        ArchitectureRun run = await _runRepository.GetByIdAsync(runId, cancellationToken)
-                              ?? throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
+        ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+            _runRepository,
+            _scopeContextProvider,
+            _taskRepository,
+            runId,
+            cancellationToken);
+
+        if (run is null)
+        {
+            throw new InvalidOperationException($"Run '{runId}' from idempotency store was not found.");
+        }
 
         IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
 

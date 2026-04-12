@@ -55,6 +55,7 @@ public sealed class AuthorityRunOrchestrator(
             RunRecord run = new()
             {
                 RunId = Guid.NewGuid(),
+                ArchitectureRequestId = request.ArchitectureRequestId,
                 ProjectId = request.ProjectId,
                 Description = request.Description,
                 CreatedUtc = DateTime.UtcNow

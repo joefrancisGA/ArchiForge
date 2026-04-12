@@ -4398,6 +4398,106 @@
         }
       }
     },
+    "/v1/authority/runs/{runId}/rationale": {
+      "get": {
+        "tags": [
+          "AuthorityQuery"
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRationale"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRationale"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunRationale"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/authority/manifests/{manifestId}/summary": {
       "get": {
         "tags": [
@@ -18591,6 +18691,27 @@
         }
       },
       "DecisionTrace": {},
+      "DecisionTraceEntry": {
+        "type": "object",
+        "properties": {
+          "traceId": {
+            "type": "string"
+          },
+          "createdUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      },
       "DeterminismCheckRequest": {
         "type": "object",
         "properties": {
@@ -19626,6 +19747,51 @@
           }
         }
       },
+      "FindingRationale": {
+        "type": "object",
+        "properties": {
+          "findingId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "relatedNodeIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "recommendedActions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "traceCompleteness": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingTraceCompletenessScore"
+              }
+            ]
+          }
+        }
+      },
       "FindingSeverity": {
         "type": "integer"
       },
@@ -19661,6 +19827,44 @@
             "items": {
               "$ref": "#/components/schemas/Finding"
             }
+          }
+        }
+      },
+      "FindingTraceCompletenessScore": {
+        "type": "object",
+        "properties": {
+          "findingId": {
+            "type": "string"
+          },
+          "engineType": {
+            "type": "string"
+          },
+          "hasGraphNodeIds": {
+            "type": "boolean"
+          },
+          "hasRulesApplied": {
+            "type": "boolean"
+          },
+          "hasDecisionsTaken": {
+            "type": "boolean"
+          },
+          "hasAlternativePaths": {
+            "type": "boolean"
+          },
+          "hasNotes": {
+            "type": "boolean"
+          },
+          "populatedFieldCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "completenessRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
           }
         }
       },
@@ -23393,6 +23597,39 @@
           }
         }
       },
+      "RunRationale": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "pipelineType": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingRationale"
+            }
+          },
+          "decisionTraceEntries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DecisionTraceEntry"
+            }
+          },
+          "provenanceAvailable": {
+            "type": "boolean"
+          },
+          "explanationAvailable": {
+            "type": "boolean"
+          }
+        }
+      },
       "RunRecord": {
         "type": "object",
         "properties": {
@@ -23466,6 +23703,31 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "architectureRequestId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "legacyRunStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "completedUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "currentManifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "archivedUtc": {
             "type": [

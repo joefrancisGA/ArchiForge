@@ -273,17 +273,22 @@ internal sealed class DapperProductLearningPlanningPlanLinkRepository(ISqlConnec
         string architectureRunId,
         CancellationToken cancellationToken)
     {
+        if (!Guid.TryParseExact(architectureRunId, "N", out Guid runGuid))
+        {
+            throw new InvalidOperationException(
+                "ArchitectureRunId must be a 32-character hex run id (N format): " + architectureRunId);
+        }
+
         const string sql = """
-            SELECT CASE WHEN EXISTS(
-                SELECT 1 FROM dbo.ArchitectureRuns WHERE RunId = @RunId) THEN 1 ELSE 0 END;
+            SELECT CASE WHEN EXISTS(SELECT 1 FROM dbo.Runs WHERE RunId = @RunId) THEN 1 ELSE 0 END;
             """;
 
         int ok = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(sql, new { RunId = architectureRunId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { RunId = runGuid }, cancellationToken: cancellationToken));
 
         if (ok == 0)
         {
-            throw new InvalidOperationException("ArchitectureRuns.RunId was not found: " + architectureRunId);
+            throw new InvalidOperationException("dbo.Runs.RunId was not found: " + architectureRunId);
         }
     }
 

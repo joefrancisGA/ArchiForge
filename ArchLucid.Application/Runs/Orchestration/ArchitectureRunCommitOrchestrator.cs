@@ -1,5 +1,7 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
@@ -8,9 +10,11 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +22,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref="IArchitectureRunCommitOrchestrator"/>
 public sealed class ArchitectureRunCommitOrchestrator(
-    IArchitectureRunRepository runRepository,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     IArchitectureRequestRepository requestRepository,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
@@ -34,7 +39,11 @@ public sealed class ArchitectureRunCommitOrchestrator(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
-    private readonly IArchitectureRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
@@ -88,10 +97,24 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 runId);
         }
 
-        ArchitectureRun run = await _runRepository.GetByIdAsync(runId, cancellationToken)
-                              ?? throw new RunNotFoundException(runId);
+        ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+            _runRepository,
+            _scopeContextProvider,
+            _taskRepository,
+            runId,
+            cancellationToken);
+
+        if (run is null)
+        {
+            throw new RunNotFoundException(runId);
+        }
 
         CommitRunResult? idempotent = await TryReturnCommittedManifestAsync(run, runId, cancellationToken);
+
+        if (idempotent is not null)
+            return idempotent;
+
+        idempotent = await TryReturnPersistedCommitIfExistsAsync(run, runId, cancellationToken);
 
         if (idempotent is not null)
             return idempotent;
@@ -121,13 +144,17 @@ public sealed class ArchitectureRunCommitOrchestrator(
             ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
-            await EnsureCommitPrerequisitesAsync(runId, cancellationToken);
-
             IReadOnlyList<AgentTask> tasks = await _taskRepository.GetByRunIdAsync(runId, cancellationToken);
-            IReadOnlyList<AgentResult> results = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+            IReadOnlyList<AgentResult> results =
+                await _resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
 
             if (results.Count == 0)
-                throw new InvalidOperationException($"No agent results found for run '{runId}'.");
+            {
+                throw new ConflictException(
+                    $"No agent results found for run '{runId}'. Execute the run before committing.");
+            }
+
+            await EnsureCommitPrerequisitesAsync(runId, cancellationToken);
 
             IReadOnlyList<AgentEvaluation> evaluations = await _agentEvaluationRepository.GetByRunIdAsync(runId, cancellationToken);
             decisionNodes = await _decisionEngineV2.ResolveAsync(
@@ -140,9 +167,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
             // ManifestVersion is the PK on GoldenManifestVersions (global, not per-run). A literal "v1" collides
             // when multiple runs commit in the same database (e.g. integration tests sharing one factory).
-            string manifestVersion = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-                ? $"v1-{runId}"
-                : IncrementManifestVersion(run.CurrentManifestVersion);
+            string manifestVersion = BuildManifestVersionForCommit(run, runId);
 
             merge = _decisionEngine.MergeResults(
                 runId,
@@ -276,6 +301,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
         if (run.Status == ArchitectureRunStatus.ReadyForCommit)
             return;
 
+        // Execute orchestrator no longer promotes legacy status to ReadyForCommit (ADR-0012); agent outputs still gate commit below.
+        if (run.Status == ArchitectureRunStatus.TasksGenerated)
+            return;
+
         if (run.Status == ArchitectureRunStatus.Failed)
             throw new ConflictException($"Run '{runId}' is in Failed status and cannot be committed.");
 
@@ -305,15 +334,6 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 runId,
                 $"Merge failed: {detail}",
                 cancellationToken);
-
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-        await _runRepository.UpdateStatusAsync(
-            runId,
-            ArchitectureRunStatus.Failed,
-            currentManifestVersion,
-            DateTime.UtcNow,
-            cancellationToken);
-#pragma warning restore CS0618
 
         throw new InvalidOperationException(
             $"CommitRun failed: {detail}");
@@ -351,33 +371,74 @@ public sealed class ArchitectureRunCommitOrchestrator(
             await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken, uow.Connection, uow.Transaction);
             await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken, uow.Connection, uow.Transaction);
             await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken, uow.Connection, uow.Transaction);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Committed,
-                merge.Manifest.Metadata.ManifestVersion,
-                DateTime.UtcNow,
-                cancellationToken,
-                expectedStatus: ArchitectureRunStatus.ReadyForCommit,
-                connection: uow.Connection,
-                transaction: uow.Transaction);
-#pragma warning restore CS0618
         }
         else
         {
             await _decisionNodeRepository.CreateManyAsync(decisionNodes, cancellationToken);
             await _manifestRepository.CreateAsync(merge.Manifest, cancellationToken);
             await _decisionTraceRepository.CreateManyAsync(merge.DecisionTraces, cancellationToken);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Committed,
-                merge.Manifest.Metadata.ManifestVersion,
-                DateTime.UtcNow,
-                cancellationToken,
-                expectedStatus: ArchitectureRunStatus.ReadyForCommit);
-#pragma warning restore CS0618
         }
+    }
+
+    /// <summary>
+    /// When legacy <see cref="ArchitectureRun.Status"/> is no longer updated on commit (ADR-0012), a repeat call must
+    /// detect an already-persisted manifest at the version this run would use for a first commit attempt.
+    /// </summary>
+    private async Task<CommitRunResult?> TryReturnPersistedCommitIfExistsAsync(
+        ArchitectureRun run,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.TasksGenerated)
+            return null;
+
+        string manifestVersion = BuildManifestVersionForCommit(run, runId);
+        GoldenManifest? existingManifest = await _manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
+
+        if (existingManifest is null)
+            return null;
+
+        if (!string.Equals(existingManifest.RunId, runId, StringComparison.Ordinal))
+            return null;
+
+        IReadOnlyList<DecisionTrace> existingTraces = await _decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        if (existingTraces.Count == 0)
+            return null;
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "CommitRunAsync is idempotent: returning persisted manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount} (legacy status may lag)",
+                runId,
+                manifestVersion,
+                existingTraces.Count);
+        }
+
+        IReadOnlyList<string> storedGaps = CommittedManifestTraceabilityRules.GetLinkageGaps(existingManifest, existingTraces);
+
+        if (storedGaps.Count > 0)
+        {
+            _logger.LogWarning(
+                "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
+                runId,
+                string.Join("; ", storedGaps));
+        }
+
+        return new CommitRunResult
+        {
+            Manifest = existingManifest,
+            DecisionTraces = existingTraces.ToList(),
+            Warnings = [],
+        };
+    }
+
+    private static string BuildManifestVersionForCommit(ArchitectureRun run, string runId)
+    {
+        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
+            return $"v1-{runId}";
+
+        return IncrementManifestVersion(run.CurrentManifestVersion);
     }
 
     /// <summary>

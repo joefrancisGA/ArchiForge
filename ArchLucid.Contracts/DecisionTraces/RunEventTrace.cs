@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Contracts.DecisionTraces;
 
 /// <summary>
-/// Coordinator pipeline trace: append-only merge and agent steps for string <c>ArchitectureRuns</c>.
+/// Coordinator pipeline trace: append-only merge and agent steps for a string <c>RunId</c> (correlates with authority <c>dbo.Runs</c>).
 /// Stored by the coordinator decision-trace repository port (string run id).
 /// </summary>
 [JsonConverter(typeof(DecisionTraceJsonConverter))]

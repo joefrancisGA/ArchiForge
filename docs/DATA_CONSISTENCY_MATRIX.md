@@ -1,17 +1,17 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-12 (dual persistence diagnostic health check)
+**Last reviewed:** 2026-04-12 (migration **049** — **`dbo.ArchitectureRuns`** dropped; **`dbo.Runs`** is the sole persisted run header; dual-persistence health checks removed)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
 ## Objective
 
-Make explicit which paths are **strongly consistent** (read-your-writes within a transaction), **transactionally outboxed** (eventually processed), or **eventually aligned** (legacy dual-write).
+Make explicit which paths are **strongly consistent** (read-your-writes within a transaction), **transactionally outboxed** (eventually processed), or **eventually aligned** (cross-service).
 
 ## Assumptions
 
 - Primary authority state lives in **`dbo.Runs`** and related authority tables scoped by tenant/workspace/project.
-- **`dbo.ArchitectureRuns`** (legacy string `RunId`) may still participate in some flows; operators should treat it as **compatibility**, not the sole source of truth for new integrations.
+- Coordinator-facing tables use string **`RunId`** (no-dash hex) as a **logical** correlation key aligned with **`dbo.Runs.RunId`**; referential integrity to **`dbo.Runs`** is application-enforced (migration **047** dropped legacy FKs to **`ArchitectureRuns`**; migration **049** dropped the legacy table).
 
 ## Matrix
 
@@ -20,42 +20,22 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 | Create run + authority pipeline | Per-connection transactional | SQL transactions in orchestrator | Committed rows visible after successful commit. |
 | Run optimistic concurrency | Row-level | `ROWVERSION` on `dbo.Runs` (and selected tables) | Conflicting updates → `409` with conflict problem type. |
 | Retrieval indexing after commit | Eventual | Transactional enqueue + worker processing | Enqueue is tied to commit transaction where configured; indexer may lag. |
-| Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Documented caveat: extreme races may not span **both** legacy and authority stores atomically — treat as **best-effort** across dual persistence. |
-| Demo trusted-baseline seed | Dual write (ordered) | **`IRunRepository.SaveAsync`** → **`dbo.Runs`** first; **`DemoLegacyArchitectureRunSynchronizer`** → **`ArchitectureRuns`** for coordinator FKs only | Reduces direct **`IArchitectureRunRepository`** usage in **`DemoSeedService`**; legacy row is demo-scoped until coordinator children reference **`dbo.Runs`**. See ADR-0012 row **DemoLegacyArchitectureRunSynchronizer**. |
+| Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Treat as **best-effort** under extreme duplicate-key races; authority **`dbo.Runs`** is the durable header. |
+| Demo trusted-baseline seed | Transactional per repository | **`IRunRepository.SaveAsync`** / **`UpdateAsync`** on **`dbo.Runs`** plus coordinator rows | No legacy table write path. |
 | Multi-tenant isolation (SQL) | Defense in depth | RLS policies + `SESSION_CONTEXT` when `SqlServer:RowLevelSecurity:ApplySessionContext=true` | Not every table carries scope columns; see `docs/security/MULTI_TENANT_RLS.md`. |
 | Policy pack assignments | Per-row transactional | SQL writes | `ROWVERSION` on assignments supports future optimistic flows. |
 | LLM completion cache | Best-effort | Distributed/memory cache | Cache hits do not consume Azure usage; stale entries TTL-bound. |
 | Hot-path read cache (runs, golden manifests, policy pack metadata) | Read-through + TTL | `IHotPathReadCache` (memory or Redis; see `HotPathCache:*`) | **Does not cache list endpoints** (e.g. runs list). **Single-row writes** remove the matching key (`Save`/`Update` on runs; `Save` on manifests; `Create`/`Update` on policy packs). **Bulk run archival** (`ArchiveRunsCreatedBeforeAsync`) removes **each archived run’s** cache key using `OUTPUT` scope columns so operators do not see archived runs until TTL expiry. Remaining risk: TTL-bound staleness if data changes **outside** these repository methods (ad-hoc SQL, future writers). |
 
-## Deprecation: dual persistence (`ArchitectureRuns` vs `Runs`)
+## Runs authority convergence (complete)
 
-See **docs/adr/0012-runs-authority-convergence-write-freeze.md** for the complete write call site inventory.
+Dual persistence (**`ArchitectureRuns`** vs **`Runs`**) is **retired** in supported deployments:
 
-**Status:** Converge new features on **`dbo.Runs`** and Dapper repositories. **`ArchitectureRuns`** exists for historical and CLI/adjacent flows.
-
-### Named milestone: **RunsAuthorityConvergence**
-
-| Gate | Date (aggressive default) | Meaning |
-|------|---------------------------|---------|
-| **Write freeze** | **2026-09-30** | No new product features or net-new code paths may **write** to **`dbo.ArchitectureRuns`**. Hotfixes to existing writers require an **ADR** and a dated removal task. |
-| **Read convergence** | **2026-12-31** | All first-party readers that can switch to **`dbo.Runs`** / GUID **`/v1`** flows **must** switch; remaining `ArchitectureRuns` reads listed in a single tracking epic. |
-| **Legacy removal target** | **2027-03-31** | **`ArchitectureRuns`** is **read-only or removed** from supported deployments (org choice: empty table vs drop), unless the epic is **explicitly extended** by ADR with a new named date. |
-
-These dates are **planning defaults** for the product repo; your organization may tighten them in internal runbooks. They replace the vague “after two major releases” horizon so security and SRE reviews have a **single named target**.
-
-**Actions for teams:**
-
-1. Prefer APIs and jobs that resolve runs by **GUID** from **`/v1/...`** responses.
-2. When adding persistence, avoid new **`ArchitectureRuns`** dependencies without an ADR (`docs/adr/`).
-3. Track remaining readers with a periodic codebase search for `ArchitectureRuns` / legacy `RunId` string keys.
-4. Tag work items **`RunsAuthorityConvergence`** so release notes and audits can filter progress.
-
-### Runtime verification (SQL)
-
-When **`ArchLucid:StorageProvider`** is **`Sql`**, the diagnostic health check **`dual_persistence_consistency`** runs two indexed **`COUNT(*)`** queries over **`dbo.ArchitectureRuns`** and **`dbo.Runs`**, restricted to rows with **`CreatedUtc`** in a recent UTC window (default **24 hours**, configurable via **`HealthChecks:DualPersistenceConsistency:RecentWindowHours`**). If the absolute delta exceeds **`HealthChecks:DualPersistenceConsistency:MaxAllowedDelta`** (default **5**), the check reports **Degraded** with **`architectureRunCount`**, **`runCount`**, and **`delta`** in the detailed **`/health`** JSON. Query failures report **Unhealthy**. The check is **not** tagged **`live`** or **`ready`** — it is informational only (same pattern as **`circuit_breakers`**).
+- **ADR 0012** — **Completed** (2026-04-12): **`IArchitectureRunRepository`** and **`dbo.ArchitectureRuns`** removed; reads and writes use **`IRunRepository`** / **`dbo.Runs`** (see `docs/adr/0012-runs-authority-convergence-write-freeze.md`).
+- **ADR 0002** — **Superseded** by ADR 0012 completion; historical note retained in `docs/adr/0002-dual-persistence-architecture-runs-and-runs.md`.
 
 ## Related
 
 - `docs/adr/0002-dual-persistence-architecture-runs-and-runs.md`
-- `docs/adr/0012-runs-authority-convergence-write-freeze.md` — **complete write call site inventory** for **`IArchitectureRunRepository`** / **`dbo.ArchitectureRuns`** (production audit)
+- `docs/adr/0012-runs-authority-convergence-write-freeze.md`
 - `docs/ONBOARDING_HAPPY_PATH.md`

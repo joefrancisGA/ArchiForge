@@ -88,6 +88,27 @@ internal static class PipelineExtensions
         })
             .RequireAuthorization(ArchLucidPolicies.ReadAuthority);
 
+        // OWASP ZAP baseline (and similar spiders) expect 200 on the scan root, /robots.txt, and /sitemap.xml.
+        // Without these, passive rule 10049 (Non-Storable Content) fires on 404 bodies and the automation plan fails.
+        app.MapGet(
+                "/",
+                static () => Results.Text("ArchLucid API", "text/plain", statusCode: StatusCodes.Status200OK))
+            .AllowAnonymous();
+        app.MapGet(
+                "/robots.txt",
+                static () => Results.Text(
+                    "User-agent: *\nAllow: /\n",
+                    "text/plain",
+                    statusCode: StatusCodes.Status200OK))
+            .AllowAnonymous();
+        app.MapGet(
+                "/sitemap.xml",
+                static () => Results.Content(
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"/>",
+                    "application/xml",
+                    statusCode: StatusCodes.Status200OK))
+            .AllowAnonymous();
+
         bool prometheusEnabled = app.Configuration.GetValue("Observability:Prometheus:Enabled", false);
         if (prometheusEnabled)
         {

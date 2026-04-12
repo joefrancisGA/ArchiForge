@@ -20,15 +20,13 @@ namespace ArchLucid.Application.Bootstrap;
 /// <remarks>
 /// Persists via <c>ArchLucid.Persistence</c> repositories. **Authority:** each demo run is inserted into <c>dbo.Runs</c> via
 /// <see cref="IRunRepository.SaveAsync"/> (project slug <c>Contoso Retail Platform</c>, matching system-name-as-project-id from
-/// coordinator ingestion mapping). **Legacy:** coordinator tables
-/// still FK <c>dbo.ArchitectureRuns</c>; <see cref="IDemoLegacyArchitectureRunSynchronizer"/> is the only bridge for those writes.
+/// coordinator ingestion mapping). Coordinator NVARCHAR <c>RunId</c> columns reference the same run id string (no-dash GUID).
 /// The export row is optional metadata for export history — not required for consulting DOCX replay. See <c>docs/TRUSTED_BASELINE.md</c>.
 /// </remarks>
 public sealed class DemoSeedService(
     IArchitectureRequestRepository requestRepository,
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
-    IDemoLegacyArchitectureRunSynchronizer legacyArchitectureRunSynchronizer,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
     ICoordinatorGoldenManifestRepository manifestRepository,
@@ -121,21 +119,11 @@ public sealed class DemoSeedService(
                 ? "Demo — Contoso retail hardened manifest (trusted baseline seed)."
                 : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
+            ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
+            LegacyRunStatus = ArchitectureRunStatus.Created.ToString(),
         };
 
         await runRepository.SaveAsync(authorityRow, cancellationToken);
-
-        ArchitectureRun legacyRun = new()
-        {
-            RunId = legacyRunId,
-            RequestId = ContosoRetailDemoIdentifiers.RequestContoso,
-            Status = ArchitectureRunStatus.Created,
-            CreatedUtc = DemoUtc,
-            CompletedUtc = null,
-            CurrentManifestVersion = null
-        };
-
-        await legacyArchitectureRunSynchronizer.CreateLegacyRowAsync(legacyRun, cancellationToken);
 
         AgentTask task = new()
         {
@@ -193,7 +181,15 @@ public sealed class DemoSeedService(
 
         await decisionTraceRepository.CreateManyAsync([trace], cancellationToken);
 
-        await legacyArchitectureRunSynchronizer.CommitLegacyRowAsync(legacyRunId, manifestVersion, DemoUtc, cancellationToken);
+        RunRecord? authorityCommitted = await runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
+
+        if (authorityCommitted is not null)
+        {
+            authorityCommitted.LegacyRunStatus = ArchitectureRunStatus.Committed.ToString();
+            authorityCommitted.CurrentManifestVersion = manifestVersion;
+            authorityCommitted.CompletedUtc = DemoUtc;
+            await runRepository.UpdateAsync(authorityCommitted, cancellationToken);
+        }
     }
 
     private static GoldenManifest BuildManifest(string runId, string manifestVersion, bool isHardened)

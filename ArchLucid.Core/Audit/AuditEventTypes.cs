@@ -93,7 +93,7 @@ public static class AuditEventTypes
     /// </remarks>
     public static class Baseline
     {
-        /// <summary>Architecture run / string-run workflow (legacy <c>ArchitectureRuns</c> pipeline).</summary>
+        /// <summary>Architecture run / string <c>RunId</c> workflow (authority <c>dbo.Runs</c>).</summary>
         public static class Architecture
         {
             public const string RunCreated = "Architecture.RunCreated";

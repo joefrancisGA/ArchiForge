@@ -100,4 +100,47 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task BuildAsync_WithPreloadedRunDetail_UsesManifestWhenCurrentManifestVersionEmpty()
+    {
+        GoldenManifest manifest = new()
+        {
+            RunId = "run-1",
+            SystemName = "Sys",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1-run-1" }
+        };
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = "run-1",
+                RequestId = "req-1",
+                Status = ArchitectureRunStatus.TasksGenerated,
+                CurrentManifestVersion = null,
+                CreatedUtc = DateTime.UtcNow
+            },
+            Manifest = manifest,
+            Tasks = [],
+            Results = []
+        };
+
+        ArchitectureAnalysisRequest request = new()
+        {
+            RunId = "run-1",
+            PreloadedRunDetail = detail,
+            IncludeEvidence = false,
+            IncludeExecutionTraces = false,
+            IncludeManifest = true,
+            IncludeDiagram = false,
+            IncludeSummary = false
+        };
+
+        ArchitectureAnalysisReport report = await _sut.BuildAsync(request);
+
+        report.Manifest.Should().BeSameAs(manifest);
+        _manifestRepository.Verify(
+            m => m.GetByVersionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

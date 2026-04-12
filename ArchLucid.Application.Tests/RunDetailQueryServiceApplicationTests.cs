@@ -1,8 +1,12 @@
+using ArchLucid.Application;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
@@ -19,39 +23,59 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class RunDetailQueryServiceApplicationTests
 {
+    private static ScopeContext NewScope() =>
+        new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
     [Fact]
     public async Task GetRunDetailAsync_when_manifest_version_set_but_manifest_missing_sets_HasBrokenManifestReference()
     {
-        Mock<IArchitectureRunRepository> runRepo = new();
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string runN = runGuid.ToString("N");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
-        ArchitectureRun run = new()
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
         {
-            RunId = "run-x",
-            RequestId = "req-x",
-            Status = ArchitectureRunStatus.Committed,
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-x",
+            LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
             CreatedUtc = DateTime.UtcNow,
             CurrentManifestVersion = "v-missing",
         };
 
-        runRepo.Setup(r => r.GetByIdAsync("run-x", It.IsAny<CancellationToken>())).ReturnsAsync(run);
-        taskRepo.Setup(r => r.GetByRunIdAsync("run-x", It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        resultRepo.Setup(r => r.GetByRunIdAsync("run-x", It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        taskRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         manifestRepo.Setup(r => r.GetByVersionAsync("v-missing", It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 
         RunDetailQueryService sut = new(
             runRepo.Object,
+            scopeProvider.Object,
             taskRepo.Object,
             resultRepo.Object,
             manifestRepo.Object,
             traceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
-        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync("run-x");
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
 
         detail.Should().NotBeNull();
         detail.Manifest.Should().BeNull();
@@ -62,24 +86,35 @@ public sealed class RunDetailQueryServiceApplicationTests
     [Fact]
     public async Task GetRunDetailAsync_when_manifest_resolved_HasBrokenManifestReference_is_false()
     {
-        Mock<IArchitectureRunRepository> runRepo = new();
+        ScopeContext scope = NewScope();
+        Guid runGuid = Guid.Parse("66666666-6666-6666-6666-666666666666");
+        string runN = runGuid.ToString("N");
+
+        Mock<IRunRepository> runRepo = new();
+        Mock<IScopeContextProvider> scopeProvider = new();
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
-        ArchitectureRun run = new()
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        RunRecord record = new()
         {
-            RunId = "run-y",
-            RequestId = "req-y",
-            Status = ArchitectureRunStatus.Committed,
+            RunId = runGuid,
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "p",
+            ArchitectureRequestId = "req-y",
+            LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
             CreatedUtc = DateTime.UtcNow,
             CurrentManifestVersion = "v1",
         };
 
         GoldenManifest manifest = new()
         {
-            RunId = "run-y",
+            RunId = runN,
             SystemName = "S",
             Services = [],
             Datastores = [],
@@ -88,24 +123,25 @@ public sealed class RunDetailQueryServiceApplicationTests
             Metadata = new ManifestMetadata { ManifestVersion = "v1" },
         };
 
-        runRepo.Setup(r => r.GetByIdAsync("run-y", It.IsAny<CancellationToken>())).ReturnsAsync(run);
-        taskRepo.Setup(r => r.GetByRunIdAsync("run-y", It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        resultRepo.Setup(r => r.GetByRunIdAsync("run-y", It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
+        taskRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        resultRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
-        traceRepo.Setup(r => r.GetByRunIdAsync("run-y", It.IsAny<CancellationToken>())).ReturnsAsync([]);
+        traceRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         RunDetailQueryService sut = new(
             runRepo.Object,
+            scopeProvider.Object,
             taskRepo.Object,
             resultRepo.Object,
             manifestRepo.Object,
             traceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
-        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync("run-y");
+        ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
 
         detail.Should().NotBeNull();
         detail.HasBrokenManifestReference.Should().BeFalse();
-        traceRepo.Verify(t => t.GetByRunIdAsync("run-y", It.IsAny<CancellationToken>()), Times.Once);
+        traceRepo.Verify(t => t.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -27,7 +27,7 @@ This document defines what the repo treats as **intentionally complete and demo-
 - **Service:** `IDemoSeedService` / `DemoSeedService` in `ArchLucid.Application/Bootstrap/`.
 - **Config:** `Demo:Enabled`, `Demo:SeedOnStartup` (startup seed only in **Development**).
 - **HTTP:** `POST /v1.0/demo/seed` when `Demo:Enabled` and Development.
-- **Story:** Contoso Retail — **baseline** vs **hardened** runs use stable GUID primary keys (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId` / `AuthorityRunHardenedId`); legacy string `RunId` is the same values formatted as **`N`** (no dashes), e.g. `6e8c4a102b1f4c9a9d3e10b2a4f0c501` and `…502`. Seed writes **`dbo.Runs`** first, then legacy **`ArchitectureRuns`** via **`DemoLegacyArchitectureRunSynchronizer`** for coordinator FKs (ADR-0012).
+- **Story:** Contoso Retail — **baseline** vs **hardened** runs use stable GUID primary keys (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId` / `AuthorityRunHardenedId`); string `RunId` in coordinator rows is the same values formatted as **`N`** (no dashes), e.g. `6e8c4a102b1f4c9a9d3e10b2a4f0c501` and `…502`. Seed writes **`dbo.Runs`** and coordinator artifacts only (migration **049** dropped **`dbo.ArchitectureRuns`**; ADR **0012** complete).
 - **Idempotent:** Re-running seed skips existing keys.
 
 ## Proof checklist (local)

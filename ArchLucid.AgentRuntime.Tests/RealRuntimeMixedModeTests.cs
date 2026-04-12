@@ -8,6 +8,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
@@ -15,6 +16,8 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+
+using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -250,8 +253,21 @@ public sealed class RealRuntimeMixedModeTests
             ]
         };
 
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        });
+
         CoordinatorService coordinator = new(
             new FakeAuthorityRunOrchestratorForRuntimeTests(),
+            runRepo.Object,
+            scopeProvider.Object,
             NullLogger<CoordinatorService>.Instance);
         CoordinationResult coordination = await coordinator.CreateRunAsync(request);
 

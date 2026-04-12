@@ -7,15 +7,19 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application;
 
 /// <summary>
 /// Replays an existing architecture run by cloning its tasks and evidence, re-executing agents,
-/// and optionally committing the result as a new manifest version.
+/// and optionally committing the result as a new manifest version. Persists the replay run id to
+/// <c>dbo.Runs</c> via <see cref="IRunRepository"/> (no legacy <c>ArchitectureRuns</c> insert).
 /// Used by <see cref="ArchLucid.Application.Determinism.DeterminismCheckService"/> for multi-iteration
 /// determinism checks and by comparison services for regenerating stored payloads.
 /// </summary>
@@ -24,7 +28,8 @@ public sealed class ReplayRunService(
     IDecisionEngineService decisionEngineService,
     IArchitectureRequestRepository requestRepository,
     IRunDetailQueryService runDetailQueryService,
-    IArchitectureRunRepository runRepository,
+    IRunRepository authorityRunRepository,
+    IScopeContextProvider scopeContextProvider,
     ICoordinatorGoldenManifestRepository manifestRepository,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
@@ -48,6 +53,8 @@ public sealed class ReplayRunService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(originalRunId);
         ArgumentException.ThrowIfNullOrWhiteSpace(executionMode);
+        ArgumentNullException.ThrowIfNull(authorityRunRepository);
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
 
         ArchitectureRunDetail sourceDetail = await runDetailQueryService.GetRunDetailAsync(originalRunId, cancellationToken)
                                              ?? throw new RunNotFoundException(originalRunId);
@@ -69,18 +76,23 @@ public sealed class ReplayRunService(
                                         ?? throw new InvalidOperationException($"Evidence package for run '{originalRunId}' not found.");
 
         string replayRunId = Guid.NewGuid().ToString("N");
+        Guid replayGuid = Guid.Parse(replayRunId);
 
-        ArchitectureRun replayRun = new()
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? sourceAuthorityRun = null;
+
+        if (Guid.TryParse(originalRunId, out Guid originalGuid))
         {
-            RunId = replayRunId,
-            RequestId = originalRun.RequestId,
-            Status = ArchitectureRunStatus.Created,
-            CreatedUtc = DateTime.UtcNow
-        };
+            sourceAuthorityRun = await authorityRunRepository.GetByIdAsync(scope, originalGuid, cancellationToken);
+        }
 
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-        await runRepository.CreateAsync(replayRun, cancellationToken);
-#pragma warning restore CS0618
+        RunRecord replayAuthority = ReplayAuthorityRunRecordFactory.CreateForReplay(
+            replayGuid,
+            scope,
+            sourceAuthorityRun,
+            request);
+
+        await authorityRunRepository.SaveAsync(replayAuthority, cancellationToken);
 
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -159,29 +171,11 @@ public sealed class ReplayRunService(
             {
                 await manifestRepository.CreateAsync(manifest, cancellationToken, uow.Connection, uow.Transaction);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken, uow.Connection, uow.Transaction);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-                await runRepository.UpdateStatusAsync(
-                    replayRunId,
-                    ArchitectureRunStatus.Committed,
-                    currentManifestVersion: manifest.Metadata.ManifestVersion,
-                    completedUtc: DateTime.UtcNow,
-                    cancellationToken: cancellationToken,
-                    connection: uow.Connection,
-                    transaction: uow.Transaction);
-#pragma warning restore CS0618
             }
             else
             {
                 await manifestRepository.CreateAsync(manifest, cancellationToken);
                 await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-                await runRepository.UpdateStatusAsync(
-                    replayRunId,
-                    ArchitectureRunStatus.Committed,
-                    currentManifestVersion: manifest.Metadata.ManifestVersion,
-                    completedUtc: DateTime.UtcNow,
-                    cancellationToken: cancellationToken);
-#pragma warning restore CS0618
             }
 
             await uow.CommitAsync(cancellationToken);
@@ -203,22 +197,6 @@ public sealed class ReplayRunService(
             Warnings = warnings
         };
     }
-
-    //private async Task PersistReplayCommitRowsAsync(
-    //    string replayRunId,
-    //    GoldenManifest manifest,
-    //    List<DecisionTrace> decisionTraces,
-    //    CancellationToken cancellationToken)
-    //{
-    //    await manifestRepository.CreateAsync(manifest, cancellationToken);
-    //    await decisionTraceRepository.CreateManyAsync(decisionTraces, cancellationToken);
-    //    await runRepository.UpdateStatusAsync(
-    //        replayRunId,
-    //        ArchitectureRunStatus.Committed,
-    //        currentManifestVersion: manifest.Metadata.ManifestVersion,
-    //        completedUtc: DateTime.UtcNow,
-    //        cancellationToken: cancellationToken);
-    //}
 
     /// <summary>
     /// Creates a deep copy of <paramref name="original"/> bound to <paramref name="replayRunId"/>.

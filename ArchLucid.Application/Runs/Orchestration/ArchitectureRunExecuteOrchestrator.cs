@@ -2,14 +2,17 @@ using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +20,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref="IArchitectureRunExecuteOrchestrator"/>
 public sealed class ArchitectureRunExecuteOrchestrator(
-    IArchitectureRunRepository runRepository,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     IArchitectureRequestRepository requestRepository,
     IAgentTaskRepository taskRepository,
     IAgentExecutor agentExecutor,
@@ -31,7 +35,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
-    private readonly IArchitectureRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
     private readonly IAgentTaskRepository _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
     private readonly IAgentExecutor _agentExecutor = agentExecutor ?? throw new ArgumentNullException(nameof(agentExecutor));
@@ -81,8 +89,17 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 "Executing architecture run: RunId={RunId}",
                 runId);
 
-        ArchitectureRun run = await _runRepository.GetByIdAsync(runId, cancellationToken)
-                              ?? throw new RunNotFoundException(runId);
+        ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
+            _runRepository,
+            _scopeContextProvider,
+            _taskRepository,
+            runId,
+            cancellationToken);
+
+        if (run is null)
+        {
+            throw new RunNotFoundException(runId);
+        }
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 
@@ -126,8 +143,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
             await PersistExecutePhaseAsync(
                 runId,
-                run.Status,
-                run.CurrentManifestVersion,
                 evidence,
                 results,
                 evaluations,
@@ -184,15 +199,36 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (run.Status is not ArchitectureRunStatus.ReadyForCommit and not ArchitectureRunStatus.Committed)
-            return null;
+        IReadOnlyList<AgentResult> existingResults =
+            await _resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? Array.Empty<AgentResult>();
 
-        IReadOnlyList<AgentResult> existingResults = await _resultRepository.GetByRunIdAsync(runId, cancellationToken);
+        if (run.Status is ArchitectureRunStatus.ReadyForCommit or ArchitectureRunStatus.Committed)
+        {
+            if (existingResults.Count > 0)
+            {
+                _logger.LogInformation(
+                    "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
+                    runId,
+                    run.Status,
+                    existingResults.Count);
 
-        if (existingResults.Count > 0)
+                return new ExecuteRunResult
+                {
+                    RunId = runId,
+                    Results = existingResults.ToList(),
+                };
+            }
+
+            throw new ConflictException(
+                $"Run '{runId}' is in status '{run.Status}' but has no stored agent results. " +
+                "The run is in an inconsistent state and cannot be safely re-executed.");
+        }
+
+        // Authority LegacyRunStatus may still read TasksGenerated while execute results already exist; idempotency uses stored results.
+        if (run.Status == ArchitectureRunStatus.TasksGenerated && existingResults.Count > 0)
         {
             _logger.LogInformation(
-                "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
+                "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
                 runId,
                 run.Status,
                 existingResults.Count);
@@ -204,9 +240,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             };
         }
 
-        throw new ConflictException(
-            $"Run '{runId}' is in status '{run.Status}' but has no stored agent results. " +
-            "The run is in an inconsistent state and cannot be safely re-executed.");
+        return null;
     }
 
     /// <summary>
@@ -214,8 +248,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     /// </summary>
     private async Task PersistExecutePhaseAsync(
         string runId,
-        ArchitectureRunStatus expectedStatus,
-        string? currentManifestVersion,
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentResult> results,
         IReadOnlyList<AgentEvaluation> evaluations,
@@ -227,8 +259,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             await PersistExecutePhaseRowsAsync(
                 runId,
-                expectedStatus,
-                currentManifestVersion,
                 evidence,
                 results,
                 evaluations,
@@ -246,8 +276,6 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
     private async Task PersistExecutePhaseRowsAsync(
         string runId,
-        ArchitectureRunStatus expectedStatus,
-        string? currentManifestVersion,
         AgentEvidencePackage evidence,
         IReadOnlyList<AgentResult> results,
         IReadOnlyList<AgentEvaluation> evaluations,
@@ -259,32 +287,12 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken, uow.Connection, uow.Transaction);
             await _resultRepository.CreateManyAsync(results, cancellationToken, uow.Connection, uow.Transaction);
             await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken, uow.Connection, uow.Transaction);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.ReadyForCommit,
-                currentManifestVersion: currentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken,
-                expectedStatus: expectedStatus,
-                connection: uow.Connection,
-                transaction: uow.Transaction);
-#pragma warning restore CS0618
         }
         else
         {
             await _agentEvidencePackageRepository.CreateAsync(evidence, cancellationToken);
             await _resultRepository.CreateManyAsync(results, cancellationToken);
             await _agentEvaluationRepository.CreateManyAsync(evaluations, cancellationToken);
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30
-            await _runRepository.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.ReadyForCommit,
-                currentManifestVersion: currentManifestVersion,
-                completedUtc: null,
-                cancellationToken: cancellationToken,
-                expectedStatus: expectedStatus);
-#pragma warning restore CS0618
         }
     }
 }

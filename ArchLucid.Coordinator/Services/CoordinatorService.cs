@@ -3,6 +3,8 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
 
@@ -15,8 +17,22 @@ namespace ArchLucid.Coordinator.Services;
 /// </summary>
 public sealed class CoordinatorService(
     IAuthorityRunOrchestrator authorityRunOrchestrator,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
     ILogger<CoordinatorService> logger) : ICoordinatorService
 {
+    private readonly IAuthorityRunOrchestrator _authorityRunOrchestrator =
+        authorityRunOrchestrator ?? throw new ArgumentNullException(nameof(authorityRunOrchestrator));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ILogger<CoordinatorService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
     /// <inheritdoc />
     public async Task<CoordinationResult> CreateRunAsync(
         ArchitectureRequest request,
@@ -31,9 +47,9 @@ public sealed class CoordinatorService(
         {
             output.Errors.AddRange(validationErrors);
 
-            if (logger.IsEnabled(LogLevel.Warning))
+            if (_logger.IsEnabled(LogLevel.Warning))
             {
-                logger.LogWarning(
+                _logger.LogWarning(
                     "Coordination rejected (validation): RequestId={RequestId}, SystemName={SystemName}, Errors={Errors}",
                     request.RequestId,
                     request.SystemName,
@@ -45,7 +61,7 @@ public sealed class CoordinatorService(
 
         EvidenceBundle evidenceBundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
 
-        RunRecord authorityRun = await authorityRunOrchestrator.ExecuteAsync(
+        RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(
             ContextIngestionRequestMapper.FromArchitectureRequest(request),
             cancellationToken,
             evidenceBundle.EvidenceBundleId);
@@ -65,9 +81,15 @@ public sealed class CoordinatorService(
         output.EvidenceBundle = evidenceBundle;
         output.Tasks = tasks;
 
-        if (logger.IsEnabled(LogLevel.Information))
+        await PatchAuthorityRunHeaderAsync(
+            authorityRun.RunId,
+            request.RequestId,
+            deferred,
+            cancellationToken);
+
+        if (_logger.IsEnabled(LogLevel.Information))
         {
-            logger.LogInformation(
+            _logger.LogInformation(
                 "Coordination completed: RunId={RunId}, RequestId={RequestId}, StarterTaskCount={TaskCount}, EvidenceBundleId={EvidenceBundleId}, Deferred={Deferred}",
                 run.RunId,
                 request.RequestId,
@@ -77,6 +99,36 @@ public sealed class CoordinatorService(
         }
 
         return output;
+    }
+
+    private async Task PatchAuthorityRunHeaderAsync(
+        Guid authorityRunId,
+        string requestId,
+        bool deferred,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, authorityRunId, cancellationToken);
+
+        if (header is null)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "Authority run header {RunId} not found for lifecycle patch (RequestId={RequestId}).",
+                    authorityRunId,
+                    requestId);
+            }
+
+            return;
+        }
+
+        header.ArchitectureRequestId = requestId;
+        header.LegacyRunStatus = deferred
+            ? ArchitectureRunStatus.Created.ToString()
+            : ArchitectureRunStatus.TasksGenerated.ToString();
+
+        await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
     private static List<string> ValidateRequest(ArchitectureRequest request)

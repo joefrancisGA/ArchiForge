@@ -5,11 +5,14 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+using ArchLucid.Persistence.Repositories;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -17,8 +20,6 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
-
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — integration fixture uses InMemoryArchitectureRunRepository (TreatWarningsAsErrors).
 
 namespace ArchLucid.Application.Tests;
 
@@ -34,7 +35,15 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
     public async Task CommitRunAsync_real_merge_satisfies_traceability_and_persists_consistent_rows()
     {
         InMemoryArchitectureRequestRepository requestRepository = new();
-        InMemoryArchitectureRunRepository runRepository = new(requestRepository);
+        InMemoryRunRepository authorityRunRepository = new();
+        ScopeContext authorityScope = new()
+        {
+            TenantId = Guid.Parse("10101010-1010-1010-1010-101010101010"),
+            WorkspaceId = Guid.Parse("20202020-2020-2020-2020-202020202020"),
+            ProjectId = Guid.Parse("30303030-3030-3030-3030-303030303030"),
+        };
+        Mock<IScopeContextProvider> scopeContextProvider = new();
+        scopeContextProvider.Setup(s => s.GetCurrentScope()).Returns(authorityScope);
         InMemoryAgentTaskRepository taskRepository = new();
         InMemoryAgentResultRepository resultRepository = new();
         InMemoryAgentEvaluationRepository evaluationRepository = new();
@@ -57,15 +66,21 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
 
         await requestRepository.CreateAsync(request, CancellationToken.None);
 
-        ArchitectureRun run = new()
-        {
-            RunId = runId,
-            RequestId = requestId,
-            Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = DateTime.UtcNow,
-        };
-
-        await runRepository.CreateAsync(run, CancellationToken.None);
+        DateTime createdUtc = DateTime.UtcNow;
+        Guid authorityRunGuid = Guid.ParseExact(runId, "N");
+        await authorityRunRepository.SaveAsync(
+            new RunRecord
+            {
+                RunId = authorityRunGuid,
+                TenantId = authorityScope.TenantId,
+                WorkspaceId = authorityScope.WorkspaceId,
+                ScopeProjectId = authorityScope.ProjectId,
+                ProjectId = request.SystemName,
+                ArchitectureRequestId = requestId,
+                LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+                CreatedUtc = createdUtc,
+            },
+            CancellationToken.None);
 
         string taskId = "task-topo-" + runId;
 
@@ -114,7 +129,8 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
         actor.Setup(a => a.GetActor()).Returns("integration-test");
 
         ArchitectureRunCommitOrchestrator commitOrchestrator = new(
-            runRepository,
+            authorityRunRepository,
+            scopeContextProvider.Object,
             requestRepository,
             taskRepository,
             resultRepository,
@@ -131,6 +147,9 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);
+
+        CommitRunResult idempotentCommit = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);
+        idempotentCommit.Manifest.Metadata.ManifestVersion.Should().Be(committed.Manifest.Metadata.ManifestVersion);
 
         committed.Manifest.RunId.Should().Be(runId);
         committed.DecisionTraces.Should().NotBeEmpty();
@@ -156,11 +175,10 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             .Should()
             .BeEmpty();
 
-        ArchitectureRun? updatedRun = await runRepository.GetByIdAsync(runId, CancellationToken.None);
-        updatedRun.Should().NotBeNull();
-        updatedRun.Status.Should().Be(ArchitectureRunStatus.Committed);
-        updatedRun.CurrentManifestVersion.Should().Be(version);
+        RunRecord? authorityHeader =
+            await authorityRunRepository.GetByIdAsync(authorityScope, authorityRunGuid, CancellationToken.None);
+        authorityHeader.Should().NotBeNull();
+        authorityHeader!.LegacyRunStatus.Should().Be(ArchitectureRunStatus.ReadyForCommit.ToString());
+        authorityHeader.CurrentManifestVersion.Should().BeNull();
     }
 }
-
-#pragma warning restore CS0618

@@ -7,8 +7,11 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -26,12 +29,21 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Unit")]
 public sealed class ArchitectureRunServiceAuditTests
 {
+    private static readonly ScopeContext AuthorityTestScope = new()
+    {
+        TenantId = Guid.Parse("99999999-9999-9999-9999-999999999991"),
+        WorkspaceId = Guid.Parse("99999999-9999-9999-9999-999999999992"),
+        ProjectId = Guid.Parse("99999999-9999-9999-9999-999999999993")
+    };
+
     [Fact]
     public async Task ExecuteRun_RunNotFound_RecordsRunFailedThenThrows()
     {
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(r => r.GetByIdAsync("missing", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ArchitectureRun?)null);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(r => r.GetByIdAsync(AuthorityTestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("audit-actor");
@@ -40,6 +52,7 @@ public sealed class ArchitectureRunServiceAuditTests
 
         ArchitectureRunService sut = CreateRunService(
             runRepository: runRepo.Object,
+            scopeContextProvider: scopeProvider.Object,
             actorContext: actor.Object,
             baselineMutationAudit: audit.Object);
 
@@ -60,9 +73,11 @@ public sealed class ArchitectureRunServiceAuditTests
     [Fact]
     public async Task CommitRun_RunNotFound_RecordsRunFailedThenThrows()
     {
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(r => r.GetByIdAsync("missing", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ArchitectureRun?)null);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
+        Mock<IRunRepository> runRepo = new();
+        runRepo.Setup(r => r.GetByIdAsync(AuthorityTestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RunRecord?)null);
 
         Mock<IActorContext> actor = new();
         actor.Setup(a => a.GetActor()).Returns("audit-actor");
@@ -71,6 +86,7 @@ public sealed class ArchitectureRunServiceAuditTests
 
         ArchitectureRunService sut = CreateRunService(
             runRepository: runRepo.Object,
+            scopeContextProvider: scopeProvider.Object,
             actorContext: actor.Object,
             baselineMutationAudit: audit.Object);
 
@@ -89,7 +105,8 @@ public sealed class ArchitectureRunServiceAuditTests
     }
 
     private static ArchitectureRunService CreateRunService(
-        IArchitectureRunRepository runRepository,
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
         IActorContext actorContext,
         IBaselineMutationAuditService baselineMutationAudit)
     {
@@ -98,6 +115,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<ICoordinatorService>(),
                 Mock.Of<IArchitectureRequestRepository>(),
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IEvidenceBundleRepository>(),
                 Mock.Of<IAgentTaskRepository>(),
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
@@ -107,6 +125,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IArchitectureRequestRepository>(),
                 Mock.Of<IAgentTaskRepository>(),
                 Mock.Of<IAgentExecutor>(),
@@ -121,6 +140,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IArchitectureRequestRepository>(),
                 Mock.Of<IAgentTaskRepository>(),
                 Mock.Of<IAgentResultRepository>(),

@@ -16,7 +16,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
 
     protected abstract ICoordinatorDecisionTraceRepository CreateRepository();
 
-    /// <summary>SQL: ensures <c>dbo.ArchitectureRuns</c> exists for <paramref name="runId"/>.</summary>
+    /// <summary>SQL: ensures <c>dbo.Runs</c> + <c>dbo.ArchitectureRequests</c> exist for <paramref name="runId"/>.</summary>
     protected virtual Task PrepareRunForCoordinatorDataAsync(string requestId, string runId, CancellationToken ct)
     {
         _ = requestId;
@@ -31,7 +31,7 @@ public abstract class CoordinatorDecisionTraceRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         ICoordinatorDecisionTraceRepository repo = CreateRepository();
-        string runId = "run-dt-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
         string requestId = "req-dt-" + Guid.NewGuid().ToString("N");
         await PrepareRunForCoordinatorDataAsync(requestId, runId, CancellationToken.None);
         DateTime t0 = new(2026, 4, 1, 10, 0, 0, DateTimeKind.Utc);

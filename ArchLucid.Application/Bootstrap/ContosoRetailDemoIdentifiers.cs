@@ -5,7 +5,7 @@ public static class ContosoRetailDemoIdentifiers
 {
     public const string RequestContoso = "request-contoso-demo";
 
-    /// <summary>Authority <c>dbo.Runs.RunId</c> (and legacy <c>ArchitectureRuns.RunId</c> as <see cref="Guid.ToString"/> <c>"N"</c>).</summary>
+    /// <summary>Authority <c>dbo.Runs.RunId</c> (coordinator string key is the same value as <see cref="Guid.ToString"/> <c>"N"</c>).</summary>
     public static readonly Guid AuthorityRunBaselineId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
 
     /// <summary>Second demo authority run (hardened manifest path).</summary>

@@ -11,15 +11,16 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-
-#pragma warning disable CS0618 // RunsAuthorityConvergence: tracked for migration by 2026-09-30 — Moq exercises obsolete IArchitectureRunRepository.UpdateStatusAsync (TreatWarningsAsErrors).
 
 namespace ArchLucid.Application.Tests;
 
@@ -30,21 +31,27 @@ namespace ArchLucid.Application.Tests;
 [Trait("Suite", "Core")]
 public sealed class ArchitectureRunServiceExecuteCommitTests
 {
+    private static readonly ScopeContext AuthorityTestScope = new()
+    {
+        TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+        ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+    };
+
     [Fact]
-    public async Task ExecuteRunAsync_happy_path_persists_results_and_marks_ready_for_commit()
+    public async Task ExecuteRunAsync_happy_path_persists_evidence_results_and_evaluations()
     {
         string runId = Guid.NewGuid().ToString("N");
         string requestId = "req-ex-" + Guid.NewGuid().ToString("N");
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRun
-                {
-                    RunId = runId,
-                    RequestId = requestId,
-                    Status = ArchitectureRunStatus.TasksGenerated,
-                    CreatedUtc = DateTime.UtcNow,
-                });
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.TasksGenerated,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
 
         ArchitectureRequest request = new()
         {
@@ -123,7 +130,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
 
         ArchitectureRunService sut = CreateSut(
             executor.Object,
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             requestRepo.Object,
             taskRepo.Object,
             evidenceBuilder.Object,
@@ -146,31 +154,21 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             Times.Once);
         evidencePackageRepo.Verify(x => x.CreateAsync(It.IsAny<AgentEvidencePackage>(), It.IsAny<CancellationToken>()), Times.Once);
         resultRepo.Verify(x => x.CreateManyAsync(It.IsAny<IReadOnlyList<AgentResult>>(), It.IsAny<CancellationToken>()), Times.Once);
-        runRepo.Verify(
-            x => x.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.ReadyForCommit,
-                It.IsAny<string?>(),
-                It.IsAny<DateTime?>(),
-                It.IsAny<CancellationToken>(),
-                ArchitectureRunStatus.TasksGenerated),
-            Times.Once);
     }
 
     [Fact]
     public async Task ExecuteRunAsync_when_ready_for_commit_replays_without_executor()
     {
         string runId = Guid.NewGuid().ToString("N");
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRun
-                {
-                    RunId = runId,
-                    RequestId = "r",
-                    Status = ArchitectureRunStatus.ReadyForCommit,
-                    CreatedUtc = DateTime.UtcNow,
-                });
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = "r",
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
 
         AgentResult existing = new()
         {
@@ -188,7 +186,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
 
         ArchitectureRunService sut = CreateSut(
             executor.Object,
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             Mock.Of<IArchitectureRequestRepository>(),
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IEvidenceBuilder>(),
@@ -214,15 +213,15 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
     [Fact]
     public async Task ExecuteRunAsync_when_run_missing_throws_RunNotFoundException()
     {
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((ArchitectureRun?)null);
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(null);
 
         Mock<IActorContext> actor = new();
         actor.Setup(x => x.GetActor()).Returns("a");
 
         ArchitectureRunService sut = CreateSut(
             Mock.Of<IAgentExecutor>(),
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             Mock.Of<IArchitectureRequestRepository>(),
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IEvidenceBuilder>(),
@@ -241,16 +240,15 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
     public async Task ExecuteRunAsync_when_terminal_without_results_throws_ConflictException()
     {
         string runId = Guid.NewGuid().ToString("N");
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRun
-                {
-                    RunId = runId,
-                    RequestId = "r",
-                    Status = ArchitectureRunStatus.ReadyForCommit,
-                    CreatedUtc = DateTime.UtcNow,
-                });
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = "r",
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
 
         Mock<IAgentResultRepository> resultRepo = new();
         resultRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
@@ -260,7 +258,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
 
         ArchitectureRunService sut = CreateSut(
             Mock.Of<IAgentExecutor>(),
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             Mock.Of<IArchitectureRequestRepository>(),
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IEvidenceBuilder>(),
@@ -283,16 +282,15 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         string manifestVersion = "v1-" + runId;
         string decisionTraceId = "trace-commit-happy-" + runId;
 
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRun
-                {
-                    RunId = runId,
-                    RequestId = requestId,
-                    Status = ArchitectureRunStatus.ReadyForCommit,
-                    CreatedUtc = DateTime.UtcNow,
-                });
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
 
         ArchitectureRequest request = new()
         {
@@ -387,7 +385,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         actor.Setup(x => x.GetActor()).Returns("a");
 
         ArchitectureRunService sut = CreateSutForCommit(
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             requestRepo.Object,
             taskRepo.Object,
             resultRepo.Object,
@@ -407,37 +406,28 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
             x => x.CreateAsync(It.Is<GoldenManifest>(m => m.Metadata.ManifestVersion == manifestVersion), It.IsAny<CancellationToken>()),
             Times.Once);
         traceRepo.Verify(x => x.CreateManyAsync(It.IsAny<IEnumerable<DecisionTrace>>(), It.IsAny<CancellationToken>()), Times.Once);
-        runRepo.Verify(
-            x => x.UpdateStatusAsync(
-                runId,
-                ArchitectureRunStatus.Committed,
-                manifestVersion,
-                It.IsAny<DateTime?>(),
-                It.IsAny<CancellationToken>(),
-                ArchitectureRunStatus.ReadyForCommit),
-            Times.Once);
     }
 
     [Fact]
     public async Task CommitRunAsync_when_status_not_ready_throws_ConflictException()
     {
         string runId = Guid.NewGuid().ToString("N");
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(runId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new ArchitectureRun
-                {
-                    RunId = runId,
-                    RequestId = "r",
-                    Status = ArchitectureRunStatus.TasksGenerated,
-                    CreatedUtc = DateTime.UtcNow,
-                });
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = "r",
+            Status = ArchitectureRunStatus.Created,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
 
         Mock<IActorContext> actor = new();
         actor.Setup(x => x.GetActor()).Returns("a");
 
         ArchitectureRunService sut = CreateSutForCommit(
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             Mock.Of<IArchitectureRequestRepository>(),
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IAgentResultRepository>(),
@@ -457,14 +447,14 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
     [Fact]
     public async Task CommitRunAsync_when_run_missing_throws_RunNotFoundException()
     {
-        Mock<IArchitectureRunRepository> runRepo = new();
-        runRepo.Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((ArchitectureRun?)null);
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(null);
 
         Mock<IActorContext> actor = new();
         actor.Setup(x => x.GetActor()).Returns("a");
 
         ArchitectureRunService sut = CreateSutForCommit(
-            runRepo.Object,
+            runRepo,
+            scopeProvider,
             Mock.Of<IArchitectureRequestRepository>(),
             Mock.Of<IAgentTaskRepository>(),
             Mock.Of<IAgentResultRepository>(),
@@ -481,9 +471,57 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         await act.Should().ThrowAsync<RunNotFoundException>();
     }
 
+    private static (IRunRepository Repo, IScopeContextProvider Scope) CreateRunAuthorityMocks(ArchitectureRun? run)
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(AuthorityTestScope);
+        Mock<IRunRepository> runRepo = new();
+
+        if (run is null)
+        {
+            runRepo.Setup(r => r.GetByIdAsync(AuthorityTestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((RunRecord?)null);
+
+            return (runRepo.Object, scopeProvider.Object);
+        }
+
+        Guid g = Guid.ParseExact(run.RunId, "N");
+        runRepo.Setup(r => r.GetByIdAsync(AuthorityTestScope, g, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(ToRunRecord(run));
+
+        return (runRepo.Object, scopeProvider.Object);
+    }
+
+    private static RunRecord ToRunRecord(ArchitectureRun run)
+    {
+        return new RunRecord
+        {
+            RunId = Guid.ParseExact(run.RunId, "N"),
+            TenantId = AuthorityTestScope.TenantId,
+            WorkspaceId = AuthorityTestScope.WorkspaceId,
+            ScopeProjectId = AuthorityTestScope.ProjectId,
+            ProjectId = "test-project",
+            ArchitectureRequestId = run.RequestId,
+            LegacyRunStatus = run.Status.ToString(),
+            CreatedUtc = run.CreatedUtc,
+            CompletedUtc = run.CompletedUtc,
+            CurrentManifestVersion = run.CurrentManifestVersion,
+            ContextSnapshotId = ParseOptionalContextSnapshot(run.ContextSnapshotId),
+            GraphSnapshotId = run.GraphSnapshotId,
+            FindingsSnapshotId = run.FindingsSnapshotId,
+            GoldenManifestId = run.GoldenManifestId,
+            DecisionTraceId = run.DecisionTraceId,
+            ArtifactBundleId = run.ArtifactBundleId,
+        };
+    }
+
+    private static Guid? ParseOptionalContextSnapshot(string? contextSnapshotId) =>
+        string.IsNullOrWhiteSpace(contextSnapshotId) ? null : Guid.ParseExact(contextSnapshotId, "N");
+
     private static ArchitectureRunService CreateSut(
         IAgentExecutor executor,
-        IArchitectureRunRepository runRepository,
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
         IArchitectureRequestRepository requestRepository,
         IAgentTaskRepository taskRepository,
         IEvidenceBuilder evidenceBuilder,
@@ -500,6 +538,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<ICoordinatorService>(),
                 requestRepository,
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IEvidenceBundleRepository>(),
                 taskRepository,
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
@@ -509,6 +548,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 requestRepository,
                 taskRepository,
                 executor,
@@ -523,6 +563,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 requestRepository,
                 taskRepository,
                 resultRepository,
@@ -540,7 +581,8 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
     }
 
     private static ArchitectureRunService CreateSutForCommit(
-        IArchitectureRunRepository runRepository,
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
         IArchitectureRequestRepository requestRepository,
         IAgentTaskRepository taskRepository,
         IAgentResultRepository resultRepository,
@@ -559,6 +601,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<ICoordinatorService>(),
                 Mock.Of<IArchitectureRequestRepository>(),
                 runRepository,
+                scopeContextProvider,
                 Mock.Of<IEvidenceBundleRepository>(),
                 taskRepository,
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
@@ -568,6 +611,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 requestRepository,
                 taskRepository,
                 Mock.Of<IAgentExecutor>(),
@@ -582,6 +626,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(
                 runRepository,
+                scopeContextProvider,
                 requestRepository,
                 taskRepository,
                 resultRepository,
@@ -598,5 +643,3 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }
-
-#pragma warning restore CS0618

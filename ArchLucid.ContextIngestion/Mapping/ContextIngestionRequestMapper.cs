@@ -15,6 +15,7 @@ public static class ContextIngestionRequestMapper
 
         return new ContextIngestionRequest
         {
+            ArchitectureRequestId = request.RequestId,
             ProjectId = request.SystemName,
             Description = request.Description,
             InlineRequirements = request.InlineRequirements.ToList(),
