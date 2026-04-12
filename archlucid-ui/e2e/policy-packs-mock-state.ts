@@ -69,10 +69,28 @@ export function publishMockVersion(policyPackId: string, version: string, conten
   void contentJson;
 }
 
-export function listMockVersions(policyPackId: string): { version: string; contentJson: string; isPublished: boolean }[] {
+/** Matches `PolicyPackVersion` fields the policy-packs UI reads (ids, labels, compare dropdowns). */
+export function listMockVersions(policyPackId: string): {
+  policyPackVersionId: string;
+  policyPackId: string;
+  version: string;
+  contentJson: string;
+  createdUtc: string;
+  isPublished: boolean;
+}[] {
   const pack = packs.find((p) => p.policyPackId === policyPackId);
   if (!pack) return [];
-  return [{ version: pack.currentVersion, contentJson: "{}", isPublished: pack.status === "Active" }];
+
+  return [
+    {
+      policyPackVersionId: randomUUID(),
+      policyPackId: pack.policyPackId,
+      version: pack.currentVersion,
+      contentJson: "{}",
+      createdUtc: new Date().toISOString(),
+      isPublished: pack.status === "Active",
+    },
+  ];
 }
 
 export function assignMockPack(

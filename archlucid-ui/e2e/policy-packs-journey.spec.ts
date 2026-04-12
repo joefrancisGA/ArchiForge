@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 
 test.describe("policy packs — mock API journey", () => {
   test("create, publish, assign surfaces effective merged content", async ({ page }) => {
+    test.setTimeout(120_000);
+
     await page.goto("/policy-packs");
 
     await expect(page.getByRole("heading", { name: "Policy packs", level: 2 })).toBeVisible();
@@ -13,7 +15,7 @@ test.describe("policy packs — mock API journey", () => {
     // Initial useEffect runs load(); Create pack / Refresh are disabled until listPolicyPacks + effective calls finish.
     await expect(createButton).toBeEnabled({ timeout: 60_000 });
     await createButton.click();
-    // onCreate runs load() again; Assign/Publish stay disabled until packs + selectedPackId are ready.
+    // onCreate runs load() and selects the new pack; Publish enables when loading clears and selection is set.
     await expect(publishButton).toBeEnabled({ timeout: 60_000 });
 
     await publishButton.click();

@@ -144,13 +144,15 @@ export default function PolicyPacksPage() {
     }
     setLoading(true);
     try {
-      await createPolicyPack({
+      const created: PolicyPack = await createPolicyPack({
         name: name.trim() || "Pack",
         description: description.trim(),
         packType,
         initialContentJson: createJson,
       });
       await load();
+      // Do not rely only on useEffect(packs): it only runs when selectedPackId is empty, and E2E/CI can race renders.
+      setSelectedPackId(created.policyPackId);
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
