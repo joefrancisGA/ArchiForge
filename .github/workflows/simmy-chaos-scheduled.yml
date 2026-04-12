@@ -14,7 +14,7 @@ jobs:
     name: "Simmy chaos — LLM + SQL + Blob"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -34,7 +34,7 @@ jobs:
             --logger "trx;LogFileName=chaos-persistence.trx"
 
       - name: Upload chaos test results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: chaos-test-results

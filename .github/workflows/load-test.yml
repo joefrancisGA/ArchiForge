@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Start Compose (full-stack)
         run: docker compose --profile full-stack up -d --build
@@ -67,7 +67,7 @@ jobs:
         if: success()
         run: python3 scripts/ci/print_k6_summary_metrics.py k6-summary.json
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: k6-summary
