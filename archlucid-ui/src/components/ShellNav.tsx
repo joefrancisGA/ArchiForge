@@ -72,8 +72,8 @@ export function ShellNav() {
           <Link
             className="shell-nav-link"
             href="/graph"
-            title={navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+shift+g")}
-            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+shift+g")}
+            title={navTitleWithShortcut("Provenance or architecture graph for one run ID", "alt+y")}
+            aria-keyshortcuts={registryKeyToAriaKeyShortcuts("alt+y")}
           >
             Graph
           </Link>

@@ -50,7 +50,7 @@ export const SHORTCUTS: ShortcutEntry[] = [
     description: "Open cross-run governance dashboard",
   },
   {
-    key: "alt+shift+g",
+    key: "alt+y",
     label: "Graph",
     route: "/graph",
     description: "Open architecture graph",

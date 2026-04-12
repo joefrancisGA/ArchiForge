@@ -24,7 +24,8 @@ Global shortcuts apply from the main content region wrapped by [`KeyboardShortcu
 | **Alt+C** | Compare | `/compare` |
 | **Alt+P** | Replay | `/replay` |
 | **Alt+A** | Ask (Q&A) | `/ask` |
-| **Alt+G** | Graph | `/graph` |
+| **Alt+G** | Governance dashboard | `/governance/dashboard` |
+| **Alt+Y** | Graph | `/graph` |
 | **Alt+L** | Alerts | `/alerts` |
 | **Alt+H** | Home | `/` |
 | **Shift+?** | Open / close help (Escape closes) | *(dialog only)* |

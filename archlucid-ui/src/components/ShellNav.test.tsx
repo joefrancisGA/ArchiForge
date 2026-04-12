@@ -40,6 +40,10 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
       "/runs?projectId=default",
     );
     expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
+    expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
+      "title",
+      "Provenance or architecture graph for one run ID (Alt+Y)",
+    );
     expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
     expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
 
@@ -60,6 +64,7 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
     expect(screen.getByRole("navigation", { name: "Alerts and governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
+    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
     expect(screen.getByRole("link", { name: "Governance workflow" })).toHaveAttribute("href", "/governance");
   });
 

@@ -13,6 +13,7 @@ describe("shortcut-registry", () => {
     expect(registryKeyToAriaKeyShortcuts("alt+r")).toBe("Alt+R");
     expect(registryKeyToAriaKeyShortcuts("shift+?")).toBe("Shift+?");
     expect(registryKeyToAriaKeyShortcuts("alt+1")).toBe("Alt+1");
+    expect(registryKeyToAriaKeyShortcuts("alt+y")).toBe("Alt+Y");
   });
 
   it("has non-empty key, label, and description on every entry", () => {

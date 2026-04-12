@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+
+import { useSearchParams } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
@@ -83,7 +85,8 @@ function GovernanceStatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function GovernanceWorkflowPage() {
+function GovernanceWorkflowPageInner() {
+  const searchParams = useSearchParams();
   const [toast, setToast] = useState<ToastState>(null);
 
   const [submitRunId, setSubmitRunId] = useState("");
@@ -124,6 +127,14 @@ export default function GovernanceWorkflowPage() {
 
     return () => window.clearTimeout(handle);
   }, [toast]);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("runId");
+
+    if (fromQuery?.trim()) {
+      setQueryRunId(fromQuery.trim());
+    }
+  }, [searchParams]);
 
   const loadLists = useCallback(async (runId: string) => {
     setListsLoading(true);
@@ -742,5 +753,24 @@ export default function GovernanceWorkflowPage() {
       </section>
     </main>
     </TooltipProvider>
+  );
+}
+
+function GovernanceWorkflowSuspenseFallback() {
+  return (
+    <main id="main-content" className="mx-auto max-w-4xl">
+      <OperatorLoadingNotice>
+        <strong>Loading governance workflow.</strong>
+        <p className="mt-2 text-sm">Reading URL parameters…</p>
+      </OperatorLoadingNotice>
+    </main>
+  );
+}
+
+export default function GovernanceWorkflowPage() {
+  return (
+    <Suspense fallback={<GovernanceWorkflowSuspenseFallback />}>
+      <GovernanceWorkflowPageInner />
+    </Suspense>
   );
 }

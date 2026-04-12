@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   activateEnvironment,
   approveRequest,
+  getGovernanceDashboard,
   listActivations,
   listApprovalRequests,
   listPromotions,
@@ -211,5 +212,25 @@ describe("API governance workflow (v1/governance)", () => {
 
     const url = String(fetchMock.mock.calls[0][0]);
     expect(url).toContain("/v1/governance/runs/r88/activations");
+  });
+
+  it("getGovernanceDashboard GETs dashboard with query caps", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        pendingApprovals: [],
+        recentDecisions: [],
+        recentChanges: [],
+        pendingCount: 0,
+      }),
+    );
+
+    await getGovernanceDashboard(5, 10, 15);
+
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/v1/governance/dashboard?");
+    expect(url).toContain("maxPending=5");
+    expect(url).toContain("maxDecisions=10");
+    expect(url).toContain("maxChanges=15");
   });
 });

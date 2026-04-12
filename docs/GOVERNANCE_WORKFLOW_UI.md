@@ -2,6 +2,25 @@
 
 The **Governance workflow** page (`archlucid-ui/src/app/governance/page.tsx`) is an operator-facing surface for the **manifest promotion lifecycle**: approval requests, optional human review, recorded promotions, and per-environment activations. It complements the read-only **Governance resolution** page (`/governance-resolution`), which shows merged policy resolution for the current scope.
 
+## Governance dashboard (`/governance/dashboard`)
+
+The **Governance dashboard** (`archlucid-ui/src/app/governance/dashboard/page.tsx`) is a **cross-run, read-only** overview for operators:
+
+| Area | Source |
+|------|--------|
+| Pending approvals | `GET /v1/governance/dashboard` → `pendingApprovals` / `pendingCount` (Draft + Submitted across runs; not filtered by run in the API) |
+| Recent decisions | Same response → `recentDecisions` (Approved, Rejected, Promoted with review timestamps) |
+| Policy pack changes | Same response → `recentChanges` (tenant-scoped rows from `PolicyPackChangeLog`) |
+
+The page **auto-refreshes every 30 seconds**, shows **loading skeletons** on first load, and surfaces failures with **OperatorApiProblem**. Each pending card has **Review**, which navigates to **`/governance?runId={runId}`** so the run-scoped workflow opens with the run ID prefilled.
+
+### Navigation and shortcuts
+
+- **Shell** → **Alerts & governance** → **Dashboard** (`/governance/dashboard`), **before** **Governance workflow**.
+- Global keyboard shortcut **Alt+G** opens the dashboard (registry: `shortcut-registry.ts`). **Graph** uses **Alt+Y** so **Alt+G** stays unambiguous for governance.
+
+Types: `archlucid-ui/src/types/governance-dashboard.ts`. API helper: `getGovernanceDashboard` in `archlucid-ui/src/lib/api.ts`.
+
 ## Workflow steps
 
 1. **Submit** — Operator enters run ID, manifest version, source/target deployment environments (mapped to API values `dev`, `test`, `prod`), and an optional comment. The UI calls **`POST /v1/governance/approval-requests`** (`submitApprovalRequest`). The backend stamps `requestedBy` from the authenticated actor.
@@ -29,9 +48,9 @@ The page uses the same **`api.ts`** helpers as the rest of the shell: browser re
 
 ## Navigation
 
-**Shell** → **Alerts & governance** → **Governance workflow** (`/governance`), between **Governance resolution** and **Audit log**.
+**Shell** → **Alerts & governance** → **Dashboard** (`/governance/dashboard`), then **Governance workflow** (`/governance`), between **Governance resolution** and **Audit log**.
 
 ## Related
 
-- Types and API wrappers: `archlucid-ui/src/types/governance-workflow.ts`, `archlucid-ui/src/lib/api.ts` (functions prefixed conceptually under `v1/governance`).
+- Types and API wrappers: `archlucid-ui/src/types/governance-workflow.ts`, `archlucid-ui/src/types/governance-dashboard.ts`, `archlucid-ui/src/lib/api.ts` (functions under `v1/governance`, including `getGovernanceDashboard`).
 - Backend: `ArchLucid.Api/Controllers/GovernanceController.cs`, `GovernanceWorkflowService`.

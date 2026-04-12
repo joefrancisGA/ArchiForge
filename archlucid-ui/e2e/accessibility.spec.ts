@@ -8,6 +8,7 @@ const PAGES = [
   { name: "Audit", path: "/audit" },
   { name: "Policy packs", path: "/policy-packs" },
   { name: "Alerts", path: "/alerts" },
+  { name: "Governance dashboard", path: "/governance/dashboard" },
 ];
 
 test.describe("accessibility baseline — WCAG 2.1 AA", () => {
