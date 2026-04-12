@@ -30,6 +30,7 @@ public sealed class ExplanationController(
     IAuthorityQueryService query,
     IComparisonService comparison,
     IExplanationService explanation,
+    IRunExplanationSummaryService runExplanationSummary,
     IProvenanceSnapshotRepository provenanceRepo,
     IScopeContextProvider scopeProvider,
     ILogger<ExplanationController> logger)
@@ -67,6 +68,25 @@ public sealed class ExplanationController(
 
         ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         return Ok(result);
+    }
+
+    /// <summary>Executive rollup: themes, risk posture, counts, and the same explanation payload as granular explain.</summary>
+    /// <param name="runId">Run to summarize.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="RunExplanationSummary"/> JSON, or 404 when the run or manifest is missing in scope.</returns>
+    [HttpGet("runs/{runId:guid}/aggregate")]
+    [ProducesResponseType(typeof(RunExplanationSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AggregateRunExplanation(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
+        if (summary is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        return Ok(summary);
     }
 
     /// <summary>AI narrative for manifest delta between two runs (base ? target).</summary>

@@ -5,6 +5,7 @@ using ArchLucid.Core.Explanation;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -18,7 +19,10 @@ public sealed class ExplanationServiceComparisonTests
     public async Task ExplainComparisonAsync_returns_heuristic_summary_when_llm_json_does_not_bind()
     {
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => "{}");
-        ExplanationService svc = new(client, NullLogger<ExplanationService>.Instance);
+        ExplanationService svc = new(
+            client,
+            Options.Create(new ExplanationServiceOptions()),
+            NullLogger<ExplanationService>.Instance);
         ComparisonResult comparison = new()
         {
             BaseRunId = Guid.NewGuid(),

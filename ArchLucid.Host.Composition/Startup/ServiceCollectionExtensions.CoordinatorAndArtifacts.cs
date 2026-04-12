@@ -46,6 +46,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ExplanationServiceOptions>(
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
         services.AddScoped<IExplanationService, ExplanationService>();
+        services.AddScoped<IRunExplanationSummaryService, RunExplanationSummaryService>();
         services.AddScoped<IConversationService, ConversationService>();
         services.AddScoped<IAskService, AskService>();
         services.AddScoped<IAgentEvaluationService, DefaultAgentEvaluationService>();

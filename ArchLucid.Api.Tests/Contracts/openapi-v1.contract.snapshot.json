@@ -7906,6 +7906,66 @@
         }
       }
     },
+    "/v1/explain/runs/{runId}/aggregate": {
+      "get": {
+        "tags": [
+          "Explanation"
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExplanationSummary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExplanationSummary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunExplanationSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/explain/compare/explain": {
       "get": {
         "tags": [
@@ -19658,6 +19718,42 @@
           }
         }
       },
+      "ExplanationProvenance": {
+        "required": [
+          "agentType",
+          "modelId",
+          "promptTemplateId",
+          "promptTemplateVersion",
+          "promptContentHash"
+        ],
+        "type": "object",
+        "properties": {
+          "agentType": {
+            "type": "string"
+          },
+          "modelId": {
+            "type": "string"
+          },
+          "promptTemplateId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promptTemplateVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "promptContentHash": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "ExplanationResult": {
         "type": "object",
         "properties": {
@@ -19671,6 +19767,25 @@
               },
               {
                 "$ref": "#/components/schemas/StructuredExplanation"
+              }
+            ]
+          },
+          "confidence": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "provenance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExplanationProvenance"
               }
             ]
           },
@@ -23614,6 +23729,48 @@
           },
           "decisionTraces": {
             "type": "array"
+          }
+        }
+      },
+      "RunExplanationSummary": {
+        "required": [
+          "explanation",
+          "themeSummaries",
+          "overallAssessment",
+          "riskPosture"
+        ],
+        "type": "object",
+        "properties": {
+          "explanation": {
+            "$ref": "#/components/schemas/ExplanationResult"
+          },
+          "themeSummaries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "overallAssessment": {
+            "type": "string"
+          },
+          "riskPosture": {
+            "type": "string"
+          },
+          "findingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "decisionCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unresolvedIssueCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "complianceGapCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

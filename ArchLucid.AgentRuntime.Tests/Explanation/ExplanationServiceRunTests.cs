@@ -1,3 +1,4 @@
+using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Manifest.Sections;
@@ -6,6 +7,7 @@ using ArchLucid.Decisioning.Models;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Tests.Explanation;
 
@@ -41,8 +43,18 @@ public sealed class ExplanationServiceRunTests
             {"schemaVersion":1,"reasoning":"Paragraph one.\n\nParagraph two.","evidenceRefs":["p1"],"confidence":0.9}
             """;
 
-        IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => llmJson);
-        ExplanationService svc = new(client, NullLogger<ExplanationService>.Instance);
+        IOptions<ExplanationServiceOptions> options = Options.Create(
+            new ExplanationServiceOptions
+            {
+                AgentType = "unit-test-explanation",
+                PromptTemplateId = "explain-run-json",
+                PromptTemplateVersion = "v2026-04",
+                PromptContentHash = "abc123",
+            });
+        IAgentCompletionClient client = new FakeAgentCompletionClient(
+            (_, _) => llmJson,
+            LlmProviderDescriptor.ForOffline("stub-llm", "model-under-test"));
+        ExplanationService svc = new(client, options, NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
@@ -51,6 +63,13 @@ public sealed class ExplanationServiceRunTests
         result.Structured!.Reasoning.Should().Contain("Paragraph one");
         result.Structured.EvidenceRefs.Should().Equal("p1");
         result.Structured.Confidence.Should().Be(0.9m);
+        result.Confidence.Should().Be(result.Structured.Confidence);
+        result.Provenance.Should().NotBeNull();
+        result.Provenance!.AgentType.Should().Be("unit-test-explanation");
+        result.Provenance.ModelId.Should().Be("model-under-test");
+        result.Provenance.PromptTemplateId.Should().Be("explain-run-json");
+        result.Provenance.PromptTemplateVersion.Should().Be("v2026-04");
+        result.Provenance.PromptContentHash.Should().Be("abc123");
         result.DetailedNarrative.Should().Be(result.Structured.Reasoning);
         result.Summary.Should().Be("Paragraph one.");
     }
@@ -61,13 +80,18 @@ public sealed class ExplanationServiceRunTests
         const string prose = "We chose the hub pattern because latency budgets require it.";
 
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => prose);
-        ExplanationService svc = new(client, NullLogger<ExplanationService>.Instance);
+        ExplanationService svc = new(
+            client,
+            Options.Create(new ExplanationServiceOptions()),
+            NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
         result.RawText.Should().Be(prose);
         result.Structured.Should().NotBeNull();
         result.Structured!.Reasoning.Should().Be(prose);
+        result.Confidence.Should().Be(result.Structured.Confidence);
+        result.Provenance.Should().NotBeNull();
         result.DetailedNarrative.Should().Be(prose);
     }
 
@@ -77,13 +101,18 @@ public sealed class ExplanationServiceRunTests
         const string legacy = """{"summary":"Short","detailedNarrative":"Longer body here."}""";
 
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => legacy);
-        ExplanationService svc = new(client, NullLogger<ExplanationService>.Instance);
+        ExplanationService svc = new(
+            client,
+            Options.Create(new ExplanationServiceOptions()),
+            NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
         result.RawText.Should().Be(legacy);
         result.Structured.Should().NotBeNull();
         result.Structured!.Reasoning.Should().Be("Longer body here.");
+        result.Confidence.Should().Be(result.Structured.Confidence);
+        result.Provenance.Should().NotBeNull();
         result.Summary.Should().Be("Short");
         result.DetailedNarrative.Should().Be("Longer body here.");
     }
