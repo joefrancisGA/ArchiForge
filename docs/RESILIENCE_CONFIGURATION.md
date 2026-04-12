@@ -45,9 +45,51 @@ Already bound via `IOptions<AgentExecutionResilienceOptions>` from `AgentExecuti
 
 If `archlucid.json` is omitted, the CLI still attempts to load project config from the current directory for HTTP resilience when constructing `ArchLucidApiClient(string baseUrl)`.
 
+## LLM model fallback
+
+When **`ArchLucid:FallbackLlm:Enabled`** is **`true`**, the host builds a secondary Azure OpenAI chat client and wraps the scoped **`IAgentCompletionClient`** in **`FallbackAgentCompletionClient`**. This is **model-level failover** (different endpoint/deployment), not the same as Polly retry on the primary (see **`docs/LLM_RETRY_AND_CIRCUIT_BREAKER.md`**).
+
+### Configuration
+
+| Setting | Config path | Required when enabled |
+|--------|-------------|------------------------|
+| Enable fallback | `ArchLucid:FallbackLlm:Enabled` | — |
+| Fallback resource endpoint | `ArchLucid:FallbackLlm:Endpoint` | Yes |
+| Chat deployment name | `ArchLucid:FallbackLlm:DeploymentName` | Yes |
+| API key | `ArchLucid:FallbackLlm:ApiKey` | Yes |
+
+If **`Enabled`** is **`true`** but any of **Endpoint**, **DeploymentName**, or **ApiKey** is missing, the host fails at startup with a clear **`InvalidOperationException`**. **`ApiKey`** should be supplied from Key Vault in production (see **`docs/CONFIGURATION_KEY_VAULT.md`**).
+
+**Max completion tokens** for the fallback client reuse **`AzureOpenAI:MaxCompletionTokens`** (same default as the primary **`AzureOpenAiCompletionClient`** when unset).
+
+### When fallback runs
+
+After the **primary** chain returns a terminal failure, **`FallbackAgentCompletionClient`** calls the **secondary** chain only when the primary surfaces:
+
+- **`HttpRequestException`** with **`StatusCode`** **429** (Too Many Requests) or **5xx** (500–599), or
+- **`ClientResultException`** (Azure OpenAI / `System.ClientModel`) with the same HTTP status semantics.
+
+**User cancellation** (**`OperationCanceledException`**) is **not** eligible: the exception is rethrown and the secondary is not invoked. Other HTTP client errors (e.g. **400**) are rethrown without fallback.
+
+### Decorator ordering
+
+From the inside out, each chain is:
+
+1. **`AzureOpenAiCompletionClient`** (primary or fallback resource)
+2. **`LlmCompletionAccountingClient`** and optional **`CachingAgentCompletionClient`**
+3. **`CircuitBreakingAgentCompletionClient`** (Polly retry **inside** this decorator, same as today)
+4. **`FallbackAgentCompletionClient`** (**outermost** when enabled) — primary chain first, then secondary chain on eligible failures
+
+A **separate** circuit breaker gate (**`OpenAiCompletionFallback`**) is registered for the fallback completion path so a tripped primary breaker does not block the fallback deployment.
+
+### Logging
+
+- **Primary** eligible failure: a **warning** is logged before the secondary is tried (includes the primary exception).
+- **Secondary** failure: the exception propagates to callers; **`CircuitBreakingAgentCompletionClient`** on the secondary path still logs its usual **warning** after retries when recording breaker failure.
+
 ## Circuit breaker state machine
 
-Independent gates exist for **completion** and **embedding** (keyed `OpenAiCompletion` / `OpenAiEmbedding`).
+Independent gates exist for **completion**, **embedding**, and (when LLM fallback is enabled) **completion fallback** (keyed **`OpenAiCompletion`** / **`OpenAiEmbedding`** / **`OpenAiCompletionFallback`**).
 
 ```text
 Closed --(N consecutive failures)--> Open --(after DurationOfBreakSeconds)--> HalfOpen (single probe)
@@ -72,7 +114,7 @@ All use meter name **`ArchLucid`** (see `ArchLucidInstrumentation.MeterName`). C
 | `archlucid_circuit_breaker_rejections_total` | Counter | `gate` | Each `ThrowIfBroken` that throws `CircuitBreakerOpenException`. |
 | `archlucid_circuit_breaker_probe_outcomes_total` | Counter | `gate`, `outcome` (`success` / `failure` / `cancelled`) | Half-open probe completion paths only. |
 
-**Cardinality**: `gate` is bounded (currently `OpenAiCompletion` and `OpenAiEmbedding`). Do not add tenant or request identifiers to these series.
+**Cardinality**: `gate` is bounded (`OpenAiCompletion`, `OpenAiEmbedding`, and **`OpenAiCompletionFallback`** when fallback LLM is enabled). Do not add tenant or request identifiers to these series.
 
 ## Example Prometheus queries
 
@@ -98,3 +140,4 @@ rate(archlucid_circuit_breaker_probe_outcomes_total{
 - `ArchLucid.Host.Composition.Startup.ServiceCollectionExtensions` (named options registration)
 - `ArchLucid.Persistence.Connections.SqlOpenResilienceOptions`, `SqlOpenResilienceDefaults`
 - `ArchLucid.Cli.CliResilienceOptions`, `CliRetryDelegatingHandler`
+- `ArchLucid.Core.Configuration.FallbackLlmOptions`, `ArchLucid.AgentRuntime.FallbackAgentCompletionClient`

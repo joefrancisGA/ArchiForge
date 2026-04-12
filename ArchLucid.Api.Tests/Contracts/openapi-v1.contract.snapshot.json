@@ -17286,6 +17286,12 @@
             ],
             "format": "uuid"
           },
+          "otelTraceId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "taskIds": {
             "type": "array",
             "items": {
@@ -24199,6 +24205,12 @@
             "format": "date-time"
           },
           "currentManifestVersion": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "otelTraceId": {
             "type": [
               "null",
               "string"

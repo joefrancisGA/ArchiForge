@@ -8,6 +8,18 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-12 — IFeatureFlags and LLM fallback client
+
+Introduced **`IFeatureFlags`** abstraction for testable feature flag evaluation. Added **`FallbackAgentCompletionClient`** for automatic LLM model failover on **429** / **5xx**.
+
+---
+
+## 2026-04-12 — Persisted run trace ID and CLI trace command
+
+Persisted OpenTelemetry trace ID in **`dbo.Runs`** (Migration **052**). Added **`archlucid trace <runId>`** CLI command for post-hoc distributed trace lookup. Surfaced creation-time trace link in run detail UI.
+
+---
+
 ## 2026-04-12 — Stryker mutation baselines
 
 Raised Stryker mutation score baselines from 62% to 70% across all five modules (Persistence, Application, AgentRuntime, Coordinator, Decisioning).

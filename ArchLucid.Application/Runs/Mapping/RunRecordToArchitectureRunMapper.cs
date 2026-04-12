@@ -33,6 +33,7 @@ public static class RunRecordToArchitectureRunMapper
             GoldenManifestId = record.GoldenManifestId,
             DecisionTraceId = record.DecisionTraceId,
             ArtifactBundleId = record.ArtifactBundleId,
+            OtelTraceId = record.OtelTraceId,
             TaskIds = [.. taskIds]
         };
     }

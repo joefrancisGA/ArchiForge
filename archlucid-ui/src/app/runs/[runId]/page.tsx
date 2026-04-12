@@ -159,6 +159,12 @@ export default async function RunDetailPage({
           <strong>Run ID:</strong> {resolvedDetail.run.runId}
         </p>
         <RunTraceViewerLink traceId={runDetailTraceId} />
+        {resolvedDetail.run.otelTraceId && (
+          <p>
+            <strong>Creation trace:</strong>{" "}
+            <RunTraceViewerLink traceId={resolvedDetail.run.otelTraceId} />
+          </p>
+        )}
         <p>
           <strong>Project:</strong> {resolvedDetail.run.projectId}
         </p>

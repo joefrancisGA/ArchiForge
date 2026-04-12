@@ -41,6 +41,14 @@ flowchart LR
 
 Embeddings follow the same idea: `CircuitBreakingOpenAiEmbeddingClient` → retry → `AzureOpenAiEmbeddingClient`.
 
+## Model-level fallback vs per-call retry
+
+**Retry** ( **`LlmCallResilienceDefaults` / Polly** inside **`CircuitBreakingAgentCompletionClient`**) re-invokes the **same** inner **`AzureOpenAiCompletionClient`** (same endpoint and deployment) with backoff. That helps with short-lived **429** / **5xx** bursts on that single route but does not escape quota or outage on that deployment.
+
+**Fallback** (**`FallbackAgentCompletionClient`**, optional) sits **outside** the circuit-breaking decorator: it wraps **two** full stacks (each: accounting/cache → **`CircuitBreakingAgentCompletionClient`** → Azure client) for **primary** and **secondary** configurations. When the **primary** stack throws an eligible **429** or **5xx** ( **`HttpRequestException`** or **`ClientResultException`** ), the fallback issues **one** attempt on the **secondary** endpoint/deployment. **OperationCanceledException** does not trigger fallback.
+
+Configured via **`ArchLucid:FallbackLlm`** (see **`docs/RESILIENCE_CONFIGURATION.md`** § LLM model fallback). Distinct circuit gates (**`OpenAiCompletion`** vs **`OpenAiCompletionFallback`**) keep primary and fallback breaker state independent.
+
 ## Component breakdown
 
 | Component | Role |
@@ -48,6 +56,7 @@ Embeddings follow the same idea: `CircuitBreakingOpenAiEmbeddingClient` → retr
 | `AgentExecutionResilienceOptions` | `LlmCallMaxRetryAttempts`, `LlmCallBaseDelayMilliseconds`, `LlmCallMaxDelaySeconds`; `Normalize()` clamps ranges. |
 | `LlmCallResilienceDefaults.BuildLlmRetryPipeline` | Stateless `ResiliencePipeline` with exponential backoff + jitter; `ShouldRetryLlmException` classifies exceptions. |
 | `CircuitBreakingAgentCompletionClient` | `ThrowIfBroken` → `ExecuteAsync` through retry → `RecordSuccess` / `RecordFailure` / `RecordCallCancelled`. |
+| `FallbackAgentCompletionClient` | Outermost when **`ArchLucid:FallbackLlm:Enabled`**; delegates to primary stack, then secondary stack on eligible HTTP failures (see § Model-level fallback). |
 | `CircuitBreakingOpenAiEmbeddingClient` | Same for `EmbedAsync` / `EmbedManyAsync`. |
 | `ArchLucidInstrumentation.LlmCallRetries` | Counter `archlucid_llm_call_retries_total` (tags: `gate`, `attempt`, `exception_type`). |
 

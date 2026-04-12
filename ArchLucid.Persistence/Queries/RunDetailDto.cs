@@ -14,6 +14,9 @@ namespace ArchLucid.Persistence.Queries;
 /// </summary>
 /// <remarks>
 /// Returned directly from <c>GET api/authority/runs/{runId}</c> (<c>AuthorityQueryController</c>) as JSON; clients receive embedded domain models for that route.
+/// Adding serializable properties on <see cref="RunRecord"/> changes the OpenAPI schema; refresh
+/// <c>ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json</c> with
+/// <c>ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1 dotnet test --filter OpenApiContractSnapshotTests</c> (see <c>OpenApiContractSnapshotTests</c>).
 /// </remarks>
 public class RunDetailDto
 {

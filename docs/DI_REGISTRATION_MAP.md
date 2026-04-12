@@ -9,7 +9,7 @@
 | File | Responsibility |
 |------|----------------|
 | `Startup/ServiceCollectionExtensions.cs` | `AddArchLucidApplicationServices` — calls all `Register*` methods in order |
-| `Startup/ServiceCollectionExtensions.FeatureManagement.cs` | `AddArchLucidFeatureManagement` |
+| `Startup/ServiceCollectionExtensions.FeatureManagement.cs` | `AddArchLucidFeatureManagement` — **`IFeatureFlags`** → **`FeatureManagementFeatureFlags`** |
 | `Configuration/ArchLucidStorageServiceCollectionExtensions.cs` | `AddArchLucidStorage` |
 | `Startup/ServiceCollectionExtensions.SchedulingAndAlerts.cs` | Advisory schedules, digests, integration event publisher, alerts, retrieval/authority pipeline workers, integration-event outbox, archival host |
 | `Startup/ServiceCollectionExtensions.DataHealthAndJobs.cs` | In-memory `IDbConnectionFactory`, health checks, background jobs |
@@ -25,7 +25,7 @@
 Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `BatchReplay`, `ApiDeprecation`, `DataArchival`, `HostLeaderElection`.
 
 1. `IDemoSeedService`
-2. **`AddArchLucidFeatureManagement`** → `FeatureManagement` section
+2. **`AddArchLucidFeatureManagement`** → `FeatureManagement` section ( **`IFeatureFlags`** — see § **`IFeatureFlags` (feature management)** below)
 3. **`AddArchLucidStorage`** → **`ArchLucid:StorageProvider`** (`Sql` vs `InMemory`) — see below (Phase 7: prefer **`ArchLucid:StorageProvider`** when bridges are removed)
 4. **`RegisterAdvisoryScheduling`** — **role:** `Combined` \| `Worker` → `AdvisoryScanHostedService`
 5. **`RegisterDigestDelivery`** → `WebhookDelivery` (+ HTTP client named **`ArchLucidWebhooks`**)
@@ -40,7 +40,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 14. **`RegisterDecisioningEngines`** — findings orchestrator, rule engine, manifest services, compliance pack loader
 15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**
 16. **`RegisterArtifactSynthesis`**
-17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
+17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, **`ArchLucid:FallbackLlm`** (optional), `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
 18. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
 19. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
 20. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
@@ -96,9 +96,22 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 | Value | Registrations (high level) |
 |-------|----------------------------|
 | `Simulator` | `DeterministicAgentSimulator`, `SimulatorExecutionTraceRecordingExecutor` as `IAgentExecutor`, fake completion client |
-| Other / Real | `RealAgentExecutor`, agent handlers (topology, cost, compliance, critic), parsers; optional `AzureOpenAI:*` + circuit breaker + quota-wrapped `IAgentCompletionClient` |
+| Other / Real | `RealAgentExecutor`, agent handlers (topology, cost, compliance, critic), parsers; optional `AzureOpenAI:*` + circuit breaker + quota-wrapped `IAgentCompletionClient`; when **`ArchLucid:FallbackLlm:Enabled`** and keys are complete, scoped **`IAgentCompletionClient`** is **`FallbackAgentCompletionClient`** (outermost) over **two** stacks (primary + fallback **`AzureOpenAiCompletionClient`**, each with its own **`OpenAiCompletion`** / **`OpenAiCompletionFallback`** gate) |
 
-Related options: `AgentPromptCatalog`, `LlmTokenQuota`, `LlmTelemetry`.
+Related options: `AgentPromptCatalog`, `LlmTokenQuota`, `LlmTelemetry`, **`FallbackLlmOptions`** (**`ArchLucid:FallbackLlm`**).
+
+### `IFeatureFlags` (feature management)
+
+| Registration | Lifetime | Notes |
+|--------------|----------|--------|
+| **`IFeatureFlags`** → **`FeatureManagementFeatureFlags`** | Singleton | Registered in **`AddArchLucidFeatureManagement`**; **`FeatureManagementAuthorityPipelineModeResolver`** consumes **`IFeatureFlags`** (not **`IFeatureManager`**). |
+
+### `FallbackAgentCompletionClient` (conditional)
+
+| Condition | Registration | Lifetime |
+|-----------|----------------|----------|
+| **`ArchLucid:FallbackLlm:Enabled`** is **`true`** and Endpoint, ApiKey, DeploymentName are set | Scoped **`IAgentCompletionClient`** outer decorator | Scoped (per request scope) |
+| Otherwise | Prior Azure real-client pipeline unchanged | Scoped |
 
 ---
 
@@ -131,4 +144,4 @@ HTTP **`POST /v1/architecture/request`** → `RunsController` → `IArchitecture
 
 ---
 
-**Last reviewed:** 2026-04-07
+**Last reviewed:** 2026-04-12

@@ -72,6 +72,8 @@ public sealed class AuthorityRunOrchestrator(
 
             using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);
 
+            run.OtelTraceId = Activity.Current?.TraceId.ToString();
+
             await SaveRunAsync(run, uow, cancellationToken);
 
             pipelineRunIdForDiagnostics = run.RunId;

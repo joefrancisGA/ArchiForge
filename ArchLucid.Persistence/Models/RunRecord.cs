@@ -29,6 +29,9 @@ public sealed class RunRecord
     /// <summary>Latest committed manifest version key.</summary>
     public string? CurrentManifestVersion { get; set; }
 
+    /// <summary>W3C trace ID from <c>Activity.Current?.TraceId</c> at run creation; used for post-hoc trace lookup.</summary>
+    public string? OtelTraceId { get; set; }
+
     /// <summary>When set, the run is excluded from list/detail authority APIs (soft archival).</summary>
     public DateTime? ArchivedUtc { get; set; }
 

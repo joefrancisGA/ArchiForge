@@ -10,6 +10,7 @@ Production and shared environments should **not** store SQL connection strings, 
 
    - `ConnectionStrings__ArchLucid` → `@Microsoft.KeyVault(VaultName=...;SecretName=archlucid-sql-connection-string)`
    - `AzureOpenAI__ApiKey` → `@Microsoft.KeyVault(...)`
+   - **`ArchLucid__FallbackLlm__ApiKey`** → `@Microsoft.KeyVault(...)` when **`ArchLucid:FallbackLlm:Enabled`** is **`true`** (secondary Azure OpenAI chat deployment; store as its own secret, e.g. `archlucid-fallback-llm-api-key`)
    - `Authentication__ApiKey__AdminKey` / `Authentication__ApiKey__ReadOnlyKey` → `@Microsoft.KeyVault(...)` (when `ArchLucidAuth:Mode` is `ApiKey` and API key auth is enabled)
 
 Double underscores (`__`) map to nested JSON sections in ASP.NET Core configuration.

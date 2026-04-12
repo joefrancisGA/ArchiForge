@@ -1,3 +1,6 @@
+using ArchLucid.Core.Configuration;
+using ArchLucid.Host.Core.Configuration;
+
 using Microsoft.FeatureManagement;
 
 namespace ArchLucid.Host.Composition.Startup;
@@ -10,6 +13,7 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddFeatureManagement(configuration.GetSection("FeatureManagement"));
+        services.AddSingleton<IFeatureFlags, FeatureManagementFeatureFlags>();
 
         return services;
     }

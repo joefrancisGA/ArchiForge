@@ -39,6 +39,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<CircuitBreakerAuditBridge>();
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
+        services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
 
         string? agentMode = configuration["AgentExecution:Mode"];
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();
@@ -80,9 +81,53 @@ public static partial class ServiceCollectionExtensions
             }
             else if (useAzureOpenAi)
             {
+                FallbackLlmOptions fallbackOpts =
+                    configuration.GetSection(FallbackLlmOptions.SectionName).Get<FallbackLlmOptions>()
+                    ?? new FallbackLlmOptions();
+
+                if (fallbackOpts.Enabled)
+                {
+                    if (string.IsNullOrWhiteSpace(fallbackOpts.Endpoint)
+                        || string.IsNullOrWhiteSpace(fallbackOpts.ApiKey)
+                        || string.IsNullOrWhiteSpace(fallbackOpts.DeploymentName))
+                    {
+                        throw new InvalidOperationException(
+                            "ArchLucid:FallbackLlm is enabled but Endpoint, ApiKey, and DeploymentName must all be configured.");
+                    }
+                }
+
+                bool fallbackLlmEnabled = fallbackOpts.Enabled;
+
                 services.AddKeyedSingleton<CircuitBreakerGate>(
                     OpenAiCircuitBreakerKeys.Completion,
                     (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.Completion));
+
+                if (fallbackLlmEnabled)
+                {
+                    services.AddKeyedSingleton<CircuitBreakerGate>(
+                        OpenAiCircuitBreakerKeys.CompletionFallback,
+                        (sp, _) => CreateOpenAiCircuitBreakerGate(sp, OpenAiCircuitBreakerKeys.CompletionFallback));
+
+                    services.AddSingleton<FallbackAzureOpenAiInnerClientHolder>(sp =>
+                    {
+                        FallbackLlmOptions fo = sp.GetRequiredService<IOptions<FallbackLlmOptions>>().Value;
+                        IConfiguration cfg = sp.GetRequiredService<IConfiguration>();
+                        int maxTokens = cfg.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
+
+                        if (maxTokens <= 0)
+                        {
+                            maxTokens = AzureOpenAiCompletionClient.DefaultMaxCompletionTokens;
+                        }
+
+                        AzureOpenAiCompletionClient client = new(
+                            fo.Endpoint!,
+                            fo.ApiKey!,
+                            fo.DeploymentName!,
+                            maxTokens);
+
+                        return new FallbackAzureOpenAiInnerClientHolder(client);
+                    });
+                }
 
                 services.AddSingleton<AzureOpenAiCompletionClient>(sp =>
                 {
@@ -108,61 +153,38 @@ public static partial class ServiceCollectionExtensions
                 services.AddScoped<IAgentCompletionClient>(sp =>
                 {
                     AzureOpenAiCompletionClient azureInner = sp.GetRequiredService<AzureOpenAiCompletionClient>();
-                    LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
-                    IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
-                    IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
-                    IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
-                        sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
-                    IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
-                        sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
-                    sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
-
-                    IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
-                        azureInner,
-                        quotaTracker,
-                        scopeProvider,
-                        quotaOpts,
-                        telemetryOpts,
-                        labelTelemetryOpts);
-
                     IConfiguration config = sp.GetRequiredService<IConfiguration>();
-                    LlmCompletionResponseCacheOptions cacheOptions = config
-                                                                       .GetSection(LlmCompletionResponseCacheOptions.SectionName)
-                                                                       .Get<LlmCompletionResponseCacheOptions>()
-                                                                   ?? new LlmCompletionResponseCacheOptions();
+                    string primaryDeployment = config["AzureOpenAI:DeploymentName"]
+                        ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+                    CircuitBreakerGate primaryGate =
+                        sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
 
-                    if (cacheOptions.Enabled)
+                    IAgentCompletionClient primaryChain = BuildAzureOpenAiScopedCompletionChain(
+                        sp,
+                        azureInner,
+                        primaryGate,
+                        primaryDeployment);
+
+                    if (!fallbackLlmEnabled)
                     {
-                        TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
-                        ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
-                        ILogger<CachingAgentCompletionClient> cacheLogger =
-                            sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
-                        completionPipeline = new CachingAgentCompletionClient(
-                            completionPipeline,
-                            store,
-                            config["AzureOpenAI:DeploymentName"]
-                            ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing."),
-                            enabled: true,
-                            partitionByScope: cacheOptions.PartitionByScope,
-                            absoluteExpiration: ttl,
-                            scopeProvider: scopeProvider,
-                            logger: cacheLogger);
+                        return primaryChain;
                     }
 
-                    CircuitBreakerGate gate = sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.Completion);
-                    ILogger<CircuitBreakingAgentCompletionClient> logger =
-                        sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
-                    AgentExecutionResilienceOptions resOpts =
-                        sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
-                    resOpts.Normalize();
-                    ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
-                        logger: logger,
-                        maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
-                        baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
-                        maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
-                        gateName: OpenAiCircuitBreakerKeys.Completion);
+                    FallbackAzureOpenAiInnerClientHolder holder = sp.GetRequiredService<FallbackAzureOpenAiInnerClientHolder>();
+                    CircuitBreakerGate fallbackGate =
+                        sp.GetRequiredKeyedService<CircuitBreakerGate>(OpenAiCircuitBreakerKeys.CompletionFallback);
+                    FallbackLlmOptions fo = sp.GetRequiredService<IOptions<FallbackLlmOptions>>().Value;
 
-                    return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
+                    IAgentCompletionClient secondaryChain = BuildAzureOpenAiScopedCompletionChain(
+                        sp,
+                        holder.Client,
+                        fallbackGate,
+                        fo.DeploymentName!);
+
+                    ILogger<FallbackAgentCompletionClient> fallbackLogger =
+                        sp.GetRequiredService<ILogger<FallbackAgentCompletionClient>>();
+
+                    return new FallbackAgentCompletionClient(primaryChain, secondaryChain, fallbackLogger);
                 });
             }
             else
@@ -405,6 +427,9 @@ public static partial class ServiceCollectionExtensions
         services.Configure<CircuitBreakerOptions>(
             OpenAiCircuitBreakerKeys.Embedding,
             configuration.GetSection(embeddingPath));
+        services.Configure<CircuitBreakerOptions>(
+            OpenAiCircuitBreakerKeys.CompletionFallback,
+            configuration.GetSection(completionPath));
 
         services.PostConfigure<CircuitBreakerOptions>(
             OpenAiCircuitBreakerKeys.Completion,
@@ -413,6 +438,10 @@ public static partial class ServiceCollectionExtensions
         services.PostConfigure<CircuitBreakerOptions>(
             OpenAiCircuitBreakerKeys.Embedding,
             opts => ApplySharedOpenAiCircuitBreakerFallback(configuration, embeddingPath, sharedPath, opts));
+
+        services.PostConfigure<CircuitBreakerOptions>(
+            OpenAiCircuitBreakerKeys.CompletionFallback,
+            opts => ApplySharedOpenAiCircuitBreakerFallback(configuration, completionPath, sharedPath, opts));
     }
 
     private static void ApplySharedOpenAiCircuitBreakerFallback(
@@ -454,5 +483,72 @@ public static partial class ServiceCollectionExtensions
         Action<CircuitBreakerAuditEntry>? onAudit = bridge?.CreateCallback();
 
         return new CircuitBreakerGate(gateName, monitor, onAuditEntry: onAudit);
+    }
+
+    private sealed class FallbackAzureOpenAiInnerClientHolder(AzureOpenAiCompletionClient client)
+    {
+        public AzureOpenAiCompletionClient Client { get; } =
+            client ?? throw new ArgumentNullException(nameof(client));
+    }
+
+    private static IAgentCompletionClient BuildAzureOpenAiScopedCompletionChain(
+        IServiceProvider sp,
+        AzureOpenAiCompletionClient azureInner,
+        CircuitBreakerGate gate,
+        string cachingDeploymentLabel)
+    {
+        LlmTokenQuotaWindowTracker quotaTracker = sp.GetRequiredService<LlmTokenQuotaWindowTracker>();
+        IScopeContextProvider scopeProvider = sp.GetRequiredService<IScopeContextProvider>();
+        IOptionsMonitor<LlmTokenQuotaOptions> quotaOpts = sp.GetRequiredService<IOptionsMonitor<LlmTokenQuotaOptions>>();
+        IOptionsMonitor<LlmTelemetryOptions> telemetryOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
+        IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
+        sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+
+        IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
+            azureInner,
+            quotaTracker,
+            scopeProvider,
+            quotaOpts,
+            telemetryOpts,
+            labelTelemetryOpts);
+
+        IConfiguration config = sp.GetRequiredService<IConfiguration>();
+        LlmCompletionResponseCacheOptions cacheOptions = config
+                                                           .GetSection(LlmCompletionResponseCacheOptions.SectionName)
+                                                           .Get<LlmCompletionResponseCacheOptions>()
+                                                       ?? new LlmCompletionResponseCacheOptions();
+
+        if (cacheOptions.Enabled)
+        {
+            TimeSpan ttl = TimeSpan.FromSeconds(Math.Max(1, cacheOptions.AbsoluteExpirationSeconds));
+            ILlmCompletionResponseStore store = sp.GetRequiredService<ILlmCompletionResponseStore>();
+            ILogger<CachingAgentCompletionClient> cacheLogger =
+                sp.GetRequiredService<ILogger<CachingAgentCompletionClient>>();
+            completionPipeline = new CachingAgentCompletionClient(
+                completionPipeline,
+                store,
+                cachingDeploymentLabel,
+                enabled: true,
+                partitionByScope: cacheOptions.PartitionByScope,
+                absoluteExpiration: ttl,
+                scopeProvider: scopeProvider,
+                logger: cacheLogger);
+        }
+
+        ILogger<CircuitBreakingAgentCompletionClient> logger =
+            sp.GetRequiredService<ILogger<CircuitBreakingAgentCompletionClient>>();
+        AgentExecutionResilienceOptions resOpts =
+            sp.GetRequiredService<IOptions<AgentExecutionResilienceOptions>>().Value;
+        resOpts.Normalize();
+        ResiliencePipeline llmRetry = LlmCallResilienceDefaults.BuildLlmRetryPipeline(
+            logger: logger,
+            maxRetryAttempts: resOpts.LlmCallMaxRetryAttempts,
+            baseDelay: TimeSpan.FromMilliseconds(resOpts.LlmCallBaseDelayMilliseconds),
+            maxDelay: TimeSpan.FromSeconds(resOpts.LlmCallMaxDelaySeconds),
+            gateName: gate.GateName);
+
+        return new CircuitBreakingAgentCompletionClient(completionPipeline, gate, llmRetry, logger);
     }
 }

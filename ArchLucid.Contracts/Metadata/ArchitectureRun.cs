@@ -63,6 +63,12 @@ public sealed class ArchitectureRun
     public Guid? ArtifactBundleId { get; set; }
 
     /// <summary>
+    /// OpenTelemetry W3C trace ID persisted at run creation (<c>Activity.TraceId</c>); nullable for older runs.
+    /// Distinct from the per-request trace on API responses.
+    /// </summary>
+    public string? OtelTraceId { get; set; }
+
+    /// <summary>
     /// Ordered list of agent task identifiers associated with this run.
     /// Populated during run creation and used to track execution progress.
     /// </summary>

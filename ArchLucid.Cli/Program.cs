@@ -17,7 +17,7 @@ namespace ArchLucid.Cli
             if (args.Length == 0)
             {
                 Console.WriteLine(
-                    "Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip]");
+                    "Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip]");
 
                 return 1;
             }
@@ -56,6 +56,16 @@ namespace ArchLucid.Cli
                     }
 
                     Console.WriteLine("Usage: archlucid status <runId>");
+
+                    return 1;
+
+                case "trace":
+                    if (args.Length > 1)
+                    {
+                        return await TraceCommand.RunAsync(args[1]);
+                    }
+
+                    Console.WriteLine("Usage: archlucid trace <runId>");
 
                     return 1;
 

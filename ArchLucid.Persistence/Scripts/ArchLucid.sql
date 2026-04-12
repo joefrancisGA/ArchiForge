@@ -354,6 +354,7 @@ BEGIN
         LegacyRunStatus NVARCHAR(64) NULL,
         CompletedUtc DATETIME2 NULL,
         CurrentManifestVersion NVARCHAR(128) NULL,
+        OtelTraceId NVARCHAR(64) NULL,
         RowVersionStamp ROWVERSION,
         INDEX IX_Runs_ProjectId_CreatedUtc NONCLUSTERED (ProjectId, CreatedUtc DESC)
     );
@@ -363,6 +364,11 @@ GO
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'RowVersionStamp') IS NULL
     ALTER TABLE dbo.Runs ADD RowVersionStamp ROWVERSION;
+GO
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'OtelTraceId') IS NULL
+    ALTER TABLE dbo.Runs ADD OtelTraceId NVARCHAR(64) NULL;
 GO
 
 IF OBJECT_ID('dbo.ContextSnapshots', 'U') IS NULL
@@ -2068,6 +2074,10 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'CurrentManifestVersion') IS NULL
     ALTER TABLE dbo.Runs ADD CurrentManifestVersion NVARCHAR(128) NULL;
+
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'OtelTraceId') IS NULL
+    ALTER TABLE dbo.Runs ADD OtelTraceId NVARCHAR(64) NULL;
 
 IF NOT EXISTS (
     SELECT 1

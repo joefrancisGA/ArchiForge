@@ -57,6 +57,19 @@ Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (includ
 
 ---
 
+## Persisted trace IDs
+
+**`dbo.Runs.OtelTraceId`** stores the **W3C trace ID** captured at **run creation** (from the active **`Activity`** when the authority run record is first persisted — see migration **052**). It is **not** overwritten on later updates, so it remains a stable handle for **creation-time** distributed tracing.
+
+Operators can use it for **post-hoc trace lookup** in two ways:
+
+- **Run detail UI** — the operator shell shows a **Creation trace** link when a persisted id exists (distinct from the per-request **`X-Trace-Id`** / **`traceparent`** on the current page load). Configure **`NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE`** in **`archlucid-ui`** (same **`{traceId}`** placeholder as below).
+- **CLI** — **`archlucid trace <runId>`** fetches run detail from the API, reads **`run.otelTraceId`**, and prints a trace viewer URL when **`ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`** is set (optional browser open via **`ARCHLUCID_TRACE_OPEN_BROWSER`**). See **[CLI_USAGE.md](CLI_USAGE.md)**.
+
+For request-scoped correlation headers and sampling, see **Sampling strategy** and **Response headers** below.
+
+---
+
 ## Sampling strategy
 
 | Environment   | `SamplingRatio` | Rationale |

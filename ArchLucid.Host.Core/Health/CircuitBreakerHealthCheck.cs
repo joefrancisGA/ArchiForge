@@ -14,6 +14,7 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
     private static readonly string[] GateKeys =
     [
         OpenAiCircuitBreakerKeys.Completion,
+        OpenAiCircuitBreakerKeys.CompletionFallback,
         OpenAiCircuitBreakerKeys.Embedding,
     ];
 

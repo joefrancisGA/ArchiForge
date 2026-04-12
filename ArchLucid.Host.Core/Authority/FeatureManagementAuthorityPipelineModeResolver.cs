@@ -1,7 +1,6 @@
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
-
-using Microsoft.FeatureManagement;
 
 namespace ArchLucid.Host.Core.Authority;
 
@@ -9,11 +8,11 @@ namespace ArchLucid.Host.Core.Authority;
 /// Resolves async authority mode from <see cref="IConfiguration"/> storage provider and feature management.
 /// </summary>
 public sealed class FeatureManagementAuthorityPipelineModeResolver(
-    IFeatureManager featureManager,
+    IFeatureFlags featureFlags,
     IConfiguration configuration) : IAsyncAuthorityPipelineModeResolver
 {
-    private readonly IFeatureManager _featureManager =
-        featureManager ?? throw new ArgumentNullException(nameof(featureManager));
+    private readonly IFeatureFlags _featureFlags =
+        featureFlags ?? throw new ArgumentNullException(nameof(featureFlags));
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -29,6 +28,6 @@ public sealed class FeatureManagementAuthorityPipelineModeResolver(
         if (!ArchLucidOptions.EffectiveIsSql(archLucid.StorageProvider))
             return false;
 
-        return await _featureManager.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);
+        return await _featureFlags.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);
     }
 }

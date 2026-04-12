@@ -141,4 +141,4 @@ Keep these aligned on the same **10.x** line as **`Directory.Packages.props`**.
 
 ## Packages that may be unavailable on restricted feeds
 
-If restore fails for **Microsoft.Extensions.Configuration.Memory** (or similar), prefer tests that **mock `IConfiguration`** or use **in-repo test doubles** instead of optional satellite packages.
+There is **no** NuGet package **`Microsoft.Extensions.Configuration.Memory`** — use **`Microsoft.Extensions.Configuration`**, which includes **`AddInMemoryCollection`**. If a feed blocks that package, prefer tests that **mock `IConfiguration`** or use **in-repo test doubles**.

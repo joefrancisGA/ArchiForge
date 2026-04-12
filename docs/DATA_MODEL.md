@@ -29,8 +29,8 @@ This document summarizes the persisted data model used by ArchLucid. It is based
 #### `Runs` (authority)
 
 - **Key**: `RunId` (`UNIQUEIDENTIFIER`)
-- **Fields**: scope (`TenantId`, `WorkspaceId`, `ScopeProjectId`), `ProjectId`, snapshot/manifest pointers, `ArchitectureRequestId`, `LegacyRunStatus`, `CompletedUtc`, `CurrentManifestVersion`, `ArchivedUtc`, `RowVersionStamp`
-- **Why it matters**: sole persisted run header; API lifecycle strings map via `LegacyRunStatus` when present (legacy table **`ArchitectureRuns`** removed in migration **049**).
+- **Fields**: scope (`TenantId`, `WorkspaceId`, `ScopeProjectId`), `ProjectId`, snapshot/manifest pointers, `ArchitectureRequestId`, `LegacyRunStatus`, `CompletedUtc`, `CurrentManifestVersion`, **`OtelTraceId`** (`NVARCHAR(64) NULL` — W3C trace ID at run creation; migration **052**), `ArchivedUtc`, `RowVersionStamp`
+- **Why it matters**: sole persisted run header; API lifecycle strings map via `LegacyRunStatus` when present (legacy table **`ArchitectureRuns`** removed in migration **049**). **`OtelTraceId`** enables post-hoc trace lookup from run detail UI or **`archlucid trace <runId>`** (see **[OBSERVABILITY.md](OBSERVABILITY.md)** § Persisted trace IDs).
 
 #### `AgentTasks`
 

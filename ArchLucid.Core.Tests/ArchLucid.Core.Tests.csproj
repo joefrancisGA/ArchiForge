@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -22,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.Host.Core\ArchLucid.Host.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

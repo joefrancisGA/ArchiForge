@@ -36,7 +36,7 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
             )
             OUTPUT inserted.RowVersionStamp
             VALUES
@@ -44,7 +44,7 @@ public sealed class SqlRunRepository(
                 @RunId, @TenantId, @WorkspaceId, @ScopeProjectId, @ProjectId, @Description, @CreatedUtc,
                 @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId,
                 @GoldenManifestId, @DecisionTraceId, @ArtifactBundleId, @ArchivedUtc,
-                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion
+                @ArchitectureRequestId, @LegacyRunStatus, @CompletedUtc, @CurrentManifestVersion, @OtelTraceId
             );
             """;
 
@@ -71,7 +71,7 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion,
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                 RowVersionStamp AS RowVersion
             FROM dbo.Runs
             WHERE RunId = @RunId
@@ -108,7 +108,7 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
             FROM dbo.Runs
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
@@ -162,7 +162,7 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
             FROM dbo.Runs
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
@@ -210,7 +210,7 @@ public sealed class SqlRunRepository(
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
-                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion
+                ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
             FROM dbo.Runs
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId

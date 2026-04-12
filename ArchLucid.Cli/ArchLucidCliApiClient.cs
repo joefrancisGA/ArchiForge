@@ -928,6 +928,12 @@ public sealed class ArchLucidApiClient
         {
             get; set;
         }
+
+        /// <summary>Persisted OpenTelemetry W3C trace id from run creation; null for older runs.</summary>
+        public string? OtelTraceId
+        {
+            get; set;
+        }
     }
 
     public sealed class AgentTaskInfo

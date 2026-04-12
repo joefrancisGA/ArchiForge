@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.Host.Composition\ArchLucid.Host.Composition.csproj" />
   </ItemGroup>
 

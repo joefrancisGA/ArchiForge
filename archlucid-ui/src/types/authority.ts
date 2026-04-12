@@ -125,6 +125,8 @@ export type RunDetail = {
     goldenManifestId?: string | null;
     decisionTraceId?: string | null;
     artifactBundleId?: string | null;
+    /** Persisted W3C trace id from run creation (OpenTelemetry); distinct from the current-request trace header. */
+    otelTraceId?: string;
   };
   contextSnapshot?: unknown;
   graphSnapshot?: unknown;
