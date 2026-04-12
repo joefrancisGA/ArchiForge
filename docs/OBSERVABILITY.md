@@ -31,6 +31,37 @@ For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs
 
 ---
 
+## Business-Level KPI Metrics
+
+These instruments support **product and operator dashboards** (runs volume, findings mix, LLM batch intensity, explanation cache effectiveness). They use the same **`ArchLucid`** meter as operational metrics.
+
+| Instrument | Type | Labels | What it measures | Suggested Grafana panel |
+|------------|------|--------|------------------|-------------------------|
+| **`archlucid_runs_created_total`** | Counter | — | Authority **`RunRecord`** rows inserted at orchestration start (pre-pipeline), including runs that later queue deferred work. | **Time series** — `rate()` or `increase()` over a window (e.g. runs/min). |
+| **`archlucid_findings_produced_total`** | Counter | **`severity`** (`FindingSeverity` enum name: `Info`, `Warning`, `Error`, `Critical`) | Findings persisted with the findings snapshot after the authority **findings** stage completes (one increment batch per severity bucket per run). | **Time series** — stacked or separate lines per `severity`, or **bar gauge** for share in window. |
+| **`archlucid_llm_calls_per_run`** | Histogram (`int`, unit `{call}`) | — | Count of successful Azure OpenAI JSON completions during one **`RealAgentExecutor.ExecuteAsync`** batch (parallel handlers share one observation). | **Heatmap** (histogram over time) or **percentiles** via `histogram_quantile`; optional **stat** for last value. |
+| **`archlucid_explanation_cache_hits_total`** | Counter | — | Aggregate explanation summary served from **`IHotPathReadCache`** without invoking the inner **`RunExplanationSummaryService`** factory. | **Time series** — `rate()` alongside misses. |
+| **`archlucid_explanation_cache_misses_total`** | Counter | — | Cache factory invoked (inner summary built; may imply LLM work). | **Time series** — `rate()` alongside hits. |
+
+### Explanation cache hit ratio (Prometheus)
+
+Use a ratio of **hit rate** to **hit + miss** rates (avoid dividing raw counters):
+
+```promql
+rate(archlucid_explanation_cache_hits_total[5m])
+/
+(
+  rate(archlucid_explanation_cache_hits_total[5m])
+  + rate(archlucid_explanation_cache_misses_total[5m])
+)
+```
+
+When the denominator is **zero** (no traffic), the result is undefined; dashboards may show gaps or you may wrap the denominator with **`clamp_min(..., 1e-9)`** for a defined 0–1 series.
+
+A recording rule **`archlucid:explanation_cache_hit_ratio`** is defined in **`infra/prometheus/archlucid-slo-rules.yml`** for reuse in Grafana variables and alerts.
+
+---
+
 ## Activity sources (custom)
 
 Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (including all names below):
@@ -116,6 +147,7 @@ Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs
 
 ## Related documents
 
+- [PERFORMANCE.md](PERFORMANCE.md) — hot-path caching (including aggregate explanation summary TTL and invalidation).
 - [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) — background jobs + authority stage hierarchy.
 - [TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md) — `Suite=Core` and observability-related tests.
 - `ArchLucid.Host.Core/Startup/ObservabilityExtensions.cs` — host wiring.

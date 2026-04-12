@@ -59,6 +59,17 @@ groups:
         labels:
           component: llm
 
+  - name: archlucid-slo-explanation-cache
+    interval: 30s
+    rules:
+      # Ratio of explanation summary cache hits to (hits + misses) by rate over 5m. Undefined when denominator is zero.
+      - record: archlucid:explanation_cache_hit_ratio
+        expr: |
+          rate(archlucid_explanation_cache_hits_total[5m])
+          / (rate(archlucid_explanation_cache_hits_total[5m]) + rate(archlucid_explanation_cache_misses_total[5m]))
+        labels:
+          component: api
+
   - name: archlucid-slo-http-burn-alerts
     interval: 30s
     rules:

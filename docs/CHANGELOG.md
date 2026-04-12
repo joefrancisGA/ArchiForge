@@ -8,6 +8,14 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-12 — Business KPI metrics and aggregate explanation caching
+
+**Added:** Aggregate explanation caching via **`CachingRunExplanationSummaryService`** — eliminates redundant LLM calls on repeated run-detail aggregate explanation views when **`HotPathCache`** is enabled (keyed by run id + **`ROWVERSION`**; TTL from **`HotPathCacheOptions`**).
+
+**Added:** Business-level OpenTelemetry metrics — **`archlucid_runs_created_total`**, **`archlucid_findings_produced_total`** (label **`severity`**), **`archlucid_llm_calls_per_run`** (histogram per agent batch), **`archlucid_explanation_cache_hits_total`** / **`archlucid_explanation_cache_misses_total`** (cache effectiveness; derive hit ratio in Prometheus/Grafana). See **`docs/OBSERVABILITY.md`** and recording rule **`archlucid:explanation_cache_hit_ratio`** in **`infra/prometheus/archlucid-slo-rules.yml`**.
+
+---
+
 ## 2026-04-12 — IFeatureFlags and LLM fallback client
 
 Introduced **`IFeatureFlags`** abstraction for testable feature flag evaluation. Added **`FallbackAgentCompletionClient`** for automatic LLM model failover on **429** / **5xx**.
