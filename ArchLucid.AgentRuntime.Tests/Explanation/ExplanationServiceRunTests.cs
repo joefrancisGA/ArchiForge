@@ -3,11 +3,15 @@ using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+
+using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests.Explanation;
 
@@ -58,6 +62,7 @@ public sealed class ExplanationServiceRunTests
             client,
             new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             options,
+            new PassthroughSchemaValidationService(),
             NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
@@ -88,6 +93,7 @@ public sealed class ExplanationServiceRunTests
             client,
             new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             Options.Create(new ExplanationServiceOptions()),
+            new PassthroughSchemaValidationService(),
             NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
@@ -110,6 +116,7 @@ public sealed class ExplanationServiceRunTests
             client,
             new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             Options.Create(new ExplanationServiceOptions()),
+            new PassthroughSchemaValidationService(),
             NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
@@ -121,5 +128,36 @@ public sealed class ExplanationServiceRunTests
         result.Provenance.Should().NotBeNull();
         result.Summary.Should().Be("Short");
         result.DetailedNarrative.Should().Be("Longer body here.");
+    }
+
+    [Fact]
+    public async Task ExplainRunAsync_schemaVersion1_missing_reasoning_uses_deterministic_fallback()
+    {
+        const string invalidV1 = """{"schemaVersion":1}""";
+
+        Mock<ILogger<SchemaValidationService>> schemaLog = new();
+        SchemaValidationOptions schemaOpts = new()
+        {
+            AgentResultSchemaPath = "schemas/agentresult.schema.json",
+            GoldenManifestSchemaPath = "schemas/goldenmanifest.schema.json",
+            ExplanationRunSchemaPath = "schemas/explanation-run.schema.json",
+            ComparisonExplanationSchemaPath = "schemas/comparison-explanation.schema.json",
+        };
+        SchemaValidationService schemaSvc = new(schemaLog.Object, Options.Create(schemaOpts));
+
+        IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => invalidV1);
+        ExplanationService svc = new(
+            client,
+            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            Options.Create(new ExplanationServiceOptions()),
+            schemaSvc,
+            NullLogger<ExplanationService>.Instance);
+
+        ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
+
+        result.RawText.Should().BeEmpty();
+        result.Structured.Should().NotBeNull();
+        result.Structured!.Reasoning.Should().NotBeNullOrWhiteSpace();
+        result.Structured.Reasoning.Should().NotBe(invalidV1);
     }
 }

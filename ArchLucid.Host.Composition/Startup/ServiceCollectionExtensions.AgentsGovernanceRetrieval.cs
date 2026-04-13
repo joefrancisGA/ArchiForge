@@ -42,6 +42,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
+        services.Configure<AgentResultSchemaValidationOptions>(
+            configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));
 
         string? agentMode = configuration["AgentExecution:Mode"];
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();

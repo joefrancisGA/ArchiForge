@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Explanation;
+using ArchLucid.Decisioning.Validation;
 
 using FluentAssertions;
 
@@ -23,6 +24,7 @@ public sealed class ExplanationServiceComparisonTests
             client,
             new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             Options.Create(new ExplanationServiceOptions()),
+            new PassthroughSchemaValidationService(),
             NullLogger<ExplanationService>.Instance);
         ComparisonResult comparison = new()
         {

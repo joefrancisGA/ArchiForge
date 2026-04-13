@@ -5,6 +5,8 @@ using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.AgentRuntime;
 
@@ -15,7 +17,9 @@ public sealed class ComplianceAgentHandler(
     IAgentCompletionClient completionClient,
     IAgentResultParser resultParser,
     IAgentExecutionTraceRecorder traceRecorder,
-    IAgentSystemPromptCatalog systemPromptCatalog)
+    IAgentSystemPromptCatalog systemPromptCatalog,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider)
     : IAgentHandler
 {
     private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
@@ -63,6 +67,7 @@ public sealed class ComplianceAgentHandler(
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
             AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok);
+            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
 
             await traceRecorder.RecordAsync(
                 runId,
@@ -77,8 +82,8 @@ public sealed class ComplianceAgentHandler(
                 promptRepro,
                 inTok,
                 outTok,
-                modelDeploymentName: null,
-                modelVersion: null,
+                modelDeploymentName: modelDeploy,
+                modelVersion: modelVer,
                 cancellationToken);
 
             return parsed;
@@ -86,6 +91,19 @@ public sealed class ComplianceAgentHandler(
         catch (Exception ex)
         {
             AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok);
+            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
+
+            if (ex is AgentResultSchemaViolationException sv)
+            {
+                AgentResultSchemaViolationAudit.ScheduleLog(
+                    auditService,
+                    scopeContextProvider,
+                    sv,
+                    runId,
+                    task.TaskId,
+                    modelDeploy,
+                    modelVer);
+            }
 
             await traceRecorder.RecordAsync(
                 runId,
@@ -100,8 +118,8 @@ public sealed class ComplianceAgentHandler(
                 promptRepro,
                 inTok,
                 outTok,
-                modelDeploymentName: null,
-                modelVersion: null,
+                modelDeploymentName: modelDeploy,
+                modelVersion: modelVer,
                 cancellationToken);
 
             throw;

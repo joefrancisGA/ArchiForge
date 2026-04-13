@@ -3,6 +3,7 @@ using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Coordinator.Services;
@@ -192,17 +193,33 @@ public sealed class RealRuntimeMixedModeTests
 
         IAgentSystemPromptCatalog promptCatalog = AgentPromptCatalogTestFactory.Create();
 
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
         TopologyAgentHandler topologyHandler = new(
             new StubAgentCompletionClient(topologyJson),
             parser,
             traceRecorder,
-            promptCatalog);
+            promptCatalog,
+            audit.Object,
+            scopeProvider.Object);
 
         ComplianceAgentHandler complianceHandler = new(
             new StubAgentCompletionClient(complianceJson),
             parser,
             traceRecorder,
-            promptCatalog);
+            promptCatalog,
+            audit.Object,
+            scopeProvider.Object);
 
         CostAgentHandler costHandler = new();
 
@@ -210,7 +227,9 @@ public sealed class RealRuntimeMixedModeTests
             new StubAgentCompletionClient(criticJson),
             parser,
             traceRecorder,
-            promptCatalog);
+            promptCatalog,
+            audit.Object,
+            scopeProvider.Object);
 
         IOptions<AgentExecutionResilienceOptions> resilience = Options.Create(
             new AgentExecutionResilienceOptions
@@ -256,13 +275,6 @@ public sealed class RealRuntimeMixedModeTests
         Mock<IRunRepository> runRepo = new();
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunRecord?)null);
-        Mock<IScopeContextProvider> scopeProvider = new();
-        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        });
 
         CoordinatorService coordinator = new(
             new FakeAuthorityRunOrchestratorForRuntimeTests(),

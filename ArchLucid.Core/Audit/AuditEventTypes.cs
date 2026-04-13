@@ -79,6 +79,9 @@ public static class AuditEventTypes
     /// <summary>Emitted when optional pre-commit governance blocks manifest commit due to critical findings.</summary>
     public const string GovernancePreCommitBlocked = "GovernancePreCommitBlocked";
 
+    /// <summary>Agent LLM output failed <c>AgentResult</c> JSON schema validation at parse time (payload lists errors and model metadata when known).</summary>
+    public const string AgentResultSchemaViolation = "AgentResultSchemaViolation";
+
     public const string GovernanceManifestPromoted = "GovernanceManifestPromoted";
     public const string GovernanceEnvironmentActivated = "GovernanceEnvironmentActivated";
 

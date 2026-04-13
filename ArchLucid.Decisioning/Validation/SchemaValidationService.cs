@@ -31,6 +31,8 @@ public sealed class SchemaValidationService : ISchemaValidationService
     private readonly SchemaValidationOptions _options;
     private readonly Lazy<JsonSchema> _agentResultSchema;
     private readonly Lazy<JsonSchema> _goldenManifestSchema;
+    private readonly Lazy<JsonSchema> _explanationRunSchema;
+    private readonly Lazy<JsonSchema> _comparisonExplanationSchema;
 
     /// <summary>
     /// Optional LRU-style result cache keyed by SHA-256(json).
@@ -49,6 +51,10 @@ public sealed class SchemaValidationService : ISchemaValidationService
             LoadSchema(_options.AgentResultSchemaPath, "AgentResult"));
         _goldenManifestSchema = new Lazy<JsonSchema>(() =>
             LoadSchema(_options.GoldenManifestSchemaPath, "GoldenManifest"));
+        _explanationRunSchema = new Lazy<JsonSchema>(() =>
+            LoadSchema(_options.ExplanationRunSchemaPath, "ExplanationRun"));
+        _comparisonExplanationSchema = new Lazy<JsonSchema>(() =>
+            LoadSchema(_options.ComparisonExplanationSchemaPath, "ComparisonExplanation"));
 
         if (_options.EnableResultCaching)
         
@@ -64,6 +70,16 @@ public sealed class SchemaValidationService : ISchemaValidationService
     public SchemaValidationResult ValidateGoldenManifestJson(string json)
     {
         return Validate(json, _goldenManifestSchema.Value, "GoldenManifest");
+    }
+
+    public SchemaValidationResult ValidateExplanationRunJson(string json)
+    {
+        return Validate(json, _explanationRunSchema.Value, "ExplanationRun");
+    }
+
+    public SchemaValidationResult ValidateComparisonExplanationJson(string json)
+    {
+        return Validate(json, _comparisonExplanationSchema.Value, "ComparisonExplanation");
     }
 
     public Task<SchemaValidationResult> ValidateAgentResultJsonAsync(

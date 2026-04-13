@@ -19,6 +19,8 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
 
         AddProblemsForPath(opts.AgentResultSchemaPath, "AgentResult", problems);
         AddProblemsForPath(opts.GoldenManifestSchemaPath, "GoldenManifest", problems);
+        AddProblemsForPath(opts.ExplanationRunSchemaPath, "ExplanationRun", problems);
+        AddProblemsForPath(opts.ComparisonExplanationSchemaPath, "ComparisonExplanation", problems);
 
         if (problems.Count > 0)
         
@@ -29,7 +31,7 @@ public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> opt
 
         return Task.FromResult(
             HealthCheckResult.Healthy(
-                $"Schema files present: {opts.AgentResultSchemaPath}, {opts.GoldenManifestSchemaPath}."));
+                $"Schema files present: {opts.AgentResultSchemaPath}, {opts.GoldenManifestSchemaPath}, {opts.ExplanationRunSchemaPath}, {opts.ComparisonExplanationSchemaPath}."));
     }
 
     private static void AddProblemsForPath(string relativePath, string logicalName, List<string> problems)

@@ -228,6 +228,18 @@ public static class ArchLucidInstrumentation
             "archlucid_explanation_cache_misses_total",
             description: "Aggregate explanation cache misses (LLM call required).");
 
+    /// <summary>Schema validation of raw <c>AgentResult</c> LLM JSON (labels: <c>agent_type</c>, <c>outcome</c>=valid|invalid).</summary>
+    public static readonly Counter<long> AgentResultSchemaValidationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_result_schema_validations_total",
+            description: "Schema validation of raw AgentResult LLM output (labels: agent_type, outcome).");
+
+    /// <summary>Schema validation of explanation LLM JSON (labels: <c>explanation_type</c>, <c>outcome</c>=valid|invalid|skipped).</summary>
+    public static readonly Counter<long> ExplanationSchemaValidationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_explanation_schema_validations_total",
+            description: "Schema validation of explanation LLM payloads (labels: explanation_type, outcome).");
+
     /// <summary>Per-stage wall time inside the authority pipeline (labels: <c>stage</c>, <c>outcome</c>=success|error).</summary>
     public static readonly Histogram<double> AuthorityPipelineStageDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
@@ -280,6 +292,30 @@ public static class ArchLucidInstrumentation
         {
             acc.AddCompletions(1);
         }
+    }
+
+    /// <summary>Increments <c>archlucid_agent_result_schema_validations_total</c> (outcome: valid or invalid).</summary>
+    public static void RecordAgentResultSchemaValidation(string agentType, string outcome)
+    {
+        TagList tags = new()
+        {
+            { "agent_type", agentType },
+            { "outcome", outcome },
+        };
+
+        AgentResultSchemaValidationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <c>archlucid_explanation_schema_validations_total</c> (outcome: valid, invalid, or skipped).</summary>
+    public static void RecordExplanationSchemaValidation(string explanationType, string outcome)
+    {
+        TagList tags = new()
+        {
+            { "explanation_type", explanationType },
+            { "outcome", outcome },
+        };
+
+        ExplanationSchemaValidationsTotal.Add(1, tags);
     }
 
     public static void RecordLlmTokenUsage(

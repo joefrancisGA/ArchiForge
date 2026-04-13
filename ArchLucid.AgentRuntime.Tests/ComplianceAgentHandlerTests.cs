@@ -2,8 +2,12 @@ using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Scoping;
 
 using FluentAssertions;
+
+using Moq;
 
 namespace ArchLucid.AgentRuntime.Tests;
 
@@ -75,7 +79,25 @@ public sealed class ComplianceAgentHandlerTests
         AgentResultParser parser = new();
         NoOpTraceRecorder traceRecorder = new();
         IAgentSystemPromptCatalog catalog = AgentPromptCatalogTestFactory.Create();
-        ComplianceAgentHandler handler = new(completionClient, parser, traceRecorder, catalog);
+        Mock<IAuditService> audit = new();
+        audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        ComplianceAgentHandler handler = new(
+            completionClient,
+            parser,
+            traceRecorder,
+            catalog,
+            audit.Object,
+            scopeProvider.Object);
 
         ArchitectureRequest request = new()
         {

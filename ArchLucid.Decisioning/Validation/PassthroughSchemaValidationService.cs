@@ -9,6 +9,10 @@ public sealed class PassthroughSchemaValidationService : ISchemaValidationServic
 
     public SchemaValidationResult ValidateGoldenManifestJson(string json) => new();
 
+    public SchemaValidationResult ValidateExplanationRunJson(string json) => new();
+
+    public SchemaValidationResult ValidateComparisonExplanationJson(string json) => new();
+
     public Task<SchemaValidationResult> ValidateAgentResultJsonAsync(
         string json,
         CancellationToken cancellationToken = default) =>

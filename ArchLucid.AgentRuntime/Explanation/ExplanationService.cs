@@ -1,6 +1,10 @@
+using System.Text.Json;
+
 using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Provenance;
 
 using Microsoft.Extensions.Logging;
@@ -16,6 +20,7 @@ public sealed class ExplanationService(
     IAgentCompletionClient completionClient,
     IDeterministicExplanationService deterministic,
     IOptions<ExplanationServiceOptions> explanationOptions,
+    ISchemaValidationService schemaValidation,
     ILogger<ExplanationService> logger) : IExplanationService
 {
     private const string ArchitectSystemPrompt =
@@ -52,6 +57,7 @@ public sealed class ExplanationService(
             "highLevelSummary (string), keyTradeoffs (array of strings), narrative (string, 2-4 short paragraphs).";
 
         string? json = await TryCompleteJsonAsync(userPrompt, ct);
+        json = ValidateComparisonExplanationPayload(json);
 
         return deterministic.BuildComparisonExplanation(comparison, majorChanges, json);
     }
@@ -94,6 +100,7 @@ public sealed class ExplanationService(
             "If you cannot follow the schema, respond with plain prose only (no JSON); the system will still accept it.";
 
         string? json = await TryCompleteJsonAsync(userPrompt, ct);
+        json = ValidateRunExplanationPayload(json);
         string rawStored = json ?? string.Empty;
 
         return FinalizeRunExplanation(
@@ -104,6 +111,112 @@ public sealed class ExplanationService(
                 costs,
                 compliance,
                 rawStored));
+    }
+
+    private string? ValidateRunExplanationPayload(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return json;
+        }
+
+        string trimmed = json.Trim();
+
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "skipped");
+
+            return json;
+        }
+
+        if (!TryGetRunExplanationSchemaVersion(trimmed, out int ver) || ver != 1)
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "skipped");
+
+            return json;
+        }
+
+        SchemaValidationResult schemaResult = schemaValidation.ValidateExplanationRunJson(trimmed);
+
+        if (schemaResult.IsValid)
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "valid");
+
+            return json;
+        }
+
+        ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "invalid");
+
+        if (logger.IsEnabled(LogLevel.Warning))
+        {
+            logger.LogWarning(
+                "Run explanation LLM JSON failed schema validation; using deterministic fallback. Errors: {Errors}",
+                string.Join("; ", schemaResult.Errors));
+        }
+
+        return null;
+    }
+
+    private string? ValidateComparisonExplanationPayload(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return json;
+        }
+
+        string trimmed = json.Trim();
+
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("comparison", "skipped");
+
+            return json;
+        }
+
+        SchemaValidationResult schemaResult = schemaValidation.ValidateComparisonExplanationJson(trimmed);
+
+        if (schemaResult.IsValid)
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("comparison", "valid");
+
+            return json;
+        }
+
+        ArchLucidInstrumentation.RecordExplanationSchemaValidation("comparison", "invalid");
+
+        if (logger.IsEnabled(LogLevel.Warning))
+        {
+            logger.LogWarning(
+                "Comparison explanation LLM JSON failed schema validation; using heuristic fallback. Errors: {Errors}",
+                string.Join("; ", schemaResult.Errors));
+        }
+
+        return null;
+    }
+
+    private static bool TryGetRunExplanationSchemaVersion(string json, out int version)
+    {
+        version = 0;
+
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(json);
+
+            if (doc.RootElement.TryGetProperty("schemaVersion", out JsonElement el)
+                && el.ValueKind == JsonValueKind.Number
+                && el.TryGetInt32(out int v))
+            {
+                version = v;
+
+                return true;
+            }
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+
+        return false;
     }
 
     private ExplanationResult FinalizeRunExplanation(ExplanationResult result)

@@ -18,12 +18,15 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 {
     private static readonly AsyncLocal<(int Prompt, int Completion)?> LastCompletionTokenUsage = new();
 
+    private static readonly AsyncLocal<(string DeploymentName, string? ModelId)?> LastModelMetadata = new();
+
     /// <summary>Used when <c>AzureOpenAI:MaxCompletionTokens</c> is omitted or zero.</summary>
     public const int DefaultMaxCompletionTokens = 4096;
 
     private readonly ChatClient _chatClient;
     private readonly int _maxOutputTokens;
     private readonly LlmProviderDescriptor _descriptor;
+    private readonly string _deploymentName;
 
     /// <summary>
     /// Creates a client for the given deployment (model) on the Azure OpenAI resource.
@@ -52,6 +55,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
             endpointUri,
             new ApiKeyCredential(apiKey));
 
+        _deploymentName = deploymentName.Trim();
         _chatClient = azureClient.GetChatClient(deploymentName);
         _maxOutputTokens = maxCompletionTokens;
         _descriptor = LlmProviderDescriptor.ForAzureOpenAi(endpointUri, deploymentName);
@@ -80,6 +84,30 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         return false;
     }
 
+    /// <summary>Test hook: sets metadata read by <see cref="TryConsumeLastModelMetadata"/> (internals visible to AgentRuntime.Tests).</summary>
+    internal static void TestingSetLastModelMetadata(string deploymentName, string? modelId) =>
+        LastModelMetadata.Value = (deploymentName, modelId);
+
+    /// <summary>Consumes deployment name and provider-reported model id from the last successful <see cref="CompleteJsonAsync"/> on this async flow, if any.</summary>
+    public static bool TryConsumeLastModelMetadata(out string deploymentName, out string? modelVersion)
+    {
+        (string DeploymentName, string? ModelId)? raw = LastModelMetadata.Value;
+        LastModelMetadata.Value = null;
+
+        if (raw is { } v)
+        {
+            deploymentName = v.DeploymentName;
+            modelVersion = v.ModelId;
+
+            return true;
+        }
+
+        deploymentName = string.Empty;
+        modelVersion = null;
+
+        return false;
+    }
+
     /// <inheritdoc />
     /// <remarks>Uses <c>Temperature = 0.1</c>, <c>MaxOutputTokenCount</c>, and <c>ChatResponseFormat.CreateJsonObjectFormat()</c>.</remarks>
     public async Task<string> CompleteJsonAsync(
@@ -90,6 +118,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         ArgumentException.ThrowIfNullOrWhiteSpace(systemPrompt);
         ArgumentException.ThrowIfNullOrWhiteSpace(userPrompt);
         LastCompletionTokenUsage.Value = null;
+        LastModelMetadata.Value = null;
 
         List<ChatMessage> messages =
         [
@@ -121,6 +150,7 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
         }
         catch (Exception ex)
         {
+            LastModelMetadata.Value = null;
             llmActivity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             llmActivity?.AddException(ex);
 
@@ -158,6 +188,9 @@ public sealed class AzureOpenAiCompletionClient : IAgentCompletionClient
 
         if (string.IsNullOrEmpty(text))
             throw new InvalidOperationException("Azure OpenAI returned an empty assistant message.");
+
+        string? modelId = completion.Model;
+        LastModelMetadata.Value = (_deploymentName, string.IsNullOrWhiteSpace(modelId) ? null : modelId.Trim());
 
         ArchLucidInstrumentation.RecordLlmCompletionCallForCurrentRunBatch();
 

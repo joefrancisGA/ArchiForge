@@ -21078,6 +21078,21 @@ namespace ArchLucid.Api.Client.Generated
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?$")]
         public double? EstimatedCostUsd { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("fullSystemPromptBlobKey")]
+        public string FullSystemPromptBlobKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullUserPromptBlobKey")]
+        public string FullUserPromptBlobKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullResponseBlobKey")]
+        public string FullResponseBlobKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modelDeploymentName")]
+        public string ModelDeploymentName { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("modelVersion")]
+        public string ModelVersion { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset CreatedUtc { get; set; }
 
@@ -27558,6 +27573,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("archivedUtc")]
         public System.DateTimeOffset? ArchivedUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("blockCommitOnCritical")]
+        public bool BlockCommitOnCritical { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
