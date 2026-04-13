@@ -7,6 +7,8 @@ const getComplianceDriftTrendMock = vi.fn();
 vi.mock("@/lib/api", () => ({
   getGovernanceDashboard: (...args: unknown[]) => getGovernanceDashboardMock(...args),
   getComplianceDriftTrend: (...args: unknown[]) => getComplianceDriftTrendMock(...args),
+  approveRequest: vi.fn().mockResolvedValue(undefined),
+  rejectRequest: vi.fn().mockResolvedValue(undefined),
 }));
 
 const pushMock = vi.fn();

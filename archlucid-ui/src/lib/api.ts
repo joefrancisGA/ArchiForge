@@ -56,6 +56,7 @@ import type {
   ComplianceDriftTrendPoint,
   GovernanceDashboardSummary,
   GovernanceLineageResult,
+  GovernanceRationaleResult,
 } from "@/types/governance-dashboard";
 import type {
   GovernanceApprovalRequest,
@@ -964,6 +965,15 @@ export async function getApprovalRequestLineage(
   );
 }
 
+/** Deterministic governance rationale (lineage-derived bullets; no LLM). */
+export async function getGovernanceApprovalRationale(
+  approvalRequestId: string,
+): Promise<GovernanceRationaleResult> {
+  return apiGet<GovernanceRationaleResult>(
+    `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/rationale`,
+  );
+}
+
 /** Lists approval requests for a run (governance workflow). */
 export async function listApprovalRequests(runId: string): Promise<GovernanceApprovalRequest[]> {
   return apiGet<GovernanceApprovalRequest[]>(
@@ -985,7 +995,7 @@ export async function submitApprovalRequest(body: {
 /** Approves a pending governance approval request. */
 export async function approveRequest(
   approvalRequestId: string,
-  body: { reviewedBy: string; reviewComment?: string },
+  body: { reviewedBy?: string; reviewComment?: string },
 ): Promise<GovernanceApprovalRequest> {
   return apiPostJson<GovernanceApprovalRequest>(
     `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/approve`,
@@ -996,7 +1006,7 @@ export async function approveRequest(
 /** Rejects a pending governance approval request. */
 export async function rejectRequest(
   approvalRequestId: string,
-  body: { reviewedBy: string; reviewComment?: string },
+  body: { reviewedBy?: string; reviewComment?: string },
 ): Promise<GovernanceApprovalRequest> {
   return apiPostJson<GovernanceApprovalRequest>(
     `${governanceBase()}/approval-requests/${encodeURIComponent(approvalRequestId)}/reject`,

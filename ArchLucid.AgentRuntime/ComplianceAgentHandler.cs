@@ -62,6 +62,8 @@ public sealed class ComplianceAgentHandler(
 
             string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
 
+            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok);
+
             await traceRecorder.RecordAsync(
                 runId,
                 task.TaskId,
@@ -73,12 +75,16 @@ public sealed class ComplianceAgentHandler(
                 parseSucceeded: true,
                 errorMessage: null,
                 promptRepro,
-                cancellationToken: cancellationToken);
+                inTok,
+                outTok,
+                cancellationToken);
 
             return parsed;
         }
         catch (Exception ex)
         {
+            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok);
+
             await traceRecorder.RecordAsync(
                 runId,
                 task.TaskId,
@@ -90,7 +96,9 @@ public sealed class ComplianceAgentHandler(
                 parseSucceeded: false,
                 errorMessage: ex.Message,
                 promptRepro,
-                cancellationToken: cancellationToken);
+                inTok,
+                outTok,
+                cancellationToken);
 
             throw;
         }

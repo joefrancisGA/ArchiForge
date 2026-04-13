@@ -44,6 +44,9 @@ public sealed class GovernanceLineageFindingSummary
     public string Severity { get; set; } = string.Empty;
 
     public double TraceCompletenessRatio { get; set; }
+
+    /// <summary>Optional link to <c>AgentExecutionTrace.traceId</c> when the finding records <c>sourceAgentExecutionTraceId</c>.</summary>
+    public string? SourceAgentExecutionTraceId { get; set; }
 }
 
 /// <summary>

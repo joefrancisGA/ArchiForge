@@ -21,6 +21,8 @@ public interface IAgentExecutionTraceRecorder
     /// <param name="parseSucceeded">Whether <paramref name="parsedResultJson"/> is usable.</param>
     /// <param name="errorMessage">Parse or validation error text when <paramref name="parseSucceeded"/> is <see langword="false"/>.</param>
     /// <param name="promptRepro">Template id/version/hash and optional release label; <see langword="null"/> when not applicable.</param>
+    /// <param name="inputTokenCount">Provider-reported prompt tokens, when known.</param>
+    /// <param name="outputTokenCount">Provider-reported completion tokens, when known.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that completes when the trace is stored.</returns>
     Task RecordAsync(
@@ -34,5 +36,7 @@ public interface IAgentExecutionTraceRecorder
         bool parseSucceeded,
         string? errorMessage,
         AgentPromptReproMetadata? promptRepro = null,
+        int? inputTokenCount = null,
+        int? outputTokenCount = null,
         CancellationToken cancellationToken = default);
 }

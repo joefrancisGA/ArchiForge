@@ -70,6 +70,8 @@ public sealed class SimulatorExecutionTraceRecordingExecutor(
                 parseSucceeded: true,
                 errorMessage: null,
                 promptRepro,
+                inputTokenCount: null,
+                outputTokenCount: null,
                 cancellationToken);
         }
 

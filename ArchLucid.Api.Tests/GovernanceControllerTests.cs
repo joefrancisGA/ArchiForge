@@ -290,6 +290,93 @@ public sealed class GovernanceControllerTests(ArchLucidApiFactory factory) : Int
         items.Should().NotBeNullOrEmpty();
         items.Should().Contain(x => x.RunId == runId);
     }
+
+    [Fact]
+    public async Task GetApprovalRequestRationale_AfterSubmit_ReturnsOk()
+    {
+        string runId = await CreateRunAsync("REQ-GOV-RATIONALE-01");
+        var submitBody = new
+        {
+            RunId = runId,
+            ManifestVersion = "v1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test"
+        };
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        submitResponse.EnsureSuccessStatusCode();
+        GovernanceApprovalResponseDto? submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+
+        HttpResponseMessage rationaleResponse = await Client.GetAsync(
+            $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/rationale");
+
+        rationaleResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        GovernanceRationaleResponseDto? payload = await rationaleResponse.Content.ReadFromJsonAsync<GovernanceRationaleResponseDto>(JsonOptions);
+        payload.Should().NotBeNull();
+        payload!.ApprovalRequestId.Should().Be(submitted.ApprovalRequestId);
+        payload.Bullets.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task Approve_SecondApprove_ReturnsBadRequest()
+    {
+        string runId = await CreateRunAsync("REQ-GOV-APR2-01");
+        var submitBody = new
+        {
+            RunId = runId,
+            ManifestVersion = "v1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test"
+        };
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        submitResponse.EnsureSuccessStatusCode();
+        GovernanceApprovalResponseDto? submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        var approveBody = new { ReviewedBy = "reviewer-dup", ReviewComment = "ok" };
+        HttpResponseMessage first = await Client.PostAsync(
+            $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve",
+            JsonContent(approveBody));
+        first.StatusCode.Should().Be(HttpStatusCode.OK);
+        HttpResponseMessage second = await Client.PostAsync(
+            $"/v1/governance/approval-requests/{submitted.ApprovalRequestId}/approve",
+            JsonContent(approveBody));
+        second.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Approve_ParallelDuplicateApproves_FromSameReviewer_HasConsistentOutcome()
+    {
+        string runId = await CreateRunAsync("REQ-GOV-PAR-01");
+        var submitBody = new
+        {
+            RunId = runId,
+            ManifestVersion = "v1",
+            SourceEnvironment = "dev",
+            TargetEnvironment = "test"
+        };
+        HttpResponseMessage submitResponse = await Client.PostAsync("/v1/governance/approval-requests", JsonContent(submitBody));
+        submitResponse.EnsureSuccessStatusCode();
+        GovernanceApprovalResponseDto? submitted = await submitResponse.Content.ReadFromJsonAsync<GovernanceApprovalResponseDto>(JsonOptions);
+        string url = $"/v1/governance/approval-requests/{submitted!.ApprovalRequestId}/approve";
+        var approveBody = new { ReviewedBy = "reviewer-par", ReviewComment = "parallel" };
+        Task<HttpResponseMessage>[] tasks = Enumerable.Range(0, 5)
+            .Select(_ => Client.PostAsync(url, JsonContent(approveBody)))
+            .ToArray();
+        HttpResponseMessage[] responses = await Task.WhenAll(tasks);
+        int okCount = responses.Count(r => r.StatusCode == HttpStatusCode.OK);
+        int badCount = responses.Count(r => r.StatusCode == HttpStatusCode.BadRequest);
+        okCount.Should().BeGreaterThanOrEqualTo(1);
+        (okCount + badCount).Should().Be(5);
+    }
+}
+
+public sealed class GovernanceRationaleResponseDto
+{
+    public int SchemaVersion { get; set; }
+
+    public string ApprovalRequestId { get; set; } = string.Empty;
+
+    public string Summary { get; set; } = string.Empty;
+
+    public List<string> Bullets { get; set; } = [];
 }
 
 public sealed class GovernanceApprovalResponseDto

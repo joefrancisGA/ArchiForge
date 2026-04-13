@@ -19,7 +19,13 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
-import { getComplianceDriftTrend, getGovernanceDashboard } from "@/lib/api";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import {
+  approveRequest,
+  getComplianceDriftTrend,
+  getGovernanceDashboard,
+  rejectRequest,
+} from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
@@ -85,6 +91,10 @@ export default function GovernanceDashboardPage() {
   const [trendPoints, setTrendPoints] = useState<ComplianceDriftTrendPoint[]>([]);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [reviewDialog, setReviewDialog] = useState<
+    null | { mode: "approve" | "reject"; approvalRequestId: string; runId: string }
+  >(null);
+  const [reviewBusy, setReviewBusy] = useState(false);
 
   const loadDashboard = useCallback(async (isInitial: boolean) => {
     if (isInitial) {
@@ -130,6 +140,33 @@ export default function GovernanceDashboardPage() {
   const changes = summary?.recentChanges ?? [];
   const pendingCount = summary?.pendingCount ?? 0;
 
+  async function onConfirmDashboardReview() {
+    if (reviewDialog === null) {
+      return;
+    }
+
+    setReviewBusy(true);
+
+    try {
+      if (reviewDialog.mode === "approve") {
+        await approveRequest(reviewDialog.approvalRequestId, {
+          reviewComment: "Approved from governance dashboard",
+        });
+      } else {
+        await rejectRequest(reviewDialog.approvalRequestId, {
+          reviewComment: "Rejected from governance dashboard",
+        });
+      }
+
+      setReviewDialog(null);
+      await loadDashboard(false);
+    } catch (e) {
+      setFailure(toApiLoadFailure(e));
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
   return (
     <main id="main-content" className="mx-auto max-w-4xl px-1 sm:px-0">
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
@@ -146,6 +183,27 @@ export default function GovernanceDashboardPage() {
             correlationId={failure.correlationId}
           />
         </div>
+      ) : null}
+
+      {reviewDialog !== null ? (
+        <ConfirmationDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setReviewDialog(null);
+            }
+          }}
+          title={reviewDialog.mode === "approve" ? "Approve this request?" : "Reject this request?"}
+          description={
+            reviewDialog.mode === "approve"
+              ? `Approve promotion workflow for run ${reviewDialog.runId}. You cannot approve a request you submitted (segregation of duties).`
+              : `Reject promotion workflow for run ${reviewDialog.runId}. This records a governance decision.`
+          }
+          confirmLabel={reviewDialog.mode === "approve" ? "Approve" : "Reject"}
+          variant={reviewDialog.mode === "approve" ? "default" : "destructive"}
+          onConfirm={() => void onConfirmDashboardReview()}
+          busy={reviewBusy}
+        />
       ) : null}
 
       {initialLoad ? <DashboardSkeleton /> : null}
@@ -212,6 +270,38 @@ export default function GovernanceDashboardPage() {
                           Lineage
                         </Link>
                       </Button>
+                      {(row.status === "Submitted" || row.status === "Draft") && (
+                        <>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() =>
+                              setReviewDialog({
+                                mode: "approve",
+                                approvalRequestId: row.approvalRequestId,
+                                runId: row.runId,
+                              })
+                            }
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            onClick={() =>
+                              setReviewDialog({
+                                mode: "reject",
+                                approvalRequestId: row.approvalRequestId,
+                                runId: row.runId,
+                              })
+                            }
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      )}
                       <Button
                         type="button"
                         size="sm"

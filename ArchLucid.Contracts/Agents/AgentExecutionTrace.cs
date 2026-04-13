@@ -73,6 +73,15 @@ public sealed class AgentExecutionTrace
     /// <summary>Optional operator-defined label from configuration (A/B variant, pilot name); not part of the content hash.</summary>
     public string? PromptReleaseLabel { get; set; }
 
+    /// <summary>Prompt (input) token count from the provider, when reported.</summary>
+    public int? InputTokenCount { get; set; }
+
+    /// <summary>Completion (output) token count from the provider, when reported.</summary>
+    public int? OutputTokenCount { get; set; }
+
+    /// <summary>Optional estimated USD cost from input/output token counts when cost estimation is enabled in the recorder.</summary>
+    public decimal? EstimatedCostUsd { get; set; }
+
     /// <summary>UTC timestamp when this trace was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

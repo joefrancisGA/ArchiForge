@@ -53,6 +53,8 @@ export interface GovernanceLineageFindingSummary {
   engineType: string;
   severity: string;
   traceCompletenessRatio: number;
+  /** Optional link to AgentExecutionTrace.traceId when the finding records it. */
+  sourceAgentExecutionTraceId?: string | null;
 }
 
 export interface GovernanceLineageResult {
@@ -62,4 +64,12 @@ export interface GovernanceLineageResult {
   topFindings: GovernanceLineageFindingSummary[];
   riskPosture: string | null;
   promotions: GovernancePromotionRecord[];
+}
+
+/** GET /v1/governance/approval-requests/{id}/rationale */
+export interface GovernanceRationaleResult {
+  schemaVersion: number;
+  approvalRequestId: string;
+  summary: string;
+  bullets: string[];
 }

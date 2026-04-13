@@ -12,7 +12,7 @@ namespace ArchLucid.AgentRuntime.Tests;
 public sealed class ExplanationServiceComparisonTests
 {
     /// <summary>
-    /// <see cref="ExplanationService.LlmComparisonJson"/> uses get-only properties; System.Text.Json does not hydrate them from the model response.
+    /// LLM comparison JSON with get-only properties does not hydrate; <see cref="DeterministicExplanationService"/> falls back to heuristics.
     /// This test exercises the comparison explanation pipeline and heuristic fallbacks when the model JSON is not bound.
     /// </summary>
     [Fact]
@@ -21,6 +21,7 @@ public sealed class ExplanationServiceComparisonTests
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => "{}");
         ExplanationService svc = new(
             client,
+            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             Options.Create(new ExplanationServiceOptions()),
             NullLogger<ExplanationService>.Instance);
         ComparisonResult comparison = new()

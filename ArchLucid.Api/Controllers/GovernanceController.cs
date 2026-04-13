@@ -37,6 +37,7 @@ public sealed class GovernanceController(
     IScopeContextProvider scopeContextProvider,
     IGovernanceDashboardService governanceDashboardService,
     IGovernanceLineageService governanceLineageService,
+    IGovernanceRationaleService governanceRationaleService,
     IComplianceDriftTrendService complianceDriftTrendService,
     ILogger<GovernanceController> logger)
     : ControllerBase
@@ -52,6 +53,9 @@ public sealed class GovernanceController(
 
     private readonly IGovernanceLineageService _governanceLineageService =
         governanceLineageService ?? throw new ArgumentNullException(nameof(governanceLineageService));
+
+    private readonly IGovernanceRationaleService _governanceRationaleService =
+        governanceRationaleService ?? throw new ArgumentNullException(nameof(governanceRationaleService));
     [HttpPost("approval-requests")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [ProducesResponseType(typeof(GovernanceApprovalRequest), StatusCodes.Status200OK)]
@@ -298,6 +302,27 @@ public sealed class GovernanceController(
         CancellationToken cancellationToken)
     {
         GovernanceLineageResult? result = await _governanceLineageService.GetApprovalRequestLineageAsync(
+            approvalRequestId,
+            cancellationToken);
+
+        if (result is null)
+        {
+            return this.NotFoundProblem(
+                $"Approval request '{approvalRequestId}' was not found.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("approval-requests/{approvalRequestId}/rationale")]
+    [ProducesResponseType(typeof(GovernanceRationaleResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetApprovalRequestRationale(
+        [FromRoute] string approvalRequestId,
+        CancellationToken cancellationToken)
+    {
+        GovernanceRationaleResult? result = await _governanceRationaleService.GetApprovalRequestRationaleAsync(
             approvalRequestId,
             cancellationToken);
 

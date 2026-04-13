@@ -16,5 +16,7 @@ public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
         bool parseSucceeded,
         string? errorMessage,
         AgentPromptReproMetadata? promptRepro = null,
+        int? inputTokenCount = null,
+        int? outputTokenCount = null,
         CancellationToken cancellationToken = default) => Task.CompletedTask;
 }

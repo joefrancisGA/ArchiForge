@@ -50,6 +50,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IImprovementAdvisorService, ImprovementAdvisorService>();
         services.Configure<ExplanationServiceOptions>(
             configuration.GetSection(ExplanationServiceOptions.SectionPath));
+        services.Configure<LlmCostEstimationOptions>(
+            configuration.GetSection(LlmCostEstimationOptions.SectionPath));
+        services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
+        services.AddSingleton<IDeterministicExplanationService, DeterministicExplanationService>();
         services.AddScoped<IExplanationService, ExplanationService>();
         RegisterRunExplanationSummaryService(services, configuration);
         services.AddScoped<IConversationService, ConversationService>();

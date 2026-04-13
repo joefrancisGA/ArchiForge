@@ -2,14 +2,28 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Microsoft.Extensions.Options;
+
 namespace ArchLucid.AgentRuntime;
 
 /// <summary>
 /// <see cref="IAgentExecutionTraceRecorder"/> that inserts rows via <see cref="IAgentExecutionTraceRepository"/>, truncating large prompt/response fields.
 /// </summary>
-public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository repository)
+public sealed class AgentExecutionTraceRecorder(
+    IAgentExecutionTraceRepository repository,
+    ILlmCostEstimator costEstimator,
+    IOptions<LlmCostEstimationOptions> costOptions)
     : IAgentExecutionTraceRecorder
 {
+    private readonly IAgentExecutionTraceRepository _repository =
+        repository ?? throw new ArgumentNullException(nameof(repository));
+
+    private readonly ILlmCostEstimator _costEstimator =
+        costEstimator ?? throw new ArgumentNullException(nameof(costEstimator));
+
+    private readonly IOptions<LlmCostEstimationOptions> _costOptions =
+        costOptions ?? throw new ArgumentNullException(nameof(costOptions));
+
     /// <summary>Maximum stored length for prompt/response fields to prevent unbounded PII retention.</summary>
     private const int MaxContentLength = 8192;
 
@@ -25,10 +39,19 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
         bool parseSucceeded,
         string? errorMessage,
         AgentPromptReproMetadata? promptRepro = null,
+        int? inputTokenCount = null,
+        int? outputTokenCount = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
+
+        int inTok = inputTokenCount ?? 0;
+        int outTok = outputTokenCount ?? 0;
+        decimal? estimated = null;
+
+        if (_costOptions.Value.Enabled && (inTok > 0 || outTok > 0))
+            estimated = _costEstimator.EstimateUsd(inTok, outTok);
 
         AgentExecutionTrace trace = new()
         {
@@ -46,10 +69,13 @@ public sealed class AgentExecutionTraceRecorder(IAgentExecutionTraceRepository r
             PromptTemplateVersion = promptRepro?.TemplateVersion,
             SystemPromptContentSha256 = promptRepro?.SystemPromptContentSha256Hex,
             PromptReleaseLabel = promptRepro?.ReleaseLabel,
+            InputTokenCount = inputTokenCount,
+            OutputTokenCount = outputTokenCount,
+            EstimatedCostUsd = estimated,
             CreatedUtc = DateTime.UtcNow
         };
 
-        await repository.CreateAsync(trace, cancellationToken);
+        await _repository.CreateAsync(trace, cancellationToken);
     }
 
     private static string Truncate(string value, int maxLength) =>

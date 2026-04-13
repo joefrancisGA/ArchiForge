@@ -54,7 +54,11 @@ public sealed class ExplanationServiceRunTests
         IAgentCompletionClient client = new FakeAgentCompletionClient(
             (_, _) => llmJson,
             LlmProviderDescriptor.ForOffline("stub-llm", "model-under-test"));
-        ExplanationService svc = new(client, options, NullLogger<ExplanationService>.Instance);
+        ExplanationService svc = new(
+            client,
+            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
+            options,
+            NullLogger<ExplanationService>.Instance);
 
         ExplanationResult result = await svc.ExplainRunAsync(MinimalManifest(), null, CancellationToken.None);
 
@@ -82,6 +86,7 @@ public sealed class ExplanationServiceRunTests
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => prose);
         ExplanationService svc = new(
             client,
+            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             Options.Create(new ExplanationServiceOptions()),
             NullLogger<ExplanationService>.Instance);
 
@@ -103,6 +108,7 @@ public sealed class ExplanationServiceRunTests
         IAgentCompletionClient client = new FakeAgentCompletionClient((_, _) => legacy);
         ExplanationService svc = new(
             client,
+            new DeterministicExplanationService(NullLogger<DeterministicExplanationService>.Instance),
             Options.Create(new ExplanationServiceOptions()),
             NullLogger<ExplanationService>.Instance);
 

@@ -20,6 +20,8 @@ public sealed class SpyAgentExecutionTraceRecorder : IAgentExecutionTraceRecorde
         bool parseSucceeded,
         string? errorMessage,
         AgentPromptReproMetadata? promptRepro = null,
+        int? inputTokenCount = null,
+        int? outputTokenCount = null,
         CancellationToken cancellationToken = default)
     {
         Calls.Add((runId, taskId, agentType));

@@ -47,6 +47,9 @@ export function ShellNav() {
           >
             Home
           </Link>
+          <Link className="shell-nav-link" href="/getting-started" title="Short path into runs, governance, compare">
+            Getting started
+          </Link>
           <Link className="shell-nav-link" href="/onboarding" title="Guided operator onboarding checklist">
             Onboarding
           </Link>
