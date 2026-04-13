@@ -25,6 +25,9 @@ concurrency:
   group: archlucid-cd-staging-merge
   cancel-in-progress: false
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy-staging:
     if: |

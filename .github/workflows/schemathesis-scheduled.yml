@@ -20,6 +20,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   schemathesis:
     runs-on: ubuntu-latest
@@ -72,7 +75,7 @@ jobs:
 
       - name: Upload Schemathesis JUnit
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: schemathesis-junit-${{ github.run_id }}
           path: .schemathesis-out/schemathesis-results.xml

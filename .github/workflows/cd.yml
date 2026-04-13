@@ -54,6 +54,10 @@ concurrency:
   group: archlucid-cd-${{ github.event.inputs.target }}
   cancel-in-progress: false
 
+# Align JavaScript actions with Node 24 (GitHub default June 2026); reduces node20 deprecation noise.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-push-images:
     name: Build and push images (${{ github.event.inputs.target }})
