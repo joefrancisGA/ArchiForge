@@ -152,6 +152,20 @@ Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs
 
 ---
 
+## Committed Grafana dashboards (`infra/grafana/`)
+
+| File | Purpose |
+|------|---------|
+| `dashboard-archlucid-authority.json` | Authority pipeline spans and throughput. |
+| `dashboard-archlucid-slo.json` | HTTP SLO / burn-rate style panels. |
+| `dashboard-archlucid-llm-usage.json` | LLM token rates. |
+| `dashboards/archlucid-container-apps-overview.json` | Container Apps overview. |
+| **`dashboard-archlucid-run-lifecycle.json`** | Run-lifecycle / traceability: template variable **`runId`**, links to API audit search, authority stage histograms, circuit breaker rates — use with [runbooks/TRACE_A_RUN.md](runbooks/TRACE_A_RUN.md). |
+
+Import paths and Terraform wiring: [runbooks/SLO_PROMETHEUS_GRAFANA.md](runbooks/SLO_PROMETHEUS_GRAFANA.md).
+
+---
+
 ## Related documents
 
 - [PERFORMANCE.md](PERFORMANCE.md) — hot-path caching (including aggregate explanation summary TTL and invalidation).

@@ -1,0 +1,170 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Run lifecycle / traceability. Pair with docs/runbooks/TRACE_A_RUN.md. Trace viewer URL uses API run.otelTraceId + NEXT_PUBLIC_TRACE_VIEWER_URL_TEMPLATE (not this dashboard).",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+      "id": 10,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "## Trace viewer\n\n1. `GET /v1/architecture/run/$runId` → copy **`run.otelTraceId`**.\n2. Open your trace UI with that **32-char hex** (same `{traceId}` placeholder as operator UI / CLI `ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE`).\n\nExample: `[Open trace](${TRACE_VIEWER_BASE:raw}/$runId)` — replace **`TRACE_VIEWER_BASE`** with your Grafana Explore or Jaeger base (Grafana variables cannot substitute API responses; use the runbook for the exact URL).",
+        "mode": "markdown"
+      },
+      "title": "Trace viewer link (manual)",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Durable audit lives in SQL. Grafana needs a SQL datasource or use the API: `GET /v1/audit/search?runId=$runId&take=500`.",
+      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 4 },
+      "id": 11,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "| Step | Action |\n|------|--------|\n| By run | `GET /v1/audit/search?runId=**$runId**&take=500` |\n| By correlation | After first response, `GET /v1/audit/search?correlationId=...` |\n\nIndex: **IX_AuditEvents_RunId_OccurredUtc** (migration 055).",
+        "mode": "markdown"
+      },
+      "title": "Run audit timeline (API)",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 4 },
+      "id": 12,
+      "options": {
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false },
+        "content": "**No SQL datasource** in the default ArchLucid Grafana bundle. Use **`GET /v1/audit/search`** (see left panel) or add a Grafana SQL datasource to `dbo.AuditEvents` in your environment.",
+        "mode": "markdown"
+      },
+      "title": "Audit SQL note",
+      "type": "text"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": { "unit": "ms" },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "id": 1,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(archlucid_authority_pipeline_stage_duration_ms_bucket{stage=~\"context_ingestion|graph|findings|decisioning|artifacts\"}[5m])) by (le, stage))",
+          "legendFormat": "{{stage}} p95",
+          "refId": "A"
+        }
+      ],
+      "title": "Authority pipeline stage duration (p95, all runs)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Per-run label filtering requires OTel → Prometheus to expose archlucid.run_id on histograms; when absent, this shows global throughput.",
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(archlucid_llm_calls_per_run_bucket[5m])) by (le))",
+          "legendFormat": "p95 calls/run (global)",
+          "refId": "A"
+        }
+      ],
+      "title": "LLM calls per run (p95, global)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 17 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(archlucid_circuit_breaker_state_transitions_total[5m]))",
+          "legendFormat": "state transitions/s",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(archlucid_circuit_breaker_rejections_total[5m]))",
+          "legendFormat": "rejections/s",
+          "refId": "B"
+        }
+      ],
+      "title": "Circuit breaker (global rates)",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["archlucid", "run-lifecycle", "traceability"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "label": "Datasource",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      },
+      {
+        "current": { "text": "", "value": "" },
+        "hide": 0,
+        "label": "RunId (no-dash or GUID)",
+        "name": "runId",
+        "options": [{ "text": "", "value": "", "selected": true }],
+        "query": "",
+        "type": "textbox"
+      },
+      {
+        "current": { "text": "https://jaeger.example/trace", "value": "https://jaeger.example/trace" },
+        "hide": 0,
+        "label": "Trace viewer base (doc only)",
+        "name": "TRACE_VIEWER_BASE",
+        "options": [{ "text": "https://jaeger.example/trace", "value": "https://jaeger.example/trace", "selected": true }],
+        "query": "",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "ArchLucid — Run lifecycle (traceability)",
+  "uid": "archlucid-run-lifecycle",
+  "version": 1,
+  "weekStart": ""
+}

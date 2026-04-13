@@ -25,7 +25,7 @@ const peerReviewerActor = "e2e-peer-reviewer";
 /** Matches default `ArchLucidAuth:DevUserName` in DevelopmentBypass (submitter for governance requests). */
 const developmentBypassActorName = "Developer";
 
-const liveE2eForensics: { runId?: string; approvalRequestId?: string } = {};
+const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
 
 async function waitForReadyForCommit(runId: string, request: APIRequestContext, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
@@ -56,7 +56,7 @@ test.describe("live-api-journey", () => {
   test.afterAll(() => {
     if (liveE2eForensics.runId) {
       console.log(
-        `[live-api-journey] runId=${liveE2eForensics.runId} approvalRequestId=${liveE2eForensics.approvalRequestId ?? ""}`,
+        `[live-api-journey] runId=${liveE2eForensics.runId} approvalRequestId=${liveE2eForensics.approvalRequestId ?? ""} auditCorrelationId=${liveE2eForensics.auditCorrelationId ?? ""}`,
       );
     }
   });
@@ -191,6 +191,24 @@ test.describe("live-api-journey", () => {
     expect.soft(duplicateApprove.status()).toBe(400);
 
     const auditEvents = await searchAudit(request, { runId, take: "100" });
+
+    for (const ev of auditEvents) {
+      expect
+        .soft(ev.correlationId != null && ev.correlationId.length > 0, `audit event ${ev.eventType ?? "?"} should have correlationId`)
+        .toBe(true);
+    }
+
+    const firstCorrelation = auditEvents.find((e) => e.correlationId != null && e.correlationId.length > 0)?.correlationId;
+
+    if (firstCorrelation) {
+      liveE2eForensics.auditCorrelationId = firstCorrelation;
+      test.info().annotations.push({ type: "e2e-audit-correlation-id", description: firstCorrelation });
+
+      const byCorrelation = await searchAudit(request, { correlationId: firstCorrelation, take: "100" });
+
+      expect.soft(byCorrelation.length, "audit search by correlationId should return at least one row").toBeGreaterThan(0);
+    }
+
     const types = new Set(auditEvents.map((e) => e.eventType).filter(Boolean) as string[]);
 
     const required = [

@@ -104,6 +104,64 @@ public sealed class AuditControllerSearchTests
     }
 
     [Fact]
+    public async Task SearchAudit_WithCorrelationId_PassesFilterToRepo()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?correlationId=test-corr-42");
+
+        response.EnsureSuccessStatusCode();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.CorrelationId == "test-corr-42"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAudit_WithRunId_PassesFilterToRepo()
+    {
+        Guid runId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
+
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync($"/v1/audit/search?runId={runId}");
+
+        response.EnsureSuccessStatusCode();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.RunId == runId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task GetEventTypes_ReturnsAllConstants()
     {
         await using ArchLucidApiFactory plain = new();

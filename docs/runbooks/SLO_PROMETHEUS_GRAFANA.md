@@ -34,6 +34,7 @@ Give operators a **repeatable** way to:
 | Threshold / backlog alerts | `infra/prometheus/archlucid-alerts.yml` | Outbox depth, integration backlog, etc. |
 | Resilience test philosophy | `docs/CHAOS_TESTING.md` | Deterministic fault injection in unit tests; staging drills pair with these alerts |
 | Dashboard JSON | `infra/grafana/*.json`, `infra/grafana/dashboards/*.json` | Import or Terraform-provision |
+| Run lifecycle dashboard | `infra/grafana/dashboard-archlucid-run-lifecycle.json` | Per-run variables + authority/LLM/circuit-breaker panels; pairs with [TRACE_A_RUN.md](./TRACE_A_RUN.md) |
 | Managed Grafana instance | `infra/terraform-monitoring/main.tf` | `azurerm_dashboard_grafana` |
 | Optional Terraform dashboards | `infra/terraform-monitoring/grafana_dashboards.tf` | `grafana_folder` + `grafana_dashboard` (Grafana provider) |
 | OTLP + metrics | `ArchLucid.Host.Core/Startup/ObservabilityExtensions.cs` | Traces/metrics exporters |

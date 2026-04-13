@@ -211,13 +211,27 @@ export async function approveGovernanceRequest(
   return res.json() as Promise<GovernanceApprovalRequestJson>;
 }
 
-/** GET `/v1/audit/search` — filtered audit events (runId is a GUID query param). */
+/** GET `/v1/audit/search` — filtered audit events (`runId` and/or `correlationId` query params). */
 export async function searchAudit(
   request: APIRequestContext,
-  params: { runId: string; take?: string },
+  params: { runId?: string; correlationId?: string; take?: string },
 ): Promise<AuditEventJson[]> {
+  if (!params.runId && !params.correlationId) {
+    throw new Error("searchAudit: provide runId and/or correlationId");
+  }
+
+  const query: Record<string, string> = { take: params.take ?? "100" };
+
+  if (params.runId) {
+    query.runId = params.runId;
+  }
+
+  if (params.correlationId) {
+    query.correlationId = params.correlationId;
+  }
+
   const res = await request.get(`${liveApiBase}/v1/audit/search`, {
-    params: { runId: params.runId, take: params.take ?? "100" },
+    params: query,
     headers: { Accept: "application/json" },
   });
 
@@ -228,6 +242,7 @@ export async function searchAudit(
 
 export type AuditEventJson = {
   eventType?: string;
+  correlationId?: string | null;
 };
 
 /** GET `/v1/artifacts/runs/{runId}/export` — ZIP of committed run (binary). */
