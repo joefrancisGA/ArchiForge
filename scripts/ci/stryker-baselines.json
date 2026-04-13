@@ -1,7 +1,7 @@
 {
-  "Persistence": { "mutationScore": 62.0 },
-  "Application": { "mutationScore": 62.0 },
-  "AgentRuntime": { "mutationScore": 62.0 },
-  "Coordinator": { "mutationScore": 62.0 },
-  "Decisioning": { "mutationScore": 62.0 }
+  "Persistence": { "mutationScore": 65.0 },
+  "Application": { "mutationScore": 65.0 },
+  "AgentRuntime": { "mutationScore": 65.0 },
+  "Coordinator": { "mutationScore": 65.0 },
+  "Decisioning": { "mutationScore": 65.0 }
 }

@@ -20,9 +20,9 @@ The repo includes **`stryker-config.json`** at the solution root for **Persisten
 
 Each config enables **`json`** alongside `progress` and `html` so CI can parse **`mutation-report.json`** (mutation-testing-elements schema).
 
-Scheduled CI runs all five targets (matrix) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.15** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (**70**, aligned with **`stryker-baselines.json`** after the latest ratchet).
+Scheduled CI runs all five targets (matrix) with **`-s ArchLucid.sln`** (avoids ambiguity when multiple `.sln` files exist), uploads **`StrykerOutput`** as an artifact, then runs **`scripts/ci/assert_stryker_score_vs_baseline.py`** against committed scores in **`scripts/ci/stryker-baselines.json`** (default tolerance **0.10** percentage points below baseline → fail). This is a **regression guard** on top of each config’s **`thresholds.break`** (**70**, aligned with **`stryker-baselines.json`** after the latest ratchet).
 
-**Why baselines should track observed scores:** When baseline and **`thresholds.break`** are equal (currently **70**), the assert script still enforces **baseline − 0.15** pp. Prefer **observed green scores** from **`refresh_stryker_baselines.py`** (rounded **down** to one decimal, e.g. 78.37 → **78.3**) so regressions inside the passing band are caught; ratchet **up** when measured scores justify it (e.g. **72**), never down without a product decision.
+**Why baselines should track observed scores:** When baseline and **`thresholds.break`** are equal (currently **70**), the assert script still enforces **baseline − 0.10** pp. Prefer **observed green scores** from **`refresh_stryker_baselines.py`** (rounded **down** to one decimal, e.g. 78.37 → **78.3**) so regressions inside the passing band are caught; ratchet **up** when measured scores justify it (e.g. **72**), never down without a product decision.
 
 ### Refreshing `stryker-baselines.json` (calibrated scores)
 
@@ -70,6 +70,12 @@ Mutation testing is **not** part of the default GitHub Actions workflow: it is s
 
 - Runs are **CPU-heavy**; avoid parallel mutation on tiny dev VMs.
 - No secrets are required; Stryker does not call Azure.
+
+## Baseline ratchet policy
+
+Baselines in **`scripts/ci/stryker-baselines.json`** should only move **up** — never lowered without a product decision. When the next scheduled Stryker run succeeds, refresh baselines using **`python3 scripts/ci/refresh_stryker_baselines.py`** and commit the result. This creates a ratchet effect: each green run raises the floor and prevents future regressions.
+
+Current target: raise all modules to **70+** (aligned with **`thresholds.break`**) by end of Q2 2026. Track progress by comparing baseline values after each weekly run.
 
 ## Reliability
 

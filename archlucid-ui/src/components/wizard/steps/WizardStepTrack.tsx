@@ -35,7 +35,7 @@ export function WizardStepTrack({ runId, pollSummary }: WizardStepTrackProps) {
       description="The authority chain runs asynchronously. This view polls run summary every few seconds."
     >
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        <strong>Run id:</strong>{" "}
+        <strong>Run ID:</strong>{" "}
         <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">{runId}</code>
       </p>
 

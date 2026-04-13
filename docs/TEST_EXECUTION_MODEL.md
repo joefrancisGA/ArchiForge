@@ -207,6 +207,7 @@ These workflows run on a **weekly** cron (**Monday 06:00 UTC**) and **`workflow_
 |------|----------|-----------|
 | **4a** | **[`zap-baseline-strict-scheduled.yml`](../.github/workflows/zap-baseline-strict-scheduled.yml)** (**Security: ZAP baseline (scheduled, strict visibility)**) | OWASP ZAP **baseline** scan against the API container; strict rules. See [security/ZAP_BASELINE_RULES.md](security/ZAP_BASELINE_RULES.md). |
 | **4b** | **[`schemathesis-scheduled.yml`](../.github/workflows/schemathesis-scheduled.yml)** (**Security: Schemathesis API fuzz (scheduled)**) | **Schemathesis** property-based fuzzing from **`/openapi/v1.json`**; JUnit artifact. See [API_FUZZ_TESTING.md](API_FUZZ_TESTING.md). |
+| **4c** | **[`stryker-scheduled.yml`](../.github/workflows/stryker-scheduled.yml)** (**Stryker mutation testing (scheduled)**) | **Stryker.NET** per module; asserts score vs **`scripts/ci/stryker-baselines.json`** (**65.0** baseline per label, **0.10** pp tolerance). See [MUTATION_TESTING_STRYKER.md](MUTATION_TESTING_STRYKER.md). |
 
 **Follow-on / re-run:** Use the Actions tab to **re-run failed jobs** only (e.g. retry e2e after a flake) without redefining workflows.
 

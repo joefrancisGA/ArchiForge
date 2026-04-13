@@ -8,6 +8,14 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-13 — Stryker enforcement tightening + pre-commit gate tests
+
+**Tests:** **`ArchitectureRunServiceExecuteCommitTests`** — commit path throws **`PreCommitGovernanceBlockedException`** when the gate blocks; happy path when allowed; gate skipped when disabled. **`ArchitectureRunCommitPipelineIntegrationTests`** — real **`PreCommitGovernanceGate`** blocks commit without persisting manifest and emits **`GovernancePreCommitBlocked`** audit; allows commit when findings are non-critical. **`PreCommitGovernanceGateTests`** — edge cases (unparseable run id, missing snapshot id, non-enforcing assignment, disabled assignment, missing snapshot row, multiple critical ids, assignment tie-break).
+
+**Stryker:** Raised committed baselines **`62.0` → `65.0`** in **`scripts/ci/stryker-baselines.json`** for all five matrix labels. Tightened scheduled workflow assert tolerance **`0.15` → `0.10`** pp. Documented baseline ratchet policy in **`MUTATION_TESTING_STRYKER.md`**; noted baselines in **`TEST_STRUCTURE.md`**; added Tier **4c** row in **`TEST_EXECUTION_MODEL.md`**.
+
+---
+
 ## 2026-04-12 — Quality prompts batch (live E2E docs, k6, trace blobs, audit UI, pre-commit gate, Terraform runbook)
 
 **Added:** Optional **pre-commit governance gate** (`ArchLucid:Governance:PreCommitGateEnabled`, `PolicyPackAssignment.BlockCommitOnCritical`, SQL **`054`**), **`#governance-pre-commit-blocked`** problem type, durable audit **`GovernancePreCommitBlocked`**.

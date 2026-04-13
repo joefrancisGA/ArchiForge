@@ -51,7 +51,7 @@ jobs:
           --baseline scripts/ci/stryker-baselines.json
           --label "${{ matrix.label }}"
           --stryker-root StrykerOutput
-          --tolerance 0.15
+          --tolerance 0.10
 
       - name: Upload Stryker report
         uses: actions/upload-artifact@v6

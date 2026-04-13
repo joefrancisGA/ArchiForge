@@ -2,6 +2,7 @@ using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
@@ -474,6 +475,241 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         await act.Should().ThrowAsync<RunNotFoundException>();
     }
 
+    [Fact]
+    public async Task CommitRunAsync_throws_PreCommitGovernanceBlockedException_when_gate_blocks()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = "r",
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate.Setup(g => g.EvaluateAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PreCommitGateResult
+                {
+                    Blocked = true,
+                    Reason =
+                        "1 Critical finding(s) block commit per policy pack assignment (pack test-pack).",
+                    BlockingFindingIds = ["f-critical-1"],
+                    PolicyPackId = "test-pack",
+                });
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActor()).Returns("a");
+
+        ArchitectureRunService sut = CreateSutForCommit(
+            runRepo,
+            scopeProvider,
+            Mock.Of<IArchitectureRequestRepository>(),
+            Mock.Of<IAgentTaskRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IAgentEvaluationRepository>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IDecisionEngineService>(),
+            Mock.Of<IDecisionNodeRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
+            actor.Object,
+            gate.Object,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            Mock.Of<IAuditService>());
+
+        Func<Task> act = async () => await sut.CommitRunAsync(runId, CancellationToken.None);
+
+        PreCommitGovernanceBlockedException ex = (await act.Should().ThrowAsync<PreCommitGovernanceBlockedException>())
+            .Which;
+
+        ex.Result.Blocked.Should().BeTrue();
+        ex.Result.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-critical-1");
+        ex.Result.PolicyPackId.Should().Be("test-pack");
+    }
+
+    [Fact]
+    public async Task CommitRunAsync_succeeds_when_gate_allows()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-gate-allow-" + Guid.NewGuid().ToString("N");
+        string manifestVersion = "v1-" + runId;
+        string decisionTraceId = "trace-gate-allow-" + runId;
+
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Description = "d",
+        };
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo.Setup(x => x.GetByIdAsync(requestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
+
+        AgentTask task = new()
+        {
+            TaskId = "t-gate",
+            RunId = runId,
+            AgentType = AgentType.Topology,
+            Objective = "o",
+            Status = AgentTaskStatus.Completed,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentTask> { task });
+
+        AgentResult topologyResult = new()
+        {
+            RunId = runId,
+            TaskId = task.TaskId,
+            AgentType = AgentType.Topology,
+            Confidence = 0.8,
+            ResultId = "r-gate",
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        Mock<IAgentResultRepository> resultRepo = new();
+        resultRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(new List<AgentResult> { topologyResult });
+
+        Mock<IAgentEvaluationRepository> evaluationRepo = new();
+        evaluationRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync([]);
+
+        Mock<IAgentEvidencePackageRepository> evidencePackageRepo = new();
+        evidencePackageRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AgentEvidencePackage { RunId = runId, RequestId = requestId });
+
+        GoldenManifest manifest = new()
+        {
+            RunId = runId,
+            SystemName = "S",
+            Services = [],
+            Datastores = [],
+            Relationships = [],
+            Governance = new ManifestGovernance(),
+            Metadata = new ManifestMetadata
+            {
+                ManifestVersion = manifestVersion,
+                DecisionTraceIds = [decisionTraceId],
+            },
+        };
+
+        DecisionMergeResult merge = new()
+        {
+            Manifest = manifest,
+            DecisionTraces =
+            [
+                RunEventTrace.From(new RunEventTracePayload
+                {
+                    TraceId = decisionTraceId,
+                    RunId = runId,
+                    EventType = "Commit",
+                    EventDescription = "merged",
+                }),
+            ],
+        };
+
+        Mock<IDecisionEngineService> decisionEngine = new();
+        decisionEngine.Setup(x => x.MergeResults(
+                runId,
+                request,
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<IReadOnlyCollection<DecisionNode>>(),
+                It.IsAny<string?>()))
+            .Returns(merge);
+
+        Mock<IDecisionNodeRepository> decisionNodeRepo = new();
+        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+        gate.Setup(g => g.EvaluateAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(PreCommitGateResult.Allowed());
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActor()).Returns("a");
+
+        ArchitectureRunService sut = CreateSutForCommit(
+            runRepo,
+            scopeProvider,
+            requestRepo.Object,
+            taskRepo.Object,
+            resultRepo.Object,
+            evaluationRepo.Object,
+            evidencePackageRepo.Object,
+            decisionEngine.Object,
+            decisionNodeRepo.Object,
+            manifestRepo.Object,
+            traceRepo.Object,
+            actor.Object,
+            gate.Object,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            Mock.Of<IAuditService>());
+
+        CommitRunResult committed = await sut.CommitRunAsync(runId, CancellationToken.None);
+
+        committed.Manifest.Metadata.ManifestVersion.Should().Be(manifestVersion);
+    }
+
+    [Fact]
+    public async Task CommitRunAsync_skips_gate_when_disabled()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = "r",
+            Status = ArchitectureRunStatus.ReadyForCommit,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
+
+        Mock<IPreCommitGovernanceGate> gate = new();
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActor()).Returns("a");
+
+        ArchitectureRunService sut = CreateSutForCommit(
+            runRepo,
+            scopeProvider,
+            Mock.Of<IArchitectureRequestRepository>(),
+            Mock.Of<IAgentTaskRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IAgentEvaluationRepository>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IDecisionEngineService>(),
+            Mock.Of<IDecisionNodeRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
+            actor.Object,
+            gate.Object,
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = false }),
+            Mock.Of<IAuditService>());
+
+        Func<Task> actCommit = async () => await sut.CommitRunAsync(runId, CancellationToken.None);
+
+        await actCommit.Should().ThrowAsync<InvalidOperationException>();
+
+        gate.Verify(g => g.EvaluateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static (IRunRepository Repo, IScopeContextProvider Scope) CreateRunAuthorityMocks(ArchitectureRun? run)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -600,6 +836,41 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
         ICoordinatorDecisionTraceRepository decisionTraceRepository,
         IActorContext actorContext)
     {
+        return CreateSutForCommit(
+            runRepository,
+            scopeContextProvider,
+            requestRepository,
+            taskRepository,
+            resultRepository,
+            agentEvaluationRepository,
+            agentEvidencePackageRepository,
+            decisionEngine,
+            decisionNodeRepository,
+            manifestRepository,
+            decisionTraceRepository,
+            actorContext,
+            Mock.Of<IPreCommitGovernanceGate>(),
+            Options.Create(new PreCommitGovernanceGateOptions()),
+            Mock.Of<IAuditService>());
+    }
+
+    private static ArchitectureRunService CreateSutForCommit(
+        IRunRepository runRepository,
+        IScopeContextProvider scopeContextProvider,
+        IArchitectureRequestRepository requestRepository,
+        IAgentTaskRepository taskRepository,
+        IAgentResultRepository resultRepository,
+        IAgentEvaluationRepository agentEvaluationRepository,
+        IAgentEvidencePackageRepository agentEvidencePackageRepository,
+        IDecisionEngineService decisionEngine,
+        IDecisionNodeRepository decisionNodeRepository,
+        ICoordinatorGoldenManifestRepository manifestRepository,
+        ICoordinatorDecisionTraceRepository decisionTraceRepository,
+        IActorContext actorContext,
+        IPreCommitGovernanceGate preCommitGovernanceGate,
+        IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
+        IAuditService auditService)
+    {
         IBaselineMutationAuditService audit = Mock.Of<IBaselineMutationAuditService>();
 
         return new ArchitectureRunService(
@@ -646,9 +917,9 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 actorContext,
                 audit,
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-                Mock.Of<IPreCommitGovernanceGate>(),
-                Options.Create(new PreCommitGovernanceGateOptions()),
-                Mock.Of<IAuditService>(),
+                preCommitGovernanceGate,
+                preCommitGovernanceGateOptions,
+                auditService,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }
