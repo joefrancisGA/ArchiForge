@@ -18,6 +18,7 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -221,6 +222,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         try
         {
             await PersistCommittedRunAsync(runId, decisionNodes, merge, cancellationToken);
+            await TryMarkRunHeaderCommittedAsync(runId, merge.Manifest.Metadata.ManifestVersion, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
@@ -397,8 +399,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
     }
 
     /// <summary>
-    /// When legacy <see cref="ArchitectureRun.Status"/> is no longer updated on commit (ADR-0012), a repeat call must
-    /// detect an already-persisted manifest at the version this run would use for a first commit attempt.
+    /// Detects an already-persisted manifest at the version this run would use for a first commit attempt (idempotent retry).
+    /// Ensures <see cref="RunRecord.LegacyRunStatus"/> is patched to <see cref="ArchitectureRunStatus.Committed"/> when lagging.
     /// </summary>
     private async Task<CommitRunResult?> TryReturnPersistedCommitIfExistsAsync(
         ArchitectureRun run,
@@ -425,7 +427,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
-                "CommitRunAsync is idempotent: returning persisted manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount} (legacy status may lag)",
+                "CommitRunAsync is idempotent: returning persisted manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
                 runId,
                 manifestVersion,
                 existingTraces.Count);
@@ -441,12 +443,47 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 string.Join("; ", storedGaps));
         }
 
+        string committedVersion = string.IsNullOrWhiteSpace(existingManifest.Metadata?.ManifestVersion)
+            ? manifestVersion
+            : existingManifest.Metadata.ManifestVersion;
+
+        await TryMarkRunHeaderCommittedAsync(runId, committedVersion, cancellationToken);
+
         return new CommitRunResult
         {
             Manifest = existingManifest,
             DecisionTraces = existingTraces.ToList(),
             Warnings = [],
         };
+    }
+
+    /// <summary>
+    /// Aligns <see cref="RunRecord.LegacyRunStatus"/> and <see cref="RunRecord.CurrentManifestVersion"/> with a successful
+    /// coordinator commit so list APIs (<c>GET /v1/architecture/runs</c>) match run detail and operator expectations.
+    /// </summary>
+    private async Task TryMarkRunHeaderCommittedAsync(
+        string runId,
+        string manifestVersion,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParseExact(runId, "N", out Guid runGuid) && !Guid.TryParse(runId, out runGuid))
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+        header.LegacyRunStatus = ArchitectureRunStatus.Committed.ToString();
+
+        if (!string.IsNullOrWhiteSpace(manifestVersion))
+            header.CurrentManifestVersion = manifestVersion;
+
+        if (header.CompletedUtc is null)
+            header.CompletedUtc = DateTime.UtcNow;
+
+        await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
     private static string BuildManifestVersionForCommit(ArchitectureRun run, string runId)
