@@ -1855,7 +1855,7 @@ Historical detail for the first integration batch (all checkboxes done). Kept fo
   - **`.github/workflows/ci.yml`**: `dotnet list package --vulnerable --include-transitive` after restore (fails build when the SDK reports vulnerable packages).
   - **`docs/BUILD.md`**: local/CI reminder.
 - [x] 221. Secret scanning in CI.
-  - **`.github/workflows/ci.yml`**: job **`gitleaks`** (`gitleaks/gitleaks-action@v2.3.9`, **`fetch-depth: 0`**); all other jobs **`needs: gitleaks`**.
+  - **`.github/workflows/ci.yml`**: job **`gitleaks`** (`gacts/gitleaks@v1.3.2`, **`fetch-depth: 0`**); all other jobs **`needs: gitleaks`**.
   - **`.gitleaks.toml`**: **`[extend] useDefault = true`**; allowlist regexes for documented dev SQL passwords only (**`ArchLucid_Dev_Pass123!`**, **`LocalTesting123!`**, plus any legacy literals still listed for brownfield compose snippets).
 - [x] 222. Row-level security design for multi-tenant SQL.
   - **`docs/security/MULTI_TENANT_RLS.md`**: SESSION_CONTEXT / policy sketch, defense-in-depth vs app authZ, ops + Terraform alignment.

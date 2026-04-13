@@ -40,7 +40,7 @@ jobs:
           build-mode: none
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
           cache: true
@@ -81,7 +81,7 @@ jobs:
           source-root: ${{ env.ARCHLUCID_UI_DIR }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm

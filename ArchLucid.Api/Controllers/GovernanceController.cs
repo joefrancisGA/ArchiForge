@@ -6,6 +6,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -194,7 +195,7 @@ public sealed class GovernanceController(
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "Promote failed for run '{RunId}'.", request.RunId);
+            logger.LogWarning(ex, "Promote failed for run '{RunId}'.", LogSanitizer.Sanitize(request.RunId));
             return this.BadRequestProblem(ex.Message, ProblemTypes.BadRequest);
         }
     }

@@ -8,6 +8,20 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-12 — LogSanitizer (CWE-117)
+
+**Added:** **`LogSanitizer`** utility for CWE-117 log injection prevention. Applied to string-typed HTTP input in the global exception handler, **`RunsController`** (**`CreateRun`** **`RequestId`**), and **`GovernanceController`** (**`Promote`** **`RunId`**).
+
+---
+
+## 2026-04-12 — Governance confirmations and run progress UI
+
+**Added:** Confirmation dialogs for governance promote and activate actions via reusable **`ConfirmationDialog`** component.
+
+**Added:** Real-time run progress tracker on run detail page — polls pipeline stages (context, graph, findings, manifest) with progress bar and badges for in-progress runs. See **`docs/UI_COMPONENTS.md`**.
+
+---
+
 ## 2026-04-12 — Business KPI metrics and aggregate explanation caching
 
 **Added:** Aggregate explanation caching via **`CachingRunExplanationSummaryService`** — eliminates redundant LLM calls on repeated run-detail aggregate explanation views when **`HotPathCache`** is enabled (keyed by run id + **`ROWVERSION`**; TTL from **`HotPathCacheOptions`**).

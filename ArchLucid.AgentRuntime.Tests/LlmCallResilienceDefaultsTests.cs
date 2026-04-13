@@ -154,7 +154,7 @@ public sealed class LlmCallResilienceDefaultsTests
         await act.Should().ThrowAsync<OperationCanceledException>();
 
         // Polly may short-circuit before the callback, or invoke it with a linked/canceled token once.
-        calls.Should().BeLessOrEqualTo(1);
+        calls.Should().BeLessThanOrEqualTo(1);
     }
 
     [Theory]

@@ -188,7 +188,7 @@ Workflow: `.github/workflows/ci.yml` — **six jobs**, tiered for clarity and fa
 
 | Tier | Job | What runs |
 |------|-----|-----------|
-| **0** | **`gitleaks`** | Full-history secret scan (`gitleaks/gitleaks-action`, **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
+| **0** | **`gitleaks`** | Full-history secret scan (`gacts/gitleaks@v1.3.2` + **`.gitleaks.toml`**). All other jobs **`needs: gitleaks`**. |
 | **1** | **`dotnet-fast-core`** | Restore, vulnerable package audit, `dotnet build -c Release`, **CycloneDX** SBOM for **`ArchLucid.Api`** (artifact **`sbom-dotnet`**), context-ingestion DI guards, then `dotnet test` with `Suite=Core&Category!=Slow&Category!=Integration`. **No SQL** service (fast gate). |
 | **2** | **`dotnet-full-regression`** | Runs **after** Tier 1 passes. Restore, build, SQL Server service container, `dotnet test ArchLucid.sln` with `ARCHLUCID_SQL_TEST` (entire solution). |
 | **2b** | **`chaos-tests`** | Runs **after** Tier 2 passes. **Resilience: Simmy chaos tests** — `ArchLucid.AgentRuntime.Tests` and `ArchLucid.Persistence.Tests` filtered to Simmy/Chaos FQNs. **CI-blocking** (failures block the PR). See [CHAOS_TESTING.md](CHAOS_TESTING.md). |

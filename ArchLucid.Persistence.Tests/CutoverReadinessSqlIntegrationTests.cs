@@ -46,14 +46,14 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
             .FirstOrDefault(s => s.SliceName == "ContextSnapshot.CanonicalObjects");
 
         canonicalSlice.Should().NotBeNull();
-        canonicalSlice.TotalHeaderRows.Should().BeGreaterOrEqualTo(2);
-        canonicalSlice.HeadersWithRelationalRows.Should().BeGreaterOrEqualTo(1);
+        canonicalSlice.TotalHeaderRows.Should().BeGreaterThanOrEqualTo(2);
+        canonicalSlice.HeadersWithRelationalRows.Should().BeGreaterThanOrEqualTo(1);
 
         // At least one header is JSON-only (the one we seeded without relational children)
         // The relational one (via Save) should be counted as having children.
         // Other tests in the suite may have left rows, so we can't assert exact counts,
         // but we can assert the report structure is valid.
-        canonicalSlice.HeadersMissingRelationalRows.Should().BeGreaterOrEqualTo(1);
+        canonicalSlice.HeadersMissingRelationalRows.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [SkippableFact]
@@ -97,7 +97,7 @@ public sealed class CutoverReadinessSqlIntegrationTests(SqlServerPersistenceFixt
         foreach (CutoverSliceReadiness slice in report.Slices)
         {
             slice.HeadersWithRelationalRows.Should().BeLessThanOrEqualTo(slice.TotalHeaderRows);
-            slice.HeadersMissingRelationalRows.Should().BeGreaterOrEqualTo(0);
+            slice.HeadersMissingRelationalRows.Should().BeGreaterThanOrEqualTo(0);
             (slice.HeadersWithRelationalRows + slice.HeadersMissingRelationalRows).Should().Be(slice.TotalHeaderRows);
 
             if (slice.TotalHeaderRows == 0)

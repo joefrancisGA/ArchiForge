@@ -24,7 +24,8 @@ on:
     branches: [main, master]
 
 # Opt into Node 24 for JavaScript actions (GitHub default June 2026). Third-party actions still
-# declaring node20 (e.g. gitleaks-action@2.3.9) run on 24 via this until they publish node24 builds.
+# declaring node20 run on 24 via this until they publish node24 builds. Tier-0 secret scan uses
+# gacts/gitleaks (node24-native) instead of gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -37,9 +38,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: gitleaks/gitleaks-action@v2.3.9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: gacts/gitleaks@v1.3.2
+        with:
+          config-path: .gitleaks.toml
 
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
@@ -117,7 +118,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
           cache: true
@@ -304,7 +305,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
           cache: true
@@ -385,7 +386,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
           cache: true
@@ -428,7 +429,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
           cache: true
@@ -644,7 +645,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
@@ -673,7 +674,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
@@ -697,7 +698,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v5.2.0
         with:
           global-json-file: global.json
           cache: true

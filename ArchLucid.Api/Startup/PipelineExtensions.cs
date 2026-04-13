@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Host.Core.Health;
@@ -31,7 +32,7 @@ internal static class PipelineExtensions
                     ILogger<WebApplication> logger = context.RequestServices
                         .GetRequiredService<ILogger<WebApplication>>();
                     logger.LogError(ex, "Unhandled exception for {Method} {Path}",
-                        context.Request.Method, context.Request.Path);
+                        context.Request.Method, LogSanitizer.Sanitize(context.Request.Path.Value));
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()

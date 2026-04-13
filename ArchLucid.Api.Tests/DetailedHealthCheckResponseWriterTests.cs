@@ -44,7 +44,7 @@ public sealed class DetailedHealthCheckResponseWriterTests
         JsonElement root = doc.RootElement;
 
         root.GetProperty("status").GetString().Should().Be("Unhealthy");
-        root.GetProperty("totalDurationMs").GetDouble().Should().BeGreaterOrEqualTo(0);
+        root.GetProperty("totalDurationMs").GetDouble().Should().BeGreaterThanOrEqualTo(0);
         root.TryGetProperty("version", out JsonElement version).Should().BeTrue();
         version.GetString().Should().NotBeNullOrWhiteSpace();
         root.TryGetProperty("commitSha", out _).Should().BeTrue();

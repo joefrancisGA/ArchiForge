@@ -40,7 +40,7 @@ dotnet test
 
 **CI / supply chain:** GitHub Actions workflow **`.github/workflows/ci.yml`** runs **`dotnet list package --vulnerable --include-transitive`** so known-vulnerable NuGet packages fail the pipeline (see **`NEXT_REFACTORINGS.md`** item **220**). Run the same command locally after dependency changes. The workflow uses **tiered jobs** (fast .NET core, then full .NET regression with SQL, plus **Vitest** and **Playwright** for `archlucid-ui`); see **`TEST_EXECUTION_MODEL.md`**.
 
-**Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gitleaks/gitleaks-action`** and **`.gitleaks.toml`** (extends default rules; allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.
+**Secret scanning:** The **`gitleaks`** job scans the full Git history with **`gacts/gitleaks@v1.3.2`** (runs the upstream **`gitleaks`** binary; **`.gitleaks.toml`** extends default rules and allowlists only the two documented dev/CI SQL passwords that appear verbatim in-repo). To run locally: install [gitleaks](https://github.com/gitleaks/gitleaks) and run **`gitleaks detect --source . --verbose`** from the repo root.
 
 **SBOM (CycloneDX):** CI uploads **`sbom-dotnet`** (JSON for **`ArchLucid.Api/ArchLucid.Api.csproj`**, matching the API container surface) and **`sbom-npm`** (JSON for **`archlucid-ui`**). Regenerate locally:
 

@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { Badge } from "@/components/ui/badge";
@@ -111,10 +112,19 @@ function GovernanceWorkflowPageInner() {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
 
-  const [promoteFor, setPromoteFor] = useState<GovernanceApprovalRequest | null>(null);
-  const [promotedBy, setPromotedBy] = useState("");
-  const [promoteNotes, setPromoteNotes] = useState("");
   const [promoteBusy, setPromoteBusy] = useState(false);
+
+  const [pendingPromote, setPendingPromote] = useState<{
+    manifestId: string;
+    targetEnv: string;
+  } | null>(null);
+  const pendingPromoteRequestRef = useRef<GovernanceApprovalRequest | null>(null);
+
+  const [pendingActivate, setPendingActivate] = useState<{
+    activationId: string;
+    env: string;
+  } | null>(null);
+  const pendingActivatePromotionRef = useRef<GovernancePromotionRecord | null>(null);
 
   const [activateBusyId, setActivateBusyId] = useState<string | null>(null);
 
@@ -260,14 +270,16 @@ function GovernanceWorkflowPageInner() {
   }
 
   async function onConfirmPromote() {
+    const promoteFor = pendingPromoteRequestRef.current;
+
     if (promoteFor === null) {
       return;
     }
 
-    const by = promotedBy.trim() || workflowActor.trim();
+    const by = workflowActor.trim();
 
     if (!by) {
-      setToast({ kind: "err", message: "Enter promoted by (or set Acting as below)." });
+      setToast({ kind: "err", message: "Set Acting as (for promote & activate) before promoting." });
 
       return;
     }
@@ -282,11 +294,10 @@ function GovernanceWorkflowPageInner() {
         targetEnvironment: promoteFor.targetEnvironment,
         promotedBy: by,
         approvalRequestId: promoteFor.approvalRequestId ?? undefined,
-        notes: promoteNotes.trim() || undefined,
       });
       setToast({ kind: "ok", message: "Manifest promoted." });
-      setPromoteFor(null);
-      setPromoteNotes("");
+      setPendingPromote(null);
+      pendingPromoteRequestRef.current = null;
       await refreshIfActive();
     } catch (e) {
       const f = toApiLoadFailure(e);
@@ -296,7 +307,13 @@ function GovernanceWorkflowPageInner() {
     }
   }
 
-  async function onActivateFromPromotion(row: GovernancePromotionRecord) {
+  async function onConfirmActivateFromPromotion() {
+    const row = pendingActivatePromotionRef.current;
+
+    if (row === null) {
+      return;
+    }
+
     const by = workflowActor.trim();
 
     if (!by) {
@@ -315,6 +332,8 @@ function GovernanceWorkflowPageInner() {
         activatedBy: by,
       });
       setToast({ kind: "ok", message: `Activated ${row.manifestVersion} for ${row.targetEnvironment}.` });
+      setPendingActivate(null);
+      pendingActivatePromotionRef.current = null;
       await refreshIfActive();
     } catch (e) {
       const f = toApiLoadFailure(e);
@@ -577,50 +596,6 @@ function GovernanceWorkflowPageInner() {
                   </div>
                 ) : null}
 
-                {promoteFor?.approvalRequestId === row.approvalRequestId ? (
-                  <div className="mt-4 rounded-lg border border-violet-200 p-4 dark:border-violet-900">
-                    <p className="mb-3 text-sm font-medium">Promote manifest</p>
-                    <div className="grid gap-3">
-                      <div className="grid gap-2">
-                        <Label htmlFor={`promote-by-${row.approvalRequestId}`}>Promoted by</Label>
-                        <Input
-                          id={`promote-by-${row.approvalRequestId}`}
-                          value={promotedBy}
-                          onChange={(e) => setPromotedBy(e.target.value)}
-                          placeholder={workflowActor || "Name for audit trail"}
-                          autoComplete="username"
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor={`promote-notes-${row.approvalRequestId}`}>Notes (optional)</Label>
-                        <Textarea
-                          id={`promote-notes-${row.approvalRequestId}`}
-                          value={promoteNotes}
-                          onChange={(e) => setPromoteNotes(e.target.value)}
-                          rows={2}
-                        />
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button type="button" size="sm" onClick={() => void onConfirmPromote()} disabled={promoteBusy}>
-                          {promoteBusy ? "Promoting…" : "Confirm promote"}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setPromoteFor(null);
-                            setPromoteNotes("");
-                            setPromotedBy("");
-                          }}
-                          disabled={promoteBusy}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : null}
               </CardContent>
               <CardFooter className="flex flex-wrap gap-2">
                 {row.status === "Submitted" ? (
@@ -631,7 +606,8 @@ function GovernanceWorkflowPageInner() {
                       variant="default"
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "approve" });
-                        setPromoteFor(null);
+                        setPendingPromote(null);
+                        pendingPromoteRequestRef.current = null;
                       }}
                     >
                       Approve
@@ -643,7 +619,8 @@ function GovernanceWorkflowPageInner() {
                       className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
                       onClick={() => {
                         setPendingReview({ approvalRequestId: row.approvalRequestId, mode: "reject" });
-                        setPromoteFor(null);
+                        setPendingPromote(null);
+                        pendingPromoteRequestRef.current = null;
                       }}
                     >
                       Reject
@@ -655,10 +632,14 @@ function GovernanceWorkflowPageInner() {
                     type="button"
                     size="sm"
                     className="bg-violet-600 text-white hover:bg-violet-600/90"
+                    disabled={pendingPromote !== null}
                     onClick={() => {
-                      setPromoteFor(row);
+                      pendingPromoteRequestRef.current = row;
+                      setPendingPromote({
+                        manifestId: row.manifestVersion,
+                        targetEnv: row.targetEnvironment,
+                      });
                       setPendingReview(null);
-                      setPromotedBy(workflowActor);
                     }}
                   >
                     Promote
@@ -708,8 +689,18 @@ function GovernanceWorkflowPageInner() {
                         type="button"
                         size="sm"
                         variant="secondary"
-                        disabled={activateBusyId === p.promotionRecordId || !workflowActor.trim()}
-                        onClick={() => void onActivateFromPromotion(p)}
+                        disabled={
+                          pendingActivate !== null ||
+                          activateBusyId === p.promotionRecordId ||
+                          !workflowActor.trim()
+                        }
+                        onClick={() => {
+                          pendingActivatePromotionRef.current = p;
+                          setPendingActivate({
+                            activationId: p.promotionRecordId,
+                            env: p.targetEnvironment,
+                          });
+                        }}
                       >
                         {activateBusyId === p.promotionRecordId ? "Activating…" : "Activate"}
                       </Button>
@@ -751,6 +742,52 @@ function GovernanceWorkflowPageInner() {
           ))}
         </div>
       </section>
+
+      <ConfirmationDialog
+        open={pendingPromote !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingPromote(null);
+            pendingPromoteRequestRef.current = null;
+          }
+        }}
+        title="Promote manifest?"
+        description={
+          pendingPromote !== null
+            ? `Promoting manifest ${pendingPromote.manifestId} to ${pendingPromote.targetEnv}. This will replace the current active manifest in that environment.`
+            : ""
+        }
+        variant="default"
+        confirmLabel="Promote"
+        busy={promoteBusy}
+        onConfirm={() => {
+          void onConfirmPromote();
+        }}
+      />
+
+      <ConfirmationDialog
+        open={pendingActivate !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingActivate(null);
+            pendingActivatePromotionRef.current = null;
+          }
+        }}
+        title="Activate environment?"
+        description={
+          pendingActivate !== null
+            ? `Activating governance pack in ${pendingActivate.env}. This will apply the pack's rules to all future runs.`
+            : ""
+        }
+        variant="default"
+        confirmLabel="Activate"
+        busy={
+          pendingActivate !== null && activateBusyId === pendingActivate.activationId
+        }
+        onConfirm={() => {
+          void onConfirmActivateFromPromotion();
+        }}
+      />
     </main>
     </TooltipProvider>
   );

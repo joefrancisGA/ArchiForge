@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Data.Repositories;
@@ -114,13 +115,13 @@ public sealed partial class RunsController(
         }
         catch (ConflictException ex)
         {
-            logger.LogWarning(ex, "CreateRun conflict for request '{RequestId}'.", request.RequestId);
+            logger.LogWarning(ex, "CreateRun conflict for request '{RequestId}'.", LogSanitizer.Sanitize(request.RequestId));
 
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
-            logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", request.RequestId);
+            logger.LogWarning(ex, "CreateRun failed for request '{RequestId}'.", LogSanitizer.Sanitize(request.RequestId));
             return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
         }
     }

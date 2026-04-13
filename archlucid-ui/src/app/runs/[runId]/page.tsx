@@ -14,6 +14,7 @@ import {
 } from "@/lib/operator-response-guards";
 import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
+import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import {
   type ApiResponseWithTrace,
@@ -22,9 +23,10 @@ import {
   getRunDetail,
   getRunExplanationSummary,
   getRunExportDownloadUrl,
+  getRunSummary,
   listArtifacts,
 } from "@/lib/api";
-import type { ArtifactDescriptor, ManifestSummary, RunDetail } from "@/types/authority";
+import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
 
 /** Server-rendered run detail page. Shows run metadata, authority chain, manifest summary, aggregate explanation, artifacts, and downloads. */
@@ -91,6 +93,24 @@ export default async function RunDetailPage({
   const manifestId = resolvedDetail.run.goldenManifestId;
   const runDetailTraceId = runDetailResponse.traceId;
 
+  let progressInitialSummary: RunSummary | null = null;
+
+  try {
+    progressInitialSummary = await getRunSummary(runId);
+  } catch {
+    progressInitialSummary = null;
+  }
+
+  const pipelineCompleteOnSummary = (s: RunSummary | null): boolean =>
+    s !== null &&
+    s.hasContextSnapshot === true &&
+    s.hasGraphSnapshot === true &&
+    s.hasFindingsSnapshot === true &&
+    s.hasGoldenManifest === true;
+
+  const showProgressTracker =
+    !manifestId || !pipelineCompleteOnSummary(progressInitialSummary);
+
   let manifestSummary: ManifestSummary | null = null;
   let artifacts: ArtifactDescriptor[] = [];
   let manifestSummaryFailure: ApiLoadFailureState | null = null;
@@ -149,6 +169,10 @@ export default async function RunDetailPage({
         {" · "}
         <Link href={`/runs/${runId}/provenance`}>Provenance</Link>
       </p>
+
+      {showProgressTracker ? (
+        <RunProgressTracker runId={runId} initialSummary={progressInitialSummary} />
+      ) : null}
 
       <section style={{ marginBottom: 24 }}>
         <h3>Run</h3>
