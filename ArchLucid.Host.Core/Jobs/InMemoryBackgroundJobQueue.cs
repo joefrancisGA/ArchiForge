@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Threading.Channels;
 
 using ArchLucid.Application.Jobs;
+using ArchLucid.Core.Diagnostics;
 
 using JetBrains.Annotations;
 
@@ -125,7 +126,7 @@ public sealed class InMemoryBackgroundJobQueue(
                     logger.LogWarning(
                         ex,
                         "Background job {JobId} failed (attempt {Attempt}/{Max}); scheduling retry.",
-                        item.JobId,
+                        LogSanitizer.Sanitize(item.JobId),
                         nextRetry,
                         failed.MaxRetries);
 
@@ -143,7 +144,7 @@ public sealed class InMemoryBackgroundJobQueue(
                     {
                         logger.LogError(
                             "Background job {JobId} could not be re-queued; pending capacity exhausted.",
-                            item.JobId);
+                            LogSanitizer.Sanitize(item.JobId));
 
                         _info[item.JobId] = failed with
                         {
@@ -157,7 +158,7 @@ public sealed class InMemoryBackgroundJobQueue(
                     {
                         _pendingJobs.Release();
 
-                        logger.LogError("Background job {JobId} could not be re-queued; writer rejected item.", item.JobId);
+                        logger.LogError("Background job {JobId} could not be re-queued; writer rejected item.", LogSanitizer.Sanitize(item.JobId));
 
                         _info[item.JobId] = failed with
                         {
@@ -173,7 +174,7 @@ public sealed class InMemoryBackgroundJobQueue(
                     logger.LogError(
                         ex,
                         "Background job {JobId} failed after {Attempts} attempt(s); moving to DLQ.",
-                        item.JobId,
+                        LogSanitizer.Sanitize(item.JobId),
                         nextRetry);
 
                     _info[item.JobId] = failed with

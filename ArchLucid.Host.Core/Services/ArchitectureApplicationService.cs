@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
@@ -118,7 +119,7 @@ public sealed class ArchitectureApplicationService(
 
             if (logger.IsEnabled(LogLevel.Information))
                 logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
-                    runId, result.ResultId, result.AgentType, newStatus);
+                    LogSanitizer.Sanitize(runId), LogSanitizer.Sanitize(result.ResultId), result.AgentType, newStatus);
 
             return new SubmitResultResult(true, result.ResultId, null);
         }
@@ -193,7 +194,7 @@ public sealed class ArchitectureApplicationService(
         if (existingResults.Count > 0)
         {
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", runId, existingResults.Count);
+                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", LogSanitizer.Sanitize(runId), existingResults.Count);
             return new SeedFakeResultsResult(true, 0, null);
         }
 
@@ -217,7 +218,7 @@ public sealed class ArchitectureApplicationService(
         }
 
         if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", runId, fakeResults.Count, newStatus);
+            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", LogSanitizer.Sanitize(runId), fakeResults.Count, newStatus);
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }

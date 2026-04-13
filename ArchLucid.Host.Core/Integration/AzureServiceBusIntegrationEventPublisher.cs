@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
 using Azure.Core;
@@ -96,7 +97,7 @@ public sealed class AzureServiceBusIntegrationEventPublisher : IIntegrationEvent
         {
             if (_logger.IsEnabled(LogLevel.Warning))
             {
-                _logger.LogWarning(ex, "Failed to publish integration event type {EventType} to Service Bus.", eventType);
+                _logger.LogWarning(ex, "Failed to publish integration event type {EventType} to Service Bus.", LogSanitizer.Sanitize(eventType));
             }
 
             throw;

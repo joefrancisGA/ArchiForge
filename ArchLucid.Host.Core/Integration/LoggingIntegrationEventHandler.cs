@@ -1,5 +1,6 @@
 using System.Text;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
 namespace ArchLucid.Host.Core.Integration;
@@ -24,7 +25,7 @@ public sealed class LoggingIntegrationEventHandler(ILogger<LoggingIntegrationEve
             _logger.LogInformation(
                 "Integration event received: payloadBytes={PayloadBytes}, preview={Preview}",
                 len,
-                preview);
+                LogSanitizer.Sanitize(preview));
         }
 
         return Task.CompletedTask;

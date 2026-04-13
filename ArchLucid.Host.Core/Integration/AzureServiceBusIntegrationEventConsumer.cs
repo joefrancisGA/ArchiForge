@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 
 using Azure.Core;
@@ -134,8 +135,8 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         {
             _logger.LogInformation(
                 "Integration event Service Bus consumer started: topic={Topic}, subscription={Subscription}, maxConcurrentCalls={MaxConcurrentCalls}.",
-                topic,
-                subscription,
+                LogSanitizer.Sanitize(topic),
+                LogSanitizer.Sanitize(subscription),
                 concurrent);
         }
 
@@ -156,8 +157,8 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
             _logger.LogError(
                 args.Exception,
                 "Service Bus processor error: {ErrorSource}, entity={EntityPath}",
-                args.ErrorSource,
-                args.EntityPath);
+                LogSanitizer.Sanitize(args.ErrorSource.ToString()),
+                LogSanitizer.Sanitize(args.EntityPath));
         }
 
         return Task.CompletedTask;
@@ -213,7 +214,7 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
                 _logger.LogWarning(
                     ex,
                     "Integration event handler failed; abandoning for redelivery. EventType={EventType}, deliveryCount={DeliveryCount}",
-                    eventType,
+                    LogSanitizer.Sanitize(eventType),
                     args.Message.DeliveryCount);
             }
 

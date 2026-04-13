@@ -1,4 +1,5 @@
 using ArchLucid.Application.Jobs;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -82,13 +83,13 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         {
             if (prepared.WasUnknownJobId)
             {
-                logger.LogWarning("Queue message for unknown job id {JobId}; deleting stale message.", jobId);
+                logger.LogWarning("Queue message for unknown job id {JobId}; deleting stale message.", LogSanitizer.Sanitize(jobId));
             }
             else if (logger.IsEnabled(LogLevel.Debug))
             {
                 logger.LogDebug(
                     "Queue message for job {JobId} resolved without execution; deleting notification.",
-                    jobId);
+                    LogSanitizer.Sanitize(jobId));
             }
 
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
@@ -102,7 +103,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             {
                 logger.LogDebug(
                     "Job {JobId} not claimable in this poll; leaving message for visibility retry.",
-                    jobId);
+                    LogSanitizer.Sanitize(jobId));
             }
 
             return;
@@ -114,7 +115,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
 
         if (workUnit is null)
         {
-            logger.LogError("Job {JobId} has invalid WorkUnitJson; failing permanently.", jobId);
+            logger.LogError("Job {JobId} has invalid WorkUnitJson; failing permanently.", LogSanitizer.Sanitize(jobId));
             await repository.MarkFailedTerminalAsync(jobId, "Invalid job payload.", row.RetryCount + 1, stoppingToken);
             await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt, stoppingToken);
 
@@ -154,7 +155,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             logger.LogWarning(
                 ex,
                 "Background job {JobId} failed (attempt {Attempt}/{Max}); scheduling retry.",
-                jobId,
+                LogSanitizer.Sanitize(jobId),
                 nextRetry,
                 row.MaxRetries);
 
@@ -169,7 +170,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
             {
                 logger.LogError(
                     "Background job {JobId} could not be re-queued; non-terminal capacity exhausted.",
-                    jobId);
+                    LogSanitizer.Sanitize(jobId));
 
                 await repository.MarkFailedTerminalAsync(
                     jobId,
@@ -191,7 +192,7 @@ public sealed class BackgroundJobQueueProcessorHostedService(
         logger.LogError(
             ex,
             "Background job {JobId} failed after {Attempts} attempt(s).",
-            jobId,
+            LogSanitizer.Sanitize(jobId),
             nextRetry);
 
         await repository.MarkFailedTerminalAsync(jobId, ex.Message, nextRetry, stoppingToken);

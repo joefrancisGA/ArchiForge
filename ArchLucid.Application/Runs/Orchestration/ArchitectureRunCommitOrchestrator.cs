@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
@@ -109,7 +110,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             _logger.LogInformation(
                 "Committing architecture run: RunId={RunId}",
-                runId);
+                LogSanitizer.Sanitize(runId));
         }
 
         ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
@@ -249,8 +250,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             _logger.LogInformation(
                 "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
-                runId,
-                merge.Manifest.Metadata.ManifestVersion,
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(merge.Manifest.Metadata.ManifestVersion),
                 merge.Warnings.Count);
         }
 
@@ -293,16 +294,16 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             _logger.LogWarning(
                 "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
-                runId,
-                string.Join("; ", storedGaps));
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(string.Join("; ", storedGaps)));
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
                 "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-                runId,
-                run.CurrentManifestVersion,
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(run.CurrentManifestVersion),
                 existingTraces.Count);
         }
 
@@ -428,8 +429,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             _logger.LogInformation(
                 "CommitRunAsync is idempotent: returning persisted manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-                runId,
-                manifestVersion,
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(manifestVersion),
                 existingTraces.Count);
         }
 
@@ -439,8 +440,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         {
             _logger.LogWarning(
                 "Committed run {RunId} has manifest/trace linkage gaps (data drift or legacy row): {Gaps}",
-                runId,
-                string.Join("; ", storedGaps));
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(string.Join("; ", storedGaps)));
         }
 
         string committedVersion = string.IsNullOrWhiteSpace(existingManifest.Metadata?.ManifestVersion)

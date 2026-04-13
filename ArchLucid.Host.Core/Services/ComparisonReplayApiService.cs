@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Core.Diagnostics;
 
 namespace ArchLucid.Host.Core.Services;
 
@@ -65,18 +66,18 @@ public sealed class ComparisonReplayApiService(
             });
 
             if (logger.IsEnabled(LogLevel.Information))
-            
+            {
                 logger.LogInformation(
                     "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
-                    request.ComparisonRecordId,
-                    result.ComparisonType,
-                    result.Format,
-                    result.ReplayMode,
+                    LogSanitizer.Sanitize(request.ComparisonRecordId),
+                    LogSanitizer.Sanitize(result.ComparisonType),
+                    LogSanitizer.Sanitize(result.Format),
+                    LogSanitizer.Sanitize(result.ReplayMode),
                     request.PersistReplay,
                     metadataOnly,
                     sw.ElapsedMilliseconds,
                     result.VerificationPassed);
-            
+            }
 
             return result;
         }
@@ -102,10 +103,10 @@ public sealed class ComparisonReplayApiService(
             logger.LogWarning(
                 ex,
                 "Comparison replay failed: ComparisonRecordId={ComparisonRecordId}, NotFound={NotFound}, MetadataOnly={MetadataOnly}, Error={Error}",
-                request.ComparisonRecordId,
+                LogSanitizer.Sanitize(request.ComparisonRecordId),
                 notFound,
                 metadataOnly,
-                ex.Message);
+                LogSanitizer.Sanitize(ex.Message));
 
             throw;
         }

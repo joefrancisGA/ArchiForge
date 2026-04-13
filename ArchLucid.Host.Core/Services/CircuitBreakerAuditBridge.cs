@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Scoping;
 
@@ -76,7 +77,7 @@ public sealed class CircuitBreakerAuditBridge(
                         _logger.LogWarning(
                             ex,
                             "Circuit breaker audit append failed for gate {GateName}",
-                            entry.GateName);
+                            LogSanitizer.Sanitize(entry.GateName));
                     }
                 });
             }

@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -70,7 +71,7 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
-                    _logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", leaseName, followerMs);
+                    _logger.LogDebug("Host leader lease not held for {LeaseName}; follower wait {Ms} ms.", LogSanitizer.Sanitize(leaseName), followerMs);
                 }
 
                 try
@@ -87,7 +88,7 @@ public sealed class HostLeaderElectionCoordinator(
 
             if (_logger.IsEnabled(LogLevel.Information))
             {
-                _logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", leaseName, id);
+                _logger.LogInformation("Acquired host leader lease {LeaseName} for instance {InstanceId}.", LogSanitizer.Sanitize(leaseName), LogSanitizer.Sanitize(id));
             }
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
@@ -104,7 +105,7 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.", leaseName);
+                    _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.", LogSanitizer.Sanitize(leaseName));
                 }
             }
             finally
@@ -161,8 +162,8 @@ public sealed class HostLeaderElectionCoordinator(
 
                 _logger.LogWarning(
                     "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
-                    leaseName,
-                    id);
+                    LogSanitizer.Sanitize(leaseName),
+                    LogSanitizer.Sanitize(id));
 
                 await leaderCts.CancelAsync();
 

@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.AgentRuntime;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Core.Ask;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Conversation;
 using ArchLucid.Core.Scoping;
@@ -169,7 +170,7 @@ public sealed class AskService(
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.", thread.ThreadId);
+            logger.LogWarning(ex, "LLM completion failed for Ask (ThreadId={ThreadId}); returning fallback response.", LogSanitizer.Sanitize(thread.ThreadId.ToString()));
             return new AskResponse
             {
                 ThreadId = thread.ThreadId,

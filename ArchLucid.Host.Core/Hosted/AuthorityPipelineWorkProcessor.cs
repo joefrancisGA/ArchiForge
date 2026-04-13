@@ -1,4 +1,5 @@
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
@@ -44,8 +45,8 @@ public sealed class AuthorityPipelineWorkProcessor(
                 _logger.LogWarning(
                     ex,
                     "Authority pipeline work failed for outbox {OutboxId}, run {RunId}.",
-                    entry.OutboxId,
-                    entry.RunId);
+                    LogSanitizer.Sanitize(entry.OutboxId.ToString()),
+                    LogSanitizer.Sanitize(entry.RunId.ToString("N")));
             }
         }
     }
@@ -63,7 +64,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         {
             _logger.LogError(
                 "Authority pipeline work outbox {OutboxId} has invalid payload; marking processed.",
-                entry.OutboxId);
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()));
             await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
 
             return;
@@ -94,7 +95,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         RunRecord completed =
             await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
 
-        string runIdN = entry.RunId.ToString("N");
+        string runIdN = LogSanitizer.Sanitize(entry.RunId.ToString("N"));
         RunRecord? authorityHeader =
             await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
 

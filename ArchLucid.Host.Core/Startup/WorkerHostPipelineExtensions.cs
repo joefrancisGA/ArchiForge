@@ -1,3 +1,4 @@
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Middleware;
@@ -33,7 +34,8 @@ public static class WorkerHostPipelineExtensions
                     ILogger<WebApplication> logger = context.RequestServices
                         .GetRequiredService<ILogger<WebApplication>>();
                     logger.LogError(ex, "Unhandled exception for {Method} {Path}",
-                        context.Request.Method, context.Request.Path);
+                        LogSanitizer.Sanitize(context.Request.Method),
+                        LogSanitizer.Sanitize(context.Request.Path.ToString()));
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
