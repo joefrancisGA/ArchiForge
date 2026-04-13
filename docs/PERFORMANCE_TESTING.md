@@ -45,3 +45,7 @@ Raise thresholds only when a change **intentionally** increases latency (for exa
 ## CI
 
 See **`docs/TEST_EXECUTION_MODEL.md`** — job **`Performance: k6 smoke (API baseline)`** (non-blocking initially). The workflow starts the API with SQL (same pattern as live E2E), waits for **`/health/ready`**, runs k6 in Docker, and uploads **`k6-results.json`**.
+
+### Docker: `permission denied` on `--out json=/out/...`
+
+The **`grafana/k6`** image runs as a **non-root** user by default. If you bind-mount a host directory (for example **`RUNNER_TEMP`** in GitHub Actions) that is owned by another uid, k6 cannot create **`k6-results.json`**. The CI workflow passes **`docker run --user "$(id -u):$(id -g)"`** so the process matches the host user and can write to the mount. Reuse the same flag when reproducing the CI command locally.

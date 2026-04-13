@@ -884,7 +884,9 @@ jobs:
       - name: Run k6 smoke (Docker)
         run: |
           set -e
+          # grafana/k6 defaults to a non-root user; match the runner uid/gid so /out (RUNNER_TEMP) is writable.
           docker run --rm --network host \
+            --user "$(id -u):$(id -g)" \
             -v "${GITHUB_WORKSPACE}/tests/load:/scripts:ro" \
             -v "${RUNNER_TEMP}:/out" \
             -e BASE_URL=http://127.0.0.1:5128 \
