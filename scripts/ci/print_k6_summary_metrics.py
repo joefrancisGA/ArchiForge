@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -28,6 +29,18 @@ def _num(values: dict, *keys: str) -> str:
     return "n/a"
 
 
+def _suggested_p95_threshold_ms(p95_display: str) -> str:
+    """2× observed p95, rounded up to the nearest 500 ms (for hotpaths.js thresholds)."""
+    try:
+        p95 = float(p95_display)
+    except (TypeError, ValueError):
+        return "n/a"
+
+    doubled = 2.0 * p95
+    rounded = math.ceil(doubled / 500.0) * 500.0
+    return str(int(rounded))
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print("usage: print_k6_summary_metrics.py <summary.json>", file=sys.stderr)
@@ -48,6 +61,7 @@ def main() -> int:
     p99 = _num(dur, "p(99)")
     rate = _num(reqs, "rate")
     iter_count = _num(iters, "count")
+    suggest = _suggested_p95_threshold_ms(p95)
 
     lines = [
         "## k6 summary (http_req_duration)",
@@ -60,7 +74,9 @@ def main() -> int:
         f"| http_reqs rate | {rate} |",
         f"| iterations (count) | {iter_count} |",
         "",
-        "Copy p50/p95/p99 into `docs/LOAD_TEST_BASELINE.md` after a formal baseline run.",
+        f"**Suggested `scripts/load/hotpaths.js` cap:** `http_req_duration: [\"p(95)<{suggest}\"]` (2x p95 ms, rounded up to 500 ms).",
+        "",
+        "Copy p50/p95/p99 and rate into `docs/LOAD_TEST_BASELINE.md` after a formal baseline run.",
         "",
     ]
     md = "\n".join(lines)

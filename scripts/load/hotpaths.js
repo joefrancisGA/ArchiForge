@@ -25,9 +25,9 @@ export const options = {
     },
   },
   thresholds: {
-    // Compose + cold SQL: keep loose; tighten after baselines are recorded in docs/LOAD_TEST_BASELINE.md
+    // After a baseline: set p(95) from `python scripts/ci/print_k6_summary_metrics.py k6-summary.json` (suggested cap line).
     http_req_duration: ["p(95)<8000"],
-    checks: ["rate>0.4"],
+    checks: ["rate>0.85"],
   },
 };
 

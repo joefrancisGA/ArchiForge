@@ -8,11 +8,11 @@ on:
       duration:
         description: "k6 duration (e.g. 90s, 2m)"
         required: true
-        default: "90s"
+        default: "2m"
       vus:
         description: "Virtual users (constant-vus)"
         required: true
-        default: "4"
+        default: "5"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

@@ -8,13 +8,13 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 - Load tests run against **Docker Compose `full-stack`** on a **dedicated** machine or GitHub Actions runner — not production or shared staging.
 - The API uses **DevelopmentBypass** auth (Compose default); optional `API_KEY` is supported by `scripts/load/hotpaths.js` for keyed environments.
-- First baseline numbers are **TBD** until someone runs the manual workflow and pastes metrics into the table below.
+- First **numeric** baseline cells are filled by running `scripts/load/record_baseline.ps1` (Windows) or `scripts/load/record_baseline.sh` (Linux/macOS) with Docker, or the manual **Actions → Load test** workflow; see the table footnote below.
 
 ## Constraints
 
 - **No public SMB or shared infra** for test data; Compose binds SQL/Redis/Azurite locally on the runner.
 - CI load job is **manual only** (`.github/workflows/load-test.yml`) to avoid flaky PR gates and resource contention.
-- k6 thresholds in `scripts/load/hotpaths.js` stay **loose** until baselines exist; tighten after recorded runs.
+- k6 **checks** rate threshold is **0.85**; **`http_req_duration` p(95)** stays at **8000** ms until you paste the **Suggested** line from `scripts/ci/print_k6_summary_metrics.py` (2× measured p95, rounded up to 500 ms) into `scripts/load/hotpaths.js`.
 
 ## Architecture overview
 
@@ -54,9 +54,17 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 | Run label | Date (UTC) | VUs | Duration | p50 `http_req_duration` (ms) | p95 | p99 | `http_reqs` rate | Commit / workflow run |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Initial | TBD | 4 | 90s | TBD | TBD | TBD | TBD | TBD |
+| Initial | 2026-04-13 | 5 | 2m | — | — | — | — | — |
 
-**How to refresh:** run **Actions → Load test (k6, Compose full-stack)**, copy the “k6 summary” table from the job summary, and update this file in a follow-up PR.
+**How to capture metrics (same profile as this row: VUs=5, DURATION=2m, SLEEP_SEC=1):**
+
+1. Start Docker Desktop (or Linux engine), then from repo root run **`pwsh ./scripts/load/record_baseline.ps1`** or **`bash scripts/load/record_baseline.sh`** (Compose full-stack + k6 in `grafana/k6` + `print_k6_summary_metrics.py` + teardown).  
+2. Paste **p50 / p95 / p99 / rate** into the table above and set **`git rev-parse HEAD`** (or the GitHub Actions run URL) in the last column.  
+3. Update **`scripts/load/hotpaths.js`**: replace the `http_req_duration` threshold with the **Suggested** line printed by the Python script (2× observed p95, rounded up to 500 ms).  
+
+**CI alternative:** **Actions → Load test (k6, Compose full-stack)** — align inputs to **VUs 5** and **duration 2m** for parity; copy the job-summary k6 table and artifact `k6-summary.json`.
+
+> **Note:** The automation host that prepared this doc did not have a running Docker engine or k6; numeric cells remain **—** until someone runs the recorder above. The **checks** threshold in `hotpaths.js` is already **0.85**.
 
 ### Scaling thresholds (evidence-based, not hard SLOs)
 

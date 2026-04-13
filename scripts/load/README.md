@@ -4,9 +4,22 @@ Scripts target the five API hot paths documented in `docs/LOAD_TEST_BASELINE.md`
 
 ## Prerequisites
 
-- [k6](https://k6.io/docs/get-started/installation/) installed locally.
+- **Recommended:** Docker (for Compose + optional k6 container — no local k6 install).
+- Or [k6](https://k6.io/docs/get-started/installation/) installed locally.
 - API reachable at `BASE_URL` (default `http://127.0.0.1:5000`).
 - For **Docker Compose full-stack** (`docker compose --profile full-stack up -d`), wait until `GET /health/live` returns 200 on the API port.
+
+## Record baseline (Compose + k6 container + summary)
+
+From repo root (fills `k6-summary.json`, prints metrics — see `docs/LOAD_TEST_BASELINE.md`):
+
+```powershell
+pwsh ./scripts/load/record_baseline.ps1
+```
+
+```bash
+bash scripts/load/record_baseline.sh
+```
 
 ## Run locally
 

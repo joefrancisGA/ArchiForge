@@ -379,6 +379,9 @@ MigrationBackup/
 # Legacy path after rename (no longer used):
 # ArchiForge.Api.Client/Generated/
 
+# k6 --summary-export output (regenerate with scripts/load/record_baseline.ps1 or CI)
+/k6-summary.json
+
 # Root-level command transcripts / scratch logs (never commit)
 /testresults.txt
 /test_results.txt
