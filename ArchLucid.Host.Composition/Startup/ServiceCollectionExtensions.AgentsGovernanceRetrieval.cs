@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.AgentRuntime;
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Prompts;
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Governance;
@@ -42,6 +43,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
             configuration.GetSection(AgentExecutionTraceStorageOptions.SectionPath));
+        services.AddSingleton<IAgentOutputEvaluator, AgentOutputEvaluator>();
+        services.AddScoped<AgentOutputEvaluationRecorder>();
         services.Configure<AgentResultSchemaValidationOptions>(
             configuration.GetSection(AgentResultSchemaValidationOptions.SectionPath));
 

@@ -40,6 +40,8 @@
   - `docs/ARCHITECTURE_FLOWS.md`
 - **Observability** – `ArchLucid` meter, key histograms/counters, `ActivitySource` names, tag conventions (`archlucid.stage.name`, authority pipeline stages)  
   - `docs/OBSERVABILITY.md`
+- **Agent output structural evaluation** – `AgentResult` JSON key completeness, `GET …/agent-evaluation`, optional metrics recorder  
+  - `docs/AGENT_OUTPUT_EVALUATION.md`
 
 ### Operator shell (front end)
 

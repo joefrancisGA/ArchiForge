@@ -26,6 +26,8 @@
 | **`archlucid_explainability_trace_completeness_ratio`** | Histogram | — | Advisory scan trace completeness. |
 | **`archlucid_circuit_breaker_*`** | Counter | — | State transitions, rejections, probe outcomes. |
 | **`archlucid_llm_*`** | Counter | — | Token usage, retries (see `ArchLucidInstrumentation` source). |
+| **`archlucid_agent_output_structural_completeness_ratio`** | Histogram | — | **`agent_type`**: Topology, Cost, Compliance, Critic. Fraction of expected **`AgentResult`** JSON keys present on **`ParsedResultJson`** (see **`AgentOutputEvaluationRecorder`**). |
+| **`archlucid_agent_output_parse_failures_total`** | Counter | — | **`agent_type`**. **`ParsedResultJson`** is not a JSON object or failed JSON parse when re-checked for metrics. |
 
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 
@@ -43,6 +45,8 @@ These instruments support **product and operator dashboards** (runs volume, find
 | **`archlucid_llm_calls_per_run`** | Histogram (`int`, unit `{call}`) | — | Count of successful Azure OpenAI JSON completions during one **`RealAgentExecutor.ExecuteAsync`** batch (parallel handlers share one observation). | **Heatmap** (histogram over time) or **percentiles** via `histogram_quantile`; optional **stat** for last value. |
 | **`archlucid_explanation_cache_hits_total`** | Counter | — | Aggregate explanation summary served from **`IHotPathReadCache`** without invoking the inner **`RunExplanationSummaryService`** factory. | **Time series** — `rate()` alongside misses. |
 | **`archlucid_explanation_cache_misses_total`** | Counter | — | Cache factory invoked (inner summary built; may imply LLM work). | **Time series** — `rate()` alongside hits. |
+| **`archlucid_agent_output_structural_completeness_ratio`** | Histogram | **`agent_type`** | Distribution of structural completeness for persisted agent **`ParsedResultJson`** (0.0–1.0). | **Heatmap** or **quantiles**; alert if p10 drops after a prompt or model change. |
+| **`archlucid_agent_output_parse_failures_total`** | Counter | **`agent_type`** | JSON parse / root-kind failures when scoring trace payloads for metrics. | **Time series** — `rate()`; correlate with **`archlucid_agent_result_schema_validations_total`** (invalid). |
 
 ### Explanation cache hit ratio (Prometheus)
 
@@ -104,7 +108,7 @@ For request-scoped correlation headers and sampling, see **Sampling strategy** a
 
 ## Agent execution trace blob storage (optional)
 
-When **`AgentExecution:TraceStorage:PersistFullPrompts`** is **true**, the **`AgentExecutionTraceRecorder`** uploads **full** (unsanitized) system prompt, user prompt, and raw model response to **`IArtifactBlobStore`** under container **`agent-traces`** with object paths **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. Uploads run **asynchronously** after the SQL row insert; failures are **logged** and blob pointer columns may stay **null**. Truncated **`TraceJson`** fields remain for lightweight reads. Operational and privacy notes: **`docs/AGENT_TRACE_FORENSICS.md`**.
+When **`AgentExecution:TraceStorage:PersistFullPrompts`** is **true** (the **product default** in **`AgentExecutionTraceStorageOptions`** and sample **`appsettings`**), the **`AgentExecutionTraceRecorder`** uploads **full** (unsanitized) system prompt, user prompt, and raw model response to **`IArtifactBlobStore`** under container **`agent-traces`** with object paths **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. Uploads run **asynchronously** after the SQL row insert; failures are **logged** and blob pointer columns may stay **null**. Truncated **`TraceJson`** fields remain for lightweight reads. Operational and privacy notes: **`docs/AGENT_TRACE_FORENSICS.md`**.
 
 ---
 

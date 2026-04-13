@@ -8,7 +8,7 @@ Enable **replayable** inspection of exact LLM inputs and outputs for a single ag
 
 | Element | Behavior |
 |---------|----------|
-| **Config gate** | **`AgentExecution:TraceStorage:PersistFullPrompts`** (default **false**). |
+| **Config gate** | **`AgentExecution:TraceStorage:PersistFullPrompts`** (default **true**; override per environment if retention policy forbids full prompts). |
 | **Blob layout** | Container **`agent-traces`**; blobs **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. |
 | **Stored pointers** | **`FullSystemPromptBlobKey`**, **`FullUserPromptBlobKey`**, **`FullResponseBlobKey`** on the trace row (opaque URI from **`IArtifactBlobStore.WriteAsync`** — e.g. **`file://`** locally, **`https://`** in Azure). |
 | **Truncation** | Unchanged: **`SystemPrompt`**, **`UserPrompt`**, **`RawResponse`** in **`TraceJson`** stay capped at **8192** chars for quick SQL reads. |

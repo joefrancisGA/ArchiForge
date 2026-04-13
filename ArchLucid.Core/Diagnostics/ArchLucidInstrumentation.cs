@@ -253,6 +253,20 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_handler_invocations_total",
             description: "Agent handler invocations by type and outcome.");
 
+    /// <summary>
+    /// Fraction of expected <c>AgentResult</c> JSON keys present on <c>ParsedResultJson</c> (0.0–1.0; label <c>agent_type</c>).
+    /// </summary>
+    public static readonly Histogram<double> AgentOutputStructuralCompletenessRatio =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_output_structural_completeness_ratio",
+            description: "Structural completeness of persisted agent parsed JSON (0.0–1.0).");
+
+    /// <summary>Trace JSON that is not a JSON object or failed <see cref="System.Text.Json"/> parse (label <c>agent_type</c>).</summary>
+    public static readonly Counter<long> AgentOutputParseFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_output_parse_failures_total",
+            description: "Agent trace ParsedResultJson parse/root-kind failures.");
+
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(

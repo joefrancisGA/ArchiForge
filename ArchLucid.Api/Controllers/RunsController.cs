@@ -7,6 +7,7 @@ using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Determinism;
 using ArchLucid.Application.Runs;
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
@@ -49,6 +50,7 @@ public sealed partial class RunsController(
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAgentOutputEvaluator agentOutputEvaluator,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     ILogger<RunsController> logger)
