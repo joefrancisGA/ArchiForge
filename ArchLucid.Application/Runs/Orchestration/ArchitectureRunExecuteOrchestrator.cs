@@ -13,6 +13,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.Logging;
 
@@ -53,6 +54,10 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <summary>One persisted result per required agent type (Topology, Cost, Compliance, Critic) before commit.</summary>
+    private static readonly HashSet<AgentType> RequiredAgentTypesForCommit =
+        [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
 
     /// <inheritdoc />
     public async Task<ExecuteRunResult> ExecuteRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -148,6 +153,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 evaluations,
                 cancellationToken);
 
+            await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, results, cancellationToken);
+
             await _baselineMutationAudit
                 .RecordAsync(
                     AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded,
@@ -233,6 +240,8 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 run.Status,
                 existingResults.Count);
 
+            await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
+
             return new ExecuteRunResult
             {
                 RunId = runId,
@@ -243,8 +252,66 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         return null;
     }
 
+    private static bool HasAllRequiredAgentTypesForCommit(IReadOnlyList<AgentResult> results)
+    {
+        if (results.Count != RequiredAgentTypesForCommit.Count)
+            return false;
+
+        foreach (AgentType required in RequiredAgentTypesForCommit)
+
+            if (results.Count(r => r.AgentType == required) != 1)
+                return false;
+
+
+        return true;
+    }
+
     /// <summary>
-    /// Persists evidence, results, evaluations, and status inside one transaction so retries do not duplicate rows.
+    /// ADR-0012: execute no longer wrote <c>LegacyRunStatus</c>; clients and UIs still expect <see cref="ArchitectureRunStatus.ReadyForCommit"/>
+    /// once all required agent outputs exist (matches commit prerequisites and <c>IArchitectureRunService</c> contract).
+    /// </summary>
+    private async Task TryPromoteRunLegacyStatusIfAllResultsPresentAsync(
+        string runId,
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken)
+    {
+        if (!HasAllRequiredAgentTypesForCommit(results))
+            return;
+
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+                _logger.LogWarning("Execute: cannot promote run {RunId} — dbo.Runs header missing.", runId);
+
+            return;
+        }
+
+        if (string.Equals(header.LegacyRunStatus, ArchitectureRunStatus.ReadyForCommit.ToString(), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(header.LegacyRunStatus, ArchitectureRunStatus.Committed.ToString(), StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        header.LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString();
+        await _runRepository.UpdateAsync(header, cancellationToken);
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+            return true;
+
+        return Guid.TryParse(runId, out runGuid);
+    }
+
+    /// <summary>
+    /// Persists evidence, results, and evaluations inside one transaction so retries do not duplicate rows.
     /// </summary>
     private async Task PersistExecutePhaseAsync(
         string runId,

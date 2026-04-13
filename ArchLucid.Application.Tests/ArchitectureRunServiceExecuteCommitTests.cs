@@ -161,6 +161,140 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
     }
 
     [Fact]
+    public async Task ExecuteRunAsync_after_persist_sets_LegacyRunStatus_ReadyForCommit_when_four_required_agents_complete()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        string requestId = "req-four-" + Guid.NewGuid().ToString("N");
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            Status = ArchitectureRunStatus.TasksGenerated,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Description = "d",
+        };
+
+        Mock<IArchitectureRequestRepository> requestRepo = new();
+        requestRepo.Setup(x => x.GetByIdAsync(requestId, It.IsAny<CancellationToken>())).ReturnsAsync(request);
+
+        static AgentTask TaskFor(string id, AgentType type, string rid) => new()
+        {
+            TaskId = id,
+            RunId = rid,
+            AgentType = type,
+            Objective = "o",
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = DateTime.UtcNow,
+            EvidenceBundleRef = "eb",
+        };
+
+        List<AgentTask> tasks =
+        [
+            TaskFor("t-topo", AgentType.Topology, runId),
+            TaskFor("t-cost", AgentType.Cost, runId),
+            TaskFor("t-comp", AgentType.Compliance, runId),
+            TaskFor("t-crit", AgentType.Critic, runId),
+        ];
+
+        Mock<IAgentTaskRepository> taskRepo = new();
+        taskRepo.Setup(x => x.GetByRunIdAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(tasks);
+
+        AgentEvidencePackage package = new()
+        {
+            RunId = runId,
+            RequestId = requestId,
+            SystemName = "S",
+            Environment = "prod",
+            CloudProvider = "Azure",
+            Request = new RequestEvidence { Description = "d" },
+        };
+
+        Mock<IEvidenceBuilder> evidenceBuilder = new();
+        evidenceBuilder.Setup(x => x.BuildAsync(runId, request, It.IsAny<CancellationToken>())).ReturnsAsync(package);
+
+        static AgentResult Res(string taskId, AgentType type, string rid) => new()
+        {
+            RunId = rid,
+            TaskId = taskId,
+            AgentType = type,
+            Confidence = 0.7,
+            ResultId = "r-" + taskId,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        List<AgentResult> fourResults =
+        [
+            Res("t-topo", AgentType.Topology, runId),
+            Res("t-cost", AgentType.Cost, runId),
+            Res("t-comp", AgentType.Compliance, runId),
+            Res("t-crit", AgentType.Critic, runId),
+        ];
+
+        Mock<IAgentExecutor> executor = new();
+        executor.Setup(x => x.ExecuteAsync(
+                runId,
+                request,
+                package,
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(fourResults);
+
+        Mock<IAgentEvaluationService> evaluationService = new();
+        evaluationService.Setup(x => x.EvaluateAsync(
+                runId,
+                request,
+                package,
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        Mock<IAgentEvidencePackageRepository> evidencePackageRepo = new();
+        Mock<IAgentResultRepository> resultRepo = new();
+        Mock<IAgentEvaluationRepository> evaluationRepo = new();
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActor()).Returns("actor");
+
+        ArchitectureRunService sut = CreateSut(
+            executor.Object,
+            runRepo,
+            scopeProvider,
+            requestRepo.Object,
+            taskRepo.Object,
+            evidenceBuilder.Object,
+            evaluationService.Object,
+            evidencePackageRepo.Object,
+            resultRepo.Object,
+            evaluationRepo.Object,
+            actor.Object);
+
+        ExecuteRunResult exec = await sut.ExecuteRunAsync(runId, CancellationToken.None);
+
+        exec.Results.Should().HaveCount(4);
+
+        Mock.Get(runRepo).Verify(
+            r => r.UpdateAsync(
+                It.Is<RunRecord>(h =>
+                    h.RunId == Guid.ParseExact(runId, "N")
+                    && string.Equals(h.LegacyRunStatus, ArchitectureRunStatus.ReadyForCommit.ToString(), StringComparison.Ordinal)),
+                It.IsAny<CancellationToken>(),
+                null,
+                null),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ExecuteRunAsync_when_ready_for_commit_replays_without_executor()
     {
         string runId = Guid.NewGuid().ToString("N");
