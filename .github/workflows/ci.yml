@@ -26,6 +26,8 @@ on:
 # Opt into Node 24 for JavaScript actions (GitHub default June 2026). Third-party actions still
 # declaring node20 run on 24 via this until they publish node24 builds. Tier-0 secret scan uses
 # gacts/gitleaks (node24-native) instead of gitleaks/gitleaks-action to avoid Node 20 deprecation noise.
+# aquasecurity/trivy-action@v0.35.0 pins actions/cache (node20); set `cache: false` on each Trivy step
+# below to skip that nested action and avoid "Node.js 20 is deprecated" warnings until Trivy updates.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -72,6 +74,7 @@ jobs:
           scan-ref: infra/terraform-private
           severity: HIGH,CRITICAL
           exit-code: "1"
+          cache: false
 
   terraform-validate-public-stacks:
     name: "Terraform: validate main / edge / entra (no backend)"
@@ -106,6 +109,7 @@ jobs:
           scan-ref: ${{ matrix.directory }}
           severity: HIGH,CRITICAL
           exit-code: "1"
+          cache: false
 
   dotnet-fast-core:
     name: ".NET: fast core (corset)"
@@ -628,6 +632,7 @@ jobs:
           image-ref: archlucid-api:ci
           severity: CRITICAL,HIGH
           exit-code: "1"
+          cache: false
 
       - name: Trivy scan Operator UI image (CRITICAL/HIGH)
         uses: aquasecurity/trivy-action@v0.35.0
@@ -636,6 +641,7 @@ jobs:
           image-ref: archlucid-ui:ci
           severity: CRITICAL,HIGH
           exit-code: "1"
+          cache: false
 
   ui-unit:
     name: "Operator UI: unit (Vitest)"
