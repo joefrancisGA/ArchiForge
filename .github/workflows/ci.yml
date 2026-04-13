@@ -735,6 +735,16 @@ jobs:
           dotnet restore ArchLucid.sln
           dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
 
+      # Build Next before starting the API so Playwright webServer does not run `npm run build`
+      # while dotnet + SQL are already up (reduces OOM risk and API process being killed).
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+
       - name: Start ArchLucid.Api (background)
         env:
           ASPNETCORE_ENVIRONMENT: Development
@@ -763,15 +773,16 @@ jobs:
             sleep 2
           done
 
-      - name: Install UI deps & run live Playwright
+      - name: Install Playwright browsers & run live e2e
         working-directory: archlucid-ui
         env:
           CI: true
           LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
-          npm ci
           npx playwright install --with-deps chromium
+          curl -fsS http://127.0.0.1:5128/health/ready
           npx playwright test -c playwright.live.config.ts
 
       - name: Upload live API log

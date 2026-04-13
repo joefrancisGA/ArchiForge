@@ -72,7 +72,7 @@ npm run test:watch
 npm run test:e2e
 ```
 
-**Live API E2E (Tier 2+ — CI `ui-e2e-live`, non-blocking):** Playwright config `archlucid-ui/playwright.live.config.ts`, spec `e2e/live-api-journey.spec.ts`, `describe` name **`live-api-journey`**. Exercises a real `ArchLucid.Api` + SQL stack (`DevelopmentBypass`, simulator agents): health, run create/execute, audit search, governance dashboard. Filter locally with `npx playwright test -c playwright.live.config.ts`. See **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** for the CI job.
+**Live API E2E (Tier 2+ — CI `ui-e2e-live`, non-blocking):** Playwright config `archlucid-ui/playwright.live.config.ts`, spec `e2e/live-api-journey.spec.ts`, `describe` name **`live-api-journey`**. Exercises a real `ArchLucid.Api` + SQL stack (`DevelopmentBypass`, simulator agents): health, run create/execute, audit search, governance dashboard. Filter locally with `npx playwright test -c playwright.live.config.ts` (starts the UI via `webServer`; you must run **`ArchLucid.Api`** on **`LIVE_API_URL`** / default `http://127.0.0.1:5128` first). CI builds Next before starting the API and sets **`LIVE_E2E_SKIP_NEXT_BUILD=1`** so the webServer does not run a second `npm run build` while the API is up (avoids OOM / `ECONNREFUSED`). See **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** for the CI job.
 
 **Scripts (repo root):** `test-ui-unit.cmd` / `.ps1` (Vitest), `test-ui-smoke.cmd` / `.ps1` (Playwright)
 
