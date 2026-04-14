@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -120,9 +121,9 @@ public sealed class GovernanceWorkflowService(
         {
             logger.LogInformation(
                 "Governance approval request submitted: ApprovalRequestId={ApprovalRequestId}, RunId={RunId}, ManifestVersion={ManifestVersion}",
-                request.ApprovalRequestId,
-                request.RunId,
-                request.ManifestVersion);
+                LogSanitizer.Sanitize(request.ApprovalRequestId),
+                LogSanitizer.Sanitize(request.RunId),
+                LogSanitizer.Sanitize(request.ManifestVersion));
         }
 
         await TryPublishGovernanceApprovalSubmittedAsync(request, cancellationToken);
@@ -187,12 +188,12 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-
+        {
             logger.LogInformation(
                 "Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
-                request.ApprovalRequestId,
-                reviewedBy);
-
+                LogSanitizer.Sanitize(request.ApprovalRequestId),
+                LogSanitizer.Sanitize(reviewedBy));
+        }
 
         return request;
     }
@@ -254,12 +255,12 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-
+        {
             logger.LogInformation(
                 "Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
-                request.ApprovalRequestId,
-                reviewedBy);
-
+                LogSanitizer.Sanitize(request.ApprovalRequestId),
+                LogSanitizer.Sanitize(reviewedBy));
+        }
 
         return request;
     }
@@ -387,14 +388,14 @@ public sealed class GovernanceWorkflowService(
             cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
-
+        {
             logger.LogInformation(
                 "Manifest promoted: PromotionRecordId={PromotionRecordId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Target={TargetEnvironment}",
-                record.PromotionRecordId,
-                record.RunId,
-                record.ManifestVersion,
-                record.TargetEnvironment);
-
+                LogSanitizer.Sanitize(record.PromotionRecordId),
+                LogSanitizer.Sanitize(record.RunId),
+                LogSanitizer.Sanitize(record.ManifestVersion),
+                LogSanitizer.Sanitize(record.TargetEnvironment));
+        }
 
         return record;
     }
@@ -505,10 +506,10 @@ public sealed class GovernanceWorkflowService(
         {
             logger.LogInformation(
                 "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
-                activation.ActivationId,
-                activation.RunId,
-                activation.ManifestVersion,
-                activation.Environment);
+                LogSanitizer.Sanitize(activation.ActivationId),
+                LogSanitizer.Sanitize(activation.RunId),
+                LogSanitizer.Sanitize(activation.ManifestVersion),
+                LogSanitizer.Sanitize(activation.Environment));
         }
 
         if (!enqueuePromotionInSqlTx)

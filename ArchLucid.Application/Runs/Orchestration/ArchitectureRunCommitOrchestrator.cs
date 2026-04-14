@@ -308,7 +308,13 @@ public sealed class ArchitectureRunCommitOrchestrator(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Durable audit for CoordinatorRunCommitCompleted failed for RunId={RunId}", runId);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Durable audit for CoordinatorRunCommitCompleted failed for RunId={RunId}",
+                    LogSanitizer.Sanitize(runId));
+            }
         }
 
         if (_logger.IsEnabled(LogLevel.Information))

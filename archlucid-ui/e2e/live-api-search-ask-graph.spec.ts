@@ -8,9 +8,11 @@ import {
   commitRun,
   createRun,
   executeRun,
+  getGraphForRunRaw,
   getRunDetailsWithTransientRetries,
   listArchitectureRuns,
   liveApiBase,
+  postAskRaw,
   toRunGuidPathSegment,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -65,8 +67,7 @@ test.describe("live-api-search-ask-graph", () => {
       expect(hit.systemName).toBe(systemName);
     }
 
-    const graphUrl = `${liveApiBase}/v1/graph/runs/${toRunGuidPathSegment(runId)}`;
-    const graphRes = await request.get(graphUrl, { headers: { Accept: "application/json" } });
+    const graphRes = await getGraphForRunRaw(request, toRunGuidPathSegment(runId));
 
     expect(graphRes.ok(), `GET graph expected 200, got ${graphRes.status()}`).toBeTruthy();
     const graphJson = (await graphRes.json()) as { nodes?: unknown[]; edges?: unknown[] };
@@ -75,12 +76,9 @@ test.describe("live-api-search-ask-graph", () => {
     expect(Array.isArray(graphJson.edges)).toBeTruthy();
 
     const runGuid = toRunGuidPathSegment(runId);
-    const askRes = await request.post(`${liveApiBase}/v1/ask`, {
-      data: {
-        runId: runGuid,
-        question: "List the main components mentioned in the manifest context in one short sentence.",
-      },
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
+    const askRes = await postAskRaw(request, {
+      runId: runGuid,
+      question: "List the main components mentioned in the manifest context in one short sentence.",
     });
 
     if (askRes.ok()) {

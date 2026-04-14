@@ -11,6 +11,7 @@ import {
   createRun,
   executeRun,
   liveApiBase,
+  postAdvisoryScanRaw,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -50,10 +51,7 @@ test.describe("live-api-advisory-flow", () => {
     await commitRun(request, runId);
     await waitForRunDetailCommitted(request, runId, 60_000);
 
-    const scanRes = await request.post(`${liveApiBase}/v1/advisory/scans`, {
-      data: { runId, description: "E2E advisory scan test" },
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-    });
+    const scanRes = await postAdvisoryScanRaw(request, { runId, description: "E2E advisory scan test" });
 
     if (scanRes.status() === 404) {
       test.skip(true, "Advisory scan scheduling endpoint not available in this build");

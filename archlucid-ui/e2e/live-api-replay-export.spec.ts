@@ -12,6 +12,7 @@ import {
   executeRun,
   getRunExportZip,
   liveApiBase,
+  postReplayRunRaw,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -51,9 +52,7 @@ test.describe("live-api-replay-export", () => {
     await commitRun(request, runId);
     await waitForRunDetailCommitted(request, runId, 60_000);
 
-    const replayRes = await request.post(`${liveApiBase}/v1/replay/run/${runId}`, {
-      headers: { Accept: "application/json" },
-    });
+    const replayRes = await postReplayRunRaw(request, runId);
 
     if (replayRes.status() === 404) {
       test.skip(true, "Replay endpoint not available in this build");

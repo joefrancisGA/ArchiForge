@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -66,10 +67,13 @@ public sealed class MermaidCliDiagramImageRenderer(
 
             if (process.ExitCode != 0)
             {
-                logger.LogWarning(
-                    "Mermaid CLI exited with code {ExitCode}. STDERR: {StdErr}",
-                    process.ExitCode,
-                    stdErr);
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(
+                        "Mermaid CLI exited with code {ExitCode}. STDERR: {StdErr}",
+                        process.ExitCode,
+                        LogSanitizer.Sanitize(stdErr));
+                }
 
                 return null;
             }
@@ -77,7 +81,12 @@ public sealed class MermaidCliDiagramImageRenderer(
             if (File.Exists(outputPath))
                 return await File.ReadAllBytesAsync(outputPath, cancellationToken);
 
-            logger.LogWarning("Mermaid CLI reported success but output PNG was missing at {OutputPath}.", outputPath);
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    "Mermaid CLI reported success but output PNG was missing at {OutputPath}.",
+                    LogSanitizer.Sanitize(outputPath));
+            }
 
             return null;
 
@@ -99,7 +108,13 @@ public sealed class MermaidCliDiagramImageRenderer(
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to delete temporary Mermaid work directory '{TempDir}'.", tempDir);
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(
+                        ex,
+                        "Failed to delete temporary Mermaid work directory '{TempDir}'.",
+                        LogSanitizer.Sanitize(tempDir));
+                }
             }
         }
     }

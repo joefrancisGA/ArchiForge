@@ -11,9 +11,9 @@
 
 | # | Quality | Weight | Score | Weighted Score | Weighted Gap | Verdict |
 |---|---------|--------|-------|----------------|--------------|---------|
-| 1 | Correctness | 8 | 70 | 560 | 240 | Strong test infra; live E2E and rename risk gaps |
+| 1 | Correctness | 8 | 73 | 584 | 216 | Strong test infra; full live `live-api-*.spec.ts` CI suite; rename risk remains |
 | 2 | Explainability | 6 | 72 | 432 | 168 | Trace completeness analyzer strong; LLM-dependent, forensics weak |
-| 3 | Evolvability | 6 | 73 | 438 | 162 | Config gates and ADRs solid; rename debt and 90-item backlog drag |
+| 3 | Evolvability | 6 | 73 | 438 | 162 | Config gates and ADRs solid; rename debt and deferred Terraform |
 | 4 | Traceability | 7 | 77 | 539 | 161 | Excellent OTel + correlation; UI trace visualization limited |
 | 5 | Security | 6 | 74 | 444 | 156 | Defense in depth present; RLS gaps and static API keys |
 | 6 | Reliability | 5 | 70 | 350 | 150 | Resilience primitives in place; no systemic proof under load |
@@ -25,7 +25,7 @@
 | 12 | Policy & Governance Alignment | 5 | 75 | 375 | 125 | Approval workflow complete; preventive controls missing |
 | 13 | AI/Agent Readiness | 4 | 69 | 276 | 124 | Simulator + fallback solid; evaluation harness and streaming absent |
 | 14 | Scalability | 3 | 61 | 183 | 117 | Scale-aware architecture; untested and vertically bounded |
-| 15 | Maintainability | 4 | 72 | 288 | 112 | Good tooling; 2,100-line backlog signals accumulated debt |
+| 15 | Maintainability | 4 | 72 | 288 | 112 | Good tooling; curated `NEXT_REFACTORINGS` + archive |
 | 16 | Interoperability | 3 | 70 | 210 | 90 | CloudEvents + OpenAPI + AsyncAPI; no inbound connectors |
 | 17 | Availability | 2 | 62 | 124 | 76 | HA documented; no proven drills or multi-leader worker |
 | 18 | Performance | 2 | 63 | 126 | 74 | Caching present; zero published latency baselines |
@@ -38,7 +38,7 @@
 | 25 | Accessibility | 1 | 57 | 57 | 43 | Axe gates on 5 of ~25 routes; most UI unverified |
 | 26 | Extensibility | 1 | 75 | 75 | 25 | Finding engine template; no plugin runtime |
 | 27 | Documentation | 1 | 87 | 87 | 13 | 187 markdown files; exceptional breadth |
-| | **Totals** | **107** | | **7,519** | **2,781** | **Weighted average: 70.3 / 100** |
+| | **Totals** | **107** | | **7,543** | **2,757** | **Weighted average: 70.5 / 100** |
 
 ---
 
@@ -46,18 +46,18 @@
 
 ---
 
-### 1. Correctness -- Score: 70 / 100 (weight 8, weighted gap 240)
+### 1. Correctness -- Score: 73 / 100 (weight 8, weighted gap 216)
 
 **What it means:** The system produces correct results under documented conditions and its behavior matches its specification.
 
 **Justification:**
 
-- **Strengths:** 18 .NET test projects with 795 test files yield an approximate 1:2.1 test-to-source ratio. Tiered CI (Tier 0-4) with gitleaks, fast core, full regression + SQL, Simmy chaos (blocking), UI unit + E2E. Stryker mutation testing across 5 configurations at a 70% break threshold and 65% baseline score. OpenAPI contract snapshot tests catch schema drift at merge time. SQL Server container integration tests validate Dapper queries against real schema. Architecture constraint tests (15 NetArchTest facts) prevent structural regressions. `WebApplicationFactory`-based integration tests exercise the full HTTP pipeline. Live API E2E (`ui-e2e-live` CI job) exercises the operator happy path against a real SQL stack (health, create, execute, commit, manifest, export, governance, audit).
-- **Weaknesses:** The live E2E test covers exactly **one** happy path -- the remaining Playwright specs (mock-backed) cannot prove API-SQL-UI integration. The product rename (phases 1-7) touched over 2,200 C# source files; while CI guards exist (rename grep, architecture constraints), the combinatorial risk of subtle config/namespace behavioral changes is non-trivial. `NEXT_REFACTORINGS.md` contains **2,100+ lines** including correctness-relevant items (e.g., missing replay validation test at item 9, incomplete create-run-execute helper at item 10). Stryker baseline of 65.0 per module means roughly 35% of mutations survive -- mutants in domain logic (`Decisioning`, `Application`) are particularly consequential. No property-based testing (FsCheck or similar) for domain invariants.
-- **Trade-off:** Mock-backed UI E2E provides speed and determinism at the cost of integration confidence. The single live E2E happy path is a good start but leaves most operator flows unvalidated against the real stack.
+- **Strengths:** 18 .NET test projects with 795 test files yield an approximate 1:2.1 test-to-source ratio. Tiered CI (Tier 0-4) with gitleaks, fast core, full regression + SQL, Simmy chaos (blocking), UI unit + E2E. Stryker mutation testing across 5 configurations at a 70% break threshold and 65% baseline score. OpenAPI contract snapshot tests catch schema drift at merge time. SQL Server container integration tests validate Dapper queries against real schema. Architecture constraint tests (15 NetArchTest facts) prevent structural regressions. `WebApplicationFactory`-based integration tests exercise the full HTTP pipeline. Live API E2E (`ui-e2e-live`, **`timeout-minutes: 35`**) runs **`playwright.live.config.ts`** with **`testMatch: ["live-api-*.spec.ts"]`**: happy path, conflict journey, governance rejection, error-state UI, negative API paths (self-approval, run-not-found, invalid create), advisory/replay/analysis/policy/compare flows, alert rules, search/graph/ask pages, digest subscriptions + toggle, parallel commit + parallel governance approve, and archival list smoke (see **`docs/LIVE_E2E_HAPPY_PATH.md`**).
+- **Weaknesses:** Default **`ui-e2e-smoke`** Playwright specs remain **mock-backed**; only the **`live-api-*.spec.ts`** files prove API + SQL + UI together. The product rename (phases 1-7) touched over 2,200 C# source files; while CI guards exist (rename grep, architecture constraints), the combinatorial risk of subtle config/namespace behavioral changes is non-trivial. Stryker baseline of 65.0 per module means roughly 35% of mutations survive -- mutants in domain logic (`Decisioning`, `Application`) are particularly consequential. No property-based testing (FsCheck or similar) for domain invariants. Run archival is not HTTP-triggered in live E2E (worker-only); digest webhook dry-run is skipped.
+- **Trade-off:** Mock-backed UI E2E provides speed and determinism at the cost of integration confidence; the expanded live suite increases CI time and flakiness surface but materially raises confidence on critical paths.
 
 **Improvements:**
-1. Expand the live E2E suite to cover at least the negative-path journey (run-not-found, commit conflict, self-approval block) against the real API + SQL.
+1. Add staging-only or feature-flagged coverage for **Entra / API-key** auth paths (live E2E today assumes DevelopmentBypass + Simulator).
 2. Raise Stryker break thresholds to 80% for `Decisioning` and `Application` -- these are the highest-consequence domain assemblies.
 3. Introduce property-based testing for manifest merge, governance resolution, and findings engine output invariants.
 
@@ -500,11 +500,11 @@
 
 | Priority | Improvement | Primary Qualities Improved (weights) | Rationale |
 |----------|-------------|---------------------------------------|-----------|
-| **1** | **Expand live-API E2E tests:** Add negative-path and governance-rejection Playwright specs against real C# API + SQL to CI. The current single happy-path live spec leaves most operator flows unvalidated against the real stack. | Correctness (8), Reliability (5), Usability (4) | The single largest weighted gap is Correctness at 240 points. The gap between mock-backed and real-stack UI behavior is the primary driver. Each additional live spec reduces this gap with compounding returns across reliability and usability confidence. **Estimated weighted impact: ~40 points.** |
+| **1** | **Production-like live gates:** Run a subset of **`live-api-*.spec.ts`** (or new specs) against **API key / JWT** auth and document any DevelopmentBypass-only assertions; optionally tier **full** live suite to nightly if PR duration grows. | Correctness (8), Security (6), Reliability (5) | The live suite now covers many paths under DevelopmentBypass + Simulator; remaining risk is behavioral drift vs real auth and real LLM. **Estimated weighted impact: ~25 points.** |
 | **2** | **Persist mandatory forensic prompt snapshots and build an agent output evaluation harness:** Store exact prompt text, model version, and raw response as a non-optional part of `AgentExecutionTrace`. Build a scoring harness that compares actual agent outputs against reference inputs with a rubric, tracking quality scores over time. | Explainability (6), AI/Agent Readiness (4), Traceability (7), Auditability (5) | Four high-weight dimensions benefit simultaneously. Without forensic prompt snapshots, agent outputs are not reproducible -- a critical gap for compliance, debugging, and quality regression detection. The evaluation harness enables data-driven prompt engineering instead of ad-hoc manual review. **Estimated weighted impact: ~35 points.** |
 | **3** | **Run and publish a load-test baseline with CI regression gate:** Use k6 or similar to establish throughput and p95 latency baselines for the 5 most critical endpoints. Add a CI smoke test with p95 assertions. | Performance (2), Reliability (5), Scalability (3), Correctness (8) | Unknown throughput limits are a risk multiplier. Even a 60-second smoke test with 10 virtual users would establish whether the system can serve its documented operator path under minimal concurrency. Prevents performance regressions from landing undetected. **Estimated weighted impact: ~30 points.** |
 | **4** | **Close audit coverage gaps and wire audit search UI:** Promote baseline mutation audit to durable SQL for high-severity events. Wire the existing `GET /v1/audit/search` API filters and capabilities into the operator UI audit page. | Auditability (5), Policy & Governance (5), Security (6), Usability (4) | The product acknowledges audit gaps; closing them for governance and export paths directly supports compliance pilots. The API already supports full search/filter -- the operator UI just needs wiring. This is high-leverage incremental work. **Estimated weighted impact: ~28 points.** |
-| **5** | **Execute Terraform `state mv` (Phase 7.5) and triage `NEXT_REFACTORINGS.md`:** Schedule and complete the Terraform resource address rename. Aggressively prune the 2,100-line refactoring backlog to 20-30 curated, prioritized items. | Evolvability (6), Maintainability (4), Cognitive Load (4) | These are the two largest contributors to perceived technical debt and contributor friction. Phase 7.5 eliminates daily friction for every infrastructure change. A curated backlog signals intentionality and reduces cognitive load for newcomers trying to understand system health. **Estimated weighted impact: ~25 points.** |
+| **5** | **Execute Terraform `state mv` (Phase 7.5):** Schedule and complete the Terraform resource address rename. Keep **`NEXT_REFACTORINGS.md`** curated (active items + archive) as new debt appears. | Evolvability (6), Maintainability (4), Cognitive Load (4) | Phase 7.5 eliminates daily friction for every infrastructure change. **Estimated weighted impact: ~25 points.** |
 | **6** | **Implement configurable pre-commit governance gate with severity thresholds:** Make the existing `GovernancePreCommitBlocked` gate configurable by finding severity (e.g., block on `Critical`, warn on `Error`, allow `Warning`/`Info`). Add approval SLA with notification escalation. | Policy & Governance (5), Correctness (8), Security (6) | Post-hoc compliance means non-compliant manifests can be committed. A configurable pre-commit gate gives governance teams a preventive control without slowing teams that opt out. Approval SLA prevents governance bottlenecks from blocking delivery indefinitely. **Estimated weighted impact: ~22 points.** |
 
 ---
@@ -517,4 +517,4 @@
 - UI assessment is based on source code structure, component inventory (164 TSX files), and documentation -- not live user testing.
 - This assessment is independent of the April 12 assessment in `QUALITY_ASSESSMENT.md`. Score differences reflect updated evidence and independent judgment, not disagreement with methodology.
 
-**Overall weighted average: 70.3 / 100** -- a solid V1-stage product with exceptional documentation and observability, strong architectural guardrails, but meaningful gaps in live validation, AI forensics, performance baselines, and operational proof under load. The most impactful improvements are live E2E expansion, mandatory prompt forensics, and a load-test baseline -- together these would close approximately 105 weighted gap points across the highest-weight dimensions.
+**Overall weighted average: 70.5 / 100** -- a solid V1-stage product with exceptional documentation and observability, strong architectural guardrails, and a **broad merge-blocking live Playwright suite** (`live-api-*.spec.ts`). Remaining gaps include **auth-parity live coverage**, **AI forensics**, **performance baselines**, and **operational proof under load**. The most impactful improvements are now **production-like live gates**, **mandatory prompt forensics**, and a **load-test baseline**.

@@ -1,6 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
@@ -42,10 +43,13 @@ internal static class CoordinatorRunFailedDurableAudit
         }
         catch (Exception ex)
         {
-            logger.LogWarning(
-                ex,
-                "Durable audit for CoordinatorRunFailed failed for RunId={RunId}",
-                correlationRunId);
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    ex,
+                    "Durable audit for CoordinatorRunFailed failed for RunId={RunId}",
+                    LogSanitizer.Sanitize(correlationRunId));
+            }
         }
     }
 }

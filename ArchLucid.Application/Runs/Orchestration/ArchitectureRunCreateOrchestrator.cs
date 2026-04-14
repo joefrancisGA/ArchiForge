@@ -7,6 +7,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
@@ -96,10 +97,10 @@ public sealed class ArchitectureRunCreateOrchestrator(
         {
             _logger.LogInformation(
                 "Creating architecture run: RunId={RunId}, RequestId={RequestId}, SystemName={SystemName}, Environment={Environment}",
-                coordination.Run.RunId,
-                request.RequestId,
-                request.SystemName,
-                request.Environment);
+                LogSanitizer.Sanitize(coordination.Run.RunId),
+                LogSanitizer.Sanitize(request.RequestId),
+                LogSanitizer.Sanitize(request.SystemName),
+                LogSanitizer.Sanitize(request.Environment));
         }
 
         bool inserted;
@@ -188,14 +189,20 @@ public sealed class ArchitectureRunCreateOrchestrator(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Durable audit for CoordinatorRunCreated failed for RunId={RunId}", coordination.Run.RunId);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Durable audit for CoordinatorRunCreated failed for RunId={RunId}",
+                    LogSanitizer.Sanitize(coordination.Run.RunId));
+            }
         }
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
                 "Architecture run created: RunId={RunId}, TaskCount={TaskCount}",
-                coordination.Run.RunId,
+                LogSanitizer.Sanitize(coordination.Run.RunId),
                 coordination.Tasks.Count);
         }
 
@@ -258,9 +265,12 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
         if (!inserted)
         {
-            _logger.LogInformation(
-                "Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
-                coordination.Run.RunId);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "Idempotency insert did not win race for RunId={RunId}; unit of work will roll back when not committed.",
+                    LogSanitizer.Sanitize(coordination.Run.RunId));
+            }
         }
 
         return inserted;
@@ -343,7 +353,13 @@ public sealed class ArchitectureRunCreateOrchestrator(
         EvidenceBundle bundle = await _evidenceBundleRepository.GetByIdAsync(bundleRef, cancellationToken)
                                 ?? throw new InvalidOperationException($"Evidence bundle '{bundleRef}' for idempotent run was not found.");
 
-        _logger.LogInformation("CreateRun idempotent replay: RunId={RunId}, TaskCount={TaskCount}", runId, tasks.Count);
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformation(
+                "CreateRun idempotent replay: RunId={RunId}, TaskCount={TaskCount}",
+                LogSanitizer.Sanitize(runId),
+                tasks.Count);
+        }
 
         return new CreateRunResult
         {

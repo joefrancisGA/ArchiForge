@@ -160,10 +160,13 @@ public sealed class HostLeaderElectionCoordinator(
                 if (renewed)
                     continue;
 
-                _logger.LogWarning(
-                    "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
-                    LogSanitizer.Sanitize(leaseName),
-                    LogSanitizer.Sanitize(id));
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        "Failed to renew host leader lease {LeaseName} for {InstanceId}; stopping leader work.",
+                        LogSanitizer.Sanitize(leaseName),
+                        LogSanitizer.Sanitize(id));
+                }
 
                 await leaderCts.CancelAsync();
 

@@ -1,6 +1,8 @@
-# Live E2E — operator happy path (Playwright + API + SQL)
+# Live E2E — operator shell vs real API + SQL (Playwright)
 
-**Purpose:** Describe the **single** CI Playwright journey that proves the operator shell against a **real** `ArchLucid.Api` and **SQL Server**, not the mock API server used by default `playwright.config.ts`.
+**Purpose:** Document every **`live-api-*.spec.ts`** file run in CI against a **real** `ArchLucid.Api` and **SQL Server**, not the mock API server used by default `playwright.config.ts`.
+
+**Discovery:** `archlucid-ui/playwright.live.config.ts` uses **`testMatch: ["live-api-*.spec.ts"]`** so new live specs are picked up automatically when the filename matches the convention.
 
 **Specs (same Playwright live config):**
 
@@ -16,6 +18,11 @@
 | `archlucid-ui/e2e/live-api-analysis-report.spec.ts` | `live-api-analysis-report` | Analysis report generation: create → commit run, **`POST /v1/reports/analysis`** (skip if 404), audit trail asserts **`ArchitectureAnalysisReportGenerated`**; optional DOCX export via **`GET /v1/exports/docx/runs/{id}/architecture-package`**. |
 | `archlucid-ui/e2e/live-api-policy-pack-lifecycle.spec.ts` | `live-api-policy-pack-lifecycle` | **`POST /v1/policy-packs`** → assign **`1.0.0`** → **`GET /v1/policy-packs/effective`**; UI **`/policy-packs`**; recent audit includes **`PolicyPackCreated`**. |
 | `archlucid-ui/e2e/live-api-compare-runs.spec.ts` | `live-api-compare-runs` | Two runs create → execute → commit; **`GET /v1/authority/compare/runs`**; UI **`/compare?leftRunId=…&rightRunId=…`**; **404** when second run id is missing. |
+| `archlucid-ui/e2e/live-api-alert-rules.spec.ts` | `live-api-alert-rules` | **`POST /v1/alert-rules`** + list; UI **`/alerts`** with axe (critical/serious = 0). |
+| `archlucid-ui/e2e/live-api-search-ask-graph.spec.ts` | `live-api-search-ask-graph` | Runs list by **`systemName`**; **`GET /v1/graph/runs/{guid}`**; optional **`POST /v1/ask`**; UI **`/search`** and **`/ask`** axe. |
+| `archlucid-ui/e2e/live-api-digest-webhook.spec.ts` | `live-api-digest-webhook` | **`POST/GET /v1/digest-subscriptions`**, toggle, audit **`DigestSubscriptionCreated`** / **`DigestSubscriptionToggled`**; skipped placeholder for webhook dry-run (no HTTP surface). |
+| `archlucid-ui/e2e/live-api-concurrency.spec.ts` | `live-api-concurrency` | Parallel **`commitRunRaw`** (no **5xx**; run ends **Committed**); parallel governance approve (**exactly one** **2xx**, partner **4xx**; single new **`GovernanceApprovalApproved`** audit). |
+| `archlucid-ui/e2e/live-api-archival.spec.ts` | `live-api-archival` | Skipped note: archival is **worker**-driven (no API trigger); smoke test that **two** committed runs stay visible on **`GET /v1/architecture/runs`**. |
 
 **Config:** `archlucid-ui/playwright.live.config.ts`  
 **HTTP helpers:** `archlucid-ui/e2e/helpers/live-api-client.ts`  
@@ -104,9 +111,10 @@ Shared helpers: **`commitRunRaw`**, **`waitForReadyForCommit`** (exported from *
 
 ## Known limitations
 
-- **No real LLM** in CI — semantic quality of outputs is not under test.
+- **No real LLM** in CI — semantic quality of outputs is not under test; **`POST /v1/ask`** may be non-**2xx** without failing the graph/search spec.
 - **DevelopmentBypass** — not a production auth configuration; do not equate this gate with Entra/API-key hardening.
-- **Compare, replay, DOCX consulting export** and other surfaces remain primarily **mock-backed** in **`ui-e2e-smoke`** (live E2E now covers happy path + conflict + governance rejection + basic error-state UI).
+- **`ui-e2e-smoke`** (default **`playwright.config.ts`**) stays **mock-backed** for speed; **live** coverage is **`playwright.live.config.ts`** only (**merge-blocking** in **`ui-e2e-live`**).
+- **Run archival** is not invocable over **`ArchLucid.Api`** HTTP in DevelopmentBypass; see **`live-api-archival.spec.ts`** skip rationale and **`docs/runbooks/DATA_ARCHIVAL_HEALTH.md`**.
 
 ---
 

@@ -15,12 +15,8 @@ const liveWebServerCommand = skipNextBuild
 
 export default defineConfig({
   testDir: "e2e",
-  testMatch: [
-    "live-api-journey.spec.ts",
-    "live-api-conflict-journey.spec.ts",
-    "live-api-governance-rejection.spec.ts",
-    "live-api-error-states.spec.ts",
-  ],
+  /** All `live-api-*.spec.ts` files share one worker and real SQL; keep naming convention when adding specs. */
+  testMatch: ["live-api-*.spec.ts"],
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,

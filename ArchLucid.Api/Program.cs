@@ -6,6 +6,7 @@ using ArchLucid.Api.Configuration;
 using ArchLucid.Api.Startup;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Configuration;
@@ -14,6 +15,8 @@ using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api;
 
@@ -68,7 +71,12 @@ public partial class Program
         {
             foreach (string error in configurationErrors)
             {
-                app.Logger.LogError("Startup configuration error: {Error}", error);
+                if (app.Logger.IsEnabled(LogLevel.Error))
+                {
+                    app.Logger.LogError(
+                        "Startup configuration error: {Error}",
+                        LogSanitizer.Sanitize(error));
+                }
             }
 
             throw new InvalidOperationException(
@@ -100,7 +108,10 @@ public partial class Program
 
         ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
-        app.Logger.LogInformation("ArchLucid API starting request pipeline.");
+        if (app.Logger.IsEnabled(LogLevel.Information))
+        {
+            app.Logger.LogInformation("ArchLucid API starting request pipeline.");
+        }
         app.UseArchLucidPipeline();
         app.Run();
     }

@@ -811,6 +811,7 @@ jobs:
     name: "Operator UI: e2e live API + SQL"
     needs: dotnet-full-regression
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest

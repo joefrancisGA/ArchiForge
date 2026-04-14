@@ -539,3 +539,140 @@ export async function compareAuthorityRuns(
     headers: { Accept: "application/json" },
   });
 }
+
+/** POST `/v1/advisory/scans` — schedule advisory scan for a run (2xx/409/404 for capability gaps). */
+export async function postAdvisoryScanRaw(
+  request: APIRequestContext,
+  body: { runId: string; description?: string },
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/advisory/scans`, {
+    data: { runId: body.runId, description: body.description ?? "" },
+    headers: jsonHeaders,
+  });
+}
+
+/** POST `/v1/replay/run/{runId}` — authority replay (raw for 404 skip in live E2E). */
+export async function postReplayRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/replay/run/${runId}`, {
+    headers: { Accept: "application/json" },
+  });
+}
+
+/** POST `/v1/reports/analysis` — analysis report for a run. */
+export async function postAnalysisReportRaw(
+  request: APIRequestContext,
+  body: { runId: string },
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/reports/analysis`, {
+    data: { runId: body.runId },
+    headers: jsonHeaders,
+  });
+}
+
+/** GET DOCX consulting export for a run (raw for optional 404). */
+export async function getDocxArchitecturePackageExportRaw(
+  request: APIRequestContext,
+  runId: string,
+): Promise<APIResponse> {
+  return request.get(`${liveApiBase}/v1/exports/docx/runs/${runId}/architecture-package`, {
+    headers: { Accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*" },
+  });
+}
+
+/** POST `/v1/alert-rules` — create alert rule (raw for status assertions). */
+export async function postAlertRuleRaw(
+  request: APIRequestContext,
+  body: {
+    name: string;
+    ruleType: string;
+    severity: string;
+    thresholdValue: number;
+    isEnabled: boolean;
+    targetChannelType: string;
+    metadataJson: string;
+  },
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/alert-rules`, {
+    data: body,
+    headers: jsonHeaders,
+  });
+}
+
+/** GET `/v1/alert-rules` — list rules. */
+export async function getAlertRulesRaw(request: APIRequestContext): Promise<APIResponse> {
+  return request.get(`${liveApiBase}/v1/alert-rules`, {
+    headers: { Accept: "application/json" },
+  });
+}
+
+/** GET `/v1/graph/runs/{runGuid}` — knowledge graph for run. */
+export async function getGraphForRunRaw(request: APIRequestContext, runGuidPathSegment: string): Promise<APIResponse> {
+  return request.get(`${liveApiBase}/v1/graph/runs/${runGuidPathSegment}`, {
+    headers: { Accept: "application/json" },
+  });
+}
+
+/** POST `/v1/ask` — RAG-style question (raw; may be 503 when LLM unavailable). */
+export async function postAskRaw(
+  request: APIRequestContext,
+  body: { runId: string; question: string },
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/ask`, {
+    data: { runId: body.runId, question: body.question },
+    headers: jsonHeaders,
+  });
+}
+
+export type DigestSubscriptionJson = {
+  subscriptionId?: string;
+  name?: string;
+  channelType?: string;
+  destination?: string;
+  isEnabled?: boolean;
+};
+
+/** POST `/v1/digest-subscriptions` — create digest route (ExecuteAuthority). */
+export async function createDigestSubscription(
+  request: APIRequestContext,
+  body: { name: string; channelType: string; destination: string; isEnabled?: boolean; metadataJson?: string },
+): Promise<DigestSubscriptionJson> {
+  const res = await request.post(`${liveApiBase}/v1/digest-subscriptions`, {
+    data: {
+      name: body.name,
+      channelType: body.channelType,
+      destination: body.destination,
+      isEnabled: body.isEnabled ?? true,
+      metadataJson: body.metadataJson ?? "{}",
+    },
+    headers: jsonHeaders,
+  });
+
+  await throwIfNotOk(res, "POST /v1/digest-subscriptions");
+
+  return res.json() as Promise<DigestSubscriptionJson>;
+}
+
+/** GET `/v1/digest-subscriptions` — list subscriptions in scope. */
+export async function listDigestSubscriptions(request: APIRequestContext): Promise<DigestSubscriptionJson[]> {
+  const res = await request.get(`${liveApiBase}/v1/digest-subscriptions`, {
+    headers: { Accept: "application/json" },
+  });
+
+  await throwIfNotOk(res, "GET /v1/digest-subscriptions");
+
+  return res.json() as Promise<DigestSubscriptionJson[]>;
+}
+
+/** POST `/v1/digest-subscriptions/{id}/toggle` — flip enabled flag. */
+export async function toggleDigestSubscription(
+  request: APIRequestContext,
+  subscriptionId: string,
+): Promise<DigestSubscriptionJson> {
+  const res = await request.post(`${liveApiBase}/v1/digest-subscriptions/${subscriptionId}/toggle`, {
+    headers: { Accept: "application/json" },
+  });
+
+  await throwIfNotOk(res, "POST /v1/digest-subscriptions/.../toggle");
+
+  return res.json() as Promise<DigestSubscriptionJson>;
+}

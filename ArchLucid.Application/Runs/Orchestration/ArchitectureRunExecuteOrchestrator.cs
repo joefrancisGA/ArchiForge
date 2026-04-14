@@ -11,6 +11,7 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
@@ -103,9 +104,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         CancellationToken cancellationToken)
     {
         if (_logger.IsEnabled(LogLevel.Information))
+        {
             _logger.LogInformation(
                 "Executing architecture run: RunId={RunId}",
-                runId);
+                LogSanitizer.Sanitize(runId));
+        }
 
         ArchitectureRun? run = await ArchitectureRunAuthorityReader.TryGetArchitectureRunAsync(
             _runRepository,
@@ -153,7 +156,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Durable audit for CoordinatorRunExecuteStarted failed for RunId={RunId}", runId);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Durable audit for CoordinatorRunExecuteStarted failed for RunId={RunId}",
+                    LogSanitizer.Sanitize(runId));
+            }
         }
 
         try
@@ -221,14 +230,20 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Durable audit for CoordinatorRunExecuteSucceeded failed for RunId={RunId}", runId);
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "Durable audit for CoordinatorRunExecuteSucceeded failed for RunId={RunId}",
+                        LogSanitizer.Sanitize(runId));
+                }
             }
 
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation(
                     "Architecture run execution completed: RunId={RunId}, ResultCount={ResultCount}",
-                    runId,
+                    LogSanitizer.Sanitize(runId),
                     results.Count);
             }
 
@@ -240,11 +255,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogWarning(
-                ex,
-                "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
-                runId,
-                ex.GetType().Name);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Architecture run execution failed: RunId={RunId}, ExceptionType={ExceptionType}",
+                    LogSanitizer.Sanitize(runId),
+                    ex.GetType().Name);
+            }
 
             await _baselineMutationAudit
                 .RecordAsync(
@@ -283,11 +301,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         {
             if (existingResults.Count > 0)
             {
-                _logger.LogInformation(
-                    "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
-                    runId,
-                    run.Status,
-                    existingResults.Count);
+                if (_logger.IsEnabled(LogLevel.Information))
+                {
+                    _logger.LogInformation(
+                        "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount}",
+                        LogSanitizer.Sanitize(runId),
+                        run.Status,
+                        existingResults.Count);
+                }
 
                 return new ExecuteRunResult
                 {
@@ -304,11 +325,14 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         // Authority LegacyRunStatus may still read TasksGenerated while execute results already exist; idempotency uses stored results.
         if (run.Status == ArchitectureRunStatus.TasksGenerated && existingResults.Count > 0)
         {
-            _logger.LogInformation(
-                "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
-                runId,
-                run.Status,
-                existingResults.Count);
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation(
+                    "ExecuteRunAsync is idempotent: returning existing results for RunId={RunId}, Status={Status}, ResultCount={ResultCount} (legacy status may lag)",
+                    LogSanitizer.Sanitize(runId),
+                    run.Status,
+                    existingResults.Count);
+            }
 
             await TryPromoteRunLegacyStatusIfAllResultsPresentAsync(runId, existingResults, cancellationToken);
 
@@ -357,7 +381,11 @@ public sealed class ArchitectureRunExecuteOrchestrator(
         if (header is null)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-                _logger.LogWarning("Execute: cannot promote run {RunId} — dbo.Runs header missing.", runId);
+            {
+                _logger.LogWarning(
+                    "Execute: cannot promote run {RunId} — dbo.Runs header missing.",
+                    LogSanitizer.Sanitize(runId));
+            }
 
             return;
         }

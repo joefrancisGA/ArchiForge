@@ -10,7 +10,9 @@ import {
   commitRun,
   createRun,
   executeRun,
+  getDocxArchitecturePackageExportRaw,
   liveApiBase,
+  postAnalysisReportRaw,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -50,10 +52,7 @@ test.describe("live-api-analysis-report", () => {
     await commitRun(request, runId);
     await waitForRunDetailCommitted(request, runId, 60_000);
 
-    const reportRes = await request.post(`${liveApiBase}/v1/reports/analysis`, {
-      data: { runId },
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-    });
+    const reportRes = await postAnalysisReportRaw(request, { runId });
 
     if (reportRes.status() === 404) {
       test.skip(true, "Analysis report endpoint not available in this build");
@@ -75,9 +74,7 @@ test.describe("live-api-analysis-report", () => {
       .soft(types.has("ArchitectureAnalysisReportGenerated"), "Expected ArchitectureAnalysisReportGenerated audit event")
       .toBe(true);
 
-    const docxRes = await request.get(`${liveApiBase}/v1/exports/docx/runs/${runId}/architecture-package`, {
-      headers: { Accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*" },
-    });
+    const docxRes = await getDocxArchitecturePackageExportRaw(request, runId);
 
     if (docxRes.status() !== 404) {
       expect.soft(docxRes.ok(), `DOCX export expected 2xx, got ${docxRes.status()}`).toBe(true);

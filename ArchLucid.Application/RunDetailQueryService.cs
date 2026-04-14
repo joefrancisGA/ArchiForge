@@ -4,6 +4,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -37,7 +38,13 @@ public sealed class RunDetailQueryService(
 
         if (!TryParseRunGuid(runId, out Guid runGuid))
         {
-            logger.LogDebug("RunDetailQueryService: run '{RunId}' is not a valid run identifier.", runId);
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(
+                    "RunDetailQueryService: run '{RunId}' is not a valid run identifier.",
+                    LogSanitizer.Sanitize(runId));
+            }
+
             return null;
         }
 
@@ -47,7 +54,13 @@ public sealed class RunDetailQueryService(
 
         if (record is null)
         {
-            logger.LogDebug("RunDetailQueryService: run '{RunId}' not found.", runId);
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.LogDebug(
+                    "RunDetailQueryService: run '{RunId}' not found.",
+                    LogSanitizer.Sanitize(runId));
+            }
+
             return null;
         }
 
@@ -80,10 +93,13 @@ public sealed class RunDetailQueryService(
         {
             if (!string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
             {
-                logger.LogWarning(
-                    "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
-                    runId,
-                    run.CurrentManifestVersion);
+                if (logger.IsEnabled(LogLevel.Warning))
+                {
+                    logger.LogWarning(
+                        "RunDetailQueryService: run '{RunId}' references manifest version '{Version}' which no longer exists.",
+                        LogSanitizer.Sanitize(runId),
+                        LogSanitizer.Sanitize(run.CurrentManifestVersion));
+                }
             }
         }
         else

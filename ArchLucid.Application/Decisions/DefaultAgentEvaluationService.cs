@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -30,11 +31,14 @@ public sealed class DefaultAgentEvaluationService(ILogger<DefaultAgentEvaluation
         ArgumentNullException.ThrowIfNull(results);
         cancellationToken.ThrowIfCancellationRequested();
 
-        logger.LogWarning(
-            "DefaultAgentEvaluationService is active for run '{RunId}'. " +
-            "No evaluations will be produced; critic-signal weighting is disabled. " +
-            "Register a real IAgentEvaluationService for production use.",
-            runId);
+        if (logger.IsEnabled(LogLevel.Warning))
+        {
+            logger.LogWarning(
+                "DefaultAgentEvaluationService is active for run '{RunId}'. " +
+                "No evaluations will be produced; critic-signal weighting is disabled. " +
+                "Register a real IAgentEvaluationService for production use.",
+                LogSanitizer.Sanitize(runId));
+        }
 
         return Task.FromResult<IReadOnlyList<AgentEvaluation>>([]);
     }

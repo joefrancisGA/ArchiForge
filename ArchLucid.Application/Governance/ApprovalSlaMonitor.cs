@@ -5,6 +5,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Microsoft.Extensions.Logging;
@@ -77,7 +78,13 @@ public sealed class ApprovalSlaMonitor
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "SLA breach processing failed for ApprovalRequestId={Id}", request.ApprovalRequestId);
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        ex,
+                        "SLA breach processing failed for ApprovalRequestId={Id}",
+                        LogSanitizer.Sanitize(request.ApprovalRequestId));
+                }
             }
         }
     }
@@ -121,15 +128,24 @@ public sealed class ApprovalSlaMonitor
 
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogWarning(
-                    "SLA escalation webhook returned {StatusCode} for ApprovalRequestId={Id}",
-                    (int)response.StatusCode,
-                    request.ApprovalRequestId);
+                if (_logger.IsEnabled(LogLevel.Warning))
+                {
+                    _logger.LogWarning(
+                        "SLA escalation webhook returned {StatusCode} for ApprovalRequestId={Id}",
+                        (int)response.StatusCode,
+                        LogSanitizer.Sanitize(request.ApprovalRequestId));
+                }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "SLA escalation webhook failed for ApprovalRequestId={Id}", request.ApprovalRequestId);
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "SLA escalation webhook failed for ApprovalRequestId={Id}",
+                    LogSanitizer.Sanitize(request.ApprovalRequestId));
+            }
         }
     }
 }

@@ -32,8 +32,15 @@ internal static class PipelineExtensions
                 {
                     ILogger<WebApplication> logger = context.RequestServices
                         .GetRequiredService<ILogger<WebApplication>>();
-                    logger.LogError(ex, "Unhandled exception for {Method} {Path}",
-                        context.Request.Method, LogSanitizer.Sanitize(context.Request.Path.Value));
+
+                    if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        logger.LogError(
+                            ex,
+                            "Unhandled exception for {Method} {Path}",
+                            LogSanitizer.Sanitize(context.Request.Method),
+                            LogSanitizer.Sanitize(context.Request.Path.Value));
+                    }
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()

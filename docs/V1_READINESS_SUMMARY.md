@@ -8,7 +8,7 @@
 
 ## One-paragraph verdict
 
-The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **platform hygiene** (Terraform `state mv`, repo/Entra renames), **compliance/audit coverage** in specific flows, and **breadth of UI E2E**: most Playwright specs remain **mock-backed** for speed, while CI job **`ui-e2e-live`** exercises one **full SQL-backed operator happy path** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
+The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **platform hygiene** (Terraform `state mv`, repo/Entra renames), **compliance/audit coverage** in specific flows, and **non-live Playwright breadth**: default **`ui-e2e-smoke`** stays **mock-backed** for speed, while CI job **`ui-e2e-live`** runs the full **`live-api-*.spec.ts`** suite (happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
 
 ---
 
@@ -45,7 +45,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 |------|----------------------|
 | **Environment-specific failure** | Run [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) + [V1_RC_DRILL.md](V1_RC_DRILL.md) on **your** staging stack; capture `/version` and support bundle. |
 | **Auth mismatch** | Scripts such as `v1-rc-drill.ps1` assume **DevelopmentBypass** unless you extend them; JWT/API key pilots must follow [README.md](../README.md). |
-| **UI E2E vs live API** | Default **`ui-e2e-smoke`** uses **mocks**; do not treat it as SQL-backed UI proof ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). CI **`ui-e2e-live`** + [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md) is **merge-blocking** for the real-API operator happy path — still not a substitute for your own staging validation. |
+| **UI E2E vs live API** | Default **`ui-e2e-smoke`** uses **mocks**; do not treat it as SQL-backed UI proof ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). CI **`ui-e2e-live`** runs all **`live-api-*.spec.ts`** ([LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)) **merge-blocking** — broader than a single happy path, still not a substitute for your own staging validation. |
 | **DB / RLS legacy names** | Historical migrations and some **RLS object names** still reference older tokens; breaking-change doc lists them ([BREAKING_CHANGES.md](../BREAKING_CHANGES.md)). |
 | **Compliance expectations** | If pilots need **audit UI parity** for every export path, read [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) before promising coverage. |
 

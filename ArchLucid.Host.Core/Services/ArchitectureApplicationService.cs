@@ -118,8 +118,14 @@ public sealed class ArchitectureApplicationService(
             await uow.CommitAsync(cancellationToken);
 
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
-                    LogSanitizer.Sanitize(runId), LogSanitizer.Sanitize(result.ResultId), result.AgentType, newStatus);
+            {
+                logger.LogInformation(
+                    "Agent result submitted: RunId={RunId}, ResultId={ResultId}, AgentType={AgentType}, NewStatus={NewStatus}",
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(result.ResultId),
+                    result.AgentType,
+                    newStatus);
+            }
 
             return new SubmitResultResult(true, result.ResultId, null);
         }
@@ -194,7 +200,12 @@ public sealed class ArchitectureApplicationService(
         if (existingResults.Count > 0)
         {
             if (logger.IsEnabled(LogLevel.Information))
-                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", LogSanitizer.Sanitize(runId), existingResults.Count);
+            {
+                logger.LogInformation(
+                    "Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}",
+                    LogSanitizer.Sanitize(runId),
+                    existingResults.Count);
+            }
             return new SeedFakeResultsResult(true, 0, null);
         }
 
@@ -218,7 +229,13 @@ public sealed class ArchitectureApplicationService(
         }
 
         if (logger.IsEnabled(LogLevel.Information))
-            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", LogSanitizer.Sanitize(runId), fakeResults.Count, newStatus);
+        {
+            logger.LogInformation(
+                "Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}",
+                LogSanitizer.Sanitize(runId),
+                fakeResults.Count,
+                newStatus);
+        }
 
         return new SeedFakeResultsResult(true, fakeResults.Count, null);
     }

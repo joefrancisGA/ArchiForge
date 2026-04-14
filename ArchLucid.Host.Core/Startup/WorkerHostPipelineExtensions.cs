@@ -33,9 +33,15 @@ public static class WorkerHostPipelineExtensions
                 {
                     ILogger<WebApplication> logger = context.RequestServices
                         .GetRequiredService<ILogger<WebApplication>>();
-                    logger.LogError(ex, "Unhandled exception for {Method} {Path}",
-                        LogSanitizer.Sanitize(context.Request.Method),
-                        LogSanitizer.Sanitize(context.Request.Path.ToString()));
+
+                    if (logger.IsEnabled(LogLevel.Error))
+                    {
+                        logger.LogError(
+                            ex,
+                            "Unhandled exception for {Method} {Path}",
+                            LogSanitizer.Sanitize(context.Request.Method),
+                            LogSanitizer.Sanitize(context.Request.Path.ToString()));
+                    }
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
