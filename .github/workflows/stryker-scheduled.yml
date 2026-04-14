@@ -28,7 +28,7 @@ jobs:
           - label: Decisioning
             config: stryker-config.decisioning.json
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5.2.0
@@ -54,7 +54,7 @@ jobs:
           --tolerance 0.10
 
       - name: Upload Stryker report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: stryker-report-${{ matrix.label }}
