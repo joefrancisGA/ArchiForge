@@ -5,6 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  type CommitRunResponseJson,
   commitRun,
   commitRunRaw,
   createRun,
@@ -61,13 +62,13 @@ test.describe("live-api-conflict-journey", () => {
     }
   });
 
-  test("commit conflict returns 409 and UI still renders committed run", async ({ page, request }) => {
+  test("second commit is idempotent (200) and UI still renders committed run", async ({ page, request }) => {
     test.setTimeout(120_000);
 
     const createBody = {
       requestId: `E2E-LIVE-CONFLICT-${Date.now()}`,
       description:
-        "Live E2E conflict path: minimal architecture request for double-commit assertion.",
+        "Live E2E: minimal architecture request for idempotent repeat-commit + audit stability.",
       systemName: "ConflictTest",
       environment: "prod",
       cloudProvider: 1,
@@ -85,8 +86,12 @@ test.describe("live-api-conflict-journey", () => {
     await executeRun(request, runId);
     await waitForReadyForCommit(request, runId, 90_000);
 
-    await commitRun(request, runId);
+    const firstCommit = await commitRun(request, runId);
     await waitForRunDetailCommitted(request, runId, 60_000);
+
+    const firstManifestVersion = firstCommit.manifest?.metadata?.manifestVersion;
+
+    expect(firstManifestVersion, "first commit should include manifest.metadata.manifestVersion").toBeTruthy();
 
     const auditAfterFirst = await searchAudit(request, { runId, take: "200" });
     const manifestGenCountAfterFirst = countAuditByType(auditAfterFirst, "ManifestGenerated");
@@ -95,13 +100,11 @@ test.describe("live-api-conflict-journey", () => {
 
     const second = await commitRunRaw(request, runId);
 
-    expect(second.status(), `second commit expected 409, got ${second.status()}`).toBe(409);
+    expect(second.ok(), `second commit expected 200 (idempotent), got ${second.status()}`).toBe(true);
 
-    const problemBody: unknown = await second.json();
-    const typeUri = readProblemType(problemBody);
+    const secondBody = (await second.json()) as CommitRunResponseJson;
 
-    expect(typeUri, "409 problem type should reference #conflict").toContain("#conflict");
-    expect(readCorrelationId(problemBody).length).toBeGreaterThan(0);
+    expect(secondBody.manifest?.metadata?.manifestVersion).toBe(firstManifestVersion);
 
     const auditAfterSecond = await searchAudit(request, { runId, take: "200" });
 
@@ -116,7 +119,7 @@ test.describe("live-api-conflict-journey", () => {
 
     expect(
       st === 5 || st === "Committed",
-      `run should still be Committed after failed second commit, got status ${String(st)}`,
+      `run should still be Committed after idempotent second commit, got status ${String(st)}`,
     ).toBe(true);
   });
 

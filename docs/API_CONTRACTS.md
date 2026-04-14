@@ -85,9 +85,11 @@ Clients must not assume verify failure returns 200 with a JSON body flag.
 
 `GET`/`POST` routes under `/v1/architecture/run/compare/end-to-end/...` that resolve runs by ID return **404** with problem type **`#run-not-found`** when a referenced run does not exist (not generic `#resource-not-found`).
 
-## Commit run — conflict
+## Commit run — success, idempotency, and conflicts
 
-`POST /v1/architecture/run/{runId}/commit` returns **409 Conflict** with problem type **`#conflict`** when the run is in Failed status, already committed, or otherwise not in a state that allows commit.
+`POST /v1/architecture/run/{runId}/commit` returns **200 OK** with the golden manifest when the run is **already committed** and the stored manifest can be loaded (**idempotent retry** safe for clients).
+
+It returns **409 Conflict** with problem type **`#conflict`** when the run is in **Failed** status, not ready to commit (e.g. missing agent results / wrong phase), or other state rules block commit — but **not** solely because a prior commit already succeeded.
 
 When **`ArchLucid:Governance:PreCommitGateEnabled`** is **true** and an enabled policy pack assignment has **`BlockCommitOnCritical`**, the same route may return **409** with problem type **`#governance-pre-commit-blocked`** (RFC 7807 **`extensions.blockingFindingIds`**, optional **`extensions.policyPackId`**) if the run’s findings snapshot contains **Critical** severity findings. See **`docs/PRE_COMMIT_GOVERNANCE_GATE.md`**.
 
@@ -182,13 +184,14 @@ Scope defaults for dev/tests: **`ScopeIds`** (**`x-tenant-id`**, **`x-workspace-
 
 **Current behavior (v1):**
 
-- **`POST .../architecture/run`** (create + execute authority chain) and **`POST .../architecture/run/{runId}/commit`** do **not** accept an **`Idempotency-Key`** header. Each successful call performs real work and persists new state.
-- Clients that retry on timeouts or **`5xx`** must tolerate **at-most-once** semantics unless they implement their own idempotency (e.g. cache the returned **`runId`** and avoid issuing a second create for the same logical operation, or use conditional checks before commit).
+- **`POST .../architecture/request`** (create run) may use an **`Idempotency-Key`** header per API semantics; **`POST .../architecture/run/{runId}/commit`** does **not** accept that header.
+- **Commit** is **idempotent** when the run is **already committed**: a repeat **`POST …/commit`** returns **200 OK** with the same golden manifest (safe retries after timeouts).
+- **Create** and the **first** successful commit still perform durable writes; clients that retry ambiguous **create** failures should **GET** run detail/list before issuing a second create for the same logical operation.
 
 **Recommended client pattern:**
 
 1. Create run → capture **`runId`** from the response body.
 2. On ambiguous failure (gateway timeout, connection reset), **GET** run detail or list if your integration supports it before creating another run.
-3. Commit only when the run is in an expected phase; handle **`409`** **`#conflict`** as the authoritative “already committed / invalid phase” signal.
+3. Commit when the run is **ReadyForCommit**; on ambiguous failure, **GET** run detail — if already **Committed**, a retry **`POST …/commit`** is safe (**200**). Treat **`409`** **`#conflict`** as **invalid phase** (e.g. not executed, **Failed**, missing results), not as “must never retry commit.”
 
 **Future (backlog):** optional **`Idempotency-Key`** on create and/or commit, backed by a short-lived server-side store, to make safe retries first-class without duplicate runs.

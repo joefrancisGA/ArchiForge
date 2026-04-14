@@ -86,7 +86,7 @@ Repeat **2A.1–2A.4** with a **different** `requestId` and **`systemName`** (or
 
 **CLI alternative (Development, one run):** [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) **`new`** + **`run --quick`** creates one committed run quickly; still create a **second** run (HTTP or second CLI project) for compare.
 
-**Pass criteria:** Both runs show **`goldenManifestId`**; no unexpected **5xx**; commit either **200** or documented **409** only on intentional double-commit.
+**Pass criteria:** Both runs show **`goldenManifestId`**; no unexpected **5xx**; commit returns **200** (a second commit on an already-committed run is **200** idempotent per **`API_CONTRACTS.md`**).
 
 ---
 

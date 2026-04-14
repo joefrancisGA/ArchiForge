@@ -7,7 +7,7 @@
 | File | `describe` | Purpose |
 |------|------------|---------|
 | `archlucid-ui/e2e/live-api-journey.spec.ts` | `live-api-journey` | Operator happy path (create → commit → manifest → export → governance approve → audit UI). |
-| `archlucid-ui/e2e/live-api-conflict-journey.spec.ts` | `live-api-conflict-journey` | Double **commit** → **409** `#conflict`; **ManifestGenerated** audit count unchanged; run detail UI still **Committed**. **404** `#run-not-found` on commit for a random missing `runId`. |
+| `archlucid-ui/e2e/live-api-conflict-journey.spec.ts` | `live-api-conflict-journey` | Second **commit** → **200** (idempotent, same `manifestVersion`); **ManifestGenerated** audit count unchanged; run detail UI still **Committed**. **404** `#run-not-found` on commit for a random missing `runId`. |
 | `archlucid-ui/e2e/live-api-governance-rejection.spec.ts` | `live-api-governance-rejection` | Governance **submit → reject** (`e2e-rejector`); audit **`GovernanceApprovalRejected`**; **400** on approve-after-reject and duplicate reject; **`/governance`** UI shows **Rejected**. |
 | `archlucid-ui/e2e/live-api-error-states.spec.ts` | `live-api-error-states` | UI resilience: fake run detail, **`/runs`** list, **`/audit`** no-results search, **`/governance/dashboard`** load (no mock API). |
 
@@ -87,8 +87,8 @@ sequenceDiagram
 
 The **`live-api-conflict-journey`** spec complements the happy path:
 
-- After a successful commit, a second **`POST …/commit`** must return **409** with problem type **`#conflict`** and a **`correlationId`** in the problem body.
-- **`GET /v1/audit/search?runId=…`** must not gain an extra **`ManifestGenerated`** row after the failed second commit.
+- After a successful commit, a second **`POST …/commit`** returns **200** with the same manifest version (**idempotent**); **`ManifestGenerated`** audit count must not increase.
+- **`GET /v1/audit/search?runId=…`** must not gain an extra **`ManifestGenerated`** row after the idempotent second commit.
 - **`GET /v1/architecture/run/{runId}`** must still show **Committed** status.
 - Committing a **non-existent** `runId` returns **404** with **`#run-not-found`**.
 
