@@ -105,6 +105,44 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
     }
 
     [SkippableFact]
+    public async Task TryTransitionFromReviewableAsync_parallel_approves_only_one_wins()
+    {
+        SkipIfSqlServerUnavailable();
+        IGovernanceApprovalRequestRepository repo = CreateRepository();
+        string runId = Guid.NewGuid().ToString("N");
+        string approvalId = "apr-par-" + Guid.NewGuid().ToString("N");
+        GovernanceApprovalRequest item = NewApproval(approvalId, runId, DateTime.UtcNow);
+
+        await repo.CreateAsync(item, CancellationToken.None);
+
+        DateTime reviewedUtc = new(2026, 4, 10, 12, 0, 0, DateTimeKind.Utc);
+        const int parallel = 32;
+        Task<bool>[] tasks = new Task<bool>[parallel];
+
+        for (int i = 0; i < parallel; i++)
+        {
+            int reviewerIndex = i;
+            tasks[i] = repo.TryTransitionFromReviewableAsync(
+                approvalId,
+                GovernanceApprovalStatus.Approved,
+                $"r{reviewerIndex}",
+                "parallel",
+                reviewedUtc.AddTicks(reviewerIndex),
+                CancellationToken.None);
+        }
+
+        bool[] outcomes = await Task.WhenAll(tasks);
+        int wins = outcomes.Count(static b => b);
+
+        wins.Should().Be(1);
+
+        GovernanceApprovalRequest? loaded = await repo.GetByIdAsync(approvalId, CancellationToken.None);
+
+        loaded.Should().NotBeNull();
+        loaded!.Status.Should().Be(GovernanceApprovalStatus.Approved);
+    }
+
+    [SkippableFact]
     public async Task GetByRunId_orders_descending_by_RequestedUtc()
     {
         SkipIfSqlServerUnavailable();

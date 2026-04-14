@@ -90,35 +90,71 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
         ArgumentException.ThrowIfNullOrWhiteSpace(newStatus);
         ArgumentException.ThrowIfNullOrWhiteSpace(reviewedBy);
 
-        const string sql = """
-            UPDATE GovernanceApprovalRequests
+        // Serializable + UPDLOCK: concurrent HTTP approvers each open their own connection; taking the row lock
+        // before UPDATE serializes them on this key so only one transition from Draft/Submitted can commit.
+        const string lockReviewableRowSql = """
+            SELECT 1
+            FROM dbo.GovernanceApprovalRequests WITH (UPDLOCK, ROWLOCK)
+            WHERE ApprovalRequestId = @ApprovalRequestId
+              AND (Status = @Draft OR Status = @Submitted);
+            """;
+
+        const string updateSql = """
+            UPDATE dbo.GovernanceApprovalRequests
             SET
                 Status = @NewStatus,
                 ReviewedBy = @ReviewedBy,
                 ReviewComment = @ReviewComment,
                 ReviewedUtc = @ReviewedUtc
             WHERE ApprovalRequestId = @ApprovalRequestId
-              AND Status IN (@Draft, @Submitted);
+              AND (Status = @Draft OR Status = @Submitted);
             """;
 
+        object transitionParams = new
+        {
+            ApprovalRequestId = approvalRequestId,
+            NewStatus = newStatus,
+            ReviewedBy = reviewedBy,
+            ReviewComment = reviewComment,
+            ReviewedUtc = reviewedUtc,
+            Draft = GovernanceApprovalStatus.Draft,
+            Submitted = GovernanceApprovalStatus.Submitted,
+        };
+
         using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
 
-        int affected = await connection.ExecuteAsync(
-            new CommandDefinition(
-                sql,
-                new
-                {
-                    ApprovalRequestId = approvalRequestId,
-                    NewStatus = newStatus,
-                    ReviewedBy = reviewedBy,
-                    ReviewComment = reviewComment,
-                    ReviewedUtc = reviewedUtc,
-                    Draft = GovernanceApprovalStatus.Draft,
-                    Submitted = GovernanceApprovalStatus.Submitted,
-                },
-                cancellationToken: cancellationToken));
+        try
+        {
+            int? lockHeld = await connection.ExecuteScalarAsync<int?>(
+                new CommandDefinition(
+                    lockReviewableRowSql,
+                    new
+                    {
+                        ApprovalRequestId = approvalRequestId,
+                        Draft = GovernanceApprovalStatus.Draft,
+                        Submitted = GovernanceApprovalStatus.Submitted,
+                    },
+                    transaction,
+                    cancellationToken: cancellationToken));
 
-        return affected == 1;
+            if (lockHeld is null)
+            {
+                transaction.Commit();
+                return false;
+            }
+
+            int affected = await connection.ExecuteAsync(
+                new CommandDefinition(updateSql, transitionParams, transaction, cancellationToken: cancellationToken));
+
+            transaction.Commit();
+            return affected == 1;
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public async Task UpdateAsync(GovernanceApprovalRequest item, CancellationToken cancellationToken = default)
