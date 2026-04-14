@@ -93,7 +93,7 @@ export function RunExplanationSection({ summary, loading, error }: RunExplanatio
   const faith = summary.faithfulnessSupportRatio;
   const faithPct =
     faith !== null && faith !== undefined && Number.isFinite(faith) ? Math.round(faith * 100) : null;
-  const faithStyle = faithPct !== null ? faithfulnessBadgeStyle(faith) : null;
+  const faithStyle = faithPct !== null ? faithfulnessBadgeStyle(faithPct) : null;
 
   return (
     <div style={{ maxWidth: 720 }}>

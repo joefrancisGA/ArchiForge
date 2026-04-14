@@ -44,4 +44,38 @@ public sealed class BaselineMutationAuditServiceTests
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
+
+    [Fact]
+    public async Task RecordAsync_DetailsWithNewline_LogsSanitizedNoRawNewline()
+    {
+        Mock<ILogger<BaselineMutationAuditService>> logger = new();
+        logger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
+
+        string? formatted = null;
+        logger
+            .Setup(l => l.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback((IInvocation invocation) =>
+            {
+                object? state = invocation.Arguments[2];
+                Delegate? formatter = invocation.Arguments[4] as Delegate;
+
+                if (formatter is not null)
+                {
+                    formatted = formatter.DynamicInvoke(state, null)?.ToString();
+                }
+            });
+
+        BaselineMutationAuditService sut = new(logger.Object);
+
+        await sut.RecordAsync("Test.Event", "actor-1", "entity-1", "line1\nline2", CancellationToken.None);
+
+        formatted.Should().NotBeNullOrEmpty();
+        formatted.Should().Contain("line1_line2");
+        formatted.Should().NotContain("\n");
+    }
 }

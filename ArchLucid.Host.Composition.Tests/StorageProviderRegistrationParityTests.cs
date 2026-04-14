@@ -1,5 +1,6 @@
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;
@@ -35,6 +36,8 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IDbConnectionFactory),
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
+        typeof(IOptionsChangeTokenSource<DataConsistencyProbeOptions>),
+        typeof(IConfigureOptions<DataConsistencyProbeOptions>),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =
