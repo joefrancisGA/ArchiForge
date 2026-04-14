@@ -29,9 +29,9 @@ After this is merged, **`LogSanitizer.Sanitize(...)`** call sites should stop al
 
 ### `LoggerExtensions.LogWarning(ILogger, Exception?, string?, params object?[])` (boxing)
 
-Some **`cs/log-forging`** findings persist even when the template argument is **`LogSanitizer.Sanitize(...)`** at the call site: the sanitizer’s return value is boxed into **`params object?[]`**, and the query may not treat the custom barrier as effective across that hop.
+Some **`cs/log-forging`** findings persist even when the template argument is **`LogSanitizer.Sanitize(...)`** at the call site: the sanitizer’s return value is boxed into **`params object?[]`**, and the query may not treat the custom barrier as effective across that hop. The same applies to **`LogInformation`** and other **`LoggerExtensions`** methods that take **`params object?[]`**.
 
-**Mitigation in this repo:** use **`ArchLucid.Api.Logging.SanitizedLoggerExtensions.LogWarningWithSanitizedUserArg`**, which sanitizes immediately before the **`LogWarning`** call. A single **`// codeql[cs/log-forging]`** suppression documents the remaining false positive on that sink (exception context + params array) for controller catch blocks that already sanitize user-derived placeholders.
+**Mitigation in this repo:** use **`ArchLucid.Api.Logging.SanitizedLoggerExtensions.LogWarningWithSanitizedUserArg`**, which sanitizes immediately before the **`LogWarning`** call. A single **`// codeql[cs/log-forging]`** suppression documents the remaining false positive on that sink (exception context + params array) for controller catch blocks that already sanitize user-derived placeholders. In **`ArchLucid.Application`** (no reference to **`ArchLucid.Api`**), prefer a **`// codeql[cs/log-forging]`** line above the **`LogInformation`** / **`LogWarning`** call when the value is already sanitized but CodeQL still alerts.
 
 ### False positives
 
