@@ -36,8 +36,6 @@ public sealed class StorageProviderRegistrationParityTests
         typeof(IDbConnectionFactory),
         typeof(IOptionsChangeTokenSource<SqlServerOptions>),
         typeof(IConfigureOptions<SqlServerOptions>),
-        typeof(IOptionsChangeTokenSource<DataConsistencyProbeOptions>),
-        typeof(IConfigureOptions<DataConsistencyProbeOptions>),
     ];
 
     private static readonly HashSet<Type> InMemoryOnlyServiceTypes =

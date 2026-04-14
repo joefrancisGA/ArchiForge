@@ -12,6 +12,10 @@ Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and 
 | **Slow** | Long-running or heavy; excluded from fast core | `Category=Slow` |
 | **Full regression** | Whole solution, all traits (unless skipped in test code) | *(no filter)* |
 
+### Property-based tests (FsCheck)
+
+**`ArchLucid.Decisioning.Tests`**, **`ArchLucid.Application.Tests`**, and **`ArchLucid.Contracts.Tests`** reference **FsCheck** + **FsCheck.Xunit**. Classes use **`[Property]`** for invariant checks (for example **`ExplainabilityTraceCompletenessAnalyzerPropertyTests`**). They usually carry **`[Trait("Suite", "Core")]`** and run under the same **`dotnet test`** filters as other unit tests.
+
 ### Run each (.NET, repo root)
 
 ```bash
@@ -114,7 +118,7 @@ Two k6 scripts run in CI via `.github/workflows/ci.yml`:
 | CI job | Script | Scenarios | Write paths | Blocking |
 |--------|--------|-----------|-------------|----------|
 | `k6-smoke-api` | `tests/load/smoke.js` | health, runs list, version, audit search | No (read-only) | Yes (merge-blocking) |
-| `k6-ci-smoke` | `tests/load/ci-smoke.js` | health, create run, list runs, audit search | **Yes** (`POST /v1/architecture/request`) | No (`continue-on-error` until 2026-05-01) |
+| `k6-ci-smoke` | `tests/load/ci-smoke.js` | health, create run, list runs, audit search | **Yes** (`POST /v1/architecture/request`) | **Yes** — `assert_k6_ci_smoke_summary.py` (p95 ≤ 3000 ms, failed rate ≤ 2%) |
 | `k6-soak-scheduled` | `tests/load/soak.js` | longer low-rate read-only mix | No | No (`continue-on-error`; needs secret **`ARCHLUCID_SOAK_BASE_URL`**) |
 
 Both jobs start the API against a SQL Server service container with `DevelopmentBypass` auth and `Simulator` agent execution mode. k6 runs via the `grafana/k6:latest` Docker image (not installed as a system binary).

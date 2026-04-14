@@ -10,7 +10,7 @@ Rename **Terraform resource addresses** that still contain the historical token 
 - **Remote state** backup (or snapshot) and a local **`terraform state pull > backup.tfstate`** where policy allows.
 - **No `.tf` edits** in the same change as the moves (this runbook is **state-only** preparation; apply code renames in a **separate** planned change after moves, if desired).
 
-## Inventory (as of 2026-04-12)
+## Inventory (as of 2026-04-14)
 
 Addresses below are **representative**; always run **`terraform state list`** in each root to confirm. Module / workspace prefixes (e.g. **`module.apim.`**) must be prepended to match your layout.
 

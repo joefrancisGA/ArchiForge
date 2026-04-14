@@ -303,7 +303,9 @@ export default function AuditPage() {
         </div>
       </section>
 
-      <p style={{ color: "#555", fontSize: 14 }}>{formatAuditSummaryHeading(events.length, hasMoreResults)}</p>
+      <p role="status" aria-live="polite" aria-atomic="true" style={{ color: "#555", fontSize: 14 }}>
+        {formatAuditSummaryHeading(events.length, hasMoreResults)}
+      </p>
 
       <div style={{ display: "grid", gap: 12 }}>
         {events.length === 0 ? (

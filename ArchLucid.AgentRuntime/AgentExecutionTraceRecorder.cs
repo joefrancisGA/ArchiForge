@@ -81,6 +81,14 @@ public sealed class AgentExecutionTraceRecorder(
             estimated = _costEstimator.EstimateUsd(inTok, outTok);
         }
 
+        string resolvedDeployment = string.IsNullOrWhiteSpace(modelDeploymentName)
+            ? AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName
+            : modelDeploymentName.Trim();
+
+        string resolvedVersion = string.IsNullOrWhiteSpace(modelVersion)
+            ? AgentExecutionTraceModelMetadata.UnspecifiedModelVersion
+            : modelVersion.Trim();
+
         AgentExecutionTrace trace = new()
         {
             TraceId = Guid.NewGuid().ToString("N"),
@@ -100,8 +108,8 @@ public sealed class AgentExecutionTraceRecorder(
             InputTokenCount = inputTokenCount,
             OutputTokenCount = outputTokenCount,
             EstimatedCostUsd = estimated,
-            ModelDeploymentName = modelDeploymentName,
-            ModelVersion = modelVersion,
+            ModelDeploymentName = resolvedDeployment,
+            ModelVersion = resolvedVersion,
             CreatedUtc = DateTime.UtcNow
         };
 

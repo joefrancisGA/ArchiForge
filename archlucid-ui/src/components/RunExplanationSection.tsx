@@ -91,9 +91,13 @@ export function RunExplanationSection({ summary, loading, error }: RunExplanatio
   const pct = conf !== null && conf !== undefined ? confidencePercent(conf) : null;
   const prov = summary.explanation.provenance;
   const faith = summary.faithfulnessSupportRatio;
-  const faithPct =
-    faith !== null && faith !== undefined && Number.isFinite(faith) ? Math.round(faith * 100) : null;
-  const faithStyle = faithPct !== null ? faithfulnessBadgeStyle(faithPct) : null;
+  let faithPct: number | null = null;
+  let faithStyle: ReturnType<typeof faithfulnessBadgeStyle> | null = null;
+
+  if (faith !== null && faith !== undefined && Number.isFinite(faith)) {
+    faithPct = Math.round(faith * 100);
+    faithStyle = faithfulnessBadgeStyle(faithPct);
+  }
 
   return (
     <div style={{ maxWidth: 720 }}>

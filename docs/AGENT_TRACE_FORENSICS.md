@@ -12,7 +12,18 @@ Enable **replayable** inspection of exact LLM inputs and outputs for a single ag
 | **Blob layout** | Container **`agent-traces`**; blobs **`{runId}/{traceId}/system-prompt.txt`**, **`user-prompt.txt`**, **`response.txt`**. |
 | **Stored pointers** | **`FullSystemPromptBlobKey`**, **`FullUserPromptBlobKey`**, **`FullResponseBlobKey`** on the trace row (opaque URI from **`IArtifactBlobStore.WriteAsync`** — e.g. **`file://`** locally, **`https://`** in Azure). |
 | **Truncation** | Unchanged: **`SystemPrompt`**, **`UserPrompt`**, **`RawResponse`** in **`TraceJson`** stay capped at **8192** chars for quick SQL reads. |
-| **Model metadata** | **`ModelDeploymentName`** and **`ModelVersion`** on **`AgentExecutionTrace`** when callers supply them (optional). |
+| **Model metadata** | **`ModelDeploymentName`** and **`ModelVersion`** on **`AgentExecutionTrace`** — see **sentinel values** below. |
+
+### Sentinel values (nullable columns, non-null strings)
+
+The SQL columns **`ModelDeploymentName`** and **`ModelVersion`** are **nullable**, but persisted traces use **non-null sentinel strings** when the runtime does not have a real deployment name or version:
+
+| Scenario | `ModelDeploymentName` | `ModelVersion` |
+| --- | --- | --- |
+| Real LLM path, value missing/blank | **`unspecified-deployment`** | **`unspecified-model-version`** |
+| Simulator / offline | **`AgentExecution:Simulator`** | **`deterministic-1.0`** |
+
+Constants live in **`ArchLucid.Contracts.Agents.AgentExecutionTraceModelMetadata`**. Forensics queries should filter on real names (exclude these sentinels) when building “model mix” dashboards.
 
 ## Retrieving content for a trace
 

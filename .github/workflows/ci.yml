@@ -4,7 +4,7 @@
 #   Tier 1.5 — .NET greenfield SQL boot (empty catalog; API process + /health/ready; after Tier 1)
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
-#   Tier 2c — k6 CI smoke: read + write API paths (after Tier 1; non-blocking until baseline stabilizes)
+#   Tier 2c — k6 CI smoke: read + write API paths (after Tier 1; merge-blocking + summary thresholds)
 #   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
@@ -1024,14 +1024,12 @@ jobs:
           path: ${{ runner.temp }}/k6-api.log
           if-no-files-found: warn
 
-  # k6 CI smoke: read + write API paths. Non-blocking until baseline stabilizes.
+  # k6 CI smoke: read + write API paths. Merge-blocking; thresholds in scripts/ci/assert_k6_ci_smoke_summary.py + docs/LOAD_TEST_BASELINE.md.
   k6-ci-smoke:
     name: "Performance: k6 CI smoke (read + write baseline)"
     needs: dotnet-fast-core
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # TODO: make blocking after 2 weeks of stable green runs (target: 2026-05-01)
-    continue-on-error: true
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -1108,6 +1106,12 @@ jobs:
             -v "${RUNNER_TEMP}:/out" \
             -e BASE_URL=http://127.0.0.1:5128 \
             grafana/k6:latest run /scripts/ci-smoke.js --summary-export /out/k6-ci-summary.json
+
+      - name: Assert k6 CI smoke thresholds (p95 + failed rate)
+        run: python3 scripts/ci/assert_k6_ci_smoke_summary.py "${RUNNER_TEMP}/k6-ci-summary.json" --max-failed-rate 0.02 --max-p95-ms 3000
+
+      - name: k6 CI smoke summary (job log)
+        run: python3 scripts/ci/print_k6_summary_metrics.py "${RUNNER_TEMP}/k6-ci-summary.json"
 
       - name: Upload k6 CI smoke summary
         if: always()

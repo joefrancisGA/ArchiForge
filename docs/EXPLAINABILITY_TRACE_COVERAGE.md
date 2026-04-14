@@ -32,6 +32,10 @@ Location: `ArchLucid.Decisioning/Findings/ExplainabilityTraceCompletenessAnalyze
 
 Pure functions: no I/O, suitable for tests and batch reporting.
 
+### Property-based tests (FsCheck)
+
+**`ExplainabilityTraceCompletenessAnalyzerPropertyTests`** (in **`ArchLucid.Decisioning.Tests`**) use **FsCheck** to assert invariants such as: populated list fields increase **`PopulatedFieldCount`**; **`CompletenessRatio`** stays in **[0, 1]**; and **`AnalyzeSnapshot`** mean ratios match the arithmetic mean of per-finding ratios. See **`docs/TEST_STRUCTURE.md`** (Tier 1 / property tests).
+
 ## Advisory scan `ResultJson`: `traceCompleteness`
 
 On successful completion of `AdvisoryScanRunner` when at least one authority run exists, `AdvisoryScanExecution.ResultJson` includes:

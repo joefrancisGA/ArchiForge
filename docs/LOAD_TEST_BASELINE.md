@@ -91,6 +91,17 @@ Raise `ci/benchmark-baseline.json` only when a change **intentionally** improves
 
 `tests/load/ci-smoke.js` runs automatically on every push / PR via the **`k6-ci-smoke`** job in `.github/workflows/ci.yml` (Tier 2c). Unlike the read-only `tests/load/smoke.js` (which exercises health, version, list runs, and audit search), the CI smoke script adds a **write-path scenario** (`POST /v1/architecture/request`) so regressions in the create-run hot path are caught before merge.
 
+### Merge gate (summary JSON)
+
+After k6 finishes, **`scripts/ci/assert_k6_ci_smoke_summary.py`** parses `--summary-export` JSON and **fails the job** when:
+
+| Check | Default cap | Tune via workflow argv |
+| --- | --- | --- |
+| `http_req_failed` **rate** | **≤ 2%** | `--max-failed-rate` |
+| `http_req_duration` **p(95)** | **≤ 3000 ms** | `--max-p95-ms` |
+
+Raise caps only after a measured baseline change (update this table and the workflow step in the same PR). Prefer fixing flakes (API readiness, SQL cold start) over widening thresholds.
+
 ### Scenarios
 
 | Scenario | Executor | VUs | Duration | Endpoint | Threshold |
@@ -111,8 +122,8 @@ Global failure threshold: `http_req_failed` rate < 2 %. Total wall-clock duratio
 | **Read paths** | Health, list runs, audit search | Same plus version and manifest |
 | **Duration** | ~30 s | Configurable (default 2 m) |
 | **VU count** | Fixed (2–5 per scenario) | Configurable (default 5) |
-| **Thresholds** | Generous (CI-safe) | Tighter (baseline-tracking) |
-| **Blocking** | `continue-on-error: true` until 2026-05-01 | Non-blocking (manual) |
+| **Thresholds** | Generous (CI-safe) + Python assert on summary | Tighter (baseline-tracking) |
+| **Blocking** | **Yes** — `k6-ci-smoke` is merge-blocking | Non-blocking (manual) |
 
 ### Local run
 

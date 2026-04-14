@@ -6,7 +6,7 @@ Record **explicit acceptance** of residual risks when **SQL Server RLS** is enab
 
 ## 2. Assumptions
 
-- RLS design is described in [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md).
+- RLS design is described in [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) (§9 covered / uncovered inventory).
 - The API continues to enforce **tenant / workspace / project** authorization (`IScopeContextProvider`, policies).
 - **Private connectivity** to SQL; no public SMB/file share exposure for tenant payloads at the API boundary.
 
@@ -28,6 +28,16 @@ Record **explicit acceptance** of residual risks when **SQL Server RLS** is enab
 |-----------|---------|----------------|
 | Missing `SESSION_CONTEXT` on pooled connection | Deny-by-default predicates when policy **ON** | Misconfigured host strand legitimate traffic or leak rows if bypass used |
 | Uncovered child tables | Code review + parameterized queries | Higher blast radius on SQL injection or query omission |
+
+### Uncovered tables inventory (mirror of MULTI_TENANT_RLS §9)
+
+The following remain **application-scoped** (no `TenantId` / `WorkspaceId` / `ProjectId` RLS predicate on the row). Sign-off assumes repositories and SQL continue to enforce scope explicitly:
+
+- **Legacy architecture commit graph (string `RunId` model):** `dbo.ArchitectureRequests`, `dbo.ArchitectureRuns`, `dbo.AgentTasks`, `dbo.AgentResults`, and related rows without denormalized scope triples.
+- **Child / graph tables keyed by foreign ids only:** e.g. `dbo.GraphSnapshots`, `dbo.FindingRecords`, `dbo.ArtifactBundleArtifacts`, `dbo.ConversationMessages`, `dbo.PolicyPackVersions`, `dbo.CompositeAlertRuleConditions`, `dbo.EvolutionSimulationRuns`, and product-learning bridge tables **without** scope columns.
+- **Operational:** `dbo.BackgroundJobs`, `dbo.HostLeaderLeases`.
+
+When denormalization migrations land (e.g. **046** pattern), update [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md) §9 and trim this list in the same change set.
 | Predicate complexity | Simple `rls.archiforge_scope_predicate` | Future schema drift may delay RLS coverage on new tables |
 
 ## 6. Data flow

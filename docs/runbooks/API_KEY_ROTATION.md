@@ -47,7 +47,7 @@ flowchart LR
 
 1. Generate **new** key material in the secret store.
 2. Append to config: `oldkey,newkey` (comma only — no spaces required; spaces around commas are trimmed from segments).
-3. Deploy / restart so the API reads the updated setting.
+3. **Reload configuration** so the API picks up the new material. **`ApiKeyAuthenticationHandler`** reads keys from **`IOptionsMonitor<ApiKeyAuthenticationOptions>`**, so **Azure App Service / Container Apps** (and similar hosts that refresh config from Key Vault references **without** a full process restart) typically apply the change on the platform’s next settings refresh — **no dedicated restart is required** for well-behaved deployments. If your host only loads `appsettings` at startup, restart or recycle the process once after the secret/store update.
 4. Re-point clients to **new** key at their own pace.
 5. Remove **old** segment when logs show no `old` usage (monitor 401 rates and audit if enabled).
 6. Repeat for **ReadOnly** scope if used.

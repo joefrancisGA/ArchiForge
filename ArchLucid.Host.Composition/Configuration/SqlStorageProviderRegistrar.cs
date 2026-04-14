@@ -63,7 +63,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                                       "Missing connection string 'ArchLucid'.");
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
-        services.Configure<DataConsistencyProbeOptions>(configuration.GetSection(DataConsistencyProbeOptions.SectionName));
 
         ArchLucidStorageServiceCollectionExtensions.RegisterArtifactLargePayloadBlobStore(services, configuration);
         ArchLucidStorageServiceCollectionExtensions.RegisterHotPathReadCaching(services, configuration);

@@ -36,6 +36,9 @@ public static class ArchLucidStorageServiceCollectionExtensions
 
         services.Configure<AuthorityPipelineOptions>(configuration.GetSection(AuthorityPipelineOptions.SectionName));
 
+        services.Configure<DataConsistencyProbeOptions>(
+            configuration.GetSection(DataConsistencyProbeOptions.SectionName));
+
         services.AddOptions<ArchLucidOptions>()
             .Configure<IConfiguration>(
                 static (opts, cfg) =>

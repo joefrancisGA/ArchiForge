@@ -1,0 +1,11 @@
+{
+  "traceId": "c3d4e5f6a7b849901c3d4e5f6a7b823",
+  "runId": "run-fixture",
+  "taskId": "task-fixture",
+  "agentType": 3,
+  "systemPrompt": "",
+  "userPrompt": "",
+  "rawResponse": "",
+  "parseSucceeded": true,
+  "parsedResultJson": "{\"agentType\":3,\"claims\":[],\"findings\":[]}"
+}

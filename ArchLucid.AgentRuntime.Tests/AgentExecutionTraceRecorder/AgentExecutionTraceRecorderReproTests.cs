@@ -45,6 +45,34 @@ public sealed class AgentExecutionTraceRecorderReproTests
     }
 
     [Fact]
+    public async Task RecordAsync_when_model_metadata_null_uses_unspecified_sentinels()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, persistFull: false);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "system",
+            "user",
+            "{}",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null,
+            promptRepro: null,
+            inputTokenCount: null,
+            outputTokenCount: null,
+            modelDeploymentName: null,
+            modelVersion: null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync("run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.ModelDeploymentName.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName);
+        t.ModelVersion.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedModelVersion);
+    }
+
+    [Fact]
     public async Task RecordAsync_persists_token_counts_and_estimated_cost_when_enabled()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
