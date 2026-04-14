@@ -69,6 +69,8 @@ Expand the live-API E2E Playwright suite to cover additional operator workflows 
 
 ## Prompt 2 — Mandatory forensic prompt snapshots + semantic evaluation harness (Explainability, AI/Agent Readiness, Traceability, Auditability)
 
+> **Implementation status:** Product code and tests cover this prompt (blob retries with failure counter + `BlobUploadFailed`, semantic evaluator + OTel, API fields, docs). Blob retry backoff matches the spec below: **500 ms fixed** between attempts, **3** tries per blob.
+
 ```
 Enhance the agent trace forensics system to make prompt blob persistence more reliable and build a semantic evaluation layer on top of the existing structural evaluator. The April 14 quality assessment found that while `PersistFullPrompts` defaults to true and blob storage is wired, the upload is fire-and-forget with no retry, and the evaluation harness only checks structural JSON key presence — there is no semantic scoring of agent output quality.
 

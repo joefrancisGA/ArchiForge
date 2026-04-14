@@ -1,8 +1,11 @@
+using System.Diagnostics.Metrics;
+
 using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
@@ -117,5 +120,97 @@ public sealed class AgentOutputEvaluationRecorderTests
         Func<Task> act = async () => await sut.EvaluateAndRecordMetricsAsync("empty-run", CancellationToken.None);
 
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task EvaluateAndRecordMetricsAsync_records_structural_and_semantic_histograms_for_eligible_trace()
+    {
+        _ = ArchLucidInstrumentation.AgentOutputStructuralCompletenessRatio;
+        _ = ArchLucidInstrumentation.AgentOutputSemanticScore;
+
+        InMemoryAgentExecutionTraceRepository repo = new();
+        const string json =
+            """
+            {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z"}
+            """;
+
+        await repo.CreateAsync(
+            new AgentExecutionTrace
+            {
+                TraceId = "t-metrics",
+                RunId = "run-metrics",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                ParseSucceeded = true,
+                ParsedResultJson = json,
+            },
+            CancellationToken.None);
+
+        using EvaluationHistogramCapture capture = EvaluationHistogramCapture.Start();
+        AgentOutputEvaluationRecorder sut = CreateRecorder(repo, NullLogger<AgentOutputEvaluationRecorder>.Instance);
+
+        await sut.EvaluateAndRecordMetricsAsync("run-metrics", CancellationToken.None);
+
+        IReadOnlyList<DoubleMeasurementRecord> structural =
+            capture.MeasurementsFor("archlucid_agent_output_structural_completeness_ratio");
+        IReadOnlyList<DoubleMeasurementRecord> semantic = capture.MeasurementsFor("archlucid_agent_output_semantic_score");
+
+        structural.Should().ContainSingle();
+        structural[0].Value.Should().Be(1.0);
+        semantic.Should().ContainSingle();
+        semantic[0].Value.Should().BeGreaterThan(0.0);
+    }
+
+    private readonly record struct DoubleMeasurementRecord(string Name, double Value, IReadOnlyList<KeyValuePair<string, object?>> Tags);
+
+    private sealed class EvaluationHistogramCapture : IDisposable
+    {
+        private readonly MeterListener _listener = new();
+        private readonly List<DoubleMeasurementRecord> _measures = [];
+
+        private EvaluationHistogramCapture()
+        {
+            _listener.InstrumentPublished = OnInstrumentPublished;
+            _listener.SetMeasurementEventCallback<double>(OnMeasurementDouble);
+            _listener.Start();
+        }
+
+        public static EvaluationHistogramCapture Start() => new();
+
+        public void Dispose() => _listener.Dispose();
+
+        public IReadOnlyList<DoubleMeasurementRecord> MeasurementsFor(string instrumentName) =>
+            _measures.Where(m => m.Name == instrumentName).ToList();
+
+        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            {
+                return;
+            }
+
+            if (instrument.Name is "archlucid_agent_output_structural_completeness_ratio"
+                or "archlucid_agent_output_semantic_score")
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        }
+
+        private void OnMeasurementDouble(
+            Instrument instrument,
+            double measurement,
+            ReadOnlySpan<KeyValuePair<string, object?>> tags,
+            object? state)
+        {
+            _ = state;
+            List<KeyValuePair<string, object?>> tagList = [];
+
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                tagList.Add(tag);
+            }
+
+            _measures.Add(new DoubleMeasurementRecord(instrument.Name, measurement, tagList));
+        }
     }
 }

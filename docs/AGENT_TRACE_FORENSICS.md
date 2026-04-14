@@ -53,7 +53,7 @@ Execute path latency includes this work; the trade-off is **forensic completenes
 
 ### Retry behaviour
 
-Each blob write (system prompt, user prompt, response) is retried up to **3 total attempts** with **exponential backoff** between retries (**200 ms**, then **400 ms**; capped at **10 s** before the last attempt). If all attempts fail for any blob, the `BlobUploadFailed` flag is set to **true** on the trace row (nullable `BIT` column added in migration **056**). Operators can query for traces with failed uploads:
+Each blob write (system prompt, user prompt, response) is retried up to **3 total attempts** with a **fixed 500 ms** delay between failed attempts (so at most ~1 s of backoff per blob before the final try). If all attempts fail for any blob, the `BlobUploadFailed` flag is set to **true** on the trace row (nullable `BIT` column added in migration **056**). Operators can query for traces with failed uploads:
 
 ```sql
 SELECT TraceId, RunId, CreatedUtc

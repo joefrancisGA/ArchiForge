@@ -399,7 +399,9 @@ public sealed class AgentExecutionTraceRecorder(
         CancellationToken cancellationToken)
     {
         const int maxAttempts = 3;
-        const int baseRetryDelayMs = 200;
+
+        // Fixed backoff between attempts (Prompt 2 / quality spec): 2 retries after the first try, 500 ms apart.
+        const int retryDelayMs = 500;
 
         string agentLabel = agentType.ToString();
 
@@ -423,9 +425,7 @@ public sealed class AgentExecutionTraceRecorder(
 
                 if (attempt < maxAttempts)
                 {
-                    int delayMs = Math.Min(10_000, baseRetryDelayMs * (1 << (attempt - 1)));
-
-                    await Task.Delay(delayMs, cancellationToken);
+                    await Task.Delay(retryDelayMs, cancellationToken);
                 }
             }
         }
