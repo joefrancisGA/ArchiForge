@@ -211,7 +211,10 @@ public sealed class AgentExecutionTraceRecorder(
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Agent trace full prompt persistence failed for TraceId={TraceId}", traceId);
+            _logger.LogWarning(
+                ex,
+                "Agent trace full prompt persistence failed for TraceId={TraceId}",
+                LogSanitizer.Sanitize(traceId));
 
             List<string> failedOnException = BuildFailedBlobTypes(systemKey, userKey, responseKey);
 
@@ -347,7 +350,7 @@ public sealed class AgentExecutionTraceRecorder(
             _logger.LogWarning(
                 ex,
                 "Durable audit for AgentTraceBlobPersistenceFailed failed for TraceId={TraceId}",
-                traceId);
+                LogSanitizer.Sanitize(traceId));
         }
     }
 
@@ -378,10 +381,10 @@ public sealed class AgentExecutionTraceRecorder(
                 _logger.LogWarning(
                     ex,
                     "Agent trace {BlobType} blob write attempt {Attempt}/{MaxAttempts} failed for TraceId={TraceId}",
-                    blobType,
+                    LogSanitizer.Sanitize(blobType),
                     attempt,
                     maxAttempts,
-                    traceId);
+                    LogSanitizer.Sanitize(traceId));
 
                 if (attempt < maxAttempts)
                 {

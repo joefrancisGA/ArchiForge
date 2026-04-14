@@ -62,9 +62,9 @@ public sealed class AgentOutputEvaluationRecorder(
                 logger.LogWarning(
                     "Agent output structural score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; missing key count {MissingCount}.",
                     score.StructuralCompletenessRatio,
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(trace.TraceId),
+                    LogSanitizer.Sanitize(agentLabel),
                     score.MissingKeys.Count);
             }
 
@@ -85,9 +85,9 @@ public sealed class AgentOutputEvaluationRecorder(
             {
                 logger.LogWarning(
                     "Agent output quality gate rejected run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(trace.TraceId),
+                    LogSanitizer.Sanitize(agentLabel),
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
             }
@@ -95,9 +95,9 @@ public sealed class AgentOutputEvaluationRecorder(
             {
                 logger.LogWarning(
                     "Agent output quality gate warned for run {RunId} trace {TraceId} agent {AgentType} (structural {Structural:F2}, semantic {Semantic:F2}).",
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(trace.TraceId),
+                    LogSanitizer.Sanitize(agentLabel),
                     score.StructuralCompletenessRatio,
                     semanticScore.OverallSemanticScore);
             }
@@ -107,9 +107,9 @@ public sealed class AgentOutputEvaluationRecorder(
                 logger.LogWarning(
                     "Agent output semantic score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; empty claims {EmptyClaims}, incomplete findings {IncompleteFindings}.",
                     semanticScore.OverallSemanticScore,
-                    runId,
-                    trace.TraceId,
-                    agentLabel,
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(trace.TraceId),
+                    LogSanitizer.Sanitize(agentLabel),
                     semanticScore.EmptyClaimCount,
                     semanticScore.IncompleteFindingCount);
             }

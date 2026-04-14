@@ -93,10 +93,10 @@ public sealed class AgentOutputReferenceCaseRunEvaluator(
             {
                 logger.LogDebug(
                     "Reference case {CaseId} failed for run {RunId} trace {TraceId}: {Reason}",
-                    caseDef.CaseId,
-                    runId,
-                    trace.TraceId,
-                    failureReason);
+                    LogSanitizer.Sanitize(caseDef.CaseId),
+                    LogSanitizer.Sanitize(runId),
+                    LogSanitizer.Sanitize(trace.TraceId),
+                    LogSanitizer.Sanitize(failureReason));
             }
 
             string? missingKeysJson = structural.MissingKeys.Count > 0

@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using ArchLucid.Core.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -86,7 +88,9 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
 
         if (!File.Exists(path))
         {
-            _logger.LogWarning("Reference cases file not found at {Path}; no reference cases loaded.", path);
+            _logger.LogWarning(
+                "Reference cases file not found at {Path}; no reference cases loaded.",
+                LogSanitizer.Sanitize(path));
 
             return [];
         }
@@ -108,7 +112,9 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
             {
                 if (string.IsNullOrWhiteSpace(item.CaseId))
                 {
-                    _logger.LogWarning("Skipping reference case with empty CaseId in {Path}.", path);
+                    _logger.LogWarning(
+                        "Skipping reference case with empty CaseId in {Path}.",
+                        LogSanitizer.Sanitize(path));
 
                     continue;
                 }
@@ -116,13 +122,19 @@ public sealed class AgentOutputReferenceCaseCatalog : IAgentOutputReferenceCaseC
                 valid.Add(item);
             }
 
-            _logger.LogInformation("Loaded {Count} agent output reference case(s) from {Path}.", valid.Count, path);
+            _logger.LogInformation(
+                "Loaded {Count} agent output reference case(s) from {Path}.",
+                valid.Count,
+                LogSanitizer.Sanitize(path));
 
             return valid;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to deserialize reference cases from {Path}; no cases loaded.", path);
+            _logger.LogError(
+                ex,
+                "Failed to deserialize reference cases from {Path}; no cases loaded.",
+                LogSanitizer.Sanitize(path));
 
             return [];
         }
