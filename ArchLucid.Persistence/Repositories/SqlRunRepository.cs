@@ -103,13 +103,14 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
+        // NOLOCK: dashboard-grade list on hot-write table; tolerates replica-style staleness (see ListRecentInScopeAsync).
         const string sql = """
             SELECT TOP (@Take)
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                 ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
-            FROM dbo.Runs
+            FROM dbo.Runs WITH (NOLOCK)
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -147,9 +148,10 @@ public sealed class SqlRunRepository(
         int safeTake = Math.Clamp(take <= 0 ? 20 : take, 1, 200);
         int safeSkip = Math.Max(skip, 0);
 
+        // NOLOCK: paged list + count for dashboards; same staleness trade-off as ListRecentInScopeAsync.
         const string countSql = """
             SELECT COUNT(1)
-            FROM dbo.Runs
+            FROM dbo.Runs WITH (NOLOCK)
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -163,7 +165,7 @@ public sealed class SqlRunRepository(
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                 ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
-            FROM dbo.Runs
+            FROM dbo.Runs WITH (NOLOCK)
             WHERE ProjectId = @ProjectSlug
               AND TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
@@ -205,13 +207,14 @@ public sealed class SqlRunRepository(
     {
         ArgumentNullException.ThrowIfNull(scope);
 
+        // NOLOCK: dashboard / picker list; same tolerance as read-replica staleness (see LOAD_TEST_BASELINE.md). Avoids S-lock blocking behind writers on dbo.Runs.
         const string sql = """
             SELECT TOP (@Take)
                 RunId, TenantId, WorkspaceId, ScopeProjectId, ProjectId, Description, CreatedUtc,
                 ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                 GoldenManifestId, DecisionTraceId, ArtifactBundleId, ArchivedUtc,
                 ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId
-            FROM dbo.Runs
+            FROM dbo.Runs WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ScopeProjectId = @ScopeProjectId

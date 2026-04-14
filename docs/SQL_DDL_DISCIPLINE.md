@@ -43,12 +43,15 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 
 - **Drift detection:** Compare migration list to sections appended in **`ArchLucid.sql`** when reviewing PRs (this document’s inventory below).
 - **Rollback:** DbUp does not auto-generate down scripts; use **`docs/runbooks/MIGRATION_ROLLBACK.md`** and **`NEXT_REFACTORINGS.md`** item **249**.
+- **Dashboard-grade lists on hot-write tables:** Prefer **covering nonclustered indexes** (key columns for filter + sort, **`INCLUDE`** for projected columns) so list plans avoid **key lookups** into the clustered index while writers hold locks on those pages. For operator UI / picker queries that already tolerate **read-replica staleness**, **`WITH (NOLOCK)`** on the **`FROM`** clause avoids **shared-lock** waits behind concurrent inserts/updates. Do **not** apply **`NOLOCK`** to transactional reads (**`GetByIdAsync`**, commit pipelines, optimistic concurrency).
 
 ## Migration inventory (SQL Server, embedded)
 
 | Script | Purpose |
 |--------|---------|
 | `001_InitialSchema.sql` – `029_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). **`028_ArchivalSoftFlags.sql`**: nullable **`ArchivedUtc`** on **`Runs`**, **`ArchitectureDigests`**, **`ConversationThreads`** (skipped when table absent). **`029_PolicyPackAssignments_ArchivedUtc.sql`**: **`ArchivedUtc`** on **`PolicyPackAssignments`**. |
+| `060_QueryCoverage_Indexes.sql` | Supplemental indexes (audit event type, conversation threads, governance, recommendations, **`IX_Runs_ArchiveRetention`**, policy packs, …). |
+| `061_RunsScopeCreatedUtcCoveringIndex.sql` | Drop/recreate **`IX_Runs_Scope_CreatedUtc`** with **`INCLUDE`** list columns for **`dbo.Runs`** dashboard lists (avoids PK key lookups under concurrent writes). |
 
 **Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 

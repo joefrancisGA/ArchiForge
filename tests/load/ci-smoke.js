@@ -78,6 +78,7 @@ export const options = {
     },
     list_runs: {
       executor: "constant-vus",
+      startTime: "5s",
       vus: 3,
       duration: "20s",
       exec: "listRunsFn",

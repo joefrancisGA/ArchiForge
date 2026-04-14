@@ -80,7 +80,7 @@ BEGIN
 END
 
 -- Runs: global archive retention job uses WHERE ArchivedUtc IS NULL AND CreatedUtc < @Cutoff
--- with no scope columns. IX_Runs_Scope_CreatedUtc is filtered but leads with TenantId.
+-- with no scope columns. IX_Runs_Scope_CreatedUtc (see migration 061 for covering INCLUDE) leads with TenantId.
 IF NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_Runs_ArchiveRetention'

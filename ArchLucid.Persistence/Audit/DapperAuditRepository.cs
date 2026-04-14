@@ -50,6 +50,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
         int take,
         CancellationToken ct)
     {
+        // NOLOCK: audit search/list UI tolerates dirty reads under concurrent appends (same class as read-replica lag).
         const string sql = """
             SELECT TOP (@Take)
                 EventId, OccurredUtc, EventType,
@@ -57,7 +58,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                 TenantId, WorkspaceId, ProjectId,
                 RunId, ManifestId, ArtifactId,
                 DataJson, CorrelationId
-            FROM dbo.AuditEvents
+            FROM dbo.AuditEvents WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
@@ -91,6 +92,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
 
         int take = Math.Clamp(filter.Take <= 0 ? 100 : filter.Take, 1, 500);
 
+        // NOLOCK: filtered audit search — dashboard-grade, high insert rate on dbo.AuditEvents.
         StringBuilder sql = new("""
             SELECT TOP (@Take)
                 EventId, OccurredUtc, EventType,
@@ -98,7 +100,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                 TenantId, WorkspaceId, ProjectId,
                 RunId, ManifestId, ArtifactId,
                 DataJson, CorrelationId
-            FROM dbo.AuditEvents
+            FROM dbo.AuditEvents WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId
@@ -172,6 +174,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
     {
         int take = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
 
+        // NOLOCK: export window scan — acceptable dirty reads vs concurrent audit inserts for operator export use cases.
         const string sql = """
             SELECT TOP (@MaxRows)
                 EventId, OccurredUtc, EventType,
@@ -179,7 +182,7 @@ public sealed class DapperAuditRepository(ISqlConnectionFactory connectionFactor
                 TenantId, WorkspaceId, ProjectId,
                 RunId, ManifestId, ArtifactId,
                 DataJson, CorrelationId
-            FROM dbo.AuditEvents
+            FROM dbo.AuditEvents WITH (NOLOCK)
             WHERE TenantId = @TenantId
               AND WorkspaceId = @WorkspaceId
               AND ProjectId = @ProjectId

@@ -108,10 +108,20 @@ Raise caps only after a measured baseline change (update this table and the work
 | --- | --- | --- | --- | --- | --- |
 | `health` | constant-vus | 5 | 20 s | `GET /health/live` (`k6ci:health_live`), `GET /health/ready` (`k6ci:health_ready`) | live p(95) < 500 ms; ready p(95) < 1500 ms (ready includes SQL / probes; a single combined tag was flaky vs 300 ms) |
 | `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) < 3000 ms |
-| `list_runs` | constant-vus | 3 | 20 s | `GET /v1/architecture/runs` | p(95) < 1500 ms |
+| `list_runs` | constant-vus | 3 | 20 s (`startTime: "5s"`) | `GET /v1/architecture/runs` | p(95) < 1500 ms |
 | `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) < 1500 ms |
 
 Global failure threshold: `http_req_failed` rate < 2 %. Total wall-clock duration: ~30 s (longest scenario).
+
+### Reader–writer contention (shared SQL on Actions)
+
+PR **`k6-ci-smoke`** runs **create_run** (writes) and **list_runs** (reads) against the **same** SQL Server service container as the API. Inserts into **`dbo.Runs`** update clustered PK pages while **`GET /v1/architecture/runs`** used **`SELECT TOP … ORDER BY CreatedUtc DESC`**: a non-covering **`IX_Runs_Scope_CreatedUtc`** forced **key lookups** into the clustered index, producing **bimodal** latency (median ~ms, p(95) multi-second lock waits).
+
+Mitigations in product code:
+
+- **Covering index** **`IX_Runs_Scope_CreatedUtc`** with **`INCLUDE`** on all list columns (migration **`061_RunsScopeCreatedUtcCoveringIndex.sql`**, mirrored in **`ArchLucid.sql`**) so the list plan stays on the nonclustered index leaf.
+- **`WITH (NOLOCK)`** on **dashboard-grade** **`SqlRunRepository`** list paths (**`ListRecentInScopeAsync`**, **`ListByProjectAsync`**, **`ListByProjectPagedAsync`**) and on **`DapperAuditRepository`** list/search/export **`SELECT`s** against **`dbo.AuditEvents`** — same staleness tolerance as **read-replica** lag; **not** used on **`GetByIdAsync`** or mutating paths.
+- **Stagger:** **`list_runs`** uses **`startTime: "5s"`** so reads start after **`create_run`** has warmed the table and statistics, reducing cold-start worst cases.
 
 ### How it differs from the manual workflow
 

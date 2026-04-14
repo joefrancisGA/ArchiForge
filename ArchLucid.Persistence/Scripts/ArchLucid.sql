@@ -2283,6 +2283,7 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'OtelTraceId') IS NULL
     ALTER TABLE dbo.Runs ADD OtelTraceId NVARCHAR(64) NULL;
 
+/* DbUp 061 parity: covering list index for dbo.Runs scope + CreatedUtc DESC (avoids key lookups into clustered PK under concurrent writes). */
 IF NOT EXISTS (
     SELECT 1
     FROM sys.indexes
@@ -2291,6 +2292,22 @@ IF NOT EXISTS (
 BEGIN
     CREATE NONCLUSTERED INDEX IX_Runs_Scope_CreatedUtc
         ON dbo.Runs (TenantId, WorkspaceId, ScopeProjectId, CreatedUtc DESC)
+        INCLUDE (
+            RunId,
+            ProjectId,
+            Description,
+            ContextSnapshotId,
+            GraphSnapshotId,
+            FindingsSnapshotId,
+            GoldenManifestId,
+            DecisionTraceId,
+            ArtifactBundleId,
+            ArchitectureRequestId,
+            LegacyRunStatus,
+            CompletedUtc,
+            CurrentManifestVersion,
+            OtelTraceId,
+            ArchivedUtc)
         WHERE ArchivedUtc IS NULL;
 END;
 GO
