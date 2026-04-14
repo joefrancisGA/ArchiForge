@@ -4,6 +4,7 @@
 #   Tier 1.5 — .NET greenfield SQL boot (empty catalog; API process + /health/ready; after Tier 1)
 #   Tier 2 — .NET full regression + SQL (runs after Tier 1 passes)
 #   Tier 2b — Simmy chaos (after Tier 2; no SQL)
+#   Tier 2c — k6 CI smoke: read + write API paths (after Tier 1; non-blocking until baseline stabilizes)
 #   Tier 3a — Operator UI unit (Vitest / jsdom) + CycloneDX npm SBOM artifact
 #   Tier 3b — Operator UI e2e (Playwright; browser-heavy)
 #
@@ -1021,6 +1022,208 @@ jobs:
         with:
           name: k6-smoke-api-log
           path: ${{ runner.temp }}/k6-api.log
+          if-no-files-found: warn
+
+  # k6 CI smoke: read + write API paths. Non-blocking until baseline stabilizes.
+  k6-ci-smoke:
+    name: "Performance: k6 CI smoke (read + write baseline)"
+    needs: dotnet-fast-core
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # TODO: make blocking after 2 weeks of stable green runs (target: 2026-05-01)
+    continue-on-error: true
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Create SQL catalog for k6 CI smoke
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidK6CiSmoke') CREATE DATABASE ArchLucidK6CiSmoke;"
+
+      - name: Start ArchLucid.Api (background)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidK6CiSmoke"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: DevelopmentBypass
+          Authentication__ApiKey__DevelopmentBypassAll: "true"
+          AgentExecution__Mode: Simulator
+          RateLimiting__FixedWindow__PermitLimit: "200000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/k6-ci-api.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/k6-ci-api.pid"
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:5128/health/ready; then
+              echo "API ready for k6 CI smoke."
+              exit 0
+            fi
+            if [ "$i" -eq 90 ]; then
+              echo "::error::API did not reach /health/ready in time"
+              tail -n 200 "${RUNNER_TEMP}/k6-ci-api.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Run k6 CI smoke (Docker)
+        run: |
+          set -e
+          docker run --rm --network host \
+            --user "$(id -u):$(id -g)" \
+            -v "${GITHUB_WORKSPACE}/tests/load:/scripts:ro" \
+            -v "${RUNNER_TEMP}:/out" \
+            -e BASE_URL=http://127.0.0.1:5128 \
+            grafana/k6:latest run /scripts/ci-smoke.js --summary-export /out/k6-ci-summary.json
+
+      - name: Upload k6 CI smoke summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-ci-smoke-summary
+          path: ${{ runner.temp }}/k6-ci-summary.json
+          if-no-files-found: warn
+
+      - name: Upload k6 CI API log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-ci-smoke-api-log
+          path: ${{ runner.temp }}/k6-ci-api.log
+          if-no-files-found: warn
+
+  # k6 CI smoke — read + write API paths. Non-blocking until baseline stabilizes.
+  k6-ci-smoke:
+    name: "Performance: k6 CI smoke (API baseline)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # TODO: make blocking after 2 weeks of stable green runs (target: 2026-05-01)
+    continue-on-error: true
+    needs: [dotnet-fast-core]
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Create SQL catalog for k6 CI smoke
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidK6CiSmoke') CREATE DATABASE ArchLucidK6CiSmoke;"
+
+      - name: Start ArchLucid.Api (background)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidK6CiSmoke"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: DevelopmentBypass
+          Authentication__ApiKey__DevelopmentBypassAll: "true"
+          AgentExecution__Mode: Simulator
+          RateLimiting__FixedWindow__PermitLimit: "200000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/k6-ci-api.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/k6-ci-api.pid"
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:5128/health/ready; then
+              echo "API ready for k6 CI smoke."
+              exit 0
+            fi
+            if [ "$i" -eq 90 ]; then
+              echo "::error::API did not reach /health/ready in time"
+              tail -n 200 "${RUNNER_TEMP}/k6-ci-api.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Run k6 CI smoke (Docker)
+        run: |
+          set -e
+          docker run --rm --network host \
+            --user "$(id -u):$(id -g)" \
+            -v "${GITHUB_WORKSPACE}/tests/load:/scripts:ro" \
+            -v "${RUNNER_TEMP}:/out" \
+            -e BASE_URL=http://127.0.0.1:5128 \
+            grafana/k6:latest run /scripts/ci-smoke.js --summary-export /out/k6-ci-summary.json
+
+      - name: Upload k6 CI smoke summary
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-ci-smoke-summary
+          path: ${{ runner.temp }}/k6-ci-summary.json
+          retention-days: 30
+
+      - name: Upload k6 CI smoke API log
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: k6-ci-smoke-api-log
+          path: ${{ runner.temp }}/k6-ci-api.log
           if-no-files-found: warn
 
   dotnet-benchmark-regression:

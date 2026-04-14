@@ -41,4 +41,10 @@ public sealed class GovernanceApprovalRequest
 
     /// <summary>UTC timestamp when the request was reviewed, or <see langword="null"/> when pending.</summary>
     public DateTime? ReviewedUtc { get; set; }
+
+    /// <summary>UTC deadline for the approval SLA. Null when SLA is not configured.</summary>
+    public DateTime? SlaDeadlineUtc { get; set; }
+
+    /// <summary>UTC timestamp when the SLA breach notification was sent, or <see langword="null"/> if not yet breached/notified.</summary>
+    public DateTime? SlaBreachNotifiedUtc { get; set; }
 }

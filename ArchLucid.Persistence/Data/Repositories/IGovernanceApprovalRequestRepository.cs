@@ -51,4 +51,20 @@ public interface IGovernanceApprovalRequestRepository
     Task<IReadOnlyList<GovernanceApprovalRequest>> GetRecentDecisionsAsync(
         int maxRows = 50,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns pending approval requests whose <see cref="GovernanceApprovalRequest.SlaDeadlineUtc"/> is at or before
+    /// <paramref name="utcNow"/> and <see cref="GovernanceApprovalRequest.SlaBreachNotifiedUtc"/> is null.
+    /// </summary>
+    Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingSlaBreachedAsync(
+        DateTime utcNow,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Patches <see cref="GovernanceApprovalRequest.SlaBreachNotifiedUtc"/> on the specified request.
+    /// </summary>
+    Task PatchSlaBreachNotifiedAsync(
+        string approvalRequestId,
+        DateTime slaBreachNotifiedUtc,
+        CancellationToken cancellationToken = default);
 }

@@ -21215,6 +21215,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("modelVersion")]
         public string ModelVersion { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
+        public bool? BlobUploadFailed { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset CreatedUtc { get; set; }
 
@@ -25479,6 +25482,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("reviewedUtc")]
         public System.DateTimeOffset? ReviewedUtc { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("slaDeadlineUtc")]
+        public System.DateTimeOffset? SlaDeadlineUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("slaBreachNotifiedUtc")]
+        public System.DateTimeOffset? SlaBreachNotifiedUtc { get; set; }
+
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -27760,6 +27769,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("blockCommitOnCritical")]
         public bool BlockCommitOnCritical { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("blockCommitMinimumSeverity")]
+        public int? BlockCommitMinimumSeverity { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

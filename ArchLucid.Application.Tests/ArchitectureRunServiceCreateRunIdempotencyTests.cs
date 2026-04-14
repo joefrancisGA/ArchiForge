@@ -241,6 +241,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 architectureRunIdempotencyRepository,
                 actorContext,
                 audit,
+                Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
@@ -256,6 +257,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 Mock.Of<IEvidenceBuilder>(),
                 actorContext,
                 audit,
+                Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(

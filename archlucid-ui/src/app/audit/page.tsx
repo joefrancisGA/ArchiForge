@@ -337,6 +337,14 @@ export default function AuditPage() {
                 Actor: {ev.actorUserName} ({ev.actorUserId})
               </div>
               <div style={{ fontSize: 14 }}>Correlation: {ev.correlationId ?? "—"}</div>
+              {ev.otelTraceId ? (
+                <div style={{ fontSize: 14 }}>
+                  Trace:{" "}
+                  <code title={ev.otelTraceId} style={{ fontSize: 12 }}>
+                    {ev.otelTraceId.slice(0, 16)}…
+                  </code>
+                </div>
+              ) : null}
               <div style={{ fontSize: 14 }}>
                 Run:{" "}
                 {ev.runId ? (
@@ -347,6 +355,13 @@ export default function AuditPage() {
                   "—"
                 )}
               </div>
+              {ev.runId ? (
+                <div style={{ fontSize: 13, marginTop: 2 }}>
+                  <Link href={`/runs/${ev.runId}#agent-traces`} style={{ fontSize: 12 }}>
+                    View agent traces →
+                  </Link>
+                </div>
+              ) : null}
               <details style={{ marginTop: 10 }}>
                 <summary style={{ cursor: "pointer" }}>Data JSON</summary>
                 <pre

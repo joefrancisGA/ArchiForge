@@ -97,6 +97,9 @@ public sealed class AgentExecutionTrace
     /// <summary>Provider-reported model version string, when available.</summary>
     public string? ModelVersion { get; set; }
 
+    /// <summary>True when one or more full prompt/response blob uploads failed after all retries.</summary>
+    public bool? BlobUploadFailed { get; set; }
+
     /// <summary>UTC timestamp when this trace was created.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
 }

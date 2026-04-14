@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
@@ -33,6 +35,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     IEvidenceBuilder evidenceBuilder,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
@@ -52,6 +55,7 @@ public sealed class ArchitectureRunExecuteOrchestrator(
     private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly ILogger<ArchitectureRunExecuteOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -121,6 +125,30 @@ public sealed class ArchitectureRunExecuteOrchestrator(
 
         try
         {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            Guid? runGuid = Guid.TryParse(runId, out Guid ridStart) ? ridStart : null;
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.CoordinatorRunExecuteStarted,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = runGuid,
+                    DataJson = JsonSerializer.Serialize(new { runId }),
+                },
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Durable audit for CoordinatorRunExecuteStarted failed for RunId={RunId}", runId);
+        }
+
+        try
+        {
             ArchitectureRequest request = await _requestRepository.GetByIdAsync(run.RequestId, cancellationToken)
                                           ?? throw new InvalidOperationException($"Request '{run.RequestId}' not found.");
 
@@ -162,6 +190,30 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                     runId,
                     $"ResultCount={results.Count}",
                     cancellationToken);
+
+            try
+            {
+                ScopeContext scopeSucceeded = _scopeContextProvider.GetCurrentScope();
+                Guid? runGuidSucceeded = Guid.TryParse(runId, out Guid ridSucceeded) ? ridSucceeded : null;
+
+                await _auditService.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.CoordinatorRunExecuteSucceeded,
+                        ActorUserId = actor,
+                        ActorUserName = actor,
+                        TenantId = scopeSucceeded.TenantId,
+                        WorkspaceId = scopeSucceeded.WorkspaceId,
+                        ProjectId = scopeSucceeded.ProjectId,
+                        RunId = runGuidSucceeded,
+                        DataJson = JsonSerializer.Serialize(new { runId, resultCount = results.Count }),
+                    },
+                    cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Durable audit for CoordinatorRunExecuteSucceeded failed for RunId={RunId}", runId);
+            }
 
             if (_logger.IsEnabled(LogLevel.Information))
             {

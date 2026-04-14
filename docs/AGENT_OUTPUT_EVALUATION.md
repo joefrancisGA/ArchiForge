@@ -64,9 +64,37 @@ flowchart LR
 - **Data exposure**: Response includes **missing key names** and **scores** only—no raw prompts. Traces already scoped by **run repository** / **RLS** as elsewhere.
 - **Abuse**: Rate limiting inherits controller **`fixed`** window; evaluation is CPU-only over in-memory JSON strings.
 
+## Semantic evaluation
+
+Beyond structural completeness, **`AgentOutputSemanticEvaluator`** performs a deeper deterministic inspection of the agent JSON output without calling an LLM.
+
+### What it checks
+
+| Dimension | Scoring rule |
+|-----------|-------------|
+| **Claims quality** | Fraction of items in `claims[]` that have non-empty `evidenceRefs[]` or a non-empty `evidence` string. |
+| **Findings quality** | Fraction of items in `findings[]` with non-empty `severity`, `description` (>10 chars), and `recommendation` (>5 chars). |
+| **Overall score** | Weighted average: Claims × **0.4** + Findings × **0.6**. When only one dimension is present, that dimension's ratio is the overall score. Zero when both arrays are absent or empty. |
+
+### OTel metric
+
+**`archlucid_agent_output_semantic_score`** (histogram, 0.0–1.0; label `agent_type`) — recorded alongside the structural histogram by **`AgentOutputEvaluationRecorder`**.
+
+### Warning threshold
+
+The recorder logs a warning when `OverallSemanticScore < 0.5` — same threshold used for structural completeness.
+
+### Interface
+
+```csharp
+IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) → AgentOutputSemanticScore
+```
+
+Registered as **singleton** (`IAgentOutputSemanticEvaluator → AgentOutputSemanticEvaluator`).
+
 ## 8. Operational Considerations
 
 - **Default full blob prompts**: **`AgentExecution:TraceStorage:PersistFullPrompts`** defaults to **true**; see **`docs/AGENT_TRACE_FORENSICS.md`** for retention and privacy.
-- **Dashboards**: **`archlucid_agent_output_structural_completeness_ratio`** (histogram) and **`archlucid_agent_output_parse_failures_total`** (counter)—see **`docs/OBSERVABILITY.md`**.
-- **Low score logs**: Recorder warns below **0.5** completeness (configurable in code if product asks).
+- **Dashboards**: **`archlucid_agent_output_structural_completeness_ratio`** (histogram), **`archlucid_agent_output_semantic_score`** (histogram), and **`archlucid_agent_output_parse_failures_total`** (counter)—see **`docs/OBSERVABILITY.md`**.
+- **Low score logs**: Recorder warns below **0.5** completeness for both structural and semantic scores (configurable in code if product asks).
 - **Evolution**: Per-**`AgentType`** key lists live in **`GetExpectedKeys`** for future stricter Topology/Cost/Critic profiles.

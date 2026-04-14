@@ -144,6 +144,50 @@ public sealed class InMemoryGovernanceApprovalRequestRepository : IGovernanceApp
         }
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingSlaBreachedAsync(
+        DateTime utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            List<GovernanceApprovalRequest> breached = _byId.Values
+                .Where(
+                    x => (string.Equals(x.Status, GovernanceApprovalStatus.Draft, StringComparison.Ordinal)
+                          || string.Equals(x.Status, GovernanceApprovalStatus.Submitted, StringComparison.Ordinal))
+                         && x.SlaDeadlineUtc.HasValue
+                         && x.SlaDeadlineUtc.Value <= utcNow
+                         && !x.SlaBreachNotifiedUtc.HasValue)
+                .OrderBy(x => x.SlaDeadlineUtc)
+                .Select(Clone)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<GovernanceApprovalRequest>>(breached);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task PatchSlaBreachNotifiedAsync(
+        string approvalRequestId,
+        DateTime slaBreachNotifiedUtc,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            if (_byId.TryGetValue(approvalRequestId, out GovernanceApprovalRequest? row))
+            {
+                row.SlaBreachNotifiedUtc = slaBreachNotifiedUtc;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static GovernanceApprovalRequest Clone(GovernanceApprovalRequest source)
     {
         string json = JsonSerializer.Serialize(source, ContractJson.Default);

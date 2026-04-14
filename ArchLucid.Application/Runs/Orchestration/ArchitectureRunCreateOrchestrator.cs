@@ -27,6 +27,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IArchitectureRunIdempotencyRepository architectureRunIdempotencyRepository,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
+    IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
@@ -42,6 +43,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
         architectureRunIdempotencyRepository ?? throw new ArgumentNullException(nameof(architectureRunIdempotencyRepository));
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -146,6 +148,30 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 coordination.Run.RunId,
                 $"RequestId={request.RequestId}; Environment={request.Environment}",
                 cancellationToken);
+
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            Guid? runGuid = Guid.TryParse(coordination.Run.RunId, out Guid rid) ? rid : null;
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.CoordinatorRunCreated,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = runGuid,
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(new { requestId = request.RequestId, systemName = request.SystemName }),
+                },
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Durable audit for CoordinatorRunCreated failed for RunId={RunId}", coordination.Run.RunId);
+        }
 
         if (_logger.IsEnabled(LogLevel.Information))
         {

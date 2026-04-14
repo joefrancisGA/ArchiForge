@@ -305,6 +305,7 @@ internal static class GovernanceWorkflowTestFactory
             publisher.Object,
             outbox.Object,
             opts.Object,
+            Options.Create(new PreCommitGovernanceGateOptions()),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }
@@ -367,6 +368,7 @@ internal static class GovernanceWorkflowTestFactory
             publisher.Object,
             outbox.Object,
             opts.Object,
+            Options.Create(new PreCommitGovernanceGateOptions()),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }

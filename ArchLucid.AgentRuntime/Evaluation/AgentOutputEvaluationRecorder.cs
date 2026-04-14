@@ -9,14 +9,16 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.AgentRuntime.Evaluation;
 
 /// <summary>
-/// Loads traces for a run, scores parsed JSON shape, and emits OTEL metrics (intended for post-run or batch jobs).
+/// Loads traces for a run, scores parsed JSON shape and semantic quality, and emits OTEL metrics (intended for post-run or batch jobs).
 /// </summary>
 public sealed class AgentOutputEvaluationRecorder(
     IAgentExecutionTraceRepository traceRepository,
     IAgentOutputEvaluator evaluator,
+    IAgentOutputSemanticEvaluator semanticEvaluator,
     ILogger<AgentOutputEvaluationRecorder> logger)
 {
     private const double LowStructuralScoreThreshold = 0.5;
+    private const double LowSemanticScoreThreshold = 0.5;
 
     /// <summary>
     /// Evaluates all traces with successful parses and records histogram/counter metrics.
@@ -34,9 +36,10 @@ public sealed class AgentOutputEvaluationRecorder(
                 continue;
             }
 
-            AgentOutputEvaluationScore score = evaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
             string agentLabel = trace.AgentType.ToString();
             TagList tags = new() { { "agent_type", agentLabel } };
+
+            AgentOutputEvaluationScore score = evaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
 
             if (score.IsJsonParseFailure)
             {
@@ -55,6 +58,22 @@ public sealed class AgentOutputEvaluationRecorder(
                     trace.TraceId,
                     agentLabel,
                     score.MissingKeys.Count);
+            }
+
+            AgentOutputSemanticScore semanticScore = semanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
+
+            ArchLucidInstrumentation.AgentOutputSemanticScore.Record(semanticScore.OverallSemanticScore, tags);
+
+            if (semanticScore.OverallSemanticScore < LowSemanticScoreThreshold)
+            {
+                logger.LogWarning(
+                    "Agent output semantic score {Score:F2} below threshold for run {RunId} trace {TraceId} agent {AgentType}; empty claims {EmptyClaims}, incomplete findings {IncompleteFindings}.",
+                    semanticScore.OverallSemanticScore,
+                    runId,
+                    trace.TraceId,
+                    agentLabel,
+                    semanticScore.EmptyClaimCount,
+                    semanticScore.IncompleteFindingCount);
             }
         }
     }

@@ -29,6 +29,8 @@
 | **`archlucid_llm_*`** | Counter | — | Token usage, retries (see `ArchLucidInstrumentation` source). |
 | **`archlucid_agent_output_structural_completeness_ratio`** | Histogram | — | **`agent_type`**: Topology, Cost, Compliance, Critic. Fraction of expected **`AgentResult`** JSON keys present on **`ParsedResultJson`** (see **`AgentOutputEvaluationRecorder`**). |
 | **`archlucid_agent_output_parse_failures_total`** | Counter | — | **`agent_type`**. **`ParsedResultJson`** is not a JSON object or failed JSON parse when re-checked for metrics. |
+| **`archlucid_agent_trace_blob_upload_failures_total`** | Counter | — | **`agent_type`**, **`blob_type`** (`system_prompt`, `user_prompt`, `response`). Incremented when a blob write exhausts all retry attempts. |
+| **`archlucid_agent_output_semantic_score`** | Histogram | — | **`agent_type`**. Semantic quality score (0.0–1.0) evaluating claim evidence and finding completeness in agent output JSON. |
 
 For the full set, read **`ArchLucid.Core/Diagnostics/ArchLucidInstrumentation.cs`**.
 
@@ -48,6 +50,8 @@ These instruments support **product and operator dashboards** (runs volume, find
 | **`archlucid_explanation_cache_misses_total`** | Counter | — | Cache factory invoked (inner summary built; may imply LLM work). | **Time series** — `rate()` alongside hits. |
 | **`archlucid_agent_output_structural_completeness_ratio`** | Histogram | **`agent_type`** | Distribution of structural completeness for persisted agent **`ParsedResultJson`** (0.0–1.0). | **Heatmap** or **quantiles**; alert if p10 drops after a prompt or model change. |
 | **`archlucid_agent_output_parse_failures_total`** | Counter | **`agent_type`** | JSON parse / root-kind failures when scoring trace payloads for metrics. | **Time series** — `rate()`; correlate with **`archlucid_agent_result_schema_validations_total`** (invalid). |
+| **`archlucid_agent_trace_blob_upload_failures_total`** | Counter | **`agent_type`**, **`blob_type`** | Blob writes that exhausted all retry attempts for agent trace full-prompt persistence. | **Time series** — `rate()`; alert on sustained > 0. |
+| **`archlucid_agent_output_semantic_score`** | Histogram | **`agent_type`** | Semantic quality: claim evidence coverage + finding completeness (0.0–1.0). | **Heatmap** or **quantiles**; alert if p10 < 0.5 after prompt/model change. |
 
 ### Explanation cache hit ratio (Prometheus)
 

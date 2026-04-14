@@ -123,6 +123,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<IArchitectureRunIdempotencyRepository>(),
                 actorContext,
                 baselineMutationAudit,
+                Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
@@ -138,6 +139,7 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<IEvidenceBuilder>(),
                 actorContext,
                 baselineMutationAudit,
+                Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 NullLogger<ArchitectureRunExecuteOrchestrator>.Instance),
             new ArchitectureRunCommitOrchestrator(

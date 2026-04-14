@@ -16,6 +16,8 @@ using ArchLucid.Persistence.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using GovernanceGateOptions = ArchLucid.Contracts.Governance.PreCommitGovernanceGateOptions;
+
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
@@ -35,6 +37,7 @@ public sealed class GovernanceWorkflowService(
     IIntegrationEventPublisher integrationEventPublisher,
     IIntegrationEventOutboxRepository integrationEventOutbox,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IOptions<GovernanceGateOptions> governanceGateOptions,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     ILogger<GovernanceWorkflowService> logger)
     : IGovernanceWorkflowService
@@ -76,7 +79,8 @@ public sealed class GovernanceWorkflowService(
             Status = GovernanceApprovalStatus.Submitted,
             RequestedBy = requestedBy,
             RequestComment = requestComment,
-            RequestedUtc = DateTime.UtcNow
+            RequestedUtc = DateTime.UtcNow,
+            SlaDeadlineUtc = ComputeSlaDeadlineUtc(),
         };
 
         if (dryRun)
@@ -588,6 +592,18 @@ public sealed class GovernanceWorkflowService(
             connection: null,
             transaction: null,
             cancellationToken);
+    }
+
+    private DateTime? ComputeSlaDeadlineUtc()
+    {
+        int? slaHours = governanceGateOptions.Value.ApprovalSlaHours;
+
+        if (slaHours is null || slaHours.Value <= 0)
+        {
+            return null;
+        }
+
+        return DateTime.UtcNow.AddHours(slaHours.Value);
     }
 
     private Task TryPublishGovernancePromotionActivatedAsync(

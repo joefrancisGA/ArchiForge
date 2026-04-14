@@ -246,6 +246,35 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; WarningCount={merge.Warnings.Count}",
                 cancellationToken);
 
+        try
+        {
+            ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
+            Guid? commitRunGuid = Guid.TryParse(runId, out Guid ridCommit) ? ridCommit : null;
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = commitScope.TenantId,
+                    WorkspaceId = commitScope.WorkspaceId,
+                    ProjectId = commitScope.ProjectId,
+                    RunId = commitRunGuid,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        runId,
+                        manifestVersion = merge.Manifest.Metadata.ManifestVersion,
+                        systemName = merge.Manifest.SystemName,
+                    }),
+                },
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Durable audit for CoordinatorRunCommitCompleted failed for RunId={RunId}", runId);
+        }
+
         if (_logger.IsEnabled(LogLevel.Information))
         {
             _logger.LogInformation(
@@ -526,6 +555,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         PreCommitGateResult gateResult = await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken);
 
+        if (gateResult.WarnOnly)
+        {
+            await EmitPreCommitWarnedAuditAsync(gateResult, runId, actor, cancellationToken);
+            return;
+        }
+
         if (!gateResult.Blocked)
         {
             return;
@@ -539,6 +574,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 reason = gateResult.Reason,
                 blockingFindingIds = gateResult.BlockingFindingIds,
                 policyPackId = gateResult.PolicyPackId,
+                minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString(),
             });
 
         await _auditService.LogAsync(
@@ -556,5 +592,47 @@ public sealed class ArchitectureRunCommitOrchestrator(
             cancellationToken);
 
         throw new PreCommitGovernanceBlockedException(gateResult);
+    }
+
+    private async Task EmitPreCommitWarnedAuditAsync(
+        PreCommitGateResult gateResult,
+        string runId,
+        string actor,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? runGuid = Guid.TryParse(runId, out Guid rid) ? rid : null;
+
+        string dataJson = JsonSerializer.Serialize(
+            new
+            {
+                reason = gateResult.Reason,
+                warnings = gateResult.Warnings,
+                blockingFindingIds = gateResult.BlockingFindingIds,
+                policyPackId = gateResult.PolicyPackId,
+                minimumBlockingSeverity = gateResult.MinimumBlockingSeverity?.ToString(),
+            });
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.GovernancePreCommitWarned,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                DataJson = dataJson,
+            },
+            cancellationToken);
+
+        if (_logger.IsEnabled(LogLevel.Warning))
+        {
+            _logger.LogWarning(
+                "Pre-commit governance gate warned (not blocked): RunId={RunId}, Reason={Reason}",
+                LogSanitizer.Sanitize(runId),
+                LogSanitizer.Sanitize(gateResult.Reason ?? string.Empty));
+        }
     }
 }

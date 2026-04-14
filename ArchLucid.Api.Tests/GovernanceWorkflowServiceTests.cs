@@ -124,6 +124,7 @@ public sealed class GovernanceWorkflowServiceTests
             _integrationEvents.Object,
             _integrationOutbox.Object,
             _integrationEventOptions.Object,
+            Options.Create(new PreCommitGovernanceGateOptions()),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             logger.Object);
     }

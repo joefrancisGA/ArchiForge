@@ -7,7 +7,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:69 -->
+<!-- audit-core-const-count:75 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -22,6 +22,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | **`GetFilteredAsync` instead of overloading `GetByScopeAsync`** | Eight or more call sites and test doubles already depend on the original signature. A new method adds filtering without breaking consumers. |
 | **Static matrix + CI count guard** | Cheaper than runtime introspection of all call sites. The matrix can drift; the CI guard at least forces developers to revisit this file when `AuditEventTypes` grows. |
 | **Single Core catalog for baseline + durable** | Application references `ArchLucid.Core.Audit.AuditEventTypes.Baseline` so operators and developers have one file for all event-type strings; nested `Baseline` preserves namespaced baseline values without colliding with authority `RunStarted` / `RunCompleted`. |
+| **Coordinator orchestration dual-write** | The three coordinator orchestrators (`Create`, `Execute`, `Commit`) now dual-write: `IBaselineMutationAuditService` (structured log, existing) **and** `IAuditService` (durable SQL). Durable calls use distinct `CoordinatorRun*` event types so they do not collide with authority-pipeline `RunStarted` / `RunCompleted`. Each durable call is wrapped in `try/catch` — audit failure must never break the main orchestration flow. |
 | **Database-level append-only on `dbo.AuditEvents`** | Migration **`051_AuditEvents_DenyUpdateDelete.sql`** (and the same idempotent **`DENY`** block in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`** after the table DDL) issues **`DENY UPDATE`** and **`DENY DELETE`** on **`dbo.AuditEvents`** to the database role **`ArchLucidApp`** when that role exists. This closes the gap where code only `INSERT`s but ad-hoc SQL or bugs could mutate rows. **`dbo` / `db_owner`** are unaffected for break-glass. Local dev often has no **`ArchLucidApp`** role (app runs as **`dbo`** / SQL auth admin) — the migration **skips** until operators create the role and add the managed identity or SQL user (see **`docs/security/MANAGED_IDENTITY_SQL_BLOB.md`**). Deployments that only use **`db_datawriter`** without **`ArchLucidApp`** should create the role and move the app principal into it, or apply an environment-specific **`DENY`** to **`[db_datawriter]`** for this table. |
 
 ### Indexes on `dbo.AuditEvents`
@@ -71,6 +72,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Policy packs (host) | `PolicyPacksAppService` | `PolicyPackCreated`, `PolicyPackVersionPublished`, `PolicyPackAssigned`, `PolicyPackAssignmentCreated`, `PolicyPackAssignmentArchived` | — | pack / version ids |
 | Governance resolution API | `GovernanceResolutionController` | `GovernanceResolutionExecuted`, `GovernanceConflictDetected` | — | resolution payload summary |
 | Governance workflow (approval / promote / activate) | `GovernanceWorkflowService` | `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, `GovernanceSelfApprovalBlocked` (segregation-of-duties block), `GovernanceManifestPromoted`, `GovernanceEnvironmentActivated` | RunId when parseable | ids, environments, manifest version (JSON); self-approval block includes `approvalRequestId`, `requestedBy`, `attemptedReviewerBy` |
+| Governance approval SLA breach | `ApprovalSlaMonitor` | `GovernanceApprovalSlaBreached` | — | `approvalRequestId`, `runId`, `requestedBy`, `slaDeadlineUtc`, `breachedByMinutes` |
+| Pre-commit governance warn | `ArchitectureRunCommitOrchestrator` | `GovernancePreCommitWarned` | RunId when parseable | `reason`, `warnings`, `blockingFindingIds`, `policyPackId`, `minimumBlockingSeverity` |
 | Recommendation learning rebuild | `RecommendationLearningController` | `RecommendationLearningProfileRebuilt` | — | profile id |
 | Artifact / bundle / run export download | `ArtifactExportController` | `ArtifactDownloaded`, `BundleDownloaded`, `RunExported` | RunId (+ artifact when applicable) | format, byte counts, etc. |
 | Architecture analysis report (primary JSON build) | `AnalysisReportsController` | `ArchitectureAnalysisReportGenerated` | RunId when parseable | section flags, `manifestVersion`, `warningCount` |
@@ -80,6 +83,10 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Data archival host failure | `DataArchivalHostIteration` | `DataArchivalHostLoopFailed` | — | exception summary |
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
 | Agent result JSON failed schema validation (enforced parse) | `TopologyAgentHandler`, `ComplianceAgentHandler`, `CriticAgentHandler` → `AgentResultSchemaViolationAudit` | `AuditEventTypes.AgentResultSchemaViolation` | RunId / task context when parseable | schema errors, truncated JSON, agent type |
+| Coordinator run created (dual-write) | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.CoordinatorRunCreated` | RunId | `{ requestId, systemName }` |
+| Coordinator run execution started (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteStarted` | RunId | `{ runId }` |
+| Coordinator run execution succeeded (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteSucceeded` | RunId | `{ runId, resultCount }` |
+| Coordinator run commit completed (dual-write) | `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.CoordinatorRunCommitCompleted` | RunId | `{ runId, manifestVersion, systemName }` |
 
 ---
 
@@ -87,8 +94,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Operation | Orchestrator / service | Event type constant | Notes |
 |-----------|------------------------|---------------------|-------|
-| Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. |
-| Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` (`Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, …) | Same logging channel. |
+| Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. **Dual-write:** also emits durable `CoordinatorRunCreated` via `IAuditService`. |
+| Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` (`Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, …) | Same logging channel. **Dual-write:** also emits durable `CoordinatorRunExecuteStarted`, `CoordinatorRunExecuteSucceeded`, `CoordinatorRunCommitCompleted` via `IAuditService`. |
 | Governance workflow | `GovernanceWorkflowService` | `AuditEventTypes.Baseline.Governance.*` (mirrors `GovernanceAuditEventTypes`) | **Dual-write:** same service also calls `IAuditService` with top-level Core governance event types (see durable table above). |
 
 **Implication:** operators searching **Audit log** in the UI see `IAuditService` rows, including governance transitions from `GovernanceWorkflowService`. Baseline mutation logs remain for grep-friendly structured logging.
@@ -108,7 +115,7 @@ No open gaps are tracked here for the areas previously listed. Notes:
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 69 (see CI marker above; includes nested `Baseline`) |
+| **Core `AuditEventTypes` `public const string` rows** | 75 (see CI marker above; includes nested `Baseline`) |
 | **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -132,6 +139,12 @@ No open gaps are tracked here for the areas previously listed. Notes:
 | `ReplayExportRecorded` | `ReplayExportRecorded` | `ExportsController` |
 | `ComparisonSummaryPersisted` | `ComparisonSummaryPersisted` | `ExportsController` |
 | `GovernancePreCommitBlocked` | `GovernancePreCommitBlocked` | `ArchitectureRunCommitOrchestrator` (optional pre-commit gate) |
+| `GovernancePreCommitWarned` | `GovernancePreCommitWarned` | `ArchitectureRunCommitOrchestrator` (warn-only severity in pre-commit gate) |
+| `GovernanceApprovalSlaBreached` | `GovernanceApprovalSlaBreached` | `ApprovalSlaMonitor` (pending approval request past SLA deadline) |
+| `CoordinatorRunCreated` | `CoordinatorRunCreated` | `ArchitectureRunCreateOrchestrator` (dual-write with baseline) |
+| `CoordinatorRunExecuteStarted` | `CoordinatorRunExecuteStarted` | `ArchitectureRunExecuteOrchestrator` (dual-write with baseline) |
+| `CoordinatorRunExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` | `ArchitectureRunExecuteOrchestrator` (dual-write with baseline) |
+| `CoordinatorRunCommitCompleted` | `CoordinatorRunCommitCompleted` | `ArchitectureRunCommitOrchestrator` (dual-write with baseline) |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
 | `RecommendationRejected` | `RecommendationRejected` | `AdvisoryController` |

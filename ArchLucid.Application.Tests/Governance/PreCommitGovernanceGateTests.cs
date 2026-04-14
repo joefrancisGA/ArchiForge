@@ -570,7 +570,7 @@ public sealed class PreCommitGovernanceGateTests
 
         r.Blocked.Should().BeTrue();
         r.BlockingFindingIds.Should().BeEquivalentTo(["f-1", "f-2", "f-3"]);
-        r.Reason.Should().Contain("3 Critical finding(s)");
+        r.Reason.Should().Contain("3 Critical+");
     }
 
     [Fact]
@@ -762,5 +762,342 @@ public sealed class PreCommitGovernanceGateTests
 
         r.Blocked.Should().BeTrue();
         r.PolicyPackId.Should().Be(newerPackId.ToString("N"));
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_blocks_when_BlockCommitMinimumSeverity_matches_error_findings()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-1",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = DateTime.UtcNow,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-error",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Error,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = Guid.NewGuid(),
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = false,
+                BlockCommitMinimumSeverity = (int)FindingSeverity.Error,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = new(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments);
+
+        PreCommitGateResult r = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        r.Blocked.Should().BeTrue();
+        r.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-error");
+        r.MinimumBlockingSeverity.Should().Be((int)FindingSeverity.Error);
+        r.Reason.Should().Contain("Error+");
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_allows_when_BlockCommitMinimumSeverity_is_error_but_only_warnings_exist()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-1",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = DateTime.UtcNow,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-warn",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Warning,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = Guid.NewGuid(),
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = false,
+                BlockCommitMinimumSeverity = (int)FindingSeverity.Error,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = new(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments);
+
+        PreCommitGateResult r = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        r.Blocked.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_blocks_on_critical_only_when_null_minimum_severity_and_BlockCommitOnCritical_true()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-1",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = DateTime.UtcNow,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-error",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Error,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                    new Finding
+                    {
+                        FindingId = "f-critical",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Critical,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = Guid.NewGuid(),
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = true,
+                BlockCommitMinimumSeverity = null,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGate sut = new(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments);
+
+        PreCommitGateResult r = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        r.Blocked.Should().BeTrue();
+        r.BlockingFindingIds.Should().Contain("f-critical");
+        r.MinimumBlockingSeverity.Should().Be((int)FindingSeverity.Critical);
+    }
+
+    [Fact]
+    public async Task EvaluateAsync_warns_only_when_severity_is_in_WarnOnlySeverities()
+    {
+        Guid runGuid = Guid.NewGuid();
+        string runId = runGuid.ToString("N");
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-1",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = DateTime.UtcNow,
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findings = new();
+        await findings.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = DateTime.UtcNow,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-error",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Error,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        InMemoryPolicyPackAssignmentRepository assignments = new();
+        await assignments.CreateAsync(
+            new PolicyPackAssignment
+            {
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ProjectId = TestScope.ProjectId,
+                ScopeLevel = GovernanceScopeLevel.Project,
+                PolicyPackId = Guid.NewGuid(),
+                PolicyPackVersion = "1.0.0",
+                IsEnabled = true,
+                BlockCommitOnCritical = false,
+                BlockCommitMinimumSeverity = (int)FindingSeverity.Error,
+            },
+            CancellationToken.None);
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+
+        PreCommitGovernanceGateOptions opts = new()
+        {
+            PreCommitGateEnabled = true,
+            WarnOnlySeverities = ["Error"],
+        };
+
+        PreCommitGovernanceGate sut = new(
+            Options.Create(opts),
+            scopeProvider.Object,
+            runs,
+            findings,
+            assignments);
+
+        PreCommitGateResult r = await sut.EvaluateAsync(runId, CancellationToken.None);
+
+        r.Blocked.Should().BeFalse();
+        r.WarnOnly.Should().BeTrue();
+        r.Warnings.Should().NotBeEmpty();
+        r.BlockingFindingIds.Should().ContainSingle().Which.Should().Be("f-error");
+        r.MinimumBlockingSeverity.Should().Be((int)FindingSeverity.Error);
     }
 }

@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -124,56 +127,64 @@ public sealed class AgentExecutionTraceRecorder(
                 await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
                 IAgentExecutionTraceRepository repo = scope.ServiceProvider.GetRequiredService<IAgentExecutionTraceRepository>();
 
-                string? systemKey = null;
-                string? userKey = null;
-                string? responseKey = null;
+                string? systemKey = await WriteBlobWithRetryAsync(BlobContainerName, $"{runId}/{traceId}/system-prompt.txt", systemPrompt, traceId, "system_prompt");
+                string? userKey = await WriteBlobWithRetryAsync(BlobContainerName, $"{runId}/{traceId}/user-prompt.txt", userPrompt, traceId, "user_prompt");
+                string? responseKey = await WriteBlobWithRetryAsync(BlobContainerName, $"{runId}/{traceId}/response.txt", rawResponse, traceId, "response");
 
-                try
-                {
-                    systemKey = await _blobStore.WriteAsync(
-                        BlobContainerName,
-                        $"{runId}/{traceId}/system-prompt.txt",
-                        systemPrompt,
-                        CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Agent trace system prompt blob write failed for TraceId={TraceId}", traceId);
-                }
-
-                try
-                {
-                    userKey = await _blobStore.WriteAsync(
-                        BlobContainerName,
-                        $"{runId}/{traceId}/user-prompt.txt",
-                        userPrompt,
-                        CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Agent trace user prompt blob write failed for TraceId={TraceId}", traceId);
-                }
-
-                try
-                {
-                    responseKey = await _blobStore.WriteAsync(
-                        BlobContainerName,
-                        $"{runId}/{traceId}/response.txt",
-                        rawResponse,
-                        CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Agent trace response blob write failed for TraceId={TraceId}", traceId);
-                }
+                bool anyFailed = systemKey is null || userKey is null || responseKey is null;
 
                 await repo.PatchBlobStorageFieldsAsync(traceId, systemKey, userKey, responseKey, CancellationToken.None);
+
+                if (anyFailed)
+                {
+                    await repo.PatchBlobUploadFailedAsync(traceId, true, CancellationToken.None);
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Agent trace full prompt persistence failed for TraceId={TraceId}", traceId);
             }
         });
+    }
+
+    private async Task<string?> WriteBlobWithRetryAsync(
+        string containerName,
+        string blobPath,
+        string content,
+        string traceId,
+        string blobType)
+    {
+        const int maxAttempts = 3;
+        const int retryDelayMs = 500;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                return await _blobStore.WriteAsync(containerName, blobPath, content, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Agent trace {BlobType} blob write attempt {Attempt}/{MaxAttempts} failed for TraceId={TraceId}",
+                    blobType,
+                    attempt,
+                    maxAttempts,
+                    traceId);
+
+                if (attempt < maxAttempts)
+                {
+                    await Task.Delay(retryDelayMs);
+                }
+            }
+        }
+
+        ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal.Add(
+            1,
+            new TagList { { "agent_type", "unknown" }, { "blob_type", blobType } });
+
+        return null;
     }
 
     private static string Truncate(string value, int maxLength) =>

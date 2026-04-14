@@ -224,6 +224,9 @@ BEGIN
 
     IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ModelVersion') IS NULL
         ALTER TABLE dbo.AgentExecutionTraces ADD ModelVersion NVARCHAR(200) NULL;
+
+    IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'BlobUploadFailed') IS NULL
+        ALTER TABLE dbo.AgentExecutionTraces ADD BlobUploadFailed BIT NULL;
 END
 GO
 
@@ -1977,6 +1980,156 @@ IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'BlockCommitOnCritical') IS NULL
     ALTER TABLE dbo.PolicyPackAssignments ADD BlockCommitOnCritical BIT NOT NULL
         CONSTRAINT DF_PolicyPackAssignments_BlockCommitOnCritical_Create DEFAULT (0);
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPackAssignments', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPackAssignments', N'BlockCommitMinimumSeverity') IS NULL
+    ALTER TABLE dbo.PolicyPackAssignments ADD BlockCommitMinimumSeverity INT NULL;
+GO
+
+/* ---- DbUp 058 parity: SLA tracking on governance approval requests ---- */
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'SlaDeadlineUtc') IS NULL
+    ALTER TABLE dbo.GovernanceApprovalRequests ADD SlaDeadlineUtc DATETIME2 NULL;
+
+IF OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GovernanceApprovalRequests', N'SlaBreachNotifiedUtc') IS NULL
+    ALTER TABLE dbo.GovernanceApprovalRequests ADD SlaBreachNotifiedUtc DATETIME2 NULL;
+GO
+
+/* ---- DbUp 059 parity: SLA breach monitoring + blob upload failure indexes ---- */
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_GovernanceApprovalRequests_PendingSlaBreached'
+      AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GovernanceApprovalRequests_PendingSlaBreached
+        ON dbo.GovernanceApprovalRequests (SlaDeadlineUtc ASC)
+        INCLUDE (ApprovalRequestId, RunId, RequestedBy, Status)
+        WHERE SlaDeadlineUtc IS NOT NULL AND SlaBreachNotifiedUtc IS NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_GovernanceApprovalRequests_Status_RequestedUtc'
+      AND object_id = OBJECT_ID(N'dbo.GovernanceApprovalRequests'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GovernanceApprovalRequests_Status_RequestedUtc
+        ON dbo.GovernanceApprovalRequests (Status, RequestedUtc DESC)
+        INCLUDE (RunId, ManifestVersion, SourceEnvironment, TargetEnvironment);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_AgentExecutionTraces_BlobUploadFailed'
+      AND object_id = OBJECT_ID(N'dbo.AgentExecutionTraces'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AgentExecutionTraces_BlobUploadFailed
+        ON dbo.AgentExecutionTraces (RunId, CreatedUtc DESC)
+        WHERE BlobUploadFailed = 1;
+END
+GO
+
+/* ---- DbUp 060 parity: broader query coverage indexes ---- */
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_AuditEvents_EventType_OccurredUtc'
+      AND object_id = OBJECT_ID(N'dbo.AuditEvents'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_AuditEvents_EventType_OccurredUtc
+        ON dbo.AuditEvents (TenantId, WorkspaceId, ProjectId, EventType, OccurredUtc DESC);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_ConversationThreads_Scope_Active'
+      AND object_id = OBJECT_ID(N'dbo.ConversationThreads'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_ConversationThreads_Scope_Active
+        ON dbo.ConversationThreads (TenantId, WorkspaceId, ProjectId, LastUpdatedUtc DESC)
+        WHERE ArchivedUtc IS NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_GovernanceEnvironmentActivations_RunId_ActivatedUtc'
+      AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentActivations_RunId_ActivatedUtc
+        ON dbo.GovernanceEnvironmentActivations (RunId, ActivatedUtc DESC);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc'
+      AND object_id = OBJECT_ID(N'dbo.GovernanceEnvironmentActivations'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc
+        ON dbo.GovernanceEnvironmentActivations (Environment, ActivatedUtc DESC)
+        INCLUDE (RunId, ManifestVersion, IsActive);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_GovernancePromotionRecords_RunId_PromotedUtc'
+      AND object_id = OBJECT_ID(N'dbo.GovernancePromotionRecords'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_GovernancePromotionRecords_RunId_PromotedUtc
+        ON dbo.GovernancePromotionRecords (RunId, PromotedUtc DESC);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_RecommendationRecords_Scope_Run_Priority'
+      AND object_id = OBJECT_ID(N'dbo.RecommendationRecords'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_RecommendationRecords_Scope_Run_Priority
+        ON dbo.RecommendationRecords (TenantId, WorkspaceId, ProjectId, RunId, PriorityScore DESC, CreatedUtc DESC);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_RecommendationRecords_Scope_LastUpdatedUtc'
+      AND object_id = OBJECT_ID(N'dbo.RecommendationRecords'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_RecommendationRecords_Scope_LastUpdatedUtc
+        ON dbo.RecommendationRecords (TenantId, WorkspaceId, ProjectId, LastUpdatedUtc DESC);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_Runs_ArchiveRetention'
+      AND object_id = OBJECT_ID(N'dbo.Runs'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_Runs_ArchiveRetention
+        ON dbo.Runs (CreatedUtc ASC)
+        INCLUDE (TenantId, WorkspaceId, ScopeProjectId)
+        WHERE ArchivedUtc IS NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = N'IX_PolicyPackAssignments_Scope_Active'
+      AND object_id = OBJECT_ID(N'dbo.PolicyPackAssignments'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_PolicyPackAssignments_Scope_Active
+        ON dbo.PolicyPackAssignments (TenantId, ScopeLevel, AssignedUtc DESC)
+        INCLUDE (WorkspaceId, ProjectId, PolicyPackId, IsEnabled, BlockCommitOnCritical, BlockCommitMinimumSeverity)
+        WHERE ArchivedUtc IS NULL;
+END
 GO
 
 /* -- First-wave CHECK constraints (obvious status domains only) ----

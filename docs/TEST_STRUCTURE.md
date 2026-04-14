@@ -87,7 +87,7 @@ npm run test:watch
 npm run test:e2e
 ```
 
-**Live API E2E (Tier 2+ — CI `ui-e2e-live`, merge-blocking):** Playwright config `archlucid-ui/playwright.live.config.ts` runs **`e2e/live-api-*.spec.ts`**: **`live-api-journey`** (happy path), **`live-api-conflict-journey`** (200 idempotent repeat-commit, 404 missing run, audit stability), **`live-api-governance-rejection`** (reject flow + audit + UI), **`live-api-negative-paths`** (self-approval block + 404 run detail + empty create body), **`live-api-error-states`** (fake run detail, runs list, audit no-results, governance dashboard). Default **`playwright.config.ts`** uses **`testIgnore: "**/live-api-*.spec.ts"`** so mock smoke (`npx playwright test`, CI **Install dependencies & run Playwright smoke**) never calls the real API (avoids **`ECONNREFUSED`** on port 5128). The happy-path spec exercises a real `ArchLucid.Api` + SQL stack (`DevelopmentBypass`, **`AgentExecution:Mode=Simulator`**): health, run create → execute → **commit** → operator **manifest** review (artifacts + bundle link) → **`GET /v1/artifacts/runs/{runId}/export`** ZIP → governance **submit + approve** (segregation: reviewer ≠ submitter) → durable **audit** event checks (`RunStarted`, `ManifestGenerated`, `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `RunExported`) → **`/audit`** UI search → governance workflow **Load** for the run. Helpers: `e2e/helpers/live-api-client.ts`. Narrative: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**. Run locally with `npx playwright test -c playwright.live.config.ts` (starts the UI via `webServer`; you must run **`ArchLucid.Api`** on **`LIVE_API_URL`** / default `http://127.0.0.1:5128` first). CI builds Next before starting the API and sets **`LIVE_E2E_SKIP_NEXT_BUILD=1`** so the webServer does not run a second `npm run build` while the API is up (avoids OOM). See **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** for the CI job.
+**Live API E2E (Tier 2+ — CI `ui-e2e-live`, merge-blocking):** Playwright config `archlucid-ui/playwright.live.config.ts` runs **`e2e/live-api-*.spec.ts`**: **`live-api-journey`** (happy path), **`live-api-conflict-journey`** (200 idempotent repeat-commit, 404 missing run, audit stability), **`live-api-governance-rejection`** (reject flow + audit + UI), **`live-api-negative-paths`** (self-approval block + 404 run detail + empty create body), **`live-api-error-states`** (fake run detail, runs list, audit no-results, governance dashboard), **`live-api-advisory-flow`** (advisory scan scheduling after committed run + audit trail), **`live-api-replay-export`** (replay committed run + re-export ZIP + audit trail), **`live-api-analysis-report`** (analysis report generation + optional DOCX export + audit trail). Default **`playwright.config.ts`** uses **`testIgnore: "**/live-api-*.spec.ts"`** so mock smoke (`npx playwright test`, CI **Install dependencies & run Playwright smoke**) never calls the real API (avoids **`ECONNREFUSED`** on port 5128). The happy-path spec exercises a real `ArchLucid.Api` + SQL stack (`DevelopmentBypass`, **`AgentExecution:Mode=Simulator`**): health, run create → execute → **commit** → operator **manifest** review (artifacts + bundle link) → **`GET /v1/artifacts/runs/{runId}/export`** ZIP → governance **submit + approve** (segregation: reviewer ≠ submitter) → durable **audit** event checks (`RunStarted`, `ManifestGenerated`, `GovernanceApprovalSubmitted`, `GovernanceApprovalApproved`, `RunExported`) → **`/audit`** UI search → governance workflow **Load** for the run. Helpers: `e2e/helpers/live-api-client.ts`. Narrative: **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**. Run locally with `npx playwright test -c playwright.live.config.ts` (starts the UI via `webServer`; you must run **`ArchLucid.Api`** on **`LIVE_API_URL`** / default `http://127.0.0.1:5128` first). CI builds Next before starting the API and sets **`LIVE_E2E_SKIP_NEXT_BUILD=1`** so the webServer does not run a second `npm run build` while the API is up (avoids OOM). See **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** for the CI job.
 
 **API integration (`Suite=Core`):** HTTP tests for **`/v1/learning/*`**, **`/v1/product-learning/*`**, **`/v1/evolution/*`**, and related classes (e.g. **`LearningControllerTests`**, **`ProductLearningControllerTests`**, **`EvolutionControllerQueryTests`**, **`EvolutionControllerFlowTests`**, **`AskThreadIntegrationTests`**) carry **`[Trait("Suite", "Core")]`** so they are included in the **`Suite=Core`** .NET filter (they remain **`Category=Integration`**, so they still **exclude** from **fast core**).
 
@@ -106,6 +106,25 @@ Scheduled CI (`.github/workflows/stryker-scheduled.yml`) runs Stryker per config
 | `stryker-config.agentruntime.json` | `ArchLucid.AgentRuntime` | `ArchLucid.AgentRuntime.Tests` |
 | `stryker-config.coordinator.json` | `ArchLucid.Coordinator` | `ArchLucid.Coordinator.Tests` |
 | `stryker-config.decisioning.json` | `ArchLucid.Decisioning` | `ArchLucid.Decisioning.Tests` |
+
+### k6 performance smoke (Tier 2c — CI automated)
+
+Two k6 scripts run in CI via `.github/workflows/ci.yml`:
+
+| CI job | Script | Scenarios | Write paths | Blocking |
+|--------|--------|-----------|-------------|----------|
+| `k6-smoke-api` | `tests/load/smoke.js` | health, runs list, version, audit search | No (read-only) | Yes (merge-blocking) |
+| `k6-ci-smoke` | `tests/load/ci-smoke.js` | health, create run, list runs, audit search | **Yes** (`POST /v1/architecture/request`) | No (`continue-on-error` until 2026-05-01) |
+
+Both jobs start the API against a SQL Server service container with `DevelopmentBypass` auth and `Simulator` agent execution mode. k6 runs via the `grafana/k6:latest` Docker image (not installed as a system binary).
+
+**Local (read + write smoke):**
+
+```bash
+BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
+```
+
+**Manual full load (Compose full-stack):** `scripts/load/hotpaths.js` via `.github/workflows/load-test.yml` or `scripts/load/record_baseline.ps1` / `.sh`. See **[LOAD_TEST_BASELINE.md](LOAD_TEST_BASELINE.md)**.
 
 ### Scheduled security (Tier 4 — not xUnit)
 

@@ -68,6 +68,29 @@ public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTrace
     }
 
     /// <inheritdoc />
+    public Task PatchBlobUploadFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i >= 0)
+            {
+                AgentExecutionTrace t = Clone(_items[i]);
+                t.BlobUploadFailed = failed;
+                _items[i] = t;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(string runId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

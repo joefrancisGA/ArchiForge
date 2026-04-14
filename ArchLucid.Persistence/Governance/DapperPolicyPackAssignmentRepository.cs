@@ -41,13 +41,13 @@ public sealed class DapperPolicyPackAssignmentRepository(
             (
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
                 PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
-                BlockCommitOnCritical
+                BlockCommitOnCritical, BlockCommitMinimumSeverity
             )
             VALUES
             (
                 @AssignmentId, @TenantId, @WorkspaceId, @ProjectId,
                 @PolicyPackId, @PolicyPackVersion, @IsEnabled, @ScopeLevel, @IsPinned, @AssignedUtc, @ArchivedUtc,
-                @BlockCommitOnCritical
+                @BlockCommitOnCritical, @BlockCommitMinimumSeverity
             );
             """;
 
@@ -86,7 +86,7 @@ public sealed class DapperPolicyPackAssignmentRepository(
             SELECT TOP 200
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
                 PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
-                BlockCommitOnCritical
+                BlockCommitOnCritical, BlockCommitMinimumSeverity
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
               AND ArchivedUtc IS NULL
@@ -119,7 +119,7 @@ public sealed class DapperPolicyPackAssignmentRepository(
             SELECT TOP 1
                 AssignmentId, TenantId, WorkspaceId, ProjectId,
                 PolicyPackId, PolicyPackVersion, IsEnabled, ScopeLevel, IsPinned, AssignedUtc, ArchivedUtc,
-                BlockCommitOnCritical
+                BlockCommitOnCritical, BlockCommitMinimumSeverity
             FROM dbo.PolicyPackAssignments
             WHERE TenantId = @TenantId
               AND AssignmentId = @AssignmentId;

@@ -274,6 +274,18 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_output_parse_failures_total",
             description: "Agent trace ParsedResultJson parse/root-kind failures.");
 
+    /// <summary>Total failed agent trace blob uploads after all retries (labels: <c>agent_type</c>, <c>blob_type</c>).</summary>
+    public static readonly Counter<long> AgentTraceBlobUploadFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_agent_trace_blob_upload_failures_total",
+            description: "Total failed agent trace blob uploads after all retries.");
+
+    /// <summary>Agent output semantic quality score distribution (0-1; label <c>agent_type</c>).</summary>
+    public static readonly Histogram<double> AgentOutputSemanticScore =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_agent_output_semantic_score",
+            description: "Agent output semantic quality score (0-1).");
+
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =
         AppMeter.CreateCounter<long>(

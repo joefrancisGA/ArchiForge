@@ -31,7 +31,9 @@ Record **repeatable** latency and throughput for the five highest-traffic API pa
 
 | Piece | Location |
 | --- | --- |
-| k6 script | `scripts/load/hotpaths.js` |
+| k6 script (manual, full write) | `scripts/load/hotpaths.js` |
+| k6 script (CI smoke, read + write) | `tests/load/ci-smoke.js` |
+| k6 script (CI smoke, read-only) | `tests/load/smoke.js` |
 | Local runbook | `scripts/load/README.md` |
 | Manual CI workflow | `.github/workflows/load-test.yml` |
 | Summary → Markdown | `scripts/ci/print_k6_summary_metrics.py` |
@@ -84,6 +86,48 @@ CI job **“.NET: benchmark regression (short job)”** enforces mean ceilings f
 - **SQL paging fragment** construction (`FirstRowsOnlyFragment` for row caps used in repositories).
 
 Raise `ci/benchmark-baseline.json` only when a change **intentionally** improves or stabilizes measured means (document the reason in the PR).
+
+## CI smoke (automated)
+
+`tests/load/ci-smoke.js` runs automatically on every push / PR via the **`k6-ci-smoke`** job in `.github/workflows/ci.yml` (Tier 2c). Unlike the read-only `tests/load/smoke.js` (which exercises health, version, list runs, and audit search), the CI smoke script adds a **write-path scenario** (`POST /v1/architecture/request`) so regressions in the create-run hot path are caught before merge.
+
+### Scenarios
+
+| Scenario | Executor | VUs | Duration | Endpoint | Threshold |
+| --- | --- | --- | --- | --- | --- |
+| `health` | constant-vus | 5 | 20 s | `GET /health/live`, `GET /health/ready` | p(95) < 300 ms |
+| `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) < 3000 ms |
+| `list_runs` | constant-vus | 3 | 20 s | `GET /v1/architecture/runs` | p(95) < 1500 ms |
+| `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) < 1500 ms |
+
+Global failure threshold: `http_req_failed` rate < 2 %. Total wall-clock duration: ~30 s (longest scenario).
+
+### How it differs from the manual workflow
+
+| Dimension | CI smoke (`ci-smoke.js`) | Manual dispatch (`hotpaths.js` via `load-test.yml`) |
+| --- | --- | --- |
+| **Trigger** | Automatic on push / PR | Manual `workflow_dispatch` |
+| **Write paths** | `POST /v1/architecture/request` | Full: create, manifest, comparisons, retrieval search |
+| **Read paths** | Health, list runs, audit search | Same plus version and manifest |
+| **Duration** | ~30 s | Configurable (default 2 m) |
+| **VU count** | Fixed (2–5 per scenario) | Configurable (default 5) |
+| **Thresholds** | Generous (CI-safe) | Tighter (baseline-tracking) |
+| **Blocking** | `continue-on-error: true` until 2026-05-01 | Non-blocking (manual) |
+
+### Local run
+
+```bash
+BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
+```
+
+Or with Docker (matches CI execution):
+
+```bash
+docker run --rm --network host \
+  -v "$(pwd)/tests/load:/scripts:ro" \
+  -e BASE_URL=http://127.0.0.1:5128 \
+  grafana/k6:latest run /scripts/ci-smoke.js
+```
 
 ## Pagination audit
 

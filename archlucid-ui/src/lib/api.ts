@@ -788,6 +788,7 @@ export interface AuditEvent {
   artifactId: string | null;
   dataJson: string;
   correlationId: string | null;
+  otelTraceId?: string | null;
 }
 
 /** Filtered audit query for the operator UI. */

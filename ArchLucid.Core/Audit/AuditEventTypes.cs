@@ -4,6 +4,19 @@ public static class AuditEventTypes
 {
     public const string RunStarted = "RunStarted";
     public const string RunCompleted = "RunCompleted";
+
+    /// <summary>Coordinator-level: architecture run created and persisted (coordinator create orchestrator).</summary>
+    public const string CoordinatorRunCreated = "CoordinatorRunCreated";
+
+    /// <summary>Coordinator-level: architecture run execution started (coordinator execute orchestrator).</summary>
+    public const string CoordinatorRunExecuteStarted = "CoordinatorRunExecuteStarted";
+
+    /// <summary>Coordinator-level: architecture run execution succeeded (coordinator execute orchestrator).</summary>
+    public const string CoordinatorRunExecuteSucceeded = "CoordinatorRunExecuteSucceeded";
+
+    /// <summary>Coordinator-level: architecture run commit completed (coordinator commit orchestrator).</summary>
+    public const string CoordinatorRunCommitCompleted = "CoordinatorRunCommitCompleted";
+
     public const string ManifestGenerated = "ManifestGenerated";
     public const string ArtifactsGenerated = "ArtifactsGenerated";
     public const string ReplayExecuted = "ReplayExecuted";
@@ -78,6 +91,12 @@ public static class AuditEventTypes
 
     /// <summary>Emitted when optional pre-commit governance blocks manifest commit due to critical findings.</summary>
     public const string GovernancePreCommitBlocked = "GovernancePreCommitBlocked";
+
+    /// <summary>Emitted when pre-commit governance warns but allows commit due to WarnOnly severity configuration.</summary>
+    public const string GovernancePreCommitWarned = "GovernancePreCommitWarned";
+
+    /// <summary>Emitted when a governance approval request breaches its SLA deadline.</summary>
+    public const string GovernanceApprovalSlaBreached = "GovernanceApprovalSlaBreached";
 
     /// <summary>Agent LLM output failed <c>AgentResult</c> JSON schema validation at parse time (payload lists errors and model metadata when known).</summary>
     public const string AgentResultSchemaViolation = "AgentResultSchemaViolation";

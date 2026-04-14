@@ -26,6 +26,14 @@ public interface IAgentExecutionTraceRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Sets the <see cref="AgentExecutionTrace.BlobUploadFailed"/> flag on a trace row.
+    /// </summary>
+    Task PatchBlobUploadFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns all traces for the specified run, ordered by <c>CreatedUtc</c> ascending.
     /// </summary>
     /// <param name="runId">The run whose traces are requested.</param>

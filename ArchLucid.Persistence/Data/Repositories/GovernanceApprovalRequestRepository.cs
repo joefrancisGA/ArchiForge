@@ -30,7 +30,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 RequestComment,
                 ReviewComment,
                 RequestedUtc,
-                ReviewedUtc
+                ReviewedUtc,
+                SlaDeadlineUtc,
+                SlaBreachNotifiedUtc
             )
             VALUES
             (
@@ -45,7 +47,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 @RequestComment,
                 @ReviewComment,
                 @RequestedUtc,
-                @ReviewedUtc
+                @ReviewedUtc,
+                @SlaDeadlineUtc,
+                @SlaBreachNotifiedUtc
             );
             """;
 
@@ -66,7 +70,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 item.RequestComment,
                 item.ReviewComment,
                 item.RequestedUtc,
-                item.ReviewedUtc
+                item.ReviewedUtc,
+                item.SlaDeadlineUtc,
+                item.SlaBreachNotifiedUtc,
             },
             cancellationToken: cancellationToken));
     }
@@ -81,7 +87,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 Status = @Status,
                 ReviewedBy = @ReviewedBy,
                 ReviewComment = @ReviewComment,
-                ReviewedUtc = @ReviewedUtc
+                ReviewedUtc = @ReviewedUtc,
+                SlaDeadlineUtc = @SlaDeadlineUtc,
+                SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
             WHERE ApprovalRequestId = @ApprovalRequestId;
             """;
 
@@ -95,7 +103,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 item.Status,
                 item.ReviewedBy,
                 item.ReviewComment,
-                item.ReviewedUtc
+                item.ReviewedUtc,
+                item.SlaDeadlineUtc,
+                item.SlaBreachNotifiedUtc,
             },
             cancellationToken: cancellationToken));
     }
@@ -117,7 +127,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 RequestComment,
                 ReviewComment,
                 RequestedUtc,
-                ReviewedUtc
+                ReviewedUtc,
+                SlaDeadlineUtc,
+                SlaBreachNotifiedUtc
             FROM GovernanceApprovalRequests
             WHERE ApprovalRequestId = @ApprovalRequestId;
             """;
@@ -149,7 +161,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 RequestComment,
                 ReviewComment,
                 RequestedUtc,
-                ReviewedUtc
+                ReviewedUtc,
+                SlaDeadlineUtc,
+                SlaBreachNotifiedUtc
             FROM GovernanceApprovalRequests
             WHERE RunId = @RunId
             ORDER BY RequestedUtc DESC
@@ -186,7 +200,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 RequestComment,
                 ReviewComment,
                 RequestedUtc,
-                ReviewedUtc
+                ReviewedUtc,
+                SlaDeadlineUtc,
+                SlaBreachNotifiedUtc
             FROM GovernanceApprovalRequests
             WHERE Status IN (@Draft, @Submitted)
             ORDER BY RequestedUtc DESC;
@@ -229,7 +245,9 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
                 RequestComment,
                 ReviewComment,
                 RequestedUtc,
-                ReviewedUtc
+                ReviewedUtc,
+                SlaDeadlineUtc,
+                SlaBreachNotifiedUtc
             FROM GovernanceApprovalRequests
             WHERE Status IN (@Approved, @Rejected, @Promoted)
               AND ReviewedUtc IS NOT NULL
@@ -250,5 +268,69 @@ public sealed class GovernanceApprovalRequestRepository(IDbConnectionFactory con
             cancellationToken: cancellationToken));
 
         return [.. rows];
+    }
+
+    public async Task<IReadOnlyList<GovernanceApprovalRequest>> GetPendingSlaBreachedAsync(
+        DateTime utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT TOP 200
+                ApprovalRequestId,
+                RunId,
+                ManifestVersion,
+                SourceEnvironment,
+                TargetEnvironment,
+                Status,
+                RequestedBy,
+                ReviewedBy,
+                RequestComment,
+                ReviewComment,
+                RequestedUtc,
+                ReviewedUtc,
+                SlaDeadlineUtc,
+                SlaBreachNotifiedUtc
+            FROM GovernanceApprovalRequests
+            WHERE Status IN (@Draft, @Submitted)
+              AND SlaDeadlineUtc IS NOT NULL
+              AND SlaDeadlineUtc <= @UtcNow
+              AND SlaBreachNotifiedUtc IS NULL
+            ORDER BY SlaDeadlineUtc ASC;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        IEnumerable<GovernanceApprovalRequest> rows = await connection.QueryAsync<GovernanceApprovalRequest>(new CommandDefinition(
+            sql,
+            new
+            {
+                UtcNow = utcNow,
+                Draft = GovernanceApprovalStatus.Draft,
+                Submitted = GovernanceApprovalStatus.Submitted,
+            },
+            cancellationToken: cancellationToken));
+
+        return [.. rows];
+    }
+
+    public async Task PatchSlaBreachNotifiedAsync(
+        string approvalRequestId,
+        DateTime slaBreachNotifiedUtc,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(approvalRequestId);
+
+        const string sql = """
+            UPDATE GovernanceApprovalRequests
+            SET SlaBreachNotifiedUtc = @SlaBreachNotifiedUtc
+            WHERE ApprovalRequestId = @ApprovalRequestId;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(new CommandDefinition(
+            sql,
+            new { ApprovalRequestId = approvalRequestId, SlaBreachNotifiedUtc = slaBreachNotifiedUtc },
+            cancellationToken: cancellationToken));
     }
 }

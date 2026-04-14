@@ -11,8 +11,10 @@ using Microsoft.Extensions.Options;
 namespace ArchLucid.Application.Governance;
 
 /// <summary>
-/// Blocks commit when an enabled assignment sets <see cref="PolicyPackAssignment.BlockCommitOnCritical"/>
-/// and the run's findings snapshot contains <see cref="FindingSeverity.Critical"/> rows.
+/// Blocks commit when an enabled assignment enforces a severity threshold
+/// and the run's findings snapshot contains findings at or above that threshold.
+/// Supports configurable <see cref="PolicyPackAssignment.BlockCommitMinimumSeverity"/>
+/// and warn-only severities via <see cref="PreCommitGovernanceGateOptions.WarnOnlySeverities"/>.
 /// </summary>
 public sealed class PreCommitGovernanceGate(
     IOptions<PreCommitGovernanceGateOptions> options,
@@ -66,7 +68,7 @@ public sealed class PreCommitGovernanceGate(
             cancellationToken);
 
         PolicyPackAssignment? enforcing = assignments
-            .Where(static a => a.IsEnabled && a.BlockCommitOnCritical)
+            .Where(static a => a.IsEnabled && (a.BlockCommitOnCritical || a.BlockCommitMinimumSeverity.HasValue))
             .OrderByDescending(static a => a.AssignedUtc)
             .FirstOrDefault();
 
@@ -83,25 +85,70 @@ public sealed class PreCommitGovernanceGate(
             return PreCommitGateResult.Allowed();
         }
 
-        List<string> criticalIds = snapshot.Findings
-            .Where(static f => f.Severity == FindingSeverity.Critical)
+        int effectiveMinSeverity = ResolveEffectiveMinimumSeverity(enforcing);
+        FindingSeverity effectiveSeverityEnum = (FindingSeverity)effectiveMinSeverity;
+
+        List<string> blockingIds = snapshot.Findings
+            .Where(f => (int)f.Severity >= effectiveMinSeverity)
             .Select(static f => f.FindingId)
             .ToList();
 
-        if (criticalIds.Count == 0)
+        if (blockingIds.Count == 0)
         {
             return PreCommitGateResult.Allowed();
         }
 
         string packLabel = enforcing.PolicyPackId.ToString("N");
+        string severityLabel = effectiveSeverityEnum.ToString();
+
+        if (IsWarnOnlySeverity(severityLabel))
+        {
+            string warningMessage =
+                $"{blockingIds.Count} {severityLabel}+ finding(s) detected per policy pack (pack {packLabel}) — warn only.";
+
+            return new PreCommitGateResult
+            {
+                Blocked = false,
+                WarnOnly = true,
+                Reason = warningMessage,
+                BlockingFindingIds = blockingIds,
+                PolicyPackId = packLabel,
+                MinimumBlockingSeverity = (int)effectiveSeverityEnum,
+                Warnings = [warningMessage],
+            };
+        }
 
         return new PreCommitGateResult
         {
             Blocked = true,
             Reason =
-                $"{criticalIds.Count} Critical finding(s) block commit per policy pack assignment (pack {packLabel}).",
-            BlockingFindingIds = criticalIds,
+                $"{blockingIds.Count} {severityLabel}+ finding(s) block commit per policy pack assignment (pack {packLabel}).",
+            BlockingFindingIds = blockingIds,
             PolicyPackId = packLabel,
+            MinimumBlockingSeverity = (int)effectiveSeverityEnum,
         };
+    }
+
+    private static int ResolveEffectiveMinimumSeverity(PolicyPackAssignment assignment)
+    {
+        if (assignment.BlockCommitMinimumSeverity.HasValue)
+        {
+            return assignment.BlockCommitMinimumSeverity.Value;
+        }
+
+        // Legacy behavior: BlockCommitOnCritical=true → block on Critical (3) only
+        return (int)FindingSeverity.Critical;
+    }
+
+    private bool IsWarnOnlySeverity(string severityLabel)
+    {
+        string[]? warnOnly = _options.Value.WarnOnlySeverities;
+
+        if (warnOnly is null || warnOnly.Length == 0)
+        {
+            return false;
+        }
+
+        return warnOnly.Any(w => string.Equals(w, severityLabel, StringComparison.OrdinalIgnoreCase));
     }
 }

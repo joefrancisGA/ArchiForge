@@ -16751,6 +16751,12 @@
               "string"
             ]
           },
+          "blobUploadFailed": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          },
           "createdUtc": {
             "type": "string",
             "format": "date-time"
@@ -21010,6 +21016,20 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "slaDeadlineUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "slaBreachNotifiedUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         }
       },
@@ -23143,6 +23163,13 @@
           },
           "blockCommitOnCritical": {
             "type": "boolean"
+          },
+          "blockCommitMinimumSeverity": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
           }
         }
       },

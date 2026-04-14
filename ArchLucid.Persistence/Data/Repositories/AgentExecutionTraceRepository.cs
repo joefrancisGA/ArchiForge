@@ -161,6 +161,29 @@ public sealed class AgentExecutionTraceRepository(IDbConnectionFactory connectio
                 cancellationToken: cancellationToken));
     }
 
+    /// <inheritdoc />
+    public async Task PatchBlobUploadFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+
+        const string sql = """
+            UPDATE AgentExecutionTraces
+            SET BlobUploadFailed = @BlobUploadFailed
+            WHERE TraceId = @TraceId;
+            """;
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new { TraceId = traceId, BlobUploadFailed = failed },
+                cancellationToken: cancellationToken));
+    }
+
     public async Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
         string runId,
         CancellationToken cancellationToken = default)

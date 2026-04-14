@@ -47,4 +47,11 @@ public class PolicyPackAssignment
 
     /// <summary>When true with <see cref="IsEnabled"/>, manifest commit is blocked if the run has Critical findings (optional gate).</summary>
     public bool BlockCommitOnCritical { get; set; }
+
+    /// <summary>
+    /// Minimum <see cref="FindingSeverity"/> enum value that triggers a commit block.
+    /// When <see langword="null"/> and <see cref="BlockCommitOnCritical"/> is true, only Critical findings block.
+    /// When set, findings with <c>(int)Severity &gt;= BlockCommitMinimumSeverity</c> block.
+    /// </summary>
+    public int? BlockCommitMinimumSeverity { get; set; }
 }

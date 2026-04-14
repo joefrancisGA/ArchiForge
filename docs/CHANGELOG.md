@@ -8,6 +8,20 @@ Release entries newest-first. Each section condenses the detailed prompt logs pr
 
 ---
 
+## 2026-04-14 — Configurable severity thresholds + approval SLA with escalation
+
+**Added:** Configurable **`BlockCommitMinimumSeverity`** on `PolicyPackAssignment` (SQL **`057`**) — allows blocking commits at any `FindingSeverity` level, not just Critical. When null with `BlockCommitOnCritical=true`, behavior is unchanged.
+
+**Added:** **Warning-only mode** via `ArchLucid:Governance:WarnOnlySeverities` — severities in this list trigger `GovernancePreCommitWarned` audit event but allow commit to proceed. Enables phased enforcement rollout.
+
+**Added:** **Approval SLA** via `ArchLucid:Governance:ApprovalSlaHours` — new approval requests receive `SlaDeadlineUtc`. **`ApprovalSlaMonitor`** detects breaches, emits `GovernanceApprovalSlaBreached` audit events, and sends HMAC-signed webhook escalation notifications. SQL **`058`** adds `SlaDeadlineUtc` and `SlaBreachNotifiedUtc` to `GovernanceApprovalRequests`.
+
+**Tests:** `PreCommitGovernanceGateTests` — configurable severity threshold (block on Error, allow Warning-only, legacy Critical-only fallback, warn-only mode). `ApprovalSlaMonitorTests` — SLA breach audit, before-deadline skip, already-notified skip, no-webhook audit-only, SLA-not-configured skip.
+
+**Docs:** Updated `PRE_COMMIT_GOVERNANCE_GATE.md` (severity thresholds, warning mode, approval SLA sections). Updated `AUDIT_COVERAGE_MATRIX.md` (`GovernancePreCommitWarned`, `GovernanceApprovalSlaBreached` rows; count 73→75).
+
+---
+
 ## 2026-04-13 — Stryker enforcement tightening + pre-commit gate tests
 
 **Tests:** **`ArchitectureRunServiceExecuteCommitTests`** — commit path throws **`PreCommitGovernanceBlockedException`** when the gate blocks; happy path when allowed; gate skipped when disabled. **`ArchitectureRunCommitPipelineIntegrationTests`** — real **`PreCommitGovernanceGate`** blocks commit without persisting manifest and emits **`GovernancePreCommitBlocked`** audit; allows commit when findings are non-critical. **`PreCommitGovernanceGateTests`** — edge cases (unparseable run id, missing snapshot id, non-enforcing assignment, disabled assignment, missing snapshot row, multiple critical ids, assignment tie-break).
