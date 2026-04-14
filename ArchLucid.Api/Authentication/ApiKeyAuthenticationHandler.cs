@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;

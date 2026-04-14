@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Explanation;
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;

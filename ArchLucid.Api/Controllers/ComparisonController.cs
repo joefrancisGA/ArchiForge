@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Scoping;

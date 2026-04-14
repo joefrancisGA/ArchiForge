@@ -2,7 +2,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Authentication;
 

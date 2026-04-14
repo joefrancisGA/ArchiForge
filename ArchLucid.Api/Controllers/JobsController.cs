@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Jobs;

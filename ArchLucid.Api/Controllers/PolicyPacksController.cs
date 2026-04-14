@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
@@ -18,7 +18,7 @@ namespace ArchLucid.Api.Controllers;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require <see cref="ArchLucidPolicies.ExecuteAuthority"/>; reads require
+/// <strong>Routes:</strong> under <c>v{version}/policy-packs</c>. Mutating actions require <see cref="ArchLucidPolicies.AdminAuthority"/>; reads require
 /// <see cref="ArchLucidPolicies.ReadAuthority"/>. Request bodies are validated with FluentValidation (see validators for <see cref="CreatePolicyPackRequest"/>, etc.).
 /// </para>
 /// <para>
@@ -42,7 +42,7 @@ public sealed class PolicyPacksController(
     /// <summary>Creates a new pack and an initial unpublished version <c>1.0.0</c>.</summary>
     /// <remarks>Audit: <c>PolicyPackCreated</c> via <see cref="IPolicyPacksAppService"/>.</remarks>
     [HttpPost]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(PolicyPack), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(
@@ -70,7 +70,7 @@ public sealed class PolicyPacksController(
     /// <summary>Publishes or upserts a version for the pack and marks the pack active.</summary>
     /// <remarks>Audit: <c>PolicyPackVersionPublished</c>.</remarks>
     [HttpPost("{policyPackId:guid}/publish")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(PolicyPackVersion), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Publish(
@@ -96,7 +96,7 @@ public sealed class PolicyPacksController(
     /// <returns>404 with <c>policy-pack-version-not-found</c> when the version row does not exist.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentCreated</c>. Default scope level is Project when omitted or blank in JSON.</remarks>
     [HttpPost("{policyPackId:guid}/assign")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(PolicyPackAssignment), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Assign(
@@ -135,7 +135,7 @@ public sealed class PolicyPacksController(
     /// <returns>404 when no active assignment matched.</returns>
     /// <remarks>Audit: <c>PolicyPackAssignmentArchived</c>.</remarks>
     [HttpPost("assignments/{assignmentId:guid}/archive")]
-    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ArchiveAssignment(Guid assignmentId, CancellationToken ct = default)

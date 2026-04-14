@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;

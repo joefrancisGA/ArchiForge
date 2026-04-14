@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.IO.Compression;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;

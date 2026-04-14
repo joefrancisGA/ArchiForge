@@ -1,5 +1,5 @@
 using ArchLucid.AgentRuntime.Explanation;
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Explanation;

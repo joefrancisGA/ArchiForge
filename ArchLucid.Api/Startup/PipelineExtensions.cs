@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;

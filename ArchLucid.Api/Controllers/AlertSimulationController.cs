@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;

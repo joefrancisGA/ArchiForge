@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
 
@@ -57,6 +57,10 @@ public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
                 AddPermission(p);
         
         else if (roles.Contains(ArchLucidRoles.Reader))
+        
+            AddPermission("metrics:read");
+        
+        else if (roles.Contains(ArchLucidRoles.Auditor))
         
             AddPermission("metrics:read");
         

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Api.Mapping;

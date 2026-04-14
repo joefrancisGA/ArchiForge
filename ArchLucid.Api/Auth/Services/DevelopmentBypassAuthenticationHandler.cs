@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 
 using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;

@@ -40,6 +40,8 @@ public partial class Program
 
         builder.Services.AddArchLucidMvc();
 
+        AuthSafetyGuard.GuardDevelopmentBypassInProduction(builder.Configuration, builder.Environment);
+
         builder.Services.AddHttpContextAccessor();
         // Singleton: resolves scope from IHttpContextAccessor (or ambient overrides). IAgentCompletionClient is scoped; handlers receive per-request instances while this provider stays stateless.
         builder.Services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
@@ -95,13 +97,6 @@ public partial class Program
                 app.Logger.LogWarning(
                     "ArchLucidAuth:JwtSigningPublicKeyPemPath is set: JWTs are validated with a local RSA public key (CI / local E2E). Use Entra authority + metadata in real environments.");
             }
-        }
-
-        if (app.Environment.IsProduction()
-            && string.Equals(authBound.Mode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException(
-                "ArchLucidAuth:Mode cannot be DevelopmentBypass when ASPNETCORE_ENVIRONMENT is Production.");
         }
 
         if (app.Environment.IsProduction()

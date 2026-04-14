@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;

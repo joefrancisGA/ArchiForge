@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Learning;
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Api.ProblemDetails;

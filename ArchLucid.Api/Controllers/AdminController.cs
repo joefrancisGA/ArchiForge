@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;

@@ -1,4 +1,4 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;

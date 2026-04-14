@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
 

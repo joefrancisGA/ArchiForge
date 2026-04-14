@@ -1,6 +1,5 @@
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Host.Core.Startup;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Startup;
@@ -8,52 +7,15 @@ namespace ArchLucid.Api.Startup;
 internal static class InfrastructureExtensions
 {
     /// <summary>
-    /// Single registration point for all ArchLucid authorization policies:
-    /// role-based (ReadAuthority, ExecuteAuthority, AdminAuthority) and
-    /// claim-based (CanCommitRuns, CanSeedResults, etc.).
+    /// Registers ArchLucid authorization policies (see <see cref="ArchLucidAuthorizationPoliciesExtensions.AddArchLucidAuthorizationPolicies"/>).
     /// </summary>
     /// <remarks>
-    /// <see cref="AuthorizationOptions.FallbackPolicy"/> requires an authenticated principal so new controllers
-    /// are closed by default; use <c>[AllowAnonymous]</c> only for intentional public surface (e.g. <c>/version</c>, <c>/health/live</c>, <c>/health/ready</c>).
+    /// Fallback policy requires an authenticated principal; use <c>[AllowAnonymous]</c> only for intentional public surface
+    /// (e.g. <c>/version</c>, <c>/health/live</c>, <c>/health/ready</c>).
     /// </remarks>
     public static IServiceCollection AddArchLucidAuthorization(this IServiceCollection services)
     {
-        services.AddAuthorizationBuilder()
-            .SetFallbackPolicy(
-                new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build())
-            .AddPolicy(ArchLucidPolicies.ReadAuthority, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchLucidRoles.Reader,
-                    ArchLucidRoles.Operator,
-                    ArchLucidRoles.Admin);
-            })
-            .AddPolicy(ArchLucidPolicies.ExecuteAuthority, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole(
-                    ArchLucidRoles.Operator,
-                    ArchLucidRoles.Admin);
-            })
-            .AddPolicy(ArchLucidPolicies.AdminAuthority, policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole(ArchLucidRoles.Admin);
-            })
-            .AddPolicy(ArchLucidPolicies.CanCommitRuns, policy =>
-                policy.RequireClaim("permission", "commit:run"))
-            .AddPolicy("CanSeedResults", policy =>
-                policy.RequireClaim("permission", "seed:results"))
-            .AddPolicy(ArchLucidPolicies.CanExportConsultingDocx, policy =>
-                policy.RequireClaim("permission", "export:consulting-docx"))
-            .AddPolicy("CanReplayComparisons", policy =>
-                policy.RequireClaim("permission", "replay:comparisons"))
-            .AddPolicy("CanViewReplayDiagnostics", policy =>
-                policy.RequireClaim("permission", "replay:diagnostics"));
-        return services;
+        return services.AddArchLucidAuthorizationPolicies();
     }
 
     public static IServiceCollection AddArchLucidRateLimiting(

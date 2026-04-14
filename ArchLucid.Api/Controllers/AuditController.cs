@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Reflection;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
@@ -111,6 +111,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
     /// <param name="toUtc">Exclusive range end (UTC).</param>
     /// <param name="maxRows">Maximum rows to return; repository clamps to 1–10,000 (default 10,000).</param>
     [HttpGet("export")]
+    [Authorize(Policy = ArchLucidPolicies.RequireAuditor)]
     [Produces("application/json", "text/csv")]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

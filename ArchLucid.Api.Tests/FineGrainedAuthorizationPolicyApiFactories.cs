@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-using ArchLucid.Api.Auth.Models;
+using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
