@@ -11,6 +11,7 @@ This document lists every nonclustered index added by migrations 059–060 and t
 | `IX_GovernanceApprovalRequests_PendingSlaBreached` | `GovernanceApprovalRequests` | `SlaDeadlineUtc ASC` | **Include:** `ApprovalRequestId, RunId, RequestedBy, Status` **Filter:** `SlaDeadlineUtc IS NOT NULL AND SlaBreachNotifiedUtc IS NULL` | `ApprovalSlaMonitor.CheckAndEscalateAsync` — periodic background sweep for pending requests past their SLA deadline. Without this index the monitor table-scans every row. |
 | `IX_GovernanceApprovalRequests_Status_RequestedUtc` | `GovernanceApprovalRequests` | `Status, RequestedUtc DESC` | **Include:** `RunId, ManifestVersion, SourceEnvironment, TargetEnvironment` | `GetPendingAsync` and `GetReviewedAsync` both filter by status and sort by time. The only prior index was `IX_..._RunId`. |
 | `IX_AgentExecutionTraces_BlobUploadFailed` | `AgentExecutionTraces` | `RunId, CreatedUtc DESC` | **Filter:** `BlobUploadFailed = 1` | Operator diagnostic query to find traces where blob upload failed. Extremely sparse (failures are rare) so the filtered index is almost free to maintain. |
+| `IX_AgentExecutionTraces_InlineFallbackFailed` | `AgentExecutionTraces` | `RunId, CreatedUtc DESC` | **Filter:** `InlineFallbackFailed = 1` | Operator diagnostic query for traces where mandatory SQL inline fallback or forensic verification failed (migration **065**). Sparse like blob-failure index. |
 
 ## Migration 060 — Broader Query Coverage
 
@@ -32,7 +33,7 @@ This document lists every nonclustered index added by migrations 059–060 and t
 
 ### Filtered indexes for sparse predicates
 
-`BlobUploadFailed = 1`, `ArchivedUtc IS NULL`, `SlaBreachNotifiedUtc IS NULL` — these predicates match a small fraction of rows. Filtered indexes keep the B-tree tiny, costing almost nothing on writes while giving sub-millisecond seeks on reads.
+`BlobUploadFailed = 1`, `InlineFallbackFailed = 1`, `ArchivedUtc IS NULL`, `SlaBreachNotifiedUtc IS NULL` — these predicates match a small fraction of rows. Filtered indexes keep the B-tree tiny, costing almost nothing on writes while giving sub-millisecond seeks on reads.
 
 ### INCLUDE columns for covering queries
 

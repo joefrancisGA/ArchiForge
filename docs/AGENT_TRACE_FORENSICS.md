@@ -85,4 +85,4 @@ Correlate with blob-storage availability metrics in dashboards.
 
 ## DDL
 
-Schema additions ship in migrations **`053`**, **`056`**, **`062`** (inline columns), **`064`** (**`InlineFallbackFailed`**), and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
+Schema additions ship in migrations **`053`**, **`056`**, **`062`** (inline columns), **`064`** (**`InlineFallbackFailed`**), **`065`** (filtered index **`IX_AgentExecutionTraces_InlineFallbackFailed`**), and **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
