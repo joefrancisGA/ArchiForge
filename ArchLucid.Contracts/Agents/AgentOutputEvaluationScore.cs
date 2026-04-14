@@ -19,4 +19,10 @@ public sealed class AgentOutputEvaluationScore
 
     /// <summary>Expected property names missing from the root object (camelCase, as in trace JSON).</summary>
     public IReadOnlyList<string> MissingKeys { get; set; } = Array.Empty<string>();
+
+    /// <summary>Deterministic semantic inspection of claims/findings; null when <see cref="IsJsonParseFailure"/>.</summary>
+    public AgentOutputSemanticScore? Semantic { get; set; }
+
+    /// <summary>True when full prompt/response blob persistence failed for this trace; null if unknown or not attempted.</summary>
+    public bool? BlobUploadFailed { get; set; }
 }

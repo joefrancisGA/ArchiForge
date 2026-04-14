@@ -8,7 +8,7 @@ namespace ArchLucid.Api.Controllers;
 public sealed partial class RunsController
 {
     /// <summary>
-    /// On-demand structural evaluation of <see cref="AgentExecutionTrace.ParsedResultJson"/> for traces in the run (no metrics).
+    /// On-demand structural and semantic evaluation of <see cref="AgentExecutionTrace.ParsedResultJson"/> for traces in the run (no metrics).
     /// </summary>
     [HttpGet("run/{runId}/agent-evaluation")]
     [ProducesResponseType(typeof(AgentOutputEvaluationSummary), StatusCodes.Status200OK)]
@@ -27,6 +27,7 @@ public sealed partial class RunsController
         List<AgentOutputEvaluationScore> scores = new(capacity: traces.Count);
         int skipped = 0;
         List<double> ratiosForAverage = new();
+        List<double> semanticForAverage = new();
 
         foreach (AgentExecutionTrace trace in traces)
         {
@@ -37,17 +38,25 @@ public sealed partial class RunsController
             }
 
             AgentOutputEvaluationScore score = agentOutputEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
-            scores.Add(score);
+            score.BlobUploadFailed = trace.BlobUploadFailed;
 
             if (!score.IsJsonParseFailure)
             {
+                score.Semantic = agentOutputSemanticEvaluator.Evaluate(trace.TraceId, trace.ParsedResultJson, trace.AgentType);
                 ratiosForAverage.Add(score.StructuralCompletenessRatio);
+                semanticForAverage.Add(score.Semantic.OverallSemanticScore);
             }
+
+            scores.Add(score);
         }
 
-        double? average = ratiosForAverage.Count == 0
+        double? averageStructural = ratiosForAverage.Count == 0
             ? null
             : ratiosForAverage.Average();
+
+        double? averageSemantic = semanticForAverage.Count == 0
+            ? null
+            : semanticForAverage.Average();
 
         AgentOutputEvaluationSummary summary = new()
         {
@@ -55,7 +64,8 @@ public sealed partial class RunsController
             EvaluatedAtUtc = DateTime.UtcNow,
             Scores = scores,
             TracesSkippedCount = skipped,
-            AverageStructuralCompletenessRatio = average,
+            AverageStructuralCompletenessRatio = averageStructural,
+            AverageSemanticScore = averageSemantic,
         };
 
         return Ok(summary);

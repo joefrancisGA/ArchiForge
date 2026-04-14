@@ -36,9 +36,12 @@ flowchart LR
   end
   RC --> TR
   RC --> EV
+  RC --> SEM[IAgentOutputSemanticEvaluator]
   EV --> AE
+  SEM --> ASE[AgentOutputSemanticEvaluator]
   REC --> TR
   REC --> EV
+  REC --> SEM
   REC --> M
 ```
 
@@ -49,12 +52,13 @@ flowchart LR
 | **`IAgentOutputEvaluator`** | Pure **`Evaluate(traceId, json, agentType)`** → **`AgentOutputEvaluationScore`**. |
 | **`AgentOutputEvaluator`** | Expected key list for **`AgentResult`** JSON; parse; ratio = present / expected. |
 | **`AgentOutputEvaluationRecorder`** | Load traces by **`runId`**; score; emit **`archlucid_agent_output_*`**; log low scores. |
+| **`AgentOutputSemanticScore`** | Contract DTO for semantic ratios (also returned nested on each API score row). |
 | **`AgentOutputEvaluationScore` / `AgentOutputEvaluationSummary`** | Contracts for API and tests. |
-| **`GET …/run/{runId}/agent-evaluation`** | Builds **`AgentOutputEvaluationSummary`** without recording metrics. |
+| **`GET …/run/{runId}/agent-evaluation`** | Structural + semantic scores per trace, **`blobUploadFailed`** from the trace row, and **`averageSemanticScore`** — does **not** record OTel metrics. |
 
 ## 6. Data Flow
 
-1. **API**: **`GetByRunIdAsync`** → for each trace with **`ParseSucceeded`** and non-empty **`ParsedResultJson`**, **`Evaluate`** → aggregate average and skipped count.
+1. **API**: **`GetByRunIdAsync`** → for each eligible trace, structural **`Evaluate`**, then **`IAgentOutputSemanticEvaluator.Evaluate`** (when structural parse is OK); set **`BlobUploadFailed`** from the trace; aggregate **`AverageStructuralCompletenessRatio`** and **`AverageSemanticScore`**; skipped count for traces without parsed JSON.
 2. **Metrics job** (future caller): **`EvaluateAndRecordMetricsAsync(runId)`** → same loop → **`Histogram.Record`** / **`Counter.Add`** with **`agent_type`** tag.
 3. **Parse failure** (invalid JSON or non-object root): **`IsJsonParseFailure`** true; metrics path increments **`archlucid_agent_output_parse_failures_total`** (no histogram point).
 
@@ -82,12 +86,12 @@ Beyond structural completeness, **`AgentOutputSemanticEvaluator`** performs a de
 
 ### Warning threshold
 
-The recorder logs a warning when `OverallSemanticScore < 0.5` — same threshold used for structural completeness.
+**`AgentOutputEvaluationRecorder`** logs a warning when **`OverallSemanticScore < 0.3`** (critical semantic emptiness). Structural low-score warnings still use **0.5**. The optional quality gate uses separate floors from **`AgentOutputQualityGateOptions`**.
 
 ### Interface
 
 ```csharp
-IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) → AgentOutputSemanticScore
+IAgentOutputSemanticEvaluator.Evaluate(traceId, parsedResultJson, agentType) → AgentOutputSemanticScore (type lives in **`ArchLucid.Contracts.Agents`**).
 ```
 
 Registered as **singleton** (`IAgentOutputSemanticEvaluator → AgentOutputSemanticEvaluator`).

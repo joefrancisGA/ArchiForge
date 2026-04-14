@@ -21320,6 +21320,15 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
         public bool? BlobUploadFailed { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("fullSystemPromptInline")]
+        public string FullSystemPromptInline { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullUserPromptInline")]
+        public string FullUserPromptInline { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("fullResponseInline")]
+        public string FullResponseInline { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset CreatedUtc { get; set; }
 
@@ -21381,6 +21390,12 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("missingKeys")]
         public System.Collections.Generic.ICollection<string> MissingKeys { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("semantic")]
+        public AgentOutputSemanticScore Semantic { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
+        public bool? BlobUploadFailed { get; set; }
+
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -21411,6 +21426,49 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("averageStructuralCompletenessRatio")]
         [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
         public double? AverageStructuralCompletenessRatio { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("averageSemanticScore")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double? AverageSemanticScore { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AgentOutputSemanticScore
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("traceId")]
+        public string TraceId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("agentType")]
+        public int AgentType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("claimsQualityRatio")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double ClaimsQualityRatio { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("findingsQualityRatio")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double FindingsQualityRatio { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("emptyClaimCount")]
+        public int EmptyClaimCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("incompleteFindingCount")]
+        public int IncompleteFindingCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("overallSemanticScore")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$")]
+        public double OverallSemanticScore { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

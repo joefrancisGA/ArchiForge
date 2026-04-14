@@ -51,6 +51,7 @@ public sealed partial class RunsController(
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IAgentOutputEvaluator agentOutputEvaluator,
+    IAgentOutputSemanticEvaluator agentOutputSemanticEvaluator,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     ILogger<RunsController> logger)

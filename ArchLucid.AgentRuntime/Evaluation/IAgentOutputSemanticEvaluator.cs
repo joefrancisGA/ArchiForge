@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.AgentRuntime.Evaluation;

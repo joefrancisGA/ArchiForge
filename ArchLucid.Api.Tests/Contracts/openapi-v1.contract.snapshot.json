@@ -16826,6 +16826,24 @@
               "boolean"
             ]
           },
+          "fullSystemPromptInline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fullUserPromptInline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "fullResponseInline": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "createdUtc": {
             "type": "string",
             "format": "date-time"
@@ -16880,6 +16898,22 @@
             "items": {
               "type": "string"
             }
+          },
+          "semantic": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AgentOutputSemanticScore"
+              }
+            ]
+          },
+          "blobUploadFailed": {
+            "type": [
+              "null",
+              "boolean"
+            ]
           }
         }
       },
@@ -16907,6 +16941,58 @@
             "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
             "type": [
               "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "averageSemanticScore": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
+      "AgentOutputSemanticScore": {
+        "type": "object",
+        "properties": {
+          "traceId": {
+            "type": "string"
+          },
+          "agentType": {
+            "$ref": "#/components/schemas/AgentType"
+          },
+          "claimsQualityRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "findingsQualityRatio": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "emptyClaimCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "incompleteFindingCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overallSemanticScore": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
               "number",
               "string"
             ],

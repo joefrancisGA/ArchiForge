@@ -15,4 +15,7 @@ public sealed class AgentOutputEvaluationSummary
 
     /// <summary>Mean of <see cref="AgentOutputEvaluationScore.StructuralCompletenessRatio"/> over scores where <see cref="AgentOutputEvaluationScore.IsJsonParseFailure"/> is false; null when none.</summary>
     public double? AverageStructuralCompletenessRatio { get; set; }
+
+    /// <summary>Mean of <see cref="AgentOutputSemanticScore.OverallSemanticScore"/> over the same rows as <see cref="AverageStructuralCompletenessRatio"/>; null when none.</summary>
+    public double? AverageSemanticScore { get; set; }
 }

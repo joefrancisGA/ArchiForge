@@ -24,7 +24,9 @@ public sealed class AgentOutputEvaluationRecorder(
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
 
     private const double LowStructuralScoreThreshold = 0.5;
-    private const double LowSemanticScoreThreshold = 0.5;
+
+    /// <summary>Log when semantic score is critically low (product/docs threshold; quality gate uses <see cref="AgentOutputQualityGateOptions"/>).</summary>
+    private const double LowSemanticScoreThreshold = 0.3;
 
     /// <summary>
     /// Evaluates all traces with successful parses and records histogram/counter metrics.
