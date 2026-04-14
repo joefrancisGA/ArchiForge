@@ -21340,6 +21340,9 @@ namespace ArchLucid.Api.Client.Generated
         [System.Text.Json.Serialization.JsonPropertyName("blobUploadFailed")]
         public bool? BlobUploadFailed { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("inlineFallbackFailed")]
+        public bool? InlineFallbackFailed { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("fullSystemPromptInline")]
         public string FullSystemPromptInline { get; set; }
 
