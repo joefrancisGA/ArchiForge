@@ -1,7 +1,10 @@
+using System.Diagnostics.Metrics;
+
 using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Data.Repositories;
@@ -233,6 +236,149 @@ public sealed class AgentExecutionTraceRecorderReproTests
         spyAudit.LastEvent!.EventType.Should().Be(AuditEventTypes.AgentTraceBlobPersistenceFailed);
         spyAudit.LastEvent.DataJson.Should().Contain("upload_failed");
     }
+
+    [Fact]
+    public async Task RecordAsync_retries_blob_write_three_times_before_abandoning_failed_part()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns((string _, string path, string _, CancellationToken _) =>
+                path.Contains("system-prompt", StringComparison.OrdinalIgnoreCase)
+                    ? Task.FromException<string>(new IOException("simulated transient blob failure"))
+                    : Task.FromResult($"ok://{path}"));
+
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "full-system",
+            "full-user",
+            "full-response",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null);
+
+        blobMock.Verify(
+            b => b.WriteAsync(
+                It.IsAny<string>(),
+                It.Is<string>(p => p.Contains("system-prompt", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(3));
+
+        blobMock.Verify(
+            b => b.WriteAsync(
+                It.IsAny<string>(),
+                It.Is<string>(p => p.Contains("user-prompt", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once());
+
+        blobMock.Verify(
+            b => b.WriteAsync(
+                It.IsAny<string>(),
+                It.Is<string>(p => p.Contains("response.txt", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once());
+    }
+
+    [Fact]
+    public async Task RecordAsync_when_each_blob_exhausts_retries_increments_archlucid_agent_trace_blob_upload_failures_total()
+    {
+        _ = ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal;
+
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("always fail"));
+
+        using BlobUploadFailureMeasurementCapture capture = BlobUploadFailureMeasurementCapture.Start();
+
+        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Cost,
+            "s",
+            "u",
+            "r",
+            "{}",
+            parseSucceeded: true,
+            errorMessage: null);
+
+        IReadOnlyList<LongMeasurementRecord> failures = capture.MeasurementsFor("archlucid_agent_trace_blob_upload_failures_total");
+        failures.Should().HaveCount(3);
+        failures.Sum(m => m.Value).Should().Be(3);
+
+        HashSet<string> blobTypes = failures
+            .SelectMany(m => m.Tags.Where(t => t.Key == "blob_type").Select(t => (string)t.Value!))
+            .ToHashSet(StringComparer.Ordinal);
+
+        blobTypes.Should().BeEquivalentTo(["system_prompt", "user_prompt", "response"]);
+    }
+
+    private sealed class BlobUploadFailureMeasurementCapture : IDisposable
+    {
+        private readonly MeterListener _listener = new();
+
+        private readonly List<LongMeasurementRecord> _longMeasures = [];
+
+        private BlobUploadFailureMeasurementCapture()
+        {
+            _listener.InstrumentPublished = OnInstrumentPublished;
+            _listener.SetMeasurementEventCallback<long>(OnMeasurementLong);
+            _listener.Start();
+        }
+
+        public static BlobUploadFailureMeasurementCapture Start() => new();
+
+        public void Dispose() => _listener.Dispose();
+
+        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName) =>
+            _longMeasures.Where(m => m.Name == instrumentName).ToList();
+
+        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidInstrumentation.MeterName)
+            {
+                return;
+            }
+
+            if (instrument.Name == "archlucid_agent_trace_blob_upload_failures_total")
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        }
+
+        private void OnMeasurementLong(
+            Instrument instrument,
+            long measurement,
+            ReadOnlySpan<KeyValuePair<string, object?>> tags,
+            object? state)
+        {
+            _ = state;
+            List<KeyValuePair<string, object?>> tagList = [];
+
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                tagList.Add(tag);
+            }
+
+            _longMeasures.Add(new LongMeasurementRecord(instrument.Name, measurement, tagList));
+        }
+    }
+
+    private readonly record struct LongMeasurementRecord(
+        string Name,
+        long Value,
+        IReadOnlyList<KeyValuePair<string, object?>> Tags);
 
     private static AgentExecutionTraceRecorder CreateRecorder(
         InMemoryAgentExecutionTraceRepository repo,
