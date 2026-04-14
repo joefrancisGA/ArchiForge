@@ -1,16 +1,77 @@
 /**
  * Typed helpers for Playwright live-API E2E against ArchLucid.Api
  * (`live-api-journey.spec.ts`, `live-api-conflict-journey.spec.ts`, `live-api-governance-rejection.spec.ts`, …).
+ *
+ * When `LIVE_API_KEY` is set, every helper sends `X-Api-Key` (ApiKey auth / production-like gates).
+ * See `docs/LIVE_E2E_AUTH_ASSUMPTIONS.md` (log injection is server-side; client uses fixed env keys in CI only).
  */
 import type { APIRequestContext, APIResponse } from "@playwright/test";
 
 /** Base URL for ArchLucid.Api (e.g. http://127.0.0.1:5128). */
 export const liveApiBase = process.env.LIVE_API_URL ?? "http://127.0.0.1:5128";
 
-const jsonHeaders = {
-  Accept: "application/json",
-  "Content-Type": "application/json",
-} as const;
+const liveApiKeyEnv = process.env.LIVE_API_KEY?.trim() ?? "";
+
+/** True when `LIVE_API_KEY` is set — helpers attach `X-Api-Key` on each request. */
+export const isApiKeyMode = liveApiKeyEnv.length > 0;
+
+/** Optional second key for readonly / least-privilege tests (`live-api-apikey-auth.spec.ts`). */
+export const liveApiKeyReadOnly = process.env.LIVE_API_KEY_READONLY?.trim() ?? "";
+
+/**
+ * Governance submitter identity for segregation: DevelopmentBypass `DevUserName` (**Developer**) or
+ * ApiKey admin principal (**ApiKeyAdmin**).
+ */
+export const liveAuthActorName = isApiKeyMode ? "ApiKeyAdmin" : "Developer";
+
+/** Distinct `reviewedBy` body value vs {@link liveAuthActorName} for approve/reject paths. */
+export const livePeerReviewerActorName = "e2e-peer-reviewer";
+
+function pickApiKey(explicitApiKey?: string | null): string | undefined {
+  if (explicitApiKey !== undefined && explicitApiKey !== null) {
+    const t = explicitApiKey.trim();
+
+    return t.length > 0 ? t : undefined;
+  }
+
+  return liveApiKeyEnv.length > 0 ? liveApiKeyEnv : undefined;
+}
+
+function pickAuthHeaders(explicitApiKey?: string | null): Record<string, string> {
+  const key = pickApiKey(explicitApiKey);
+
+  if (key === undefined) {
+    return {};
+  }
+
+  return { "X-Api-Key": key };
+}
+
+/** JSON request headers. Pass `""` to force **no** API key (negative tests). Omit argument for default env key. */
+export function liveJsonHeaders(explicitApiKey?: string | null): Record<string, string> {
+  return {
+    ...pickAuthHeaders(explicitApiKey),
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+}
+
+/** GET JSON headers. Pass `""` to omit API key. */
+export function liveAcceptHeaders(explicitApiKey?: string | null): Record<string, string> {
+  return {
+    ...pickAuthHeaders(explicitApiKey),
+    Accept: "application/json",
+  };
+}
+
+function liveBinaryAcceptHeaders(accept: string, explicitApiKey?: string | null): Record<string, string> {
+  return {
+    ...pickAuthHeaders(explicitApiKey),
+    Accept: accept,
+  };
+}
+
+const jsonHeaders = liveJsonHeaders();
 
 async function throwIfNotOk(res: APIResponse, label: string): Promise<void> {
   if (res.ok()) {
@@ -56,7 +117,7 @@ export async function createRun(
 /** POST `/v1/architecture/run/{runId}/execute` — run agents (Simulator in CI). */
 export async function executeRun(request: APIRequestContext, runId: string): Promise<unknown> {
   const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/execute`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/architecture/run/.../execute");
@@ -67,7 +128,7 @@ export async function executeRun(request: APIRequestContext, runId: string): Pro
 /** POST `/v1/architecture/run/{runId}/commit` — merge and persist golden manifest. */
 export async function commitRun(request: APIRequestContext, runId: string): Promise<CommitRunResponseJson> {
   const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/architecture/run/.../commit");
@@ -78,7 +139,7 @@ export async function commitRun(request: APIRequestContext, runId: string): Prom
 /** Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …). */
 export async function commitRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 }
 
@@ -92,7 +153,7 @@ export type CommitRunResponseJson = {
 /** GET `/v1/architecture/run/{runId}` — raw response (404/409 negative paths). */
 export async function getRunDetailsRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 }
 
@@ -116,7 +177,7 @@ export async function getRunDetailsWithTransientRetries(
 ): Promise<RunDetailsJson> {
   for (let attempt = 0; attempt <= maxTransientRetriesPerPoll; attempt++) {
     const res = await request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
-      headers: { Accept: "application/json" },
+      headers: liveAcceptHeaders(),
     });
     const code = res.status();
 
@@ -250,7 +311,7 @@ export async function waitForArchitectureRunListCommitted(
 /** GET `/v1/architecture/runs` — recent runs in scope (dashboard / picker). */
 export async function listArchitectureRuns(request: APIRequestContext): Promise<ArchitectureRunListItemJson[]> {
   const res = await request.get(`${liveApiBase}/v1/architecture/runs`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "GET /v1/architecture/runs");
@@ -263,13 +324,14 @@ export async function postGovernanceApproveRaw(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string | null },
+  options?: { apiKey?: string | null },
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/approve`, {
     data: {
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
     },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(options?.apiKey),
   });
 }
 
@@ -321,6 +383,7 @@ export async function approveGovernanceRequest(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string },
+  options?: { apiKey?: string | null },
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
     `${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/approve`,
@@ -329,7 +392,7 @@ export async function approveGovernanceRequest(
         reviewedBy: body.reviewedBy,
         reviewComment: body.reviewComment ?? null,
       },
-      headers: jsonHeaders,
+      headers: liveJsonHeaders(options?.apiKey),
     },
   );
 
@@ -343,6 +406,7 @@ export async function rejectGovernanceRequest(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string },
+  options?: { apiKey?: string | null },
 ): Promise<GovernanceApprovalRequestJson> {
   const res = await request.post(
     `${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/reject`,
@@ -351,7 +415,7 @@ export async function rejectGovernanceRequest(
         reviewedBy: body.reviewedBy,
         reviewComment: body.reviewComment ?? null,
       },
-      headers: jsonHeaders,
+      headers: liveJsonHeaders(options?.apiKey),
     },
   );
 
@@ -365,13 +429,14 @@ export async function postGovernanceRejectRaw(
   request: APIRequestContext,
   approvalRequestId: string,
   body: { reviewedBy: string; reviewComment?: string | null },
+  options?: { apiKey?: string | null },
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/governance/approval-requests/${approvalRequestId}/reject`, {
     data: {
       reviewedBy: body.reviewedBy,
       reviewComment: body.reviewComment ?? null,
     },
-    headers: jsonHeaders,
+    headers: liveJsonHeaders(options?.apiKey),
   });
 }
 
@@ -400,7 +465,7 @@ export async function searchAudit(
 
   const res = await request.get(`${liveApiBase}/v1/audit/search`, {
     params: query,
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "GET /v1/audit/search");
@@ -415,7 +480,7 @@ export async function listRecentAudit(
 ): Promise<AuditEventJson[]> {
   const res = await request.get(`${liveApiBase}/v1/audit`, {
     params: { take: String(Math.min(500, Math.max(1, take))) },
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "GET /v1/audit");
@@ -431,7 +496,7 @@ export type AuditEventJson = {
 /** GET `/v1/artifacts/runs/{runId}/export` — ZIP of committed run (binary). */
 export async function getRunExportZip(request: APIRequestContext, runId: string): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/artifacts/runs/${runId}/export`, {
-    headers: { Accept: "application/zip, application/octet-stream, */*" },
+    headers: liveBinaryAcceptHeaders("application/zip, application/octet-stream, */*"),
   });
 }
 
@@ -520,7 +585,7 @@ export async function getEffectivePolicyPacks(request: APIRequestContext): Promi
   packs?: { policyPackId?: string; version?: string }[];
 }> {
   const res = await request.get(`${liveApiBase}/v1/policy-packs/effective`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "GET /v1/policy-packs/effective");
@@ -536,7 +601,7 @@ export async function compareAuthorityRuns(
 ): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/authority/compare/runs`, {
     params: { leftRunId, rightRunId },
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 }
 
@@ -554,7 +619,7 @@ export async function postAdvisoryScanRaw(
 /** POST `/v1/replay/run/{runId}` — authority replay (raw for 404 skip in live E2E). */
 export async function postReplayRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/replay/run/${runId}`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 }
 
@@ -575,7 +640,7 @@ export async function getDocxArchitecturePackageExportRaw(
   runId: string,
 ): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/exports/docx/runs/${runId}/architecture-package`, {
-    headers: { Accept: "application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*" },
+    headers: liveBinaryAcceptHeaders("application/vnd.openxmlformats-officedocument.wordprocessingml.document, */*"),
   });
 }
 
@@ -601,14 +666,14 @@ export async function postAlertRuleRaw(
 /** GET `/v1/alert-rules` — list rules. */
 export async function getAlertRulesRaw(request: APIRequestContext): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/alert-rules`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 }
 
 /** GET `/v1/graph/runs/{runGuid}` — knowledge graph for run. */
 export async function getGraphForRunRaw(request: APIRequestContext, runGuidPathSegment: string): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/graph/runs/${runGuidPathSegment}`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 }
 
@@ -655,7 +720,7 @@ export async function createDigestSubscription(
 /** GET `/v1/digest-subscriptions` — list subscriptions in scope. */
 export async function listDigestSubscriptions(request: APIRequestContext): Promise<DigestSubscriptionJson[]> {
   const res = await request.get(`${liveApiBase}/v1/digest-subscriptions`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "GET /v1/digest-subscriptions");
@@ -669,7 +734,7 @@ export async function toggleDigestSubscription(
   subscriptionId: string,
 ): Promise<DigestSubscriptionJson> {
   const res = await request.post(`${liveApiBase}/v1/digest-subscriptions/${subscriptionId}/toggle`, {
-    headers: { Accept: "application/json" },
+    headers: liveAcceptHeaders(),
   });
 
   await throwIfNotOk(res, "POST /v1/digest-subscriptions/.../toggle");

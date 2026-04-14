@@ -925,6 +925,129 @@ jobs:
           path: archlucid-ui/playwright-report
           if-no-files-found: warn
 
+  ui-e2e-live-apikey:
+    name: "Operator UI: live e2e (ApiKey subset)"
+    needs: dotnet-full-regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npm ci
+          npm run build
+
+      - name: Create SQL catalog for live API e2e (ApiKey)
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eApiKey') CREATE DATABASE ArchLucidLiveE2eApiKey;"
+
+      - name: Start ArchLucid.Api (background, ApiKey auth)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eApiKey"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: ApiKey
+          Authentication__ApiKey__Enabled: "true"
+          Authentication__ApiKey__DevelopmentBypassAll: "false"
+          Authentication__ApiKey__AdminKey: "e2e-admin-key-ci"
+          Authentication__ApiKey__ReadOnlyKey: "e2e-readonly-key-ci"
+          AgentExecution__Mode: Simulator
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-apikey.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-apikey.pid"
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:5128/health/ready; then
+              echo "API ready (ApiKey mode)."
+              exit 0
+            fi
+            if [ "$i" -eq 90 ]; then
+              echo "::error::API (ApiKey) did not reach /health/ready in time"
+              tail -n 200 "${RUNNER_TEMP}/live-api-apikey.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Install Playwright browsers & run live e2e (ApiKey subset)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_API_KEY: e2e-admin-key-ci
+          LIVE_API_KEY_READONLY: e2e-readonly-key-ci
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          NODE_OPTIONS: --max-old-space-size=6144
+        run: |
+          npx playwright install --with-deps chromium
+          curl -fsS http://127.0.0.1:5128/health/ready
+          npx playwright test -c playwright.live.config.ts \
+            live-api-apikey-auth.spec.ts \
+            live-api-journey.spec.ts \
+            live-api-negative-paths.spec.ts
+
+      - name: Upload live API log (ApiKey)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-apikey-api-log
+          path: ${{ runner.temp }}/live-api-apikey.log
+          if-no-files-found: warn
+
+      - name: Upload Playwright report (ApiKey)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ui-e2e-live-apikey-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
   # k6 read-only API smoke. Gating — failures block merge (rate limits relaxed for this job).
   k6-smoke-api:
     name: "Performance: k6 smoke (API baseline)"

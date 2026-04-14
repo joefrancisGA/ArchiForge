@@ -137,8 +137,10 @@
   - `docs/TEST_STRUCTURE.md`
 - **Test execution model (54R)** – Core / Fast core / Integration / SQL / Full regression, scripts, CI  
   - `docs/TEST_EXECUTION_MODEL.md`
-- **Live API + SQL Playwright happy path** (`ui-e2e-live`)  
-  - `docs/LIVE_E2E_HAPPY_PATH.md`
+- **Live API + SQL Playwright** (`ui-e2e-live`, `ui-e2e-live-apikey`, nightly `live-e2e-nightly.yml`)  
+  - `docs/LIVE_E2E_HAPPY_PATH.md`  
+  - `docs/LIVE_E2E_AUTH_ASSUMPTIONS.md` (DevelopmentBypass vs ApiKey assumptions)  
+  - `docs/LIVE_E2E_AUTH_PARITY.md` (CI matrix + roadmap)
 - **Formatting** – repo conventions  
   - `docs/FORMATTING.md`
 - **Method documentation** – XML doc expectations  

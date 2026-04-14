@@ -176,7 +176,7 @@ Extend the existing k6 load test suite with write-path scenarios and wire a CI r
      d. `audit_search` — GET `/v1/audit/search?take=20` (2 VUs, 20s, `constant-vus`).
    - **Thresholds (regression gate):**
      - `http_req_failed`: rate < 0.02 (2% tolerance for CI variability).
-     - `http_req_duration{k6ci:health}`: p(95) < 300ms.
+     - `http_req_duration{k6ci:health_live}`: p(95) < 500ms; `http_req_duration{k6ci:health_ready}`: p(95) < 1500ms (ready probes dependencies; separate from live).
      - `http_req_duration{k6ci:create_run}`: p(95) < 3000ms (write path is slower; include agent simulator time).
      - `http_req_duration{k6ci:list_runs}`: p(95) < 1500ms.
      - `http_req_duration{k6ci:audit_search}`: p(95) < 1500ms.

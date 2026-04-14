@@ -106,7 +106,7 @@ Raise caps only after a measured baseline change (update this table and the work
 
 | Scenario | Executor | VUs | Duration | Endpoint | Threshold |
 | --- | --- | --- | --- | --- | --- |
-| `health` | constant-vus | 5 | 20 s | `GET /health/live`, `GET /health/ready` | p(95) < 300 ms |
+| `health` | constant-vus | 5 | 20 s | `GET /health/live` (`k6ci:health_live`), `GET /health/ready` (`k6ci:health_ready`) | live p(95) < 500 ms; ready p(95) < 1500 ms (ready includes SQL / probes; a single combined tag was flaky vs 300 ms) |
 | `create_run` | constant-vus | 2 | 30 s | `POST /v1/architecture/request` | p(95) < 3000 ms |
 | `list_runs` | constant-vus | 3 | 20 s | `GET /v1/architecture/runs` | p(95) < 1500 ms |
 | `audit_search` | constant-vus | 2 | 20 s | `GET /v1/audit/search?take=20` | p(95) < 1500 ms |

@@ -11,15 +11,13 @@ import {
   executeRun,
   getRunDetailsRaw,
   liveApiBase,
+  liveAuthActorName,
   postArchitectureRequestRaw,
   postGovernanceApproveRaw,
   searchAudit,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
 } from "./helpers/live-api-client";
-
-/** Matches `ArchLucidAuth:DevUserName` in DevelopmentBypass — same actor used when submitting governance. */
-const developmentBypassActorName = "Developer";
 
 function readProblemType(body: unknown): string {
   if (typeof body !== "object" || body === null) {
@@ -43,7 +41,7 @@ test.describe("live-api-negative-paths", () => {
     }
   });
 
-  test("governance self-approval blocked: submit as Developer then approve as same actor → 400 + audit", async ({
+  test("governance self-approval blocked: submit then approve as same actor → 400 + audit", async ({
     request,
   }) => {
     test.setTimeout(180_000);
@@ -89,7 +87,7 @@ test.describe("live-api-negative-paths", () => {
     }
 
     const selfApprove = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: developmentBypassActorName,
+      reviewedBy: liveAuthActorName,
       reviewComment: "same actor as submitter — must fail",
     });
 

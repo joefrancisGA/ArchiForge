@@ -11,11 +11,11 @@
 
 | # | Quality | Weight | Score | Weighted Score | Weighted Gap | Verdict |
 |---|---------|--------|-------|----------------|--------------|---------|
-| 1 | Correctness | 8 | 73 | 584 | 216 | Strong test infra; full live `live-api-*.spec.ts` CI suite; rename risk remains |
+| 1 | Correctness | 8 | 75 | 600 | 200 | Strong test infra; live suite + ApiKey CI/nightly; JWT live gap; rename risk remains |
 | 2 | Explainability | 6 | 72 | 432 | 168 | Trace completeness analyzer strong; LLM-dependent, forensics weak |
 | 3 | Evolvability | 6 | 73 | 438 | 162 | Config gates and ADRs solid; rename debt and deferred Terraform |
 | 4 | Traceability | 7 | 77 | 539 | 161 | Excellent OTel + correlation; UI trace visualization limited |
-| 5 | Security | 6 | 74 | 444 | 156 | Defense in depth present; RLS gaps and static API keys |
+| 5 | Security | 6 | 76 | 456 | 144 | Defense in depth; API key reload + live ApiKey E2E; RLS gaps and static-key blast radius remain |
 | 6 | Reliability | 5 | 70 | 350 | 150 | Resilience primitives in place; no systemic proof under load |
 | 7 | Architectural Integrity | 7 | 79 | 553 | 147 | NetArchTest-enforced layering; dual namespace and large controller |
 | 8 | Usability | 4 | 64 | 256 | 144 | Functional operator shell; UX polish and feedback gaps |
@@ -38,7 +38,7 @@
 | 25 | Accessibility | 1 | 57 | 57 | 43 | Axe gates on 5 of ~25 routes; most UI unverified |
 | 26 | Extensibility | 1 | 75 | 75 | 25 | Finding engine template; no plugin runtime |
 | 27 | Documentation | 1 | 87 | 87 | 13 | 187 markdown files; exceptional breadth |
-| | **Totals** | **107** | | **7,543** | **2,757** | **Weighted average: 70.5 / 100** |
+| | **Totals** | **107** | | **7,571** | **2,729** | **Weighted average: 70.8 / 100** |
 
 ---
 
@@ -46,18 +46,18 @@
 
 ---
 
-### 1. Correctness -- Score: 73 / 100 (weight 8, weighted gap 216)
+### 1. Correctness -- Score: 75 / 100 (weight 8, weighted gap 200)
 
 **What it means:** The system produces correct results under documented conditions and its behavior matches its specification.
 
 **Justification:**
 
-- **Strengths:** 18 .NET test projects with 795 test files yield an approximate 1:2.1 test-to-source ratio. Tiered CI (Tier 0-4) with gitleaks, fast core, full regression + SQL, Simmy chaos (blocking), UI unit + E2E. Stryker mutation testing across 5 configurations at a 70% break threshold and 65% baseline score. OpenAPI contract snapshot tests catch schema drift at merge time. SQL Server container integration tests validate Dapper queries against real schema. Architecture constraint tests (15 NetArchTest facts) prevent structural regressions. `WebApplicationFactory`-based integration tests exercise the full HTTP pipeline. Live API E2E (`ui-e2e-live`, **`timeout-minutes: 35`**) runs **`playwright.live.config.ts`** with **`testMatch: ["live-api-*.spec.ts"]`**: happy path, conflict journey, governance rejection, error-state UI, negative API paths (self-approval, run-not-found, invalid create), advisory/replay/analysis/policy/compare flows, alert rules, search/graph/ask pages, digest subscriptions + toggle, parallel commit + parallel governance approve, and archival list smoke (see **`docs/LIVE_E2E_HAPPY_PATH.md`**).
-- **Weaknesses:** Default **`ui-e2e-smoke`** Playwright specs remain **mock-backed**; only the **`live-api-*.spec.ts`** files prove API + SQL + UI together. The product rename (phases 1-7) touched over 2,200 C# source files; while CI guards exist (rename grep, architecture constraints), the combinatorial risk of subtle config/namespace behavioral changes is non-trivial. Stryker baseline of 65.0 per module means roughly 35% of mutations survive -- mutants in domain logic (`Decisioning`, `Application`) are particularly consequential. No property-based testing (FsCheck or similar) for domain invariants. Run archival is not HTTP-triggered in live E2E (worker-only); digest webhook dry-run is skipped.
+- **Strengths:** 18 .NET test projects with 795 test files yield an approximate 1:2.1 test-to-source ratio. Tiered CI (Tier 0-4) with gitleaks, fast core, full regression + SQL, Simmy chaos (blocking), UI unit + E2E. Stryker mutation testing across 5 configurations at a 70% break threshold and 65% baseline score. OpenAPI contract snapshot tests catch schema drift at merge time. SQL Server container integration tests validate Dapper queries against real schema. Architecture constraint tests (15 NetArchTest facts) prevent structural regressions. `WebApplicationFactory`-based integration tests exercise the full HTTP pipeline. Live API E2E (`ui-e2e-live`, **`timeout-minutes: 35`**) runs **`playwright.live.config.ts`** with **`testMatch: ["live-api-*.spec.ts"]`**: happy path, conflict journey, governance rejection, error-state UI, negative API paths (self-approval, run-not-found, invalid create), advisory/replay/analysis/policy/compare flows, alert rules, search/graph/ask pages, digest subscriptions + toggle, parallel commit + parallel governance approve, and archival list smoke (see **`docs/LIVE_E2E_HAPPY_PATH.md`**). **ApiKey-shaped production auth** is now merge-gated via **`ui-e2e-live-apikey`** (subset + **`live-api-apikey-auth.spec.ts`**) and exercised nightly on the **full** live suite under both DevelopmentBypass and ApiKey (**`live-e2e-nightly.yml`**); matrix and assumptions are in **`docs/LIVE_E2E_AUTH_PARITY.md`** and **`docs/LIVE_E2E_AUTH_ASSUMPTIONS.md`**.
+- **Weaknesses:** Default **`ui-e2e-smoke`** Playwright specs remain **mock-backed**; only the **`live-api-*.spec.ts`** files prove API + SQL + UI together. **JWT / Entra** live E2E parity is still **not** covered — PR **`ui-e2e-live`** and most live specs remain **DevelopmentBypass**-oriented; ApiKey closes one production-relevant slice but not interactive OIDC. The product rename (phases 1-7) touched over 2,200 C# source files; while CI guards exist (rename grep, architecture constraints), the combinatorial risk of subtle config/namespace behavioral changes is non-trivial. Stryker baseline of 65.0 per module means roughly 35% of mutations survive -- mutants in domain logic (`Decisioning`, `Application`) are particularly consequential. No property-based testing (FsCheck or similar) for domain invariants. Run archival is not HTTP-triggered in live E2E (worker-only); digest webhook dry-run is skipped.
 - **Trade-off:** Mock-backed UI E2E provides speed and determinism at the cost of integration confidence; the expanded live suite increases CI time and flakiness surface but materially raises confidence on critical paths.
 
 **Improvements:**
-1. Add staging-only or feature-flagged coverage for **Entra / API-key** auth paths (live E2E today assumes DevelopmentBypass + Simulator).
+1. Add staging-only or feature-flagged live E2E for **JWT / Entra** (interactive OIDC); **ApiKey** paths are already covered in merge-blocking CI (**`ui-e2e-live-apikey`**) and nightly ApiKey legs (**`live-e2e-nightly.yml`** — see **`docs/LIVE_E2E_AUTH_PARITY.md`**). PR **`ui-e2e-live`** remains DevelopmentBypass + Simulator for the broad suite.
 2. Raise Stryker break thresholds to 80% for `Decisioning` and `Application` -- these are the highest-consequence domain assemblies.
 3. Introduce property-based testing for manifest merge, governance resolution, and findings engine output invariants.
 
@@ -114,18 +114,18 @@
 
 ---
 
-### 5. Security -- Score: 74 / 100 (weight 6, weighted gap 156)
+### 5. Security -- Score: 76 / 100 (weight 6, weighted gap 144)
 
 **What it means:** The system protects data confidentiality, integrity, and availability against anticipated threats.
 
 **Justification:**
 
 - **Strengths:** Three auth modes (DevelopmentBypass with non-production guardrail, JwtBearer/Entra, ApiKey) with role-based authorization policies (`CanCommitRuns`, `CanSeedResults`, etc.). SQL RLS via `SESSION_CONTEXT` (defense in depth, opt-in per `SqlServer:RowLevelSecurity:ApplySessionContext`). Private endpoint Terraform modules. Gitleaks secret scan in CI (Tier 0, merge-blocking). CodeQL analysis (separate workflow). Trivy image scan and Terraform config scan for misconfigurations (HIGH/CRITICAL, exit-code 1). OWASP ZAP baseline (CI + weekly schedule, warnings = failure). Schemathesis API fuzz testing (scheduled). `LogSanitizer` for CWE-117 log injection. `DENY UPDATE/DELETE` on `dbo.AuditEvents` (migration 051). HMAC-SHA256 signed webhook delivery. Production configuration safety rules (`ArchLucidConfigurationRules.CollectProductionSafetyErrors` -- no wildcard CORS, HMAC required for webhooks). STRIDE threat model (system-wide + Ask/RAG-specific). CycloneDX SBOM generation.
-- **Weaknesses:** API key auth uses **static shared secrets** -- no rotation without restart (pending `IOptionsMonitor` for API key hot-reload). No documented secret rotation runbook for API keys (Key Vault secret rotation runbook exists for certs but not API keys). RLS covers **selected tables only** -- child tables without denormalized scope columns rely solely on application-layer enforcement. `DevelopmentBypass` guards depend on `ASPNETCORE_ENVIRONMENT` being correctly set -- a misconfigured production deploy could bypass auth entirely. No penetration test results referenced in the repository. No CSP (Content-Security-Policy) headers documented for the Next.js UI. Prompt injection risk acknowledged in threat model but prompt redaction is still a backlog item.
-- **Trade-off:** RLS adds per-connection latency (`SESSION_CONTEXT` set on each open) and partial coverage means some cross-tenant queries on uncovered tables rely on code correctness alone. Static API keys are simpler to implement but create a rotation blind spot.
+- **Weaknesses:** API key auth still relies on **static shared secrets** with a non-zero **blast radius** (comma-separated dual-key overlap during rotation increases exposure if config leaks). **`IOptionsMonitor<ApiKeyAuthenticationOptions>`** and the rotation procedure in **`docs/runbooks/API_KEY_ROTATION.md`** remove the *restart* requirement for well-behaved hosts, but operational proof (scheduled drills, monitoring of 401 rates during cutover) is not evidenced in-repo. RLS covers **selected tables only** -- child tables without denormalized scope columns rely solely on application-layer enforcement. `DevelopmentBypass` guards depend on `ASPNETCORE_ENVIRONMENT` being correctly set -- a misconfigured production deploy could bypass auth entirely. No penetration test results referenced in the repository. No CSP (Content-Security-Policy) headers documented for the Next.js UI. Prompt injection risk acknowledged in threat model but prompt redaction is still a backlog item.
+- **Trade-off:** RLS adds per-connection latency (`SESSION_CONTEXT` set on each open) and partial coverage means some cross-tenant queries on uncovered tables rely on code correctness alone. Static API keys are simpler to implement than workload identity for every automation client, but require disciplined rotation and secret hygiene.
 
 **Improvements:**
-1. Implement `IOptionsMonitor` for API key hot-reload and document a secret rotation runbook so API key rotation does not require a restart.
+1. **`IOptionsMonitor` for API key reload** is **implemented** (see **`docs/runbooks/API_KEY_ROTATION.md`**). **Remaining:** time-bounded rotation **drills** and telemetry review during overlap windows. **Live E2E** now exercises ApiKey auth (**`ui-e2e-live-apikey`**, nightly **`live-e2e-nightly.yml`**) — see **`docs/LIVE_E2E_AUTH_PARITY.md`**.
 2. Extend RLS to all tables carrying tenant scope columns, or document the explicit exclusion list with a signed-off risk acceptance.
 3. Add Content-Security-Policy headers to the Next.js UI and enforce them in CI (e.g., a Playwright test that verifies CSP response headers).
 
@@ -500,7 +500,7 @@
 
 | Priority | Improvement | Primary Qualities Improved (weights) | Rationale |
 |----------|-------------|---------------------------------------|-----------|
-| **1** | **Production-like live gates:** Run a subset of **`live-api-*.spec.ts`** (or new specs) against **API key / JWT** auth and document any DevelopmentBypass-only assertions; optionally tier **full** live suite to nightly if PR duration grows. | Correctness (8), Security (6), Reliability (5) | The live suite now covers many paths under DevelopmentBypass + Simulator; remaining risk is behavioral drift vs real auth and real LLM. **Estimated weighted impact: ~25 points.** |
+| **1** ✅ | **Production-like live gates** *(implemented 2026-04-14)*: merge-blocking **`ui-e2e-live-apikey`** + **`live-api-apikey-auth.spec.ts`** + nightly **`live-e2e-nightly.yml`** (full **`live-api-*.spec.ts`** × DevelopmentBypass + ApiKey). **JWT / Entra** live E2E + real-LLM stress still open. See **`docs/LIVE_E2E_AUTH_PARITY.md`**. | Correctness (8), Security (6), Reliability (5) | ApiKey production-shape is now continuously tested; JWT and load/soak evidence remain gaps. **Estimated weighted impact: ~25 points** (partially realized; remainder tracks JWT + reliability). |
 | **2** | **Persist mandatory forensic prompt snapshots and build an agent output evaluation harness:** Store exact prompt text, model version, and raw response as a non-optional part of `AgentExecutionTrace`. Build a scoring harness that compares actual agent outputs against reference inputs with a rubric, tracking quality scores over time. | Explainability (6), AI/Agent Readiness (4), Traceability (7), Auditability (5) | Four high-weight dimensions benefit simultaneously. Without forensic prompt snapshots, agent outputs are not reproducible -- a critical gap for compliance, debugging, and quality regression detection. The evaluation harness enables data-driven prompt engineering instead of ad-hoc manual review. **Estimated weighted impact: ~35 points.** |
 | **3** | **Run and publish a load-test baseline with CI regression gate:** Use k6 or similar to establish throughput and p95 latency baselines for the 5 most critical endpoints. Add a CI smoke test with p95 assertions. | Performance (2), Reliability (5), Scalability (3), Correctness (8) | Unknown throughput limits are a risk multiplier. Even a 60-second smoke test with 10 virtual users would establish whether the system can serve its documented operator path under minimal concurrency. Prevents performance regressions from landing undetected. **Estimated weighted impact: ~30 points.** |
 | **4** | **Close audit coverage gaps and wire audit search UI:** Promote baseline mutation audit to durable SQL for high-severity events. Wire the existing `GET /v1/audit/search` API filters and capabilities into the operator UI audit page. | Auditability (5), Policy & Governance (5), Security (6), Usability (4) | The product acknowledges audit gaps; closing them for governance and export paths directly supports compliance pilots. The API already supports full search/filter -- the operator UI just needs wiring. This is high-leverage incremental work. **Estimated weighted impact: ~28 points.** |
@@ -517,4 +517,23 @@
 - UI assessment is based on source code structure, component inventory (164 TSX files), and documentation -- not live user testing.
 - This assessment is independent of the April 12 assessment in `QUALITY_ASSESSMENT.md`. Score differences reflect updated evidence and independent judgment, not disagreement with methodology.
 
-**Overall weighted average: 70.5 / 100** -- a solid V1-stage product with exceptional documentation and observability, strong architectural guardrails, and a **broad merge-blocking live Playwright suite** (`live-api-*.spec.ts`). Remaining gaps include **auth-parity live coverage**, **AI forensics**, **performance baselines**, and **operational proof under load**. The most impactful improvements are now **production-like live gates**, **mandatory prompt forensics**, and a **load-test baseline**.
+**Overall weighted average: 70.8 / 100** -- a solid V1-stage product with exceptional documentation and observability, strong architectural guardrails, and a **broad merge-blocking live Playwright suite** (`live-api-*.spec.ts`) **plus** an **ApiKey-configured** CI gate and **nightly** auth-mode matrix (see **`docs/LIVE_E2E_AUTH_PARITY.md`**). Remaining gaps include **JWT/Entra live parity**, **AI forensics**, **performance baselines**, and **operational proof under load**. The most impactful *remaining* improvements are **JWT live gates**, **mandatory prompt forensics**, and a **load-test baseline**.
+
+---
+
+## Addendum (2026-04-14 — production-like live gates + score revision)
+
+### A. Delivery summary (top-six item 1)
+
+PR CI includes **`ui-e2e-live-apikey`** (ApiKey-configured API + Playwright subset + **`live-api-apikey-auth.spec.ts`**) alongside **`ui-e2e-live`** (DevelopmentBypass, full suite). Helpers inject **`X-Api-Key`** when **`LIVE_API_KEY`** is set; **`liveAuthActorName`** aligns governance tests with **Developer** vs **ApiKeyAdmin**. **Nightly** **[`live-e2e-nightly.yml`](../.github/workflows/live-e2e-nightly.yml)** runs the **full** live suite under **both** auth modes (forks skipped). Documentation: **`docs/LIVE_E2E_AUTH_ASSUMPTIONS.md`**, **`docs/LIVE_E2E_AUTH_PARITY.md`**. **JWT/Entra** live E2E remains **future work**.
+
+### B. Score adjustment rationale (not silent)
+
+The **original** scores in the first pass of this document (same calendar day) were **Correctness 73**, **Security 74**. After recording **merge-blocking ApiKey live E2E**, **nightly dual-mode** coverage, and aligning the Security narrative with **existing** **`IOptionsMonitor`** API key reload (**`docs/runbooks/API_KEY_ROTATION.md`**), the assessment is revised as follows:
+
+| Dimension | Prior | Revised | Delta | Rationale |
+|-----------|-------|---------|-------|-----------|
+| **Correctness** | 73 | **75** | +2 | Reduces undetected drift between “works in DevelopmentBypass CI” and **ApiKey** production configuration; negative-path checks (401/403) and governance actor alignment are continuously exercised. **Not** bumped further: JWT/Entra live parity is still absent; rename combinatorics and Stryker baselines unchanged. |
+| **Security** | 74 | **76** | +2 | Hot-reload and documented API key rotation were under-credited in the initial weakness text; live E2E adds regression signal on auth enforcement. **Not** bumped +3: static shared secrets, partial RLS, no CSP, and no pen-test evidence remain material. |
+
+**Recomputed totals:** weighted score sum **7,571** (was **7,543**), weighted gap sum **2,729** (was **2,757**), **weighted average 70.8 / 100** (was **70.5**). Section headers and the summary table above reflect the **revised** scores; this addendum documents **why** they changed.

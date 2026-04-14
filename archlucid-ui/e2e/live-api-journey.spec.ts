@@ -16,17 +16,14 @@ import {
   getRunExportZip,
   listArchitectureRuns,
   liveApiBase,
+  liveAuthActorName,
+  livePeerReviewerActorName,
   waitForArchitectureRunListCommitted,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
   postGovernanceApproveRaw,
   searchAudit,
 } from "./helpers/live-api-client";
-
-const peerReviewerActor = "e2e-peer-reviewer";
-
-/** Matches default `ArchLucidAuth:DevUserName` in DevelopmentBypass (submitter for governance requests). */
-const developmentBypassActorName = "Developer";
 
 const liveE2eForensics: { runId?: string; approvalRequestId?: string; auditCorrelationId?: string } = {};
 
@@ -148,7 +145,7 @@ test.describe("live-api-journey", () => {
     test.info().annotations.push({ type: "e2e-approval-request-id", description: approvalRequestId });
 
     const selfApprovalRes = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: developmentBypassActorName,
+      reviewedBy: liveAuthActorName,
       reviewComment: "should be blocked (same as submitter)",
     });
 
@@ -156,14 +153,14 @@ test.describe("live-api-journey", () => {
     expect.soft(selfApprovalRes.status()).toBe(400);
 
     const approved = await approveGovernanceRequest(request, approvalRequestId, {
-      reviewedBy: peerReviewerActor,
+      reviewedBy: livePeerReviewerActorName,
       reviewComment: "E2E test auto-approve",
     });
 
     expect(approved.status).toBe("Approved");
 
     const duplicateApprove = await postGovernanceApproveRaw(request, approvalRequestId, {
-      reviewedBy: peerReviewerActor,
+      reviewedBy: livePeerReviewerActorName,
       reviewComment: "second approve should fail",
     });
 

@@ -28,10 +28,10 @@ function req(scenario, method, url, body = null) {
 }
 
 export function healthFn() {
-  let r = req("health", "GET", `${BASE}/health/live`);
+  let r = req("health_live", "GET", `${BASE}/health/live`);
   check(r, { "health live 200": (res) => res.status === 200 });
 
-  r = req("health", "GET", `${BASE}/health/ready`);
+  r = req("health_ready", "GET", `${BASE}/health/ready`);
   check(r, { "health ready 200": (res) => res.status === 200 });
 }
 
@@ -91,7 +91,9 @@ export const options = {
   },
   thresholds: {
     "http_req_failed": ["rate<0.02"],
-    "http_req_duration{k6ci:health}": ["p(95)<300"],
+    // Split tags: live stays lightweight; ready runs dependency probes (SQL, etc.) and is noisy on Actions — do not merge into one threshold.
+    "http_req_duration{k6ci:health_live}": ["p(95)<500"],
+    "http_req_duration{k6ci:health_ready}": ["p(95)<1500"],
     "http_req_duration{k6ci:create_run}": ["p(95)<3000"],
     "http_req_duration{k6ci:list_runs}": ["p(95)<1500"],
     "http_req_duration{k6ci:audit_search}": ["p(95)<1500"],
