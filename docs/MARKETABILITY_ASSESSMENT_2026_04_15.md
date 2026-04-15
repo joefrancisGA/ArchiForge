@@ -4,7 +4,7 @@
 
 This is a **marketability** assessment — not a technical quality assessment (see `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`, 68.5%). Marketability measures whether the solution can attract buyers, win competitive evaluations, retain customers, and grow revenue in the enterprise architecture tooling market.
 
-**SaaS-only variant (no self-hosted path):** `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` — rebalance weights toward platform, trust, and commercial rails; weighted **~37.6%** under that assumption (post-Trust Center).
+**SaaS-only variant (no self-hosted path):** `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` — rebalance weights toward platform, trust, and commercial rails; weighted **~46.1%** under that assumption (post-Imp 1–6, up from 37.6% post-Trust Center).
 
 **Prior versions:** `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` (post-M2, 39.9%), `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` (post-M1, 37.6%).
 

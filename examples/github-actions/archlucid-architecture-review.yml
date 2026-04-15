@@ -1,0 +1,143 @@
+# ArchLucid Architecture Review — GitHub Actions
+# Triggers an ArchLucid architecture run on PR and posts findings as a comment.
+# See docs/integrations/CICD_INTEGRATION.md for setup instructions.
+
+name: ArchLucid Architecture Review
+
+on:
+  pull_request:
+    paths:
+      # Trigger on architecture-related file changes — customize for your repo
+      - 'docs/architecture/**'
+      - '**/*.dsl'
+      - '**/*.archimate'
+      - 'infra/**/*.tf'
+
+# Prevent concurrent reviews for the same PR
+concurrency:
+  group: archlucid-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_API_URL }}
+  ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+  # Findings at or above this severity fail the check (Low, Medium, High, Critical)
+  SEVERITY_THRESHOLD: 'High'
+
+jobs:
+  architecture-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Gather architecture context
+        id: context
+        run: |
+          # Collect changed architecture files as context for the run.
+          # Customize this to match your context ingestion format.
+          CHANGED_FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | head -50)
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create ArchLucid run
+        id: create-run
+        run: |
+          RESPONSE=$(curl -sf -X POST "${ARCHLUCID_API_URL}/v1/architecture/request" \
+            -H "Content-Type: application/json" \
+            -H "X-Api-Key: ${ARCHLUCID_API_KEY}" \
+            -H "X-Correlation-ID: gh-pr-${{ github.event.pull_request.number }}" \
+            -d '{
+              "description": "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}",
+              "presetName": "Greenfield web app"
+            }')
+          RUN_ID=$(echo "$RESPONSE" | jq -r '.runId')
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Created ArchLucid run: $RUN_ID"
+
+      - name: Poll for run completion
+        id: poll
+        run: |
+          MAX_WAIT=300  # 5 minutes max
+          INTERVAL=10
+          ELAPSED=0
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            STATUS=$(curl -sf "${ARCHLUCID_API_URL}/v1/runs/${{ steps.create-run.outputs.run_id }}" \
+              -H "X-Api-Key: ${ARCHLUCID_API_KEY}" | jq -r '.status')
+            echo "Run status: $STATUS (${ELAPSED}s elapsed)"
+            if [ "$STATUS" = "Completed" ] || [ "$STATUS" = "Failed" ]; then
+              echo "status=$STATUS" >> "$GITHUB_OUTPUT"
+              break
+            fi
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          if [ $ELAPSED -ge $MAX_WAIT ]; then
+            echo "status=Timeout" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch findings
+        if: steps.poll.outputs.status == 'Completed'
+        id: findings
+        run: |
+          FINDINGS=$(curl -sf "${ARCHLUCID_API_URL}/v1/runs/${{ steps.create-run.outputs.run_id }}/findings" \
+            -H "X-Api-Key: ${ARCHLUCID_API_KEY}")
+          echo "$FINDINGS" > findings.json
+          TOTAL=$(echo "$FINDINGS" | jq 'length')
+          HIGH_PLUS=$(echo "$FINDINGS" | jq '[.[] | select(.severity == "High" or .severity == "Critical")] | length')
+          echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "high_plus=$HIGH_PLUS" >> "$GITHUB_OUTPUT"
+
+      - name: Post findings as PR comment
+        if: steps.poll.outputs.status == 'Completed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const findings = JSON.parse(fs.readFileSync('findings.json', 'utf8'));
+            const total = findings.length;
+            const threshold = '${{ env.SEVERITY_THRESHOLD }}';
+            const highPlus = findings.filter(f =>
+              f.severity === 'High' || f.severity === 'Critical').length;
+
+            let body = `## ArchLucid Architecture Review\n\n`;
+            body += `**Run ID:** \`${{ steps.create-run.outputs.run_id }}\`\n`;
+            body += `**Findings:** ${total} total, ${highPlus} at High/Critical severity\n\n`;
+
+            if (total > 0) {
+              body += `| # | Severity | Engine | Summary |\n`;
+              body += `|---|----------|--------|---------|\n`;
+              findings.slice(0, 20).forEach((f, i) => {
+                body += `| ${i+1} | ${f.severity} | ${f.engineType || 'N/A'} | ${f.summary || ''} |\n`;
+              });
+              if (total > 20) body += `\n_...and ${total - 20} more findings._\n`;
+            } else {
+              body += `No findings produced.\n`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ github.event.pull_request.number }},
+              body: body
+            });
+
+      - name: Fail if findings exceed threshold
+        if: steps.poll.outputs.status == 'Completed'
+        run: |
+          HIGH_PLUS=${{ steps.findings.outputs.high_plus }}
+          if [ "$HIGH_PLUS" -gt 0 ]; then
+            echo "::error::ArchLucid found $HIGH_PLUS findings at High/Critical severity."
+            exit 1
+          fi
+          echo "All findings below severity threshold. Check passed."
+
+      - name: Handle non-completion
+        if: steps.poll.outputs.status != 'Completed'
+        run: |
+          echo "::warning::ArchLucid run did not complete (status: ${{ steps.poll.outputs.status }}). Review manually."

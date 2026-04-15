@@ -1,0 +1,99 @@
+# ArchLucid Architecture Review — Azure DevOps Pipeline
+# Triggers an ArchLucid architecture run and reports findings.
+# See docs/integrations/CICD_INTEGRATION.md for setup instructions.
+
+trigger: none
+
+pr:
+  paths:
+    include:
+      # Trigger on architecture-related file changes — customize for your repo
+      - docs/architecture/*
+      - '**/*.dsl'
+      - '**/*.archimate'
+      - infra/**/*.tf
+
+variables:
+  - name: ARCHLUCID_API_URL
+    value: $(ArchLucidApiUrl)      # Set as pipeline variable (secret recommended)
+  - name: ARCHLUCID_API_KEY
+    value: $(ArchLucidApiKey)      # Set as secret pipeline variable
+  - name: SEVERITY_THRESHOLD
+    value: 'High'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - checkout: self
+
+  - script: |
+      RESPONSE=$(curl -sf -X POST "${ARCHLUCID_API_URL}/v1/architecture/request" \
+        -H "Content-Type: application/json" \
+        -H "X-Api-Key: ${ARCHLUCID_API_KEY}" \
+        -H "X-Correlation-ID: ado-pr-$(System.PullRequest.PullRequestNumber)" \
+        -d '{
+          "description": "PR #$(System.PullRequest.PullRequestNumber): $(System.PullRequest.SourceBranch)",
+          "presetName": "Greenfield web app"
+        }')
+      RUN_ID=$(echo "$RESPONSE" | jq -r '.runId')
+      echo "##vso[task.setvariable variable=RunId]$RUN_ID"
+      echo "Created ArchLucid run: $RUN_ID"
+    displayName: 'Create ArchLucid run'
+    env:
+      ARCHLUCID_API_KEY: $(ArchLucidApiKey)
+
+  - script: |
+      MAX_WAIT=300
+      INTERVAL=10
+      ELAPSED=0
+      while [ $ELAPSED -lt $MAX_WAIT ]; do
+        STATUS=$(curl -sf "${ARCHLUCID_API_URL}/v1/runs/${RUNID}" \
+          -H "X-Api-Key: ${ARCHLUCID_API_KEY}" | jq -r '.status')
+        echo "Run status: $STATUS (${ELAPSED}s elapsed)"
+        if [ "$STATUS" = "Completed" ] || [ "$STATUS" = "Failed" ]; then
+          echo "##vso[task.setvariable variable=RunStatus]$STATUS"
+          break
+        fi
+        sleep $INTERVAL
+        ELAPSED=$((ELAPSED + INTERVAL))
+      done
+      if [ $ELAPSED -ge $MAX_WAIT ]; then
+        echo "##vso[task.setvariable variable=RunStatus]Timeout"
+      fi
+    displayName: 'Poll for run completion'
+    env:
+      RUNID: $(RunId)
+      ARCHLUCID_API_KEY: $(ArchLucidApiKey)
+
+  - script: |
+      FINDINGS=$(curl -sf "${ARCHLUCID_API_URL}/v1/runs/${RUNID}/findings" \
+        -H "X-Api-Key: ${ARCHLUCID_API_KEY}")
+      echo "$FINDINGS" > $(Build.ArtifactStagingDirectory)/findings.json
+      TOTAL=$(echo "$FINDINGS" | jq 'length')
+      HIGH_PLUS=$(echo "$FINDINGS" | jq '[.[] | select(.severity == "High" or .severity == "Critical")] | length')
+      echo "##vso[task.setvariable variable=TotalFindings]$TOTAL"
+      echo "##vso[task.setvariable variable=HighPlusFindings]$HIGH_PLUS"
+      echo "Total findings: $TOTAL, High/Critical: $HIGH_PLUS"
+    displayName: 'Fetch findings'
+    condition: eq(variables['RunStatus'], 'Completed')
+    env:
+      RUNID: $(RunId)
+      ARCHLUCID_API_KEY: $(ArchLucidApiKey)
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish findings artifact'
+    condition: eq(variables['RunStatus'], 'Completed')
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/findings.json'
+      ArtifactName: 'archlucid-findings'
+
+  - script: |
+      HIGH_PLUS=$(HighPlusFindings)
+      if [ "$HIGH_PLUS" -gt 0 ]; then
+        echo "##vso[task.logissue type=error]ArchLucid found $HIGH_PLUS findings at High/Critical severity."
+        exit 1
+      fi
+      echo "All findings below severity threshold. Check passed."
+    displayName: 'Evaluate severity threshold'
+    condition: eq(variables['RunStatus'], 'Completed')
