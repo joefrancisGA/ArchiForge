@@ -240,6 +240,110 @@
         }
       }
     },
+    "/v1/admin/diagnostics/data-consistency/orphan-golden-manifests": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "dryRun",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "maxRows",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanGoldenManifestRemediationResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanGoldenManifestRemediationResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanGoldenManifestRemediationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/diagnostics/data-consistency/orphan-findings-snapshots": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "dryRun",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "maxRows",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanFindingsSnapshotRemediationResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanFindingsSnapshotRemediationResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanFindingsSnapshotRemediationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/admin/runs/archive-batch": {
       "post": {
         "tags": [
@@ -23767,6 +23871,52 @@
             "format": "int32"
           },
           "comparisonRecordIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OrphanFindingsSnapshotRemediationResult": {
+        "required": [
+          "dryRun",
+          "rowCount",
+          "findingsSnapshotIds"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "rowCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "findingsSnapshotIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OrphanGoldenManifestRemediationResult": {
+        "required": [
+          "dryRun",
+          "rowCount",
+          "manifestIds"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "rowCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "manifestIds": {
             "type": "array",
             "items": {
               "type": "string"

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "datasets": [
+    {
+      "agentKind": "topology",
+      "relativePath": "topology-eval.json",
+      "minCases": 5
+    },
+    {
+      "agentKind": "cost",
+      "relativePath": "cost-eval.json",
+      "minCases": 5
+    },
+    {
+      "agentKind": "compliance",
+      "relativePath": "compliance-eval.json",
+      "minCases": 5
+    },
+    {
+      "agentKind": "critic",
+      "relativePath": "critic-eval.json",
+      "minCases": 5
+    }
+  ]
+}

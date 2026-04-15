@@ -1,0 +1,7 @@
+[
+  { "id": "compliance-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "compliance-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "compliance-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "compliance-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "compliance-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+]

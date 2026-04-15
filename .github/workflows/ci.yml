@@ -267,6 +267,12 @@ jobs:
       - name: V1 traceability matrix (docs vs repo paths)
         run: python3 scripts/ci/assert_traceability_coverage.py
 
+      - name: V1 RTM dotnet filter tokens resolve
+        run: python3 scripts/ci/assert_rtm_test_filters_resolve.py
+
+      - name: Agent eval dataset manifest (shape)
+        run: python3 scripts/ci/eval_agent_quality.py
+
       - name: Agent prompt regression baseline (JSON shape)
         run: python3 scripts/ci/assert_prompt_regression.py
 
@@ -1504,6 +1510,6 @@ jobs:
             run http://archlucid-fuzz-api:8080/openapi/v1.json \
             --url http://archlucid-fuzz-api:8080 \
             --checks=all \
-            --phases=examples \
+            --phases=examples,explicit \
             --request-timeout 5 \
             --max-response-time 10

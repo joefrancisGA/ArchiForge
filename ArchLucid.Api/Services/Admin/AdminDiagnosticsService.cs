@@ -193,6 +193,218 @@ public sealed class AdminDiagnosticsService(
     }
 
     /// <inheritdoc />
+    public async Task<OrphanGoldenManifestRemediationResult> RemediateOrphanGoldenManifestsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+        {
+            return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
+        }
+
+        int capped = Math.Clamp(maxRows, 1, 500);
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        List<string> candidateIds = [];
+
+        await using (DbCommand selectCommand = connection.CreateCommand())
+        {
+            selectCommand.CommandText = DataConsistencyOrphanRemediationSql.SelectOrphanGoldenManifestIds;
+            DbParameter maxRowsParameter = selectCommand.CreateParameter();
+            maxRowsParameter.ParameterName = "@MaxRows";
+            maxRowsParameter.Value = capped;
+            selectCommand.Parameters.Add(maxRowsParameter);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                candidateIds.Add(reader.GetGuid(0).ToString("D"));
+            }
+        }
+
+        if (dryRun)
+        {
+            return new OrphanGoldenManifestRemediationResult(true, candidateIds.Count, candidateIds);
+        }
+
+        if (candidateIds.Count == 0)
+        {
+            return new OrphanGoldenManifestRemediationResult(false, 0, []);
+        }
+
+        List<string> deletedIds = [];
+
+        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            foreach (string manifestId in candidateIds)
+            {
+                await using DbCommand bundleDelete = connection.CreateCommand();
+                bundleDelete.Transaction = transaction;
+                bundleDelete.CommandText = "DELETE FROM dbo.ArtifactBundles WHERE ManifestId = @ManifestId;";
+                DbParameter mid = bundleDelete.CreateParameter();
+                mid.ParameterName = "@ManifestId";
+                mid.Value = Guid.Parse(manifestId, System.Globalization.CultureInfo.InvariantCulture);
+                bundleDelete.Parameters.Add(mid);
+                await bundleDelete.ExecuteNonQueryAsync(cancellationToken);
+            }
+
+            foreach (string manifestId in candidateIds)
+            {
+                await using DbCommand deleteManifest = connection.CreateCommand();
+                deleteManifest.Transaction = transaction;
+                deleteManifest.CommandText = """
+                    DELETE FROM dbo.GoldenManifests
+                    OUTPUT deleted.ManifestId
+                    WHERE ManifestId = @ManifestId;
+                    """;
+                DbParameter mid = deleteManifest.CreateParameter();
+                mid.ParameterName = "@ManifestId";
+                mid.Value = Guid.Parse(manifestId, System.Globalization.CultureInfo.InvariantCulture);
+                deleteManifest.Parameters.Add(mid);
+
+                await using DbDataReader reader = await deleteManifest.ExecuteReaderAsync(cancellationToken);
+
+                if (await reader.ReadAsync(cancellationToken))
+                {
+                    deletedIds.Add(reader.GetGuid(0).ToString("D"));
+                }
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+
+        if (deletedIds.Count > 0)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GoldenManifestOrphansRemediated,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            dryRun = false,
+                            deletedCount = deletedIds.Count,
+                            manifestIds = deletedIds,
+                        }),
+                },
+                cancellationToken);
+        }
+
+        return new OrphanGoldenManifestRemediationResult(false, deletedIds.Count, deletedIds);
+    }
+
+    /// <inheritdoc />
+    public async Task<OrphanFindingsSnapshotRemediationResult> RemediateOrphanFindingsSnapshotsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+        {
+            return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
+        }
+
+        int capped = Math.Clamp(maxRows, 1, 500);
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        List<string> candidateIds = [];
+
+        await using (DbCommand selectCommand = connection.CreateCommand())
+        {
+            selectCommand.CommandText = DataConsistencyOrphanRemediationSql.SelectOrphanFindingsSnapshotIds;
+            DbParameter maxRowsParameter = selectCommand.CreateParameter();
+            maxRowsParameter.ParameterName = "@MaxRows";
+            maxRowsParameter.Value = capped;
+            selectCommand.Parameters.Add(maxRowsParameter);
+
+            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
+
+            while (await reader.ReadAsync(cancellationToken))
+            {
+                candidateIds.Add(reader.GetGuid(0).ToString("D"));
+            }
+        }
+
+        if (dryRun)
+        {
+            return new OrphanFindingsSnapshotRemediationResult(true, candidateIds.Count, candidateIds);
+        }
+
+        if (candidateIds.Count == 0)
+        {
+            return new OrphanFindingsSnapshotRemediationResult(false, 0, []);
+        }
+
+        List<string> deletedIds = [];
+
+        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            foreach (string snapshotId in candidateIds)
+            {
+                await using DbCommand deleteSnapshot = connection.CreateCommand();
+                deleteSnapshot.Transaction = transaction;
+                deleteSnapshot.CommandText = """
+                    DELETE FROM dbo.FindingsSnapshots
+                    OUTPUT deleted.FindingsSnapshotId
+                    WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                    """;
+                DbParameter sid = deleteSnapshot.CreateParameter();
+                sid.ParameterName = "@FindingsSnapshotId";
+                sid.Value = Guid.Parse(snapshotId, System.Globalization.CultureInfo.InvariantCulture);
+                deleteSnapshot.Parameters.Add(sid);
+
+                await using DbDataReader reader = await deleteSnapshot.ExecuteReaderAsync(cancellationToken);
+
+                if (await reader.ReadAsync(cancellationToken))
+                {
+                    deletedIds.Add(reader.GetGuid(0).ToString("D"));
+                }
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+
+        if (deletedIds.Count > 0)
+        {
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.FindingsSnapshotOrphansRemediated,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            dryRun = false,
+                            deletedCount = deletedIds.Count,
+                            findingsSnapshotIds = deletedIds,
+                        }),
+                },
+                cancellationToken);
+        }
+
+        return new OrphanFindingsSnapshotRemediationResult(false, deletedIds.Count, deletedIds);
+    }
+
+    /// <inheritdoc />
     public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,
         CancellationToken cancellationToken = default) =>

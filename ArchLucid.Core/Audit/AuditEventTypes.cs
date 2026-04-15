@@ -122,6 +122,16 @@ public static class AuditEventTypes
     /// </summary>
     public const string ComparisonRecordOrphansRemediated = "ComparisonRecordOrphansRemediated";
 
+    /// <summary>
+    /// Admin remediation removed orphan <c>dbo.GoldenManifests</c> rows (no matching <c>dbo.Runs.RunId</c>), after deleting dependent <c>dbo.ArtifactBundles</c>.
+    /// </summary>
+    public const string GoldenManifestOrphansRemediated = "GoldenManifestOrphansRemediated";
+
+    /// <summary>
+    /// Admin remediation removed orphan <c>dbo.FindingsSnapshots</c> rows (no matching run, not referenced by any golden manifest).
+    /// </summary>
+    public const string FindingsSnapshotOrphansRemediated = "FindingsSnapshotOrphansRemediated";
+
     public const string CircuitBreakerStateTransition = "CircuitBreakerStateTransition";
 
     public const string CircuitBreakerRejection = "CircuitBreakerRejection";

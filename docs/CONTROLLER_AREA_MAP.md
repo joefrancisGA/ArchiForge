@@ -21,3 +21,5 @@
 - `POST /v1/admin/runs/archive-by-ids` — partial-success archival by run id (max 100).
 - `POST /v1/governance/approval-requests/batch-review` — approve or reject many requests (max 50, partial success).
 - `POST /v1/alerts/acknowledge-batch` — acknowledge many alerts in scope (max 100, partial success).
+- `POST /v1/admin/diagnostics/data-consistency/orphan-golden-manifests` — dry-run or delete orphan `GoldenManifests` (max 500; removes `ArtifactBundles` first).
+- `POST /v1/admin/diagnostics/data-consistency/orphan-findings-snapshots` — dry-run or delete orphan `FindingsSnapshots` not referenced by a golden manifest (max 500).

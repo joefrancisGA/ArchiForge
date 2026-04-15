@@ -1,0 +1,7 @@
+[
+  { "id": "critic-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "critic-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "critic-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "critic-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "critic-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+]

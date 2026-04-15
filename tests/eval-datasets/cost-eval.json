@@ -1,0 +1,7 @@
+[
+  { "id": "cost-01", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "cost-02", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "cost-03", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "cost-04", "expect": { "minFindings": 0, "maxFindings": 500 } },
+  { "id": "cost-05", "expect": { "minFindings": 0, "maxFindings": 500 } }
+]

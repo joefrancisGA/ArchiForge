@@ -104,6 +104,42 @@ public sealed class AdminController(
         return Ok(result);
     }
 
+    /// <summary>
+    /// Lists or deletes orphan <c>dbo.GoldenManifests</c> (missing <c>dbo.Runs</c>), removing <c>dbo.ArtifactBundles</c> first.
+    /// Use <c>dryRun=true</c> first. Capped at 500 rows per call.
+    /// </summary>
+    [HttpPost("diagnostics/data-consistency/orphan-golden-manifests")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(OrphanGoldenManifestRemediationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemediateOrphanGoldenManifests(
+        [FromQuery] bool dryRun = true,
+        [FromQuery] int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        OrphanGoldenManifestRemediationResult result =
+            await _diagnostics.RemediateOrphanGoldenManifestsAsync(dryRun, maxRows, cancellationToken);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Lists or deletes orphan <c>dbo.FindingsSnapshots</c> (missing run, not referenced by a golden manifest).
+    /// Use <c>dryRun=true</c> first. Capped at 500 rows per call.
+    /// </summary>
+    [HttpPost("diagnostics/data-consistency/orphan-findings-snapshots")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(OrphanFindingsSnapshotRemediationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemediateOrphanFindingsSnapshots(
+        [FromQuery] bool dryRun = true,
+        [FromQuery] int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        OrphanFindingsSnapshotRemediationResult result =
+            await _diagnostics.RemediateOrphanFindingsSnapshotsAsync(dryRun, maxRows, cancellationToken);
+
+        return Ok(result);
+    }
+
     /// <summary>Soft-archives authority runs created strictly before the cutoff (operator-initiated bulk archival).</summary>
     [HttpPost("runs/archive-batch")]
     [EnableRateLimiting("expensive")]

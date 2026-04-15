@@ -35,6 +35,22 @@ public interface IAdminDiagnosticsService
         int maxRows,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Lists or deletes orphan <c>dbo.GoldenManifests</c> (missing <c>dbo.Runs</c>), removing <c>dbo.ArtifactBundles</c> first. Capped at <paramref name="maxRows"/>.
+    /// </summary>
+    Task<OrphanGoldenManifestRemediationResult> RemediateOrphanGoldenManifestsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists or deletes orphan <c>dbo.FindingsSnapshots</c> not referenced by any golden manifest. Capped at <paramref name="maxRows"/>.
+    /// </summary>
+    Task<OrphanFindingsSnapshotRemediationResult> RemediateOrphanFindingsSnapshotsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Soft-archives runs with <c>CreatedUtc</c> strictly before the cutoff (see <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync"/>).</summary>
     Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,
