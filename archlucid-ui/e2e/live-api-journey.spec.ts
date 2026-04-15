@@ -18,6 +18,7 @@ import {
   liveApiBase,
   liveAuthActorName,
   livePeerReviewerActorName,
+  normalizeRunIdForCompare,
   waitForArchitectureRunListCommitted,
   waitForReadyForCommit,
   waitForRunDetailCommitted,
@@ -99,9 +100,19 @@ test.describe("live-api-journey", () => {
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
 
     // Error/malformed run detail still renders the same h2; require loaded run metadata before the manifest link.
-    await expect(page.locator("main").getByText(runId, { exact: true }).first()).toBeVisible({
-      timeout: 60_000,
-    });
+    // Architecture create returns RunId "N" (no hyphens); authority run detail uses JSON Guid "D" (hyphenated).
+    const runIdCode = page
+      .locator("main")
+      .locator("p")
+      .filter({ has: page.getByText("Run ID:", { exact: true }) })
+      .locator("code")
+      .first();
+
+    await expect(runIdCode).toBeVisible({ timeout: 60_000 });
+
+    const shownRunId = (await runIdCode.textContent())?.trim() ?? "";
+
+    expect(normalizeRunIdForCompare(shownRunId)).toBe(normalizeRunIdForCompare(runId));
 
     // Prefer href: accessible name for the GUID link can differ by a11y tree / Next Link behavior in Chromium CI.
     const manifestHref = `/manifests/${goldenManifestId}`;

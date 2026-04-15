@@ -43,6 +43,14 @@ export const liveAuthActorName = isJwtMode
 /** Distinct `reviewedBy` body value vs {@link liveAuthActorName} for approve/reject paths. */
 export const livePeerReviewerActorName = "e2e-peer-reviewer";
 
+/**
+ * Compares run ids across API surfaces: architecture routes use 32-char hex (`Guid.ToString("N")`),
+ * while authority run detail JSON serializes `Guid` with hyphens. The operator UI shows the authority value.
+ */
+export function normalizeRunIdForCompare(value: string): string {
+  return value.replace(/-/g, "").trim().toLowerCase();
+}
+
 function pickApiKey(explicitApiKey?: string | null): string | undefined {
   if (explicitApiKey !== undefined && explicitApiKey !== null) {
     const t = explicitApiKey.trim();
