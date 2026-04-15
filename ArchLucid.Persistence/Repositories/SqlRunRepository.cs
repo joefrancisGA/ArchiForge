@@ -359,6 +359,27 @@ public sealed class SqlRunRepository(
                 WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
             END;
 
+            IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.ContextSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.GraphSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.DecisioningTraces
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
             SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
             """;
 
@@ -475,6 +496,27 @@ public sealed class SqlRunRepository(
             IF COL_LENGTH(N'dbo.FindingsSnapshots', N'ArchivedUtc') IS NOT NULL
             BEGIN
                 UPDATE dbo.FindingsSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.ContextSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.GraphSnapshots
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.DecisioningTraces
                 SET ArchivedUtc = SYSUTCDATETIME()
                 WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
             END;

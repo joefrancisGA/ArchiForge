@@ -466,6 +466,12 @@ BEGIN
 END;
 GO
 
+/* Brownfield: soft-archive on dbo.ContextSnapshots (DbUp 067 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.ContextSnapshots', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ContextSnapshots', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.ContextSnapshots ADD ArchivedUtc DATETIME2 NULL;
+GO
+
 /* Relational expansion for dbo.ContextSnapshots (dual-write; legacy JSON columns retained). */
 IF OBJECT_ID(N'dbo.ContextSnapshotCanonicalObjects', N'U') IS NULL
 BEGIN
@@ -610,6 +616,12 @@ BEGIN
           AND c.is_nullable = 0)
         ALTER TABLE dbo.GraphSnapshots ALTER COLUMN WarningsJson NVARCHAR(MAX) NULL;
 END;
+GO
+
+/* Brownfield: soft-archive on dbo.GraphSnapshots (DbUp 067 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.GraphSnapshots', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.GraphSnapshots', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.GraphSnapshots ADD ArchivedUtc DATETIME2 NULL;
 GO
 
 IF OBJECT_ID('dbo.GraphSnapshotEdges', 'U') IS NULL
@@ -950,6 +962,12 @@ BEGIN
         INDEX IX_DecisioningTraces_RunId NONCLUSTERED (RunId)
     );
 END;
+GO
+
+/* Brownfield: soft-archive on dbo.DecisioningTraces (DbUp 067 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.DecisioningTraces', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.DecisioningTraces ADD ArchivedUtc DATETIME2 NULL;
 GO
 
 IF OBJECT_ID('dbo.GoldenManifests', 'U') IS NULL

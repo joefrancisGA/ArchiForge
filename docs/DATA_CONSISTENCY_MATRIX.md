@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-15 (run archival cascades GoldenManifests / FindingsSnapshots ArchivedUtc)
+**Last reviewed:** 2026-04-15 (run archival cascades through ContextSnapshots / GraphSnapshots / DecisioningTraces ArchivedUtc; see `SqlRunRepositoryArchivalCascadeTests`)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -66,11 +66,12 @@ If a list view looks stale immediately after a write, wait briefly and refresh. 
 | Area | Behavior today | Notes |
 |------|----------------|--------|
 | **`dbo.Runs`** | **`ArchivedUtc`** soft-archive on bulk archival | Primary visibility gate for run lists that respect archival |
-| **`dbo.GoldenManifests` / `dbo.FindingsSnapshots`** | **`ArchivedUtc`** set in the **same transaction** as parent **`dbo.Runs`** bulk / by-id archival | Migration **`066_GoldenManifestsFindingsSnapshots_ArchivedUtc.sql`**; **`SqlRunRepository`** batch. Other child tables (e.g. graph/context snapshots) are unchanged — extend similarly if operators need uniform soft-archive columns |
+| **`dbo.GoldenManifests` / `dbo.FindingsSnapshots`** | **`ArchivedUtc`** set in the **same transaction** as parent **`dbo.Runs`** bulk / by-id archival | Migration **`066_GoldenManifestsFindingsSnapshots_ArchivedUtc.sql`**; **`SqlRunRepository`** batch |
+| **`dbo.ContextSnapshots` / `dbo.GraphSnapshots` / `dbo.DecisioningTraces`** | **`ArchivedUtc`** set in the **same transaction** as parent **`dbo.Runs`** bulk / by-id archival (RunId-aligned) | Migration **`067_ContextGraphDecisioning_ArchivedUtc.sql`**; **`SqlRunRepository`** batch; integration coverage in **`ArchLucid.Persistence.Tests/SqlRunRepositoryArchivalCascadeTests.cs`** |
 | **Coordinator artifacts** | Application-enforced consistency | Treat archived authority runs as **logically** inactive; do not assume every child FK is nulled automatically |
 | **Hot-path cache** | **`ArchiveRunsCreatedBeforeAsync`** removes per-run keys via **`OUTPUT`** scope columns | See matrix row **Hot-path read cache** |
 
-**Operator expectation:** golden manifest and findings snapshot rows for an archived run now carry **`ArchivedUtc`** alongside the run; list/detail APIs that filter on run archival should treat matching child **`ArchivedUtc`** as aligned. Other snapshot families may still need TTL or explicit invalidation until cascaded the same way.
+**Operator expectation:** golden manifest, findings snapshot, context snapshot, graph snapshot, and decisioning trace header rows for an archived run now carry **`ArchivedUtc`** alongside **`dbo.Runs`** when those columns exist in the catalog; list/detail APIs that filter on run archival should treat matching child **`ArchivedUtc`** as aligned for the families above.
 
 **Transaction pattern:** **`IArchLucidUnitOfWork`** / **`IArchLucidUnitOfWorkFactory`** are the standard for mutating authority SQL in one transaction. A repo-wide search shows **no** `TransactionScope` usage in product `.cs` sources (as of 2026-04-14); coordinator orchestrators use the same UoW pattern for create/commit persistence. Prefer UoW for new writes.
 

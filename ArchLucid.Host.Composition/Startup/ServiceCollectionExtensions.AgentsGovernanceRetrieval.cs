@@ -10,6 +10,7 @@ using ArchLucid.AgentSimulator.Services;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Safety;
@@ -55,6 +56,9 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(AgentExecutionResilienceOptions.SectionName));
         services.PostConfigure<AgentExecutionResilienceOptions>(static o => o.Normalize());
         services.AddSingleton<IAgentHandlerConcurrencyGate, AgentHandlerConcurrencyGate>();
+        services.AddSingleton<InMemoryAuditRetryQueue>();
+        services.AddSingleton<IAuditRetryQueue>(static sp => sp.GetRequiredService<InMemoryAuditRetryQueue>());
+        services.AddHostedService<AuditRetryDrainHostedService>();
         services.AddSingleton<CircuitBreakerAuditBridge>();
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));

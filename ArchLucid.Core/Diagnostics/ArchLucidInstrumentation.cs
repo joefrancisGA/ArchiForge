@@ -38,8 +38,16 @@ public static class ArchLucidInstrumentation
 
     private static int _outboxObservableGaugesRegistered;
 
+    private static Func<long>? _auditRetryQueuePendingReader;
+
     /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered"/>.</summary>
     public static OutboxDepthGaugeState OutboxDepthGauges { get; } = new();
+
+    /// <summary>
+    /// Supplies pending audit-retry depth for <c>archlucid_audit_retry_queue_pending</c> (last writer wins; use a singleton queue).
+    /// </summary>
+    public static void SetAuditRetryQueuePendingReader(Func<long>? reader) =>
+        Volatile.Write(ref _auditRetryQueuePendingReader, reader);
 
     /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
     public static void EnsureOutboxDepthObservableGaugesRegistered()
@@ -88,6 +96,11 @@ public static class ArchLucidInstrumentation
             () => new Measurement<double>(s.Current.IntegrationEventOutboxOldestActionablePendingAgeSeconds),
             unit: "s",
             description: "Age in seconds of the oldest actionable integration outbox publish row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_audit_retry_queue_pending",
+            () => new Measurement<long>(_auditRetryQueuePendingReader?.Invoke() ?? 0),
+            description: "Approximate audit events waiting in memory for durable write after hot-path failure.");
     }
 
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
@@ -334,6 +347,12 @@ public static class ArchLucidInstrumentation
         AppMeter.CreateCounter<long>(
             "archlucid_data_consistency_orphans_detected_total",
             description: "Orphan coordinator rows detected (labels table, column: LeftRunId or RightRunId).");
+
+    /// <summary>Audit events dropped because the in-memory retry queue was full (hot-path enqueue or requeue after drain failure).</summary>
+    public static readonly Counter<long> AuditRetryEnqueueDroppedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_audit_retry_enqueue_dropped_total",
+            description: "Audit retry queue dropped events because the bounded channel was full.");
 
     /// <summary>Azure OpenAI chat completion prompt (input) tokens.</summary>
     public static readonly Counter<long> LlmPromptTokensTotal =

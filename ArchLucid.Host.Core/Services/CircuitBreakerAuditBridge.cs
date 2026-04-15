@@ -14,6 +14,7 @@ namespace ArchLucid.Host.Core.Services;
 public sealed class CircuitBreakerAuditBridge(
     IServiceScopeFactory scopeFactory,
     IScopeContextProvider scopeProvider,
+    IAuditRetryQueue auditRetryQueue,
     ILogger<CircuitBreakerAuditBridge> logger)
 {
     private readonly IServiceScopeFactory _scopeFactory =
@@ -21,6 +22,9 @@ public sealed class CircuitBreakerAuditBridge(
 
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
+
+    private readonly IAuditRetryQueue _auditRetryQueue =
+        auditRetryQueue ?? throw new ArgumentNullException(nameof(auditRetryQueue));
 
     private readonly ILogger<CircuitBreakerAuditBridge> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -37,47 +41,36 @@ public sealed class CircuitBreakerAuditBridge(
 
                 _ = Task.Run(async () =>
                 {
+                    AuditEvent? auditEvent = null;
+
                     try
                     {
                         using IServiceScope serviceScope = _scopeFactory.CreateScope();
                         IAuditService audit = serviceScope.ServiceProvider.GetRequiredService<IAuditService>();
 
-                        string eventType = entry.TransitionType switch
-                        {
-                            "StateTransition" => AuditEventTypes.CircuitBreakerStateTransition,
-                            "Rejection" => AuditEventTypes.CircuitBreakerRejection,
-                            "ProbeOutcome" => AuditEventTypes.CircuitBreakerProbeOutcome,
-                            _ => "CircuitBreakerUnknown",
-                        };
-
-                        AuditEvent auditEvent = new()
-                        {
-                            EventType = eventType,
-                            ActorUserId = "system",
-                            ActorUserName = "CircuitBreakerGate",
-                            TenantId = scope.TenantId,
-                            WorkspaceId = scope.WorkspaceId,
-                            ProjectId = scope.ProjectId,
-                            OccurredUtc = entry.OccurredUtc.UtcDateTime,
-                            DataJson = JsonSerializer.Serialize(
-                                new
-                                {
-                                    gate = entry.GateName,
-                                    fromState = entry.FromState,
-                                    toState = entry.ToState,
-                                    probeOutcome = entry.ProbeOutcome,
-                                }),
-                            CorrelationId = correlationCapture,
-                        };
+                        auditEvent = BuildAuditEvent(entry, scope, correlationCapture);
 
                         await audit.LogAsync(auditEvent, CancellationToken.None);
                     }
                     catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
                     {
-                        _logger.LogWarning(
-                            ex,
-                            "Circuit breaker audit append failed for gate {GateName}",
-                            LogSanitizer.Sanitize(entry.GateName));
+                        if (auditEvent is not null && !_auditRetryQueue.TryEnqueue(auditEvent))
+                        {
+                            if (_logger.IsEnabled(LogLevel.Warning))
+                            {
+                                _logger.LogWarning(
+                                    "Circuit breaker audit could not be persisted or queued for gate {GateName}",
+                                    LogSanitizer.Sanitize(entry.GateName));
+                            }
+                        }
+
+                        if (_logger.IsEnabled(LogLevel.Warning))
+                        {
+                            _logger.LogWarning(
+                                ex,
+                                "Circuit breaker audit append failed for gate {GateName}",
+                                LogSanitizer.Sanitize(entry.GateName));
+                        }
                     }
                 });
             }
@@ -85,6 +78,40 @@ public sealed class CircuitBreakerAuditBridge(
             {
                 _logger.LogWarning(ex, "Circuit breaker audit scheduling failed");
             }
+        };
+    }
+
+    private static AuditEvent BuildAuditEvent(
+        CircuitBreakerAuditEntry entry,
+        ScopeContext scope,
+        string? correlationCapture)
+    {
+        string eventType = entry.TransitionType switch
+        {
+            "StateTransition" => AuditEventTypes.CircuitBreakerStateTransition,
+            "Rejection" => AuditEventTypes.CircuitBreakerRejection,
+            "ProbeOutcome" => AuditEventTypes.CircuitBreakerProbeOutcome,
+            _ => "CircuitBreakerUnknown",
+        };
+
+        return new AuditEvent
+        {
+            EventType = eventType,
+            ActorUserId = "system",
+            ActorUserName = "CircuitBreakerGate",
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ProjectId = scope.ProjectId,
+            OccurredUtc = entry.OccurredUtc.UtcDateTime,
+            DataJson = JsonSerializer.Serialize(
+                new
+                {
+                    gate = entry.GateName,
+                    fromState = entry.FromState,
+                    toState = entry.ToState,
+                    probeOutcome = entry.ProbeOutcome,
+                }),
+            CorrelationId = correlationCapture,
         };
     }
 }
