@@ -1,5 +1,7 @@
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
+
+using ExplainabilityMarkers = ArchLucid.Decisioning.Findings.ExplainabilityTraceMarkers;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.Decisioning.Findings.Factories;
@@ -66,7 +68,8 @@ public static class FindingFactory
             {
                 GraphNodeIdsExamined = relatedNodeIds?.ToList() ?? [],
                 RulesApplied = [$"topology-gap-{gapCode}"],
-                DecisionsTaken = [$"Detected topology gap: {description}"]
+                DecisionsTaken = [$"Detected topology gap: {description}"],
+                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
             }
         };
     }
@@ -101,6 +104,7 @@ public static class FindingFactory
                 GraphNodeIdsExamined = graphNodeIdsExamined.Distinct(StringComparer.OrdinalIgnoreCase).ToList(),
                 RulesApplied = ["policy-applicability-mapping"],
                 DecisionsTaken = ["Interpreted APPLIES_TO edges as policy applicability to topology resources."],
+                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
                 Notes = [$"Applicable topology targets: {applicableTopologyNodeIds.Count}"]
             }
         };
@@ -135,6 +139,7 @@ public static class FindingFactory
                 GraphNodeIdsExamined = [policyNode.NodeId],
                 RulesApplied = ["policy-applicability-gap"],
                 DecisionsTaken = ["No APPLIES_TO edges from this policy to TopologyResource nodes were found."],
+                AlternativePathsConsidered = [ExplainabilityMarkers.RuleBasedDeterministicSinglePathNote],
                 Notes = [$"Policy: {policyNode.Label}"]
             }
         };

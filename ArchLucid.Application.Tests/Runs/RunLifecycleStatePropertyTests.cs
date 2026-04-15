@@ -181,7 +181,7 @@ public sealed class RunLifecycleStatePropertyTests
     }
 
     [Property(MaxTest = 25)]
-    public void CommitRunAsync_throws_Conflict_when_status_is_Executing(Guid runGuid)
+    public void CommitRunAsync_throws_Conflict_when_status_is_WaitingForResults(Guid runGuid)
     {
         string runId = runGuid.ToString("N");
 
@@ -189,7 +189,7 @@ public sealed class RunLifecycleStatePropertyTests
         {
             RunId = runId,
             RequestId = "r",
-            Status = ArchitectureRunStatus.Executing,
+            Status = ArchitectureRunStatus.WaitingForResults,
             CreatedUtc = DateTime.UtcNow,
         };
 
@@ -215,7 +215,7 @@ public sealed class RunLifecycleStatePropertyTests
         Action act = () => sut.CommitRunAsync(runId, CancellationToken.None).GetAwaiter().GetResult();
 
         act.Should().Throw<ConflictException>()
-            .WithMessage("*cannot be committed in status*Executing*");
+            .WithMessage("*cannot be committed in status*WaitingForResults*");
     }
 
     private static (IRunRepository Repo, IScopeContextProvider Scope) CreateRunAuthorityMocks(ArchitectureRun? run)

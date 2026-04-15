@@ -16,6 +16,8 @@
   - `docs/onboarding/README.md`
 - **C4 diagrams for exec/security (PNG + `.mmd` sources)**  
   - `docs/diagrams/c4/README.md`
+- **C4 model (Structurizr DSL — system context + containers)**  
+  - `docs/c4/README.md`, `docs/c4/workspace.dsl`
 - **Request happy path (client → API → SQL → agents)**  
   - `docs/ONBOARDING_HAPPY_PATH.md`
 - **System map (Mermaid flows + entry points)**  

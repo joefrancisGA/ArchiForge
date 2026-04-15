@@ -1,6 +1,7 @@
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Compliance.Models;
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -82,7 +83,11 @@ public sealed class ComplianceFindingEngineTests
         findings[0].Payload.Should().BeOfType<ComplianceFindingPayload>();
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
         findings[0].Trace.Notes.Should().Contain("Rule pack: test-pack v1");
+        findings[0].Trace.AlternativePathsConsidered.Should().ContainSingle()
+            .Which.Should().Be(ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote);
         findings[1].Severity.Should().Be(FindingSeverity.Info);
         findings[1].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[1].Trace.AlternativePathsConsidered.Should().ContainSingle()
+            .Which.Should().Be(ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote);
     }
 }

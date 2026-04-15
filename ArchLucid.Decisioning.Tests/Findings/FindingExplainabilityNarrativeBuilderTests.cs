@@ -63,4 +63,18 @@ public sealed class FindingExplainabilityNarrativeBuilderTests
         text.Should().Contain("- ok");
         text.Should().NotContain("-    ");
     }
+
+    [Fact]
+    public void Build_includes_rule_based_deterministic_marker_in_alternative_paths_section()
+    {
+        ExplainabilityTrace trace = new()
+        {
+            AlternativePathsConsidered = [ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote],
+        };
+
+        string text = FindingExplainabilityNarrativeBuilder.Build("f", "T", "engine", trace, 0.75);
+
+        text.Should().Contain("Alternative paths considered");
+        text.Should().Contain(ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote);
+    }
 }

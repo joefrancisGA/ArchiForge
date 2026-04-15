@@ -1,14 +1,15 @@
 namespace ArchLucid.Core.Configuration;
 
 /// <summary>
-/// Optional post-evaluation gate on persisted agent JSON (structural + semantic scores). Off by default.
+/// Optional post-evaluation gate on persisted agent JSON (structural + semantic scores). On by default; set
+/// <see cref="Enabled"/> to false to disable.
 /// </summary>
 public sealed class AgentOutputQualityGateOptions
 {
     public const string SectionPath = "ArchLucid:AgentOutput:QualityGate";
 
     /// <summary>When false, the gate always accepts and emits no gate metrics.</summary>
-    public bool Enabled { get; set; }
+    public bool Enabled { get; set; } = true;
 
     /// <summary>Structural ratio below this yields <c>warned</c> unless <see cref="StructuralRejectBelow"/> triggers first.</summary>
     public double StructuralWarnBelow { get; set; } = 0.55;

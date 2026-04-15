@@ -1,3 +1,4 @@
+using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Models;
@@ -39,5 +40,7 @@ public sealed class FindingFactoryTests
         f.Trace.RulesApplied.Should().Contain("topology-gap-missing-edge");
         f.Trace.DecisionsTaken.Should().ContainSingle()
             .Which.Should().Be("Detected topology gap: No path between subnets");
+        f.Trace.AlternativePathsConsidered.Should().ContainSingle()
+            .Which.Should().Be(ExplainabilityTraceMarkers.RuleBasedDeterministicSinglePathNote);
     }
 }
