@@ -24,7 +24,7 @@ public sealed class PluginSampleFindingEngine : IFindingEngine
             FindingType = "PluginSampleFinding",
             Category = Category,
             EngineType = EngineType,
-            Severity = FindingSeverity.Information,
+            Severity = FindingSeverity.Info,
             Title = "Sample plugin finding engine",
             Rationale = "Replace PluginSampleFindingEngine with your own IFindingEngine implementation.",
             Trace = new ExplainabilityTrace

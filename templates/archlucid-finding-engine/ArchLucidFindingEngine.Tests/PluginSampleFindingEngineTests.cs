@@ -17,6 +17,6 @@ public sealed class PluginSampleFindingEngineTests
 
         Assert.Single(findings);
         Assert.Equal("plugin-sample", sut.EngineType);
-        Assert.Equal(FindingSeverity.Information, findings[0].Severity);
+        Assert.Equal(FindingSeverity.Info, findings[0].Severity);
     }
 }

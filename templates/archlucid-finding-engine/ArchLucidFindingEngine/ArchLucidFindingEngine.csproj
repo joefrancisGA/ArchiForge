@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+    <ProjectReference Include="..\..\..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
   </ItemGroup>
 
 </Project>
