@@ -1,0 +1,15 @@
+{
+  "_comment": "Placeholder baseline; replace with measured AgentRuntime test metrics when enabling the assert script in CI.",
+  "minStructuralCompletenessByAgentType": {
+    "Topology": 0.0,
+    "Cost": 0.0,
+    "Compliance": 0.0,
+    "Critic": 0.0
+  },
+  "minSemanticScoreByAgentType": {
+    "Topology": 0.0,
+    "Cost": 0.0,
+    "Compliance": 0.0,
+    "Critic": 0.0
+  }
+}

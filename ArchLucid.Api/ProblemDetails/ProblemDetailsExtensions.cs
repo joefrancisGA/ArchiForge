@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.ProblemDetails;
 
 /// <summary>
-/// Extension methods for returning RFC 7807 Problem Details from controllers.
+/// Extension methods for returning RFC 9457 Problem Details from controllers (obsoletes RFC 7807).
 /// </summary>
 public static class ProblemDetailsExtensions
 {

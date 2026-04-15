@@ -1,7 +1,7 @@
 namespace ArchLucid.Host.Core.ProblemDetails;
 
 /// <summary>
-/// Well-known problem type URIs for RFC 7807 (relative to the base).
+/// Well-known problem type URIs for RFC 9457 Problem Details (relative to the base; obsoletes RFC 7807).
 /// </summary>
 public static class ProblemTypes
 {

@@ -4,7 +4,18 @@
 
 **Route:** `/runs/new` — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
 
-**Last reviewed:** 2026-04-11
+**Last reviewed:** 2026-04-15
+
+---
+
+## Implementation status
+
+| Design element | Status |
+|----------------|--------|
+| Seven-step wizard (`/runs/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). |
+| Starter presets (greenfield / modernize / blank) | **Shipped** — see `WizardStepPreset` and preset merge logic. |
+| Live pipeline tracking (step 7) | **Shipped** — `RunProgressTracker` + polling against run detail APIs. |
+| Playwright / Vitest coverage | Partial — extend `archlucid-ui` tests when UX changes; see `archlucid-ui/src/app/runs/new/`. |
 
 ---
 

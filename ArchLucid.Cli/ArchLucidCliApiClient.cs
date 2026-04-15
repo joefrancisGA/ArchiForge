@@ -860,7 +860,7 @@ public sealed class ArchLucidApiClient
     }
 
     /// <summary>
-    /// Parse error message from JSON. Supports RFC 7807 Problem Details (detail, title) and legacy (error, errors).
+    /// Parse error message from JSON. Supports RFC 9457 Problem Details (detail, title) and legacy (error, errors).
     /// </summary>
     private static string? TryParseError(string json)
     {

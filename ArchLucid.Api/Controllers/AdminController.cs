@@ -86,6 +86,24 @@ public sealed class AdminController(
         return Ok(counts);
     }
 
+    /// <summary>
+    /// Lists or deletes orphan <c>ComparisonRecords</c> whose run ids are missing from <c>dbo.Runs</c>.
+    /// Use <c>dryRun=true</c> first. Capped at 500 rows per call.
+    /// </summary>
+    [HttpPost("diagnostics/data-consistency/orphan-comparison-records")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(OrphanComparisonRemediationResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RemediateOrphanComparisonRecords(
+        [FromQuery] bool dryRun = true,
+        [FromQuery] int maxRows = 50,
+        CancellationToken cancellationToken = default)
+    {
+        OrphanComparisonRemediationResult result =
+            await _diagnostics.RemediateOrphanComparisonRecordsAsync(dryRun, maxRows, cancellationToken);
+
+        return Ok(result);
+    }
+
     /// <summary>Soft-archives authority runs created strictly before the cutoff (operator-initiated bulk archival).</summary>
     [HttpPost("runs/archive-batch")]
     [EnableRateLimiting("expensive")]

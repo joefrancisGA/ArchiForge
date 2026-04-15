@@ -8,7 +8,7 @@
 
 Error responses include:
 
-- `type`, `title`, `status`, `detail`, `instance` (RFC 7807).
+- `type`, `title`, `status`, `detail`, `instance` (RFC 9457 Problem Details; obsoletes RFC 7807).
 - `extensions.errorCode` — stable machine code (see `ArchLucid.Api.ProblemDetails.ProblemErrorCodes`).
 - Additional `extensions` as documented per error (e.g. `retryAfterUtc`, `driftDetected`).
 

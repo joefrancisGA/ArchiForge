@@ -60,9 +60,9 @@ Run after any rename or doc shuffle:
 
 ---
 
-## Improvement 6 — Prompt `rfc7807-controller-sweep`
+## Improvement 6 — Prompt `rfc9457-controller-sweep`
 
-**Objective:** **Problem+JSON** for client-visible errors (not empty **`NotFound()`** / raw **`Conflict(object)`** where a typed problem is clearer).
+**Objective:** **Problem+JSON** ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457), obsoletes RFC 7807) for client-visible errors (not empty **`NotFound()`** / raw **`Conflict(object)`** where a typed problem is clearer). *(Legacy bookmark: `rfc7807-controller-sweep`.)*
 
 1. Prefer existing extensions in **`ArchLucid.Api/ProblemDetails/ProblemDetailsExtensions.cs`** (`NotFoundProblem`, `ConflictProblem`, `BadRequestProblem`, …).
 2. Grep: `return NotFound();`, `return Conflict(`, `return BadRequest();` under **`ArchLucid.Api/Controllers`** — convert to **`this.*Problem`** with stable **`ProblemTypes.*`**.

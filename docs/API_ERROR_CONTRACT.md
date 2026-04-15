@@ -1,8 +1,10 @@
-# API error contract (RFC 7807 Problem Details)
+# API error contract (RFC 9457 Problem Details)
 
 ## Objective
 
 Give API clients a **stable, machine-readable** error shape for failures: **`application/problem+json`** with **`type`**, **`title`**, **`detail`**, **`status`**, and **`correlationId`** where the global pipeline attaches it.
+
+**Normative reference:** [RFC 9457](https://www.rfc-editor.org/rfc/rfc9457) (*Problem Details for HTTP APIs*), which **obsoletes** [RFC 7807](https://www.rfc-editor.org/rfc/rfc7807). The media type and JSON fields are unchanged; cite **9457** for new documentation and reviews.
 
 ## Assumptions
 
@@ -57,4 +59,4 @@ flowchart LR
 ## Related docs
 
 - **[API_CONTRACTS.md](API_CONTRACTS.md)** — versioning, pagination, artifact semantics.
-- **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`** — prompt **`rfc7807-controller-sweep`** for remaining controller audits.
+- **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`** — prompt **`rfc9457-controller-sweep`** for remaining controller audits.

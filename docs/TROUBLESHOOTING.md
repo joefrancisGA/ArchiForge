@@ -18,7 +18,7 @@ If still stuck, use **[When you report an issue](PILOT_GUIDE.md#when-you-report-
 
 ## Problem Details (`application/problem+json`) and `supportHint`
 
-API error responses may include:
+Shape follows **RFC 9457** (*Problem Details for HTTP APIs*; obsoletes RFC 7807). API error responses may include:
 
 - **`detail`** — what went wrong (safe for operators; not stack traces).
 - **`extensions.errorCode`** — stable machine-readable code (e.g. `RUN_NOT_FOUND`).

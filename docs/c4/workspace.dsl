@@ -1,39 +1,33 @@
-/*
-  ArchLucid — Structurizr DSL (C4). Render with Structurizr Lite or CLI.
-  See docs/c4/README.md.
-*/
-workspace "ArchLucid" "Architecture decision record — system and containers" {
+workspace "ArchLucid" "ArchLucid C4 model (high level)" {
 
     model {
-        operator = person "Operator" "Uses the operator UI and CLI for runs, governance, and forensics."
-        integrator = person "Integrator" "Calls the versioned HTTP API with tenant scope and auth."
+        operator = person "Operator" "Uses the operator UI or CLI to run authority workflows."
+        automation = person "Automation" "CI/CD or scripts calling the REST API."
 
-        archlucid = softwareSystem "ArchLucid" "Authority pipeline: ingest → graph → findings → manifests → SQL persistence." {
-            api = container "ArchLucid API" ".NET HTTP host — /v1 routes, health, OpenAPI." "ASP.NET Core" {
-                authoritySurface = component "Authority & runs" "Create/execute/commit runs, replay, compare, graph, exports, retrieval reads." "ASP.NET Core MVC"
-                governanceSurface = component "Governance & policy" "Approvals, environments, policy packs, pre-commit gate." "ASP.NET Core MVC"
-                advisorySurface = component "Advisory & alerts" "Schedules, scans, digests, alert rules and delivery." "ASP.NET Core MVC"
-                explainSurface = component "Explain & Ask" "Run explanations, aggregate summaries, conversational Ask." "ASP.NET Core MVC"
-                integrationSurface = component "Jobs & integration" "Background job enqueue, webhooks, integration event edges." "ASP.NET Core MVC"
-            }
-
-            worker = container "ArchLucid Worker" "Background jobs, outbox, indexing, archival." "ASP.NET Core Worker"
-            ui = container "Operator UI" "Next.js operator shell." "JavaScript"
-            database = container "SQL Server" "Runs, snapshots, manifests, audit, outbox." "SQL Server"
+        archlucid = softwareSystem "ArchLucid" "Architecture authority: runs, manifests, governance, advisory, retrieval." {
+            api = container "ArchLucid.Api" "ASP.NET Core REST API, OpenAPI, auth, OTel." "C# / .NET"
+            worker = container "ArchLucid.Worker" "Background: outboxes, advisory, indexing." "C# / .NET"
+            ui = container "archlucid-ui" "Next.js operator shell (proxies to API)." "TypeScript / React"
+            database = container "SQL Server" "Authority + coordinator relational state, audit, outboxes." "Azure SQL"
+            blob = container "Blob storage" "Artifacts, agent trace payloads (optional)." "Azure Blob"
+            bus = container "Service Bus" "Integration events (optional)." "Azure Service Bus"
         }
 
-        operator -> ui "Operates"
-        operator -> archlucid.api "HTTPS (API key / JWT)"
-        integrator -> archlucid.api "HTTPS JSON / OpenAPI"
-        archlucid.ui -> archlucid.api "HTTPS"
-        archlucid.api -> archlucid.database "Dapper / transactions"
-        archlucid.worker -> archlucid.database "Dapper / transactions"
+        openai = softwareSystem "Azure OpenAI" "LLM completions and embeddings (optional / real mode)." "External"
+        entra = softwareSystem "Microsoft Entra ID" "JWT issuance for production auth." "External"
 
-        archlucid.api.authoritySurface -> archlucid.database "Read/write run artifacts"
-        archlucid.api.governanceSurface -> archlucid.database "Governance rows & audit"
-        archlucid.api.advisorySurface -> archlucid.database "Advisory & alert persistence"
-        archlucid.api.explainSurface -> archlucid.database "Explanation cache inputs"
-        archlucid.api.integrationSurface -> archlucid.database "Outbox & job queue"
+        operator -> archlucid.ui "HTTPS"
+        automation -> archlucid.api "HTTPS / API key"
+        archlucid.ui -> archlucid.api "HTTPS (scoped headers)"
+        archlucid.api -> archlucid.database "T-SQL (Dapper)"
+        archlucid.worker -> archlucid.database "T-SQL"
+        archlucid.api -> archlucid.blob "Managed identity / private endpoint"
+        archlucid.worker -> archlucid.blob "Managed identity / private endpoint"
+        archlucid.api -> archlucid.bus "Publish (optional)"
+        archlucid.worker -> archlucid.bus "Publish / consume (optional)"
+        archlucid.api -> openai "HTTPS (real agent mode)"
+        archlucid.worker -> openai "HTTPS (indexing embeddings)"
+        archlucid.api -> entra "JWT validation"
     }
 
     views {
@@ -44,12 +38,7 @@ workspace "ArchLucid" "Architecture decision record — system and containers" {
 
         container archlucid "Containers" {
             include *
-            autolayout tb
-        }
-
-        component archlucid.api "ApiComponents" {
-            include *
-            autolayout tb
+            autolayout lr
         }
 
         theme default

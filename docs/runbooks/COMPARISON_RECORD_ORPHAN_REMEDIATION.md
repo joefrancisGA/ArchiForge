@@ -61,6 +61,16 @@ WHERE c.RightRunId IS NOT NULL
       WHERE r.RunId = TRY_CONVERT(uniqueidentifier, c.RightRunId));
 ```
 
+## API-assisted remediation (preferred when API is available)
+
+1. **Preview:** `POST /v1/admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=true&maxRows=50`  
+   - Requires **Admin** role / policy. Response lists **`comparisonRecordIds`** that would be removed (oldest first, capped at **500**).
+2. **Execute:** `POST /v1/admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false&maxRows=50`  
+   - Deletes the same shape of orphan rows as the SQL below (left **or** right run missing from **`dbo.Runs`**).  
+   - Emits durable audit **`ComparisonRecordOrphansRemediated`** with deleted ids.
+
+**InMemory** storage returns an empty list (no SQL).
+
 ## Remediation (destructive)
 
 **Idempotent delete** of rows with **either** side orphaned (adjust **`WHERE`** if you only fix one side):

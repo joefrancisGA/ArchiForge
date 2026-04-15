@@ -1,6 +1,8 @@
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +18,7 @@ namespace ArchLucid.Api.Controllers;
 /// </remarks>
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
 [ApiController]
+[ApiVersionNeutral]
 [Route("api/auth")]
 public sealed class AuthDebugController : ControllerBase
 {

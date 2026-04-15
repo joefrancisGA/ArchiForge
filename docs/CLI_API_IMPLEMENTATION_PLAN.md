@@ -251,4 +251,4 @@ Use a minimal in-process test server (e.g. `WebApplicationFactory` from `ArchLuc
 | GET | `/v1/architecture/manifest/{version}` | Get manifest by version. |
 | POST | `/v1/architecture/run/{runId}/seed-fake-results` | Dev only; seed fake results. |
 
-Base URL default: `http://localhost:5128` (from `ARCHLUCID_API_URL` or `archlucid.json` `apiUrl`). All JSON camelCase; errors use RFC 7807-style `detail`/`title` or legacy `error`/`errors`.
+Base URL default: `http://localhost:5128` (from `ARCHLUCID_API_URL` or `archlucid.json` `apiUrl`). All JSON camelCase; errors use RFC 9457 Problem Details-style `detail`/`title` or legacy `error`/`errors`.

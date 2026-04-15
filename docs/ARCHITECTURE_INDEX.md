@@ -24,6 +24,12 @@
   - `docs/SYSTEM_MAP.md`
 - **One-page system view (nodes/edges/ops)**  
   - `docs/ARCHITECTURE_ON_A_PAGE.md`
+- **Bounded context map (domain boundaries + Mermaid)**  
+  - `docs/bounded-context-map.md`
+- **API controller area map (logical grouping without folder churn)**  
+  - `docs/CONTROLLER_AREA_MAP.md`
+- **API versioning (`Asp.Versioning`, v1 routes, v2 guidance)**  
+  - `docs/API_VERSIONING.md`
 - **Code map (where to open first)**  
   - `docs/CODE_MAP.md`
 - **Context** – high-level purpose and boundary  

@@ -363,7 +363,7 @@ All return `{ ok: true, value/items }` or `{ ok: false, message }`.
 
 | Export | Purpose |
 |--------|---------|
-| `readApiFailureMessage(response)` | Reads RFC 7807 ProblemDetails or falls back to status text |
+| `readApiFailureMessage(response)` | Reads RFC 9457 Problem Details or falls back to status text |
 
 ### `src/lib/config.ts`
 

@@ -26,6 +26,15 @@ public interface IAdminDiagnosticsService
     /// </summary>
     Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Lists or deletes up to <paramref name="maxRows"/> orphan <c>dbo.ComparisonRecords</c> rows (missing <c>dbo.Runs</c>).
+    /// When <paramref name="dryRun"/> is true, no rows are modified. Emits durable audit on successful delete.
+    /// </summary>
+    Task<OrphanComparisonRemediationResult> RemediateOrphanComparisonRecordsAsync(
+        bool dryRun,
+        int maxRows,
+        CancellationToken cancellationToken = default);
+
     /// <summary>Soft-archives runs with <c>CreatedUtc</c> strictly before the cutoff (see <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync"/>).</summary>
     Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
         DateTimeOffset createdBeforeUtc,

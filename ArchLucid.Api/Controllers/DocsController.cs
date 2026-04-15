@@ -1,3 +1,5 @@
+using Asp.Versioning;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +17,7 @@ namespace ArchLucid.Api.Controllers;
 [ApiController]
 [Route("[controller]")]
 [ApiExplorerSettings(IgnoreApi = true)]
+[ApiVersionNeutral]
 [AllowAnonymous]
 public sealed class DocsController : ControllerBase
 {

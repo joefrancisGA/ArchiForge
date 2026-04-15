@@ -1,5 +1,5 @@
 /**
- * Subset of RFC 7807 Problem Details plus ArchLucid API extensions (`errorCode`, `supportHint`).
+ * Subset of RFC 9457 Problem Details (obsoletes RFC 7807) plus ArchLucid API extensions (`errorCode`, `supportHint`).
  * ASP.NET Core typically serializes `ProblemDetails.Extensions` as extra root JSON properties (camelCase).
  */
 export type ApiProblemDetails = {
@@ -10,7 +10,7 @@ export type ApiProblemDetails = {
   instance?: string;
   errorCode?: string;
   supportHint?: string;
-  /** Echoes API **X-Correlation-ID** / proxy **correlationId** when present in JSON (RFC 7807 extension promoted to root). */
+  /** Echoes API **X-Correlation-ID** / proxy **correlationId** when present in JSON (RFC 9457 extension promoted to root). */
   correlationId?: string;
 };
 

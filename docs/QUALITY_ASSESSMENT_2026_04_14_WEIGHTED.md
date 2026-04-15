@@ -271,7 +271,7 @@
 
 **Improvement Recommendations:**
 1. Implement the first-run wizard from the existing design doc.
-2. Add consistent error message formatting across all controllers (RFC 7807 problem details everywhere).
+2. Add consistent error message formatting across all controllers (RFC 9457 Problem Details everywhere).
 3. Add bulk operations for common admin tasks (batch archival, batch approval review).
 
 ---
@@ -665,11 +665,11 @@ extend registration tests if you add a new policy name.
 
 ### Improvement 6: Implement First-Run Wizard and Consistent Error Formatting (Usability, Weight 4)
 
-**Target:** Implement the first-run wizard from the existing design doc, and add RFC 7807 problem details consistently across all controllers.
+**Target:** Implement the first-run wizard from the existing design doc, and add RFC 9457 Problem Details consistently across all controllers.
 
 **Why:** Usability has weight 4 and a 144 weighted gap. The first-run wizard design already exists — this is pure implementation. Consistent error formatting is a quick win that improves every API consumer's experience.
 
-**Status (2026-04-15):** **Partially implemented.** First-run wizard already ships at **`archlucid-ui`** **`/runs/new`** (wizard schema + presets); full parity sweep remains (**`first-run-wizard-parity`** prompt). RFC 7807: **`AdminController`**, **`JobsController`**, **`DemoController`** now return Problem+JSON for the remaining bare **`NotFound()`** / **`Conflict(info)`** paths. Broader controller sweep: **`rfc7807-controller-sweep`** in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`**.
+**Status (2026-04-15):** **Partially implemented.** First-run wizard already ships at **`archlucid-ui`** **`/runs/new`** (wizard schema + presets); full parity sweep remains (**`first-run-wizard-parity`** prompt). RFC 9457 Problem Details: **`AdminController`**, **`JobsController`**, **`DemoController`** now return Problem+JSON for the remaining bare **`NotFound()`** / **`Conflict(info)`** paths. Broader controller sweep: **`rfc9457-controller-sweep`** in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md`**.
 
 ---
 

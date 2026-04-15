@@ -188,6 +188,58 @@
         }
       }
     },
+    "/v1/admin/diagnostics/data-consistency/orphan-comparison-records": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "dryRun",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "maxRows",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanComparisonRemediationResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanComparisonRemediationResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrphanComparisonRemediationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/admin/runs/archive-batch": {
       "post": {
         "tags": [
@@ -4083,15 +4135,6 @@
       "get": {
         "tags": [
           "AuthDebug"
-        ],
-        "parameters": [
-          {
-            "name": "api-version",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "responses": {
           "200": {
@@ -23275,6 +23318,29 @@
             "format": "double"
           },
           "notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "OrphanComparisonRemediationResult": {
+        "required": [
+          "dryRun",
+          "rowCount",
+          "comparisonRecordIds"
+        ],
+        "type": "object",
+        "properties": {
+          "dryRun": {
+            "type": "boolean"
+          },
+          "rowCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comparisonRecordIds": {
             "type": "array",
             "items": {
               "type": "string"

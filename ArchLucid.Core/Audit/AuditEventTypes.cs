@@ -116,6 +116,12 @@ public static class AuditEventTypes
     /// <summary>Background <c>DataArchivalHostedService</c> iteration failed after logging (see payload for exception details).</summary>
     public const string DataArchivalHostLoopFailed = "DataArchivalHostLoopFailed";
 
+    /// <summary>
+    /// Admin remediation removed orphan <c>dbo.ComparisonRecords</c> rows whose run ids do not exist on <c>dbo.Runs</c>
+    /// (see <c>DataConsistencyOrphanRemediationSql</c>). Payload includes dry-run flag, count, and ids.
+    /// </summary>
+    public const string ComparisonRecordOrphansRemediated = "ComparisonRecordOrphansRemediated";
+
     public const string CircuitBreakerStateTransition = "CircuitBreakerStateTransition";
 
     public const string CircuitBreakerRejection = "CircuitBreakerRejection";

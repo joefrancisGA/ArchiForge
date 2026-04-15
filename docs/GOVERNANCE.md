@@ -7,7 +7,7 @@ ArchLucid governance covers **approval requests**, **manifest promotions** betwe
 A reviewer **must not** approve or reject a governance approval request they **submitted**. `GovernanceApprovalRequest.RequestedBy` (set at submission) is compared to the review identity (`reviewedBy` on `ApproveAsync` / `RejectAsync`) using **ordinal, case-insensitive** matching.
 
 - **Violation:** `GovernanceWorkflowService` emits a durable `IAuditService` event with type **`GovernanceSelfApprovalBlocked`** and `DataJson` `{ approvalRequestId, requestedBy, attemptedReviewerBy }`, then throws **`GovernanceSelfApprovalException`** (subclass of `InvalidOperationException`) with a message naming the actor and request id.
-- **HTTP API:** `GovernanceController` maps that exception to **400 Bad Request** with RFC 7807 problem type **`ProblemTypes.GovernanceSelfApproval`** (`https://archlucid.example.org/errors#governance-self-approval`).
+- **HTTP API:** `GovernanceController` maps that exception to **400 Bad Request** with RFC 9457 problem type **`ProblemTypes.GovernanceSelfApproval`** (`https://archlucid.example.org/errors#governance-self-approval`).
 - **Promotion (`PromoteAsync`)** is unchanged; prod promotion continues to validate the approval chain separately.
 
 ## Dry-run mode (`?dryRun=true`)

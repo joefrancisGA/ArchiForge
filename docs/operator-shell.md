@@ -104,7 +104,7 @@ Full detail: [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](../archlucid-ui/
 
 - **Versioning:** Browser calls go to **`/v1/...`** via the Next.js **`/api/proxy`** route; the server attaches scope and credentials. Do not expose API keys in the browser bundle.
 - **JSON shapes:** The UI uses **coerce\*** guards on responses. Malformed JSON → operator “response not usable” states (distinct from HTTP failure and empty data).
-- **Empty vs missing:** **Runs list** can be `[]`. **Artifact list** for a valid manifest can be `[]`. **404** on run/manifest/artifact routes should carry **ProblemDetails** (`title` / `detail` / `type`) where the API provides them. Error JSON from the API includes **`correlationId`** (matches **`X-Correlation-ID`**) for log triage; proxy-generated errors do the same.
+- **Empty vs missing:** **Runs list** can be `[]`. **Artifact list** for a valid manifest can be `[]`. **404** on run/manifest/artifact routes should carry **RFC 9457 Problem Details** (`title` / `detail` / `type`) where the API provides them. Error JSON from the API includes **`correlationId`** (matches **`X-Correlation-ID`**) for log triage; proxy-generated errors do the same.
 - **Artifact bundle 404:** Prefer distinguishing **manifest not in scope** (`manifest-not-found`) from **no bundle / zero artifacts** (`resource-not-found`) when interpreting bundle download failures next to an empty artifact table.
 - **Ordering:** Treat artifact list and ZIP entry order as **stable** (name, then id) for screenshots and diffs.
 

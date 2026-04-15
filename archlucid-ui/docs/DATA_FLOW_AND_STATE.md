@@ -367,7 +367,7 @@ Here is the full lifecycle of an API response, from network to screen:
    │
    ├─ HTTP error (4xx, 5xx)
    │  → readApiFailureMessage(response)
-   │    → tries to parse RFC 7807 ProblemDetails
+   │    → tries to parse RFC 9457 Problem Details
    │    → falls back to "HTTP {status}: {statusText}"
    │  → throw new Error(message)
    │  → catch block → loadError = message
@@ -400,7 +400,7 @@ Here is the full lifecycle of an API response, from network to screen:
 
 The `readApiFailureMessage()` function in `api-error.ts` tries to extract useful information:
 1. Parse the response body as JSON.
-2. If it has a `detail` field (RFC 7807), use that.
+2. If it has a `detail` field (RFC 9457 Problem Details), use that.
 3. If it has a `title` field, use that.
 4. Otherwise, fall back to `"HTTP {status}: {statusText}"`.
 

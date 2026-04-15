@@ -6,7 +6,7 @@ Use this file as a **stable entry point** for paste-ready improvement prompts. D
 |------|----------|
 | Improvements **1–2** (coverage, governance FsCheck, security guards, RBAC) | Inline fenced blocks in **[QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md)** § *Cursor prompts for Improvements 1–6* |
 | Improvement **3** (rename, single `.sln`, legacy sunset, archive quality docs) | **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md)** |
-| Improvements **3–6** (rename verify bundle, traceability, orphan probe, finding narrative, wizard parity, RFC 7807 sweep) | **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md)** |
+| Improvements **3–6** (rename verify bundle, traceability, orphan probe, finding narrative, wizard parity, RFC 9457 / Problem Details sweep) | **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENTS_3_TO_6.md)** |
 
 **Related runbooks**
 
