@@ -394,12 +394,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            // Barrier is not tracked through params object?[] boxing on LogInformation; string placeholders sanitized (docs/CODEQL_TRIAGE.md).
-            _logger.LogInformation(
-                "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
-                LogSanitizer.Sanitize(runId),
-                LogSanitizer.Sanitize(merge.Manifest.Metadata.ManifestVersion),
-                merge.Warnings.Count); // codeql[cs/log-forging]
+            _logger.LogInformationArchitectureRunCommitted(
+                runId,
+                merge.Manifest.Metadata.ManifestVersion,
+                merge.Warnings.Count);
         }
 
         return new CommitRunResult
@@ -447,10 +445,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogInformation(
-                "CommitRunAsync is idempotent: returning existing manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-                LogSanitizer.Sanitize(runId),
-                LogSanitizer.Sanitize(run.CurrentManifestVersion),
+            _logger.LogInformationCommitRunIdempotentReturn(
+                runId,
+                run.CurrentManifestVersion ?? string.Empty,
                 existingTraces.Count);
         }
 
