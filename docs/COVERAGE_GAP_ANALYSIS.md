@@ -63,6 +63,7 @@
 
 ## Recent targeted tests (correctness improvement track)
 
+- **2026-04-15:** `GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests` — relational **decisions** with **GoldenManifestDecisionEvidenceLinks** / **GoldenManifestDecisionNodeLinks** (SortOrder), and **provenance** from **GoldenManifestProvenanceSourceGraphNodes** + **GoldenManifestProvenanceAppliedRules** when no **GoldenManifestProvenanceSourceFindings** rows. `GraphSnapshotRelationalReadDirectSqlIntegrationTests` — **GraphSnapshotWarnings** override + **EdgesJson** metadata merge when **GraphSnapshotEdgeProperties** is empty. `FindingsSnapshotRelationalReadDirectSqlIntegrationTests` — full relational **FindingRecords** path with related/trace tables. `RunLifecycleStatePropertyTests` (`ArchLucid.Application.Tests`) — FsCheck **`CommitRunAsync`** gates (empty results, **Failed**, **Created**).
 - **2026-04-14:** Extended `GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests` with relational **warnings** and **provenance source findings** paths (still requires SQL; same collection as existing Phase-1 direct SQL tests). Added FsCheck properties `AlertEvaluatorDeduplicationKeyPropertyTests` for `CriticalRecommendationCount` and `NewComplianceGapCount` dedupe keys (`ArchLucid.Decisioning.Tests`).
 
 ## How to refresh

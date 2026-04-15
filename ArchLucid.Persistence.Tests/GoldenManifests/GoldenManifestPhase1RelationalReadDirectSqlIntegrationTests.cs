@@ -19,6 +19,7 @@ namespace ArchLucid.Persistence.Tests.GoldenManifests;
 /// </summary>
 [Collection(nameof(SqlServerPersistenceCollection))]
 [Trait("Category", "SqlServerContainer")]
+[Trait("Suite", "Core")]
 public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(SqlServerPersistenceFixture fixture)
 {
     private static readonly Guid TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -488,5 +489,417 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Provenance.SourceFindingIds.Should().Equal("relational-provenance-finding");
         hydrated.Provenance.SourceGraphNodeIds.Should().BeEmpty();
         hydrated.Provenance.AppliedRuleIds.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public async Task HydrateAsync_loads_relational_decisions_with_evidence_and_node_links_ordered()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-phase1-decisions",
+            CancellationToken.None);
+
+        List<ResolvedArchitectureDecision> jsonDecisions =
+        [
+            new ResolvedArchitectureDecision
+            {
+                DecisionId = "json-should-not-win",
+                Category = "x",
+                Title = "x",
+                SelectedOption = "x",
+                Rationale = "x",
+            },
+        ];
+
+        GoldenManifest template = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 4, 15, 10, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "h",
+            RuleSetId = "r",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = jsonDecisions,
+        };
+
+        const string insertManifest = """
+            INSERT INTO dbo.GoldenManifests
+            (
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson
+            )
+            VALUES
+            (
+                @TenantId, @WorkspaceId, @ProjectId,
+                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                @WarningsJson, @ProvenanceJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    template.TenantId,
+                    template.WorkspaceId,
+                    template.ProjectId,
+                    template.ManifestId,
+                    template.RunId,
+                    template.ContextSnapshotId,
+                    template.GraphSnapshotId,
+                    template.FindingsSnapshotId,
+                    template.DecisionTraceId,
+                    template.CreatedUtc,
+                    template.ManifestHash,
+                    template.RuleSetId,
+                    template.RuleSetVersion,
+                    template.RuleSetHash,
+                    MetadataJson = JsonEntitySerializer.Serialize(template.Metadata),
+                    RequirementsJson = JsonEntitySerializer.Serialize(template.Requirements),
+                    TopologyJson = JsonEntitySerializer.Serialize(template.Topology),
+                    SecurityJson = JsonEntitySerializer.Serialize(template.Security),
+                    ComplianceJson = JsonEntitySerializer.Serialize(template.Compliance),
+                    CostJson = JsonEntitySerializer.Serialize(template.Cost),
+                    ConstraintsJson = JsonEntitySerializer.Serialize(template.Constraints),
+                    UnresolvedIssuesJson = JsonEntitySerializer.Serialize(template.UnresolvedIssues),
+                    DecisionsJson = JsonEntitySerializer.Serialize(template.Decisions),
+                    AssumptionsJson = JsonEntitySerializer.Serialize(template.Assumptions),
+                    WarningsJson = JsonEntitySerializer.Serialize(template.Warnings),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(template.Provenance),
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertDecision = """
+            INSERT INTO dbo.GoldenManifestDecisions
+            (ManifestId, SortOrder, DecisionId, Category, Title, SelectedOption, Rationale, RawDecisionJson)
+            VALUES (@ManifestId, @SortOrder, @DecisionId, @Category, @Title, @SelectedOption, @Rationale, @RawDecisionJson);
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertDecision,
+                new
+                {
+                    ManifestId = manifestId,
+                    SortOrder = 0,
+                    DecisionId = "dec-rel-1",
+                    Category = "Security",
+                    Title = "Use TLS",
+                    SelectedOption = "Enforce",
+                    Rationale = "Because",
+                    RawDecisionJson = (string?)"{\"k\":1}",
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertEvidence = """
+            INSERT INTO dbo.GoldenManifestDecisionEvidenceLinks (ManifestId, DecisionId, SortOrder, FindingId)
+            VALUES (@ManifestId, @DecisionId, @SortOrder, @FindingId);
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertEvidence,
+                new
+                {
+                    ManifestId = manifestId,
+                    DecisionId = "dec-rel-1",
+                    SortOrder = 0,
+                    FindingId = "f-ev-2",
+                },
+                cancellationToken: CancellationToken.None));
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertEvidence,
+                new
+                {
+                    ManifestId = manifestId,
+                    DecisionId = "dec-rel-1",
+                    SortOrder = 1,
+                    FindingId = "f-ev-1",
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertNodeLink = """
+            INSERT INTO dbo.GoldenManifestDecisionNodeLinks (ManifestId, DecisionId, SortOrder, NodeId)
+            VALUES (@ManifestId, @DecisionId, @SortOrder, @NodeId);
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertNodeLink,
+                new
+                {
+                    ManifestId = manifestId,
+                    DecisionId = "dec-rel-1",
+                    SortOrder = 0,
+                    NodeId = "node-b",
+                },
+                cancellationToken: CancellationToken.None));
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertNodeLink,
+                new
+                {
+                    ManifestId = manifestId,
+                    DecisionId = "dec-rel-1",
+                    SortOrder = 1,
+                    NodeId = "node-a",
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string selectRow = """
+            SELECT
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+            FROM dbo.GoldenManifests
+            WHERE ManifestId = @ManifestId;
+            """;
+
+        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+
+        row.Should().NotBeNull();
+
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+
+        hydrated.Decisions.Should().ContainSingle();
+        ResolvedArchitectureDecision d = hydrated.Decisions[0];
+        d.DecisionId.Should().Be("dec-rel-1");
+        d.Category.Should().Be("Security");
+        d.Title.Should().Be("Use TLS");
+        d.SelectedOption.Should().Be("Enforce");
+        d.Rationale.Should().Be("Because");
+        d.RawDecisionJson.Should().Be("{\"k\":1}");
+        d.SupportingFindingIds.Should().Equal("f-ev-2", "f-ev-1");
+        d.RelatedNodeIds.Should().Equal("node-b", "node-a");
+    }
+
+    [SkippableFact]
+    public async Task HydrateAsync_loads_relational_provenance_nodes_and_rules_without_source_findings_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-phase1-prov-nodes-rules",
+            CancellationToken.None);
+
+        ManifestProvenance jsonProvenance = new()
+        {
+            SourceFindingIds = ["json-f"],
+            SourceGraphNodeIds = ["json-n"],
+            AppliedRuleIds = ["json-r"],
+        };
+
+        GoldenManifest template = new()
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = new DateTime(2026, 4, 15, 11, 0, 0, DateTimeKind.Utc),
+            ManifestHash = "h",
+            RuleSetId = "r",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = jsonProvenance,
+            Decisions = [],
+        };
+
+        const string insertManifest = """
+            INSERT INTO dbo.GoldenManifests
+            (
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson
+            )
+            VALUES
+            (
+                @TenantId, @WorkspaceId, @ProjectId,
+                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                @WarningsJson, @ProvenanceJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    template.TenantId,
+                    template.WorkspaceId,
+                    template.ProjectId,
+                    template.ManifestId,
+                    template.RunId,
+                    template.ContextSnapshotId,
+                    template.GraphSnapshotId,
+                    template.FindingsSnapshotId,
+                    template.DecisionTraceId,
+                    template.CreatedUtc,
+                    template.ManifestHash,
+                    template.RuleSetId,
+                    template.RuleSetVersion,
+                    template.RuleSetHash,
+                    MetadataJson = JsonEntitySerializer.Serialize(template.Metadata),
+                    RequirementsJson = JsonEntitySerializer.Serialize(template.Requirements),
+                    TopologyJson = JsonEntitySerializer.Serialize(template.Topology),
+                    SecurityJson = JsonEntitySerializer.Serialize(template.Security),
+                    ComplianceJson = JsonEntitySerializer.Serialize(template.Compliance),
+                    CostJson = JsonEntitySerializer.Serialize(template.Cost),
+                    ConstraintsJson = JsonEntitySerializer.Serialize(template.Constraints),
+                    UnresolvedIssuesJson = JsonEntitySerializer.Serialize(template.UnresolvedIssues),
+                    DecisionsJson = JsonEntitySerializer.Serialize(template.Decisions),
+                    AssumptionsJson = JsonEntitySerializer.Serialize(template.Assumptions),
+                    WarningsJson = JsonEntitySerializer.Serialize(template.Warnings),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(template.Provenance),
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertNode = """
+            INSERT INTO dbo.GoldenManifestProvenanceSourceGraphNodes (ManifestId, SortOrder, NodeId)
+            VALUES (@ManifestId, @SortOrder, @NodeId);
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertNode,
+                new
+                {
+                    ManifestId = manifestId,
+                    SortOrder = 0,
+                    NodeId = "prov-node-rel",
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string insertRule = """
+            INSERT INTO dbo.GoldenManifestProvenanceAppliedRules (ManifestId, SortOrder, RuleId)
+            VALUES (@ManifestId, @SortOrder, @RuleId);
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertRule,
+                new
+                {
+                    ManifestId = manifestId,
+                    SortOrder = 0,
+                    RuleId = "prov-rule-rel",
+                },
+                cancellationToken: CancellationToken.None));
+
+        const string selectRow = """
+            SELECT
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+            FROM dbo.GoldenManifests
+            WHERE ManifestId = @ManifestId;
+            """;
+
+        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+
+        row.Should().NotBeNull();
+
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+
+        hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
+        hydrated.Provenance.SourceGraphNodeIds.Should().Equal("prov-node-rel");
+        hydrated.Provenance.AppliedRuleIds.Should().Equal("prov-rule-rel");
     }
 }
