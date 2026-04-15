@@ -2,8 +2,14 @@ using ArchLucid.Decisioning.Analysis;
 using ArchLucid.Decisioning.Compliance.Evaluators;
 using ArchLucid.Decisioning.Compliance.Loaders;
 using ArchLucid.Decisioning.Findings;
+using ArchLucid.Decisioning.Plugins;
 using ArchLucid.Persistence.Coordination.Compliance;
 using ArchLucid.Provenance;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Di = ArchLucid.Decisioning.Interfaces;
 using Dm = ArchLucid.Decisioning.Manifest.Builders;
@@ -14,7 +20,7 @@ namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterDecisioningEngines(IServiceCollection services)
+    private static void RegisterDecisioningEngines(IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IGraphCoverageAnalyzer, GraphCoverageAnalyzer>();
 
@@ -37,6 +43,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Di.IFindingEngine, Ds.RequirementCoverageFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.ComplianceFindingEngine>();
         services.AddScoped<Di.IFindingEngine, Ds.CostConstraintFindingEngine>();
+
+        RegisterPluginFindingEngines(services, configuration);
+
         services.AddScoped<Di.IFindingsOrchestrator, Ds.FindingsOrchestrator>();
         services.AddSingleton<Di.IFindingPayloadValidator, Ds.FindingPayloadValidator>();
         services.AddSingleton<IExplanationFaithfulnessChecker, ExplanationFaithfulnessChecker>();
@@ -46,5 +55,16 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<Di.IManifestHashService, Ds.ManifestHashService>();
         services.AddScoped<Di.IDecisionEngine, Ds.RuleBasedDecisionEngine>();
         services.AddSingleton<IProvenanceBuilder, ProvenanceBuilder>();
+    }
+
+    private static void RegisterPluginFindingEngines(IServiceCollection services, IConfiguration configuration)
+    {
+        string? pluginDirectory = configuration["ArchLucid:FindingEngines:PluginDirectory"];
+        ILogger logger = NullLoggerFactory.Instance.CreateLogger("FindingEnginePlugins");
+
+        foreach (Type engineType in FindingEnginePluginDiscovery.Discover(pluginDirectory, logger))
+        {
+            services.TryAddEnumerable(ServiceDescriptor.Scoped(typeof(Di.IFindingEngine), engineType));
+        }
     }
 }

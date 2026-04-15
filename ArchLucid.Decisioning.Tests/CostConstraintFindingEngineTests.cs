@@ -62,6 +62,7 @@ public sealed class CostConstraintFindingEngineTests
         f.Trace.DecisionsTaken.Should().NotBeEmpty();
         f.Trace.RulesApplied.Should().Contain("cost-constraint-surface");
         f.Trace.Notes.Should().NotBeEmpty();
+        f.Trace.AlternativePathsConsidered.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -87,5 +88,6 @@ public sealed class CostConstraintFindingEngineTests
         Finding f = findings.Should().ContainSingle().Subject;
         f.Severity.Should().Be(FindingSeverity.Info);
         f.Trace.DecisionsTaken.Should().NotBeEmpty();
+        f.Trace.AlternativePathsConsidered.Should().NotBeEmpty();
     }
 }

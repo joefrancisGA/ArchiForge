@@ -97,6 +97,7 @@ public sealed class SecurityBaselineFindingEngineTests
         f.Trace.DecisionsTaken.Should().NotBeEmpty();
         f.Trace.RulesApplied.Should().Contain("security-baseline-coverage");
         f.Trace.Notes.Should().Contain("PROTECTS edge count: 0");
+        f.Trace.AlternativePathsConsidered.Should().NotBeEmpty();
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -119,6 +120,7 @@ public sealed class SecurityBaselineFindingEngineTests
         payload.Should().NotBeNull();
         payload.Impact.Should().Contain("missing");
         findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.AlternativePathsConsidered.Should().NotBeEmpty();
     }
 
     // ──────────────────────────────────────────────────────────────────────────

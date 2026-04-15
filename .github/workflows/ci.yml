@@ -255,6 +255,9 @@ jobs:
           python3 -m pip install --quiet pytest
           cd scripts/ci && python3 -m pytest tests/ -v
 
+      - name: V1 traceability matrix (docs vs repo paths)
+        run: python3 scripts/ci/assert_traceability_coverage.py
+
       # Includes OpenApiContractSnapshotTests (Suite=Core): drift vs Contracts/openapi-v1.contract.snapshot.json fails the job.
       # ArchLucid.Api.Client regenerates from that snapshot on build (NSwag); Generated/ is gitignored.
       # coverage.runsettings: Cobertura format + Tier 5 excludes (generated/OpenAPI/CLI client); matches local merged reports.
@@ -1050,7 +1053,6 @@ jobs:
 
   ui-e2e-live-jwt:
     name: "Operator UI: live e2e (JWT subset)"
-    continue-on-error: true
     needs: dotnet-full-regression
     runs-on: ubuntu-latest
     timeout-minutes: 25

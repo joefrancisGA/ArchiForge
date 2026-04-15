@@ -8,4 +8,8 @@
     <AssemblyName>ArchLucidFindingEngine</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\ArchLucid.Decisioning\ArchLucid.Decisioning.csproj" />
+  </ItemGroup>
+
 </Project>

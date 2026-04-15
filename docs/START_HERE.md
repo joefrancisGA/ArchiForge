@@ -6,6 +6,25 @@ Use **this page** as the single front door. It orients you in a few minutes, the
 
 **Local vs committed output:** See **[REPO_HYGIENE.md](REPO_HYGIENE.md)** for `artifacts/`, the checked-in API client `Generated/` file, and paths that should stay out of git.
 
+## First five documents (read these first)
+
+1. **[START_HERE.md](START_HERE.md)** (this page) — mental model, layers, where to go next.
+2. **[V1_SCOPE.md](V1_SCOPE.md)** — what is in/out of V1 for pilots and supportability.
+3. **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** — run lifecycle and major HTTP/SQL flows.
+4. **[SECURITY.md](SECURITY.md)** — auth modes, RBAC, DevelopmentBypass production guard, scanning.
+5. **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** — CI tiers, traits, and how to run tests locally.
+
+**After the first five — by role**
+
+| Role | Next reads |
+|------|------------|
+| **Developer** | [BUILD.md](BUILD.md), [CONTRIBUTOR_ONBOARDING.md](CONTRIBUTOR_ONBOARDING.md), [CODE_MAP.md](CODE_MAP.md) |
+| **SRE / Operator** | [DEPLOYMENT.md](DEPLOYMENT.md), [runbooks/](runbooks/), [OBSERVABILITY.md](OBSERVABILITY.md) |
+| **Security** | [SECURITY.md](SECURITY.md), [docs/security/](security/), [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) |
+| **Pilot / evaluator** | [PILOT_GUIDE.md](PILOT_GUIDE.md), [FIRST_RUN_WIZARD.md](FIRST_RUN_WIZARD.md), [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) |
+
+**Finding engine plugins:** optional DLLs implementing `IFindingEngine` with a **parameterless constructor**, loaded from **`ArchLucid:FindingEngines:PluginDirectory`** — see template **`templates/archlucid-finding-engine/`** and **`FindingEnginePluginDiscovery`**.
+
 ---
 
 ## Five-minute architecture overview

@@ -50,6 +50,12 @@ public class SecurityCoverageFindingEngine(IGraphCoverageAnalyzer analyzer) : IF
                     [
                         "Compared topology resources against PROTECTS edges."
                     ],
+                    AlternativePathsConsidered =
+                    [
+                        "Add or extend security baseline nodes with PROTECTS edges to each unlisted resource.",
+                        "Narrow topology scope so only in-scope resources require explicit baseline coverage.",
+                        "Accept partial coverage with documented compensating controls for specific resources.",
+                    ],
                     Notes =
                     [
                         $"Security nodes: {result.SecurityNodeCount}",

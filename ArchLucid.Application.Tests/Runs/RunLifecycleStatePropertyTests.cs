@@ -180,6 +180,44 @@ public sealed class RunLifecycleStatePropertyTests
             .WithMessage("*cannot be committed in status*Created*");
     }
 
+    [Property(MaxTest = 25)]
+    public void CommitRunAsync_throws_Conflict_when_status_is_Executing(Guid runGuid)
+    {
+        string runId = runGuid.ToString("N");
+
+        ArchitectureRun runModel = new()
+        {
+            RunId = runId,
+            RequestId = "r",
+            Status = ArchitectureRunStatus.Executing,
+            CreatedUtc = DateTime.UtcNow,
+        };
+
+        (IRunRepository runRepo, IScopeContextProvider scopeProvider) = CreateRunAuthorityMocks(runModel);
+
+        Mock<IActorContext> actor = new();
+        actor.Setup(x => x.GetActor()).Returns("lifecycle-prop-tester");
+
+        ArchitectureRunService sut = CreateSutForCommit(
+            runRepo,
+            scopeProvider,
+            Mock.Of<IArchitectureRequestRepository>(),
+            Mock.Of<IAgentTaskRepository>(),
+            Mock.Of<IAgentResultRepository>(),
+            Mock.Of<IAgentEvaluationRepository>(),
+            Mock.Of<IAgentEvidencePackageRepository>(),
+            Mock.Of<IDecisionEngineService>(),
+            Mock.Of<IDecisionNodeRepository>(),
+            Mock.Of<ICoordinatorGoldenManifestRepository>(),
+            Mock.Of<ICoordinatorDecisionTraceRepository>(),
+            actor.Object);
+
+        Action act = () => sut.CommitRunAsync(runId, CancellationToken.None).GetAwaiter().GetResult();
+
+        act.Should().Throw<ConflictException>()
+            .WithMessage("*cannot be committed in status*Executing*");
+    }
+
     private static (IRunRepository Repo, IScopeContextProvider Scope) CreateRunAuthorityMocks(ArchitectureRun? run)
     {
         Mock<IScopeContextProvider> scopeProvider = new();

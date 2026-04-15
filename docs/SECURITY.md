@@ -54,3 +54,10 @@ ArchLucid uses **Serilog** with **structured logging**: message templates use na
 **Value types from routing are safe:** **`Guid`**, **`int`**, **`DateTime`**, and similar types bound from **`[FromRoute]`** do not need sanitization—their string representation in logs cannot introduce C0/C1 control characters in the way arbitrary HTTP strings can. If a route parameter is bound as **`string`** (even when it holds a UUID), static analysis may still treat it as untrusted input; use **`LogSanitizer`**, refactor to a value type + **`{param:guid}`**, or follow dismissal guidance in **`docs/CODEQL_TRIAGE.md`**.
 
 **When adding new `ILogger` calls in controllers:** apply **`LogSanitizer.Sanitize()`** to any **`string`** parameter sourced from HTTP input. **`Guid`**, **`int`**, and other non-string value types from route or validated models are inherently safe for this class of issue.
+
+## PII and conversation retention
+
+- **Architecture requests and run payloads** may include system descriptions, URLs, and free text that operators paste from internal docs. Treat stored **run rows**, **context snapshots**, **agent traces** (including optional inline prompts when enabled), and **audit** entries as **tenant-scoped operational data**, not anonymous telemetry.
+- **LLM calls:** When **`AgentExecution:TraceStorage:PersistFullPrompts`** or inline forensic columns are enabled, prompts and completions may be persisted in SQL and/or blob storage. Restrict access via **RBAC**, **private networking**, and **SQL/Key Vault** permissions aligned with your data classification policy.
+- **Retention:** Default posture is **keep until archived/deleted by operator workflows** (see **[AUDIT_RETENTION_POLICY.md](AUDIT_RETENTION_POLICY.md)** for audit export and tiering notes). For regulated environments, define **explicit retention / purge** runbooks per workspace and document them in deployment packages.
+- **Exports:** Support bundles, DOCX/ZIP exports, and audit CSVs can contain **PII-sized** content; distribute only over approved channels and encrypt at rest in transit per org policy.

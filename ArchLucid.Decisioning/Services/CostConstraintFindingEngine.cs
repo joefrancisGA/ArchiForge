@@ -52,6 +52,17 @@ public class CostConstraintFindingEngine : IFindingEngine
                     GraphNodeIdsExamined = [node.NodeId],
                     RulesApplied = ["cost-constraint-surface"],
                     DecisionsTaken = ["Emitted cost constraint finding from graph node."],
+                    AlternativePathsConsidered = string.Equals(costRisk, "high", StringComparison.OrdinalIgnoreCase)
+                        ?
+                        [
+                            "Use reserved capacity or commitment discounts to lower effective monthly spend.",
+                            "Shift non-critical workloads to spot or burstable SKUs to stay under the cap.",
+                        ]
+                        :
+                        [
+                            "Keep current sizing; monitor actual spend against the declared budget.",
+                            "Right-size resources after a measurement window without changing the architecture pattern.",
+                        ],
                     Notes =
                     [
                         maxMonthly.HasValue

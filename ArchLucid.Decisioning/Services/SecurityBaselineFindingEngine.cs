@@ -71,6 +71,17 @@ public class SecurityBaselineFindingEngine : IFindingEngine
                             ? "Included topology targets linked via PROTECTS edges in explainability scope."
                             : "Converted security graph node into a security finding."
                     ],
+                    AlternativePathsConsidered = string.Equals(status, "missing", StringComparison.OrdinalIgnoreCase)
+                        ?
+                        [
+                            "Document compensating controls and accept residual risk for this control gap.",
+                            "Defer enforcement with a tracked exception tied to a remediation date.",
+                        ]
+                        :
+                        [
+                            "Tighten scope: require explicit PROTECTS edges for every in-scope resource.",
+                            "Treat as informational only when the control is inherited from a platform baseline.",
+                        ],
                     Notes = [$"PROTECTS edge count: {protectedIds.Count}"]
                 }
             });

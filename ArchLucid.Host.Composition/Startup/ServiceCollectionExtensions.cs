@@ -39,7 +39,7 @@ public static partial class ServiceCollectionExtensions
         RegisterComparisonReplayAndDrift(services, configuration);
         RegisterRunReplayManifestAndDiffs(services, configuration);
         RegisterContextIngestionAndKnowledgeGraph(services);
-        RegisterDecisioningEngines(services);
+        RegisterDecisioningEngines(services, configuration);
         RegisterCoordinatorDecisionEngineAndRepositories(services, configuration);
         RegisterArtifactSynthesis(services);
         RegisterAgentExecution(services, configuration);

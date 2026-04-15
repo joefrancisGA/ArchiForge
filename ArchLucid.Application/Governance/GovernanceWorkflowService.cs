@@ -562,12 +562,13 @@ public sealed class GovernanceWorkflowService(
 
         if (logger.IsEnabled(LogLevel.Information))
         {
+            // Barrier is not tracked through params object?[] boxing on LogInformation; placeholders sanitized (docs/CODEQL_TRIAGE.md).
             logger.LogInformation(
                 "Environment activated: ActivationId={ActivationId}, RunId={RunId}, ManifestVersion={ManifestVersion}, Environment={Environment}",
                 LogSanitizer.Sanitize(activation.ActivationId),
                 LogSanitizer.Sanitize(activation.RunId),
                 LogSanitizer.Sanitize(activation.ManifestVersion),
-                LogSanitizer.Sanitize(activation.Environment));
+                LogSanitizer.Sanitize(activation.Environment)); // codeql[cs/log-forging]
         }
 
         if (!enqueuePromotionInSqlTx)

@@ -394,11 +394,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
+            // Barrier is not tracked through params object?[] boxing on LogInformation; string placeholders sanitized (docs/CODEQL_TRIAGE.md).
             _logger.LogInformation(
                 "Architecture run committed: RunId={RunId}, ManifestVersion={ManifestVersion}, WarningCount={WarningCount}",
                 LogSanitizer.Sanitize(runId),
                 LogSanitizer.Sanitize(merge.Manifest.Metadata.ManifestVersion),
-                merge.Warnings.Count);
+                merge.Warnings.Count); // codeql[cs/log-forging]
         }
 
         return new CommitRunResult

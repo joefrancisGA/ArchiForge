@@ -104,6 +104,10 @@ Example body for **request** (minimal):
 
 **Correlation:** Add header **`X-Correlation-ID: my-trace-001`** on requests so support can match your calls to server logs.
 
+### Option C — Operator UI wizard (same API as Option A)
+
+The **first-run wizard** lives at **`/runs/new`** in `archlucid-ui` (nav **New run**). It posts the same shape as **`POST /v1/architecture/request`** (`CreateArchitectureRunRequestPayload` / OpenAPI). After create, the UI routes you through execute and commit in line with **[operator-shell.md](operator-shell.md)** § Main workflow.
+
 ### Option B — CLI quick path (one command after scaffold)
 
 From the **repo root**:

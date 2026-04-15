@@ -1,5 +1,7 @@
 # API contracts (notable behaviors)
 
+**Error bodies (RFC 7807):** See **[API_ERROR_CONTRACT.md](API_ERROR_CONTRACT.md)** for Problem+JSON shape, stable **`type`** URIs, and correlation behavior.
+
 ## API versioning
 
 - **URL path:** Major version is in the path: **`/v1/...`** (see controller routes `v{version:apiVersion}`).
