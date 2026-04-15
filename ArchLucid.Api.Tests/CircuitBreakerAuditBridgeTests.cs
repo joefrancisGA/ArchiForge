@@ -39,7 +39,10 @@ public sealed class CircuitBreakerAuditBridgeTests
             });
 
         Mock<ILogger<CircuitBreakerAuditBridge>> logger = new();
-        CircuitBreakerAuditBridge sut = new(scopeFactory, scopeProvider.Object, logger.Object);
+        Mock<IAuditRetryQueue> auditRetry = new();
+        auditRetry.Setup(q => q.TryEnqueue(It.IsAny<AuditEvent>())).Returns(true);
+
+        CircuitBreakerAuditBridge sut = new(scopeFactory, scopeProvider.Object, auditRetry.Object, logger.Object);
 
         Action<CircuitBreakerAuditEntry> cb = sut.CreateCallback();
         DateTimeOffset occurred = DateTimeOffset.UtcNow;
@@ -81,6 +84,7 @@ public sealed class CircuitBreakerAuditBridgeTests
         CircuitBreakerAuditBridge sut = new(
             scopeFactory,
             scopeProvider.Object,
+            Mock.Of<IAuditRetryQueue>(),
             Mock.Of<ILogger<CircuitBreakerAuditBridge>>());
 
         Action<CircuitBreakerAuditEntry> cb = sut.CreateCallback();
@@ -110,7 +114,10 @@ public sealed class CircuitBreakerAuditBridgeTests
             });
 
         Mock<ILogger<CircuitBreakerAuditBridge>> logger = new();
-        CircuitBreakerAuditBridge sut = new(scopeFactory, scopeProvider.Object, logger.Object);
+        Mock<IAuditRetryQueue> auditRetry = new();
+        auditRetry.Setup(q => q.TryEnqueue(It.IsAny<AuditEvent>())).Returns(false);
+
+        CircuitBreakerAuditBridge sut = new(scopeFactory, scopeProvider.Object, auditRetry.Object, logger.Object);
 
         Action<CircuitBreakerAuditEntry> cb = sut.CreateCallback();
         Action act = () => cb.Invoke(

@@ -69,6 +69,16 @@ docker compose --profile full-stack up -d --build
 | API | 5000 | 8080 | `archlucid-api` (local build) |
 | UI | 3000 | 3000 | `archlucid-ui` (local build) |
 
+### Workflow 2a — Demo overlay (Docker-only evaluation)
+
+Additive file: **`docker-compose.demo.yml`** (does not replace **`docker-compose.yml`**). Sets **`Demo:Enabled`**, **`Demo:SeedOnStartup`**, and **`AgentExecution:Mode=Simulator`** on the API service so Contoso demo data seeds after DbUp and agents run without cloud LLM calls. Use with the **full-stack** profile.
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build
+```
+
+Or run **`scripts/demo-start.ps1`** / **`scripts/demo-stop.ps1`** (Windows) or **`scripts/demo-start.sh`** / **`scripts/demo-stop.sh`** (macOS/Linux). Buyer-facing walkthrough: **[go-to-market/DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md)**.
+
 ### Workflow 3 — Azure deployment
 
 Same images pushed to ACR. **First-time** provisioning uses **Terraform** under `infra/terraform-*` (see **`docs/DEPLOYMENT_TERRAFORM.md`**). **Ongoing releases** typically use **GitHub Actions CD** (`.github/workflows/cd.yml`) to push tags and `az containerapp update` the API, worker (same API image), and UI—see **`docs/DEPLOYMENT_CD_PIPELINE.md`**. The Dockerfiles do not change between those paths.

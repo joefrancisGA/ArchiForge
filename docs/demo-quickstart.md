@@ -1,5 +1,7 @@
 # Demo quickstart (Corrected 50R — Contoso Retail Modernization)
 
+**Buyer / evaluator (Docker only):** see **[go-to-market/DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md)** — `docker-compose.demo.yml` + `scripts/demo-start.*`.
+
 This guide gets a **fresh SQL-backed** environment to a repeatable demo state: two committed runs (baseline vs hardened), governance workflow rows, environment activations for preview/compare, and an optional sample export-history row. See **[TRUSTED_BASELINE.md](TRUSTED_BASELINE.md)** for what is baseline-trusted vs optional (export replay is not part of the minimal proof).
 
 ## Prerequisites

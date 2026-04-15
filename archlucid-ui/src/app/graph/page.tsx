@@ -129,16 +129,22 @@ export default function GraphPage() {
           style={{ padding: 8 }}
         />
 
-        <select
-          value={mode}
-          onChange={(e) => setMode(e.target.value as GraphMode)}
-          style={{ padding: 8 }}
-        >
-          <option value="provenance-full">Full provenance graph</option>
-          <option value="decision-subgraph">Decision subgraph</option>
-          <option value="node-neighborhood">Node neighborhood</option>
-          <option value="architecture">Architecture graph</option>
-        </select>
+        <div>
+          <label htmlFor="graph-mode-select" style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600 }}>
+            Graph mode
+          </label>
+          <select
+            id="graph-mode-select"
+            value={mode}
+            onChange={(e) => setMode(e.target.value as GraphMode)}
+            style={{ padding: 8, width: "100%", maxWidth: 420 }}
+          >
+            <option value="provenance-full">Full provenance graph</option>
+            <option value="decision-subgraph">Decision subgraph</option>
+            <option value="node-neighborhood">Node neighborhood</option>
+            <option value="architecture">Architecture graph</option>
+          </select>
+        </div>
 
         {mode === "decision-subgraph" && (
           <input

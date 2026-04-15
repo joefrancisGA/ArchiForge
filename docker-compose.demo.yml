@@ -1,0 +1,20 @@
+# ArchLucid — demo overlay (additive; does not replace docker-compose.yml)
+#
+# One-command evaluation with pre-seeded Contoso Retail demo data and simulator agents.
+# Uses the same SQL/Azurite/Redis stack and full-stack API + UI as the default compose file.
+#
+# Usage (from repo root):
+#   docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build
+#
+# Or: .\scripts\demo-start.ps1   /   ./scripts/demo-start.sh
+#
+# Prerequisites: Docker only — no local .NET SDK or Node.js required to run the stack.
+#
+# Demo seed runs at API startup when ASPNETCORE_ENVIRONMENT=Development (see ArchLucidPersistenceStartup).
+
+services:
+  api:
+    environment:
+      Demo__Enabled: "true"
+      Demo__SeedOnStartup: "true"
+      AgentExecution__Mode: "Simulator"

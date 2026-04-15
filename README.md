@@ -45,6 +45,7 @@ ArchLucid is an API for orchestrating AI-driven architecture design. It coordina
 | [docs/demo-quickstart.md](docs/demo-quickstart.md) | **Corrected 50R demo:** DbUp + Contoso trusted-baseline seed, `Demo:*` config, `POST /v1.0/demo/seed`, verification endpoints |
 | [docs/TRUSTED_BASELINE.md](docs/TRUSTED_BASELINE.md) | **49R pass 2 boundary + Corrected 51R:** baseline-trusted surface, optional features, centralized actor (`IActorContext`), log-only baseline mutation audit (`IBaselineMutationAuditService`) vs SQL audit |
 | [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md) | Dockerfiles, `docker compose --profile full-stack`, image security, WAF alignment |
+| [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md) | **Docker-only demo:** `scripts/demo-start.ps1` / `docker-compose.demo.yml`, Contoso seed, simulator agents |
 
 ## Pilot onboarding (56R)
 
@@ -101,7 +102,7 @@ From the ArchLucid repo directory (or any directory containing `docker-compose.y
 dotnet run --project ArchLucid.Cli -- dev up
 ```
 
-This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. See [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md).
+This starts SQL Server, Azurite, and Redis in Docker (default profile — for hot-reload development). To run the full stack (API + UI in containers too): `docker compose --profile full-stack up -d --build`. For the **Docker-only evaluator path** with Contoso demo seed and simulator agents, use `.\scripts\demo-start.ps1` or see [docs/go-to-market/DEMO_QUICKSTART.md](docs/go-to-market/DEMO_QUICKSTART.md). See [docs/CONTAINERIZATION.md](docs/CONTAINERIZATION.md).
 
 Use this connection string with the API:
 

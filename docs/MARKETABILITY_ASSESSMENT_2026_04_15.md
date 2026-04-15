@@ -459,6 +459,8 @@ Twenty marketability dimensions scored 1–100. Each carries a weight (1–10) r
 
 **What:** One-command Docker experience with pre-seeded data for 5-minute prospect evaluation. Eliminates .NET SDK, SQL Server, and Node.js prerequisites for evaluators.
 
+**Status (2026-04-15):** **Implemented (core).** Delivered: **`docker-compose.demo.yml`** (additive overlay; **`Demo:Enabled`**, **`Demo:SeedOnStartup`**, **`AgentExecution:Simulator`** on **`api`**), **`scripts/demo-start.ps1`** / **`demo-start.sh`**, **`demo-stop.ps1`** / **`demo-stop.sh`**, **`docs/go-to-market/DEMO_QUICKSTART.md`**, cross-links in **`README.md`**, **`docs/demo-quickstart.md`**, **`PRODUCT_DATASHEET.md`**, **`CONTAINERIZATION.md`** (Workflow 2a), **`SCREENSHOT_GALLERY.md`**. **`docker compose … config`** validates the merge. **Deferred:** capturing PNGs into **`docs/go-to-market/screenshots/`** (manual step after **`demo-start`**).
+
 **Cursor Prompt:**
 
 ```
@@ -555,6 +557,7 @@ Keep JwtBearer mode as-is. New mode is additive.
 | `docs/go-to-market/SCREENSHOT_GALLERY.md` | 10-screenshot capture brief (M2) |
 | `docs/go-to-market/ROI_MODEL.md` | ROI calculator and business case template (M3) |
 | `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md` | Pilot measurement framework (M3) |
+| `docs/go-to-market/DEMO_QUICKSTART.md` | Docker-only demo (`docker-compose.demo.yml`, `scripts/demo-start.*`) (M4) |
 | `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | Technical quality assessment (68.5%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | Prior assessment (39.9%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | Prior assessment (37.6%) |

@@ -14,7 +14,7 @@ This document is a **capture brief**: it describes exactly what to show on scree
 
 ## Prerequisites
 
-- ArchLucid API running against SQL with **demo seed data** (`Demo:Enabled=true`, `Demo:SeedOnStartup=true`, or `POST /v1.0/demo/seed`).
+- ArchLucid API running against SQL with **demo seed data** (`Demo:Enabled=true`, `Demo:SeedOnStartup=true`, or `POST /v1.0/demo/seed`). Fastest path: **`scripts/demo-start.ps1`** / **`scripts/demo-start.sh`** with **`docker-compose.demo.yml`** — see **[DEMO_QUICKSTART.md](DEMO_QUICKSTART.md)**. Save captures under **`docs/go-to-market/screenshots/`** when committing assets.
 - Operator UI (`archlucid-ui`) running at `http://localhost:3000`.
 - At least **two completed runs** with committed golden manifests (use `archlucid run --quick` twice or Swagger).
 - At least **one comparison** between the two runs (use `/compare` in the UI or API).
