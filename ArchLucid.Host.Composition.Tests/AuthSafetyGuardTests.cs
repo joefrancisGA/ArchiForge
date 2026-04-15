@@ -83,6 +83,78 @@ public sealed class AuthSafetyGuardTests
         act.Should().NotThrow();
     }
 
+    [Fact]
+    public void GuardAllDevelopmentBypasses_production_and_development_bypass_all_true_throws()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "JwtBearer",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Production);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Authentication:ApiKey:DevelopmentBypassAll*");
+    }
+
+    [Fact]
+    public void GuardAllDevelopmentBypasses_development_environment_and_development_bypass_all_true_does_not_throw()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "JwtBearer",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void GuardAllDevelopmentBypasses_archlucid_environment_production_and_development_bypass_all_throws()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "ApiKey",
+                ["ARCHLUCID_ENVIRONMENT"] = "Production",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardAllDevelopmentBypasses(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Authentication:ApiKey:DevelopmentBypassAll*");
+    }
+
+    [Fact]
+    public void GuardDevelopmentBypassInProduction_delegates_to_guard_all_and_blocks_bypass_all_in_production()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "ApiKey",
+                ["Authentication:ApiKey:DevelopmentBypassAll"] = "true",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Production);
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Authentication:ApiKey:DevelopmentBypassAll*");
+    }
+
     private sealed class StubHostEnvironment : IHostEnvironment
     {
         public StubHostEnvironment(string environmentName)

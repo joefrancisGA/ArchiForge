@@ -590,7 +590,7 @@ in tests. Each new test class in its own file.
 
 **Status (implemented):** As of 2026-04-14 the three approach items are in the tree:
 
-1. **`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** — `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`; invoked from **`ArchLucid.Api/Program.cs`** before **`AddArchLucidAuth`** (see also **docs/SECURITY.md** § DevelopmentBypass production guard).
+1. **`AuthSafetyGuard.GuardAllDevelopmentBypasses`** (alias **`GuardDevelopmentBypassInProduction`**) — `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`; invoked from **`ArchLucid.Api/Program.cs`** before **`AddArchLucidAuth`**; blocks **`DevelopmentBypass`** and **`Authentication:ApiKey:DevelopmentBypassAll`** in Production (**`IHostEnvironment`** or **`ARCHLUCID_ENVIRONMENT`**) — see **docs/SECURITY.md** § DevelopmentBypass production guard.
 2. **Per-PR Schemathesis** — **`.github/workflows/ci.yml`** job **`api-schemathesis-light`** (`--phases=examples`, OpenAPI checks); full fuzz remains on the weekly workflow (see **docs/API_FUZZ_TESTING.md**).
 3. **RBAC** — **`ArchLucid.Core/Authorization/ArchLucidRoles.cs`**, **`ArchLucidPolicies.cs`**, **`AddArchLucidAuthorizationPolicies`** in **`ArchLucid.Host.Core/Startup/ArchLucidAuthorizationPoliciesExtensions.cs`**; API controllers use **`[Authorize(Policy = …)]`**; registration tests in **`ArchLucid.Host.Composition.Tests`**.
 
@@ -603,10 +603,12 @@ Improvement 2 — Prompt `dev-bypass-production-guard`
 
 Verify the DevelopmentBypass production guard is still correct:
 
-1. Open ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs — GuardDevelopmentBypassInProduction
-   must throw InvalidOperationException when mode is DevelopmentBypass and either
-   IHostEnvironment.IsProduction() or ARCHLUCID_ENVIRONMENT (config or process env) is Production.
-2. Open ArchLucid.Api/Program.cs — the guard must run before AddArchLucidAuth.
+1. Open ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs — GuardAllDevelopmentBypasses
+   must throw InvalidOperationException in Production when ArchLucidAuth:Mode is DevelopmentBypass,
+   or when Authentication:ApiKey:DevelopmentBypassAll is true (same Production detection:
+   IHostEnvironment.IsProduction() or ARCHLUCID_ENVIRONMENT Production).
+2. Open ArchLucid.Api/Program.cs — GuardAllDevelopmentBypasses must run before AddArchLucidAuth
+   (no separate post-build DevelopmentBypassAll block).
 3. Run: dotnet test ArchLucid.Host.Composition.Tests/ArchLucid.Host.Composition.Tests.csproj -c Release --filter "FullyQualifiedName~AuthSafetyGuardTests"
 4. Confirm docs/SECURITY.md still documents the guard.
 

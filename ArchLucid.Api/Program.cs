@@ -40,7 +40,7 @@ public partial class Program
 
         builder.Services.AddArchLucidMvc();
 
-        AuthSafetyGuard.GuardDevelopmentBypassInProduction(builder.Configuration, builder.Environment);
+        AuthSafetyGuard.GuardAllDevelopmentBypasses(builder.Configuration, builder.Environment);
 
         builder.Services.AddHttpContextAccessor();
         // Singleton: resolves scope from IHttpContextAccessor (or ambient overrides). IAgentCompletionClient is scoped; handlers receive per-request instances while this provider stays stateless.
@@ -85,7 +85,6 @@ public partial class Program
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
         }
 
-        // Belt-and-suspenders: refuse Production + DevelopmentBypass even if validation rules are bypassed later.
         ArchLucidAuthOptions authBound = ArchLucidAuthConfigurationBridge.Resolve(app.Configuration);
 
         if (!app.Environment.IsProduction()
@@ -97,13 +96,6 @@ public partial class Program
                 app.Logger.LogWarning(
                     "ArchLucidAuth:JwtSigningPublicKeyPemPath is set: JWTs are validated with a local RSA public key (CI / local E2E). Use Entra authority + metadata in real environments.");
             }
-        }
-
-        if (app.Environment.IsProduction()
-            && app.Configuration.GetValue("Authentication:ApiKey:DevelopmentBypassAll", false))
-        {
-            throw new InvalidOperationException(
-                "Authentication:ApiKey:DevelopmentBypassAll cannot be true when ASPNETCORE_ENVIRONMENT is Production.");
         }
 
         StartupConfigurationDiagnostics.LogIfEnabled(

@@ -23,12 +23,14 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 
 ## DevelopmentBypass production guard
 
-`ArchLucidAuth:Mode=DevelopmentBypass` is for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the effective auth mode is DevelopmentBypass **and** any of the following is true:
+`ArchLucidAuth:Mode=DevelopmentBypass` and **`Authentication:ApiKey:DevelopmentBypassAll=true`** are for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardAllDevelopmentBypasses`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the host is treated as Production (**`IHostEnvironment`** is Production / `ASPNETCORE_ENVIRONMENT=Production`, or **`ARCHLUCID_ENVIRONMENT=Production`**) **and** any of the following is true:
 
-- **`IHostEnvironment`** is Production (`ASPNETCORE_ENVIRONMENT=Production`), or
-- **`ARCHLUCID_ENVIRONMENT`** is set to **`Production`** (supports hosts that intentionally keep ASP.NET in a non-Production name but are operationally production).
+- The effective auth mode is **DevelopmentBypass**, or
+- **`Authentication:ApiKey:DevelopmentBypassAll`** is **true** (open API-key access; must stay off in production even when using **JwtBearer** or **ApiKey** mode).
 
-This is in addition to **`ArchLucidConfigurationRules.CollectErrors`**, which still surfaces the same misconfiguration in logs when validation runs after the host is built. Use **`JwtBearer`** or **`ApiKey`** in real production environments.
+**`AuthSafetyGuard.GuardDevelopmentBypassInProduction`** is a documented alias that delegates to **`GuardAllDevelopmentBypasses`** (same checks).
+
+This is in addition to **`ArchLucidConfigurationRules.CollectErrors`**, which still surfaces the same misconfiguration in logs when validation runs after the host is built. Use **`JwtBearer`** or **`ApiKey`** in real production environments, with **`DevelopmentBypassAll=false`**.
 
 ## Role-based access control (RBAC)
 
