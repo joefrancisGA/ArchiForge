@@ -1,6 +1,6 @@
 # Cursor prompts for top-6 quality improvements
 
-Six standalone prompts, one per improvement from `docs/QUALITY_ASSESSMENT.md`. Each is ready to paste into a Cursor Agent session.
+Six standalone prompts, one per improvement from the archived assessment [`docs/archive/QUALITY_ASSESSMENT.md`](archive/QUALITY_ASSESSMENT.md) (stub: [`docs/QUALITY_ASSESSMENT.md`](QUALITY_ASSESSMENT.md)). Each is ready to paste into a Cursor Agent session.
 
 ---
 

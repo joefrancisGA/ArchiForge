@@ -210,14 +210,14 @@
 - Extensive documentation: 193+ markdown files in `docs/`, ADRs, runbooks, onboarding guides, architecture index, code map, contributor onboarding, glossary.
 - `START_HERE.md`, `CODE_MAP.md`, `ARCHITECTURE_INDEX.md` provide navigation aids.
 - Test execution model is well-structured with named suites and clear CI mapping.
-- **Gaps:** 193+ docs is itself a cognitive load problem — no clear reading order or "which 5 docs do I read first?" The dual `ArchiForge.*` / `ArchLucid.*` directory structure is deeply confusing for newcomers (40+ stale directories). The solution has 50+ projects — high project count for a V1 product. Navigation between 50 API controllers is challenging. Multiple quality assessment files exist (`QUALITY_ASSESSMENT.md`, `QUALITY_ASSESSMENT_2026_04.md`, `QUALITY_ASSESSMENT_2026_04_14.md`) — unclear which is canonical.
+- **Gaps:** 193+ docs is itself a cognitive load problem — no clear reading order or "which 5 docs do I read first?" The dual `ArchiForge.*` / `ArchLucid.*` directory structure is deeply confusing for newcomers (40+ stale directories). The solution has 50+ projects — high project count for a V1 product. Navigation between 50 API controllers is challenging. **Mitigated (2026-04-15):** superseded quality snapshots live under **`docs/archive/`** with short stubs at the old paths; **canonical** assessment is **`docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`** (see **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`** § `archive-superseded-quality-assessments`).
 
 **Tradeoffs:** Comprehensive docs prevent knowledge silos but require curation. Many projects enable fine-grained dependency control but increase navigation cost.
 
 **Improvement Recommendations:**
 1. Create a "First 5 Docs" page that links the essential reading in priority order.
 2. Remove or archive stale `ArchiForge.*` directories.
-3. Consolidate or archive superseded quality assessment files.
+3. ~~Consolidate or archive superseded quality assessment files.~~ **Done (2026-04-15):** see **`docs/archive/`** + stubs + **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`**.
 4. Add controller grouping or API area documentation to navigate 50 controllers.
 
 ---
@@ -635,7 +635,7 @@ extend registration tests if you add a new policy name.
 
 **Target:** Remove stale `ArchiForge.*` tree artifacts, consolidate to a single `.sln`, and publish a calendar target for legacy configuration key handling.
 
-**Status (2026-04-15):** **Implemented** for in-repo rename debris: removed duplicate **`ArchiForge.sln`**, deleted orphan **`ArchiForge/`** stub sources (duplicates of `ArchLucid.*` files), renamed **`ArchLucid.Api/ArchiForge.Api.http`** → **`ArchLucid.Api.http`**, aligned **`docs/CONFIG_BRIDGE_SUNSET.md`** with **`ArchLucidLegacyConfigurationWarnings.LegacyConfigurationKeysHardEnforcementNoEarlierThan`** (`2027-07-01`) and extended the startup warning text. Terraform resource addresses and workspace path remain deferred per checklist **7.5–7.8**.
+**Status (2026-04-15):** **Implemented** for in-repo rename debris: removed duplicate **`ArchiForge.sln`** (re-confirmed removed; repo root keeps **`ArchLucid.sln` only**), deleted orphan **`ArchiForge/`** stub sources (duplicates of `ArchLucid.*` files), renamed **`ArchLucid.Api/ArchiForge.Api.http`** → **`ArchLucid.Api.http`**, aligned **`docs/CONFIG_BRIDGE_SUNSET.md`** with **`ArchLucidLegacyConfigurationWarnings.LegacyConfigurationKeysHardEnforcementNoEarlierThan`** (`2027-07-01`) and extended the startup warning text. **Doc consolidation:** archived **`QUALITY_ASSESSMENT.md`**, **`QUALITY_ASSESSMENT_2026_04.md`**, **`QUALITY_ASSESSMENT_2026_04_14.md`** to **`docs/archive/`** with stubs at the former paths; paste-ready prompts in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`**. Terraform resource addresses and workspace path remain deferred per checklist **7.5–7.8**.
 
 **Why:** This improvement addresses both Cognitive Load (weighted gap 140) and Evolvability (weighted gap 192) simultaneously. Leftover rename paths mislead contributors and tooling.
 
@@ -667,7 +667,7 @@ extend registration tests if you add a new policy name.
 
 ## Cursor prompts for Improvements 1–3
 
-Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`** (implementation complete; prompts are verification/regression checklists). Improvement 3 uses **`rename-artifacts-single-sln`**, **`rename-artifacts-no-stub-archiforge-src`**, and **`legacy-config-sunset-constant`** below.
+Improvement 1 uses **`coverage-gap-report`**, **`lowest-assembly-tests`**, **`governance-workflow-fscheck`**. Improvement 2 uses **`dev-bypass-production-guard`** and **`rbac-policies-and-sensitive-controllers`** (implementation complete; prompts are verification/regression checklists). Improvement 3 also has a consolidated copy (including **`archive-superseded-quality-assessments`**) in **`docs/CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md`** — prefer that file for bookmarks. The fenced blocks below duplicate **`rename-artifacts-single-sln`**, **`rename-artifacts-no-stub-archiforge-src`**, and **`legacy-config-sunset-constant`** for inline reading.
 
 ```
 Improvement 3 — Prompt `rename-artifacts-single-sln`

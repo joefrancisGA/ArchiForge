@@ -4,7 +4,7 @@
 
 **Related docs:**
 
-- `docs/QUALITY_ASSESSMENT.md`, `docs/QUALITY_ASSESSMENT_2026_04.md` — scoring context.
+- `docs/QUALITY_ASSESSMENT.md` / `docs/QUALITY_ASSESSMENT_2026_04.md` — stubs pointing at `docs/archive/`; canonical weighted assessment: `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`.
 - `docs/QUALITY_IMPROVEMENT_PROMPTS.md` — older prompts (some items since implemented).
 - `docs/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md` — overlapping themes (live E2E expansion, forensics, audit, etc.). **Use this file** when you want the *six* improvements below; use the 2026-04-14 file for the alternate prompt set.
 

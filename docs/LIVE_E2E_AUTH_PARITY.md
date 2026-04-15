@@ -81,4 +81,4 @@ flowchart LR
 
 ## 11. Addendum — quality assessment (2026-04-14)
 
-**Priority 1** (“Production-like live gates”) from **`docs/QUALITY_ASSESSMENT_2026_04_14.md`**: ApiKey subset on PR + full matrix nightly + documentation; **JWT with local PEM** added as PR subset (**`ui-e2e-live-jwt`**, non-blocking) + nightly full suite job. **Entra OIDC** in CI remains optional (use **`Authority`** when not using **`JwtSigningPublicKeyPemPath`**).
+**Priority 1** (“Production-like live gates”) from the archived assessment **`docs/archive/QUALITY_ASSESSMENT_2026_04_14.md`** (stub **`docs/QUALITY_ASSESSMENT_2026_04_14.md`**): ApiKey subset on PR + full matrix nightly + documentation; **JWT with local PEM** added as PR subset (**`ui-e2e-live-jwt`**, non-blocking) + nightly full suite job. **Entra OIDC** in CI remains optional (use **`Authority`** when not using **`JwtSigningPublicKeyPemPath`**).

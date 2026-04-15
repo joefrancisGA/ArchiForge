@@ -1,6 +1,6 @@
 # Cursor prompts for top-6 quality improvements (2026-04-14 assessment)
 
-Five standalone prompts (improvements #1–#4 and #6 from `docs/QUALITY_ASSESSMENT_2026_04_14.md`; improvement #5 — Terraform `state mv` + `NEXT_REFACTORINGS.md` triage — is excluded by request). Each prompt is self-contained and ready to paste into a Cursor Agent session.
+Five standalone prompts (improvements #1–#4 and #6 from the archived assessment [`docs/archive/QUALITY_ASSESSMENT_2026_04_14.md`](archive/QUALITY_ASSESSMENT_2026_04_14.md) (stub: [`docs/QUALITY_ASSESSMENT_2026_04_14.md`](QUALITY_ASSESSMENT_2026_04_14.md)); improvement #5 — Terraform `state mv` + `NEXT_REFACTORINGS.md` triage — is excluded by request). Each prompt is self-contained and ready to paste into a Cursor Agent session.
 
 > **Key difference from the April 12 prompts** (`docs/QUALITY_IMPROVEMENT_PROMPTS.md`): every item referenced in those prompts has been partially or fully implemented since. These updated prompts target the **remaining gaps** identified by the April 14 assessment and reference the current codebase state.
 

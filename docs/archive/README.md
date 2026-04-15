@@ -15,5 +15,8 @@ Do **not** edit archived change-set bodies. If a decision changes, write a new A
 | [CHANGE_SET_57R.md](CHANGE_SET_57R.md) | Operator-journey E2E — Playwright harness, loopback mock server, `-RunPlaywright` flag |
 | [CHANGE_SET_58R.md](CHANGE_SET_58R.md) | Product learning dashboard — pilot signals, aggregation, triage API, operator UI |
 | [CHANGE_SET_59R.md](CHANGE_SET_59R.md) | Learning-to-planning bridge — themes, plans, SQL + contract foundation |
+| [QUALITY_ASSESSMENT.md](QUALITY_ASSESSMENT.md) | Historical product quality snapshot (superseded; canonical: `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md`) |
+| [QUALITY_ASSESSMENT_2026_04.md](QUALITY_ASSESSMENT_2026_04.md) | Historical quality snapshot — April 2026 |
+| [QUALITY_ASSESSMENT_2026_04_14.md](QUALITY_ASSESSMENT_2026_04_14.md) | Historical quality snapshot — 2026-04-14 |
 
 For a summarised, navigable view of all releases use **[docs/CHANGELOG.md](../CHANGELOG.md)**.

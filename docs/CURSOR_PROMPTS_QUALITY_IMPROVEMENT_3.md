@@ -1,5 +1,7 @@
 # Cursor prompts — Quality improvement 3 (load / k6 / CI performance gate)
 
+> **Not the weighted-assessment “Improvement 3”:** for rename / single solution / archived quality reports, use **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md)**.
+
 Standalone prompts derived from **`docs/QUALITY_IMPROVEMENT_PROMPTS_2026_04_14.md` § Prompt 3** and the **current** repo layout. Use them **one at a time** in a Cursor Agent session unless you explicitly want parallel work on disjoint files.
 
 ---
