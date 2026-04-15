@@ -12,10 +12,6 @@ namespace ArchLucid.Persistence;
 /// </remarks>
 public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepository) : IAlertSuppressionPolicy
 {
-    private const string KeyPrefixComposite = "composite";
-    private const string KeySegmentRun = "run";
-    private const string KeySegmentCompare = "compare";
-
     /// <inheritdoc />
     public async Task<AlertSuppressionDecision> DecideAsync(
         CompositeAlertRule rule,
@@ -27,7 +23,7 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(snapshot);
 
-        string dedupeKey = BuildDeduplicationKey(rule, context);
+        string dedupeKey = CompositeAlertDeduplicationKeyBuilder.Build(rule, context);
 
         AlertRecord? existing = await alertRepository
             .GetOpenByDeduplicationKeyAsync(
@@ -88,20 +84,4 @@ public sealed class AlertSuppressionPolicy(IAlertRecordRepository alertRepositor
         };
     }
 
-    /// <summary>Materializes the dedupe string from <see cref="CompositeAlertRule.DedupeScope"/> and context run ids.</summary>
-    private static string BuildDeduplicationKey(
-        CompositeAlertRule rule,
-        AlertEvaluationContext context)
-    {
-        return rule.DedupeScope switch
-        {
-            CompositeDedupeScope.RuleOnly =>
-                $"{KeyPrefixComposite}:{rule.CompositeRuleId}",
-            CompositeDedupeScope.RuleAndRun =>
-                $"{KeyPrefixComposite}:{rule.CompositeRuleId}:{KeySegmentRun}:{context.RunId}",
-            CompositeDedupeScope.RuleAndComparison =>
-                $"{KeyPrefixComposite}:{rule.CompositeRuleId}:{KeySegmentRun}:{context.RunId}:{KeySegmentCompare}:{context.ComparedToRunId}",
-            _ => $"{KeyPrefixComposite}:{rule.CompositeRuleId}:{KeySegmentRun}:{context.RunId}",
-        };
-    }
 }

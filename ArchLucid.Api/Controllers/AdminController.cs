@@ -4,11 +4,13 @@ using ArchLucid.Api.Services.Admin;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
 
 using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.FeatureManagement;
 
 namespace ArchLucid.Api.Controllers;
@@ -71,6 +73,42 @@ public sealed class AdminController(
             await _diagnostics.ListIntegrationOutboxDeadLettersAsync(maxRows, cancellationToken);
 
         return Ok(rows);
+    }
+
+    /// <summary>Detection-only orphan counts (same SQL as the background data-consistency probe).</summary>
+    [HttpGet("diagnostics/data-consistency/orphans")]
+    [ProducesResponseType(typeof(DataConsistencyOrphanCounts), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDataConsistencyOrphans(CancellationToken cancellationToken = default)
+    {
+        DataConsistencyOrphanCounts counts =
+            await _diagnostics.GetDataConsistencyOrphanCountsAsync(cancellationToken);
+
+        return Ok(counts);
+    }
+
+    /// <summary>Soft-archives authority runs created strictly before the cutoff (operator-initiated bulk archival).</summary>
+    [HttpPost("runs/archive-batch")]
+    [EnableRateLimiting("expensive")]
+    [ProducesResponseType(typeof(RunArchiveBatchResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ArchiveRunsBatch(
+        [FromBody] AdminArchiveRunsBatchRequest? body,
+        CancellationToken cancellationToken = default)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        if (body.CreatedBeforeUtc == default)
+        {
+            return this.BadRequestProblem("CreatedBeforeUtc must be set.", ProblemTypes.ValidationFailed);
+        }
+
+        RunArchiveBatchResult result =
+            await _diagnostics.ArchiveRunsCreatedBeforeAsync(body.CreatedBeforeUtc, cancellationToken);
+
+        return Ok(result);
     }
 
     /// <summary>Clears dead-letter state for one outbox row so the worker will publish again.</summary>

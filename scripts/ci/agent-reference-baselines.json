@@ -1,0 +1,8 @@
+{
+  "_comment": "Optional list of golden agent JSON fixtures validated by assert_agent_reference_baselines.py",
+  "goldenAgentResultFixtures": [
+    "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-valid.json",
+    "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-partial-keys.json",
+    "ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/golden-agent-result-claim-without-evidence.json"
+  ]
+}

@@ -1,7 +1,16 @@
+using System.Data.Common;
+
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Coordination.Retrieval;
+using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
+
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Services.Admin;
 
@@ -10,7 +19,10 @@ public sealed class AdminDiagnosticsService(
     IAuthorityPipelineWorkRepository authorityPipelineWork,
     IRetrievalIndexingOutboxRepository retrievalIndexingOutbox,
     IIntegrationEventOutboxRepository integrationEventOutbox,
-    IHostLeaderLeaseRepository hostLeaderLeases) : IAdminDiagnosticsService
+    IHostLeaderLeaseRepository hostLeaderLeases,
+    IRunRepository runRepository,
+    IDbConnectionFactory connectionFactory,
+    IOptions<ArchLucidOptions> archLucidOptions) : IAdminDiagnosticsService
 {
     private readonly IAuthorityPipelineWorkRepository _authorityPipelineWork =
         authorityPipelineWork ?? throw new ArgumentNullException(nameof(authorityPipelineWork));
@@ -23,6 +35,15 @@ public sealed class AdminDiagnosticsService(
 
     private readonly IHostLeaderLeaseRepository _hostLeaderLeases =
         hostLeaderLeases ?? throw new ArgumentNullException(nameof(hostLeaderLeases));
+
+    private readonly IRunRepository _runRepository =
+        runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+
+    private readonly IDbConnectionFactory _connectionFactory =
+        connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+
+    private readonly IOptions<ArchLucidOptions> _archLucidOptions =
+        archLucidOptions ?? throw new ArgumentNullException(nameof(archLucidOptions));
 
     /// <inheritdoc />
     public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
@@ -48,4 +69,42 @@ public sealed class AdminDiagnosticsService(
     /// <inheritdoc />
     public Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default) =>
         _integrationEventOutbox.ResetDeadLetterForRetryAsync(outboxId, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
+        {
+            return new DataConsistencyOrphanCounts(0, 0, 0, 0);
+        }
+
+        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
+        await using DbConnection _ = connection;
+        await connection.OpenAsync(cancellationToken);
+
+        long left = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsLeftRunId, cancellationToken);
+        long right = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.ComparisonRecordsRightRunId, cancellationToken);
+        long golden = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.GoldenManifestsRunId, cancellationToken);
+        long findings = await ExecuteCountAsync(connection, DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId, cancellationToken);
+
+        return new DataConsistencyOrphanCounts(left, right, golden, findings);
+    }
+
+    /// <inheritdoc />
+    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
+        DateTimeOffset createdBeforeUtc,
+        CancellationToken cancellationToken = default) =>
+        _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
+
+    private static async Task<long> ExecuteCountAsync(
+        DbConnection connection,
+        string sql,
+        CancellationToken cancellationToken)
+    {
+        await using DbCommand command = connection.CreateCommand();
+        command.CommandText = sql;
+        object? scalar = await command.ExecuteScalarAsync(cancellationToken);
+        return scalar is long l ? l : Convert.ToInt64(scalar ?? 0L, System.Globalization.CultureInfo.InvariantCulture);
+    }
 }

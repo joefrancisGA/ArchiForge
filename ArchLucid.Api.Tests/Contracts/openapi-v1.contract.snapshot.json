@@ -159,6 +159,124 @@
         }
       }
     },
+    "/v1/admin/diagnostics/data-consistency/orphans": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataConsistencyOrphanCounts"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataConsistencyOrphanCounts"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataConsistencyOrphanCounts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/runs/archive-batch": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AdminArchiveRunsBatchRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AdminArchiveRunsBatchRequest"
+                  }
+                ]
+              }
+            },
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AdminArchiveRunsBatchRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunArchiveBatchResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunArchiveBatchResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunArchiveBatchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/admin/integration-outbox/dead-letters/{outboxId}/retry": {
       "post": {
         "tags": [
@@ -16527,6 +16645,15 @@
   },
   "components": {
     "schemas": {
+      "AdminArchiveRunsBatchRequest": {
+        "type": "object",
+        "properties": {
+          "createdBeforeUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "AdminOutboxSnapshot": {
         "required": [
           "authorityPipelineWorkPending",
@@ -18221,6 +18348,27 @@
           }
         }
       },
+      "ArchivedRunScopeRow": {
+        "type": "object",
+        "properties": {
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scopeProjectId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "ArtifactBundle": {
         "type": "object",
         "properties": {
@@ -19628,6 +19776,49 @@
           },
           "initialContentJson": {
             "type": "string"
+          }
+        }
+      },
+      "DataConsistencyOrphanCounts": {
+        "required": [
+          "comparisonRecordsLeftRunIdOrphans",
+          "comparisonRecordsRightRunIdOrphans",
+          "goldenManifestsRunIdOrphans",
+          "findingsSnapshotsRunIdOrphans"
+        ],
+        "type": "object",
+        "properties": {
+          "comparisonRecordsLeftRunIdOrphans": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "comparisonRecordsRightRunIdOrphans": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "goldenManifestsRunIdOrphans": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "findingsSnapshotsRunIdOrphans": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
           }
         }
       },
@@ -24795,6 +24986,21 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SimulatedAlertOutcome"
+            }
+          }
+        }
+      },
+      "RunArchiveBatchResult": {
+        "type": "object",
+        "properties": {
+          "updatedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "archivedRuns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchivedRunScopeRow"
             }
           }
         }

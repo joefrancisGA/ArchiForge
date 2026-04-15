@@ -164,6 +164,9 @@ jobs:
       - name: Guard — legacy configuration sunset date
         run: python3 scripts/ci/assert_legacy_config_sunset_not_passed.py
 
+      - name: Guard — golden agent reference JSON fixtures
+        run: python3 scripts/ci/assert_agent_reference_baselines.py
+
       - name: Guard — unexpected archiforge string literals in C# (case-insensitive)
         run: |
           set +e

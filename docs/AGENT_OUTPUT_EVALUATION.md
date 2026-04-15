@@ -12,6 +12,7 @@ Provide a **cheap, deterministic** check that persisted agent **`AgentExecutionT
 
 ## 3. Constraints
 
+- **CI fixture guard:** `scripts/ci/assert_agent_reference_baselines.py` (wired in `.github/workflows/ci.yml`) validates committed golden JSON under `ArchLucid.AgentRuntime.Tests/Fixtures/GoldenAgentResults/` listed in `scripts/ci/agent-reference-baselines.json`. Extend that array when adding new golden files.
 - **No new external services**; only **`System.Text.Json`** and existing repositories.
 - **Privacy**: evaluation reads **already-persisted** trace JSON; the **GET** endpoint requires the same **read authority** policy as other run reads.
 - **Cardinality**: metric labels use **`agent_type`** only (four values).

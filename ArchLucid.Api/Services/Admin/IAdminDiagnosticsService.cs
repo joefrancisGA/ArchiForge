@@ -1,5 +1,6 @@
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Api.Services.Admin;
 
@@ -19,4 +20,14 @@ public interface IAdminDiagnosticsService
 
     /// <summary>Re-queues a dead-letter row for another publish attempt cycle.</summary>
     Task<bool> RetryIntegrationOutboxDeadLetterAsync(Guid outboxId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Counts rows referencing a missing authority <c>dbo.Runs</c> row (detection-only; same logic as the orphan probe).
+    /// </summary>
+    Task<DataConsistencyOrphanCounts> GetDataConsistencyOrphanCountsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Soft-archives runs with <c>CreatedUtc</c> strictly before the cutoff (see <see cref="IRunRepository.ArchiveRunsCreatedBeforeAsync"/>).</summary>
+    Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(
+        DateTimeOffset createdBeforeUtc,
+        CancellationToken cancellationToken = default);
 }

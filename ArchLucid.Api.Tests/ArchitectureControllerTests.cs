@@ -332,4 +332,58 @@ public sealed class ArchitectureControllerTests
             secondResponse.StatusCode.Should().Be(HttpStatusCode.Conflict);
         });
     }
+
+    [Fact]
+    public async Task CreateRun_ParallelSameIdempotencyKeyAndBody_AllSucceedWithSingleRunId()
+    {
+        await RunWithIsolatedFactory(async client =>
+        {
+            string idempotencyKey = $"idem-parallel-{Guid.NewGuid():N}";
+            object body = TestRequestFactory.CreateArchitectureRequest("REQ-IDEM-PAR");
+
+            const int parallel = 10;
+            Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
+
+            for (int i = 0; i < parallel; i++)
+            {
+                tasks[i] = PostCreateWithIdempotencyAsync(client, body, idempotencyKey);
+            }
+
+            HttpResponseMessage[] responses = await Task.WhenAll(tasks);
+
+            HashSet<string> runIds = new(StringComparer.OrdinalIgnoreCase);
+            int createdCount = 0;
+
+            foreach (HttpResponseMessage response in responses)
+            {
+                (response.StatusCode == HttpStatusCode.Created || response.StatusCode == HttpStatusCode.OK)
+                    .Should()
+                    .BeTrue();
+
+                if (response.StatusCode == HttpStatusCode.Created)
+                {
+                    createdCount++;
+                }
+
+                CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                payload.Should().NotBeNull();
+                runIds.Add(payload!.Run.RunId);
+            }
+
+            createdCount.Should().Be(1, "exactly one parallel request should create the run; others replay");
+            runIds.Should().HaveCount(1, "all responses must reference the same authority run id");
+        });
+    }
+
+    private static async Task<HttpResponseMessage> PostCreateWithIdempotencyAsync(
+        HttpClient client,
+        object body,
+        string idempotencyKey)
+    {
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request");
+        request.Content = JsonContent(body);
+        request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
+
+        return await client.SendAsync(request);
+    }
 }

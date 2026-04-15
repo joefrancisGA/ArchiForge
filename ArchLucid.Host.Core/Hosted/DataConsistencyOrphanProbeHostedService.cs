@@ -2,6 +2,7 @@ using System.Data.Common;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Data.Infrastructure;
 
 using Microsoft.Data.SqlClient;
@@ -20,46 +21,6 @@ public sealed class DataConsistencyOrphanProbeHostedService(
     IOptions<ArchLucidOptions> archLucidOptions,
     ILogger<DataConsistencyOrphanProbeHostedService> logger) : BackgroundService
 {
-    private const string LeftOrphanSql = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.ComparisonRecords c
-        WHERE c.LeftRunId IS NOT NULL
-          AND TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId) IS NOT NULL
-          AND NOT EXISTS (
-              SELECT 1
-              FROM dbo.Runs r
-              WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.LeftRunId));
-        """;
-
-    private const string RightOrphanSql = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.ComparisonRecords c
-        WHERE c.RightRunId IS NOT NULL
-          AND TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId) IS NOT NULL
-          AND NOT EXISTS (
-              SELECT 1
-              FROM dbo.Runs r
-              WHERE r.RunId = TRY_CONVERT(UNIQUEIDENTIFIER, c.RightRunId));
-        """;
-
-    private const string GoldenManifestOrphanSql = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.GoldenManifests g
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM dbo.Runs r
-            WHERE r.RunId = g.RunId);
-        """;
-
-    private const string FindingsSnapshotOrphanSql = """
-        SELECT COUNT_BIG(1)
-        FROM dbo.FindingsSnapshots f
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM dbo.Runs r
-            WHERE r.RunId = f.RunId);
-        """;
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(archLucidOptions.Value.StorageProvider))
@@ -121,10 +82,34 @@ public sealed class DataConsistencyOrphanProbeHostedService(
         await using DbConnection _ = connection;
         await connection.OpenAsync(ct);
 
-        await LogAndCountOrphansAsync(connection, LeftOrphanSql, "ComparisonRecords", "LeftRunId", ct).ConfigureAwait(false);
-        await LogAndCountOrphansAsync(connection, RightOrphanSql, "ComparisonRecords", "RightRunId", ct).ConfigureAwait(false);
-        await LogAndCountOrphansAsync(connection, GoldenManifestOrphanSql, "GoldenManifests", "RunId", ct).ConfigureAwait(false);
-        await LogAndCountOrphansAsync(connection, FindingsSnapshotOrphanSql, "FindingsSnapshots", "RunId", ct).ConfigureAwait(false);
+        await LogAndCountOrphansAsync(
+                connection,
+                DataConsistencyOrphanProbeSql.ComparisonRecordsLeftRunId,
+                "ComparisonRecords",
+                "LeftRunId",
+                ct)
+            .ConfigureAwait(false);
+        await LogAndCountOrphansAsync(
+                connection,
+                DataConsistencyOrphanProbeSql.ComparisonRecordsRightRunId,
+                "ComparisonRecords",
+                "RightRunId",
+                ct)
+            .ConfigureAwait(false);
+        await LogAndCountOrphansAsync(
+                connection,
+                DataConsistencyOrphanProbeSql.GoldenManifestsRunId,
+                "GoldenManifests",
+                "RunId",
+                ct)
+            .ConfigureAwait(false);
+        await LogAndCountOrphansAsync(
+                connection,
+                DataConsistencyOrphanProbeSql.FindingsSnapshotsRunId,
+                "FindingsSnapshots",
+                "RunId",
+                ct)
+            .ConfigureAwait(false);
     }
 
     private async Task LogAndCountOrphansAsync(

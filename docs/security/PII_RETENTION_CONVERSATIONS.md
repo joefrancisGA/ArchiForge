@@ -68,3 +68,22 @@ Outputs: assistant replies, stored history, indexed chunks.
 Phase 1: **configurable retention** + no plaintext in application logs.  
 Phase 2: **admin export/delete** APIs and **scheduled compaction**.  
 Phase 3: **field-level classification** (labels on threads) driving **automated redaction** before index.
+
+## 10. Operational review cadence (recommended)
+
+Schedule a **quarterly** (or **monthly** for regulated pilots) review with security + platform:
+
+| Checkpoint | Action |
+|------------|--------|
+| **Retention config** | Confirm `DataArchival:*` / conversation retention knobs still match policy; adjust cutoffs after capacity review. |
+| **Backups & replicas** | Verify backup retention does not exceed documented delete commitments for Ask threads. |
+| **Embeddings / index** | If retrieval indexes conversation text, confirm purge jobs or re-index flows when threads are archived. |
+| **Audit & logs** | Sample audit/search exports for accidental prompt logging at Information level. |
+
+This section is **guidance** until product code enforces automated purge for conversation bodies end-to-end.
+
+---
+
+## 11. RLS and tenant isolation (cross-reference)
+
+SQL **row-level security** for multi-tenant scope is documented in [MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md). PII in Ask threads remains subject to the same **scope headers / SESSION_CONTEXT** rules as other tenant-bound tables. Residual uncovered tables (if any) should be tracked with [RLS_RISK_ACCEPTANCE.md](RLS_RISK_ACCEPTANCE.md).
