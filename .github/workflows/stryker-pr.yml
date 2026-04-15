@@ -1,0 +1,103 @@
+# Differential mutation testing on pull requests (Stryker --since). Full matrix remains
+# weekly in stryker-scheduled.yml. See docs/MUTATION_TESTING_STRYKER.md § Per-PR differential.
+name: Stryker (PR differential)
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: stryker-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  stryker_pr_plan:
+    name: "Stryker PR — plan"
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.plan.outputs.run }}
+      matrix_include: ${{ steps.plan.outputs.matrix_include }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Fetch base commit (fork PRs)
+        run: git fetch --no-tags origin ${{ github.event.pull_request.base.sha }}
+
+      - name: Self-test planner (static)
+        run: python3 scripts/ci/stryker_pr_plan.py --self-test
+
+      - id: plan
+        run: >
+          python3 scripts/ci/stryker_pr_plan.py
+          --base "${{ github.event.pull_request.base.sha }}"
+          --head "${{ github.event.pull_request.head.sha }}"
+
+      - name: Plan summary
+        if: always()
+        run: |
+          echo "run=${{ steps.plan.outputs.run }}"
+          echo "matrix_include=${{ steps.plan.outputs.matrix_include }}"
+
+  stryker_pr_run:
+    # TODO: set continue-on-error to false when baselines are stable (≥70) and PR noise is acceptable.
+    continue-on-error: true
+    name: "Stryker PR — ${{ matrix.label }}"
+    needs: stryker_pr_plan
+    if: needs.stryker_pr_plan.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.stryker_pr_plan.outputs.matrix_include) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Fetch base commit (fork PRs)
+        run: git fetch --no-tags origin ${{ github.event.pull_request.base.sha }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Restore local tools (dotnet-stryker)
+        run: dotnet tool restore
+
+      - name: Run Stryker (diff vs base)
+        run: >
+          dotnet dotnet-stryker
+          -f ${{ matrix.config }}
+          -s ArchLucid.sln
+          --since:${{ github.event.pull_request.base.sha }}
+
+      - name: Assert mutation score vs committed baseline
+        if: success()
+        run: >
+          python3 scripts/ci/assert_stryker_score_vs_baseline.py
+          --baseline scripts/ci/stryker-baselines.json
+          --label "${{ matrix.label }}"
+          --stryker-root StrykerOutput
+          --tolerance 0.10
+          --allow-zero-denominator
+
+      - name: Upload Stryker report
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: stryker-pr-${{ matrix.label }}
+          path: StrykerOutput
+          if-no-files-found: warn

@@ -64,9 +64,25 @@ GitHub Actions workflow **`.github/workflows/stryker-scheduled.yml`** runs weekl
 
 **HTML** and **JSON** reports are emitted under `StrykerOutput` (nested timestamp folder; **`mutation-report.json`** is discovered via glob in the assert script).
 
+## Per-PR differential
+
+Workflow **`.github/workflows/stryker-pr.yml`** runs on **`pull_request`** to **`main`** / **`master`** (not merge-blocking on the default CI path).
+
+| Step | Behavior |
+|------|----------|
+| **Plan** | `scripts/ci/stryker_pr_plan.py` diffs `base.sha...head.sha` and maps touched paths to one or more Stryker configs (same six targets as the weekly matrix). |
+| **Triggers full matrix** | Any `stryker-config*.json` at repo root, `stryker-baselines.json`, assert script, this planner, `stryker-pr.yml` / `stryker-scheduled.yml`, or `.config/dotnet-tools.json`. |
+| **Run** | For each selected target: `dotnet dotnet-stryker -f <config> -s ArchLucid.sln --since:<base_sha>` so only mutants in the PR diff are exercised (faster than a full run). |
+| **Assert** | Same `scripts/ci/assert_stryker_score_vs_baseline.py` as the weekly job, plus **`--allow-zero-denominator`** when the diff scope has no scored mutants (skip compare instead of failing at 0%). |
+| **Merge impact** | Jobs use **`continue-on-error: true`** until baselines and noise are acceptable; check the workflow log and artifacts if you need a green signal. |
+
+**Concurrency:** one plan + matrix per PR (`concurrency` group cancels superseded pushes).
+
+**Fork PRs:** checkout uses the head SHA and fetches the base SHA explicitly so `git diff` and Stryker’s `--since` work for forks.
+
 ## CI
 
-Mutation testing is **not** part of the default GitHub Actions workflow: it is slower than the Tier 1 “fast core” suite. Run it locally or in a scheduled pipeline when changing critical persistence or security code.
+Mutation testing is **not** part of the default merge-blocking **`ci.yml`** pipeline: it is slower than the Tier 1 “fast core” suite. Use the **PR differential** workflow above for early feedback, the **weekly** scheduled workflow for full regression, or run locally when changing critical persistence or security code.
 
 ## Security / cost
 

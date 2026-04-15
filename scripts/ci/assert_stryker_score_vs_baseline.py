@@ -112,6 +112,14 @@ def _main() -> int:
         default=0.15,
         help="Allowed drop below baseline in percentage points (default 0.15).",
     )
+    parser.add_argument(
+        "--allow-zero-denominator",
+        action="store_true",
+        help=(
+            "Exit 0 when no scored mutants exist (denominator 0) and no embedded mutationScore. "
+            "Use for Stryker --since runs where the diff produced no in-scope mutants."
+        ),
+    )
     args = parser.parse_args()
 
     if not args.baseline.is_file():
@@ -147,6 +155,18 @@ def _main() -> int:
 
     score, detected, denom = mutation_score_from_report(data)
     floor = baseline - args.tolerance
+
+    embedded = _deep_find_mutation_score(data)
+    if (
+        args.allow_zero_denominator
+        and denom == 0
+        and embedded is None
+    ):
+        print(
+            f"OK: no mutants in report scope (denominator 0); skipping baseline compare "
+            f"(report {report_path}).",
+        )
+        return 0
 
     print(
         f"Stryker mutation score: {score:.2f}% (baseline {baseline:.2f}%, floor {floor:.2f}%, "
