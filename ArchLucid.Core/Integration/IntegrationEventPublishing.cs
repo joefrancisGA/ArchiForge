@@ -28,7 +28,9 @@ public static class IntegrationEventPublishing
 
             await publisher.PublishAsync(eventType, utf8, messageId, cancellationToken);
         }
-        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested
+                                   && ex is not OutOfMemoryException
+                                   && ex is not StackOverflowException)
         {
             if (logger.IsEnabled(LogLevel.Warning))
             {

@@ -308,9 +308,9 @@ public sealed class CircuitBreakerGate
                     probeOutcome,
                     _utcNow()));
         }
-        catch
+        catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {
-            // Audit callbacks must never break the circuit breaker.
+            // Audit callbacks must never break the circuit breaker (non-fatal exceptions only).
         }
     }
 

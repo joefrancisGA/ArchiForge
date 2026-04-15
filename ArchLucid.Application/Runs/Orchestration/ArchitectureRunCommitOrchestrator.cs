@@ -643,32 +643,8 @@ public sealed class ArchitectureRunCommitOrchestrator(
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 
-    private static string BuildManifestVersionForCommit(ArchitectureRun run, string runId)
-    {
-        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            return $"v1-{runId}";
-
-        return IncrementManifestVersion(run.CurrentManifestVersion);
-    }
-
-    /// <summary>
-    /// Parses a <c>vN</c> manifest version string and returns <c>v(N+1)</c>.
-    /// Throws when <paramref name="currentVersion"/> is not in the expected <c>vN</c> format,
-    /// preventing collisions from unrelated legacy or corrupted version strings all resolving to <c>v1</c>.
-    /// </summary>
-    private static string IncrementManifestVersion(string currentVersion)
-    {
-        if (string.IsNullOrWhiteSpace(currentVersion))
-            return "v1";
-
-        if (currentVersion.StartsWith("v", StringComparison.OrdinalIgnoreCase) &&
-            int.TryParse(currentVersion[1..], out int versionNumber))
-            return $"v{versionNumber + 1}";
-
-        throw new InvalidOperationException(
-            $"Cannot increment manifest version '{currentVersion}': expected 'vN' format (e.g. 'v1', 'v2'). " +
-            "Verify the CurrentManifestVersion stored in the database has not been corrupted.");
-    }
+    private static string BuildManifestVersionForCommit(ArchitectureRun run, string runId) =>
+        ManifestVersionIncrementRules.BuildManifestVersionForCommit(run, runId);
 
     private async Task EvaluatePreCommitGovernanceGateOrThrowAsync(
         string runId,

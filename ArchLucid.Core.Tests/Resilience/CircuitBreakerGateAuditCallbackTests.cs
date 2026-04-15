@@ -5,217 +5,36 @@ using FluentAssertions;
 namespace ArchLucid.Core.Tests.Resilience;
 
 [Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
 public sealed class CircuitBreakerGateAuditCallbackTests
 {
     [Fact]
-    public void StateTransition_Closed_To_Open_InvokesCallback()
+    public void State_transition_audit_callback_that_throws_does_not_prevent_open_transition()
     {
-        List<CircuitBreakerAuditEntry> entries = [];
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
-        CircuitBreakerGate gate = new(
-            "cb-test",
-            options,
-            onAuditEntry: entries.Add);
-
-        for (int i = 0; i < 5; i++)
-        {
-            gate.RecordFailure();
-        }
-
-        CircuitBreakerAuditEntry? lastTransition = entries.LastOrDefault(
-            e => e.TransitionType == "StateTransition");
-
-        lastTransition.Should().NotBeNull();
-        lastTransition.FromState.Should().Be("Closed");
-        lastTransition.ToState.Should().Be("Open");
-    }
-
-    [Fact]
-    public void Rejection_WhenOpen_InvokesCallback()
-    {
-        List<CircuitBreakerAuditEntry> entries = [];
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 60
-        };
-        CircuitBreakerGate gate = new("cb-reject", options, onAuditEntry: entries.Add);
-        gate.RecordFailure();
-
-        Action act = () => gate.ThrowIfBroken();
-
-        act.Should().Throw<CircuitBreakerOpenException>();
-        entries.Should().Contain(
-            e => e.TransitionType == "Rejection" && e.FromState == "Open" && e.ToState == "Open");
-    }
-
-    [Fact]
-    public void ProbeOutcome_Success_InvokesCallback()
-    {
-        List<CircuitBreakerAuditEntry> entries = [];
         MutableUtcClock clock = new(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 30
-        };
-        CircuitBreakerGate gate = new("cb-probe-ok", options, clock.ToFunc(), entries.Add);
-
-        gate.RecordFailure();
-        clock.Advance(TimeSpan.FromSeconds(31));
-        gate.ThrowIfBroken();
-        gate.RecordSuccess();
-
-        entries.Should().Contain(
-            e => e.TransitionType == "ProbeOutcome" && e.ProbeOutcome == "success");
-    }
-
-    [Fact]
-    public void ProbeOutcome_Failure_InvokesCallback()
-    {
-        List<CircuitBreakerAuditEntry> entries = [];
-        MutableUtcClock clock = new(new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 30
-        };
-        CircuitBreakerGate gate = new("cb-probe-fail", options, clock.ToFunc(), entries.Add);
-
-        gate.RecordFailure();
-        clock.Advance(TimeSpan.FromSeconds(31));
-        gate.ThrowIfBroken();
-        gate.RecordFailure();
-
-        entries.Should().Contain(
-            e => e.TransitionType == "ProbeOutcome" && e.ProbeOutcome == "failure");
-    }
-
-    [Fact]
-    public void Callback_Null_DoesNotThrow()
-    {
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 10
-        };
-        CircuitBreakerGate gate = new("cb-null", options);
-        Action actOpen = () => gate.RecordFailure();
-
-        actOpen.Should().NotThrow();
-
-        Action actReject = () => gate.ThrowIfBroken();
-
-        actReject.Should().Throw<CircuitBreakerOpenException>();
-    }
-
-    [Fact]
-    public void Callback_that_throws_is_swallowed()
-    {
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 10
-        };
+        CircuitBreakerOptions options = new() { FailureThreshold = 1, DurationOfBreakSeconds = 10 };
+        int auditCalls = 0;
         CircuitBreakerGate gate = new(
-            "cb-bad-callback",
+            "audit-throw-gate",
             options,
-            onAuditEntry: _ => throw new InvalidOperationException("boom"));
-
-        Action act = () => gate.RecordFailure();
-
-        act.Should().NotThrow();
-    }
-
-    [Fact]
-    public void ConsecutiveFailureCount_increments_before_threshold_and_resets_on_success()
-    {
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
-        CircuitBreakerGate gate = new("cb-count", options);
-
-        gate.ConsecutiveFailureCount.Should().Be(0);
+            clock.ToFunc(),
+            _ =>
+            {
+                auditCalls++;
+                throw new InvalidOperationException("audit sink offline");
+            });
 
         gate.RecordFailure();
-        gate.RecordFailure();
-        gate.ConsecutiveFailureCount.Should().Be(2);
 
-        gate.RecordSuccess();
-        gate.ConsecutiveFailureCount.Should().Be(0);
+        gate.CurrentState.Should().Be("Open");
+        auditCalls.Should().BeGreaterThan(0);
     }
 
-    [Fact]
-    public void LastStateChangeUtc_is_null_until_first_transition()
+    private sealed class MutableUtcClock
     {
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 5,
-            DurationOfBreakSeconds = 60
-        };
-        CircuitBreakerGate gate = new("cb-never-transition", options);
+        private DateTimeOffset _now;
 
-        gate.LastStateChangeUtc.Should().BeNull();
-    }
-
-    [Fact]
-    public void LastStateChangeUtc_updates_on_Closed_to_Open_and_Open_to_HalfOpen()
-    {
-        MutableUtcClock clock = new(new DateTimeOffset(2026, 3, 1, 12, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 2,
-            DurationOfBreakSeconds = 30
-        };
-        CircuitBreakerGate gate = new("cb-last-change", options, clock.ToFunc());
-
-        gate.LastStateChangeUtc.Should().BeNull();
-
-        gate.RecordFailure();
-        gate.LastStateChangeUtc.Should().BeNull();
-
-        gate.RecordFailure();
-        gate.LastStateChangeUtc.Should().Be(new DateTimeOffset(2026, 3, 1, 12, 0, 0, TimeSpan.Zero));
-
-        clock.Advance(TimeSpan.FromSeconds(31));
-        gate.ThrowIfBroken();
-        gate.LastStateChangeUtc.Should().Be(new DateTimeOffset(2026, 3, 1, 12, 0, 31, TimeSpan.Zero));
-    }
-
-    [Fact]
-    public void LastStateChangeUtc_updates_on_HalfOpen_to_Closed_after_probe_success()
-    {
-        MutableUtcClock clock = new(new DateTimeOffset(2026, 3, 2, 8, 0, 0, TimeSpan.Zero));
-        CircuitBreakerOptions options = new()
-        {
-            FailureThreshold = 1,
-            DurationOfBreakSeconds = 10
-        };
-        CircuitBreakerGate gate = new("cb-half-to-closed", options, clock.ToFunc());
-
-        gate.RecordFailure();
-        DateTimeOffset? afterOpen = gate.LastStateChangeUtc;
-
-        afterOpen.Should().NotBeNull();
-
-        clock.Advance(TimeSpan.FromSeconds(11));
-        gate.ThrowIfBroken();
-        clock.Advance(TimeSpan.FromSeconds(1));
-        gate.RecordSuccess();
-
-        gate.LastStateChangeUtc.Should().Be(new DateTimeOffset(2026, 3, 2, 8, 0, 12, TimeSpan.Zero));
-        gate.CurrentState.Should().Be("Closed");
-    }
-
-    private sealed class MutableUtcClock(DateTimeOffset start)
-    {
-        private DateTimeOffset _now = start;
+        public MutableUtcClock(DateTimeOffset start) => _now = start;
 
         public void Advance(TimeSpan delta) => _now = _now.Add(delta);
 

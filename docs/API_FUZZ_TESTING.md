@@ -29,7 +29,7 @@ Unlike a fixed integration test suite, Schemathesis **explores** the combination
 | **Cron** | Weekly **Monday 06:00 UTC** (`0 6 * * 1`) — full phases in [`.github/workflows/schemathesis-scheduled.yml`](../.github/workflows/schemathesis-scheduled.yml) |
 | **Manual** | **Actions → Security: Schemathesis API fuzz (scheduled) → Run workflow** |
 
-The **scheduled** job is **not** fully mirrored on every PR (to keep PR latency bounded). The **light** PR job catches many OpenAPI/response-schema mismatches early; the weekly run adds **fuzzing** and **stateful** exploration. Typical wall-clock time for the scheduled workflow is on the order of **10–20 minutes** (API image build, container start, fuzz run, artifact upload), depending on runner load and API complexity.
+The **scheduled** job is **not** fully mirrored on every PR (to keep PR latency bounded). The **light** PR job uses **`--phases=examples`** only (Schemathesis **v4+** valid phases are **`examples`**, **`coverage`**, **`fuzzing`**, **`stateful`** — the old **`explicit`** phase name is invalid and will fail the job). The weekly run adds **fuzzing** and **stateful** exploration. Typical wall-clock time for the scheduled workflow is on the order of **10–20 minutes** (API image build, container start, fuzz run, artifact upload), depending on runner load and API complexity.
 
 ---
 

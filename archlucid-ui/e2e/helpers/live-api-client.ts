@@ -145,6 +145,17 @@ async function throwIfNotOk(res: APIResponse, label: string): Promise<void> {
   throw new Error(`${label} failed ${res.status()}: ${snippet}`);
 }
 
+/** Waits after HTTP 429 using `Retry-After` when present (capped), else a short default. */
+async function delayAfterRateLimitedResponse(res: APIResponse): Promise<void> {
+  const headers = res.headers();
+  const retryAfterRaw = headers["retry-after"] ?? headers["Retry-After"];
+  const seconds = retryAfterRaw ? Number.parseInt(String(retryAfterRaw).trim(), 10) : Number.NaN;
+  const ms =
+    Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds * 1000, 60_000) : 2500;
+
+  await new Promise((r) => setTimeout(r, ms));
+}
+
 /** POST `/v1/architecture/request` — raw response for negative-path tests (400/422). */
 export async function postArchitectureRequestRaw(
   request: APIRequestContext,
@@ -227,22 +238,29 @@ export async function getRunDetails(request: APIRequestContext, runId: string): 
   return res.json() as Promise<RunDetailsJson>;
 }
 
-const maxTransientRetriesPerPoll = 3;
+/** Polling must survive transient 5xx and fixed-window 429 when many live specs share one API process. */
+const maxRunDetailPollAttempts = 16;
 
 /**
- * Same as {@link getRunDetails} but retries a few times on HTTP 5xx (transient API/SQL blips during polling).
+ * Same as {@link getRunDetails} but retries on HTTP 5xx (transient API/SQL) and 429 (rate limit) during polling.
  */
 export async function getRunDetailsWithTransientRetries(
   request: APIRequestContext,
   runId: string,
 ): Promise<RunDetailsJson> {
-  for (let attempt = 0; attempt <= maxTransientRetriesPerPoll; attempt++) {
+  for (let attempt = 0; attempt < maxRunDetailPollAttempts; attempt++) {
     const res = await request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
       headers: liveAcceptHeaders(),
     });
     const code = res.status();
 
-    if (code >= 500 && code < 600 && attempt < maxTransientRetriesPerPoll) {
+    if (code === 429 && attempt < maxRunDetailPollAttempts - 1) {
+      await delayAfterRateLimitedResponse(res);
+
+      continue;
+    }
+
+    if (code >= 500 && code < 600 && attempt < maxRunDetailPollAttempts - 1) {
       await new Promise((r) => setTimeout(r, 500));
 
       continue;
@@ -524,14 +542,26 @@ export async function searchAudit(
     query.eventType = params.eventType;
   }
 
-  const res = await request.get(`${liveApiBase}/v1/audit/search`, {
-    params: query,
-    headers: liveAcceptHeaders(),
-  });
+  const maxAuditSearchAttempts = 8;
 
-  await throwIfNotOk(res, "GET /v1/audit/search");
+  for (let attempt = 0; attempt < maxAuditSearchAttempts; attempt++) {
+    const res = await request.get(`${liveApiBase}/v1/audit/search`, {
+      params: query,
+      headers: liveAcceptHeaders(),
+    });
 
-  return res.json() as Promise<AuditEventJson[]>;
+    if (res.status() === 429 && attempt < maxAuditSearchAttempts - 1) {
+      await delayAfterRateLimitedResponse(res);
+
+      continue;
+    }
+
+    await throwIfNotOk(res, "GET /v1/audit/search");
+
+    return res.json() as Promise<AuditEventJson[]>;
+  }
+
+  throw new Error("searchAudit: retry loop exhausted");
 }
 
 /** GET `/v1/audit` — recent audit events for scope (newest first). */

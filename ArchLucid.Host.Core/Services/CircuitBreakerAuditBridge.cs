@@ -72,7 +72,7 @@ public sealed class CircuitBreakerAuditBridge(
 
                         await audit.LogAsync(auditEvent, CancellationToken.None);
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
                     {
                         _logger.LogWarning(
                             ex,
@@ -81,7 +81,7 @@ public sealed class CircuitBreakerAuditBridge(
                     }
                 });
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
             {
                 _logger.LogWarning(ex, "Circuit breaker audit scheduling failed");
             }

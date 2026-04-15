@@ -1510,6 +1510,6 @@ jobs:
             run http://archlucid-fuzz-api:8080/openapi/v1.json \
             --url http://archlucid-fuzz-api:8080 \
             --checks=all \
-            --phases=examples,explicit \
+            --phases=examples \
             --request-timeout 5 \
             --max-response-time 10

@@ -1,0 +1,34 @@
+---
+description: Prefer single-line throw without braces after if/when the body is only throw.
+alwaysApply: false
+---
+
+# Single-line `throw` style (project preference)
+
+When an `if` (or `else if`) has **only** a `throw` statement as its body, **do not** wrap that body in `{ }`.
+
+**Preferred:**
+
+```csharp
+if (string.IsNullOrWhiteSpace(name))
+    throw new ArgumentException(nameof(name));
+```
+
+**Avoid (unless the team later standardizes on always-braces globally):**
+
+```csharp
+if (string.IsNullOrWhiteSpace(name))
+{
+    throw new ArgumentException(nameof(name));
+}
+```
+
+## Scope
+
+- Applies to **`throw`** as the sole statement in the branch.
+- Does **not** relax other safety rules: multi-statement branches, loops, and `catch` blocks still use braces per normal C# style and existing repo analyzers.
+- If an analyzer or `.editorconfig` rule conflicts, follow the **stricter** automated gate; note the exception in the PR if needed.
+
+## Rationale
+
+This matches the maintainer’s explicit style preference for guard clauses: less visual noise when the intent is a single exceptional exit.
