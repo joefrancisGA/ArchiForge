@@ -902,4 +902,297 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         hydrated.Provenance.SourceGraphNodeIds.Should().Equal("prov-node-rel");
         hydrated.Provenance.AppliedRuleIds.Should().Equal("prov-rule-rel");
     }
+
+    [SkippableFact]
+    public async Task HydrateAsync_falls_back_to_AssumptionsJson_when_no_relational_assumption_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-phase1-assumptions-json-fallback",
+            CancellationToken.None);
+
+        GoldenManifest template = CreateEmptySliceTemplate(
+            manifestId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            createdUtc: new DateTime(2026, 4, 15, 12, 0, 0, DateTimeKind.Utc));
+        template.Assumptions = ["json-assumption-a", "json-assumption-b"];
+
+        await InsertGoldenManifestRowAsync(connection, template);
+
+        GoldenManifestStorageRow? row = await QueryGoldenManifestRowAsync(connection, manifestId);
+
+        row.Should().NotBeNull();
+
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+
+        hydrated.Assumptions.Should().Equal("json-assumption-a", "json-assumption-b");
+    }
+
+    [SkippableFact]
+    public async Task HydrateAsync_falls_back_to_ProvenanceJson_when_no_relational_provenance_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-phase1-provenance-json-fallback",
+            CancellationToken.None);
+
+        GoldenManifest template = CreateEmptySliceTemplate(
+            manifestId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            createdUtc: new DateTime(2026, 4, 15, 12, 5, 0, DateTimeKind.Utc));
+        template.Provenance = new ManifestProvenance
+        {
+            SourceFindingIds = ["json-prov-f1"],
+            SourceGraphNodeIds = ["json-prov-n1"],
+            AppliedRuleIds = ["json-prov-r1"],
+        };
+
+        await InsertGoldenManifestRowAsync(connection, template);
+
+        GoldenManifestStorageRow? row = await QueryGoldenManifestRowAsync(connection, manifestId);
+
+        row.Should().NotBeNull();
+
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+
+        hydrated.Provenance.SourceFindingIds.Should().Equal("json-prov-f1");
+        hydrated.Provenance.SourceGraphNodeIds.Should().Equal("json-prov-n1");
+        hydrated.Provenance.AppliedRuleIds.Should().Equal("json-prov-r1");
+    }
+
+    [SkippableFact]
+    public async Task HydrateAsync_falls_back_to_DecisionsJson_when_no_relational_decision_rows()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await AuthorityRunChainTestSeed.SeedFullChainAsync(
+            connection,
+            TenantId,
+            WorkspaceId,
+            ProjectId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            "proj-gm-phase1-decisions-json-fallback",
+            CancellationToken.None);
+
+        ResolvedArchitectureDecision jsonDecision = new()
+        {
+            DecisionId = "json-decision-only",
+            Category = "Cost",
+            Title = "Cap spend",
+            SelectedOption = "Yes",
+            Rationale = "Budget",
+            SupportingFindingIds = ["jf1"],
+            RelatedNodeIds = ["jn1"],
+            RawDecisionJson = "{\"source\":\"json\"}",
+        };
+
+        GoldenManifest template = CreateEmptySliceTemplate(
+            manifestId,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            createdUtc: new DateTime(2026, 4, 15, 12, 10, 0, DateTimeKind.Utc));
+        template.Decisions = [jsonDecision];
+
+        await InsertGoldenManifestRowAsync(connection, template);
+
+        GoldenManifestStorageRow? row = await QueryGoldenManifestRowAsync(connection, manifestId);
+
+        row.Should().NotBeNull();
+
+        GoldenManifest hydrated =
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+
+        hydrated.Decisions.Should().ContainSingle();
+        ResolvedArchitectureDecision d = hydrated.Decisions[0];
+        d.DecisionId.Should().Be("json-decision-only");
+        d.Category.Should().Be("Cost");
+        d.Title.Should().Be("Cap spend");
+        d.SelectedOption.Should().Be("Yes");
+        d.Rationale.Should().Be("Budget");
+        d.SupportingFindingIds.Should().Equal("jf1");
+        d.RelatedNodeIds.Should().Equal("jn1");
+        d.RawDecisionJson.Should().Be("{\"source\":\"json\"}");
+    }
+
+    private static GoldenManifest CreateEmptySliceTemplate(
+        Guid manifestId,
+        Guid runId,
+        Guid contextId,
+        Guid graphId,
+        Guid findingsId,
+        Guid traceId,
+        DateTime createdUtc)
+    {
+        return new GoldenManifest
+        {
+            TenantId = TenantId,
+            WorkspaceId = WorkspaceId,
+            ProjectId = ProjectId,
+            ManifestId = manifestId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            FindingsSnapshotId = findingsId,
+            DecisionTraceId = traceId,
+            CreatedUtc = createdUtc,
+            ManifestHash = "h",
+            RuleSetId = "r",
+            RuleSetVersion = "1",
+            RuleSetHash = "rh",
+            Metadata = new ManifestMetadata(),
+            Requirements = new RequirementsCoverageSection(),
+            Topology = new TopologySection(),
+            Security = new SecuritySection(),
+            Compliance = new ComplianceSection(),
+            Cost = new CostSection(),
+            Constraints = new ConstraintSection(),
+            UnresolvedIssues = new UnresolvedIssuesSection(),
+            Assumptions = [],
+            Warnings = [],
+            Provenance = new ManifestProvenance(),
+            Decisions = [],
+        };
+    }
+
+    private static async Task InsertGoldenManifestRowAsync(SqlConnection connection, GoldenManifest template)
+    {
+        const string insertManifest = """
+            INSERT INTO dbo.GoldenManifests
+            (
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson
+            )
+            VALUES
+            (
+                @TenantId, @WorkspaceId, @ProjectId,
+                @ManifestId, @RunId, @ContextSnapshotId, @GraphSnapshotId, @FindingsSnapshotId, @DecisionTraceId,
+                @CreatedUtc, @ManifestHash, @RuleSetId, @RuleSetVersion, @RuleSetHash,
+                @MetadataJson, @RequirementsJson, @TopologyJson, @SecurityJson, @ComplianceJson, @CostJson,
+                @ConstraintsJson, @UnresolvedIssuesJson, @DecisionsJson, @AssumptionsJson,
+                @WarningsJson, @ProvenanceJson
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertManifest,
+                new
+                {
+                    template.TenantId,
+                    template.WorkspaceId,
+                    template.ProjectId,
+                    template.ManifestId,
+                    template.RunId,
+                    template.ContextSnapshotId,
+                    template.GraphSnapshotId,
+                    template.FindingsSnapshotId,
+                    template.DecisionTraceId,
+                    template.CreatedUtc,
+                    template.ManifestHash,
+                    template.RuleSetId,
+                    template.RuleSetVersion,
+                    template.RuleSetHash,
+                    MetadataJson = JsonEntitySerializer.Serialize(template.Metadata),
+                    RequirementsJson = JsonEntitySerializer.Serialize(template.Requirements),
+                    TopologyJson = JsonEntitySerializer.Serialize(template.Topology),
+                    SecurityJson = JsonEntitySerializer.Serialize(template.Security),
+                    ComplianceJson = JsonEntitySerializer.Serialize(template.Compliance),
+                    CostJson = JsonEntitySerializer.Serialize(template.Cost),
+                    ConstraintsJson = JsonEntitySerializer.Serialize(template.Constraints),
+                    UnresolvedIssuesJson = JsonEntitySerializer.Serialize(template.UnresolvedIssues),
+                    DecisionsJson = JsonEntitySerializer.Serialize(template.Decisions),
+                    AssumptionsJson = JsonEntitySerializer.Serialize(template.Assumptions),
+                    WarningsJson = JsonEntitySerializer.Serialize(template.Warnings),
+                    ProvenanceJson = JsonEntitySerializer.Serialize(template.Provenance),
+                },
+                cancellationToken: CancellationToken.None));
+    }
+
+    private static async Task<GoldenManifestStorageRow?> QueryGoldenManifestRowAsync(
+        SqlConnection connection,
+        Guid manifestId)
+    {
+        const string selectRow = """
+            SELECT
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+            FROM dbo.GoldenManifests
+            WHERE ManifestId = @ManifestId;
+            """;
+
+        return await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+    }
 }

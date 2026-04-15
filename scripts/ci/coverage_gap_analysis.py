@@ -131,7 +131,7 @@ def main() -> int:
             try:
                 rel = rel.relative_to(repo)
             except ValueError:
-                rel = Path(short)
+                rel = Path(path)
             out_lines.append(f"| {i} | `{rel}` | {n} |")
         out_lines.append("")
 
@@ -148,7 +148,16 @@ def main() -> int:
     if branch_raw:
         out_lines.append(f"- **Merged branch coverage:** {float(branch_raw) * 100.0:.2f}%")
     out_lines.append("")
+    recent_path = repo / "docs" / "COVERAGE_GAP_ANALYSIS_RECENT.md"
+    if recent_path.is_file():
+        out_lines.append(recent_path.read_text(encoding="utf-8").strip())
+        out_lines.append("")
     out_lines.append("## How to refresh")
+    out_lines.append("")
+    out_lines.append(
+        "Narrative bullets under **Recent targeted tests** live in "
+        "`docs/COVERAGE_GAP_ANALYSIS_RECENT.md` and are merged by this script when that file exists."
+    )
     out_lines.append("")
     out_lines.append("```powershell")
     out_lines.append("dotnet test ArchLucid.sln -c Release --settings coverage.runsettings `")

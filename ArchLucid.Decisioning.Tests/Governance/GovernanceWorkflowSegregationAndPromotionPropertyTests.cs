@@ -153,6 +153,41 @@ public sealed class GovernanceWorkflowSegregationAndPromotionPropertyTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public async Task PromoteAsync_to_prod_when_approval_manifest_version_mismatch_throws_InvalidOperationException()
+    {
+        Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
+        approvalRepo
+            .Setup(r => r.GetByIdAsync("ar1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new GovernanceApprovalRequest
+                {
+                    ApprovalRequestId = "ar1",
+                    Status = GovernanceApprovalStatus.Approved,
+                    RunId = "run1",
+                    ManifestVersion = "v-other",
+                    TargetEnvironment = GovernanceEnvironment.Prod,
+                    RequestedBy = "alice",
+                });
+
+        GovernanceWorkflowService sut = CreateSutForPromote(runId: "run1", approvalRepo);
+
+        Func<Task> act = () => sut.PromoteAsync(
+            "run1",
+            "v1",
+            GovernanceEnvironment.Test,
+            GovernanceEnvironment.Prod,
+            "promoter",
+            approvalRequestId: "ar1",
+            notes: null,
+            dryRun: false,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*manifest version*");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public async Task PromoteAsync_to_prod_when_approval_run_mismatch_throws_InvalidOperationException()
     {
         Mock<IGovernanceApprovalRequestRepository> approvalRepo = new();
