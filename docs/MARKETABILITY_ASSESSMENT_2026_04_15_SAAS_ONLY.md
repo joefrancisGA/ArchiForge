@@ -141,4 +141,5 @@ SaaS-only **raises the bar** on **platform, trust, and commercial completeness**
 | `docs/go-to-market/ROI_MODEL.md` | ROI (M3) |
 | `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md` | Pilot metrics (M3) |
 | `docs/go-to-market/DEMO_QUICKSTART.md` | Docker demo (seller-led; not buyer self-host) |
+| `docs/go-to-market/TRUST_CENTER.md` | Buyer trust index (Improvement 1 spine: DPA, subprocessors, incidents, SOC 2 roadmap) |
 | `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | Technical quality |

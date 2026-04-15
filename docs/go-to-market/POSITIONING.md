@@ -184,3 +184,4 @@ This category sits between traditional **Enterprise Architecture Management** (w
 | [../V1_SCOPE.md](../V1_SCOPE.md) | What V1 actually ships (grounding for all claims) |
 | [../GLOSSARY.md](../GLOSSARY.md) | Domain terminology for consistent messaging |
 | [../MARKETABILITY_ASSESSMENT_2026_04_15.md](../MARKETABILITY_ASSESSMENT_2026_04_15.md) | Full marketability quality assessment |
+| [TRUST_CENTER.md](TRUST_CENTER.md) | Trust center — security overview, DPA template, subprocessors, incident comms, SOC 2 roadmap |

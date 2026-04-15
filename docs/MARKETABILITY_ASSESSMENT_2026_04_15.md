@@ -561,6 +561,7 @@ Keep JwtBearer mode as-is. New mode is additive.
 | `docs/go-to-market/PILOT_SUCCESS_SCORECARD.md` | Pilot measurement framework (M3) |
 | `docs/go-to-market/DEMO_QUICKSTART.md` | Docker-only demo (`docker-compose.demo.yml`, `scripts/demo-start.*`) (M4) |
 | `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md` | SaaS-only posture; weights on platform, trust, GTM (~34.8% weighted) |
+| `docs/go-to-market/TRUST_CENTER.md` | Buyer trust index (DPA template, subprocessors, incidents, SOC 2 roadmap, tenant isolation) |
 | `docs/QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md` | Technical quality assessment (68.5%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M3.md` | Prior assessment (39.9%) |
 | `docs/archive/MARKETABILITY_ASSESSMENT_2026_04_15_PRE_M2.md` | Prior assessment (37.6%) |
