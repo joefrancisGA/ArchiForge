@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI commit subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
@@ -9,9 +11,11 @@ internal static class CommitCommand
     {
         string baseUrl = CliCommandShared.GetBaseUrl(CliCommandShared.TryLoadConfigFromCwd());
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         ArchLucidApiClient client = new(baseUrl);
@@ -23,7 +27,7 @@ internal static class CommitCommand
             Console.WriteLine($"Error: {result?.Error ?? "Commit failed"}");
             CliOperatorHints.WriteAfterApiFailure(result?.HttpStatusCode, result?.Error);
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         ArchLucidApiClient.CommitRunResponse resp = result.Response!;
@@ -44,6 +48,6 @@ internal static class CommitCommand
         Console.WriteLine();
         Console.WriteLine($"Use 'archlucid artifacts {runId}' to view the manifest.");
 
-        return 0;
+        return CliExitCode.Success;
     }
 }

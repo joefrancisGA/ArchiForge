@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Cli;
 using ArchLucid.Contracts.Common;
 
 namespace ArchLucid.Cli.Commands;
@@ -11,9 +12,11 @@ internal static class StatusCommand
     {
         string baseUrl = CliCommandShared.GetBaseUrl(CliCommandShared.TryLoadConfigFromCwd());
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         ArchLucidApiClient client = new(baseUrl);
@@ -24,7 +27,7 @@ internal static class StatusCommand
         {
             Console.WriteLine($"Run '{runId}' not found. Ensure the ArchLucid API is running at {baseUrl}.");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         ArchLucidApiClient.RunInfo r = run.Run;
@@ -55,6 +58,6 @@ internal static class StatusCommand
 
         Console.WriteLine($"Results: {run.Results.Count} submitted");
 
-        return 0;
+        return CliExitCode.Success;
     }
 }

@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI artifacts subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]
@@ -11,9 +13,11 @@ internal static class ArtifactsCommand
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
         string baseUrl = CliCommandShared.GetBaseUrl(config);
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         ArchLucidApiClient client = new(baseUrl);
@@ -25,7 +29,7 @@ internal static class ArtifactsCommand
             Console.WriteLine($"Run '{runId}' not found. Ensure the ArchLucid API is running at {baseUrl}.");
             CliOperatorHints.WriteAfterApiFailure(404, null);
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         string? version = run.Run.CurrentManifestVersion;
@@ -36,7 +40,7 @@ internal static class ArtifactsCommand
             await Console.Error.WriteLineAsync(
                 "Next: archlucid status <runId>, then submit results or use seed (Development), then archlucid commit.");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         object? manifest = await client.GetManifestAsync(version);
@@ -46,7 +50,7 @@ internal static class ArtifactsCommand
             Console.WriteLine($"Manifest '{version}' not found.");
             CliOperatorHints.WriteAfterApiFailure(404, null);
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         string json = JsonSerializer.Serialize(manifest, CliCommandShared.JsonWriteIndented);
@@ -77,6 +81,6 @@ internal static class ArtifactsCommand
             Console.WriteLine(json);
         }
 
-        return 0;
+        return CliExitCode.Success;
     }
 }

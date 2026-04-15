@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Cli;
 using ArchLucid.Cli.Support;
 
 namespace ArchLucid.Cli.Commands;
@@ -40,7 +41,7 @@ internal static class SupportBundleCommand
                 {
                     await Console.Error.WriteLineAsync("[ArchLucid CLI] support-bundle: missing path after --output.");
 
-                    return 1;
+                    return CliExitCode.UsageError;
                 }
 
                 outputOverride = args[++i];
@@ -53,12 +54,12 @@ internal static class SupportBundleCommand
             {
                 PrintUsage();
 
-                return 0;
+                return CliExitCode.Success;
             }
 
             await Console.Error.WriteLineAsync($"[ArchLucid CLI] support-bundle: unknown argument '{a}'.");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
@@ -68,7 +69,7 @@ internal static class SupportBundleCommand
         {
             await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
-            return 1;
+            return CliExitCode.ConfigurationError;
         }
 
         string folderName = "support-bundle-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.InvariantCulture) + "Z";
@@ -98,7 +99,7 @@ internal static class SupportBundleCommand
         Console.WriteLine();
         Console.WriteLine("Review README.txt and JSON files before sending; they exclude secrets by design.");
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static void PrintUsage()

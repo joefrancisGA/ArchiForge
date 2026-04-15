@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI comparisons subcommands orchestrate HTTP via ArchLucidApiClient (excluded from coverage); exercised via manual CLI and API integration.")]
@@ -21,16 +23,18 @@ internal static class ComparisonsCommand
             Console.WriteLine("   or: archlucid comparisons diagnostics [--limit <n>] [--json|--table]");
             Console.WriteLine("   or: archlucid comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         string sub = args[0];
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
         string baseUrl = CliCommandShared.GetBaseUrl(config);
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         ArchLucidApiClient client = new(baseUrl);
@@ -54,7 +58,7 @@ internal static class ComparisonsCommand
             default:
                 Console.WriteLine($"Unknown subcommand for comparisons: {sub}");
 
-                return 1;
+                return CliExitCode.UsageError;
         }
     }
 
@@ -149,14 +153,14 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("No comparison records found or request failed.");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         if (result.Records.Count == 0)
         {
             Console.WriteLine("No comparison records matched the filters.");
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         if (asJson)
@@ -166,20 +170,20 @@ internal static class ComparisonsCommand
 
             if (string.IsNullOrWhiteSpace(result.NextCursor))
             {
-                return 0;
+                return CliExitCode.Success;
             }
 
             Console.WriteLine();
             Console.WriteLine($"nextCursor: {result.NextCursor}");
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         if (asTable)
         {
             PrintComparisonTable(result.Records);
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         foreach (ArchLucidApiClient.ComparisonRecordSummary r in result.Records)
@@ -190,7 +194,7 @@ internal static class ComparisonsCommand
                 $"{r.CreatedUtc:O} | {r.ComparisonRecordId} | {r.ComparisonType} | LeftRun={r.LeftRunId} RightRun={r.RightRunId}{labelPart}{tagsPart}");
         }
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static void PrintComparisonTable(IReadOnlyList<ArchLucidApiClient.ComparisonRecordSummary> records)
@@ -239,7 +243,7 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Usage: archlucid comparisons tag <comparisonRecordId> [--label <label>] [--tag <t>]...");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         string comparisonRecordId = args[0];
@@ -265,12 +269,12 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Update failed or comparison record not found.");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         Console.WriteLine($"Updated comparison record {comparisonRecordId}.");
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static async Task<int> ReplayAsync(ArchLucidApiClient client, string[] args)
@@ -280,7 +284,7 @@ internal static class ComparisonsCommand
             Console.WriteLine(
                 "Usage: archlucid comparisons replay <comparisonRecordId> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         string comparisonRecordId = args[0];
@@ -318,7 +322,7 @@ internal static class ComparisonsCommand
 
         bool ok = await client.ReplayComparisonToFileAsync(comparisonRecordId, format, mode, profile, persist, outPath, force);
 
-        return ok ? 0 : 1;
+        return ok ? CliExitCode.Success : CliExitCode.OperationFailed;
     }
 
     private static async Task<int> ReplayBatchAsync(ArchLucidApiClient client, string[] args)
@@ -328,7 +332,7 @@ internal static class ComparisonsCommand
             Console.WriteLine(
                 "Usage: archlucid comparisons replay-batch <id1,id2,...> [--format <markdown|html|docx|pdf>] [--mode <artifact|regenerate|verify>] [--profile <profile>] [--persist] [--out <path>] [--force]");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         List<string> ids = args[0]
@@ -371,7 +375,7 @@ internal static class ComparisonsCommand
 
         bool ok = await client.ReplayComparisonsBatchToZipAsync(ids, format, mode, profile, persist, outPath, force);
 
-        return ok ? 0 : 1;
+        return ok ? CliExitCode.Success : CliExitCode.OperationFailed;
     }
 
     private static async Task<int> SummaryAsync(ArchLucidApiClient client, string[] args)
@@ -380,7 +384,7 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Usage: archlucid comparisons summary <comparisonRecordId> [--json]");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         string comparisonRecordId = args[0];
@@ -391,7 +395,7 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Failed to get comparison summary (unauthorized, not found, or request failed).");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         if (asJson)
@@ -399,12 +403,12 @@ internal static class ComparisonsCommand
             string json = JsonSerializer.Serialize(summary, CliCommandShared.JsonWriteIndented);
             Console.WriteLine(json);
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         Console.WriteLine(summary.Summary);
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static async Task<int> DriftAsync(ArchLucidApiClient client, string[] args)
@@ -413,7 +417,7 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Usage: archlucid comparisons drift <comparisonRecordId> [--json]");
 
-            return 1;
+            return CliExitCode.UsageError;
         }
 
         string comparisonRecordId = args[0];
@@ -424,7 +428,7 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Failed to get drift analysis (unauthorized, not found, or request failed).");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         if (asJson)
@@ -432,7 +436,7 @@ internal static class ComparisonsCommand
             string json = JsonSerializer.Serialize(drift, CliCommandShared.JsonWriteIndented);
             Console.WriteLine(json);
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         Console.WriteLine($"DriftDetected={drift.DriftDetected}");
@@ -448,7 +452,7 @@ internal static class ComparisonsCommand
             Console.WriteLine($"(showing 25 of {drift.Items.Count} items)");
         }
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static async Task<int> DiagnosticsAsync(ArchLucidApiClient client, string[] args)
@@ -482,7 +486,7 @@ internal static class ComparisonsCommand
         {
             Console.WriteLine("Failed to get replay diagnostics (unauthorized or request failed).");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         if (asJson)
@@ -490,14 +494,14 @@ internal static class ComparisonsCommand
             string json = JsonSerializer.Serialize(diagnostics, CliCommandShared.JsonWriteIndented);
             Console.WriteLine(json);
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         if (asTable)
         {
             PrintReplayDiagnosticsTable(diagnostics.RecentReplays);
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         foreach (ArchLucidApiClient.ReplayDiagnosticsEntry e in diagnostics.RecentReplays)
@@ -506,7 +510,7 @@ internal static class ComparisonsCommand
                 $"{e.TimestampUtc:O} | {e.ComparisonRecordId} | {e.ComparisonType} | {e.Format} | {e.ReplayMode} | Success={e.Success} | {e.DurationMs}ms | MetaOnly={e.MetadataOnly} | Persisted={e.PersistedReplayRecordId} | Err={e.ErrorMessage}");
         }
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static void PrintReplayDiagnosticsTable(IReadOnlyList<ArchLucidApiClient.ReplayDiagnosticsEntry> entries)

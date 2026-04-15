@@ -1,3 +1,5 @@
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 internal static class NewCommand
@@ -16,6 +18,6 @@ internal static class NewCommand
 
         ArchLucidProjectScaffolder.CreateProject(scaffoldOptions);
 
-        return Task.FromResult(0);
+        return Task.FromResult(CliExitCode.Success);
     }
 }

@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI dev up invokes Docker Compose from the host; environment-dependent; exercised manually.")]
@@ -15,7 +17,7 @@ internal static class DevUpCommand
             Console.WriteLine(
                 "Error: docker-compose.yml not found. Run from the ArchLucid repo root, or ensure docker-compose.yml exists in the current directory.");
 
-            return Task.FromResult(1);
+            return Task.FromResult(CliExitCode.UsageError);
         }
 
         string composePath = Path.Combine(composeDir, "docker-compose.yml");
@@ -44,7 +46,7 @@ internal static class DevUpCommand
                     Console.WriteLine(output);
                 }
 
-                return Task.FromResult(1);
+                return Task.FromResult(CliExitCode.OperationFailed);
             }
 
             Console.WriteLine();
@@ -58,14 +60,14 @@ internal static class DevUpCommand
                 "  Server=localhost,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;");
             Console.WriteLine();
 
-            return Task.FromResult(0);
+            return Task.FromResult(CliExitCode.Success);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
             Console.WriteLine("Ensure Docker Desktop is running and 'docker' is in PATH.");
 
-            return Task.FromResult(1);
+            return Task.FromResult(CliExitCode.OperationFailed);
         }
     }
 

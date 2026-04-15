@@ -33,6 +33,7 @@ Default local setups often use a **simulator** for agents so you do not need clo
 | **Connection string** | Set `ConnectionStrings:ArchLucid` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
 | **Storage mode** | For a normal pilot, use **`ArchLucid:StorageProvider`** = **`Sql`** (typical default in appsettings). |
 | **Node.js 22+** | Optional; only for the **operator UI** in `archlucid-ui/`. |
+| **Advanced API config** | Optional. `ArchLucid.Api/appsettings.Advanced.json` (gitignored locally if you create it) is loaded after `appsettings.json` when present; use it for profiles, observability, LLM tuning, and integration settings without bloating the default file. |
 
 Clone or unpack the repo, then from `ArchLucid.Api`:
 

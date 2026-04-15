@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Cli;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
@@ -31,7 +32,17 @@ internal static class CliCommandShared
     internal static string GetBaseUrl(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
         ArchLucidApiClient.ResolveBaseUrl(config);
 
-    internal static async Task<bool> EnsureApiConnectedAsync(
+    internal static int ExitCodeForFailedConnection(ApiConnectionOutcome outcome)
+    {
+        return outcome switch
+        {
+            ApiConnectionOutcome.InvalidConfiguration => CliExitCode.ConfigurationError,
+            ApiConnectionOutcome.Unreachable => CliExitCode.ApiUnavailable,
+            _ => throw new ArgumentOutOfRangeException(nameof(outcome), outcome, "Expected a failed connection outcome."),
+        };
+    }
+
+    internal static async Task<ApiConnectionOutcome> TryConnectToApiAsync(
         string baseUrl,
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = null,
         CancellationToken ct = default)
@@ -40,24 +51,42 @@ internal static class CliCommandShared
 
         if (urlError is not null)
         {
-            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
+            if (CliExecutionContext.JsonOutput)
+            {
+                CliJson.WriteFailureLine(Console.Error, CliExitCode.ConfigurationError, "configuration", urlError);
+            }
+            else
+            {
+                await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
+            }
 
-            return false;
+            return ApiConnectionOutcome.InvalidConfiguration;
         }
 
         ArchLucidApiClient client = new(baseUrl, config);
 
         if (await client.CheckHealthAsync(ct))
         {
-            return true;
+            return ApiConnectionOutcome.Connected;
         }
 
-        Console.WriteLine($"Cannot connect to ArchLucid API at {baseUrl}");
-        Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
-        Console.WriteLine("Or set apiUrl in archlucid.json / ARCHLUCID_API_URL environment variable.");
-        CliOperatorHints.WriteAfterHealthUnreachable(baseUrl);
+        if (CliExecutionContext.JsonOutput)
+        {
+            CliJson.WriteFailureLine(
+                Console.Error,
+                CliExitCode.ApiUnavailable,
+                "api_unreachable",
+                $"Cannot reach ArchLucid API at {baseUrl}.");
+        }
+        else
+        {
+            Console.WriteLine($"Cannot connect to ArchLucid API at {baseUrl}");
+            Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
+            Console.WriteLine("Or set apiUrl in archlucid.json / ARCHLUCID_API_URL environment variable.");
+            CliOperatorHints.WriteAfterHealthUnreachable(baseUrl);
+        }
 
-        return false;
+        return ApiConnectionOutcome.Unreachable;
     }
 
     internal static ArchitectureRequest BuildArchitectureRequest(

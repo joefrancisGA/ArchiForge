@@ -1,3 +1,5 @@
+using ArchLucid.Cli;
+
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;
@@ -17,7 +19,7 @@ public sealed class CommandLineTests
         {
             int exitCode = await Program.RunAsync([]);
 
-            exitCode.Should().Be(1);
+            exitCode.Should().Be(CliExitCode.UsageError);
             string output = outWriter + errWriter.ToString();
             output.Should().Contain("Please provide a command");
             output.Should().Contain("Available commands");
@@ -36,7 +38,7 @@ public sealed class CommandLineTests
         {
             int exitCode = await Program.RunAsync(["invalid"]);
 
-            exitCode.Should().Be(1);
+            exitCode.Should().Be(CliExitCode.UsageError);
             string output = outWriter + errWriter.ToString();
             output.Should().Contain("Unknown command");
             output.Should().Contain("invalid");
@@ -48,17 +50,58 @@ public sealed class CommandLineTests
     }
 
     [Fact]
-    public async Task Health_WhenApiUnreachable_Returns1()
+    public async Task Health_WhenApiUnreachable_Returns3()
     {
         RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
         try
         {
             int exitCode = await Program.RunAsync(["health"]);
 
-            exitCode.Should().Be(1);
+            exitCode.Should().Be(CliExitCode.ApiUnavailable);
             string output = outWriter + errWriter.ToString();
-            (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach"))
-                .Should().BeTrue("output should contain 'FAIL', 'Cannot connect', or 'Cannot reach'");
+            (output.Contains("FAIL") || output.Contains("Cannot connect") || output.Contains("Cannot reach") || output.Contains("api_unreachable"))
+                .Should().BeTrue("output should contain unreachable guidance or JSON error code");
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task LeadingGlobalJson_WithNoArgs_WritesJsonUsageToStderr()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["--json"]);
+
+            exitCode.Should().Be(CliExitCode.UsageError);
+            string err = errWriter.ToString();
+            err.Should().Contain("\"ok\":false");
+            err.Should().Contain("\"exitCode\":1");
+            err.Should().Contain("\"error\":\"usage\"");
+            outWriter.ToString().Should().BeEmpty();
+        }
+        finally
+        {
+            RestoreConsole(prevOut, prevErr);
+        }
+    }
+
+    [Fact]
+    public async Task LeadingGlobalJson_HealthUnreachable_WritesJsonToStderr()
+    {
+        RedirectConsole(out StringWriter outWriter, out StringWriter errWriter, out TextWriter prevOut, out TextWriter prevErr);
+        try
+        {
+            int exitCode = await Program.RunAsync(["--json", "health"]);
+
+            exitCode.Should().Be(CliExitCode.ApiUnavailable);
+            string err = errWriter.ToString();
+            err.Should().Contain("\"ok\":false");
+            err.Should().Contain("\"exitCode\":3");
+            err.Should().Contain("api_unreachable");
         }
         finally
         {
@@ -80,7 +123,7 @@ public sealed class CommandLineTests
             {
                 int exitCode = await Program.RunAsync(["new", "TestProject"]);
 
-                exitCode.Should().Be(0);
+                exitCode.Should().Be(CliExitCode.Success);
                 string projectDir = Path.Combine(temp.Path, "TestProject");
                 string manifestPath = Path.Combine(projectDir, ArchLucidProjectScaffolder.CliManifestFileName);
                 string briefMd = Path.Combine(projectDir, "inputs", "brief.md");

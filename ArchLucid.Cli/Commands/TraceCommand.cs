@@ -1,5 +1,7 @@
 using System.Diagnostics;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
@@ -16,9 +18,12 @@ internal static class TraceCommand
         ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
         string baseUrl = CliCommandShared.GetBaseUrl(config);
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl, config, cancellationToken))
+        ApiConnectionOutcome connection =
+            await CliCommandShared.TryConnectToApiAsync(baseUrl, config, cancellationToken);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         ArchLucidApiClient client = new(baseUrl, config);
@@ -56,7 +61,7 @@ internal static class TraceCommand
             await output.WriteLineAsync(
                 $"Run '{runId}' not found. Ensure the ArchLucid API is running and the id is correct.");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         string? traceId = detail.Run.OtelTraceId;
@@ -66,7 +71,7 @@ internal static class TraceCommand
             await output.WriteLineAsync(
                 $"No trace ID recorded for run {runId}. The run may predate trace persistence.");
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         string? template = getTraceViewerTemplate();
@@ -77,7 +82,7 @@ internal static class TraceCommand
             await output.WriteLineAsync(
                 "Set ARCHLUCID_TRACE_VIEWER_URL_TEMPLATE to enable direct links (e.g., https://grafana.example.com/explore?traceId={traceId}).");
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         string url = BuildTraceViewerUrl(template, traceId);
@@ -88,7 +93,7 @@ internal static class TraceCommand
             openBrowser(url);
         }
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     /// <summary>Matches <c>archlucid-ui</c> <c>trace-link.ts</c>: template with <c>{traceId}</c> placeholder, trace id URL-encoded.</summary>

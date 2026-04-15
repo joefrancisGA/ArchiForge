@@ -12,7 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { NAV_GROUPS } from "@/lib/nav-config";
+import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
+import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
@@ -23,6 +25,7 @@ import { cn } from "@/lib/utils";
 export function MobileNavDrawer() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const { showExtended, showAdvanced } = useNavProgressiveDisclosure();
 
   return (
     <>
@@ -44,13 +47,16 @@ export function MobileNavDrawer() {
             <DialogTitle className="text-base">Operator navigation</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-4 px-3 py-3">
-            {NAV_GROUPS.map((group) => (
+            {NAV_GROUPS.map((group) => {
+              const visibleLinks: NavLinkItem[] = filterNavLinksByTier(group.links, showExtended, showAdvanced);
+
+              return (
               <div key={group.id}>
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                   {group.label}
                 </div>
                 <nav className="flex flex-col gap-0.5" aria-label={group.label}>
-                  {group.links.map((link) => {
+                  {visibleLinks.map((link) => {
                     const active = isNavLinkActive(pathname, link.href);
                     const Icon = link.icon;
 
@@ -80,9 +86,10 @@ export function MobileNavDrawer() {
                   })}
                 </nav>
               </div>
-            ))}
+            );
+            })}
             <p className="text-xs text-neutral-600 dark:text-neutral-400" aria-keyshortcuts="Shift+?">
-              Press Shift+? for keyboard shortcuts
+              Press Shift+? for help and keyboard shortcuts
             </p>
           </div>
         </DialogContent>

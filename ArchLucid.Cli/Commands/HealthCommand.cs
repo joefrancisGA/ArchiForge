@@ -1,34 +1,39 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+
+using ArchLucid.Cli;
 
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI health checks reachability via ArchLucidApiClient (excluded from coverage); smoke-tested via Program integration tests.")]
 internal static class HealthCommand
 {
+    private static readonly JsonSerializerOptions JsonCamel = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     public static async Task<int> RunAsync()
     {
-        string baseUrl = CliCommandShared.GetBaseUrl(CliCommandShared.TryLoadConfigFromCwd());
-        string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
+        ArchLucidProjectScaffolder.ArchLucidCliConfig? config = CliCommandShared.TryLoadConfigFromCwd();
+        string baseUrl = CliCommandShared.GetBaseUrl(config);
+        ApiConnectionOutcome outcome = await CliCommandShared.TryConnectToApiAsync(baseUrl, config);
 
-        if (urlError is not null)
+        if (outcome != ApiConnectionOutcome.Connected)
         {
-            await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
-
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(outcome);
         }
 
-        ArchLucidApiClient client = new(baseUrl);
-
-        if (await client.CheckHealthAsync())
+        if (CliExecutionContext.JsonOutput)
+        {
+            object payload = new { ok = true, exitCode = CliExitCode.Success, baseUrl };
+            Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
+        }
+        else
         {
             Console.WriteLine($"OK - ArchLucid API at {baseUrl} is reachable.");
-
-            return 0;
         }
 
-        Console.WriteLine($"FAIL - Cannot reach ArchLucid API at {baseUrl}");
-        Console.WriteLine("Ensure the API is running: dotnet run --project ArchLucid.Api");
-
-        return 1;
+        return CliExitCode.Success;
     }
 }

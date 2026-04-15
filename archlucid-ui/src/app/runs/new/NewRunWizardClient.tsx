@@ -16,12 +16,11 @@ import { WizardStepIdentity } from "@/components/wizard/steps/WizardStepIdentity
 import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
-import { createArchitectureRun, getRunSummary } from "@/lib/api";
+import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
+import { createArchitectureRun } from "@/lib/api";
 import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
-import type { RunSummary } from "@/types/authority";
-
 const WIZARD_STEP_DEFINITIONS = [
   { label: "Starting point", description: "Preset or scratch" },
   { label: "Identity", description: "System & environment" },
@@ -68,8 +67,10 @@ export function NewRunWizardClient() {
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
-  const [pollSummary, setPollSummary] = useState<RunSummary | null>(null);
   const liveRef = useRef<HTMLDivElement>(null);
+  const { summary: pollSummary } = useRunSummaryStream(runId, {
+    enabled: runId !== null && stepIndex === 6,
+  });
 
   const form = useForm<WizardFormValues>({
     resolver: zodResolver(wizardFormSchema),
@@ -88,45 +89,6 @@ export function NewRunWizardClient() {
       showError("Wizard", message);
     }
   }, []);
-
-  useEffect(() => {
-    if (runId === null) {
-      return;
-    }
-
-    let cancelled = false;
-    const started = Date.now();
-    const maxMs = 120_000;
-    const intervalMs = 3000;
-
-    const tick = async () => {
-      try {
-        const summary = await getRunSummary(runId);
-
-        if (!cancelled) {
-          setPollSummary(summary);
-        }
-      } catch {
-        /* keep polling until timeout */
-      }
-    };
-
-    void tick();
-    const intervalId = window.setInterval(async () => {
-      if (cancelled || Date.now() - started > maxMs) {
-        window.clearInterval(intervalId);
-
-        return;
-      }
-
-      await tick();
-    }, intervalMs);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
-  }, [runId]);
 
   const completedSteps: number[] =
     stepIndex === 0 ? [] : Array.from({ length: stepIndex }, (_, index) => index);

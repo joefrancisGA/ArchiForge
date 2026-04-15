@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { getRunSummary } from "@/lib/api";
+import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import type { RunSummary } from "@/types/authority";
 
 export type RunProgressTrackerProps = {
@@ -31,82 +31,41 @@ function allStagesReady(s: RunSummary | null): boolean {
   );
 }
 
-const POLL_INTERVAL_MS = 3000;
 const POLL_MAX_MS = 180_000;
 
 export function RunProgressTracker({ runId, initialSummary }: RunProgressTrackerProps) {
   const pollEnabled = !allStagesReady(initialSummary);
 
-  const [summary, setSummary] = useState<RunSummary | null>(initialSummary);
-  const [phase, setPhase] = useState<"polling" | "complete" | "timeout">(() =>
+  const [pollSession, setPollSession] = useState(0);
+  const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
     allStagesReady(initialSummary) ? "complete" : "polling",
   );
-  /** Increments when the user retries after a poll timeout — restarts the ~2 minute polling window. */
-  const [pollSession, setPollSession] = useState(0);
+
+  const { summary, streamPhase, sseConnected } = useRunSummaryStream(runId, {
+    enabled: pollEnabled && clientPhase === "polling",
+    initialSummary,
+    retryToken: pollSession,
+  });
 
   useEffect(() => {
-    setSummary(initialSummary);
-    setPhase(allStagesReady(initialSummary) ? "complete" : "polling");
-  }, [initialSummary]);
-
-  useEffect(() => {
-    if (!pollEnabled) {
+    if (!pollEnabled || clientPhase !== "polling") {
       return;
     }
 
-    let cancelled = false;
-    const started = Date.now();
-    // Browser timers return `number`; Node's `@types/node` overloads can make `ReturnType<typeof setInterval>` `NodeJS.Timeout`.
-    let intervalId: number | undefined;
-
-    const stopInterval = () => {
-      if (intervalId !== undefined) {
-        window.clearInterval(intervalId);
-        intervalId = undefined;
-      }
-    };
-
-    const tick = async () => {
-      if (cancelled) {
-        return;
-      }
-
-      if (Date.now() - started > POLL_MAX_MS) {
-        stopInterval();
-
-        if (!cancelled) {
-          setPhase("timeout");
-        }
-
-        return;
-      }
-
-      try {
-        const next = await getRunSummary(runId);
-
-        if (cancelled) {
-          return;
-        }
-
-        setSummary(next);
-
-        if (allStagesReady(next)) {
-          stopInterval();
-          setPhase("complete");
-        }
-      } catch {
-        /* keep polling until timeout */
-      }
-    };
-
-    void tick();
-    intervalId = window.setInterval(() => void tick(), POLL_INTERVAL_MS);
+    const timeoutId = window.setTimeout(() => {
+      setClientPhase("timeout");
+    }, POLL_MAX_MS);
 
     return () => {
-      cancelled = true;
-      stopInterval();
+      window.clearTimeout(timeoutId);
     };
-  }, [runId, pollEnabled, pollSession]);
+  }, [pollEnabled, clientPhase, pollSession]);
+
+  useEffect(() => {
+    if (allStagesReady(summary) || streamPhase === "complete") {
+      setClientPhase("complete");
+    }
+  }, [summary, streamPhase]);
 
   const ctx = stageDone(summary?.hasContextSnapshot);
   const graph = stageDone(summary?.hasGraphSnapshot);
@@ -117,16 +76,18 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
   const progressValue = (completedStages / 4) * 100;
 
   const liveStatus = useMemo(() => {
-    if (phase === "complete") {
+    if (clientPhase === "complete") {
       return "Pipeline complete — refresh for full detail.";
     }
 
-    if (phase === "timeout") {
-      return `Pipeline may still be running server-side (run ${runId}). Use Retry to poll again for up to ~2 minutes, refresh this page, or check GET /health/ready on the API.`;
+    if (clientPhase === "timeout") {
+      return `Pipeline may still be running server-side (run ${runId}). Use Retry to watch for up to ~3 minutes, refresh this page, or check GET /health/ready on the API.`;
     }
 
-    return `${completedStages} of 4 authority pipeline stages complete.`;
-  }, [phase, completedStages, runId]);
+    const transport = sseConnected ? "live stream" : "polling";
+
+    return `${completedStages} of 4 authority pipeline stages complete (${transport}).`;
+  }, [clientPhase, completedStages, runId, sseConnected]);
 
   if (!pollEnabled) {
     return null;
@@ -149,14 +110,14 @@ export function RunProgressTracker({ runId, initialSummary }: RunProgressTracker
         {liveStatus}
       </div>
 
-      {phase === "timeout" ? (
+      {clientPhase === "timeout" ? (
         <div className="mt-3">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => {
-              setPhase("polling");
+              setClientPhase("polling");
               setPollSession((s) => s + 1);
             }}
           >

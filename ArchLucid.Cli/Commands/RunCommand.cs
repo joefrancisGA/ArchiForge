@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Cli;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
@@ -21,7 +22,7 @@ internal static class RunCommand
         {
             Console.WriteLine($"Error: {ex.Message}");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         string briefPath = Path.Combine(projectRoot, config.Inputs.Brief);
@@ -31,7 +32,7 @@ internal static class RunCommand
             Console.WriteLine($"Error: Brief file not found at {config.Inputs.Brief}");
             CliOperatorHints.WriteBriefMissingHint(config.Inputs.Brief);
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         string briefContent = (await File.ReadAllTextAsync(briefPath)).Trim();
@@ -41,15 +42,17 @@ internal static class RunCommand
             Console.WriteLine("Error: Brief must be at least 10 characters (API requirement).");
             await Console.Error.WriteLineAsync("Next: Edit inputs/brief.md (or the path in archlucid.json) with a longer description.");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         ArchitectureRequest request = CliCommandShared.BuildArchitectureRequest(config, briefContent);
         string baseUrl = CliCommandShared.GetBaseUrl(config);
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl, config))
+        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl, config);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         ArchLucidApiClient client = new(baseUrl, config);
@@ -63,7 +66,7 @@ internal static class RunCommand
             Console.WriteLine($"Error: {result.Error}");
             CliOperatorHints.WriteAfterApiFailure(result.StatusCode, result.Error);
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         ArchLucidApiClient.CreateRunResponse resp = result.Response!;
@@ -109,7 +112,7 @@ internal static class RunCommand
                 CliOperatorHints.WriteAfterApiFailure(seedResult?.HttpStatusCode, seedResult?.Error);
                 Console.WriteLine($"Continue with: archlucid seed {resp.Run.RunId} then archlucid commit {resp.Run.RunId}");
 
-                return 0;
+                return CliExitCode.Success;
             }
 
             Console.WriteLine($"Seeded {seedResult.ResultCount} fake results.");
@@ -119,7 +122,7 @@ internal static class RunCommand
             {
                 Console.WriteLine($"Error: Commit failed. {commitResult?.Error ?? "Unknown"}");
 
-                return 1;
+                return CliExitCode.OperationFailed;
             }
 
             string version = commitResult.Response?.Manifest.Metadata.ManifestVersion ?? "unknown";
@@ -137,11 +140,11 @@ internal static class RunCommand
 
             Console.WriteLine($"Use 'archlucid artifacts {resp.Run.RunId}' to view the manifest.");
 
-            return 0;
+            return CliExitCode.Success;
         }
 
         Console.WriteLine($"Next: Submit agent results, then commit. Use 'archlucid status {resp.Run.RunId}' to check progress.");
 
-        return 0;
+        return CliExitCode.Success;
     }
 }

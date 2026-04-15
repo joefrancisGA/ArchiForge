@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using ArchLucid.Cli;
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Cli.Commands;
@@ -12,16 +13,18 @@ internal static class SubmitCommand
     {
         string baseUrl = CliCommandShared.GetBaseUrl(CliCommandShared.TryLoadConfigFromCwd());
 
-        if (!await CliCommandShared.EnsureApiConnectedAsync(baseUrl))
+        ApiConnectionOutcome connection = await CliCommandShared.TryConnectToApiAsync(baseUrl);
+
+        if (connection != ApiConnectionOutcome.Connected)
         {
-            return 1;
+            return CliCommandShared.ExitCodeForFailedConnection(connection);
         }
 
         if (!File.Exists(resultFilePath))
         {
             Console.WriteLine($"Error: File not found: {resultFilePath}");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         AgentResult result;
@@ -35,7 +38,7 @@ internal static class SubmitCommand
         {
             Console.WriteLine($"Error: Invalid result JSON. {ex.Message}");
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         ArchLucidApiClient client = new(baseUrl);
@@ -46,13 +49,13 @@ internal static class SubmitCommand
             Console.WriteLine($"Error: {submitResult?.Error ?? "Submit failed"}");
             CliOperatorHints.WriteAfterApiFailure(submitResult?.HttpStatusCode, submitResult?.Error);
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         Console.WriteLine($"Result submitted: {submitResult.ResultId}");
         Console.WriteLine(
             $"Use 'archlucid status {runId}' to check progress, then 'archlucid commit {runId}' when all results are in.");
 
-        return 0;
+        return CliExitCode.Success;
     }
 }

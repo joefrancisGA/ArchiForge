@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
@@ -28,7 +30,7 @@ internal static class DoctorCommand
         {
             await Console.Error.WriteLineAsync("[ArchLucid CLI] " + urlError);
 
-            return 1;
+            return CliExitCode.ConfigurationError;
         }
 
         Console.WriteLine("--- ArchLucid API ---");
@@ -52,7 +54,7 @@ internal static class DoctorCommand
             Console.WriteLine("Readiness failed: fix the checks above before relying on this environment.");
             CliOperatorHints.WriteAfterReadinessFailed();
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         if (aggregateCode == 401)
@@ -67,7 +69,7 @@ internal static class DoctorCommand
             Console.WriteLine("Combined /health did not return 2xx; review JSON above.");
             CliOperatorHints.WriteAfterReadinessFailed();
 
-            return 1;
+            return CliExitCode.OperationFailed;
         }
 
         Console.WriteLine();
@@ -76,7 +78,7 @@ internal static class DoctorCommand
                 ? "Doctor finished: readiness OK (detailed /health skipped — no credentials)."
                 : "Doctor finished: readiness and detailed /health OK.");
 
-        return 0;
+        return CliExitCode.Success;
     }
 
     private static void PrintCliBuildInfo()

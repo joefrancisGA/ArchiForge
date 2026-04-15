@@ -1,12 +1,23 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Settings2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { NAV_GROUPS } from "@/lib/nav-config";
+import { Label } from "@/components/ui/label";
+import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
+import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
+import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 import { cn } from "@/lib/utils";
@@ -24,11 +35,14 @@ function readGroupOpenFromStorage(groupId: string, raw: string | null): boolean 
 
 /**
  * Collapsible grouped sidebar navigation (desktop). Group open state persists in localStorage.
+ * Progressive disclosure: essential links always; extended/advanced via toggles.
  */
 export function SidebarNav() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
+  const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
     const next: Record<string, boolean> = {};
@@ -64,6 +78,7 @@ export function SidebarNav() {
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
       {NAV_GROUPS.map((group) => {
         const isOpen = !mounted || openByGroup[group.id] !== false;
+        const visibleLinks: NavLinkItem[] = filterNavLinksByTier(group.links, showExtended, showAdvanced);
 
         return (
           <Collapsible
@@ -88,7 +103,7 @@ export function SidebarNav() {
                 className="flex flex-col gap-0.5 border-l border-neutral-200 py-1 pl-2 dark:border-neutral-700"
                 aria-label={group.label}
               >
-                {group.links.map((link) => {
+                {visibleLinks.map((link) => {
                   const active = isNavLinkActive(pathname, link.href);
                   const Icon = link.icon;
 
@@ -118,11 +133,87 @@ export function SidebarNav() {
           </Collapsible>
         );
       })}
+
+      <div className="mt-2 space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+        <Button
+          type="button"
+          variant={showExtended ? "secondary" : "outline"}
+          size="sm"
+          className="w-full justify-center text-xs"
+          onClick={() => {
+            setShowExtended(!showExtended);
+          }}
+        >
+          {showExtended ? "Show fewer links" : "Show more links"}
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="w-full justify-start gap-2 text-xs text-neutral-600 dark:text-neutral-400"
+          onClick={() => {
+            setSettingsOpen(true);
+          }}
+        >
+          <Settings2 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          Navigation settings
+        </Button>
+      </div>
+
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Navigation settings</DialogTitle>
+            <DialogDescription>
+              Control which sidebar links appear. The command palette (Ctrl+K) still lists every destination.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="nav-extended">Show extended links</Label>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Compare, replay, Ask, policy tools, and similar.
+                </p>
+              </div>
+              <input
+                id="nav-extended"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 dark:border-neutral-600"
+                checked={showExtended}
+                onChange={(e) => {
+                  setShowExtended(e.target.checked);
+                }}
+              />
+            </div>
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="nav-advanced">Show advanced links</Label>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Alert tuning, audit, schedules, and other infrequent pages. Requires extended links.
+                </p>
+              </div>
+              <input
+                id="nav-advanced"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-teal-600 disabled:opacity-50 dark:border-neutral-600"
+                checked={showAdvanced}
+                disabled={!showExtended}
+                onChange={(e) => {
+                  setShowAdvanced(e.target.checked);
+                }}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <p
-        className="mt-3 border-t border-neutral-200 pt-3 text-xs text-neutral-600 dark:border-neutral-700 dark:text-neutral-400"
+        className="mt-1 text-xs text-neutral-600 dark:text-neutral-400"
         aria-keyshortcuts="Shift+?"
       >
-        Press Shift+? for keyboard shortcuts
+        Press Shift+? for help and keyboard shortcuts
       </p>
     </div>
   );

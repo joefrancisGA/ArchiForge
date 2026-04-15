@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
+using ArchLucid.Cli;
+
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>
@@ -37,7 +39,7 @@ public static class CompletionsCommand
         {
             Console.Error.WriteLine("Usage: archlucid completions bash|zsh|powershell");
 
-            return Task.FromResult(1);
+            return Task.FromResult(CliExitCode.UsageError);
         }
 
         string shell = args[0].Trim().ToLowerInvariant();
@@ -57,10 +59,10 @@ public static class CompletionsCommand
             default:
                 Console.Error.WriteLine($"Unknown shell: {args[0]}. Use bash, zsh, or powershell.");
 
-                return Task.FromResult(1);
+                return Task.FromResult(CliExitCode.UsageError);
         }
 
-        return Task.FromResult(0);
+        return Task.FromResult(CliExitCode.Success);
     }
 
     private static string GenerateBash()

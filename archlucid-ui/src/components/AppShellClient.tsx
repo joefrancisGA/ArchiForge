@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import { AppToaster } from "@/components/AppToaster";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ColorModeToggle } from "@/components/ColorModeToggle";
 import { CommandPalette } from "@/components/CommandPalette";
+import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import { SidebarNav } from "@/components/SidebarNav";
@@ -22,6 +23,8 @@ type AppShellClientProps = {
  * mobile drawer, auth strip, keyboard shortcuts, main landmark.
  */
 export function AppShellClient({ children }: AppShellClientProps) {
+  const [helpOpen, setHelpOpen] = useState(false);
+
   return (
     <>
       <a href="#main-content" className="skip-to-main">
@@ -41,6 +44,18 @@ export function AppShellClient({ children }: AppShellClientProps) {
               </h1>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="hidden sm:inline-flex"
+                aria-label="Open help"
+                onClick={() => {
+                  setHelpOpen(true);
+                }}
+              >
+                Help
+              </Button>
               <CommandPalette />
               <kbd
                 className="hidden rounded border border-neutral-300 bg-white px-1.5 py-0.5 font-mono text-[0.7rem] text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-400 sm:inline-block"
@@ -61,7 +76,11 @@ export function AppShellClient({ children }: AppShellClientProps) {
           </aside>
           <div className="min-w-0 flex-1 px-4 py-4 lg:px-6 lg:py-6">
             <AuthPanel />
-            <KeyboardShortcutProvider>
+            <KeyboardShortcutProvider
+              onHelpRequested={() => {
+                setHelpOpen(true);
+              }}
+            >
               <div
                 id="main-content"
                 tabIndex={-1}
@@ -74,6 +93,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         </div>
       </div>
       <AppToaster />
+      <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
     </>
   );
 }

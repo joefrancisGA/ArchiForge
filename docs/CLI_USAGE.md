@@ -16,6 +16,16 @@ Or install as a global .NET tool (after `dotnet pack`):
 archlucid <command> [options]
 ```
 
+### Global `--json`
+
+Place **one or more** `--json` flags **before** the subcommand for machine-readable errors on stderr and (for `health`) a JSON success line on stdout:
+
+```bash
+archlucid --json health
+```
+
+Subcommands that define their own `--json` (for example `archlucid comparisons list --json`) are unchanged — only **leading** `--json` tokens set global JSON mode.
+
 ---
 
 ## API URL
@@ -47,7 +57,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `commit <runId>` | Merge results and produce a versioned manifest. |
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
-| `health` | Check API connectivity (`GET /health`). Exit 0 if OK, 1 if unreachable. |
+| `health` | Check API connectivity (`GET /health`). Exit **0** if OK; **3** if unreachable; **2** if the API base URL is invalid. With global `--json`, prints one JSON object per line (stderr on failure, stdout on success). |
 | `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
 | `support-bundle` | Writes a **pilot/support** folder (and optional `--zip`): **`README.txt`** (triage order), **`manifest.json`** (format **1.1**, `triageReadOrder`), **`build.json`**, **`health.json`**, **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`**, **`environment.json`**, **`workspace.json`**, **`references.json`**, **`logs.json`**. No connection strings or API key **values**. Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, `--zip`. |
 | `comparisons list` | List/search persisted comparison records (supports paging and filters). |
@@ -228,5 +238,12 @@ Example (with plugin lock and Terraform path, common for `archlucid new`):
 
 ## Exit codes
 
-- **0** — Success.
-- **1** — Usage error, unknown command, API unreachable, or request failure.
+| Code | Meaning |
+|------|---------|
+| **0** | Success. |
+| **1** | Usage error: missing/invalid invocation or unknown top-level command. |
+| **2** | Configuration error (invalid API base URL / resolution). |
+| **3** | API unavailable: host unreachable or health probe failed. |
+| **4** | Operation failed: HTTP/API error after connect, local validation, filesystem error, or readiness failure after connect (`doctor`). |
+
+Automation can combine exit codes with leading **`--json`** for structured stderr lines: `{"ok":false,"exitCode":3,"error":"api_unreachable","message":"..."}`.

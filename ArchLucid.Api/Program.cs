@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
@@ -26,6 +27,12 @@ public partial class Program
     public static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+        // Optional tuning (observability, replay batch limits, DOCX export profiles, integration hooks). Loaded after default JSON; see docs/PILOT_GUIDE.md.
+        builder.Configuration.AddJsonFile(
+            Path.Combine(builder.Environment.ContentRootPath, "appsettings.Advanced.json"),
+            optional: true,
+            reloadOnChange: true);
 
         // DAST / defense in depth: omit Kestrel "Server" version token (ZAP 10036); TLS identity lives at the ingress.
         builder.WebHost.ConfigureKestrel(static options => options.AddServerHeader = false);
