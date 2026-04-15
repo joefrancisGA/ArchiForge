@@ -1,11 +1,9 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 
-const calloutBase: CSSProperties = {
-  borderRadius: 8,
-  padding: "12px 16px",
-  marginBottom: 16,
-  maxWidth: 720,
-};
+import { cn } from "@/lib/utils";
+
+const calloutBase =
+  "mb-4 max-w-3xl rounded-lg px-4 py-3 text-[15px] leading-snug";
 
 /**
  * API / configuration failures on review pages (server-rendered).
@@ -14,12 +12,10 @@ export function OperatorErrorCallout({ children }: { children: ReactNode }) {
   return (
     <div
       role="alert"
-      style={{
-        ...calloutBase,
-        border: "1px solid #b91c1c",
-        background: "#fef2f2",
-        color: "#7f1d1d",
-      }}
+      className={cn(
+        calloutBase,
+        "border border-red-800 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/80 dark:text-red-100",
+      )}
     >
       {children}
     </div>
@@ -44,15 +40,13 @@ export function OperatorEmptyState({
   return (
     <div
       role="status"
-      style={{
-        ...calloutBase,
-        border: "1px solid #d4d4d4",
-        background: "#fafafa",
-        color: "#404040",
-      }}
+      className={cn(
+        calloutBase,
+        "border border-neutral-300 bg-neutral-50 text-neutral-800 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-200",
+      )}
     >
       <strong>{title}</strong>
-      <div style={{ marginTop: 8 }}>{detail}</div>
+      <div className="mt-2">{detail}</div>
     </div>
   );
 }
@@ -65,12 +59,10 @@ export function OperatorLoadingNotice({ children }: { children: ReactNode }) {
     <div
       role="status"
       aria-live="polite"
-      style={{
-        ...calloutBase,
-        border: "1px solid #cbd5e1",
-        background: "#f8fafc",
-        color: "#334155",
-      }}
+      className={cn(
+        calloutBase,
+        "border border-neutral-300 bg-slate-50 text-slate-800 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-200",
+      )}
     >
       {children}
     </div>
@@ -82,8 +74,8 @@ export function OperatorLoadingNotice({ children }: { children: ReactNode }) {
  */
 export function OperatorTryNext({ children }: { children: ReactNode }) {
   return (
-    <div style={{ marginTop: 12, maxWidth: 720, fontSize: 14, lineHeight: 1.55, color: "#475569" }}>
-      <strong style={{ color: "#334155" }}>Try next:</strong> {children}
+    <div className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <strong className="text-neutral-800 dark:text-neutral-200">Try next:</strong> {children}
     </div>
   );
 }
@@ -95,12 +87,10 @@ export function OperatorMalformedCallout({ children }: { children: ReactNode }) 
   return (
     <div
       role="alert"
-      style={{
-        ...calloutBase,
-        border: "1px solid #7c3aed",
-        background: "#f5f3ff",
-        color: "#4c1d95",
-      }}
+      className={cn(
+        calloutBase,
+        "border border-violet-600 bg-violet-50 text-violet-950 dark:border-violet-800 dark:bg-violet-950/50 dark:text-violet-100",
+      )}
     >
       {children}
     </div>
@@ -114,12 +104,10 @@ export function OperatorWarningCallout({ children }: { children: ReactNode }) {
   return (
     <div
       role="status"
-      style={{
-        ...calloutBase,
-        border: "1px solid #ca8a04",
-        background: "#fffbeb",
-        color: "#713f12",
-      }}
+      className={cn(
+        calloutBase,
+        "border border-amber-500 bg-amber-50 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-50",
+      )}
     >
       {children}
     </div>

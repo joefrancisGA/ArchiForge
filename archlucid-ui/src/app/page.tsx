@@ -12,62 +12,91 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main>
-      <h2 style={{ marginBottom: 8 }}>Operator home</h2>
-      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55, marginBottom: 12 }}>
+      <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
+      <p className="mb-3 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         <strong>Start here:</strong> new to this environment? Use the checklist below. Returning operators can hide it
         and jump straight to{" "}
-        <Link href="/runs?projectId=default">Runs</Link> or <Link href="/runs/new">New run</Link>.
+        <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
+          Runs
+        </Link>{" "}
+        or{" "}
+        <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
+          New run
+        </Link>
+        .
       </p>
-      <p
-        style={{
-          maxWidth: 720,
-          color: "#475569",
-          lineHeight: 1.55,
-          marginBottom: 16,
-          padding: "10px 14px",
-          background: "#f8fafc",
-          border: "1px solid #e2e8f0",
-          borderRadius: 8,
-          fontSize: 14,
-        }}
-      >
-        <strong style={{ color: "#0f172a" }}>Typical V1 path:</strong>{" "}
-        <Link href="/runs/new">New run</Link> (or pick an existing row on{" "}
-        <Link href="/runs?projectId=default">Runs</Link>) → wait for the pipeline → commit the golden manifest → review{" "}
-        <strong>Artifacts</strong> on run detail →{" "}
-        <Link href="/compare">Compare two runs</Link>, <Link href="/replay">Replay a run</Link>, or{" "}
-        <Link href="/graph">open the graph</Link>.
+      <p className="mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-slate-50 p-3 text-sm leading-relaxed text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300">
+        <strong className="text-neutral-900 dark:text-neutral-100">Typical V1 path:</strong>{" "}
+        <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
+          New run
+        </Link>{" "}
+        (or pick an existing row on{" "}
+        <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
+          Runs
+        </Link>
+        ) → wait for the pipeline → commit the golden manifest → review <strong>Artifacts</strong> on run detail →{" "}
+        <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
+          Compare two runs
+        </Link>
+        ,{" "}
+        <Link href="/replay" className="text-teal-800 underline dark:text-teal-300">
+          Replay a run
+        </Link>
+        , or{" "}
+        <Link href="/graph" className="text-teal-800 underline dark:text-teal-300">
+          open the graph
+        </Link>
+        .
       </p>
 
       <OperatorFirstRunWorkflowPanel />
 
-      <section style={{ marginTop: 8 }} aria-labelledby="quick-links-heading">
-        <h3 id="quick-links-heading" style={{ fontSize: 16, marginBottom: 8 }}>
+      <section className="mt-2" aria-labelledby="quick-links-heading">
+        <h3 id="quick-links-heading" className="mb-2 text-base font-semibold text-neutral-900 dark:text-neutral-100">
           Quick links
         </h3>
-        <p style={{ maxWidth: 720, margin: "0 0 12px", fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
-          Same destinations as the header row <strong>Start here · runs &amp; review</strong>, plus everything under{" "}
+        <p className="mb-3 max-w-3xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+          Same destinations as the sidebar <strong>Runs &amp; review</strong>, plus everything under{" "}
           <strong>Q&amp;A &amp; advisory</strong> and <strong>Alerts &amp; governance</strong>.
         </p>
-        <ul style={{ lineHeight: 1.75, maxWidth: 720, margin: 0, paddingLeft: 20, color: "#334155" }}>
+        <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 leading-relaxed text-neutral-700 dark:text-neutral-300">
           <li>
-            <Link href="/runs/new">New run (wizard)</Link>{" "}
+            <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
+              New run (wizard)
+            </Link>{" "}
             <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" /> — guided create; then find the
-            run on <Link href="/runs?projectId=default">Runs</Link>
+            run on{" "}
+            <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
+              Runs
+            </Link>
           </li>
           <li>
-            <Link href="/runs?projectId=default">Runs</Link> — list, open detail, manifest, artifacts, exports,
-            compare/replay shortcuts
+            <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
+              Runs
+            </Link>{" "}
+            — list, open detail, manifest, artifacts, exports, compare/replay shortcuts
           </li>
           <li>
-            <Link href="/graph">Graph</Link> — provenance or architecture graph for a run ID
+            <Link href="/graph" className="text-teal-800 underline dark:text-teal-300">
+              Graph
+            </Link>{" "}
+            — provenance or architecture graph for a run ID
           </li>
           <li>
-            <Link href="/compare">Compare two runs</Link> · <Link href="/replay">Replay a run</Link>
+            <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
+              Compare two runs
+            </Link>{" "}
+            ·{" "}
+            <Link href="/replay" className="text-teal-800 underline dark:text-teal-300">
+              Replay a run
+            </Link>
           </li>
           <li>
-            Ask, search, advisory, <Link href="/planning">planning</Link>, pilot feedback, alerts, and policy tools — use
-            the header groups above.
+            Ask, search, advisory,{" "}
+            <Link href="/planning" className="text-teal-800 underline dark:text-teal-300">
+              planning
+            </Link>
+            , pilot feedback, alerts, and policy tools — use the sidebar groups.
           </li>
         </ul>
       </section>

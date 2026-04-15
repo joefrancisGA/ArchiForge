@@ -17,6 +17,7 @@ import { WizardStepPreset } from "@/components/wizard/steps/WizardStepPreset";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardStepTrack } from "@/components/wizard/steps/WizardStepTrack";
 import { createArchitectureRun, getRunSummary } from "@/lib/api";
+import { showError, showSuccess } from "@/lib/toast";
 import { wizardValuesToCreateRunPayload } from "@/lib/wizard-payload";
 import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
 import type { RunSummary } from "@/types/authority";
@@ -68,7 +69,6 @@ export function NewRunWizardClient() {
   const [submitting, setSubmitting] = useState(false);
   const [runId, setRunId] = useState<string | null>(null);
   const [pollSummary, setPollSummary] = useState<RunSummary | null>(null);
-  const [toast, setToast] = useState<{ kind: "ok" | "err"; message: string } | null>(null);
   const liveRef = useRef<HTMLDivElement>(null);
 
   const form = useForm<WizardFormValues>({
@@ -82,8 +82,11 @@ export function NewRunWizardClient() {
   const canProceed = stepIndex === 0 || !stepHasBlockingErrors(stepIndex, formState.errors);
 
   const showToast = useCallback((kind: "ok" | "err", message: string) => {
-    setToast({ kind, message });
-    window.setTimeout(() => setToast(null), 6000);
+    if (kind === "ok") {
+      showSuccess(message);
+    } else {
+      showError("Wizard", message);
+    }
   }, []);
 
   useEffect(() => {
@@ -185,7 +188,7 @@ export function NewRunWizardClient() {
 
       setRunId(id);
       setStepIndex(6);
-      showToast("ok", "Run created. Tracking pipeline below.");
+      showToast("ok", `Run ${id} created — tracking pipeline below.`);
     } catch (error: unknown) {
       const message =
         error && typeof error === "object" && "message" in error
@@ -205,7 +208,10 @@ export function NewRunWizardClient() {
     <TooltipProvider delayDuration={200}>
       <FormProvider {...form}>
         <div className="mx-auto w-full max-w-4xl space-y-6">
-          <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">
+          <p
+            className="m-0 text-sm text-neutral-600 dark:text-neutral-400"
+            data-testid="new-run-wizard-step-line"
+          >
             Step {stepIndex + 1} of {WIZARD_STEP_DEFINITIONS.length} — guided create for{" "}
             <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">/v1/architecture/request</code>
             .{" "}
@@ -249,19 +255,6 @@ export function NewRunWizardClient() {
           <div ref={liveRef} aria-live="polite" aria-atomic="true" className="sr-only">
             {liveMessage}
           </div>
-
-          {toast ? (
-            <div
-              role="status"
-              className={`fixed bottom-6 right-6 z-50 max-w-sm rounded-lg px-4 py-3 text-sm shadow-lg ${
-                toast.kind === "ok"
-                  ? "border border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-100"
-                  : "border border-red-200 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/80 dark:text-red-100"
-              }`}
-            >
-              {toast.message}
-            </div>
-          ) : null}
         </div>
       </FormProvider>
     </TooltipProvider>

@@ -6,7 +6,7 @@ import Link from "next/link";
  */
 export default function GettingStartedPage() {
   return (
-    <main id="main-content" className="mx-auto max-w-3xl px-1 sm:px-0">
+    <main className="mx-auto max-w-3xl px-1 sm:px-0">
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Getting started</h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         Use this page as a fast path into the operator shell. Each step links to the UI; see the repository{" "}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,27 +37,13 @@ import type {
 } from "@/types/governance-dashboard";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
-function statusBadgeClass(status: string): string {
-  switch (status) {
-    case "Submitted":
-      return "border-transparent bg-blue-600 text-white hover:bg-blue-600/90 dark:bg-blue-600 dark:hover:bg-blue-600/90";
-    case "Approved":
-      return "border-transparent bg-emerald-600 text-white hover:bg-emerald-600/90 dark:bg-emerald-600 dark:hover:bg-emerald-600/90";
-    case "Rejected":
-      return "border-transparent bg-red-600 text-white hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90";
-    case "Promoted":
-      return "border-transparent bg-violet-600 text-white hover:bg-violet-600/90 dark:bg-violet-600 dark:hover:bg-violet-600/90";
-    case "Activated":
-      return "border-transparent bg-teal-600 text-white hover:bg-teal-600/90 dark:bg-teal-600 dark:hover:bg-teal-600/90";
-    case "Draft":
-    default:
-      return "border-oklch(0.922 0 0) bg-oklch(0.97 0 0) text-oklch(0.205 0 0) dark:border-oklch(1 0 0 / 10%) dark:bg-oklch(0.269 0 0) dark:text-oklch(0.985 0 0)";
-  }
-}
+import { governanceStatusBadgeClass } from "./governance-status-badge-class";
+
+const EMPTY_PENDING_APPROVALS: GovernanceApprovalRequest[] = [];
 
 function GovernanceStatusBadge({ status }: { status: string }) {
   return (
-    <Badge className={cn("text-xs font-semibold", statusBadgeClass(status))} variant="outline">
+    <Badge className={cn("text-xs font-semibold", governanceStatusBadgeClass(status))} variant="outline">
       {status}
     </Badge>
   );
@@ -96,6 +82,9 @@ export default function GovernanceDashboardPage() {
     null | { mode: "approve" | "reject"; approvalRequestId: string; runId: string }
   >(null);
   const [reviewBusy, setReviewBusy] = useState(false);
+  const [selectedApprovalIds, setSelectedApprovalIds] = useState<Set<string>>(() => new Set());
+  const [batchDialog, setBatchDialog] = useState<null | { mode: "approve" | "reject" }>(null);
+  const [batchBusy, setBatchBusy] = useState(false);
 
   const loadDashboard = useCallback(async (isInitial: boolean) => {
     if (isInitial) {
@@ -136,10 +125,58 @@ export default function GovernanceDashboardPage() {
     return () => window.clearInterval(intervalId);
   }, [loadDashboard]);
 
-  const pending = summary?.pendingApprovals ?? [];
+  const pending = useMemo(
+    () => summary?.pendingApprovals ?? EMPTY_PENDING_APPROVALS,
+    [summary?.pendingApprovals],
+  );
   const decisions = summary?.recentDecisions ?? [];
   const changes = summary?.recentChanges ?? [];
   const pendingCount = summary?.pendingCount ?? 0;
+
+  const selectablePending = pending.filter(
+    (row) => row.status === "Submitted" || row.status === "Draft",
+  );
+
+  useEffect(() => {
+    setSelectedApprovalIds((previous) => {
+      const next = new Set<string>();
+
+      for (const id of previous) {
+        if (pending.some((row) => row.approvalRequestId === id)) {
+          next.add(id);
+        }
+      }
+
+      return next;
+    });
+  }, [pending]);
+
+  const allSelectableSelected =
+    selectablePending.length > 0 && selectablePending.every((row) => selectedApprovalIds.has(row.approvalRequestId));
+
+  function toggleSelectAll(): void {
+    if (allSelectableSelected) {
+      setSelectedApprovalIds(new Set());
+
+      return;
+    }
+
+    setSelectedApprovalIds(new Set(selectablePending.map((row) => row.approvalRequestId)));
+  }
+
+  function toggleOne(approvalRequestId: string): void {
+    setSelectedApprovalIds((previous) => {
+      const next = new Set(previous);
+
+      if (next.has(approvalRequestId)) {
+        next.delete(approvalRequestId);
+      } else {
+        next.add(approvalRequestId);
+      }
+
+      return next;
+    });
+  }
 
   async function onConfirmDashboardReview() {
     if (reviewDialog === null) {
@@ -172,8 +209,67 @@ export default function GovernanceDashboardPage() {
     }
   }
 
+  async function onConfirmBatchReview(): Promise<void> {
+    if (batchDialog === null) {
+      return;
+    }
+
+    const ids = Array.from(selectedApprovalIds);
+
+    if (ids.length === 0) {
+      setBatchDialog(null);
+
+      return;
+    }
+
+    setBatchBusy(true);
+
+    try {
+      const commentBase =
+        batchDialog.mode === "approve"
+          ? "Batch approved from governance dashboard"
+          : "Batch rejected from governance dashboard";
+      const results = await Promise.allSettled(
+        ids.map((approvalRequestId) =>
+          batchDialog.mode === "approve"
+            ? approveRequest(approvalRequestId, { reviewComment: commentBase })
+            : rejectRequest(approvalRequestId, { reviewComment: commentBase }),
+        ),
+      );
+      const failed = results.filter((result) => result.status === "rejected");
+      const ok = results.length - failed.length;
+
+      if (failed.length === 0) {
+        showSuccess(
+          batchDialog.mode === "approve"
+            ? `Approved ${ok} request${ok === 1 ? "" : "s"}.`
+            : `Rejected ${ok} request${ok === 1 ? "" : "s"}.`,
+        );
+      } else {
+        const firstReason =
+          failed[0].status === "rejected"
+            ? String((failed[0].reason as Error)?.message ?? "Unknown error")
+            : "";
+        showError(
+          `${batchDialog.mode === "approve" ? "Approve" : "Reject"} completed with failures`,
+          `${ok} succeeded, ${failed.length} failed. ${firstReason}`,
+        );
+      }
+
+      setBatchDialog(null);
+      setSelectedApprovalIds(new Set());
+      await loadDashboard(false);
+    } catch (e) {
+      const loadFailure = toApiLoadFailure(e);
+      showError("Batch governance action failed", loadFailure.message);
+      setFailure(loadFailure);
+    } finally {
+      setBatchBusy(false);
+    }
+  }
+
   return (
-    <main id="main-content" className="mx-auto max-w-4xl px-1 sm:px-0">
+    <main className="mx-auto max-w-4xl px-1 sm:px-0">
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         Cross-run view of pending approvals, recent decisions, and policy pack changes for the current tenant scope.
@@ -211,6 +307,31 @@ export default function GovernanceDashboardPage() {
         />
       ) : null}
 
+      {batchDialog !== null ? (
+        <ConfirmationDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) {
+              setBatchDialog(null);
+            }
+          }}
+          title={
+            batchDialog.mode === "approve"
+              ? `Approve ${selectedApprovalIds.size} request${selectedApprovalIds.size === 1 ? "" : "s"}?`
+              : `Reject ${selectedApprovalIds.size} request${selectedApprovalIds.size === 1 ? "" : "s"}?`
+          }
+          description={
+            batchDialog.mode === "approve"
+              ? "Each selected request is approved with a batch comment. Segregation of duties still applies per request — some may fail if you are the requester."
+              : "Each selected request is rejected with a batch comment."
+          }
+          confirmLabel={batchDialog.mode === "approve" ? "Approve all" : "Reject all"}
+          variant={batchDialog.mode === "approve" ? "default" : "destructive"}
+          onConfirm={() => void onConfirmBatchReview()}
+          busy={batchBusy}
+        />
+      ) : null}
+
       {initialLoad ? <DashboardSkeleton /> : null}
 
       {!initialLoad && summary !== null ? (
@@ -233,8 +354,64 @@ export default function GovernanceDashboardPage() {
                     {pendingCount} open
                   </Badge>
                 ) : null}
+                {selectablePending.length > 0 ? (
+                  <label className="flex cursor-pointer items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-neutral-300 dark:border-neutral-600"
+                      checked={allSelectableSelected}
+                      onChange={() => {
+                        toggleSelectAll();
+                      }}
+                      aria-label="Select all pending requests that can be approved or rejected"
+                    />
+                    Select all ({selectablePending.length})
+                  </label>
+                ) : null}
               </div>
             </div>
+
+            {selectedApprovalIds.size > 0 ? (
+              <div
+                className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/40"
+                role="region"
+                aria-label="Batch approval actions"
+              >
+                <span className="font-medium text-neutral-800 dark:text-neutral-100">
+                  {selectedApprovalIds.size} selected
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => {
+                    setBatchDialog({ mode: "approve" });
+                  }}
+                >
+                  Approve selected
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => {
+                    setBatchDialog({ mode: "reject" });
+                  }}
+                >
+                  Reject selected
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedApprovalIds(new Set());
+                  }}
+                >
+                  Clear selection
+                </Button>
+              </div>
+            ) : null}
 
             {pending.length === 0 ? (
               <OperatorEmptyState title="No pending approvals — all clear.">
@@ -245,7 +422,19 @@ export default function GovernanceDashboardPage() {
                 {pending.map((row: GovernanceApprovalRequest) => (
                   <Card key={row.approvalRequestId} className="border-l-4 border-l-amber-500">
                     <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-2 space-y-0">
-                      <div>
+                      <div className="flex min-w-0 flex-1 flex-wrap items-start gap-3">
+                        {(row.status === "Submitted" || row.status === "Draft") ? (
+                          <input
+                            type="checkbox"
+                            className="mt-1 h-4 w-4 shrink-0 rounded border-neutral-300 dark:border-neutral-600"
+                            checked={selectedApprovalIds.has(row.approvalRequestId)}
+                            onChange={() => {
+                              toggleOne(row.approvalRequestId);
+                            }}
+                            aria-label={`Select approval request for run ${row.runId}`}
+                          />
+                        ) : null}
+                        <div className="min-w-0">
                         <CardTitle className="text-base font-semibold">
                           <span className="font-mono text-sm">{row.runId}</span>
                           <span className="mx-1 text-neutral-400">·</span>
@@ -254,6 +443,7 @@ export default function GovernanceDashboardPage() {
                         <CardDescription>
                           Manifest <code className="text-xs">{row.manifestVersion}</code>
                         </CardDescription>
+                        </div>
                       </div>
                       <GovernanceStatusBadge status={row.status} />
                     </CardHeader>

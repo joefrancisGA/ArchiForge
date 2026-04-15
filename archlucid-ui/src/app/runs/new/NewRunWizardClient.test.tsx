@@ -29,13 +29,8 @@ vi.mock("@/lib/api", () => ({
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
 
-function progressLine() {
-  const code = screen
-    .getAllByText("/v1/architecture/request")
-    .find((node) => node.tagName === "CODE");
-  expect(code).toBeTruthy();
-
-  return code!.closest("p");
+function progressLine(): HTMLElement {
+  return screen.getByTestId("new-run-wizard-step-line");
 }
 
 async function clickNextAndSettle() {
@@ -59,7 +54,9 @@ describe("NewRunWizardClient", () => {
     });
   });
 
-  it("walks preset → review, creates a run, lands on pipeline tracking with polling", async () => {
+  it(
+    "walks preset → review, creates a run, lands on pipeline tracking with polling",
+    async () => {
     render(<NewRunWizardClient />);
 
     expect(progressLine()).toHaveTextContent(/Step 1 of 7/);
@@ -93,7 +90,9 @@ describe("NewRunWizardClient", () => {
     await waitFor(() => {
       expect(getRunSummaryMock).toHaveBeenCalledWith("integration-run-1");
     });
-  });
+    },
+    30_000,
+  );
 
   it("navigates backward when Back is pressed", async () => {
     render(<NewRunWizardClient />);

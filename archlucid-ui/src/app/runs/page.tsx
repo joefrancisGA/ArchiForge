@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { RunsListClient } from "@/app/runs/RunsListClient";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
@@ -30,7 +31,6 @@ export default async function RunsPage({
   const page = Math.max(1, Number.parseInt(resolved.page ?? "1", 10) || 1);
   const sizeRaw = resolved.pageSize ?? resolved.take ?? "20";
   const pageSize = Math.min(200, Math.max(1, Number.parseInt(sizeRaw, 10) || 20));
-  const totalPages = (total: number) => Math.max(1, Math.ceil(total / pageSize));
 
   let runs: RunSummary[] = [];
   let totalCount = 0;
@@ -65,22 +65,32 @@ export default async function RunsPage({
     <main aria-labelledby="runs-page-heading">
       <h2 id="runs-page-heading">
         Runs{" "}
-        <span style={{ fontSize: "0.92em", fontWeight: 400, color: "#475569" }}>— project {projectId}</span>
+        <span className="text-[0.92em] font-normal text-neutral-600 dark:text-neutral-400">
+          — project {projectId}
+        </span>
       </h2>
-      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.5 }}>
+      <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Open a run for manifest summary, artifact review, compare and replay links, and exports. Results are paged
         server-side (default 20 per page; use <code>?page=</code> and <code>?pageSize=</code>, or legacy{" "}
         <code>?take=</code> as page size).
       </p>
-      <p style={{ marginTop: 8 }}>
-        <Link href="/">Home</Link>
+      <p className="mt-2">
+        <Link href="/" className="text-teal-800 underline dark:text-teal-300">
+          Home
+        </Link>
         {" · "}
-        <Link href="/runs/new">New run (wizard)</Link>{" "}
+        <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
+          New run (wizard)
+        </Link>{" "}
         <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" />
         {" · "}
-        <Link href="/graph">Graph</Link>
+        <Link href="/graph" className="text-teal-800 underline dark:text-teal-300">
+          Graph
+        </Link>
         {" · "}
-        <Link href="/compare">Compare two runs</Link>
+        <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
+          Compare two runs
+        </Link>
       </p>
 
       {loadFailure && (
@@ -103,8 +113,8 @@ export default async function RunsPage({
         <>
           <OperatorMalformedCallout>
             <strong>Runs list response was not usable.</strong>
-            <p style={{ margin: "8px 0 0" }}>{malformedMessage}</p>
-            <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+            <p className="mt-2">{malformedMessage}</p>
+            <p className="mt-2 text-sm">
               The HTTP call may have succeeded, but the JSON did not match the expected paged run summary
               shape. This is distinct from an empty project (zero runs).
             </p>
@@ -118,93 +128,38 @@ export default async function RunsPage({
 
       {loadFailure === null && !malformedMessage && totalCount === 0 && (
         <OperatorEmptyState title="No runs in this project yet">
-          <p style={{ margin: 0 }}>
+          <p className="m-0">
             This is a valid empty list — start with a guided request, or create runs via API/CLI and refresh.
           </p>
-          <p style={{ margin: "14px 0 0" }}>
+          <p className="mt-3.5">
             <Link
               href="/runs/new"
-              style={{
-                display: "inline-block",
-                padding: "10px 18px",
-                background: "#0f766e",
-                color: "#fff",
-                borderRadius: 8,
-                fontWeight: 600,
-                textDecoration: "none",
-                fontSize: 14,
-              }}
+              className="inline-block rounded-lg bg-teal-700 px-[18px] py-2.5 text-sm font-semibold text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
             >
               Create your first run (wizard)
             </Link>
           </p>
-          <p style={{ margin: "12px 0 0", fontSize: 14, color: "#64748b" }}>
-            CLI/API: <code>docs/CLI_USAGE.md</code> · <Link href="/">Home workflow</Link> ·{" "}
-            <Link href="/onboarding">Onboarding</Link>
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
+            CLI/API: <code>docs/CLI_USAGE.md</code> ·{" "}
+            <Link href="/" className="text-teal-800 underline dark:text-teal-300">
+              Home workflow
+            </Link>{" "}
+            ·{" "}
+            <Link href="/onboarding" className="text-teal-800 underline dark:text-teal-300">
+              Onboarding
+            </Link>
           </p>
         </OperatorEmptyState>
       )}
 
-      {!loadFailure && !malformedMessage && totalCount > 0 && (
-        <table style={{ borderCollapse: "collapse", width: "100%", marginTop: 16 }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: 8 }}>Run ID</th>
-              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: 8 }}>
-                Description
-              </th>
-              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: 8 }}>Created</th>
-              <th style={{ textAlign: "left", borderBottom: "1px solid #ccc", padding: 8 }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {runs.map((run) => (
-              <tr key={run.runId}>
-                <td style={{ padding: 8, fontFamily: "monospace", fontSize: 13 }}>{run.runId}</td>
-                <td style={{ padding: 8 }}>{run.description ?? ""}</td>
-                <td style={{ padding: 8 }}>{new Date(run.createdUtc).toLocaleString()}</td>
-                <td style={{ padding: 8 }}>
-                  <Link href={`/runs/${run.runId}`}>Open run</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
       {!loadFailure && !malformedMessage && totalCount > 0 ? (
-        <nav
-          style={{ marginTop: 20, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}
-          aria-label="Runs pagination"
-        >
-          <span style={{ color: "#475569", fontSize: 14 }}>
-            Page {page} of {totalPages(totalCount)} · {totalCount} run{totalCount === 1 ? "" : "s"} total
-          </span>
-          {page > 1 ? (
-            <Link
-              href={`/runs?projectId=${encodeURIComponent(projectId)}&page=${page - 1}&pageSize=${pageSize}`}
-              style={{ fontWeight: 600 }}
-            >
-              Previous
-            </Link>
-          ) : (
-            <span style={{ color: "#64748b" }} aria-disabled="true">
-              Previous
-            </span>
-          )}
-          {page < totalPages(totalCount) ? (
-            <Link
-              href={`/runs?projectId=${encodeURIComponent(projectId)}&page=${page + 1}&pageSize=${pageSize}`}
-              style={{ fontWeight: 600 }}
-            >
-              Next
-            </Link>
-          ) : (
-            <span style={{ color: "#64748b" }} aria-disabled="true">
-              Next
-            </span>
-          )}
-        </nav>
+        <RunsListClient
+          runs={runs}
+          projectId={projectId}
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
+        />
       ) : null}
     </main>
   );

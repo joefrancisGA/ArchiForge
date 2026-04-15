@@ -1,40 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
 const storageKey = "archlucid_operator_workflow_guide_v1";
-
-const panelWrap: CSSProperties = {
-  border: "1px solid #bae6fd",
-  background: "#f0f9ff",
-  borderRadius: 10,
-  padding: "18px 20px",
-  marginBottom: 28,
-  maxWidth: 820,
-};
-
-const primaryLink: CSSProperties = {
-  display: "inline-block",
-  marginTop: 10,
-  padding: "10px 18px",
-  background: "#0f766e",
-  color: "#fff",
-  borderRadius: 8,
-  fontWeight: 600,
-  textDecoration: "none",
-  fontSize: 14,
-};
-
-const secondaryLine: CSSProperties = {
-  marginTop: 8,
-  fontSize: 13,
-  color: "#475569",
-  lineHeight: 1.5,
-};
-
-const stepTitle: CSSProperties = { display: "block", marginBottom: 6 };
 
 type WorkflowStep = {
   title: string;
@@ -53,7 +23,7 @@ const steps: WorkflowStep[] = [
     secondary: (
       <>
         Or browse existing runs on the{" "}
-        <Link className="workflow-inline-link" href="/runs?projectId=default" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/runs?projectId=default">
           Runs list
         </Link>
         .
@@ -100,11 +70,11 @@ const steps: WorkflowStep[] = [
     primaryLabel: "Compare two runs",
     secondary: (
       <>
-        <Link className="workflow-inline-link" href="/replay" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/replay">
           Replay a run
         </Link>{" "}
         ·{" "}
-        <Link className="workflow-inline-link" href="/graph" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/graph">
           Graph (visual)
         </Link>
       </>
@@ -158,27 +128,18 @@ export function OperatorFirstRunWorkflowPanel() {
   }
 
   if (!hydrated) {
-    return <div style={{ minHeight: 140, marginBottom: 28 }} aria-hidden />;
+    return <div className="mb-7 min-h-[140px]" aria-hidden />;
   }
 
   if (minimized) {
     return (
-      <div style={{ marginBottom: 20 }}>
+      <div className="mb-5">
         <button
           type="button"
           onClick={expand}
           aria-expanded={false}
           aria-controls="first-run-workflow-panel"
-          className="auth-panel-focus"
-          style={{
-            fontSize: 14,
-            padding: "8px 14px",
-            borderRadius: 8,
-            border: "1px solid #cbd5e1",
-            background: "#fff",
-            cursor: "pointer",
-            color: "#0f172a",
-          }}
+          className="auth-panel-focus cursor-pointer rounded-lg border border-neutral-300 bg-white px-3.5 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
         >
           Show V1 workflow checklist
         </button>
@@ -187,18 +148,13 @@ export function OperatorFirstRunWorkflowPanel() {
   }
 
   return (
-    <section id="first-run-workflow-panel" style={panelWrap} aria-labelledby="first-run-workflow-heading">
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 12,
-          marginBottom: 14,
-        }}
-      >
-        <h2 id="first-run-workflow-heading" style={{ margin: 0, fontSize: 18, color: "#0c4a6e" }}>
+    <section
+      id="first-run-workflow-panel"
+      className="mb-7 max-w-[820px] rounded-[10px] border border-sky-200 bg-sky-50 px-5 py-[18px] dark:border-sky-900 dark:bg-sky-950/40"
+      aria-labelledby="first-run-workflow-heading"
+    >
+      <div className="mb-3.5 flex flex-wrap items-start justify-between gap-3">
+        <h2 id="first-run-workflow-heading" className="m-0 text-lg font-semibold text-sky-900 dark:text-sky-100">
           First-run workflow (V1 checklist)
         </h2>
         <button
@@ -206,47 +162,45 @@ export function OperatorFirstRunWorkflowPanel() {
           onClick={minimize}
           aria-expanded={true}
           aria-controls="first-run-workflow-panel"
-          className="auth-panel-focus"
-          style={{
-            fontSize: 13,
-            padding: "6px 12px",
-            borderRadius: 6,
-            border: "1px solid #7dd3fc",
-            background: "#fff",
-            cursor: "pointer",
-            color: "#0369a1",
-          }}
+          className="auth-panel-focus cursor-pointer rounded-md border border-sky-300 bg-white px-3 py-1.5 text-[13px] text-sky-800 dark:border-sky-700 dark:bg-neutral-900 dark:text-sky-200"
         >
           Hide checklist
         </button>
       </div>
-      <p style={{ margin: "0 0 16px", fontSize: 14, color: "#334155", lineHeight: 1.55, maxWidth: 760 }}>
+      <p className="m-0 mb-4 max-w-[760px] text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         Follow these steps once to go from an empty tenant to a reviewed, exportable architecture run. Your next
         action is highlighted on each step.
       </p>
-      <ol style={{ margin: 0, paddingLeft: 22, color: "#1e293b", lineHeight: 1.5 }}>
+      <ol className="m-0 list-decimal pl-6 leading-normal text-neutral-800 dark:text-neutral-200">
         {steps.map((step, index) => (
-          <li key={step.title} style={{ marginBottom: 22 }}>
-            <strong style={stepTitle}>
+          <li key={step.title} className="mb-[22px]">
+            <strong className="mb-1.5 block">
               {index + 1}. {step.title}
             </strong>
-            <span style={{ fontSize: 14, color: "#475569" }}>{step.body}</span>
+            <span className="text-sm text-neutral-600 dark:text-neutral-400">{step.body}</span>
             <div>
-              <Link className="workflow-primary-action" href={step.primaryHref} style={primaryLink}>
+              <Link
+                className="workflow-primary-action mt-2.5 inline-block rounded-lg bg-teal-700 px-[18px] py-2.5 text-sm font-semibold text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+                href={step.primaryHref}
+              >
                 {step.primaryLabel}
               </Link>
             </div>
-            {step.secondary ? <div style={secondaryLine}>{step.secondary}</div> : null}
+            {step.secondary ? (
+              <div className="mt-2 text-[13px] leading-normal text-neutral-600 dark:text-neutral-400">
+                {step.secondary}
+              </div>
+            ) : null}
           </li>
         ))}
       </ol>
-      <p style={{ margin: "18px 0 0", fontSize: 13, color: "#334155" }}>
+      <p className="mt-[18px] text-[13px] text-neutral-700 dark:text-neutral-300">
         More orientation:{" "}
-        <Link className="workflow-inline-link" href="/onboarding" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/onboarding">
           Onboarding
         </Link>{" "}
         ·{" "}
-        <Link className="workflow-inline-link" href="/" style={{ color: "#0f766e" }}>
+        <Link className="workflow-inline-link text-teal-700 dark:text-teal-400" href="/">
           Home overview
         </Link>
       </p>

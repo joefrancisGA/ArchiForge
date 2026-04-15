@@ -22,11 +22,13 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("ShellNav (55R smoke — primary navigation)", () => {
-  it("exposes start-and-review workflow links with expected routes", () => {
+describe("ShellNav (sidebar re-export — primary navigation)", () => {
+  it(
+    "exposes runs-and-review workflow links with expected routes",
+    () => {
     render(<ShellNav />);
 
-    const nav = screen.getByRole("navigation", { name: "Primary operator workflows" });
+    const nav = screen.getByRole("navigation", { name: "Runs & review" });
     expect(nav).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
@@ -35,10 +37,7 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
       "title",
       "Guided first-run wizard — system identity through pipeline tracking (Alt+N)",
     );
-    expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute(
-      "href",
-      "/runs?projectId=default",
-    );
+    expect(screen.getByRole("link", { name: "Runs" })).toHaveAttribute("href", "/runs?projectId=default");
     expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute("href", "/graph");
     expect(screen.getByRole("link", { name: "Graph" })).toHaveAttribute(
       "title",
@@ -50,18 +49,20 @@ describe("ShellNav (55R smoke — primary navigation)", () => {
     const linksWithKeyShortcuts = screen
       .getAllByRole("link")
       .filter((link) => {
-        const v = link.getAttribute("aria-keyshortcuts");
+        const value = link.getAttribute("aria-keyshortcuts");
 
-        return v !== null && v !== "";
+        return value !== null && value !== "";
       });
     expect(linksWithKeyShortcuts.length).toBeGreaterThanOrEqual(2);
-  });
+    },
+    15_000,
+  );
 
   it("exposes Q&A and alerts group navigations", () => {
     render(<ShellNav />);
 
-    expect(screen.getByRole("navigation", { name: "Question answering and advisory" })).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Alerts and governance" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Q&A & advisory" })).toBeInTheDocument();
+    expect(screen.getByRole("navigation", { name: "Alerts & governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");

@@ -345,7 +345,7 @@ function GovernanceWorkflowPageInner() {
 
   return (
     <TooltipProvider delayDuration={300}>
-    <main id="main-content" className="mx-auto max-w-4xl">
+    <main className="mx-auto max-w-4xl">
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         Submit manifest promotion requests, review them, record promotions, and activate baselines per environment.
@@ -795,7 +795,7 @@ function GovernanceWorkflowPageInner() {
 
 function GovernanceWorkflowSuspenseFallback() {
   return (
-    <main id="main-content" className="mx-auto max-w-4xl">
+    <main className="mx-auto max-w-4xl">
       <OperatorLoadingNotice>
         <strong>Loading governance workflow.</strong>
         <p className="mt-2 text-sm">Reading URL parameters…</p>
