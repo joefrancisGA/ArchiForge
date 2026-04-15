@@ -9,11 +9,12 @@ Run Playwright **`live-api-*.spec.ts`** against **`ArchLucidAuth:Mode=JwtBearer`
 - **Non-production only:** configuration validation rejects **`JwtSigningPublicKeyPemPath`** in Production (use Entra **`Authority`** + metadata there).
 - **Claim shape:** tokens use short JWT claim names **`roles`** (array or repeated) and **`name`** aligned with **`LIVE_JWT_ACTOR_NAME`** (default **`JwtE2eAdmin`**). The API sets **`JwtBearerOptions.MapInboundClaims = false`** for this path so **`roles`** matches **`[Authorize]`** role checks.
 - **Next.js BFF:** browser calls that go through **`archlucid-ui`’s API proxy** may not send **`Authorization`**; set **`ARCHLUCID_PROXY_BEARER_TOKEN`** to the same value as **`LIVE_JWT_TOKEN`** so the server attaches **`Authorization: Bearer`** upstream.
+- **RSC / server `fetch`:** Run detail and other Server Components call the API **directly** (same origin as the proxy target, not via `/api/proxy`). **`getServerUpstreamAuthHeaders`** in **`archlucid-ui`** applies **`ARCHLUCID_PROXY_BEARER_TOKEN`** there too so JWT CI matches Playwright’s direct API auth.
 
 ## Constraints
 
 - Issuer and audience on the API **must** match the mint script (`scripts/ci/mint_ci_jwt.py`).
-- CI PR job **`ui-e2e-live-jwt`** uses **`continue-on-error: true`** while the lane stabilizes; treat failures as signal, not always merge blockers.
+- CI job **`ui-e2e-live-jwt`** is merge-blocking when enabled in **`.github/workflows/ci.yml`**; failures indicate JWT + UI proxy + RSC auth drift.
 
 ## Architecture overview
 

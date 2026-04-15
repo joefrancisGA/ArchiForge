@@ -99,14 +99,19 @@ test.describe("live-api-journey", () => {
 
     await expect(page.getByRole("heading", { name: "Run detail", level: 2 })).toBeVisible({ timeout: 60_000 });
 
-    // Error/malformed run detail still renders the same h2; require loaded run metadata before the manifest link.
-    // Architecture create returns RunId "N" (no hyphens); authority run detail uses JSON Guid "D" (hyphenated).
-    const runIdCode = page
+    // RSC: wait for loading shell to detach (JWT / slow SQL); error states keep h2 without the Run metadata section.
+    await expect(page.getByText(/Loading run detail/)).toHaveCount(0, { timeout: 60_000 });
+
+    // Scope to the **Run** summary section (same as mock `run-manifest-journey`). "Pipeline progress" also shows Run ID in a <code>.
+    const runSummarySection = page
       .locator("main")
-      .locator("p")
-      .filter({ has: page.getByText("Run ID:", { exact: true }) })
-      .locator("code")
-      .first();
+      .locator("section")
+      .filter({ has: page.getByRole("heading", { name: "Run", level: 3 }) });
+
+    await expect(runSummarySection.getByText("Run ID:", { exact: true })).toBeVisible({ timeout: 60_000 });
+
+    // Architecture create returns RunId "N" (no hyphens); authority run detail uses JSON Guid "D" (hyphenated).
+    const runIdCode = runSummarySection.locator("code").first();
 
     await expect(runIdCode).toBeVisible({ timeout: 60_000 });
 

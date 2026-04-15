@@ -33,8 +33,8 @@ export function readServerSideApiKey(): string | undefined {
 
 /**
  * Auth headers for **server-side** UI → API fetches (RSC `api.ts` direct to backend).
- * Matches {@link ../../app/api/proxy/[...path]/route.ts} when the browser sends no `Authorization`:
- * bearer from `ARCHLUCID_PROXY_BEARER_TOKEN` wins; otherwise `X-Api-Key` from {@link readServerSideApiKey}.
+ * Aligns with `buildUpstreamHeaders` in `src/app/api/proxy/[...path]/route.ts` when the browser sends no `Authorization`:
+ * bearer from `ARCHLUCID_PROXY_BEARER_TOKEN` wins; otherwise `X-Api-Key` from `readServerSideApiKey`.
  */
 export function getServerUpstreamAuthHeaders(): Record<string, string> {
   warnLegacyUiEnvOnce();
@@ -44,7 +44,7 @@ export function getServerUpstreamAuthHeaders(): Record<string, string> {
   const hasBearer = rawBearer.length > 0;
   const headers: Record<string, string> = {};
 
-  if (key !== undefined && key.length > 0 && !hasBearer) {
+  if (key && !hasBearer) {
     headers["X-Api-Key"] = key;
   }
 

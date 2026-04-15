@@ -2,7 +2,7 @@ import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { ApiV1Routes } from "@/lib/api-v1-routes";
 import { CORRELATION_ID_HEADER, generateCorrelationId } from "@/lib/correlation";
 import { getServerApiBaseUrl } from "@/lib/config";
-import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
 import { getScopeHeaders } from "@/lib/scope";
@@ -141,12 +141,8 @@ function resolveBinaryGetRequest(path: string): { url: string; headers: HeadersI
   const headers: Record<string, string> = {
     Accept: "*/*",
     ...getScopeHeaders(),
+    ...getServerUpstreamAuthHeaders(),
   };
-  const key = readServerSideApiKey();
-
-  if (key) {
-    headers["X-Api-Key"] = key;
-  }
 
   return { url, headers };
 }
@@ -172,9 +168,9 @@ function resolveRequest(path: string): { url: string; headers: HeadersInit } {
   const headers: Record<string, string> = {
     Accept: "application/json",
     ...getScopeHeaders(),
+    ...getServerUpstreamAuthHeaders(),
   };
-  const key = readServerSideApiKey();
-  if (key) headers["X-Api-Key"] = key;
+
   return { url, headers };
 }
 
