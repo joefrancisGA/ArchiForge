@@ -1,14 +1,18 @@
+using ArchLucid.Core.Scoping;
+
 namespace ArchLucid.Persistence.BlobStore;
 
 /// <summary>Writes under a root directory (local dev / tests). URIs use the file:// scheme.</summary>
 public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
 {
     private readonly string _rootPath;
+    private readonly IScopeContextProvider _scopeProvider;
 
-    public LocalFileArtifactBlobStore(string rootPath)
+    public LocalFileArtifactBlobStore(string rootPath, IScopeContextProvider scopeProvider)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(rootPath);
         _rootPath = Path.GetFullPath(rootPath);
+        _scopeProvider = scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
     }
 
     public async Task<string> WriteAsync(string containerName, string blobName, string content, CancellationToken ct)
@@ -17,7 +21,8 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         ArgumentException.ThrowIfNullOrWhiteSpace(blobName);
 
         string safeContainer = SanitizeSegment(containerName);
-        string safeName = SanitizeBlobName(blobName);
+        string scopedLogical = ArtifactBlobTenantPaths.PrefixWithTenant(_scopeProvider, blobName);
+        string safeName = SanitizeBlobName(scopedLogical);
         string dir = Path.Combine(_rootPath, safeContainer);
         Directory.CreateDirectory(dir);
         string fullPath = Path.Combine(dir, safeName);
@@ -33,8 +38,29 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
             return null;
 
         string path = ToLocalPath(blobUri);
+
         if (string.IsNullOrEmpty(path) || !File.Exists(path))
             return null;
+
+        string full = Path.GetFullPath(path);
+        string root = Path.GetFullPath(_rootPath);
+
+        if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        string relative = Path.GetRelativePath(root, full);
+        string[] segments = relative.Split(
+            new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+            StringSplitOptions.RemoveEmptyEntries);
+
+        if (segments.Length < 2)
+            throw new InvalidOperationException("Local blob path must include container and tenant folder segments.");
+
+        if (!Guid.TryParse(segments[1], out Guid pathTenant) ||
+            pathTenant != _scopeProvider.GetCurrentScope().TenantId)
+        {
+            throw new InvalidOperationException("Local blob path tenant folder does not match the current tenant scope.");
+        }
 
         return await File.ReadAllTextAsync(path, ct);
     }

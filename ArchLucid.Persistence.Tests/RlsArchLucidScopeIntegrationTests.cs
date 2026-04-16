@@ -341,4 +341,93 @@ public sealed class RlsArchLucidScopeIntegrationTests(SqlServerPersistenceFixtur
 
         return Convert.ToInt32(scalar);
     }
+
+    [SkippableFact]
+    public async Task Rls_select_with_cleared_session_context_returns_zero_runs()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        await using SqlConnection admin = new(fixture.ConnectionString);
+        await admin.OpenAsync();
+
+        await using (SqlCommand enable = admin.CreateCommand())
+        {
+            enable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = ON);";
+            await enable.ExecuteNonQueryAsync();
+        }
+
+        Guid runId = Guid.NewGuid();
+
+        try
+        {
+            await SetBypassAsync(admin);
+            await InsertRunAsync(admin, runId, TenantA, WorkspaceW, ProjectP);
+
+            await using SqlConnection reader = new(fixture.ConnectionString);
+            await reader.OpenAsync();
+            await ClearSessionContextKeysAsync(reader);
+            await SetIntContextAsync(reader, "af_rls_bypass", 0);
+            int visible = await CountOurRunsAsync(reader, runId, runId);
+            visible.Should().Be(0);
+
+            await SetBypassAsync(admin);
+            await DeleteRunAsync(admin, runId);
+        }
+        finally
+        {
+            await using SqlCommand disable = admin.CreateCommand();
+            disable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = OFF);";
+            await disable.ExecuteNonQueryAsync();
+        }
+    }
+
+    [SkippableFact]
+    public async Task Rls_block_predicates_reject_cross_tenant_insert_on_runs()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+
+        await using SqlConnection admin = new(fixture.ConnectionString);
+        await admin.OpenAsync();
+
+        await using (SqlCommand enable = admin.CreateCommand())
+        {
+            enable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = ON);";
+            await enable.ExecuteNonQueryAsync();
+        }
+
+        Guid runId = Guid.NewGuid();
+
+        try
+        {
+            await using SqlConnection conn = new(fixture.ConnectionString);
+            await conn.OpenAsync();
+            await SetTenantScopeContextAsync(conn, TenantA, WorkspaceW, ProjectP);
+
+            Func<Task> act = async () =>
+            {
+                await using SqlCommand insert = conn.CreateCommand();
+                insert.CommandText = """
+                    INSERT INTO dbo.Runs (RunId, ProjectId, CreatedUtc, TenantId, WorkspaceId, ScopeProjectId)
+                    VALUES (@RunId, N'rls-block-test', SYSUTCDATETIME(), @TenantId, @WorkspaceId, @ScopeProjectId);
+                    """;
+                insert.Parameters.AddWithValue("@RunId", runId);
+                insert.Parameters.AddWithValue("@TenantId", TenantB);
+                insert.Parameters.AddWithValue("@WorkspaceId", WorkspaceW);
+                insert.Parameters.AddWithValue("@ScopeProjectId", ProjectP);
+                await insert.ExecuteNonQueryAsync();
+            };
+
+            await act.Should().ThrowAsync<SqlException>();
+
+            await SetBypassAsync(admin);
+            int leaked = await CountOurRunsAsync(admin, runId, runId);
+            leaked.Should().Be(0);
+        }
+        finally
+        {
+            await using SqlCommand disable = admin.CreateCommand();
+            disable.CommandText = "ALTER SECURITY POLICY " + TenantScopePolicyQualifiedName + " WITH (STATE = OFF);";
+            await disable.ExecuteNonQueryAsync();
+        }
+    }
 }

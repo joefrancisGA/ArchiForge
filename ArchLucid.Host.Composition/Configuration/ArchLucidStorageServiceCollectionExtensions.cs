@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Configuration;
@@ -223,14 +224,16 @@ public static class ArchLucidStorageServiceCollectionExtensions
             services.AddSingleton<IArtifactBlobStore>(sp =>
                 new AzureBlobArtifactBlobStore(
                     sp.GetRequiredService<BlobServiceClient>(),
-                    sp.GetRequiredService<TokenCredential>()));
+                    sp.GetRequiredService<TokenCredential>(),
+                    sp.GetRequiredService<IScopeContextProvider>()));
         }
         else if (string.Equals(provider, "Local", StringComparison.OrdinalIgnoreCase))
         {
             string root = string.IsNullOrWhiteSpace(snapshot.LocalRootPath)
                 ? Path.Combine(AppContext.BaseDirectory, "blob-store")
                 : snapshot.LocalRootPath;
-            services.AddSingleton<IArtifactBlobStore>(_ => new LocalFileArtifactBlobStore(root));
+            services.AddSingleton<IArtifactBlobStore>(sp =>
+                new LocalFileArtifactBlobStore(root, sp.GetRequiredService<IScopeContextProvider>()));
         }
         else
         {
