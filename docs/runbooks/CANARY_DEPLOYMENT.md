@@ -1,5 +1,7 @@
 # Canary and blue-green — Azure Container Apps
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Describe how operators run **revision-based** rollouts for ArchLucid API / worker / UI on **Azure Container Apps**, using Terraform variables, GitHub Actions CD automation, and Azure CLI traffic splits.

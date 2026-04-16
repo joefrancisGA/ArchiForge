@@ -1,5 +1,7 @@
 # Runbook: Comparison replay — light vs heavy and rate limits
 
+**Last reviewed:** 2026-04-16
+
 ## Policy summary
 
 **`AddArchLucidRateLimiting`** registers a **`replay`** partition policy:

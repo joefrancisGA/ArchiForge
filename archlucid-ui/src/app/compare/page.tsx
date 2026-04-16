@@ -275,10 +275,10 @@ function CompareForm() {
       {showStaleInputsWarning && (
         <OperatorWarningCallout>
           <strong>Run IDs no longer match the results below.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             Content below still reflects{" "}
-            <code style={{ fontSize: 13 }}>{lastComparedPair?.left}</code> →{" "}
-            <code style={{ fontSize: 13 }}>{lastComparedPair?.right}</code>. Click <strong>Compare</strong> or{" "}
+            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.left}</code> →{" "}
+            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair?.right}</code>. Click <strong>Compare</strong> or{" "}
             <strong>Explain changes (AI)</strong> again after fixing IDs, or restore the previous values.
           </p>
         </OperatorWarningCallout>
@@ -287,7 +287,7 @@ function CompareForm() {
       {loading && leftTrim && rightTrim && (
         <OperatorLoadingNotice>
           <strong>Comparing runs.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             Legacy compare API first, then structured golden-manifest compare (same pair). Sections below
             are ordered for review: structured first, then legacy.
           </p>
@@ -297,13 +297,13 @@ function CompareForm() {
       {aiLoading && (
         <OperatorLoadingNotice>
           <strong>Requesting AI explanation.</strong>
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>This depends on server LLM configuration.</p>
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">This depends on server LLM configuration.</p>
         </OperatorLoadingNotice>
       )}
 
       {legacyFailure && (
         <>
-          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+          <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             Legacy run comparison failed.
           </p>
           <OperatorApiProblem
@@ -323,7 +323,7 @@ function CompareForm() {
         <>
           <OperatorMalformedCallout>
             <strong>Legacy comparison response was not usable.</strong>
-            <p style={{ margin: "8px 0 0" }}>{legacyMalformed}</p>
+            <p className="mt-2">{legacyMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
             Align API and UI versions (<code>GET /version</code>). If structured compare succeeded below, use that
@@ -334,7 +334,7 @@ function CompareForm() {
 
       {goldenFailure && (
         <>
-          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+          <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             Structured manifest comparison request failed.
           </p>
           <OperatorApiProblem
@@ -343,7 +343,7 @@ function CompareForm() {
             correlationId={goldenFailure.correlationId}
             variant="warning"
           />
-          <p style={{ margin: "8px 0 0", fontSize: 14 }}>
+          <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
             The legacy comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
@@ -357,7 +357,7 @@ function CompareForm() {
         <>
           <OperatorMalformedCallout>
             <strong>Structured comparison JSON did not match the UI contract.</strong>
-            <p style={{ margin: "8px 0 0" }}>{goldenMalformed}</p>
+            <p className="mt-2">{goldenMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
             Treat this as contract drift—compare deployed API vs UI. The legacy diff section may still render if that
@@ -368,7 +368,7 @@ function CompareForm() {
 
       {aiFailure && (
         <>
-          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 600 }}>
+          <p className="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
             AI explanation request failed.
           </p>
           <OperatorApiProblem
@@ -388,7 +388,7 @@ function CompareForm() {
         <>
           <OperatorMalformedCallout>
             <strong>AI explanation response was not usable.</strong>
-            <p style={{ margin: "8px 0 0" }}>{aiMalformed}</p>
+            <p className="mt-2">{aiMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
             Fall back to structured/legacy compare. Capture the correlation ID and API version if filing a defect.
@@ -398,41 +398,26 @@ function CompareForm() {
 
       {pairAligned && !loading && lastComparedPair !== null && (
         <section
-          style={{
-            marginTop: 20,
-            padding: 14,
-            border: "1px solid #e2e8f0",
-            borderRadius: 8,
-            background: "#f8fafc",
-            maxWidth: 800,
-          }}
+          className="mt-5 max-w-3xl rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50"
           aria-label="Comparison request outcome"
         >
-          <h3 style={{ marginTop: 0, marginBottom: 10, fontSize: 16 }}>Last compare request</h3>
-          <p style={{ margin: "0 0 10px", fontSize: 14, color: "#475569" }}>
-            <code style={{ fontSize: 13 }}>{lastComparedPair.left}</code>
-            <span style={{ margin: "0 6px", color: "#94a3b8" }}>→</span>
-            <code style={{ fontSize: 13 }}>{lastComparedPair.right}</code>
+          <h3 className="mb-2.5 mt-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Last compare request</h3>
+          <p className="mb-2.5 text-sm text-neutral-600 dark:text-neutral-400">
+            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.left}</code>
+            <span className="mx-1.5 text-neutral-400 dark:text-neutral-500">→</span>
+            <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">{lastComparedPair.right}</code>
           </p>
-          <dl
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(160px, 220px) 1fr",
-              gap: "6px 12px",
-              fontSize: 14,
-              margin: 0,
-            }}
-          >
-            <dt style={{ color: "#64748b", margin: 0 }}>Structured manifest</dt>
-            <dd style={{ margin: 0 }}>
+          <dl className="m-0 grid grid-cols-[minmax(10rem,14rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
+            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Structured manifest</dt>
+            <dd className="m-0 text-neutral-800 dark:text-neutral-200">
               {outcomeLabel({
                 hasValue: golden !== null,
                 failure: goldenFailure,
                 malformed: goldenMalformed,
               })}
             </dd>
-            <dt style={{ color: "#64748b", margin: 0 }}>Legacy run / manifest diff</dt>
-            <dd style={{ margin: 0 }}>
+            <dt className="m-0 text-neutral-500 dark:text-neutral-400">Legacy run / manifest diff</dt>
+            <dd className="m-0 text-neutral-800 dark:text-neutral-200">
               {outcomeLabel({
                 hasValue: result !== null,
                 failure: legacyFailure,
@@ -440,7 +425,7 @@ function CompareForm() {
               })}
             </dd>
           </dl>
-          <p style={{ margin: "10px 0 0", fontSize: 13, color: "#64748b" }}>
+          <p className="mb-0 mt-2.5 text-xs text-neutral-500 dark:text-neutral-400">
             AI explanation is not included here—use the AI button for that pair.
           </p>
         </section>
@@ -449,18 +434,10 @@ function CompareForm() {
       {hasResultsToNavigate && (
         <nav
           aria-label="Comparison results outline"
-          style={{
-            marginTop: 16,
-            padding: 12,
-            border: "1px solid #e2e8f0",
-            borderRadius: 8,
-            background: "#fff",
-            maxWidth: 800,
-            fontSize: 14,
-          }}
+          className="mt-4 max-w-3xl rounded-lg border border-neutral-200 bg-white p-3 text-sm dark:border-neutral-700 dark:bg-neutral-900"
         >
-          <strong style={{ display: "block", marginBottom: 8 }}>Review order</strong>
-          <ol style={{ margin: 0, paddingLeft: 22, lineHeight: 1.6 }}>
+          <strong className="mb-2 block text-neutral-900 dark:text-neutral-100">Review order</strong>
+          <ol className="m-0 list-decimal pl-6 leading-relaxed text-neutral-800 dark:text-neutral-200">
             {golden !== null && (
               <li>
                 <a href="#compare-structured">Structured manifest comparison</a>
@@ -495,8 +472,9 @@ function CompareSuspenseFallback() {
     <main>
       <OperatorLoadingNotice>
         <strong>Loading compare.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-          Reading <code>leftRunId</code> / <code>rightRunId</code> from the URL so shared compare links open with
+        <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+          Reading <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">leftRunId</code> /{" "}
+          <code className="rounded bg-neutral-100 px-1 text-xs dark:bg-neutral-800">rightRunId</code> from the URL so shared compare links open with
           fields prefilled…
         </p>
       </OperatorLoadingNotice>

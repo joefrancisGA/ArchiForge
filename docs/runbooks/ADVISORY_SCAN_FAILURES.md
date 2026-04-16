@@ -1,5 +1,7 @@
 # Runbook: Advisory scan failures and schedule advance
 
+**Last reviewed:** 2026-04-16
+
 ## Symptoms
 
 - Logs: **`Advisory scan failed for schedule {ScheduleId}`** from **`AdvisoryScanHostedService`**.

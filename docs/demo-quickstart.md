@@ -18,7 +18,7 @@ If migration fails, the process throws and the host does not start.
 
 ## 2. Enable demo seed
 
-Configuration section: **`Demo`** (see [DemoOptions](../ArchLucid.Api/Configuration/DemoOptions.cs)).
+Configuration section: **`Demo`** (see [DemoOptions](../ArchLucid.Host.Core/Configuration/DemoOptions.cs)).
 
 | Setting | Meaning |
 |--------|---------|

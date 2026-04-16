@@ -68,6 +68,21 @@ export type RunExplanationSummary = {
   findingTraceConfidences?: FindingTraceConfidenceDto[] | null;
 };
 
+/** Deterministic explainability payload for one finding (`GET /v1/explain/runs/.../findings/.../explainability`). */
+export type FindingExplainability = {
+  findingId: string;
+  title: string;
+  engineType: string;
+  severity: string;
+  traceCompletenessRatio: number;
+  graphNodeIdsExamined: string[];
+  rulesApplied: string[];
+  decisionsTaken: string[];
+  alternativePathsConsidered: string[];
+  notes: string[];
+  narrativeText: string;
+};
+
 /** AI-generated narrative explaining the differences between two runs. */
 export type ComparisonExplanation = {
   highLevelSummary: string;

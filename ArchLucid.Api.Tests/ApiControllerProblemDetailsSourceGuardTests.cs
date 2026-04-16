@@ -40,10 +40,12 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         string[] files = Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories);
         files.Length.Should().BeGreaterThan(0);
 
-        Regex bareNotFound = new(@"\breturn\s+NotFound\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
-        Regex bareConflict = new(@"\breturn\s+Conflict\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
-        Regex bareConflictObject = new(@"\breturn\s+Conflict\s*\(\s*[^P]", RegexOptions.CultureInvariant);
-        Regex bareBadRequest = new(@"\breturn\s+BadRequest\s*\(\s*\)\s*;", RegexOptions.CultureInvariant);
+        // Any `return NotFound(` / `Conflict(` / `BadRequest(` is a violation: use ProblemDetailsExtensions
+        // (`NotFoundProblem`, `ConflictProblem`, `BadRequestProblem`). `this.NotFoundProblem` does not match
+        // `return NotFound(` because the token after `return` is `this`.
+        Regex returnNotFound = new(@"\breturn\s+NotFound\s*\(", RegexOptions.CultureInvariant);
+        Regex returnConflict = new(@"\breturn\s+Conflict\s*\(", RegexOptions.CultureInvariant);
+        Regex returnBadRequest = new(@"\breturn\s+BadRequest\s*\(", RegexOptions.CultureInvariant);
         Regex bareStatusCode = new(@"\breturn\s+StatusCode\s*\(\s*\d+\s*\)\s*;", RegexOptions.CultureInvariant);
         Regex objectResultWithStatus = new(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=", RegexOptions.CultureInvariant);
         List<string> violations = [];
@@ -52,24 +54,19 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         {
             string text = File.ReadAllText(file);
 
-            if (bareNotFound.IsMatch(text))
+            if (returnNotFound.IsMatch(text))
             {
-                violations.Add($"{file}: bare NotFound()");
+                violations.Add($"{file}: return NotFound(...) — use NotFoundProblem per RFC 9457");
             }
 
-            if (bareConflict.IsMatch(text))
+            if (returnConflict.IsMatch(text))
             {
-                violations.Add($"{file}: bare Conflict() — use ConflictProblem per RFC 9457");
+                violations.Add($"{file}: return Conflict(...) — use ConflictProblem per RFC 9457");
             }
 
-            if (bareConflictObject.IsMatch(text))
+            if (returnBadRequest.IsMatch(text))
             {
-                violations.Add($"{file}: Conflict(...) without Problem factory — verify RFC 9457 shape");
-            }
-
-            if (bareBadRequest.IsMatch(text))
-            {
-                violations.Add($"{file}: bare BadRequest() — use BadRequestProblem per RFC 9457");
+                violations.Add($"{file}: return BadRequest(...) — use BadRequestProblem per RFC 9457");
             }
 
             if (bareStatusCode.IsMatch(text))

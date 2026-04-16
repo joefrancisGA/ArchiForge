@@ -1,5 +1,7 @@
 # Trace a run — audit, logs, and distributed traces
 
+**Last reviewed:** 2026-04-16
+
 ## 1. Objective
 
 Given a **run id** (no-dash hex or standard GUID string accepted by the API), reconstruct the **end-to-end story** of that run: creation, authority pipeline, commit, governance, exports, and failures — across **durable SQL audit** (`dbo.AuditEvents`), **OpenTelemetry** traces, and **structured logs** (Serilog), so operators can answer “what happened, in what order, under which request?”

@@ -1,5 +1,7 @@
 # Runbook: secret and certificate rotation
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Describe how operators rotate credentials and TLS-related material for ArchLucid deployments without assuming a single cloud SKU. The API and UI are commonly hosted on Azure App Service with secrets in Key Vault or app settings; adjust names to match your environment.

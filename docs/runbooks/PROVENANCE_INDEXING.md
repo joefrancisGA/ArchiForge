@@ -1,5 +1,7 @@
 # Runbook: Provenance indexing — failure modes and retries (v1)
 
+**Last reviewed:** 2026-04-16
+
 ## Flow
 
 After a successful authority commit, **retrieval indexing** may run via **`IRetrievalRunCompletionIndexer`** / **`RetrievalRunCompletionIndexer`**, building documents from manifest, artifacts, and **`DecisionProvenanceGraph`**.

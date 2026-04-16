@@ -1,9 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { formatViolations, runAxe } from "./helpers/axe-helper";
-
-/** Stable run id from `e2e/fixtures/ids.ts` (mock API serves run detail + aggregate explanation). */
-const FIXTURE_RUN_ID = "e2e-fixture-run-001";
+import { FIXTURE_MANIFEST_ID, FIXTURE_RUN_ID } from "./fixtures/ids";
 
 const PAGES = [
   { name: "Home", path: "/" },
@@ -12,6 +10,8 @@ const PAGES = [
   { name: "New run wizard", path: "/runs/new" },
   { name: "Runs", path: "/runs?projectId=default" },
   { name: "Run detail", path: `/runs/${FIXTURE_RUN_ID}` },
+  { name: "Run provenance", path: `/runs/${FIXTURE_RUN_ID}/provenance` },
+  { name: "Manifest detail", path: `/manifests/${FIXTURE_MANIFEST_ID}` },
   { name: "Compare", path: "/compare" },
   { name: "Replay", path: "/replay" },
   { name: "Ask", path: "/ask" },

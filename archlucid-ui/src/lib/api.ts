@@ -9,6 +9,7 @@ import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type {
   ComparisonExplanation,
+  FindingExplainability,
   RunExplanation,
   RunExplanationSummary,
 } from "@/types/explanation";
@@ -468,6 +469,15 @@ export async function explainRun(runId: string): Promise<RunExplanation> {
 /** Aggregate executive explanation (themes, posture, counts) with nested full explanation payload. */
 export async function getRunExplanationSummary(runId: string): Promise<RunExplanationSummary> {
   return apiGet<RunExplanationSummary>(`/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`);
+}
+
+/** Persisted explainability trace + narrative for a single finding (no LLM). */
+export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
+  const encodedFinding = encodeURIComponent(findingId);
+
+  return apiGet<FindingExplainability>(
+    `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
+  );
 }
 
 /** Sends a natural-language question to the ArchLucid conversational AI endpoint. */

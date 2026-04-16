@@ -1,5 +1,7 @@
 # Customer-managed keys — Azure Storage and SQL TDE
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Explain how **customer-managed keys (CMK)** protect artifact blob storage in Azure, and where **SQL TDE** fits for database encryption at rest.

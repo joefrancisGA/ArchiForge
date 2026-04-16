@@ -1,5 +1,7 @@
 # Runbook: API key rotation (ArchLucid)
 
+**Last reviewed:** 2026-04-16
+
 ## 1. Objective
 
 Rotate **development / automation API keys** accepted by `ArchLucid.Api` (`ApiKeys:AdminKey`, `ApiKeys:ReadOnlyKey`) without downtime for well-behaved clients, using **comma-separated dual values** during cutover.

@@ -1,5 +1,7 @@
 # Runbook: `data_archival` readiness check
 
+**Last reviewed:** 2026-04-16
+
 ## What it is
 
 The API registers an ASP.NET Core health check named **`data_archival`** (readiness tag **`ready`**). It reflects the last outcome of the **data archival hosted service** (`DataArchivalHostedService`) when archival is enabled in configuration.

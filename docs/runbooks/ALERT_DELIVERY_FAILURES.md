@@ -1,5 +1,7 @@
 # Alert delivery failures
 
+**Last reviewed:** 2026-04-16
+
 **Audience:** Operators debugging outbound alert notifications (webhooks, email, or other channels) and subscription health.
 
 ## Symptoms

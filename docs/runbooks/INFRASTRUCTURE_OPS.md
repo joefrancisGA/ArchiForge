@@ -1,5 +1,7 @@
 # Infrastructure operations (Terraform roots)
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Give operators a single place to orient on **multiple Terraform roots**, what each is for, and how to validate or triage them without applying blindly.

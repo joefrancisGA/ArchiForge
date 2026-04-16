@@ -1,5 +1,7 @@
 # Redis health (development and cache-oriented deployments)
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Describe how Redis appears in ArchLucid’s **local Docker Compose** profile, how to verify it is healthy, and what production operators should verify when Redis (or Azure Cache for Redis) backs session/cache features.

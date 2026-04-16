@@ -1,5 +1,7 @@
 # Geo-failover drill (Azure SQL) — executable runbook
 
+**Last reviewed:** 2026-04-16
+
 ## 1. Objective
 
 Validate **RTO** and **RPO** intent from **`docs/RTO_RPO_TARGETS.md`** using a **controlled** failover (production-like or dedicated drill subscription), not developer laptops.

@@ -1,5 +1,7 @@
 # Load test — expensive rate-limit boundary
 
+**Last reviewed:** 2026-04-16
+
 **Objective:** Validate that burst traffic against **expensive** endpoints receives **429** under configured `RateLimiting:Expensive:*` windows.
 
 **Prerequisites:** A running API with known base URL, test identity with **execute** authority, and optional k6 (`brew install k6` / CI image).

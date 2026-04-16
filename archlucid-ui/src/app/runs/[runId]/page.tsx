@@ -16,6 +16,7 @@ import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
+import { RunFindingExplainabilityTable } from "@/components/RunFindingExplainabilityTable";
 import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
@@ -364,7 +365,21 @@ export default async function RunDetailPage({
             </>
           )}
           {!explanationFailure && (
-            <RunExplanationSection summary={explanationSummary} loading={false} error={null} />
+            <>
+              <RunExplanationSection summary={explanationSummary} loading={false} error={null} />
+              {(() => {
+                const traceRows =
+                  explanationSummary?.findingTraceConfidences ??
+                  explanationSummary?.explanation?.findingTraceConfidences ??
+                  [];
+
+                if (traceRows.length === 0) {
+                  return null;
+                }
+
+                return <RunFindingExplainabilityTable runId={runId} rows={traceRows} />;
+              })()}
+            </>
           )}
         </CollapsibleSection>
         </section>

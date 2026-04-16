@@ -1,5 +1,7 @@
 # Runbook: Azure SQL — failover, connectivity, RPO/RTO
 
+**Last reviewed:** 2026-04-16
+
 **Policy targets (by tier):** see **`docs/RTO_RPO_TARGETS.md`** (e.g. production relational RPO under five minutes with geo-replication; development best-effort).
 
 Use this runbook when the primary Azure SQL database is unavailable, when Microsoft initiates a platform failover, or when you are exercising a controlled **geo-failover** drill.

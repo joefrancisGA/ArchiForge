@@ -1,5 +1,7 @@
 # SQL migration rollback (DbUp / ArchLucid.Persistence)
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Describe how operators recover when a **forward-only** DbUp migration is wrong, partially applied, or must be undone in an emergency. This complements **`docs/SQL_DDL_DISCIPLINE.md`** (item **249**).

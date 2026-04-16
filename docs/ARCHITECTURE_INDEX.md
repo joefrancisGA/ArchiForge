@@ -159,6 +159,8 @@
   - `docs/METHOD_DOCUMENTATION.md`
 - **Refactoring backlog** – completed batches (§88+) and open ideas  
   - `docs/NEXT_REFACTORINGS.md`
+- **Cursor prompts index** – table of all paste-ready prompt docs (links into six-quality, weighted 3–6, SaaS, canonical)  
+  - `docs/CURSOR_PROMPTS_INDEX.md`
 - **Cursor prompts (six weighted quality improvements)** – paste-ready Agent prompts (k6 gates, audit, coverage, RLS/API keys, rename triage, trace metadata)  
   - `docs/CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md`
 

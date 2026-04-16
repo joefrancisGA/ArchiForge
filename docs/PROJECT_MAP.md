@@ -85,7 +85,7 @@ Tier and filter guidance: **[TEST_STRUCTURE.md](TEST_STRUCTURE.md)**.
 ## Security model
 
 - **Secrets and identity** materialize in **host** projects and **API** configuration, not in **Contracts**.
-- **Persistence** enforces tenant scope and RLS session patterns at the SQL boundary (see **[MULTI_TENANT_RLS.md](MULTI_TENANT_RLS.md)**).
+- **Persistence** enforces tenant scope and RLS session patterns at the SQL boundary (see **[MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md)**).
 
 ## Operational considerations
 

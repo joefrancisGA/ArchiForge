@@ -1,5 +1,7 @@
 # Runbook: Comparison record orphans (missing authority run)
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Remove or inspect **`dbo.ComparisonRecords`** rows whose **`LeftRunId`** or **`RightRunId`** parses as a **GUID** but **no** matching **`dbo.Runs.RunId`** exists. This state is **inconsistent** with the authority run model. The product probe (`DataConsistencyOrphanProbeHostedService`) is **detection-only** for counts and metrics; it never **`DELETE`**s. Optionally set **`DataConsistency:OrphanProbeRemediationDryRunLogMaxRows`** to a value **1–500** so each probe pass that finds orphans also logs an **Information**-level sample of candidate keys using the same **`SELECT`** as admin dry-run (golden manifests and findings snapshots use the same option when their counts are non-zero). **Execute** remediation only via the Admin API or approved SQL.

@@ -47,9 +47,24 @@ jobs:
         with:
           config-path: .gitleaks.toml
 
+  doc-markdown-links:
+    name: "Docs: markdown link integrity"
+    needs: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check relative markdown links
+        run: python scripts/ci/check_doc_links.py
+
+      - name: Runbook freshness (informational)
+        run: python scripts/ci/check_doc_freshness.py
+
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
-    needs: gitleaks
+    needs:
+      - gitleaks
+      - doc-markdown-links
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -81,7 +96,9 @@ jobs:
 
   terraform-validate-public-stacks:
     name: "Terraform: validate main / edge / entra (no backend)"
-    needs: gitleaks
+    needs:
+      - gitleaks
+      - doc-markdown-links
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -118,6 +135,7 @@ jobs:
     name: ".NET: fast core (corset)"
     needs:
       - gitleaks
+      - doc-markdown-links
       - terraform-validate-private
       - terraform-validate-public-stacks
     runs-on: ubuntu-latest

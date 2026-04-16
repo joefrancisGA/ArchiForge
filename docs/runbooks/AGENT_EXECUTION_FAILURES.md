@@ -1,5 +1,7 @@
 # Agent execution failures
 
+**Last reviewed:** 2026-04-16
+
 **Audience:** Operators and on-call engineers triaging failed or stuck architecture runs after `POST .../runs/{runId}/execute` (or internal `ExecuteRunAsync`).
 
 ## Symptoms

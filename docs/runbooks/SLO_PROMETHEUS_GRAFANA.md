@@ -1,5 +1,7 @@
 # SLO, Prometheus burn-rate alerts, and Grafana
 
+**Last reviewed:** 2026-04-16
+
 ## 1. Objective
 
 Give operators a **repeatable** way to:

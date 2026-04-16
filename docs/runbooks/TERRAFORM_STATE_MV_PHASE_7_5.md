@@ -1,5 +1,7 @@
 # Runbook: Terraform `state mv` for Phase 7.5 (`archiforge` resource addresses)
 
+**Last reviewed:** 2026-04-16
+
 ## Objective
 
 Rename **Terraform resource addresses** that still contain the historical token **`archiforge`** to **`archlucid`** (or another chosen label) **without** destroying cloud objects — using **`terraform state mv`**.
