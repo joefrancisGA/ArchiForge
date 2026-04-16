@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, type CSSProperties } from "react";
 
 import { OperatorErrorCallout } from "@/components/OperatorShellMessage";
+import { reportClientError } from "@/lib/error-telemetry";
 
 const buttonStyle: CSSProperties = {
   cursor: "pointer",
@@ -27,6 +28,7 @@ export default function AppError({
 }) {
   useEffect(() => {
     console.error("Operator shell route error:", error);
+    reportClientError(error, { source: "app-error-boundary", digest: error.digest ?? "" });
   }, [error]);
 
   return (

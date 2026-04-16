@@ -23,6 +23,9 @@ _CI_SMOKE_TAG_CAPS: dict[str, float] = {
     "http_req_duration{k6ci:list_runs}": 1500.0,
     "http_req_duration{k6ci:audit_search}": 1500.0,
     "http_req_duration{k6ci:version}": 1500.0,
+    "http_req_duration{k6ci:list_for_get_run}": 1500.0,
+    "http_req_duration{k6ci:get_run_detail}": 2500.0,
+    "http_req_duration{k6ci:client_error_telemetry}": 1500.0,
 }
 
 

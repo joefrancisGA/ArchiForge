@@ -1,11 +1,35 @@
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
 
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.Authority;
 
-public sealed partial class RunsController
+/// <summary>
+/// On-demand structural and semantic evaluation of agent traces for a run.
+/// </summary>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/architecture")]
+[EnableRateLimiting("fixed")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
+public sealed class RunAgentEvaluationController(
+    IRunRepository authorityRunRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAgentOutputEvaluator agentOutputEvaluator,
+    IAgentOutputSemanticEvaluator agentOutputSemanticEvaluator,
+    IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
     /// On-demand structural and semantic evaluation of <see cref="AgentExecutionTrace.ParsedResultJson"/> for traces in the run (no metrics).
@@ -18,9 +42,9 @@ public sealed partial class RunsController
         CancellationToken cancellationToken)
     {
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-
+        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
+        }
 
         IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
@@ -69,5 +93,27 @@ public sealed partial class RunsController
         };
 
         return Ok(summary);
+    }
+
+    private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!TryParseRunId(runId, out Guid runGuid))
+        {
+            return false;
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
+    }
+
+    private static bool TryParseRunId(string runId, out Guid runGuid)
+    {
+        if (Guid.TryParseExact(runId, "N", out runGuid))
+        {
+            return true;
+        }
+
+        return Guid.TryParse(runId, out runGuid);
     }
 }

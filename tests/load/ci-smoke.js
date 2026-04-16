@@ -1,6 +1,6 @@
 /**
  * k6 CI smoke — read + write operator API paths (DevelopmentBypass-friendly).
- * Scenarios: health (live+ready), version, create_run, list_runs, audit_search.
+ * Scenarios: health (live+ready), version, create_run, list_runs, audit_search, get_run_detail, client_error_telemetry.
  * Run: BASE_URL=http://127.0.0.1:5128 k6 run tests/load/ci-smoke.js --summary-export /tmp/k6-ci-summary.json
  */
 import http from "k6/http";
@@ -68,6 +68,40 @@ export function versionFn() {
   check(r, { "version 200": (res) => res.status === 200 });
 }
 
+export function getRunDetailFn() {
+  const list = req("list_for_get_run", "GET", `${BASE}/v1/architecture/runs`);
+  check(list, { "list for get run 200": (res) => res.status === 200 });
+
+  let runId = null;
+
+  try {
+    const rows = JSON.parse(list.body);
+
+    if (Array.isArray(rows) && rows.length > 0 && rows[0].runId) {
+      runId = rows[0].runId;
+    }
+  } catch {
+    /* ignore parse errors — second check will fail clearly */
+  }
+
+  if (runId === null || runId === undefined) {
+    return;
+  }
+
+  const detail = req("get_run_detail", "GET", `${BASE}/v1/architecture/run/${encodeURIComponent(runId)}`);
+  check(detail, { "get run detail 200": (res) => res.status === 200 });
+}
+
+export function clientErrorTelemetryFn() {
+  const body = JSON.stringify({
+    message: "k6 ci smoke diagnostics probe",
+    pathname: "/k6-ci-smoke-probe",
+    context: { source: "k6-ci-smoke" },
+  });
+  const r = req("client_error_telemetry", "POST", `${BASE}/v1/diagnostics/client-error`, body);
+  check(r, { "client error telemetry 204": (res) => res.status === 204 });
+}
+
 export const options = {
   scenarios: {
     health: {
@@ -101,6 +135,20 @@ export const options = {
       duration: "20s",
       exec: "versionFn",
     },
+    get_run_detail: {
+      executor: "constant-vus",
+      startTime: "8s",
+      vus: 2,
+      duration: "20s",
+      exec: "getRunDetailFn",
+    },
+    client_error_telemetry: {
+      executor: "constant-vus",
+      startTime: "10s",
+      vus: 1,
+      duration: "18s",
+      exec: "clientErrorTelemetryFn",
+    },
   },
   thresholds: {
     "http_req_failed": ["rate<0.02"],
@@ -111,5 +159,8 @@ export const options = {
     "http_req_duration{k6ci:list_runs}": ["p(95)<1500"],
     "http_req_duration{k6ci:audit_search}": ["p(95)<1500"],
     "http_req_duration{k6ci:version}": ["p(95)<1500"],
+    "http_req_duration{k6ci:list_for_get_run}": ["p(95)<1500"],
+    "http_req_duration{k6ci:get_run_detail}": ["p(95)<2500"],
+    "http_req_duration{k6ci:client_error_telemetry}": ["p(95)<1500"],
   },
 };

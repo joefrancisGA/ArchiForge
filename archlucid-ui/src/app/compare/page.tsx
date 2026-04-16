@@ -22,6 +22,7 @@ import {
 import { AiComparisonExplanationView } from "@/components/compare/AiComparisonExplanationView";
 import { LegacyRunComparisonView } from "@/components/compare/LegacyRunComparisonView";
 import { StructuredComparisonView } from "@/components/compare/StructuredComparisonView";
+import { RunIdPicker } from "@/components/RunIdPicker";
 import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns } from "@/lib/api";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type { ComparisonExplanation } from "@/types/explanation";
@@ -219,47 +220,49 @@ function CompareForm() {
         Compare runs
         <ShortcutHint shortcut="Alt+C" className="align-middle text-[0.75rem] text-neutral-500" />
       </h2>
-      <p style={{ marginTop: 4, fontSize: 14 }}>
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
         {" · "}
         <Link href="/graph">Graph</Link>
       </p>
-      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
+      <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         <strong>Base (left)</strong> is the reference run; <strong>target (right)</strong> is what you are
         evaluating. The page <strong>loads</strong> legacy compare then structured compare; <strong>below</strong>,
         read <strong>structured first</strong>, then the legacy flat diff. AI explanation is optional and separate—
         use it after the tables.
       </p>
 
-      <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>
-        <input
-          value={leftRunId}
-          onChange={(e) => setLeftRunId(e.target.value)}
+      <div className="grid max-w-3xl gap-3">
+        <RunIdPicker
+          label="Base run (left)"
           placeholder="Base run ID (left)"
-          style={{ padding: 8 }}
+          value={leftRunId}
+          onChange={setLeftRunId}
+          inputId="compare-left-run-id"
         />
-        <input
-          value={rightRunId}
-          onChange={(e) => setRightRunId(e.target.value)}
+        <RunIdPicker
+          label="Target run (right)"
           placeholder="Target run ID (right)"
-          style={{ padding: 8 }}
+          value={rightRunId}
+          onChange={setRightRunId}
+          inputId="compare-right-run-id"
         />
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
+            className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
             onClick={() => void onCompare()}
             disabled={loading || !leftTrim || !rightTrim}
-            style={{ padding: "10px 16px" }}
           >
             {loading ? "Comparing…" : "Compare"}
           </button>
           <button
             type="button"
+            className="rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
             onClick={() => void loadAiExplanation()}
             disabled={aiLoading || !leftTrim || !rightTrim}
-            style={{ padding: "10px 16px" }}
           >
             {aiLoading ? "Explaining…" : "Explain changes (AI)"}
           </button>

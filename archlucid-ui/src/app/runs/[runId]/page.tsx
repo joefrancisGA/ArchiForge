@@ -16,6 +16,7 @@ import { ArtifactListTable } from "@/components/ArtifactListTable";
 import { AuthorityPipelineTimeline } from "@/components/AuthorityPipelineTimeline";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { RunExplanationSection } from "@/components/RunExplanationSection";
+import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDetailSectionNav";
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { CommitRunButton } from "@/components/CommitRunButton";
@@ -175,10 +176,21 @@ export default async function RunDetailPage({
     }
   }
 
+  const runDetailNavSections: RunDetailSection[] = [
+    { id: "run-metadata", label: "Run", available: true },
+    { id: "pipeline-timeline", label: "Timeline", available: true },
+    { id: "agent-forensics", label: "Forensics", available: true },
+    { id: "authority-chain", label: "Authority", available: true },
+    { id: "manifest-summary", label: "Manifest", available: Boolean(manifestSummary) },
+    { id: "run-explanation", label: "Explanation", available: Boolean(manifestId) },
+    { id: "artifacts-exports", label: "Artifacts", available: Boolean(manifestId) },
+    { id: "run-actions", label: "Actions", available: true },
+  ];
+
   return (
     <main>
       <h2>Run detail</h2>
-      <p style={{ fontSize: 14 }}>
+      <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
@@ -194,7 +206,9 @@ export default async function RunDetailPage({
         <RunProgressTracker runId={runId} initialSummary={progressInitialSummary} />
       ) : null}
 
-      <section style={{ marginBottom: 24 }}>
+      <RunDetailSectionNav sections={runDetailNavSections} />
+
+      <section id="run-metadata" style={{ marginBottom: 24 }}>
         <h3>Run</h3>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
           Manifest summary and artifacts appear below when this run has a golden manifest (after commit).
@@ -223,7 +237,7 @@ export default async function RunDetailPage({
         </p>
       </section>
 
-      <section style={{ marginBottom: 24 }} aria-labelledby="pipeline-timeline-title">
+      <section id="pipeline-timeline" style={{ marginBottom: 24 }} aria-labelledby="pipeline-timeline-title">
         <h3 id="pipeline-timeline-title">Pipeline timeline</h3>
         <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
           Audit events associated with this run (oldest first). Empty lists are normal when auditing is sparse or the run
@@ -244,7 +258,7 @@ export default async function RunDetailPage({
 
       <RunAgentForensicsSection runId={runId} />
 
-      <section style={{ marginBottom: 24 }}>
+      <section id="authority-chain" style={{ marginBottom: 24 }}>
         <h3>Authority chain</h3>
         <ul>
           <li>Context Snapshot: {resolvedDetail.run.contextSnapshotId ?? "—"}</li>
@@ -304,7 +318,7 @@ export default async function RunDetailPage({
       )}
 
       {manifestSummary && (
-        <section style={{ marginBottom: 24 }}>
+        <section id="manifest-summary" style={{ marginBottom: 24 }}>
           <h3>Manifest summary</h3>
           {manifestSummary.operatorSummary && (
             <p style={{ margin: "0 0 12px", fontSize: 14, color: "#475569", lineHeight: 1.5 }}>
@@ -330,6 +344,7 @@ export default async function RunDetailPage({
       )}
 
       {manifestId && (
+        <section id="run-explanation" className="scroll-mt-20">
         <CollapsibleSection title="Explanation (aggregate)" defaultOpen={false}>
           {explanationFailure && (
             <>
@@ -352,9 +367,11 @@ export default async function RunDetailPage({
             <RunExplanationSection summary={explanationSummary} loading={false} error={null} />
           )}
         </CollapsibleSection>
+        </section>
       )}
 
       {manifestId && (
+        <section id="artifacts-exports" className="scroll-mt-20">
         <CollapsibleSection title="Artifacts & exports" defaultOpen>
           {artifactsFailure && (
             <>
@@ -405,9 +422,10 @@ export default async function RunDetailPage({
             <a href={getRunExportDownloadUrl(resolvedDetail.run.runId)}>Download run export (ZIP)</a>
           </div>
         </CollapsibleSection>
+        </section>
       )}
 
-      <section style={{ marginBottom: 24 }}>
+      <section id="run-actions" style={{ marginBottom: 24 }}>
         <h3>Actions</h3>
         <div className="mb-4 max-w-xl">
           <p className="m-0 mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">Commit</p>

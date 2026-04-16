@@ -55,7 +55,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
 
 
   return (
-    <section style={{ marginBottom: 24 }} aria-labelledby="agent-forensics-title">
+    <section id="agent-forensics" style={{ marginBottom: 24 }} aria-labelledby="agent-forensics-title">
       <h3 id="agent-forensics-title">Agent traces & output structure</h3>
       <p style={{ fontSize: 14, color: "#64748b", marginTop: 0, maxWidth: 720 }}>
         Prompt/response audit rows and a structural JSON completeness pass over persisted agent outputs (no LLM). Requires

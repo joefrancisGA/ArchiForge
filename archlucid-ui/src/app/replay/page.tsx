@@ -12,6 +12,7 @@ import {
 } from "@/components/OperatorShellMessage";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { RunIdPicker } from "@/components/RunIdPicker";
 import { coerceReplayResponse } from "@/lib/operator-response-guards";
 import { replayRun } from "@/lib/api";
 import { replayModeLabel, sortReplayNotes } from "@/lib/replay-display";
@@ -41,8 +42,10 @@ function ReplayForm() {
     setMalformedMessage(null);
     setResult(null);
 
+    const trimmedRunId = runId.trim();
+
     try {
-      const response: unknown = await replayRun(runId, mode);
+      const response: unknown = await replayRun(trimmedRunId, mode);
       const coerced = coerceReplayResponse(response);
 
       if (!coerced.ok) {
@@ -59,43 +62,57 @@ function ReplayForm() {
     }
   }
 
+  const runIdTrimmed = runId.trim();
+
   return (
     <main>
       <h2>Replay run</h2>
-      <p style={{ marginTop: 4, fontSize: 14 }}>
+      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
         <Link href="/">Home</Link>
         {" · "}
         <Link href="/runs?projectId=default">Runs</Link>
         {" · "}
         <Link href="/compare">Compare two runs</Link>
       </p>
-      <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55 }}>
+      <p className="max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
         Re-run the stored authority chain for a run. Choose a mode, then read validation flags and notes
         below.
       </p>
 
-      <div style={{ display: "grid", gap: 12, maxWidth: 800 }}>
-        <input value={runId} onChange={(e) => setRunId(e.target.value)} placeholder="Run ID" />
+      <div className="grid max-w-3xl gap-3">
+        <RunIdPicker
+          label="Run to replay"
+          placeholder="Run ID"
+          value={runId}
+          onChange={setRunId}
+          inputId="replay-run-id"
+        />
 
-        <select value={mode} onChange={(e) => setMode(e.target.value)} aria-label="Replay mode">
+        <select
+          className="max-w-xl rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
+          aria-label="Replay mode"
+        >
           {replayModes.map((item) => (
             <option key={item} value={item} title={replayModeLabel(item)}>
               {item}
             </option>
           ))}
         </select>
-        <p style={{ margin: 0, fontSize: 13, color: "#64748b" }}>{replayModeLabel(mode)}</p>
+        <p className="m-0 text-sm text-neutral-500 dark:text-neutral-400">{replayModeLabel(mode)}</p>
 
         <button
           type="button"
+          className="w-fit rounded-md border border-neutral-300 bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 shadow-sm hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
           onClick={() => void onReplay()}
-          disabled={loading || !runId}
+          disabled={loading || !runIdTrimmed}
         >
           {loading ? "Replaying…" : "Replay"}
         </button>
       </div>
 
-      {!runId && (
+      {!runIdTrimmed && (
         <OperatorEmptyState title="Waiting for a run ID">
           <p style={{ margin: 0 }}>
             Enter the run to replay, open this page with <code>?runId=…</code>, or go from{" "}
@@ -104,7 +121,7 @@ function ReplayForm() {
         </OperatorEmptyState>
       )}
 
-      {loading && runId && (
+      {loading && runIdTrimmed && (
         <OperatorLoadingNotice>
           <strong>Replay in progress.</strong>
           <p style={{ margin: "8px 0 0", fontSize: 14 }}>

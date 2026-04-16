@@ -1,5 +1,6 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { maybeReportApiServerErrorFromUnknown } from "@/lib/error-telemetry";
 
 /** Serializable load failure for server and client components (Problem Details + correlation id). */
 export type ApiLoadFailureState = {
@@ -10,6 +11,8 @@ export type ApiLoadFailureState = {
 
 export function toApiLoadFailure(error: unknown): ApiLoadFailureState {
   if (isApiRequestError(error)) {
+    maybeReportApiServerErrorFromUnknown(error);
+
     return {
       message: error.message,
       problem: error.problem,
