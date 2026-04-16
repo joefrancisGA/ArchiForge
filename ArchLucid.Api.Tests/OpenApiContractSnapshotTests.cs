@@ -56,11 +56,11 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         Assert.NotNull(expectedNode);
 
         if (!JsonNode.DeepEquals(actualNode, expectedNode))
-        
+        {
             Assert.Fail(
                 $"OpenAPI document drifted from Contracts/{SnapshotFileName}. " +
                 "Review API changes, then regenerate with ARCHLUCID_UPDATE_OPENAPI_SNAPSHOT=1.");
-        
+        }
     }
 
     private static string ResolveSourceSnapshotPath()
