@@ -1,8 +1,12 @@
+using System;
+
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
+
+using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Core.Startup;
 
@@ -67,9 +71,30 @@ public static class ArchLucidPersistenceStartup
             "Startup: Demo:SeedOnStartup=true; running {Service}.",
             nameof(IDemoSeedService));
 
-        using IServiceScope seedScope = app.Services.CreateScope();
-        IDemoSeedService demoSeed = seedScope.ServiceProvider.GetRequiredService<IDemoSeedService>();
-        demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
-        app.Logger.LogInformation("Startup: demo seed completed.");
+        try
+        {
+            using IServiceScope seedScope = app.Services.CreateScope();
+            IDemoSeedService demoSeed = seedScope.ServiceProvider.GetRequiredService<IDemoSeedService>();
+
+            // SQL RLS predicates would otherwise block trusted startup inserts (same pattern as trial bootstrap).
+            if (storageIsSql)
+            {
+                using (SqlRowLevelSecurityBypassAmbient.Enter())
+                    demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+            else
+            {
+                demoSeed.SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
+            }
+
+            app.Logger.LogInformation("Startup: demo seed completed.");
+        }
+        catch (Exception ex)
+        {
+            if (app.Logger.IsEnabled(LogLevel.Warning))
+            {
+                app.Logger.LogWarning(ex, "Startup: demo seed failed; continuing without demo data.");
+            }
+        }
     }
 }

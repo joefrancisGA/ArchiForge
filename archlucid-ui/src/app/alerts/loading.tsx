@@ -1,12 +1,9 @@
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { AlertsSkeleton } from "@/components/skeletons/AlertsSkeleton";
 
 export default function AlertsLoading() {
   return (
     <main>
-      <OperatorLoadingNotice>
-        <strong>Loading alerts.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Fetching alerts from the API…</p>
-      </OperatorLoadingNotice>
+      <AlertsSkeleton />
     </main>
   );
 }

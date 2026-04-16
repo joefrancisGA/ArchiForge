@@ -1,12 +1,9 @@
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { GenericPageSkeleton } from "@/components/skeletons/GenericPageSkeleton";
 
 export default function AskLoading() {
   return (
     <main>
-      <OperatorLoadingNotice>
-        <strong>Loading ask.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Preparing the ask workspace…</p>
-      </OperatorLoadingNotice>
+      <GenericPageSkeleton />
     </main>
   );
 }

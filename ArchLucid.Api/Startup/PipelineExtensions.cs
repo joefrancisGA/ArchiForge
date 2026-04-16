@@ -4,12 +4,16 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Api.Middleware;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Middleware;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
+
+using Scalar.AspNetCore;
 
 namespace ArchLucid.Api.Startup;
 
@@ -66,13 +70,32 @@ internal static class PipelineExtensions
             });
         });
 
-        if (app.Environment.IsDevelopment())
+        DeveloperExperienceOptions dxOptions = app.Configuration
+            .GetSection(DeveloperExperienceOptions.SectionName)
+            .Get<DeveloperExperienceOptions>() ?? new DeveloperExperienceOptions();
+
+        bool enableApiExplorer = dxOptions.EnableApiExplorer || app.Environment.IsDevelopment();
+
+        if (enableApiExplorer)
         {
+            if (dxOptions.EnableApiExplorer && !app.Environment.IsDevelopment())
+            {
+                if (app.Logger.IsEnabled(LogLevel.Warning))
+                {
+                    app.Logger.LogWarning(
+                        "DeveloperExperience:EnableApiExplorer is true in a non-Development environment. " +
+                        "Ensure this is intentional and restrict access at the network perimeter.");
+                }
+            }
+
             app.MapOpenApi().AllowAnonymous();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            app.MapScalarApiReference(options =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ArchLucid API v1");
+                options.WithTitle("ArchLucid API Explorer");
+                options.WithTheme(ScalarTheme.BluePlanet);
+                options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json");
+                options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
             });
         }
 

@@ -23,6 +23,15 @@ export default function GettingStartedPage() {
       <div className="mt-8">
         <OperatorFirstRunWorkflowPanel />
       </div>
+      <div id="creating-runs" className="sr-only" aria-hidden>
+        Anchor for help deep links.
+      </div>
+      <div id="alerts" className="sr-only" aria-hidden>
+        Anchor for help deep links.
+      </div>
+      <div id="governance" className="sr-only" aria-hidden>
+        Anchor for help deep links.
+      </div>
     </main>
   );
 }

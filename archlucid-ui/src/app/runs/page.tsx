@@ -3,13 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { RunsListClient } from "@/app/runs/RunsListClient";
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
-import {
-  OperatorEmptyState,
-  OperatorMalformedCallout,
-  OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { RUNS_EMPTY } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
@@ -126,31 +124,7 @@ export default async function RunsPage({
         </>
       )}
 
-      {loadFailure === null && !malformedMessage && totalCount === 0 && (
-        <OperatorEmptyState title="No runs in this project yet">
-          <p className="m-0">
-            This is a valid empty list — start with a guided request, or create runs via API/CLI and refresh.
-          </p>
-          <p className="mt-3.5">
-            <Link
-              href="/runs/new"
-              className="inline-block rounded-lg bg-teal-700 px-[18px] py-2.5 text-sm font-semibold text-white no-underline hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
-            >
-              Create your first run (wizard)
-            </Link>
-          </p>
-          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
-            CLI/API: <code>docs/CLI_USAGE.md</code> ·{" "}
-            <Link href="/" className="text-teal-800 underline dark:text-teal-300">
-              Home workflow
-            </Link>{" "}
-            ·{" "}
-            <Link href="/onboarding" className="text-teal-800 underline dark:text-teal-300">
-              Onboarding
-            </Link>
-          </p>
-        </OperatorEmptyState>
-      )}
+      {loadFailure === null && !malformedMessage && totalCount === 0 ? <EmptyState {...RUNS_EMPTY} /> : null}
 
       {!loadFailure && !malformedMessage && totalCount > 0 ? (
         <RunsListClient

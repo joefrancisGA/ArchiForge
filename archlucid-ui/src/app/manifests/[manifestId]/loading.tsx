@@ -1,12 +1,9 @@
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { GenericPageSkeleton } from "@/components/skeletons/GenericPageSkeleton";
 
-export default function ManifestLoading() {
+export default function ManifestDetailLoading() {
   return (
     <main>
-      <OperatorLoadingNotice>
-        <strong>Loading manifest.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Fetching manifest summary and artifacts…</p>
-      </OperatorLoadingNotice>
+      <GenericPageSkeleton />
     </main>
   );
 }

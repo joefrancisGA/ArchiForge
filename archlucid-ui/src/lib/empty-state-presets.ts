@@ -1,0 +1,63 @@
+import { BarChart3, Bell, FileText, GitCompareArrows, Network, Shield } from "lucide-react";
+
+import type { EmptyStateProps } from "@/components/EmptyState";
+
+export const RUNS_EMPTY: EmptyStateProps = {
+  icon: FileText,
+  title: "No runs in this project yet",
+  description:
+    "Create your first architecture run using the wizard, or submit one via the CLI or API. Runs appear here when they exist for the project in the URL.",
+  actions: [
+    { label: "Create your first run", href: "/runs/new" },
+    { label: "View onboarding", href: "/onboarding", variant: "outline" },
+  ],
+  helpTopicPath: "creating-runs",
+};
+
+export const ALERTS_EMPTY_FILTERED: EmptyStateProps = {
+  icon: Bell,
+  title: "No alerts for this filter",
+  description:
+    "Try All or another status, or refresh after a scan window. New alerts appear when scheduled architecture-risk checks fire and dedupe rules allow a row.",
+  actions: [
+    { label: "Configure alert rules", href: "/alert-rules" },
+    { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
+  ],
+  helpTopicPath: "alerts",
+};
+
+export const GRAPH_IDLE: EmptyStateProps = {
+  icon: Network,
+  title: "No graph loaded yet",
+  description:
+    "Enter a run ID from Runs (or run detail), choose a graph mode, then use Load graph. An empty node list after a successful load appears in the viewer below.",
+  actions: [{ label: "View runs list", href: "/runs?projectId=default", variant: "outline" }],
+};
+
+export const COMPARE_WAITING: EmptyStateProps = {
+  icon: GitCompareArrows,
+  title: "Waiting for both run IDs",
+  description:
+    "Enter a base and target run ID before comparing. Query parameters leftRunId and rightRunId prefill these fields. Get IDs from Runs or the Compare shortcut on run detail.",
+  actions: [{ label: "View runs list", href: "/runs?projectId=default", variant: "outline" }],
+};
+
+export const PLANNING_EMPTY: EmptyStateProps = {
+  icon: BarChart3,
+  title: "No themes or plans in this scope yet",
+  description:
+    "When 59R themes and improvement plans are persisted for the current tenant / workspace / project, they will appear here. Scope follows the operator shell defaults unless you configure proxy scope overrides.",
+  actions: [{ label: "View pilot feedback", href: "/product-learning", variant: "outline" }],
+};
+
+export const GOVERNANCE_WORKFLOW_IDLE: EmptyStateProps = {
+  icon: Shield,
+  title: "Load a run to review workflow rows",
+  description:
+    "Enter a run ID in Approval requests for a run and click Load to fetch approval requests, promotions, and activations for that run.",
+  actions: [
+    { label: "Governance dashboard", href: "/governance/dashboard", variant: "outline" },
+    { label: "View runs list", href: "/runs?projectId=default", variant: "outline" },
+  ],
+  helpTopicPath: "governance",
+};

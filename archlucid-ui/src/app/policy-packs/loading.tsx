@@ -1,12 +1,9 @@
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { GenericPageSkeleton } from "@/components/skeletons/GenericPageSkeleton";
 
 export default function PolicyPacksLoading() {
   return (
     <main>
-      <OperatorLoadingNotice>
-        <strong>Loading policy packs.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>Fetching packs from the API…</p>
-      </OperatorLoadingNotice>
+      <GenericPageSkeleton />
     </main>
   );
 }

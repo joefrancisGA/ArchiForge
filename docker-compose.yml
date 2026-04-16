@@ -102,6 +102,9 @@ services:
       ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__ArchLucid: "Server=sqlserver,1433;Database=ArchLucid;User Id=sa;Password=ArchLucid_Dev_Pass123!;TrustServerCertificate=True;"
       ArchLucid__StorageProvider: "Sql"
+      # Match local dev UX: Contoso demo rows after first boot (appsettings.Development.json also enables this).
+      Demo__Enabled: "true"
+      Demo__SeedOnStartup: "true"
       ArchLucidAuth__Mode: "DevelopmentBypass"
       # k6 / load scripts exceed default 100/min on fixed-window policy (see docs/PERFORMANCE_TESTING.md, ci.yml k6 job).
       RateLimiting__FixedWindow__PermitLimit: "200000"

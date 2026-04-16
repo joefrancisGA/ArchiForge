@@ -11,8 +11,10 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
+import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SidebarNav } from "@/components/SidebarNav";
 import { Button } from "@/components/ui/button";
+import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 
 type AppShellClientProps = {
   children: ReactNode;
@@ -24,6 +26,7 @@ type AppShellClientProps = {
  */
 export function AppShellClient({ children }: AppShellClientProps) {
   const [helpOpen, setHelpOpen] = useState(false);
+  useRouteChangeFocus("main-content");
 
   return (
     <>
@@ -93,6 +96,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
         </div>
       </div>
       <AppToaster />
+      <RouteAnnouncer />
       <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
     </>
   );

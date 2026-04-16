@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/link", () => ({
@@ -19,17 +19,25 @@ vi.mock("@/components/OperatorFirstRunWorkflowPanel", () => ({
   ),
 }));
 
+vi.mock("@/components/WelcomeBanner", () => ({
+  WelcomeBanner: () => <div data-testid="welcome-banner-mock">Welcome mock</div>,
+}));
+
 import HomePage from "./page";
 
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders start heading and quick links", () => {
+  it("renders dashboard tagline and quick links", async () => {
     render(<HomePage />);
 
     expect(screen.getByRole("heading", { level: 2, name: "Operator home" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Quick links" })).toBeInTheDocument();
     expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
-    expect(screen.getByRole("main").textContent).toMatch(/new to this environment/i);
-    expect(screen.getByText("Typical V1 path:")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText("Create architecture runs, review manifests, and track governance from this dashboard."),
+    ).toBeInTheDocument();
   });
 
   it("exposes primary workflow destinations matching shell review paths", () => {

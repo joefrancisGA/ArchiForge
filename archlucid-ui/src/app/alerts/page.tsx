@@ -3,12 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import {
-  OperatorEmptyState,
-  OperatorLoadingNotice,
-  OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -131,19 +129,7 @@ export default function AlertsPage() {
           </OperatorLoadingNotice>
         ) : null}
 
-        {!loading && failure === null && alerts.length === 0 ? (
-          <OperatorEmptyState title="No alerts for this filter">
-            <p style={{ margin: 0, fontSize: 14 }}>
-              Try <strong>All</strong> or another status, or click <strong>Refresh</strong> after a scan window. New
-              alerts appear when scheduled architecture-risk checks fire and dedupe rules allow a row.
-            </p>
-            <p style={{ margin: "12px 0 0", fontSize: 14 }}>
-              <Link href="/">Home</Link>
-              {" · "}
-              <Link href="/runs?projectId=default">Runs</Link>
-            </p>
-          </OperatorEmptyState>
-        ) : null}
+        {!loading && failure === null && alerts.length === 0 ? <EmptyState {...ALERTS_EMPTY_FILTERED} /> : null}
 
         {alerts.length > 0 ? (
           alerts.map((alert) => (

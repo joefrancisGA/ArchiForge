@@ -6,7 +6,7 @@ namespace ArchLucid.Api.Tests;
 
 /// <summary>
 /// Minimal API host for OpenAPI contract checks: in-memory authority storage, no SQL, Development pipeline
-/// (Swagger + <c>/swagger/v1/swagger.json</c>; generation uses <c>CustomSchemaIds</c> and optional auth security filters).
+/// (Scalar + <c>/swagger/v1/swagger.json</c> + Microsoft OpenAPI; generation uses <c>CustomSchemaIds</c> and optional auth security filters).
 /// </summary>
 public sealed class OpenApiContractWebAppFactory : WebApplicationFactory<Program>
 {

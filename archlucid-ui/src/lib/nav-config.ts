@@ -71,7 +71,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         label: "Onboarding",
         title: "Guided operator onboarding checklist",
         icon: BookOpen,
-        tier: "extended",
+        tier: "essential",
       },
       {
         href: "/runs/new",

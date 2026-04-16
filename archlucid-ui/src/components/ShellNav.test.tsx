@@ -55,6 +55,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
         "title",
         "Provenance or architecture graph for one run ID (Alt+Y)",
       );
+      expect(screen.getByRole("link", { name: "Onboarding" })).toHaveAttribute("href", "/onboarding");
       expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
 

@@ -4,13 +4,10 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import {
-  OperatorEmptyState,
-  OperatorLoadingNotice,
-  OperatorMalformedCallout,
-  OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { GRAPH_IDLE } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
@@ -234,15 +231,7 @@ export default function GraphPage() {
         </>
       )}
 
-      {!graph && !loading && loadFailure === null && !malformedMessage && (
-        <OperatorEmptyState title="No graph loaded yet">
-          <p style={{ margin: 0 }}>
-            Enter a run ID from <Link href="/runs?projectId=default">Runs</Link> (or run detail), choose a graph mode,
-            then use <strong>Load graph</strong>. An empty node list after a successful load is shown in the viewer
-            below—this callout only covers the idle form.
-          </p>
-        </OperatorEmptyState>
-      )}
+      {!graph && !loading && loadFailure === null && !malformedMessage ? <EmptyState {...GRAPH_IDLE} /> : null}
 
       {graph && (
         <>

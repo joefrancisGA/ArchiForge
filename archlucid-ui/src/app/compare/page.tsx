@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import {
-  OperatorEmptyState,
   OperatorLoadingNotice,
   OperatorMalformedCallout,
   OperatorTryNext,
   OperatorWarningCallout,
 } from "@/components/OperatorShellMessage";
+import { COMPARE_WAITING } from "@/lib/empty-state-presets";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -269,16 +270,7 @@ function CompareForm() {
         </div>
       </div>
 
-      {(!leftTrim || !rightTrim) && (
-        <OperatorEmptyState title="Waiting for both run IDs">
-          <p style={{ margin: 0 }}>
-            Enter a <strong>base</strong> and <strong>target</strong> run ID before comparing. Query
-            parameters <code>leftRunId</code> and <code>rightRunId</code> prefill these fields. Get IDs from{" "}
-            <Link href="/runs?projectId=default">Runs</Link> or the <strong>Compare two runs (base = this run)</strong>{" "}
-            link on run detail.
-          </p>
-        </OperatorEmptyState>
-      )}
+      {(!leftTrim || !rightTrim) && <EmptyState {...COMPARE_WAITING} />}
 
       {showStaleInputsWarning && (
         <OperatorWarningCallout>

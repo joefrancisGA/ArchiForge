@@ -7,12 +7,10 @@ import { PlanningExportReadinessNote } from "@/components/planning/PlanningExpor
 import { PlanningPlansTable } from "@/components/planning/PlanningPlansTable";
 import { PlanningSummarySection } from "@/components/planning/PlanningSummarySection";
 import { PlanningThemesTable } from "@/components/planning/PlanningThemesTable";
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import {
-  OperatorEmptyState,
-  OperatorLoadingNotice,
-  OperatorTryNext,
-} from "@/components/OperatorShellMessage";
+import { OperatorLoadingNotice, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { PLANNING_EMPTY } from "@/lib/empty-state-presets";
 import { fetchLearningPlanningListBundle } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -157,12 +155,7 @@ export default function PlanningPage() {
 
       {empty && !loading ? (
         <>
-          <OperatorEmptyState title="No themes or plans in this scope yet">
-            <p style={{ margin: 0, fontSize: 14 }}>
-              When 59R themes and improvement plans are persisted for the current tenant / workspace / project, they will
-              appear here. Scope follows the operator shell defaults unless you configure proxy scope overrides.
-            </p>
-          </OperatorEmptyState>
+          <EmptyState {...PLANNING_EMPTY} />
           <OperatorTryNext>
             Capture or import pilot feedback on{" "}
             <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">

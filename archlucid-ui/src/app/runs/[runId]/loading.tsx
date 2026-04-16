@@ -1,14 +1,9 @@
-import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { RunDetailSkeleton } from "@/components/skeletons/RunDetailSkeleton";
 
 export default function RunDetailLoading() {
   return (
     <main>
-      <OperatorLoadingNotice>
-        <strong>Loading run detail.</strong>
-        <p style={{ margin: "8px 0 0", fontSize: 14 }}>
-          Loading run, manifest summary, and artifact list where applicable…
-        </p>
-      </OperatorLoadingNotice>
+      <RunDetailSkeleton />
     </main>
   );
 }

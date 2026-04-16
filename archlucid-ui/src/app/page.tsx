@@ -3,51 +3,22 @@ import Link from "next/link";
 
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { ShortcutHint } from "@/components/ShortcutHint";
+import { WelcomeBanner } from "@/components/WelcomeBanner";
 
 export const metadata: Metadata = {
   title: "Operator home",
 };
 
-/** Landing page: first-run workflow panel plus compact links into operator areas. */
+/** Landing page: optional welcome banner, first-run workflow panel, and quick links. */
 export default function HomePage() {
   return (
     <main>
       <h2 className="mb-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100">Operator home</h2>
-      <p className="mb-3 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300">
-        <strong>Start here:</strong> new to this environment? Use the checklist below. Returning operators can hide it
-        and jump straight to{" "}
-        <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
-          Runs
-        </Link>{" "}
-        or{" "}
-        <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
-          New run
-        </Link>
-        .
+      <p className="mb-4 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+        Create architecture runs, review manifests, and track governance from this dashboard.
       </p>
-      <p className="mb-4 max-w-3xl rounded-lg border border-neutral-200 bg-slate-50 p-3 text-sm leading-relaxed text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-300">
-        <strong className="text-neutral-900 dark:text-neutral-100">Typical V1 path:</strong>{" "}
-        <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
-          New run
-        </Link>{" "}
-        (or pick an existing row on{" "}
-        <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
-          Runs
-        </Link>
-        ) → wait for the pipeline → commit the golden manifest → review <strong>Artifacts</strong> on run detail →{" "}
-        <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
-          Compare two runs
-        </Link>
-        ,{" "}
-        <Link href="/replay" className="text-teal-800 underline dark:text-teal-300">
-          Replay a run
-        </Link>
-        , or{" "}
-        <Link href="/graph" className="text-teal-800 underline dark:text-teal-300">
-          open the graph
-        </Link>
-        .
-      </p>
+
+      <WelcomeBanner />
 
       <OperatorFirstRunWorkflowPanel />
 
@@ -64,8 +35,8 @@ export default function HomePage() {
             <Link href="/runs/new" className="text-teal-800 underline dark:text-teal-300">
               New run (wizard)
             </Link>{" "}
-            <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" /> — guided create; then find the
-            run on{" "}
+            <ShortcutHint shortcut="Alt+N" className="ml-1 align-middle text-[0.75rem]" /> — guided create; then find
+            the run on{" "}
             <Link href="/runs?projectId=default" className="text-teal-800 underline dark:text-teal-300">
               Runs
             </Link>
@@ -85,8 +56,8 @@ export default function HomePage() {
           <li>
             <Link href="/compare" className="text-teal-800 underline dark:text-teal-300">
               Compare two runs
-            </Link>{" "}
-            ·{" "}
+            </Link>
+            {" · "}
             <Link href="/replay" className="text-teal-800 underline dark:text-teal-300">
               Replay a run
             </Link>

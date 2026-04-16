@@ -5,8 +5,10 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice } from "@/components/OperatorShellMessage";
+import { GOVERNANCE_WORKFLOW_IDLE } from "@/lib/empty-state-presets";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -373,6 +375,12 @@ function GovernanceWorkflowPageInner() {
             fallbackMessage={listFailure.message}
             correlationId={listFailure.correlationId}
           />
+        </div>
+      ) : null}
+
+      {activeRunId === null && !listsLoading && listFailure === null ? (
+        <div className="mb-6">
+          <EmptyState {...GOVERNANCE_WORKFLOW_IDLE} />
         </div>
       ) : null}
 

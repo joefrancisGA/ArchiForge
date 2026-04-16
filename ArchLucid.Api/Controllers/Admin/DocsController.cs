@@ -27,7 +27,7 @@ public sealed class DocsController : ControllerBase
     public IActionResult ReplayRecipes()
     {
         string baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-        string swaggerUrl = $"{baseUrl}/swagger";
+        string scalarUrl = $"{baseUrl}/scalar/v1";
         string html = """
                       <!DOCTYPE html>
                       <html lang="en">
@@ -48,7 +48,7 @@ public sealed class DocsController : ControllerBase
                       </head>
                       <body>
                         <h1>ArchLucid comparison replay recipes</h1>
-                        <p>Step-by-step flow to list comparisons, replay as a file, and export a drift report. Use <a href="{{SWAGGER_URL}}">Swagger UI</a> to try the API interactively.</p>
+                        <p>Step-by-step flow to list comparisons, replay as a file, and export a drift report. Use <a href="{{SCALAR_URL}}">Scalar API explorer</a> to try the API interactively.</p>
 
                         <h2>1. List comparison records</h2>
                         <p><strong>GET</strong> <code>/v1/architecture/comparisons</code> with optional query params: <code>comparisonType</code>, <code>leftRunId</code>, <code>rightRunId</code>, <code>limit</code>.</p>
@@ -72,11 +72,11 @@ public sealed class DocsController : ControllerBase
                         <p><strong>GET</strong> <code>/v1/architecture/comparisons/{{comparisonRecordId}}/drift-report?format=markdown|html|docx</code> — compares stored vs regenerated and returns a report file.</p>
                         <pre>curl -s "{{BASE_URL}}/v1/architecture/comparisons/YOUR_RECORD_ID/drift-report?format=markdown" -o drift.md</pre>
 
-                        <p><a href="{{SWAGGER_URL}}">Open Swagger UI</a></p>
+                        <p><a href="{{SCALAR_URL}}">Open Scalar API explorer</a></p>
                       </body>
                       </html>
                       """;
-        html = html.Replace("{{BASE_URL}}", baseUrl).Replace("{{SWAGGER_URL}}", swaggerUrl);
+        html = html.Replace("{{BASE_URL}}", baseUrl).Replace("{{SCALAR_URL}}", scalarUrl);
         return Content(html, "text/html");
     }
 }
