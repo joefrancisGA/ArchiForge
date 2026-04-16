@@ -18,17 +18,32 @@ public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
     {
-        string databaseName = "ArchLucidGreenfield_" + Guid.NewGuid().ToString("N");
-        string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
-        SqlConnectionStringBuilder builder = new(raw)
+        try
         {
-            // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
-            MaxPoolSize = 200,
-            ConnectTimeout = 120,
-        };
+            string databaseName = "ArchLucidGreenfield_" + Guid.NewGuid().ToString("N");
+            string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+            SqlConnectionStringBuilder builder = new(raw)
+            {
+                // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
+                MaxPoolSize = 200,
+                ConnectTimeout = 120,
+            };
 
-        _connectionString = builder.ConnectionString;
-        SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
+            _connectionString = builder.ConnectionString;
+            SqlServerTestCatalogCommands.EnsureCatalogExists(_connectionString);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(
+                "GreenfieldSqlApiFactory could not prepare an ephemeral SQL catalog. "
+                + "Set environment variable "
+                + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
+                + " or "
+                + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
+                + " to a reachable SQL Server (Linux/macOS require this). On Windows, ensure localhost accepts the connection. "
+                + "See docs/BUILD.md (API integration tests).",
+                ex);
+        }
     }
 
     /// <summary>ADO.NET connection string for the empty catalog the API migrates on startup.</summary>
