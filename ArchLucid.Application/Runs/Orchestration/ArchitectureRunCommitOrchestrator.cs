@@ -580,11 +580,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogInformation(
-                "CommitRunAsync is idempotent: returning persisted manifest for RunId={RunId}, ManifestVersion={ManifestVersion}, TraceCount={TraceCount}",
-                LogSanitizer.Sanitize(runId),
-                LogSanitizer.Sanitize(manifestVersion),
-                existingTraces.Count);
+            _logger.LogInformationCommitRunIdempotentReturn(runId, manifestVersion, existingTraces.Count);
         }
 
         IReadOnlyList<string> storedGaps = CommittedManifestTraceabilityRules.GetLinkageGaps(existingManifest, existingTraces);

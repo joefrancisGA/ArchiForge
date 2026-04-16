@@ -34,7 +34,7 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
-    /// Logs an idempotent commit path (existing manifest returned), with two user-derived strings sanitized.
+    /// Logs an idempotent commit path (manifest already stored — “committed” or “persisted at target version” retry), with two user-derived strings sanitized.
     /// </summary>
     public static void LogInformationCommitRunIdempotentReturn(
         this ILogger logger,

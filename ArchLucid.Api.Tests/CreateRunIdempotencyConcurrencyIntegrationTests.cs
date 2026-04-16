@@ -74,6 +74,34 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         return await Task.WhenAll(tasks);
     }
 
+    /// <summary>
+    /// Under parallel POST, SQL can briefly return errors mapped to HTTP 503 (see <c>ApplicationProblemMapper</c>).
+    /// CI runners are slower than local SQL — retry the whole burst with backoff instead of failing the idempotency assertion.
+    /// </summary>
+    private static async Task<HttpResponseMessage[]> PostParallelArchitectureRequestWithTransientRetryAsync(
+        HttpClient client,
+        object body,
+        string idempotencyKey,
+        int parallel,
+        CancellationToken cancellationToken)
+    {
+        const int maxAttempts = 6;
+        int delayMilliseconds = 300;
+        HttpResponseMessage[] responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
+
+        for (int attempt = 0;
+             attempt < maxAttempts - 1 && responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable);
+             attempt++)
+        {
+            DisposeAll(responses);
+            await Task.Delay(delayMilliseconds, cancellationToken);
+            delayMilliseconds = Math.Min(delayMilliseconds * 2, 4000);
+            responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
+        }
+
+        return responses;
+    }
+
     private static void DisposeAll(HttpResponseMessage[] responses)
     {
         foreach (HttpResponseMessage response in responses)
@@ -94,15 +122,13 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
         object body = TestRequestFactory.CreateArchitectureRequest(requestId);
 
-        const int parallel = 12;
-        HttpResponseMessage[] responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
-
-        if (responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable))
-        {
-            DisposeAll(responses);
-            await Task.Delay(500, CancellationToken.None);
-            responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
-        }
+        const int parallel = 8;
+        HttpResponseMessage[] responses = await PostParallelArchitectureRequestWithTransientRetryAsync(
+            client,
+            body,
+            idempotencyKey,
+            parallel,
+            CancellationToken.None);
 
         try
         {

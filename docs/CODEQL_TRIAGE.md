@@ -35,6 +35,8 @@ Some **`cs/log-forging`** findings persist even when the template argument is **
 
 For **multi-placeholder `LogInformation`** in **`ArchLucid.Application`** (no reference to **`ArchLucid.Api`**), use **`ArchLucid.Core.Diagnostics.SanitizedLoggerInformationExtensions`** (**`LogInformationArchitectureRunCommitted`**, **`LogInformationCommitRunIdempotentReturn`**, or add a sibling method there) so sanitization sits adjacent to the sink inside Core. For **two string placeholders at `LogWarning`**, use **`SanitizedLoggerWarningExtensions.LogWarningWithTwoSanitizedUserStrings`** (same pattern as Information helpers). If CodeQL still alerts after **`LogSanitizer.Sanitize`** on a direct **`LogInformation`** / **`LogWarning`** call, add **`// codeql[cs/log-forging]`** on the **same line as the sink** (for a multi-line **`LogInformation`** / **`LogWarning`** call, typically the line with the closing **`);`**). A comment only above the opening **`_logger.Log…(`** line is often **not** picked up.
 
+**Concrete:** both idempotent commit return paths in **`ArchitectureRunCommitOrchestrator`** (**`TryReturnCommittedManifestAsync`** and **`TryReturnPersistedCommitIfExistsAsync`**) must call **`LogInformationCommitRunIdempotentReturn`** — not **`_logger.LogInformation(..., LogSanitizer.Sanitize(runId), …)`** — or **`cs/log-forging`** will likely return (params boxing breaks the custom sanitizer model).
+
 ### False positives
 
 Treat as a **false positive** when the logged parameter is a **value type** bound from **`[FromRoute]`** (or otherwise not arbitrary attacker-controlled string content), e.g. **`Guid`**, **`int`**, **`DateTime`**. Their formatted output does not carry the same newline/control-character injection risk as arbitrary strings.

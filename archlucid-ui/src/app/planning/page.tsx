@@ -111,7 +111,7 @@ export default function PlanningPage() {
       <p style={{ color: "#475569", fontSize: 14, lineHeight: 1.55, maxWidth: 720 }}>
         Improvement themes and prioritized plans derived from pilot feedback (59R). This is a{" "}
         <strong>read-only</strong> browse view — use{" "}
-        <Link href="/product-learning" style={{ color: "#1d4ed8" }}>
+        <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
           Pilot feedback
         </Link>{" "}
         for rollups and triage export.
@@ -147,7 +147,7 @@ export default function PlanningPage() {
           <OperatorTryNext>
             Confirm learning/planning API routes are enabled for this environment, then click <strong>Refresh</strong>.
             For data entry and triage, use{" "}
-            <Link href="/product-learning" style={{ color: "#1d4ed8" }}>
+            <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
               Pilot feedback
             </Link>
             —this page is read-only aggregation.
@@ -165,7 +165,7 @@ export default function PlanningPage() {
           </OperatorEmptyState>
           <OperatorTryNext>
             Capture or import pilot feedback on{" "}
-            <Link href="/product-learning" style={{ color: "#1d4ed8" }}>
+            <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
               Pilot feedback
             </Link>
             , then return here after processing jobs have run.

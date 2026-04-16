@@ -24,20 +24,31 @@ export function PlanningExportReadinessNote() {
       <strong>Reporting and export</strong>
       <p style={{ margin: "8px 0 0" }}>
         <strong>59R planning report</strong> —{" "}
-        <a href={buildLearningPlanningReportFileUrl("markdown")} style={{ color: "#1d4ed8" }}>
+        <a
+          href={buildLearningPlanningReportFileUrl("markdown")}
+          className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300"
+        >
           Download Markdown
         </a>
         {" · "}
-        <a href={buildLearningPlanningReportFileUrl("json")} style={{ color: "#1d4ed8" }}>
+        <a
+          href={buildLearningPlanningReportFileUrl("json")}
+          className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300"
+        >
           Download JSON
         </a>
         {" · "}
-        <a href={buildLearningPlanningReportJsonUrl()} style={{ color: "#1d4ed8" }} target="_blank" rel="noreferrer">
+        <a
+          href={buildLearningPlanningReportJsonUrl()}
+          className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300"
+          target="_blank"
+          rel="noreferrer"
+        >
           Open JSON in browser
         </a>
         . Same scope as the operator shell (<code style={{ fontSize: 13 }}>GET /v1/learning/report</code>,{" "}
         <code style={{ fontSize: 13 }}>…/report/file</code>). For 58R pilot roll-ups, use{" "}
-        <Link href="/product-learning" style={{ color: "#1d4ed8" }}>
+        <Link href="/product-learning" className="workflow-inline-link font-medium text-blue-900 dark:text-blue-300">
           Pilot feedback
         </Link>
         .
