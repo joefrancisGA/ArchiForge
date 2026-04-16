@@ -9,6 +9,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
@@ -128,6 +129,8 @@ public sealed class ArchitectureRunServiceAuditTests
                 Mock.Of<IAuditService>(),
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 Mock.Of<IUsageMeteringService>(),
+                new NoOpDistributedCreateRunIdempotencyLock(),
+                TimeProvider.System,
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
                 runRepository,

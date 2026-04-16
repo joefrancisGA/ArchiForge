@@ -229,6 +229,12 @@ public static class ArchLucidInstrumentation
             "archlucid_findings_produced_total",
             description: "Findings produced across all completed runs (label: severity).");
 
+    /// <summary>Finding engines that threw during snapshot generation (labels: <c>engine_type</c>, <c>category</c>).</summary>
+    public static readonly Counter<long> FindingEngineFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_finding_engine_failures_total",
+            description: "Finding engines that failed during findings snapshot generation (labels: engine_type, category).");
+
     /// <summary>LLM completion calls made during a single <c>RealAgentExecutor.ExecuteAsync</c> batch.</summary>
     public static readonly Histogram<int> LlmCallsPerRun =
         AppMeter.CreateHistogram<int>(
@@ -393,6 +399,18 @@ public static class ArchLucidInstrumentation
         {
             acc.AddCompletions(1);
         }
+    }
+
+    /// <summary>Increments <c>archlucid_finding_engine_failures_total</c>.</summary>
+    public static void RecordFindingEngineFailure(string engineType, string category)
+    {
+        TagList tags = new()
+        {
+            { "engine_type", engineType },
+            { "category", category },
+        };
+
+        FindingEngineFailuresTotal.Add(1, tags);
     }
 
     /// <summary>Increments <c>archlucid_agent_result_schema_validations_total</c> (outcome: valid or invalid).</summary>

@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Security.Cryptography;
 
 using ArchLucid.Application.Common;
@@ -8,6 +7,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
@@ -23,7 +23,8 @@ namespace ArchLucid.Application.Runs.Orchestration;
 /// <remarks>
 /// When HTTP idempotency is used, concurrent requests for the same key are serialized in-process from the
 /// first missed replay through coordination and persistence so only one authority run is created per key.
-/// Multiple API replicas still require a distributed lock (for example SQL <c>sp_getapplock</c>) for the same guarantee.
+/// When SQL persistence is configured, <see cref="IDistributedCreateRunIdempotencyLock"/> uses SQL Server
+/// <c>sp_getapplock</c> so concurrent replicas serialize the same idempotency key.
 /// </remarks>
 public sealed class ArchitectureRunCreateOrchestrator(
     ICoordinatorService coordinator,
@@ -38,6 +39,8 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IUsageMeteringService usageMetering,
+    IDistributedCreateRunIdempotencyLock distributedCreateRunIdempotencyLock,
+    TimeProvider timeProvider,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly ICoordinatorService _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
@@ -55,9 +58,14 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
+    private readonly IDistributedCreateRunIdempotencyLock _distributedCreateRunIdempotencyLock =
+        distributedCreateRunIdempotencyLock ?? throw new ArgumentNullException(nameof(distributedCreateRunIdempotencyLock));
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private static readonly ConcurrentDictionary<string, SemaphoreSlim> IdempotencyCreateLocks = new();
+    private const int DistributedCreateRunLockTimeoutMs = 30_000;
+
+    private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
 
     /// <inheritdoc />
     public async Task<CreateRunResult> CreateRunAsync(
@@ -74,23 +82,34 @@ public sealed class ArchitectureRunCreateOrchestrator(
             if (replay is not null)
                 return replay;
 
-            SemaphoreSlim gate = IdempotencyCreateLocks.GetOrAdd(
-                BuildIdempotencyGateKey(idempotency),
-                static _ => new SemaphoreSlim(1, 1));
+            string gateKey = BuildIdempotencyGateKey(idempotency);
 
-            await gate.WaitAsync(cancellationToken);
-            try
+            await using (IAsyncDisposable _ = await _distributedCreateRunIdempotencyLock
+                .AcquireExclusiveSessionLockAsync(gateKey, DistributedCreateRunLockTimeoutMs, cancellationToken)
+                .ConfigureAwait(false))
             {
-                CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+                CreateRunResult? replayUnderDistributed = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
-                if (replayUnderLock is not null)
-                    return replayUnderLock;
+                if (replayUnderDistributed is not null)
+                    return replayUnderDistributed;
 
-                return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
-            }
-            finally
-            {
-                gate.Release();
+                SemaphoreSlim gate = IdempotencyGates.GetOrAddGate(gateKey);
+
+                await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+                try
+                {
+                    CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+
+                    if (replayUnderLock is not null)
+                        return replayUnderLock;
+
+                    return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
+                }
+                finally
+                {
+                    gate.Release();
+                    IdempotencyGates.TryEvictAfterRelease(gateKey);
+                }
             }
         }
 
@@ -290,7 +309,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                         ProjectId = scope.ProjectId,
                         Kind = UsageMeterKind.ArchitectureRun,
                         Quantity = 1,
-                        RecordedUtc = DateTimeOffset.UtcNow,
+                        RecordedUtc = _timeProvider.GetUtcNow(),
                         CorrelationId = runId,
                     },
                     cancellationToken)

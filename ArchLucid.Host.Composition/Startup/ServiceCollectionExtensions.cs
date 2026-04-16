@@ -20,6 +20,7 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
+        services.AddSingleton(TimeProvider.System);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));

@@ -1,4 +1,5 @@
 using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Time;
 
 using FluentAssertions;
 
@@ -31,7 +32,7 @@ public sealed class CircuitBreakerGateOptionsMonitorTests
             FailureThreshold = 1,
             DurationOfBreakSeconds = 30
         };
-        CircuitBreakerGate gate = new("state-gate", options, clock.ToFunc());
+        CircuitBreakerGate gate = new("state-gate", options, new DelegateTimeProvider(clock.ToFunc()));
 
         gate.CurrentState.Should().Be("Closed");
 

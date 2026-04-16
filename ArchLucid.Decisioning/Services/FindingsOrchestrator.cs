@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Findings.Serialization;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
@@ -12,9 +13,12 @@ namespace ArchLucid.Decisioning.Services;
 public partial class FindingsOrchestrator(
     IEnumerable<IFindingEngine> engines,
     IFindingPayloadValidator validator,
-    ILogger<FindingsOrchestrator> logger)
+    ILogger<FindingsOrchestrator> logger,
+    TimeProvider? timeProvider = null)
     : IFindingsOrchestrator
 {
+    private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
+
     /// <summary>
     /// Initialises the orchestrator without a payload validator or logger.
     /// </summary>
@@ -26,7 +30,7 @@ public partial class FindingsOrchestrator(
     [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator and ILogger<FindingsOrchestrator>. " +
               "This overload silently skips payload validation.")]
     public FindingsOrchestrator(IEnumerable<IFindingEngine> engines)
-        : this(engines, new NoOpFindingPayloadValidator(), SilentLogger.Instance)
+        : this(engines, new NoOpFindingPayloadValidator(), SilentLogger.Instance, TimeProvider.System)
     {
     }
 
@@ -42,7 +46,7 @@ public partial class FindingsOrchestrator(
     public FindingsOrchestrator(
         IEnumerable<IFindingEngine> engines,
         IFindingPayloadValidator validator)
-        : this(engines, validator, SilentLogger.Instance)
+        : this(engines, validator, SilentLogger.Instance, TimeProvider.System)
     {
     }
 
@@ -64,6 +68,12 @@ public partial class FindingsOrchestrator(
         Message = "Findings snapshot built: RunId={RunId} FindingsSnapshotId={SnapshotId} TotalFindings={Total} SchemaVersion={SchemaVersion}")]
     private partial void LogSnapshotBuilt(Guid runId, Guid snapshotId, int total, int schemaVersion);
 
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Warning,
+        Message = "Findings snapshot built with engine failures: RunId={RunId} FailedEngineCount={FailedEngineCount}")]
+    private partial void LogPartialEngineFailures(Guid runId, int failedEngineCount);
+
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
         Guid contextSnapshotId,
@@ -73,6 +83,9 @@ public partial class FindingsOrchestrator(
         ArgumentNullException.ThrowIfNull(graphSnapshot);
 
         List<Finding> allFindings = [];
+        List<FindingEngineFailure> engineFailures = [];
+        List<Exception> engineExceptions = [];
+        int successfulEngineInvocations = 0;
 
         foreach (IFindingEngine engine in engines)
         {
@@ -91,9 +104,23 @@ public partial class FindingsOrchestrator(
             {
                 sw.Stop();
                 LogEngineFailed(ex, runId, engine.EngineType, engine.Category, sw.ElapsedMilliseconds);
-                throw;
+                ArchLucidInstrumentation.RecordFindingEngineFailure(engine.EngineType, engine.Category);
+                engineExceptions.Add(ex);
+                engineFailures.Add(
+                    new FindingEngineFailure
+                    {
+                        EngineType = engine.EngineType,
+                        Category = engine.Category,
+                        ErrorMessage = ex.Message,
+                        ExceptionType = ex.GetType().Name,
+                        DurationMs = sw.ElapsedMilliseconds,
+                        OccurredUtc = _clock.GetUtcNow().UtcDateTime,
+                    });
+
+                continue;
             }
 
+            successfulEngineInvocations++;
             sw.Stop();
             LogEngineCompleted(runId, engine.EngineType, engine.Category, sw.ElapsedMilliseconds, findings.Count);
 
@@ -105,14 +132,17 @@ public partial class FindingsOrchestrator(
                 validator.Validate(finding);
 
                 if (!string.Equals(finding.Category, engine.Category, StringComparison.OrdinalIgnoreCase))
-                
+
                     throw new InvalidOperationException(
                         $"Finding category '{finding.Category}' did not match engine category '{engine.Category}' for engine '{engine.EngineType}'.");
-                
+
 
                 allFindings.Add(finding);
             }
         }
+
+        if (successfulEngineInvocations == 0 && engineExceptions.Count > 0)
+            throw new AggregateException("All finding engines failed for this snapshot.", engineExceptions);
 
         List<Finding> dedupedFindings = allFindings
             .GroupBy(x => $"{x.FindingType}|{x.Title}", StringComparer.OrdinalIgnoreCase)
@@ -125,12 +155,16 @@ public partial class FindingsOrchestrator(
             RunId = runId,
             ContextSnapshotId = contextSnapshotId,
             GraphSnapshotId = graphSnapshot.GraphSnapshotId,
-            CreatedUtc = DateTime.UtcNow,
+            CreatedUtc = _clock.GetUtcNow().UtcDateTime,
             Findings = dedupedFindings,
+            EngineFailures = engineFailures,
             SchemaVersion = FindingsSchema.CurrentSnapshotVersion
         };
 
         FindingsSnapshotMigrator.Apply(snapshot);
+
+        if (engineFailures.Count > 0 && successfulEngineInvocations > 0)
+            LogPartialEngineFailures(runId, engineFailures.Count);
 
         LogSnapshotBuilt(runId, snapshot.FindingsSnapshotId, snapshot.Findings.Count, snapshot.SchemaVersion);
 

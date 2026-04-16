@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
@@ -17,7 +19,7 @@ public sealed class DecisionNode
     public string Topic { get; set; } = string.Empty;
 
     /// <summary>All options that were evaluated for this decision point.</summary>
-    public List<DecisionOption> Options { get; set; } = [];
+    public IReadOnlyList<DecisionOption> Options { get; set; } = [];
 
     /// <summary>
     /// The <see cref="DecisionOption.OptionId"/> of the selected option,
@@ -35,10 +37,10 @@ public sealed class DecisionNode
     public double Confidence { get; set; }
 
     /// <summary>Identifiers of <see cref="AgentEvaluation"/> records that supported the selected option.</summary>
-    public List<string> SupportingEvaluationIds { get; set; } = [];
+    public IReadOnlyList<string> SupportingEvaluationIds { get; set; } = [];
 
     /// <summary>Identifiers of <see cref="AgentEvaluation"/> records that opposed the selected option.</summary>
-    public List<string> OpposingEvaluationIds { get; set; } = [];
+    public IReadOnlyList<string> OpposingEvaluationIds { get; set; } = [];
 
     /// <summary>UTC timestamp when this decision node was recorded.</summary>
     public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;

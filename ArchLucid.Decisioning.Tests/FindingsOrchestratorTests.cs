@@ -55,7 +55,7 @@ public sealed class FindingsOrchestratorTests
     }
 
     [Fact]
-    public async Task GenerateFindingsSnapshotAsync_EngineThrows_PropagatesException()
+    public async Task GenerateFindingsSnapshotAsync_SingleEngineThrow_throws_AggregateException()
     {
         GraphSnapshot graph = EmptyGraph();
         Mock<IFindingEngine> e1 = new(MockBehavior.Strict);
@@ -67,7 +67,61 @@ public sealed class FindingsOrchestratorTests
         Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
         FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        AggregateException ax = await Assert.ThrowsAsync<AggregateException>(
+            () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
+
+        ax.InnerExceptions.Should().ContainSingle()
+            .Which.Should().BeOfType<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_PartialEngineFailure_still_returns_snapshot()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding ok = new()
+        {
+            FindingType = "T",
+            Category = "Security",
+            EngineType = "ok",
+            Title = "ok-title",
+            Rationale = "r",
+            Severity = FindingSeverity.Info
+        };
+
+        Mock<IFindingEngine> bad = new(MockBehavior.Strict);
+        bad.Setup(x => x.EngineType).Returns("bad");
+        bad.Setup(x => x.Category).Returns("Security");
+        bad.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        Mock<IFindingEngine> good = CreateEngine("good", "Security", [ok]);
+
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = new([bad.Object, good.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
+
+        snapshot.Findings.Should().ContainSingle();
+        snapshot.EngineFailures.Should().ContainSingle()
+            .Which.EngineType.Should().Be("bad");
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_OperationCanceledException_propagates()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Mock<IFindingEngine> e1 = new(MockBehavior.Strict);
+        e1.Setup(x => x.EngineType).Returns("bad");
+        e1.Setup(x => x.Category).Returns("Security");
+        e1.Setup(x => x.AnalyzeAsync(graph, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException());
+
+        Mock<IFindingPayloadValidator> validator = new(MockBehavior.Strict);
+        FindingsOrchestrator sut = new([e1.Object], validator.Object, NullLogger<FindingsOrchestrator>.Instance);
+
+        await Assert.ThrowsAsync<OperationCanceledException>(
             () => sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None));
     }
 

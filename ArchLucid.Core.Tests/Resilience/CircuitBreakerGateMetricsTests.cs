@@ -2,6 +2,7 @@ using System.Diagnostics.Metrics;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Time;
 
 using FluentAssertions;
 
@@ -72,7 +73,7 @@ public sealed class CircuitBreakerGateMetricsTests
             FailureThreshold = 1,
             DurationOfBreakSeconds = 30
         };
-        CircuitBreakerGate gate = new("probe-gate", options, clock.ToFunc());
+        CircuitBreakerGate gate = new("probe-gate", options, new DelegateTimeProvider(clock.ToFunc()));
 
         gate.RecordFailure();
         clock.Advance(TimeSpan.FromSeconds(31));

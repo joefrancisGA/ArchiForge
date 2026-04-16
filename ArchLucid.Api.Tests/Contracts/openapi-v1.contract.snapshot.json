@@ -139,6 +139,87 @@
         }
       }
     },
+    "/v1/tenant/trial-status": {
+      "get": {
+        "tags": [
+          "TenantTrial"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantTrialStatusResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantTrialStatusResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantTrialStatusResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tenant/convert": {
+      "post": {
+        "tags": [
+          "TenantTrial"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantTrialConvertRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantTrialConvertRequest"
+                  }
+                ]
+              }
+            },
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantTrialConvertRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/v1/ask": {
       "post": {
         "tags": [
@@ -22156,6 +22237,41 @@
           }
         }
       },
+      "FindingEngineFailure": {
+        "required": [
+          "engineType",
+          "category",
+          "errorMessage",
+          "exceptionType"
+        ],
+        "type": "object",
+        "properties": {
+          "engineType": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "errorMessage": {
+            "type": "string"
+          },
+          "exceptionType": {
+            "type": "string"
+          },
+          "durationMs": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "occurredUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "FindingExplainabilityResult": {
         "type": "object",
         "properties": {
@@ -22288,6 +22404,12 @@
           "createdUtc": {
             "type": "string",
             "format": "date-time"
+          },
+          "engineFailures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingEngineFailure"
+            }
           },
           "findings": {
             "type": "array",
@@ -27204,6 +27326,55 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "trialStartUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "trialExpiresUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "trialRunsLimit": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "trialRunsUsed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "trialSeatsLimit": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "trialSeatsUsed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "trialStatus": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "trialSampleRunId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
           }
         }
       },
@@ -27233,6 +27404,75 @@
       },
       "TenantTier": {
         "type": "integer"
+      },
+      "TenantTrialConvertRequest": {
+        "type": "object",
+        "properties": {
+          "targetTier": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "TenantTrialStatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "trialStartUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "trialExpiresUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "daysRemaining": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "trialRunsUsed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "trialRunsLimit": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "trialSeatsUsed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "trialSeatsLimit": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "trialSampleRunId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          }
+        }
       },
       "TenantUsageSummary": {
         "type": "object",
@@ -27481,6 +27721,9 @@
   "tags": [
     {
       "name": "Registration"
+    },
+    {
+      "name": "TenantTrial"
     },
     {
       "name": "Ask"

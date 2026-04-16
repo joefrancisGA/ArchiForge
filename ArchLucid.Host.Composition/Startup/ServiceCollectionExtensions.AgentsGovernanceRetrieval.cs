@@ -551,7 +551,9 @@ public static partial class ServiceCollectionExtensions
         CircuitBreakerAuditBridge? bridge = serviceProvider.GetService<CircuitBreakerAuditBridge>();
         Action<CircuitBreakerAuditEntry>? onAudit = bridge?.CreateCallback();
 
-        return new CircuitBreakerGate(gateName, monitor, onAuditEntry: onAudit);
+        TimeProvider clock = serviceProvider.GetRequiredService<TimeProvider>();
+
+        return new CircuitBreakerGate(gateName, monitor, clock, onAuditEntry: onAudit);
     }
 
     private sealed class FallbackAzureOpenAiInnerClientHolder(AzureOpenAiCompletionClient client)

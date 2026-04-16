@@ -1,6 +1,7 @@
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Time;
 
 using Microsoft.Extensions.Options;
 
@@ -22,7 +23,7 @@ public sealed class CircuitBreakerGate
 
     private readonly IOptionsMonitor<CircuitBreakerOptions>? _optionsMonitor;
 
-    private readonly Func<DateTimeOffset> _utcNow;
+    private readonly TimeProvider _timeProvider;
 
     private readonly Lock _sync = new();
 
@@ -40,12 +41,12 @@ public sealed class CircuitBreakerGate
 
     /// <param name="gateName">Stable low-cardinality label for metrics (e.g. keyed DI name).</param>
     /// <param name="options">Threshold and open duration.</param>
-    /// <param name="utcNow">Optional clock for tests; defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
+    /// <param name="timeProvider">Wall clock; defaults to <see cref="TimeProvider.System"/>.</param>
     /// <param name="onAuditEntry">Optional durable-audit hook (must not throw); invoked after OTel counters.</param>
     public CircuitBreakerGate(
         string gateName,
         CircuitBreakerOptions options,
-        Func<DateTimeOffset>? utcNow = null,
+        TimeProvider? timeProvider = null,
         Action<CircuitBreakerAuditEntry>? onAuditEntry = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
@@ -54,7 +55,7 @@ public sealed class CircuitBreakerGate
         _gateName = gateName;
         _options = options;
         _optionsMonitor = null;
-        _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
+        _timeProvider = timeProvider ?? TimeProvider.System;
         _onAuditEntry = onAuditEntry;
     }
 
@@ -62,7 +63,7 @@ public sealed class CircuitBreakerGate
     public CircuitBreakerGate(
         string gateName,
         IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
-        Func<DateTimeOffset>? utcNow = null,
+        TimeProvider? timeProvider = null,
         Action<CircuitBreakerAuditEntry>? onAuditEntry = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(gateName);
@@ -70,8 +71,48 @@ public sealed class CircuitBreakerGate
         _gateName = gateName;
         _options = null;
         _optionsMonitor = optionsMonitor;
-        _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
+        _timeProvider = timeProvider ?? TimeProvider.System;
         _onAuditEntry = onAuditEntry;
+    }
+
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    public CircuitBreakerGate(
+        string gateName,
+        CircuitBreakerOptions options,
+        Func<DateTimeOffset>? utcNow,
+        Action<CircuitBreakerAuditEntry>? onAuditEntry)
+        : this(
+            gateName,
+            options,
+            utcNow is null ? null : new DelegateTimeProvider(utcNow),
+            onAuditEntry)
+    {
+    }
+
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    public CircuitBreakerGate(
+        string gateName,
+        IOptionsMonitor<CircuitBreakerOptions> optionsMonitor,
+        Func<DateTimeOffset>? utcNow,
+        Action<CircuitBreakerAuditEntry>? onAuditEntry)
+        : this(
+            gateName,
+            optionsMonitor,
+            utcNow is null ? null : new DelegateTimeProvider(utcNow),
+            onAuditEntry)
+    {
+    }
+
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    public CircuitBreakerGate(string gateName, CircuitBreakerOptions options, Func<DateTimeOffset>? utcNow)
+        : this(gateName, options, utcNow is null ? null : new DelegateTimeProvider(utcNow), onAuditEntry: null)
+    {
+    }
+
+    /// <summary>Compatibility constructor: wraps <paramref name="utcNow"/> in a <see cref="TimeProvider"/>.</summary>
+    public CircuitBreakerGate(string gateName, IOptionsMonitor<CircuitBreakerOptions> optionsMonitor, Func<DateTimeOffset>? utcNow)
+        : this(gateName, optionsMonitor, utcNow is null ? null : new DelegateTimeProvider(utcNow), onAuditEntry: null)
+    {
     }
 
     /// <summary>Stable low-cardinality gate label (e.g. keyed DI name).</summary>
@@ -153,7 +194,7 @@ public sealed class CircuitBreakerGate
 
             if (_state == State.Open)
             {
-                if (_utcNow() < _openUntilUtc)
+                if (_timeProvider.GetUtcNow() < _openUntilUtc)
                 {
                     EmitRejection();
 
@@ -217,7 +258,7 @@ public sealed class CircuitBreakerGate
                 EmitProbeOutcome("failure");
                 EmitStateTransition("HalfOpen", "Open");
                 _state = State.Open;
-                _openUntilUtc = _utcNow().AddSeconds(opts.DurationOfBreakSeconds);
+                _openUntilUtc = _timeProvider.GetUtcNow().AddSeconds(opts.DurationOfBreakSeconds);
                 _probeInFlight = false;
                 _consecutiveFailures = opts.FailureThreshold;
 
@@ -233,7 +274,7 @@ public sealed class CircuitBreakerGate
 
             EmitStateTransition("Closed", "Open");
             _state = State.Open;
-            _openUntilUtc = _utcNow().AddSeconds(opts.DurationOfBreakSeconds);
+            _openUntilUtc = _timeProvider.GetUtcNow().AddSeconds(opts.DurationOfBreakSeconds);
         }
     }
 
@@ -253,7 +294,7 @@ public sealed class CircuitBreakerGate
             EmitStateTransition("HalfOpen", "Open");
             _probeInFlight = false;
             _state = State.Open;
-            _openUntilUtc = _utcNow();
+            _openUntilUtc = _timeProvider.GetUtcNow();
         }
     }
 
@@ -268,7 +309,7 @@ public sealed class CircuitBreakerGate
 
     private void EmitStateTransition(string fromState, string toState)
     {
-        _lastStateChangeUtc = _utcNow();
+        _lastStateChangeUtc = _timeProvider.GetUtcNow();
 
         TagList tags = new TagList
         {
@@ -306,7 +347,7 @@ public sealed class CircuitBreakerGate
                     fromState,
                     toState,
                     probeOutcome,
-                    _utcNow()));
+                    _timeProvider.GetUtcNow()));
         }
         catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
         {

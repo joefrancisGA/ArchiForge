@@ -134,7 +134,11 @@ public sealed class TypedFindingsGoldenPathTests
             new CostConstraintFindingEngine()
         ];
 
-        FindingsOrchestrator orchestrator = new(engines, new FindingPayloadValidator(), NullLogger<FindingsOrchestrator>.Instance);
+        FindingsOrchestrator orchestrator = new(
+            engines,
+            new FindingPayloadValidator(),
+            NullLogger<FindingsOrchestrator>.Instance,
+            TimeProvider.System);
 
         FindingsSnapshot snapshot = await orchestrator.GenerateFindingsSnapshotAsync(runId, ctxId, graph, CancellationToken.None);
 

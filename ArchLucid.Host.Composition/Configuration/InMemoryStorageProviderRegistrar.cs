@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
 using ArchLucid.ContextIngestion.Interfaces;
@@ -88,6 +89,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IPolicyPackAssignmentRepository, InMemoryPolicyPackAssignmentRepository>();
         services.AddSingleton<IPolicyPackChangeLogRepository, InMemoryPolicyPackChangeLogRepository>();
         services.AddSingleton<IArchLucidUnitOfWorkFactory, InMemoryArchLucidUnitOfWorkFactory>();
+        services.AddSingleton<IDistributedCreateRunIdempotencyLock, NoOpDistributedCreateRunIdempotencyLock>();
         services.AddSingleton<IRetrievalIndexingOutboxRepository, InMemoryRetrievalIndexingOutboxRepository>();
         services.AddSingleton<IIntegrationEventOutboxRepository, InMemoryIntegrationEventOutboxRepository>();
         services.AddSingleton<IProductLearningPilotSignalRepository, InMemoryProductLearningPilotSignalRepository>();

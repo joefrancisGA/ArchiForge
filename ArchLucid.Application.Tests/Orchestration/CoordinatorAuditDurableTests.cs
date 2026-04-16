@@ -14,6 +14,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
@@ -98,6 +99,8 @@ public sealed class CoordinatorAuditDurableTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
+            new NoOpDistributedCreateRunIdempotencyLock(),
+            TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request);
@@ -453,6 +456,8 @@ public sealed class CoordinatorAuditDurableTests
             auditService.Object,
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IUsageMeteringService>(),
+            new NoOpDistributedCreateRunIdempotencyLock(),
+            TimeProvider.System,
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request);

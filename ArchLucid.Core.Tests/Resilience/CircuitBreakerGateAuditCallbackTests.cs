@@ -1,4 +1,5 @@
 using ArchLucid.Core.Resilience;
+using ArchLucid.Core.Time;
 
 using FluentAssertions;
 
@@ -17,7 +18,7 @@ public sealed class CircuitBreakerGateAuditCallbackTests
         CircuitBreakerGate gate = new(
             "audit-throw-gate",
             options,
-            clock.ToFunc(),
+            new DelegateTimeProvider(clock.ToFunc()),
             _ =>
             {
                 auditCalls++;

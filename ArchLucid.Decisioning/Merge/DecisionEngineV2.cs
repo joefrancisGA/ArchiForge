@@ -10,8 +10,10 @@ namespace ArchLucid.Decisioning.Merge;
 /// <summary>
 /// Decision Engine v2: weighted argument resolution (deterministic, v1 scoring model).
 /// </summary>
-public sealed class DecisionEngineV2 : IDecisionEngineV2
+public sealed class DecisionEngineV2(TimeProvider? timeProvider = null) : IDecisionEngineV2
 {
+    private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
+
     public Task<IReadOnlyList<DecisionNode>> ResolveAsync(
         string runId,
         ArchitectureRequest request,
@@ -33,9 +35,9 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         AgentResult? topologyResult = results.FirstOrDefault(r => r.AgentType == AgentType.Topology);
 
         if (topologyTask is null || topologyResult is null)
-        
+
             return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
-        
+
 
         decisions.Add(BuildTopologyAcceptanceDecision(runId, topologyTask, topologyResult, evaluations));
         decisions.Add(BuildSecurityControlsDecision(runId, tasks, evaluations));
@@ -44,7 +46,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
         return Task.FromResult<IReadOnlyList<DecisionNode>>(decisions);
     }
 
-    private static DecisionNode BuildTopologyAcceptanceDecision(
+    private DecisionNode BuildTopologyAcceptanceDecision(
         string runId,
         AgentTask topologyTask,
         AgentResult topologyResult,
@@ -104,11 +106,11 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                             e.EvaluationType.Equals(EvalTypes.Caution, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = _clock.GetUtcNow().UtcDateTime
         };
     }
 
-    private static DecisionNode BuildSecurityControlsDecision(
+    private DecisionNode BuildSecurityControlsDecision(
         string runId,
         IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentEvaluation> evaluations)
@@ -159,11 +161,11 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                 .Where(e => e.EvaluationType.Equals(EvalTypes.Strengthen, StringComparison.OrdinalIgnoreCase))
                 .Select(e => e.EvaluationId)
                 .ToList(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = _clock.GetUtcNow().UtcDateTime
         };
     }
 
-    private static DecisionNode BuildComplexityDecision(
+    private DecisionNode BuildComplexityDecision(
         string runId,
         IReadOnlyCollection<AgentTask> tasks,
         IReadOnlyCollection<AgentEvaluation> evaluations)
@@ -213,7 +215,7 @@ public sealed class DecisionEngineV2 : IDecisionEngineV2
                 .Select(e => e.EvaluationId)
                 .ToList(),
             OpposingEvaluationIds = cautions.Select(e => e.EvaluationId).ToList(),
-            CreatedUtc = DateTime.UtcNow
+            CreatedUtc = _clock.GetUtcNow().UtcDateTime
         };
     }
 }

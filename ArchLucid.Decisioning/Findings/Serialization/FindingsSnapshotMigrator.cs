@@ -9,6 +9,8 @@ public static class FindingsSnapshotMigrator
 {
     public static void Apply(FindingsSnapshot snapshot)
     {
+        snapshot.EngineFailures ??= [];
+
         foreach (Finding finding in snapshot.Findings)
             MigrateFinding(finding);
 

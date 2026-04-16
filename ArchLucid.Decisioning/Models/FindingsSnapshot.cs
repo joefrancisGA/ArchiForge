@@ -9,6 +9,10 @@ public class FindingsSnapshot
     public Guid ContextSnapshotId { get; set; }
     public Guid GraphSnapshotId { get; set; }
     public DateTime CreatedUtc { get; set; }
+
+    /// <summary>Engines that threw during this snapshot build (empty when all engines succeeded).</summary>
+    public List<FindingEngineFailure> EngineFailures { get; set; } = [];
+
     public List<Finding> Findings { get; set; } = [];
 
     public IReadOnlyList<Finding> GetByCategory(string category)

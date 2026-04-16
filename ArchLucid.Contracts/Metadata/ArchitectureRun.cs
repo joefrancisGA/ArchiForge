@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using ArchLucid.Contracts.Common;
@@ -72,5 +73,5 @@ public sealed class ArchitectureRun
     /// Ordered list of agent task identifiers associated with this run.
     /// Populated during run creation and used to track execution progress.
     /// </summary>
-    public List<string> TaskIds { get; set; } = [];
+    public IReadOnlyList<string> TaskIds { get; set; } = [];
 }
