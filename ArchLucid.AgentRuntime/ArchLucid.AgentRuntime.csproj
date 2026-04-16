@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.AI.ContentSafety" />
     <PackageReference Include="Azure.AI.OpenAI" />
     <PackageReference Include="Polly" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />

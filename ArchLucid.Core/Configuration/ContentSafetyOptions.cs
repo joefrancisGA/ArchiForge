@@ -16,4 +16,15 @@ public sealed class ContentSafetyOptions
 
     /// <summary>Optional API key name in Key Vault / user-secrets (not read by the null/stub guards).</summary>
     public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// Minimum Azure Content Safety text severity (four-level scale: 0, 2, 4, 6) that blocks the request.
+    /// Default <c>4</c> blocks high and highest.
+    /// </summary>
+    public int BlockSeverityThreshold { get; set; } = 4;
+
+    /// <summary>
+    /// When true, SDK or network failures during analysis fail closed (block). When false, failures are logged and content is allowed.
+    /// </summary>
+    public bool FailClosedOnSdkError { get; set; }
 }

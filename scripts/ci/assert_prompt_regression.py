@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Regression gate for committed agent-output score floors (Topology golden fixture).
+Regression gate for committed agent-output score floors (Topology + Cost/Compliance/Critic).
 
 1) Validates scripts/ci/prompt_regression_baseline.json shape.
 2) Enforces non-placeholder Topology minimums so the file cannot silently revert to all zeros.
+3) Enforces Cost/Compliance/Critic structural and semantic minimums (shared AgentResult JSON contract).
 
-Merge-blocking structural/semantic checks run in ArchLucid.AgentRuntime.Tests
-(PromptRegressionBaselineContractTests) using the same JSON copied to test output.
+Merge-blocking structural/semantic checks run in ArchLucid.AgentRuntime.Tests.Evaluation.PromptRegressionBaselineContractTests
+using the same JSON copied to test output.
 """
 
 from __future__ import annotations
@@ -56,9 +57,27 @@ def main() -> int:
         )
         return 2
 
+    for agent in ("Cost", "Compliance", "Critic"):
+        struct = float(raw["minStructuralCompletenessByAgentType"][agent])
+        sem = float(raw["minSemanticScoreByAgentType"][agent])
+        if struct < 0.85:
+            print(
+                f"Invalid baseline: minStructuralCompletenessByAgentType.{agent} must be >= 0.85 "
+                "(non-placeholder floors for merge-blocking contract tests).",
+                file=sys.stderr,
+            )
+            return 2
+        if sem < 0.7:
+            print(
+                f"Invalid baseline: minSemanticScoreByAgentType.{agent} must be >= 0.7 "
+                "(non-placeholder floors for merge-blocking contract tests).",
+                file=sys.stderr,
+            )
+            return 2
+
     print(
-        "prompt_regression_baseline.json: OK (shape + Topology floor policy). "
-        "Scores are asserted in ArchLucid.AgentRuntime.Tests.PromptRegressionBaselineContractTests."
+        "prompt_regression_baseline.json: OK (shape + Topology + Cost/Compliance/Critic floor policy). "
+        "Scores are asserted in ArchLucid.AgentRuntime.Tests.Evaluation.PromptRegressionBaselineContractTests."
     )
     return 0
 

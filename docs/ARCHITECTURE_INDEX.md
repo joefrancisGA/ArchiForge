@@ -138,7 +138,7 @@
 - **API key rotation** – `docs/runbooks/API_KEY_ROTATION.md`
 - **Terraform variable sketch (Azure)** – `docs/terraform-azure-variables.md`
 - **Infrastructure index (Terraform roots)** – `infra/README.md`
-- **Integration event catalog (Service Bus `com.archlucid.*` types + JSON schemas)** – `docs/INTEGRATION_EVENT_CATALOG.md` (see also `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`)
+- **Integration event catalog (Service Bus `com.archlucid.*` types + JSON schemas)** – `docs/INTEGRATION_EVENT_CATALOG.md`, `docs/INTEGRATION_EVENT_SCHEMA_REGISTRY.md` (see also `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`)
 - **Customer trust and access (edge, private data plane, Entra)** – `docs/CUSTOMER_TRUST_AND_ACCESS.md`
 - **Azure API Management (Consumption), optional** – `infra/terraform/README.md`
 - **Rate limiting / CORS / auth** – see `README.md` and `docs/BUILD.md` (cross-links from backlog `docs/NEXT_REFACTORINGS.md`)

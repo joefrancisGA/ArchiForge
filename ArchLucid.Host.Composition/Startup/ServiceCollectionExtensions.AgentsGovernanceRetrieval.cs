@@ -40,14 +40,28 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ContentSafetyOptions>(configuration.GetSection(ContentSafetyOptions.SectionPath));
         services.AddSingleton<IContentSafetyGuard>(static sp =>
         {
-            IOptions<ContentSafetyOptions> opts = sp.GetRequiredService<IOptions<ContentSafetyOptions>>();
+            IOptionsMonitor<ContentSafetyOptions> monitor = sp.GetRequiredService<IOptionsMonitor<ContentSafetyOptions>>();
+            ContentSafetyOptions opts = monitor.CurrentValue;
 
-            if (!opts.Value.Enabled)
+            if (!opts.Enabled)
             {
                 return new NullContentSafetyGuard();
             }
 
-            return new ContentSafetyEnabledButUnconfiguredGuard();
+            if (string.IsNullOrWhiteSpace(opts.Endpoint) || string.IsNullOrWhiteSpace(opts.ApiKey))
+            {
+                return new ContentSafetyEnabledButUnconfiguredGuard();
+            }
+
+            if (!Uri.TryCreate(opts.Endpoint, UriKind.Absolute, out Uri? endpoint))
+            {
+                throw new InvalidOperationException(
+                    "ArchLucid:ContentSafety:Endpoint must be an absolute URI when ArchLucid:ContentSafety:Enabled is true.");
+            }
+
+            ILogger<AzureContentSafetyGuard> logger = sp.GetRequiredService<ILogger<AzureContentSafetyGuard>>();
+
+            return new AzureContentSafetyGuard(endpoint, opts.ApiKey, monitor, logger);
         });
 
         services.Configure<AgentPromptCatalogOptions>(

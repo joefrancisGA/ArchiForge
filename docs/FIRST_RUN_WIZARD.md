@@ -4,6 +4,8 @@
 
 **Route:** `/runs/new` — submits **`POST /v1/architecture/request`** with a full **`ArchitectureRequest`**-shaped body (camelCase JSON). The wizard replaces the older minimal “few fields only” flow.
 
+**Operator checklist (no screenshots):** **[FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md)**
+
 **Last reviewed:** 2026-04-15
 
 ---

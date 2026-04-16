@@ -4,7 +4,7 @@
 
 **Canonical types:** `ArchLucid.Core.Integration.IntegrationEventTypes` (`com.archlucid.*` strings).
 
-**Machine-readable catalog:** `schemas/integration-events/catalog.json` (validated in CI by `IntegrationEventCatalogSyncTests`).
+**Machine-readable catalog:** `schemas/integration-events/catalog.json` (validated in CI by `IntegrationEventCatalogSyncTests`). **Registry narrative:** [INTEGRATION_EVENT_SCHEMA_REGISTRY.md](INTEGRATION_EVENT_SCHEMA_REGISTRY.md).
 
 ## Wire shape
 

@@ -29,7 +29,7 @@ Merge-blocking **Schemathesis light** runs on every PR after full .NET regressio
 
 ## DevelopmentBypass production guard
 
-`ArchLucidAuth:Mode=DevelopmentBypass` and **`Authentication:ApiKey:DevelopmentBypassAll=true`** are for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardAllDevelopmentBypasses`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the host is treated as Production (**`IHostEnvironment`** is Production / `ASPNETCORE_ENVIRONMENT=Production`, or **`ARCHLUCID_ENVIRONMENT=Production`**) **and** any of the following is true:
+`ArchLucidAuth:Mode=DevelopmentBypass` and **`Authentication:ApiKey:DevelopmentBypassAll=true`** are for **local and non-production** integration only. The API calls **`AuthSafetyGuard.GuardAllDevelopmentBypasses`** during startup **before** authentication services are registered. It throws **`InvalidOperationException`** when the host is treated as **production-like** — **`IHostEnvironment.IsProduction()`**, or **`ASPNETCORE_ENVIRONMENT`** / **`ARCHLUCID_ENVIRONMENT`** values whose trimmed name **contains `prod`** (case-insensitive), **except** names containing **`non-production`** or **`nonproduction`** (so stacks like “non-production” stay non-prod). This catches misnamed hosts such as **`PreProduction`**, **`production`** (lowercase), or **`staging-prod`**. When that production-like bar is met, the guard throws if **any** of the following is true:
 
 - The effective auth mode is **DevelopmentBypass**, or
 - **`Authentication:ApiKey:DevelopmentBypassAll`** is **true** (open API-key access; must stay off in production even when using **JwtBearer** or **ApiKey** mode).
@@ -62,9 +62,10 @@ Fine-grained **`permission`** claims (for example **`commit:run`**, **`export:co
 | State | Behavior |
 |--------|----------|
 | **Disabled** (default) | **`NullContentSafetyGuard`** — pass-through; no outbound calls. |
-| **Enabled** | **`ContentSafetyEnabledButUnconfiguredGuard`** — **throws** on **`CheckInputAsync`** / **`CheckOutputAsync`** until a real **`IContentSafetyGuard`** implementation is registered in composition. |
+| **Enabled** without **`Endpoint`** or **`ApiKey`** | **`ContentSafetyEnabledButUnconfiguredGuard`** — **throws** on **`CheckInputAsync`** / **`CheckOutputAsync`** (fail-fast misconfiguration). |
+| **Enabled** with absolute **`Endpoint`** and **`ApiKey`** | **`AzureContentSafetyGuard`** — calls **Azure AI Content Safety** text analysis (four severity levels). **`BlockSeverityThreshold`** (default **4**) blocks when any category severity is **≥** threshold. **`FailClosedOnSdkError`** (default **false**) allows traffic if the SDK call fails (logged); set **true** to block on SDK errors. |
 
-**Product status:** there is **no** checked-in **Azure AI Content Safety** SDK client or REST wrapper yet (repository uses **Azure.AI.OpenAI** for completions/embeddings). A production implementation would typically use **`Azure.AI.ContentSafety`** or a small **`HttpClient`** against the [Content Safety REST API](https://learn.microsoft.com/azure/ai-services/content-safety/), bound from **`ContentSafetyOptions.Endpoint`** / **`ApiKey`**, and replace the stub via DI. Until then, keep **`Enabled: false`** outside controlled experiments.
+**Product status:** **`Azure.AI.ContentSafety`** is wired in **`ArchLucid.AgentRuntime.Safety.AzureContentSafetyGuard`** and registered from **`ArchLucid.Host.Composition`** when **`ArchLucid:ContentSafety:Enabled`** is **true** and **`Endpoint`** / **`ApiKey`** are set. For experiments without Azure, keep **`Enabled: false`**. See also **`docs/AI_AGENT_PROMPT_REGRESSION.md`** and **`appsettings.Advanced.json`**.
 
 ## Log injection (CWE-117)
 

@@ -105,6 +105,25 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             .WithMessage("*ArchLucid:ContentSafety*");
     }
 
+    [Fact]
+    public void AddArchLucidApplicationServices_resolves_AzureContentSafetyGuard_when_enabled_with_endpoint_and_key()
+    {
+        Dictionary<string, string?> data = CreateRealAzureCompositionDictionary(fallbackLlmEnabled: false);
+        data["ArchLucid:ContentSafety:Enabled"] = "true";
+        data["ArchLucid:ContentSafety:Endpoint"] = "https://unit-test.cognitiveservices.azure.com/";
+        data["ArchLucid:ContentSafety:ApiKey"] = "placeholder-key-not-used-in_this_test";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IContentSafetyGuard guard = provider.GetRequiredService<IContentSafetyGuard>();
+
+        guard.Should().BeOfType<AzureContentSafetyGuard>();
+    }
+
     private static ServiceCollection CreateCoreServices(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);

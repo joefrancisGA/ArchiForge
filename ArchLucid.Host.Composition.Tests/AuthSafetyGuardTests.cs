@@ -58,6 +58,83 @@ public sealed class AuthSafetyGuardTests
     }
 
     [Fact]
+    public void GuardDevelopmentBypassInProduction_archlucid_environment_lowercase_production_throws()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+                ["ARCHLUCID_ENVIRONMENT"] = "production",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void GuardDevelopmentBypassInProduction_archlucid_environment_staging_prod_throws()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+                ["ARCHLUCID_ENVIRONMENT"] = "staging-prod",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void GuardDevelopmentBypassInProduction_environment_name_prod_throws_even_when_not_IsProduction()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "DevelopmentBypass" })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment("Prod");
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void GuardDevelopmentBypassInProduction_environment_name_non_production_does_not_throw()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["ArchLucidAuth:Mode"] = "DevelopmentBypass" })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment("non-production");
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void GuardDevelopmentBypassInProduction_archlucid_environment_staging_does_not_throw()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+                ["ARCHLUCID_ENVIRONMENT"] = "Staging",
+            })
+            .Build();
+        IHostEnvironment environment = new StubHostEnvironment(Environments.Development);
+
+        Action act = () => AuthSafetyGuard.GuardDevelopmentBypassInProduction(configuration, environment);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void GuardDevelopmentBypassInProduction_production_jwt_bearer_does_not_throw()
     {
         IConfiguration configuration = new ConfigurationBuilder()

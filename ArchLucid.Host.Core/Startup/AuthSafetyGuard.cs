@@ -18,8 +18,9 @@ public static class AuthSafetyGuard
 
     /// <summary>
     /// Throws <see cref="InvalidOperationException"/> when any production-incompatible development auth
-    /// setting is active and the host is treated as Production (<see cref="IHostEnvironment.IsProduction"/>
-    /// or <c>ARCHLUCID_ENVIRONMENT=Production</c>).
+    /// setting is active and the host is treated as production-like: <see cref="IHostEnvironment.IsProduction"/>,
+    /// <c>ASPNETCORE_ENVIRONMENT</c> / <c>ARCHLUCID_ENVIRONMENT</c> names containing <c>prod</c> (excluding
+    /// <c>non-production</c> / <c>nonproduction</c>), or exact Production via configuration.
     /// </summary>
     /// <remarks>
     /// Checks: <c>ArchLucidAuth:Mode=DevelopmentBypass</c> and
@@ -69,6 +70,11 @@ public static class AuthSafetyGuard
             return true;
         }
 
+        if (EnvironmentNameImpliesProductionLike(hostEnvironment.EnvironmentName))
+        {
+            return true;
+        }
+
         string? archLucidEnv = configuration["ARCHLUCID_ENVIRONMENT"];
 
         if (string.IsNullOrWhiteSpace(archLucidEnv))
@@ -76,6 +82,38 @@ public static class AuthSafetyGuard
             archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
         }
 
-        return string.Equals(archLucidEnv?.Trim(), "Production", StringComparison.OrdinalIgnoreCase);
+        if (EnvironmentNameImpliesProductionLike(archLucidEnv))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Treats names containing <c>prod</c> (case-insensitive) as production-like so misnamed hosts
+    /// (for example <c>PreProduction</c>, <c>staging-prod</c>) cannot run DevelopmentBypass.
+    /// Excludes <c>non-production</c> / <c>nonproduction</c> so dev stacks that embed that phrase are not blocked.
+    /// </summary>
+    private static bool EnvironmentNameImpliesProductionLike(string? environmentName)
+    {
+        if (string.IsNullOrWhiteSpace(environmentName))
+        {
+            return false;
+        }
+
+        string trimmed = environmentName.Trim();
+
+        if (trimmed.Contains("non-production", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
     }
 }
