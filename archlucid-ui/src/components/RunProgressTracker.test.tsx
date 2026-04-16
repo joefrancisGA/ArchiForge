@@ -32,9 +32,24 @@ function committedSummary(runId: string): RunSummary {
 describe("RunProgressTracker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // jsdom EventSource is unreliable; force the hook onto HTTP polling so `getRunSummary` timing is deterministic.
+    vi.stubGlobal(
+      "EventSource",
+      class MockEventSource {
+        addEventListener(type: string, listener: () => void): void {
+          if (type === "error") {
+            queueMicrotask(() => listener());
+          }
+        }
+
+        close(): void {}
+      },
+    );
   });
 
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.useRealTimers();
   });
 
@@ -54,26 +69,24 @@ describe("RunProgressTracker", () => {
   it("polls and updates badges as stages complete", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
-    // Strict Mode mounts effects twice; each run invokes `tick()` → two initial fetches.
-    mockGetRunSummary
-      .mockResolvedValueOnce({
-        ...baseSummary,
-        runId: "live-1",
-        hasContextSnapshot: true,
-      })
-      .mockResolvedValueOnce({
-        ...baseSummary,
-        runId: "live-1",
-        hasContextSnapshot: true,
-      })
-      .mockResolvedValue({
-        ...baseSummary,
-        runId: "live-1",
+    // SSE falls back to polling; Strict Mode doubles effects — many `getRunSummary` calls can run before
+    // this assertion. Gate the "all stages ready" response until after we assert the partial snapshot.
+    let allowFullSummary = false;
+    mockGetRunSummary.mockImplementation(async () => {
+      const liveBase = { ...baseSummary, runId: "live-1" };
+
+      if (!allowFullSummary) {
+        return { ...liveBase, hasContextSnapshot: true };
+      }
+
+      return {
+        ...liveBase,
         hasContextSnapshot: true,
         hasGraphSnapshot: true,
         hasFindingsSnapshot: true,
         hasGoldenManifest: true,
-      });
+      };
+    });
 
     render(
       <RunProgressTracker
@@ -85,19 +98,27 @@ describe("RunProgressTracker", () => {
       />,
     );
 
+    // Do not use `runOnlyPendingTimersAsync` here: it drains the whole timer queue and advances past
+    // RunProgressTracker's 180s watchdog, which disables `useRunSummaryStream` before the next poll.
     await act(async () => {
-      await vi.runOnlyPendingTimersAsync();
+      await new Promise<void>((resolve) => queueMicrotask(resolve));
+    });
+
+    await act(async () => {
+      await Promise.resolve();
     });
 
     expect(mockGetRunSummary).toHaveBeenCalled();
     expect(screen.getAllByText("Ready").length).toBe(1);
+
+    allowFullSummary = true;
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(3000);
     });
 
     await act(async () => {
-      await vi.runOnlyPendingTimersAsync();
+      await Promise.resolve();
     });
 
     expect(screen.getAllByText("Ready").length).toBe(4);

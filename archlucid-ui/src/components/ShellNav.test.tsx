@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ShellNav } from "./ShellNav";
 
@@ -27,6 +27,12 @@ vi.mock("next/link", () => ({
 }));
 
 describe("ShellNav (sidebar re-export — primary navigation)", () => {
+  beforeEach(() => {
+    // Progressive disclosure persists `archlucid_nav_show_extended` in localStorage; clear so tests
+    // do not inherit "Show more links" from a prior case in the same file.
+    localStorage.clear();
+  });
+
   it(
     "exposes essential runs-and-review workflow links with expected routes",
     () => {
@@ -52,7 +58,11 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       expect(screen.queryByRole("link", { name: "Compare two runs" })).toBeNull();
       expect(screen.queryByRole("link", { name: "Replay a run" })).toBeNull();
 
-      fireEvent.click(screen.getByRole("button", { name: "Show more links" }));
+      const showMore = screen.queryByRole("button", { name: "Show more links" });
+      if (showMore) {
+        fireEvent.click(showMore);
+      }
+
       expect(screen.getByRole("link", { name: "Compare two runs" })).toHaveAttribute("href", "/compare");
       expect(screen.getByRole("link", { name: "Replay a run" })).toHaveAttribute("href", "/replay");
 
@@ -74,12 +84,17 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     expect(screen.getByRole("navigation", { name: "Q&A & advisory" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ask" })).toHaveAttribute("href", "/ask");
 
-    fireEvent.click(screen.getByRole("button", { name: "Show more links" }));
+    const showMore = screen.queryByRole("button", { name: "Show more links" });
+    if (showMore) {
+      fireEvent.click(showMore);
+    }
+
+    // Dashboard is tier "extended" under Alerts & governance — expand the group so the link is in the a11y tree.
+    fireEvent.click(screen.getByRole("button", { name: "Alerts & governance" }));
 
     expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute("href", "/governance/dashboard");
 
-    // Alerts group defaults collapsed for new sessions — expand to expose its <nav>.
-    fireEvent.click(screen.getByRole("button", { name: "Alerts & governance" }));
+    // Alerts group: ensure <nav> is present now that the section is open.
     expect(screen.getByRole("navigation", { name: "Alerts & governance" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
 

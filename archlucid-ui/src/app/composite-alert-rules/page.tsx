@@ -158,42 +158,88 @@ export default function CompositeAlertRulesPage() {
         <fieldset style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12 }}>
           <legend>Condition 1</legend>
           <div style={{ display: "grid", gap: 8 }}>
-            <select value={m1} onChange={(e) => setM1(e.target.value)}>
-              {METRICS.map((x) => (
-                <option key={x.value} value={x.value}>
-                  {x.label}
-                </option>
-              ))}
-            </select>
-            <select value={o1} onChange={(e) => setO1(e.target.value)}>
-              {COND_OPS.map((x) => (
-                <option key={x.value} value={x.value}>
-                  {x.label} {x.value}
-                </option>
-              ))}
-            </select>
-            <input type="number" step="any" value={v1} onChange={(e) => setV1(Number(e.target.value))} />
+            <label>
+              Metric
+              <select
+                value={m1}
+                onChange={(e) => setM1(e.target.value)}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {METRICS.map((x) => (
+                  <option key={x.value} value={x.value}>
+                    {x.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Operator
+              <select
+                value={o1}
+                onChange={(e) => setO1(e.target.value)}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {COND_OPS.map((x) => (
+                  <option key={x.value} value={x.value}>
+                    {x.label} {x.value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Threshold value
+              <input
+                type="number"
+                step="any"
+                value={v1}
+                onChange={(e) => setV1(Number(e.target.value))}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              />
+            </label>
           </div>
         </fieldset>
 
         <fieldset style={{ border: "1px solid #ccc", borderRadius: 8, padding: 12 }}>
           <legend>Condition 2</legend>
           <div style={{ display: "grid", gap: 8 }}>
-            <select value={m2} onChange={(e) => setM2(e.target.value)}>
-              {METRICS.map((x) => (
-                <option key={x.value} value={x.value}>
-                  {x.label}
-                </option>
-              ))}
-            </select>
-            <select value={o2} onChange={(e) => setO2(e.target.value)}>
-              {COND_OPS.map((x) => (
-                <option key={x.value} value={x.value}>
-                  {x.label} {x.value}
-                </option>
-              ))}
-            </select>
-            <input type="number" step="any" value={v2} onChange={(e) => setV2(Number(e.target.value))} />
+            <label>
+              Metric
+              <select
+                value={m2}
+                onChange={(e) => setM2(e.target.value)}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {METRICS.map((x) => (
+                  <option key={x.value} value={x.value}>
+                    {x.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Operator
+              <select
+                value={o2}
+                onChange={(e) => setO2(e.target.value)}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {COND_OPS.map((x) => (
+                  <option key={x.value} value={x.value}>
+                    {x.label} {x.value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Threshold value
+              <input
+                type="number"
+                step="any"
+                value={v2}
+                onChange={(e) => setV2(Number(e.target.value))}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              />
+            </label>
           </div>
         </fieldset>
 
