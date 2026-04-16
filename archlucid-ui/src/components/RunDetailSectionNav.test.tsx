@@ -14,7 +14,10 @@ describe("RunDetailSectionNav", () => {
 
         takeRecords = vi.fn().mockReturnValue([]);
 
-        constructor(_cb: IntersectionObserverCallback, _opts?: IntersectionObserverInit) {}
+        constructor(cb: IntersectionObserverCallback, opts?: IntersectionObserverInit) {
+          void cb;
+          void opts;
+        }
       },
     );
   });

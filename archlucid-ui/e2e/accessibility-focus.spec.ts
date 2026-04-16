@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { runAxe } from "./helpers/axe-helper";
+
 test.describe("route focus and announcements", () => {
   test("skip link moves focus to main content", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
@@ -48,7 +50,6 @@ test.describe("route focus and announcements", () => {
     await page.reload({ waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    const { runAxe } = await import("./helpers/axe-helper");
     const results = await runAxe(page);
     const critical = results.violations.filter((v) => v.impact === "critical" || v.impact === "serious");
 
