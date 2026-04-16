@@ -29,6 +29,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDemoSeedService, DemoSeedService>();
         services.AddArchLucidFeatureManagement(configuration);
         services.AddArchLucidStorage(configuration);
+        RegisterTenancyMeteringAndSecrets(services, configuration);
         RegisterAdvisoryScheduling(services, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);

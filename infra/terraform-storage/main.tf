@@ -52,6 +52,13 @@ resource "azurerm_storage_account" "artifacts" {
   tags = var.tags
 }
 
+resource "azurerm_storage_account_customer_managed_key" "artifacts" {
+  count = local.enabled && var.customer_managed_key_enabled && length(trimspace(var.customer_managed_key_id)) > 0 ? 1 : 0
+
+  storage_account_id = azurerm_storage_account.artifacts[0].id
+  key_vault_key_id   = var.customer_managed_key_id
+}
+
 resource "azurerm_storage_container" "golden_manifests" {
   count = local.enabled ? 1 : 0
 

@@ -5,6 +5,7 @@ using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Repositories;
@@ -39,6 +40,7 @@ using ArchLucid.Persistence.Orchestration.Pipeline;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
+using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Provenance;
 
@@ -106,6 +108,8 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
         services.AddScoped<IAuthorityRunOrchestrator, AuthorityRunOrchestrator>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
+        services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<IUsageEventRepository, InMemoryUsageEventRepository>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.NoOpHostLeaderLeaseRepository>();

@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Metering;
 using ArchLucid.Core.Resilience;
 using ArchLucid.Core.Safety;
 using ArchLucid.Core.Scoping;
@@ -296,7 +297,9 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
             IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
                 sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
-            sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+            IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
+            ILogger<LlmCompletionAccountingClient> accountingLogger =
+                sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
             IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
                 echoInner,
@@ -304,7 +307,9 @@ public static partial class ServiceCollectionExtensions
                 scopeProvider,
                 quotaOpts,
                 telemetryOpts,
-                labelTelemetryOpts);
+                labelTelemetryOpts,
+                usageMetering,
+                accountingLogger);
 
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
             LlmCompletionResponseCacheOptions cacheOptions = config
@@ -554,7 +559,9 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryOptions>>();
         IOptionsMonitor<LlmTelemetryLabelOptions> labelTelemetryOpts =
             sp.GetRequiredService<IOptionsMonitor<LlmTelemetryLabelOptions>>();
-        sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
+        IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
+        ILogger<LlmCompletionAccountingClient> accountingLogger =
+            sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
         IAgentCompletionClient completionPipeline = new LlmCompletionAccountingClient(
             azureInner,
@@ -562,7 +569,9 @@ public static partial class ServiceCollectionExtensions
             scopeProvider,
             quotaOpts,
             telemetryOpts,
-            labelTelemetryOpts);
+            labelTelemetryOpts,
+            usageMetering,
+            accountingLogger);
 
         IConfiguration config = sp.GetRequiredService<IConfiguration>();
         LlmCompletionResponseCacheOptions cacheOptions = config

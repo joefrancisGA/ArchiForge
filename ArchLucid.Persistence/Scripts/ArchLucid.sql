@@ -2890,3 +2890,57 @@ CREATE SECURITY POLICY rls.ArchiforgeTenantScope
     ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog BEFORE DELETE
     WITH (STATE = OFF);
 GO
+
+/* ---- Tenant registry + usage metering (DbUp 069–070 parity; greenfield) ---- */
+
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Tenants
+    (
+        Id               UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_Tenants PRIMARY KEY,
+        Name             NVARCHAR(200)    NOT NULL,
+        Slug             NVARCHAR(100)    NOT NULL,
+        Tier             NVARCHAR(32)     NOT NULL CONSTRAINT DF_Tenants_Tier DEFAULT N'Standard',
+        CreatedUtc       DATETIMEOFFSET   NOT NULL CONSTRAINT DF_Tenants_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
+        SuspendedUtc     DATETIMEOFFSET   NULL,
+        CONSTRAINT UQ_Tenants_Slug2 UNIQUE (Slug)
+    );
+END;
+GO
+
+IF OBJECT_ID(N'dbo.TenantWorkspaces', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantWorkspaces
+    (
+        Id                UNIQUEIDENTIFIER NOT NULL CONSTRAINT PK_TenantWorkspaces PRIMARY KEY,
+        TenantId          UNIQUEIDENTIFIER NOT NULL,
+        Name              NVARCHAR(200)    NOT NULL,
+        DefaultProjectId  UNIQUEIDENTIFIER NOT NULL,
+        CreatedUtc        DATETIMEOFFSET   NOT NULL CONSTRAINT DF_TenantWorkspaces_CreatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_TenantWorkspaces_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_TenantWorkspaces_TenantId2 ON dbo.TenantWorkspaces (TenantId);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.UsageEvents', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.UsageEvents
+    (
+        Id             UNIQUEIDENTIFIER NOT NULL CONSTRAINT DF_UsageEvents_Id2 DEFAULT NEWSEQUENTIALID(),
+        TenantId       UNIQUEIDENTIFIER NOT NULL,
+        WorkspaceId    UNIQUEIDENTIFIER NOT NULL,
+        ProjectId      UNIQUEIDENTIFIER NOT NULL,
+        Kind           NVARCHAR(64)     NOT NULL,
+        Quantity       BIGINT           NOT NULL,
+        RecordedUtc    DATETIMEOFFSET   NOT NULL CONSTRAINT DF_UsageEvents_RecordedUtc2 DEFAULT SYSUTCDATETIME(),
+        CorrelationId  NVARCHAR(256)    NULL,
+        CONSTRAINT PK_UsageEvents2 PRIMARY KEY CLUSTERED (Id),
+        CONSTRAINT CK_UsageEvents_Quantity2 CHECK (Quantity >= 0)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_UsageEvents_TenantRecorded2 ON dbo.UsageEvents (TenantId, RecordedUtc);
+    CREATE NONCLUSTERED INDEX IX_UsageEvents_KindRecorded2 ON dbo.UsageEvents (Kind, RecordedUtc);
+END;
+GO

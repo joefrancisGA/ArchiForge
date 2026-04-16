@@ -306,3 +306,36 @@ variable "container_apps_consumption_budget_contact_roles" {
   description = "RBAC roles to notify when container_apps_consumption_budget_contact_emails is empty."
   default     = ["Owner"]
 }
+
+variable "api_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the API app. Use Multiple to enable weighted traffic between active revisions (canary / blue-green)."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.api_revision_mode)
+    error_message = "api_revision_mode must be Single or Multiple."
+  }
+}
+
+variable "worker_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the worker app."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.worker_revision_mode)
+    error_message = "worker_revision_mode must be Single or Multiple."
+  }
+}
+
+variable "ui_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the operator UI app."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.ui_revision_mode)
+    error_message = "ui_revision_mode must be Single or Multiple."
+  }
+}

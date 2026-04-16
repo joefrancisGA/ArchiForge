@@ -87,7 +87,7 @@ resource "azurerm_container_app" "api" {
   name                         = var.api_container_app_name
   container_app_environment_id = azurerm_container_app_environment.main[0].id
   resource_group_name          = local.resource_group_name
-  revision_mode                = "Single"
+  revision_mode                = var.api_revision_mode
   tags                         = local.merged_tags
 
   identity {
@@ -214,7 +214,7 @@ resource "azurerm_container_app" "worker" {
   name                         = var.worker_container_app_name
   container_app_environment_id = azurerm_container_app_environment.main[0].id
   resource_group_name          = local.resource_group_name
-  revision_mode                = "Single"
+  revision_mode                = var.worker_revision_mode
   tags                         = local.merged_tags
 
   dynamic "secret" {
@@ -343,7 +343,7 @@ resource "azurerm_container_app" "ui" {
   name                         = var.ui_container_app_name
   container_app_environment_id = azurerm_container_app_environment.main[0].id
   resource_group_name          = local.resource_group_name
-  revision_mode                = "Single"
+  revision_mode                = var.ui_revision_mode
   tags                         = local.merged_tags
 
   template {

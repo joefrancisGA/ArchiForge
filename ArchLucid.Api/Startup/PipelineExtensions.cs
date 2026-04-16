@@ -86,6 +86,7 @@ internal static class PipelineExtensions
         app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseMiddleware<ApiRequestMeteringMiddleware>();
         app.MapHealthChecks("/health/live", new HealthCheckOptions
         {
             Predicate = static check => check.Tags.Contains(ReadinessTags.Live),

@@ -43,3 +43,15 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "customer_managed_key_enabled" {
+  type        = bool
+  description = "When true and customer_managed_key_id is set, enable CMK on the artifacts storage account via azurerm_storage_account_customer_managed_key."
+  default     = false
+}
+
+variable "customer_managed_key_id" {
+  type        = string
+  description = "Full Azure Resource Manager id of the Key Vault key version used for storage encryption (see docs/runbooks/CMK_ENCRYPTION.md)."
+  default     = ""
+}

@@ -138,6 +138,9 @@ public static class AuditEventTypes
 
     public const string CircuitBreakerProbeOutcome = "CircuitBreakerProbeOutcome";
 
+    /// <summary>SaaS tenant registry: new tenant + default workspace identifiers created (or idempotent replay).</summary>
+    public const string TenantProvisioned = "TenantProvisioned";
+
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
     /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.

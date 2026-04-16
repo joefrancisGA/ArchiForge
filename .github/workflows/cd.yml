@@ -346,6 +346,13 @@ jobs:
             az containerapp update -g "$AZURE_RESOURCE_GROUP" -n "$CONTAINER_APP_UI_NAME" --image "$UI_IMAGE"
           fi
 
+      # Canary / blue-green: set api_revision_mode = Multiple in Terraform, then use
+      # `az containerapp ingress traffic set` to split traffic between revisions; see docs/runbooks/CANARY_DEPLOYMENT.md.
+      - name: Canary traffic split (placeholder — enable when operating canary)
+        if: false
+        run: |
+          echo "Skipped. See docs/runbooks/CANARY_DEPLOYMENT.md for az containerapp ingress traffic set."
+
       - name: Record API revision after update
         id: api_rev_after
         env:

@@ -53,6 +53,24 @@ variable "tags" {
   description = "Tags applied to created resources."
 }
 
+variable "enable_application_insights" {
+  type        = bool
+  description = "When true and application_insights_workspace_resource_id is set, create a workspace-based Application Insights resource (connection string for ArchLucid OpenTelemetry dual export)."
+  default     = false
+}
+
+variable "application_insights_name" {
+  type        = string
+  description = "Application Insights resource name (unique within the resource group)."
+  default     = "archlucid-appinsights"
+}
+
+variable "application_insights_workspace_resource_id" {
+  type        = string
+  description = "Resource id of the Log Analytics workspace to link (same workspace as Container Apps LAW is typical)."
+  default     = ""
+}
+
 variable "enable_managed_grafana" {
   type        = bool
   description = "When true, deploy Azure Managed Grafana (Standard SKU). Requires a clean region quota; leave false and import infra/grafana dashboards into Grafana Cloud or an existing instance."

@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Learning;
@@ -45,6 +46,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tenancy;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Provenance;
 
@@ -179,6 +181,8 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackAssignmentRepository, DapperPolicyPackAssignmentRepository>();
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
+        services.AddScoped<ITenantRepository, DapperTenantRepository>();
+        services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
 
         services.AddSingleton<Persistence.Data.Infrastructure.IDbConnectionFactory>(p =>
             new SqlScopedResolutionDbConnectionFactory(

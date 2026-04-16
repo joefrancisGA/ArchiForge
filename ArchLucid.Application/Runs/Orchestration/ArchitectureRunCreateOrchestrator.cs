@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Security.Cryptography;
 
 using ArchLucid.Application.Common;
@@ -8,6 +9,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
@@ -18,6 +20,11 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Application.Runs.Orchestration;
 
 /// <inheritdoc cref="IArchitectureRunCreateOrchestrator"/>
+/// <remarks>
+/// When HTTP idempotency is used, concurrent requests for the same key are serialized in-process from the
+/// first missed replay through coordination and persistence so only one authority run is created per key.
+/// Multiple API replicas still require a distributed lock (for example SQL <c>sp_getapplock</c>) for the same guarantee.
+/// </remarks>
 public sealed class ArchitectureRunCreateOrchestrator(
     ICoordinatorService coordinator,
     IArchitectureRequestRepository requestRepository,
@@ -30,6 +37,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IBaselineMutationAuditService baselineMutationAudit,
     IAuditService auditService,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IUsageMeteringService usageMetering,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly ICoordinatorService _coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
@@ -46,7 +54,10 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IBaselineMutationAuditService _baselineMutationAudit = baselineMutationAudit ?? throw new ArgumentNullException(nameof(baselineMutationAudit));
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+    private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
     private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> IdempotencyCreateLocks = new();
 
     /// <inheritdoc />
     public async Task<CreateRunResult> CreateRunAsync(
@@ -56,15 +67,42 @@ public sealed class ArchitectureRunCreateOrchestrator(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string actor = _actorContext.GetActor();
-
         if (idempotency is not null)
         {
             CreateRunResult? replay = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
 
             if (replay is not null)
                 return replay;
+
+            SemaphoreSlim gate = IdempotencyCreateLocks.GetOrAdd(
+                BuildIdempotencyGateKey(idempotency),
+                static _ => new SemaphoreSlim(1, 1));
+
+            await gate.WaitAsync(cancellationToken);
+            try
+            {
+                CreateRunResult? replayUnderLock = await TryReplayFromIdempotencyAsync(idempotency, cancellationToken);
+
+                if (replayUnderLock is not null)
+                    return replayUnderLock;
+
+                return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
+            }
+            finally
+            {
+                gate.Release();
+            }
         }
+
+        return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
+    }
+
+    private async Task<CreateRunResult> CreateRunWithCoordinationAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        CancellationToken cancellationToken)
+    {
+        string actor = _actorContext.GetActor();
 
         CoordinationResult coordination = await _coordinator.CreateRunAsync(request, cancellationToken);
 
@@ -202,12 +240,72 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 coordination.Tasks.Count);
         }
 
+        await TryRecordArchitectureRunMeteringAsync(
+            _scopeContextProvider.GetCurrentScope(),
+            coordination.Run.RunId,
+            cancellationToken);
+
         return new CreateRunResult
         {
             Run = coordination.Run,
             EvidenceBundle = coordination.EvidenceBundle,
             Tasks = coordination.Tasks,
         };
+    }
+
+    private static string BuildIdempotencyGateKey(CreateRunIdempotencyState idempotency)
+    {
+        ArgumentNullException.ThrowIfNull(idempotency);
+
+        byte[] hash = idempotency.IdempotencyKeyHash;
+        if (hash is null || hash.Length == 0)
+            throw new ArgumentException("Idempotency key hash must be non-empty.", nameof(idempotency));
+
+        return string.Concat(
+            idempotency.TenantId.ToString("N"),
+            "|",
+            idempotency.WorkspaceId.ToString("N"),
+            "|",
+            idempotency.ProjectId.ToString("N"),
+            "|",
+            Convert.ToHexString(hash));
+    }
+
+    private async Task TryRecordArchitectureRunMeteringAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (scope.TenantId == Guid.Empty)
+            return;
+
+        try
+        {
+            await _usageMetering
+                .RecordAsync(
+                    new UsageEvent
+                    {
+                        TenantId = scope.TenantId,
+                        WorkspaceId = scope.WorkspaceId,
+                        ProjectId = scope.ProjectId,
+                        Kind = UsageMeterKind.ArchitectureRun,
+                        Quantity = 1,
+                        RecordedUtc = DateTimeOffset.UtcNow,
+                        CorrelationId = runId,
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Usage metering failed for architecture run (tenant {TenantId}).",
+                    scope.TenantId);
+            }
+        }
     }
 
     private async Task<bool> PersistCreateRunRowsAsync(

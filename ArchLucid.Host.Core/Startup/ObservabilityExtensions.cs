@@ -2,6 +2,8 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Configuration;
 
+using Azure.Monitor.OpenTelemetry.Exporter;
+
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -30,10 +32,9 @@ public static class ObservabilityExtensions
     /// an endpoint string is present (kill-switch). When the endpoint is empty, OTLP is always off.
     /// </para>
     /// <para>
-    /// <strong>Azure Monitor / Application Insights:</strong> Prefer OTLP to the ingestion endpoint documented for
-    /// your workspace (see Microsoft Learn: OpenTelemetry + Application Insights). The distro-specific
-    /// <c>APPLICATIONINSIGHTS_CONNECTION_STRING</c> flow is optional and not wired here until a dedicated exporter
-    /// package is added; production <c>appsettings.Production.json</c> carries placeholders for operators.
+    /// <strong>Azure Monitor / Application Insights:</strong> When <c>APPLICATIONINSIGHTS_CONNECTION_STRING</c> or
+    /// <c>ApplicationInsights:ConnectionString</c> is set, trace and metric exporters are registered <b>in addition</b> to
+    /// OTLP / console (dual export). Prefer private ingestion paths in regulated environments.
     /// </para>
     /// </remarks>
     public static IServiceCollection AddArchLucidOpenTelemetry(
@@ -63,6 +64,13 @@ public static class ObservabilityExtensions
                 ? OtlpExportProtocol.HttpProtobuf
                 : OtlpExportProtocol.Grpc;
         }
+
+        string? applicationInsightsConnectionString = configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]?.Trim();
+
+        if (string.IsNullOrWhiteSpace(applicationInsightsConnectionString))
+            applicationInsightsConnectionString = configuration["ApplicationInsights:ConnectionString"]?.Trim();
+
+        bool useAzureMonitorExporter = !string.IsNullOrWhiteSpace(applicationInsightsConnectionString);
 
         BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
@@ -108,6 +116,12 @@ public static class ObservabilityExtensions
                             o.Headers = otlpHeaders;
                     });
                 }
+
+                if (useAzureMonitorExporter)
+                {
+                    tracing.AddAzureMonitorTraceExporter(o =>
+                        o.ConnectionString = applicationInsightsConnectionString);
+                }
             })
             .WithMetrics(metrics =>
             {
@@ -132,6 +146,12 @@ public static class ObservabilityExtensions
                         if (!string.IsNullOrEmpty(otlpHeaders))
                             o.Headers = otlpHeaders;
                     });
+                }
+
+                if (useAzureMonitorExporter)
+                {
+                    metrics.AddAzureMonitorMetricExporter(o =>
+                        o.ConnectionString = applicationInsightsConnectionString);
                 }
             });
 

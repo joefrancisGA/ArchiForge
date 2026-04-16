@@ -17,3 +17,15 @@ output "prometheus_slo_rule_group_id" {
   description = "Azure Monitor Prometheus rule group resource ID when enable_prometheus_slo_rule_group is true."
   value       = try(azurerm_monitor_alert_prometheus_rule_group.archiforge_slo[0].id, null)
 }
+
+output "application_insights_connection_string" {
+  description = "Application Insights connection string (sensitive). Empty when Application Insights is not created."
+  value       = try(azurerm_application_insights.archlucid[0].connection_string, "")
+  sensitive   = true
+}
+
+output "application_insights_instrumentation_key" {
+  description = "Application Insights instrumentation key (sensitive). Prefer connection_string for new integrations."
+  value       = try(azurerm_application_insights.archlucid[0].instrumentation_key, "")
+  sensitive   = true
+}
