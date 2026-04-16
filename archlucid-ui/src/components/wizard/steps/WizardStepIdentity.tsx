@@ -67,13 +67,15 @@ export function WizardStepIdentity() {
         </div>
 
         <div>
-          <Label className="mb-1 block">Cloud provider</Label>
+          <Label className="mb-1 block" htmlFor="wizard-cloud-provider">
+            Cloud provider
+          </Label>
           <Controller
             name="cloudProvider"
             control={control}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full max-w-md">
+                <SelectTrigger id="wizard-cloud-provider" className="w-full max-w-md">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

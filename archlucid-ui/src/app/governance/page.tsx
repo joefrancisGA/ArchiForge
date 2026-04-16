@@ -408,9 +408,9 @@ function GovernanceWorkflowPageInner() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
-                <Label>Source environment</Label>
+                <Label htmlFor="gov-submit-source-env">Source environment</Label>
                 <Select value={submitSource} onValueChange={setSubmitSource}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="gov-submit-source-env" className="w-full">
                     <SelectValue placeholder="Source" />
                   </SelectTrigger>
                   <SelectContent>
@@ -423,9 +423,9 @@ function GovernanceWorkflowPageInner() {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label>Target environment</Label>
+                <Label htmlFor="gov-submit-target-env">Target environment</Label>
                 <Select value={submitTarget} onValueChange={setSubmitTarget}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger id="gov-submit-target-env" className="w-full">
                     <SelectValue placeholder="Target" />
                   </SelectTrigger>
                   <SelectContent>

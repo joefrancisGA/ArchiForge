@@ -569,7 +569,7 @@ public sealed class ArchLucidApiClient
     {
         try
         {
-            Gen.ComparisonSummaryResponse summary = await _api.SummaryGET3Async(comparisonRecordId, ct);
+            Gen.ComparisonSummaryResponse summary = await _api.SummaryGETAsync(comparisonRecordId, ct);
 
             return DeserializeRoundTrip<ComparisonSummary>(summary);
         }

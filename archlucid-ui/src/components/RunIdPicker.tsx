@@ -93,12 +93,14 @@ export function RunIdPicker({
       </Label>
       <Input
         id={controlId}
+        role="combobox"
         value={query}
         placeholder={placeholder}
         autoComplete="off"
         aria-autocomplete="list"
+        aria-haspopup="listbox"
         aria-expanded={open}
-        aria-controls={`${controlId}-listbox`}
+        aria-controls={open ? `${controlId}-listbox` : undefined}
         onFocus={() => {
           setOpen(true);
           void loadRuns();
