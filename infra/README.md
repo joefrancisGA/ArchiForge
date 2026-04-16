@@ -4,6 +4,8 @@ ArchLucid splits Azure infrastructure into **optional Terraform roots** so local
 
 **First-time path:** **`docs/GOLDEN_PATH.md`** (Phase 3 Azure + **advanced appendix** for optional roots like edge, failover group, APIM).
 
+**Ordered validate / apply (no merged state):** **`scripts/provision-landing-zone.ps1`** / **`scripts/provision-landing-zone.sh`** and **`docs/LANDING_ZONE_PROVISIONING.md`**. Example tfvars sketches: **`infra/environments/`**.
+
 | Root | Purpose | Default |
 |------|---------|---------|
 | [`terraform/`](terraform/) | Core Azure resources (optional **API Management Consumption**, managed identity, outputs for API URL). | Feature flags **`false`** |
@@ -14,6 +16,7 @@ ArchLucid splits Azure infrastructure into **optional Terraform roots** so local
 | [`terraform-storage/`](terraform-storage/) | **Storage account** + **private blob containers** for **large manifest/bundle offload** (`ArtifactLargePayload`, SQL pointer columns). | **`enable_storage_account = false`** |
 | [`terraform-monitoring/`](terraform-monitoring/) | **Azure Monitor** action group + optional **Container App CPU metric alerts**; optional **Azure Managed Grafana**. Dashboard JSON templates under [`grafana/dashboards/`](grafana/dashboards/). | **`enable_monitoring_stack = false`** |
 | [`terraform-sql-failover/`](terraform-sql-failover/) | **Azure SQL failover group** (`azurerm_mssql_failover_group`): **IaC-backed read/write listener** FQDN for geo HA (bring-your-own primary/secondary servers + database IDs). | **`enable_sql_failover_group = false`** |
+| [`terraform-orchestrator/`](terraform-orchestrator/) | **Validate-only root** (no resources): CI `terraform validate` anchor; real stacks stay separate. | Always safe to `init -backend=false` |
 
 ## Suggested order
 

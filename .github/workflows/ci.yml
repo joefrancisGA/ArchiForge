@@ -85,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault]
+        directory: [infra/terraform, infra/terraform-edge, infra/terraform-entra, infra/terraform-container-apps, infra/terraform-storage, infra/terraform-monitoring, infra/terraform-sql-failover, infra/terraform-openai, infra/terraform-keyvault, infra/terraform-orchestrator]
     steps:
       - uses: actions/checkout@v5
 

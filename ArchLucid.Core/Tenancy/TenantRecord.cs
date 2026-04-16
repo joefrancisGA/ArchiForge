@@ -17,4 +17,21 @@ public sealed class TenantRecord
     public DateTimeOffset CreatedUtc { get; init; }
 
     public DateTimeOffset? SuspendedUtc { get; init; }
+
+    public DateTimeOffset? TrialStartUtc { get; init; }
+
+    public DateTimeOffset? TrialExpiresUtc { get; init; }
+
+    public int? TrialRunsLimit { get; init; }
+
+    public int TrialRunsUsed { get; init; }
+
+    public int? TrialSeatsLimit { get; init; }
+
+    public int TrialSeatsUsed { get; init; }
+
+    /// <summary><see cref="TrialLifecycleStatus"/> or null when the tenant is not on a self-service trial.</summary>
+    public string? TrialStatus { get; init; }
+
+    public Guid? TrialSampleRunId { get; init; }
 }

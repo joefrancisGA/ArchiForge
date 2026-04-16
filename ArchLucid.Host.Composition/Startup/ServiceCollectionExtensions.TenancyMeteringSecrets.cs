@@ -21,6 +21,7 @@ public static partial class ServiceCollectionExtensions
 
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();
         services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
+        services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
 
         services.AddSingleton<ISecretProvider>(sp =>
         {

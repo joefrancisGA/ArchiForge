@@ -27,7 +27,7 @@ This document defines what the repo treats as **intentionally complete and demo-
 - **Service:** `IDemoSeedService` / `DemoSeedService` in `ArchLucid.Application/Bootstrap/`.
 - **Config:** `Demo:Enabled`, `Demo:SeedOnStartup` (startup seed only in **Development**).
 - **HTTP:** `POST /v1.0/demo/seed` when `Demo:Enabled` and Development.
-- **Story:** Contoso Retail — **baseline** vs **hardened** runs use stable GUID primary keys (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId` / `AuthorityRunHardenedId`); string `RunId` in coordinator rows is the same values formatted as **`N`** (no dashes), e.g. `6e8c4a102b1f4c9a9d3e10b2a4f0c501` and `…502`. Seed writes **`dbo.Runs`** and coordinator artifacts only (migration **049** dropped **`dbo.ArchitectureRuns`**; ADR **0012** complete).
+- **Story:** Contoso Retail — **baseline** vs **hardened** runs: the **development default tenant** (`ScopeIds.DefaultTenant`) keeps stable GUID PKs from `ContosoRetailDemoIdentifiers` / coordinator **`N`** keys (`6e8c4a102b1f4c9a9d3e10b2a4f0c501`, `…502`). **Additional tenants** in the same catalog use `ContosoRetailDemoIds.ForTenant(tenantId)` so global PKs (`dbo.Runs`, `dbo.ArchitectureRequests`, `dbo.AgentTasks`, …) do not collide across self-service registrations. Seed still writes **`dbo.Runs`** and coordinator artifacts only (migration **049** dropped **`dbo.ArchitectureRuns`**; ADR **0012** complete).
 - **Idempotent:** Re-running seed skips existing keys.
 
 ## Proof checklist (local)

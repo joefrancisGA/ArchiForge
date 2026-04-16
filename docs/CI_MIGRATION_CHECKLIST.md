@@ -68,7 +68,7 @@ Follow this checklist **before** opening a PR:
 ## Adding or changing DemoSeedService
 
 - [ ] `DemoSeedService` still calls every `EnsureXxxAsync` with idempotent semantics (MERGE or INSERT-if-not-exists).
-- [ ] Constants used come from `ContosoRetailDemoIdentifiers`, not from the nested `DemoIds` class (which is for task/result/trace IDs only).
+- [ ] Demo keys come from `ContosoRetailDemoIds.ForTenant(tenantId)` (or the canonical path inside it for `ScopeIds.DefaultTenant`), not ad-hoc literals.
 - [ ] `DemoSeedServiceTests.SeedAsync_twice_does_not_throw_and_remains_idempotent` still passes.
 - [ ] If a new `EnsureXxxAsync` block is added, a corresponding test case or assertion is added for it.
 

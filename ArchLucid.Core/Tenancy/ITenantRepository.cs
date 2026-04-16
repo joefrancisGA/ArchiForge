@@ -31,4 +31,17 @@ public interface ITenantRepository
 
     /// <summary>Oldest workspace for the tenant (default bootstrap workspace).</summary>
     Task<TenantWorkspaceLink?> GetFirstWorkspaceAsync(Guid tenantId, CancellationToken ct);
+
+    /// <summary>Persists self-service trial metadata after optional demo seed (SaaS signup).</summary>
+    Task CommitSelfServiceTrialAsync(
+        Guid tenantId,
+        DateTimeOffset trialStartUtc,
+        DateTimeOffset trialExpiresUtc,
+        int runsLimit,
+        int seatsLimit,
+        Guid sampleRunId,
+        CancellationToken ct);
+
+    /// <summary>Marks an active self-service trial as converted (billing handoff stub).</summary>
+    Task MarkTrialConvertedAsync(Guid tenantId, CancellationToken ct);
 }

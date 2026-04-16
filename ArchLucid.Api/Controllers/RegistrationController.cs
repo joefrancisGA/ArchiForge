@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 
@@ -19,12 +20,18 @@ namespace ArchLucid.Api.Controllers;
 [EnableRateLimiting("registration")]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/register")]
-public sealed class RegistrationController(ITenantProvisioningService provisioning, IAuditService audit) : ControllerBase
+public sealed class RegistrationController(
+    ITenantProvisioningService provisioning,
+    IAuditService audit,
+    ITrialTenantBootstrapService trialBootstrap) : ControllerBase
 {
     private readonly ITenantProvisioningService _provisioning =
         provisioning ?? throw new ArgumentNullException(nameof(provisioning));
 
     private readonly IAuditService _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+
+    private readonly ITrialTenantBootstrapService _trialBootstrap =
+        trialBootstrap ?? throw new ArgumentNullException(nameof(trialBootstrap));
 
     /// <summary>Creates a Free-tier tenant and default workspace (idempotent by organization slug).</summary>
     [HttpPost]
@@ -79,6 +86,8 @@ public sealed class RegistrationController(ITenantProvisioningService provisioni
                         }),
                 },
                 cancellationToken);
+
+            await _trialBootstrap.TryBootstrapAfterSelfRegistrationAsync(result, actor, cancellationToken);
 
             return StatusCode(StatusCodes.Status201Created, result);
         }

@@ -48,7 +48,7 @@ Returns **204** when complete. **404** if not Development. **400** if `Demo:Enab
 
 ## 3. What gets created
 
-Stable identifiers are defined in [ContosoRetailDemoIdentifiers](../ArchLucid.Application/Bootstrap/ContosoRetailDemoIdentifiers.cs). The seed is **idempotent**: existing keys are skipped.
+Stable identifiers for the default development tenant come from [ContosoRetailDemoIdentifiers](../ArchLucid.Application/Bootstrap/ContosoRetailDemoIdentifiers.cs); other tenants use [ContosoRetailDemoIds.ForTenant](../ArchLucid.Application/Bootstrap/ContosoRetailDemoIds.cs). The seed is **idempotent**: existing keys are skipped for that tenant’s scope.
 
 | Area | Content |
 |------|---------|

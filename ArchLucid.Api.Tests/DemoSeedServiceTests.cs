@@ -22,17 +22,19 @@ public sealed class DemoSeedServiceTests
     {
         await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scopeProvider.GetCurrentScope().TenantId);
+
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
-        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
         IAuthorityQueryService authority = scope.ServiceProvider.GetRequiredService<IAuthorityQueryService>();
         ScopeContext ctx = scopeProvider.GetCurrentScope();
 
         IReadOnlyList<RunSummaryDto> rows =
             await authority.ListRunsByProjectAsync(ctx, "Contoso Retail Platform", 50, CancellationToken.None);
 
-        rows.Should().Contain(r => r.RunId == ContosoRetailDemoIdentifiers.AuthorityRunBaselineId);
-        rows.Should().Contain(r => r.RunId == ContosoRetailDemoIdentifiers.AuthorityRunHardenedId);
+        rows.Should().Contain(r => r.RunId == demo.AuthorityRunBaselineId);
+        rows.Should().Contain(r => r.RunId == demo.AuthorityRunHardenedId);
         rows.Should().OnlyContain(r => r.ProjectId == "Contoso Retail Platform");
     }
 
@@ -52,21 +54,23 @@ public sealed class DemoSeedServiceTests
     {
         await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scopeProvider.GetCurrentScope().TenantId);
         IDemoSeedService seed = scope.ServiceProvider.GetRequiredService<IDemoSeedService>();
         await seed.SeedAsync();
 
         IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
 
-        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunBaseline);
+        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(demo.RunBaseline);
         baseline.Should().NotBeNull();
         baseline.Manifest.Should().NotBeNull();
-        baseline.Run.CurrentManifestVersion.Should().Be(ContosoRetailDemoIdentifiers.ManifestBaseline);
+        baseline.Run.CurrentManifestVersion.Should().Be(demo.ManifestBaseline);
         baseline.Results.Should().NotBeEmpty();
 
-        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunHardened);
+        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(demo.RunHardened);
         hardened.Should().NotBeNull();
         hardened.Manifest.Should().NotBeNull();
-        hardened.Run.CurrentManifestVersion.Should().Be(ContosoRetailDemoIdentifiers.ManifestHardened);
+        hardened.Run.CurrentManifestVersion.Should().Be(demo.ManifestHardened);
     }
 
     [Fact]
@@ -93,6 +97,8 @@ public sealed class DemoSeedServiceTests
     {
         await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scopeProvider.GetCurrentScope().TenantId);
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
         IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
@@ -100,8 +106,8 @@ public sealed class DemoSeedServiceTests
 
         summaries.Select(s => s.RunId).Should().Contain(
             [
-                ContosoRetailDemoIdentifiers.RunBaseline,
-                ContosoRetailDemoIdentifiers.RunHardened
+                demo.RunBaseline,
+                demo.RunHardened
             ]);
     }
 
@@ -110,13 +116,15 @@ public sealed class DemoSeedServiceTests
     {
         await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scopeProvider.GetCurrentScope().TenantId);
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
         IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
         IManifestDiffService manifestDiff = scope.ServiceProvider.GetRequiredService<IManifestDiffService>();
 
-        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunBaseline);
-        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunHardened);
+        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(demo.RunBaseline);
+        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(demo.RunHardened);
 
         ManifestDiffResult diff = manifestDiff.Compare(baseline!.Manifest!, hardened!.Manifest!);
 
@@ -136,18 +144,20 @@ public sealed class DemoSeedServiceTests
     {
         await using ArchLucidApiFactory factory = new();
         using IServiceScope scope = factory.Services.CreateScope();
+        IScopeContextProvider scopeProvider = scope.ServiceProvider.GetRequiredService<IScopeContextProvider>();
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scopeProvider.GetCurrentScope().TenantId);
         await scope.ServiceProvider.GetRequiredService<IDemoSeedService>().SeedAsync();
 
         IRunDetailQueryService detail = scope.ServiceProvider.GetRequiredService<IRunDetailQueryService>();
         IAgentResultDiffService agentDiff = scope.ServiceProvider.GetRequiredService<IAgentResultDiffService>();
 
-        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunBaseline);
-        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunHardened);
+        ArchitectureRunDetail? baseline = await detail.GetRunDetailAsync(demo.RunBaseline);
+        ArchitectureRunDetail? hardened = await detail.GetRunDetailAsync(demo.RunHardened);
 
         AgentResultDiffResult diff = agentDiff.Compare(
-            ContosoRetailDemoIdentifiers.RunBaseline,
+            demo.RunBaseline,
             baseline!.Results,
-            ContosoRetailDemoIdentifiers.RunHardened,
+            demo.RunHardened,
             hardened!.Results);
 
         diff.AgentDeltas.Should().NotBeEmpty();

@@ -77,6 +77,14 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EntraTenantId = entraTenantId,
             CreatedUtc = DateTimeOffset.UtcNow,
             SuspendedUtc = null,
+            TrialStartUtc = null,
+            TrialExpiresUtc = null,
+            TrialRunsLimit = null,
+            TrialRunsUsed = 0,
+            TrialSeatsLimit = null,
+            TrialSeatsUsed = 1,
+            TrialStatus = null,
+            TrialSampleRunId = null,
         };
 
         if (!_byId.TryAdd(tenantId, record))
@@ -147,6 +155,88 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             EntraTenantId = existing.EntraTenantId,
             CreatedUtc = existing.CreatedUtc,
             SuspendedUtc = DateTimeOffset.UtcNow,
+            TrialStartUtc = existing.TrialStartUtc,
+            TrialExpiresUtc = existing.TrialExpiresUtc,
+            TrialRunsLimit = existing.TrialRunsLimit,
+            TrialRunsUsed = existing.TrialRunsUsed,
+            TrialSeatsLimit = existing.TrialSeatsLimit,
+            TrialSeatsUsed = existing.TrialSeatsUsed,
+            TrialStatus = existing.TrialStatus,
+            TrialSampleRunId = existing.TrialSampleRunId,
+        };
+
+        _byId[tenantId] = updated;
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task CommitSelfServiceTrialAsync(
+        Guid tenantId,
+        DateTimeOffset trialStartUtc,
+        DateTimeOffset trialExpiresUtc,
+        int runsLimit,
+        int seatsLimit,
+        Guid sampleRunId,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+            return Task.CompletedTask;
+
+        TenantRecord updated = new()
+        {
+            Id = existing.Id,
+            Name = existing.Name,
+            Slug = existing.Slug,
+            Tier = existing.Tier,
+            EntraTenantId = existing.EntraTenantId,
+            CreatedUtc = existing.CreatedUtc,
+            SuspendedUtc = existing.SuspendedUtc,
+            TrialStartUtc = trialStartUtc,
+            TrialExpiresUtc = trialExpiresUtc,
+            TrialRunsLimit = runsLimit,
+            TrialRunsUsed = 0,
+            TrialSeatsLimit = seatsLimit,
+            TrialSeatsUsed = 1,
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialSampleRunId = sampleRunId,
+        };
+
+        _byId[tenantId] = updated;
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task MarkTrialConvertedAsync(Guid tenantId, CancellationToken ct)
+    {
+        _ = ct;
+
+        if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+            return Task.CompletedTask;
+
+        if (!string.Equals(existing.TrialStatus, TrialLifecycleStatus.Active, StringComparison.Ordinal))
+            return Task.CompletedTask;
+
+        TenantRecord updated = new()
+        {
+            Id = existing.Id,
+            Name = existing.Name,
+            Slug = existing.Slug,
+            Tier = existing.Tier,
+            EntraTenantId = existing.EntraTenantId,
+            CreatedUtc = existing.CreatedUtc,
+            SuspendedUtc = existing.SuspendedUtc,
+            TrialStartUtc = existing.TrialStartUtc,
+            TrialExpiresUtc = existing.TrialExpiresUtc,
+            TrialRunsLimit = existing.TrialRunsLimit,
+            TrialRunsUsed = existing.TrialRunsUsed,
+            TrialSeatsLimit = existing.TrialSeatsLimit,
+            TrialSeatsUsed = existing.TrialSeatsUsed,
+            TrialStatus = TrialLifecycleStatus.Converted,
+            TrialSampleRunId = existing.TrialSampleRunId,
         };
 
         _byId[tenantId] = updated;

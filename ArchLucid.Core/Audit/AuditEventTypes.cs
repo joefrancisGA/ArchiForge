@@ -144,6 +144,12 @@ public static class AuditEventTypes
     /// <summary>Public self-service registration completed (audit complements <see cref="TenantProvisioned"/> on the same flow).</summary>
     public const string TenantSelfRegistered = "TenantSelfRegistered";
 
+    /// <summary>Self-service trial activated with sample data (demo seed + trial window metadata).</summary>
+    public const string TrialProvisioned = "TrialProvisioned";
+
+    /// <summary>Trial marked converted (billing integration stub).</summary>
+    public const string TenantTrialConverted = "TenantTrialConverted";
+
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
     /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.

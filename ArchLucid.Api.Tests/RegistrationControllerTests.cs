@@ -33,6 +33,30 @@ public sealed class RegistrationControllerTests : IClassFixture<GreenfieldSqlApi
         duplicate.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
+    [Fact]
+    public async Task Register_then_trial_status_returns_active_with_sample_run()
+    {
+        using HttpClient client = _fixture.CreateClient();
+        string organizationName = "Trial Org " + Guid.NewGuid().ToString("N");
+
+        using HttpResponseMessage created = await client.PostAsync(
+            "/v1/register",
+            JsonContent(organizationName, "trial@example.com", "Trial User"));
+
+        created.StatusCode.Should().Be(HttpStatusCode.Created);
+        using JsonDocument doc = JsonDocument.Parse(await created.Content.ReadAsStringAsync());
+        Guid tenantId = doc.RootElement.GetProperty("tenantId").GetGuid();
+
+        using HttpRequestMessage statusReq = new(HttpMethod.Get, "/v1/tenant/trial-status");
+        statusReq.Headers.Add("x-tenant-id", tenantId.ToString());
+        using HttpResponseMessage status = await client.SendAsync(statusReq);
+
+        status.StatusCode.Should().Be(HttpStatusCode.OK);
+        using JsonDocument statusDoc = JsonDocument.Parse(await status.Content.ReadAsStringAsync());
+        statusDoc.RootElement.GetProperty("status").GetString().Should().Be("Active");
+        statusDoc.RootElement.GetProperty("trialSampleRunId").GetGuid().Should().NotBeEmpty();
+    }
+
     private static StringContent JsonContent(string organizationName, string adminEmail, string? displayName)
     {
         Dictionary<string, string?> payload = new()

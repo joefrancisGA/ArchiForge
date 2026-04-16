@@ -1,17 +1,21 @@
 namespace ArchLucid.Application.Bootstrap;
 
-/// <summary>Stable keys for the Contoso Retail Modernization trusted-baseline demo (49R pass 2 / Corrected 50R).</summary>
+/// <summary>
+/// Canonical single-catalog keys for the Contoso Retail Modernization trusted-baseline demo (49R pass 2 / Corrected 50R).
+/// For multi-tenant SQL catalogs, persisted demo rows must use <see cref="ContosoRetailDemoIds.ForTenant"/> instead
+/// (global PKs on <c>dbo.Runs</c>, <c>dbo.ArchitectureRequests</c>, <c>dbo.AgentTasks</c>, etc.).
+/// </summary>
 public static class ContosoRetailDemoIdentifiers
 {
     public const string RequestContoso = "request-contoso-demo";
 
-    /// <summary>Authority <c>dbo.Runs.RunId</c> (coordinator string key is the same value as <see cref="Guid.ToString"/> <c>"N"</c>).</summary>
+    /// <summary>Canonical authority <c>dbo.Runs.RunId</c> for brownfield fixtures and documentation (not used for new multi-tenant seeds).</summary>
     public static readonly Guid AuthorityRunBaselineId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
 
-    /// <summary>Second demo authority run (hardened manifest path).</summary>
+    /// <summary>Canonical second demo authority run (hardened manifest path).</summary>
     public static readonly Guid AuthorityRunHardenedId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c502");
 
-    /// <summary>Legacy string run key matching <see cref="Coordinator.Services.CoordinatorService"/> (authority GUID, no dashes).</summary>
+    /// <summary>Canonical legacy string run key (authority GUID, no dashes).</summary>
     public static string RunBaseline { get; } = AuthorityRunBaselineId.ToString("N");
 
     /// <inheritdoc cref="RunBaseline" path="/summary" />

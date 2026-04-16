@@ -42,45 +42,52 @@ public sealed class DemoSeedService(
     /// <inheritdoc />
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        await EnsureRequestAsync(cancellationToken);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        ContosoRetailDemoIds demo = ContosoRetailDemoIds.ForTenant(scope.TenantId);
+
+        await EnsureRequestAsync(demo, cancellationToken);
         await EnsureCommittedRunAsync(
-                ContosoRetailDemoIdentifiers.AuthorityRunBaselineId,
-                DemoIds.TaskBaseline,
-                DemoIds.ResultBaseline,
-                ContosoRetailDemoIdentifiers.ManifestBaseline,
+                demo,
+                demo.AuthorityRunBaselineId,
+                demo.TaskBaseline,
+                demo.ResultBaseline,
+                demo.ManifestBaseline,
+                demo.TraceBaseline,
                 isHardened: false,
                 cancellationToken)
             ;
         await EnsureCommittedRunAsync(
-                ContosoRetailDemoIdentifiers.AuthorityRunHardenedId,
-                DemoIds.TaskHardened,
-                DemoIds.ResultHardened,
-                ContosoRetailDemoIdentifiers.ManifestHardened,
+                demo,
+                demo.AuthorityRunHardenedId,
+                demo.TaskHardened,
+                demo.ResultHardened,
+                demo.ManifestHardened,
+                demo.TraceHardened,
                 isHardened: true,
                 cancellationToken)
             ;
-        await EnsureGovernanceAsync(cancellationToken);
-        await EnsureExportRecordAsync(cancellationToken);
+        await EnsureGovernanceAsync(demo, cancellationToken);
+        await EnsureExportRecordAsync(demo, cancellationToken);
 
         if (logger.IsEnabled(LogLevel.Information))
         {
             logger.LogInformation(
                 "Demo seed completed (Contoso Retail Modernization). Runs: {Baseline}, {Hardened}.",
-                ContosoRetailDemoIdentifiers.RunBaseline,
-                ContosoRetailDemoIdentifiers.RunHardened);
+                demo.RunBaseline,
+                demo.RunHardened);
         }
     }
 
-    private async Task EnsureRequestAsync(CancellationToken cancellationToken)
+    private async Task EnsureRequestAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await requestRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.RequestContoso, cancellationToken) is not null)
+        if (await requestRepository.GetByIdAsync(demo.RequestId, cancellationToken) is not null)
         {
             return;
         }
 
         ArchitectureRequest request = new()
         {
-            RequestId = ContosoRetailDemoIdentifiers.RequestContoso,
+            RequestId = demo.RequestId,
             Description = "Contoso Retail modernization — migrate monolith checkout to Azure with PCI-aware boundaries.",
             SystemName = "Contoso Retail Platform",
             Environment = "prod",
@@ -92,10 +99,12 @@ public sealed class DemoSeedService(
     }
 
     private async Task EnsureCommittedRunAsync(
+        ContosoRetailDemoIds demo,
         Guid authorityRunId,
         string taskId,
         string resultId,
         string manifestVersion,
+        string traceId,
         bool isHardened,
         CancellationToken cancellationToken)
     {
@@ -119,7 +128,7 @@ public sealed class DemoSeedService(
                 ? "Demo — Contoso retail hardened manifest (trusted baseline seed)."
                 : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
-            ArchitectureRequestId = ContosoRetailDemoIdentifiers.RequestContoso,
+            ArchitectureRequestId = demo.RequestId,
             LegacyRunStatus = ArchitectureRunStatus.Created.ToString(),
         };
 
@@ -169,7 +178,7 @@ public sealed class DemoSeedService(
 
         DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload
         {
-            TraceId = isHardened ? DemoIds.TraceHardened : DemoIds.TraceBaseline,
+            TraceId = traceId,
             RunId = legacyRunId,
             EventType = "ManifestCommitted",
             EventDescription = isHardened
@@ -253,15 +262,15 @@ public sealed class DemoSeedService(
         };
     }
 
-    private async Task EnsureGovernanceAsync(CancellationToken cancellationToken)
+    private async Task EnsureGovernanceAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await approvalRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ApprovalRequest, cancellationToken) is null)
+        if (await approvalRepository.GetByIdAsync(demo.ApprovalRequest, cancellationToken) is null)
         {
             GovernanceApprovalRequest approval = new()
             {
-                ApprovalRequestId = ContosoRetailDemoIdentifiers.ApprovalRequest,
-                RunId = ContosoRetailDemoIdentifiers.RunHardened,
-                ManifestVersion = ContosoRetailDemoIdentifiers.ManifestHardened,
+                ApprovalRequestId = demo.ApprovalRequest,
+                RunId = demo.RunHardened,
+                ManifestVersion = demo.ManifestHardened,
                 SourceEnvironment = GovernanceEnvironment.Dev,
                 TargetEnvironment = GovernanceEnvironment.Test,
                 Status = GovernanceApprovalStatus.Approved,
@@ -277,20 +286,20 @@ public sealed class DemoSeedService(
         }
 
         IReadOnlyList<GovernancePromotionRecord> promos =
-            await promotionRepository.GetByRunIdAsync(ContosoRetailDemoIdentifiers.RunHardened, cancellationToken);
+            await promotionRepository.GetByRunIdAsync(demo.RunHardened, cancellationToken);
 
-        if (promos.All(p => p.PromotionRecordId != ContosoRetailDemoIdentifiers.PromotionRecord))
+        if (promos.All(p => p.PromotionRecordId != demo.PromotionRecord))
         {
             GovernancePromotionRecord promotion = new()
             {
-                PromotionRecordId = ContosoRetailDemoIdentifiers.PromotionRecord,
-                RunId = ContosoRetailDemoIdentifiers.RunHardened,
-                ManifestVersion = ContosoRetailDemoIdentifiers.ManifestHardened,
+                PromotionRecordId = demo.PromotionRecord,
+                RunId = demo.RunHardened,
+                ManifestVersion = demo.ManifestHardened,
                 SourceEnvironment = GovernanceEnvironment.Dev,
                 TargetEnvironment = GovernanceEnvironment.Test,
                 PromotedBy = "demo.release@contoso.com",
                 PromotedUtc = DemoUtc.AddHours(3),
-                ApprovalRequestId = ContosoRetailDemoIdentifiers.ApprovalRequest,
+                ApprovalRequestId = demo.ApprovalRequest,
                 Notes = "Demo promotion after approval (trusted baseline seed)."
             };
 
@@ -298,17 +307,17 @@ public sealed class DemoSeedService(
         }
 
         await EnsureActivationAsync(
-                ContosoRetailDemoIdentifiers.ActivationDev,
-                ContosoRetailDemoIdentifiers.RunBaseline,
-                ContosoRetailDemoIdentifiers.ManifestBaseline,
+                demo.ActivationDev,
+                demo.RunBaseline,
+                demo.ManifestBaseline,
                 GovernanceEnvironment.Dev,
                 cancellationToken)
             ;
 
         await EnsureActivationAsync(
-                ContosoRetailDemoIdentifiers.ActivationTest,
-                ContosoRetailDemoIdentifiers.RunHardened,
-                ContosoRetailDemoIdentifiers.ManifestHardened,
+                demo.ActivationTest,
+                demo.RunHardened,
+                demo.ManifestHardened,
                 GovernanceEnvironment.Test,
                 cancellationToken)
             ;
@@ -343,17 +352,17 @@ public sealed class DemoSeedService(
     }
 
     /// <summary>Optional export <strong>history</strong> row for demos — not wired to consulting DOCX replay (no AnalysisRequestJson).</summary>
-    private async Task EnsureExportRecordAsync(CancellationToken cancellationToken)
+    private async Task EnsureExportRecordAsync(ContosoRetailDemoIds demo, CancellationToken cancellationToken)
     {
-        if (await runExportRecordRepository.GetByIdAsync(ContosoRetailDemoIdentifiers.ExportRecord, cancellationToken) is not null)
+        if (await runExportRecordRepository.GetByIdAsync(demo.ExportRecord, cancellationToken) is not null)
         {
             return;
         }
 
         RunExportRecord record = new()
         {
-            ExportRecordId = ContosoRetailDemoIdentifiers.ExportRecord,
-            RunId = ContosoRetailDemoIdentifiers.RunBaseline,
+            ExportRecordId = demo.ExportRecord,
+            RunId = demo.RunBaseline,
             ExportType = "ArchitectureAnalysis",
             Format = "Markdown",
             FileName = "contoso-baseline-architecture.md",
@@ -361,7 +370,7 @@ public sealed class DemoSeedService(
             TemplateProfileDisplayName = "Internal Technical Review",
             WasAutoSelected = false,
             ResolutionReason = "Demo seed export snapshot.",
-            ManifestVersion = ContosoRetailDemoIdentifiers.ManifestBaseline,
+            ManifestVersion = demo.ManifestBaseline,
             Notes = "Seeded by ArchLucid trusted baseline demo (export history only).",
             IncludedManifest = true,
             IncludedSummary = true,
@@ -369,15 +378,5 @@ public sealed class DemoSeedService(
         };
 
         await runExportRecordRepository.CreateAsync(record, cancellationToken);
-    }
-
-    private static class DemoIds
-    {
-        public const string TaskBaseline = "task-baseline-demo-topo";
-        public const string TaskHardened = "task-hardened-demo-topo";
-        public const string ResultBaseline = "result-baseline-demo-topo";
-        public const string ResultHardened = "result-hardened-demo-topo";
-        public const string TraceBaseline = "trace-baseline-demo-001";
-        public const string TraceHardened = "trace-hardened-demo-001";
     }
 }
