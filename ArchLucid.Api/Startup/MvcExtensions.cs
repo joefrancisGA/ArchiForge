@@ -57,6 +57,10 @@ internal static class MvcExtensions
             options.DefaultApiVersion = new ApiVersion(1, 0);
             options.AssumeDefaultVersionWhenUnspecified = true;
             options.ReportApiVersions = true;
+            options.ApiVersionReader = ApiVersionReader.Combine(
+                new UrlSegmentApiVersionReader(),
+                new QueryStringApiVersionReader("api-version"),
+                new HeaderApiVersionReader("api-version"));
         }).AddMvc().AddApiExplorer(options =>
         {
             options.GroupNameFormat = "'v'VVV";

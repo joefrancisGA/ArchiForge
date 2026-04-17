@@ -27207,6 +27207,44 @@ namespace ArchLucid.Api.Client.Generated
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class FindingEngineFailure
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineType")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string EngineType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("category")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string Category { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("errorMessage")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ErrorMessage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("exceptionType")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string ExceptionType { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("durationMs")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^-?(?:0|[1-9]\d*)$")]
+        public long DurationMs { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("occurredUtc")]
+        public System.DateTimeOffset OccurredUtc { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class FindingExplainabilityResult
     {
 
@@ -27318,6 +27356,9 @@ namespace ArchLucid.Api.Client.Generated
 
         [System.Text.Json.Serialization.JsonPropertyName("createdUtc")]
         public System.DateTimeOffset CreatedUtc { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("engineFailures")]
+        public System.Collections.Generic.ICollection<FindingEngineFailure> EngineFailures { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("findings")]
         public System.Collections.Generic.ICollection<Finding> Findings { get; set; }

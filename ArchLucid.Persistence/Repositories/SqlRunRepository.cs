@@ -380,6 +380,31 @@ public sealed class SqlRunRepository(
                 WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
             END;
 
+            IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.ArtifactBundles
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.AgentExecutionTraces
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE ArchivedUtc IS NULL
+                  AND TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived);
+            END;
+
+            IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.ComparisonRecords
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE ArchivedUtc IS NULL
+                  AND (
+                      TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived)
+                      OR TRY_CAST(RightRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived));
+            END;
+
             SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;
             """;
 
@@ -519,6 +544,31 @@ public sealed class SqlRunRepository(
                 UPDATE dbo.DecisioningTraces
                 SET ArchivedUtc = SYSUTCDATETIME()
                 WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.ArtifactBundles
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE RunId IN (SELECT RunId FROM @Archived) AND ArchivedUtc IS NULL;
+            END;
+
+            IF COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.AgentExecutionTraces
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE ArchivedUtc IS NULL
+                  AND TRY_CAST(RunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived);
+            END;
+
+            IF COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NOT NULL
+            BEGIN
+                UPDATE dbo.ComparisonRecords
+                SET ArchivedUtc = SYSUTCDATETIME()
+                WHERE ArchivedUtc IS NULL
+                  AND (
+                      TRY_CAST(LeftRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived)
+                      OR TRY_CAST(RightRunId AS UNIQUEIDENTIFIER) IN (SELECT RunId FROM @Archived));
             END;
 
             SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @Archived;

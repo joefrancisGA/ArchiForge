@@ -4,7 +4,11 @@ using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
 
+using Dapper;
+
 using FluentAssertions;
+
+using Microsoft.Data.SqlClient;
 
 namespace ArchLucid.Persistence.Tests;
 
@@ -63,8 +67,16 @@ public sealed class SqlRunRepositoryArchiveByIdsConcurrencyTests(SqlServerPersis
         int archiveWins = results.Sum(r => r.SucceededRunIds.Count(id => id == runId));
         archiveWins.Should().Be(1, "only one archive batch should succeed for the same unarchived run row");
 
-        RunRecord? loaded = await repo.GetByIdAsync(scope, runId, CancellationToken.None);
-        loaded.Should().NotBeNull();
-        loaded!.ArchivedUtc.Should().NotBeNull();
+        // GetByIdAsync excludes archived rows (ArchivedUtc IS NULL); assert persistence via dbo.Runs.
+        await using SqlConnection verify = new(fixture.ConnectionString);
+        await verify.OpenAsync(CancellationToken.None);
+
+        DateTime? archivedUtc = await verify.QuerySingleOrDefaultAsync<DateTime?>(
+            new CommandDefinition(
+                "SELECT ArchivedUtc FROM dbo.Runs WHERE RunId = @RunId;",
+                new { RunId = runId },
+                cancellationToken: CancellationToken.None));
+
+        archivedUtc.Should().NotBeNull("dbo.Runs should carry ArchivedUtc after exactly one winning archive");
     }
 }

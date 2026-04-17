@@ -242,6 +242,12 @@ BEGIN
 END
 GO
 
+/* Brownfield: soft-archive on dbo.AgentExecutionTraces (DbUp 073 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.AgentExecutionTraces', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.AgentExecutionTraces ADD ArchivedUtc DATETIME2 NULL;
+GO
+
 /* ---- AgentOutputEvaluationResults (reference-case scores) ---- */
 
 IF OBJECT_ID(N'dbo.AgentOutputEvaluationResults', N'U') IS NULL
@@ -335,6 +341,12 @@ BEGIN
         INDEX IX_ComparisonRecords_Label NONCLUSTERED (Label) WHERE (Label IS NOT NULL)
     );
 END
+GO
+
+/* Brownfield: soft-archive on dbo.ComparisonRecords (DbUp 073 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.ComparisonRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ComparisonRecords', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.ComparisonRecords ADD ArchivedUtc DATETIME2 NULL;
 GO
 
 /* ---- Decision Engine v2 ---- */
@@ -1223,6 +1235,12 @@ BEGIN
           AND c.is_nullable = 0)
         ALTER TABLE dbo.ArtifactBundles ALTER COLUMN TraceJson NVARCHAR(MAX) NULL;
 END;
+GO
+
+/* Brownfield: soft-archive on dbo.ArtifactBundles (DbUp 073 parity; cascaded when dbo.Runs bulk-archive). */
+IF OBJECT_ID(N'dbo.ArtifactBundles', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.ArtifactBundles', N'ArchivedUtc') IS NULL
+    ALTER TABLE dbo.ArtifactBundles ADD ArchivedUtc DATETIME2 NULL;
 GO
 
 -- Relational artifact bundle slices (dual-write with ArtifactsJson / TraceJson on dbo.ArtifactBundles).

@@ -5,6 +5,7 @@
 ## API versioning
 
 - **URL path:** Major version is in the path: **`/v1/...`** (see controller routes `v{version:apiVersion}`).
+- **Alternate readers:** Clients may also send **`api-version`** as a query string or request header (same major.minor as the URL segment, e.g. **`1.0`**) — wired in **`ArchLucid.Api/Startup/MvcExtensions.cs`** via **`ApiVersionReader.Combine`** alongside **`UrlSegmentApiVersionReader`**.
 - **Default:** Version **1.0** is assumed when not specified; clients should still use **`/v1`** in URLs.
 - **Discovery:** Responses can include **`api-supported-versions`** / **`api-deprecated-versions`** per [Asp.Versioning](https://github.com/dotnet/aspnet-api-versioning) options (`ReportApiVersions`).
 
