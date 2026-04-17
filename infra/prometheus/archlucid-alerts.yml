@@ -139,3 +139,5 @@ groups:
             Counter `archlucid_explanation_aggregate_faithfulness_fallback_total` rose more than three times in 1h.
             Stakeholder aggregate explanations may be substituting deterministic narrative for LLM text; review
             finding trace completeness and explanation quality. Tune threshold per environment.
+            Operator context: docs/EXPLAINABILITY_TRACE_COVERAGE.md; API narrative field: OpenAPI
+            `FindingExplainabilityResult.narrativeText` (see docs/API_ERROR_CONTRACT.md for error shape elsewhere).

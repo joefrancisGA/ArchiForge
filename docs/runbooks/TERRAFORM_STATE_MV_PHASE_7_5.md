@@ -1,10 +1,10 @@
 # Runbook: Terraform `state mv` for Phase 7.5 (`archiforge` resource addresses)
 
-**Last reviewed:** 2026-04-16
+**Last reviewed:** 2026-04-17
 
 ## Objective
 
-Rename **Terraform resource addresses** that still contain the historical token **`archiforge`** to **`archlucid`** (or another chosen label) **without** destroying cloud objects — using **`terraform state mv`** **or** Terraform **`moved`** blocks (root **`infra/terraform`** APIM resources: see **`moved_archlucid_apim.tf`**).
+Rename **Terraform resource addresses** that still contain the historical token **`archiforge`** to **`archlucid`** (or another chosen label) **without** destroying cloud objects — using **`terraform state mv`** **or** Terraform **`moved`** blocks (root **`infra/terraform`**: **`moved_archlucid_apim.tf`**; **`infra/terraform-monitoring`**: **`moved_archlucid_monitoring.tf`**).
 
 ## Preconditions
 
@@ -37,6 +37,8 @@ terraform state mv 'azurerm_api_management_api.archiforge[0]' 'azurerm_api_manag
 | `azurerm_dashboard_grafana.archiforge[0]` | `azurerm_dashboard_grafana.archlucid[0]` |
 | `grafana_folder.archiforge[0]` | `grafana_folder.archlucid[0]` |
 | `azurerm_monitor_alert_prometheus_rule_group.archiforge_slo[0]` | `azurerm_monitor_alert_prometheus_rule_group.archlucid_slo[0]` |
+
+**IaC `moved` blocks (preferred for Terraform ≥ 1.5):** repo includes **`infra/terraform-monitoring/moved_archlucid_monitoring.tf`** paired with **`archlucid`** resource labels — on the next `terraform plan`, state rewrites without replacing Grafana / rule group resources. The imperative commands below remain valid for older workflows.
 
 ```bash
 terraform state mv 'azurerm_dashboard_grafana.archiforge[0]' 'azurerm_dashboard_grafana.archlucid[0]'

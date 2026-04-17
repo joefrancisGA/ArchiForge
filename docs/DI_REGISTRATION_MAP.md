@@ -17,6 +17,7 @@
 | `Startup/ServiceCollectionExtensions.Decisioning.cs` | Finding engines, decision engine, manifest builders/validators |
 | `Startup/ServiceCollectionExtensions.CoordinatorAndArtifacts.cs` | Coordinator, decision engine services, **`ArchLucid.Persistence.Data.Repositories`** for runs/tasks/manifests, artifact synthesis |
 | `Startup/ServiceCollectionExtensions.AgentsGovernanceRetrieval.cs` | Agent execution (Simulator vs Real), governance repos, retrieval + embeddings |
+| `Startup/ServiceCollectionExtensions.CosmosPolyglotPersistence.cs` | Optional **`CosmosDb`** graph / agent traces / audit when flags enabled — **`RegisterCosmosPolyglotPersistence`** (runs last so registrations can override SQL defaults) |
 
 ---
 
@@ -41,12 +42,14 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 15. **`RegisterCoordinatorDecisionEngineAndRepositories`** — gated workflow repos (`ArchLucid.Persistence.Data.Repositories`) by **`StorageProvider`**; **`IRunExplanationSummaryService`** — see **`CachingRunExplanationSummaryService`** below
 16. **`RegisterArtifactSynthesis`**
 17. **`RegisterAgentExecution`** → **`AgentExecution:Mode`** (`Simulator` vs Real), `AzureOpenAI:*`, **`ArchLucid:FallbackLlm`** (optional), `LlmTokenQuota`, `LlmTelemetry`, `AgentPromptCatalog`
-18. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
-19. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
+18. **`RegisterRetrieval`** → `Retrieval:VectorIndex` (`AzureSearch` vs in-memory), `AzureOpenAI:Embedding*`, `AzureOpenAI:CircuitBreaker`
+19. **`RegisterGovernance`** → **`ArchLucid:StorageProvider`** for governance repos (InMemory singletons vs SQL scoped)
 20. **`RegisterRetrievalIndexingOutbox`** — **role:** `Combined` \| `Worker` → hosted outbox + authority pipeline work processors
 21. **`RegisterIntegrationEventOutbox`** — **role:** `Combined` \| `Worker` → `IntegrationEventOutboxHostedService`
-22. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`
-23. **`RegisterArchLucidHealthChecks`** — SQL, schema, compliance pack, blob, temp dir; archival check when worker/combined
+22. **`RegisterIntegrationEventConsumer`** — **role:** `Worker` only — **`AzureServiceBusIntegrationEventConsumer`** + **`LoggingIntegrationEventHandler`** when Service Bus consumption is enabled (**`ServiceCollectionExtensions.SchedulingAndAlerts.cs`**)
+23. **`RegisterDataArchivalHostedService`** — **role:** `Combined` \| `Worker`
+24. **`RegisterArchLucidHealthChecks`** — SQL, schema, compliance pack, blob, temp dir; archival check when worker/combined
+25. **`RegisterCosmosPolyglotPersistence`** — optional Cosmos overrides when **`CosmosDb:*`** features enabled (**`ServiceCollectionExtensions.CosmosPolyglotPersistence.cs`**); invoked **after** health checks so last registration wins for overlapping repository ports
 
 ---
 
@@ -66,7 +69,7 @@ Cross-cutting options bound on the main partial (not exhaustive): `Demo`, `Batch
 
 ### `Sql` (default production shape)
 
-- **`ConnectionStrings:ArchLucid`** required (legacy fallback: **`ConnectionStrings:ArchLucid`**)
+- **`ConnectionStrings:ArchLucid`** required (see host configuration docs for any deprecated key warnings at startup)
 - **`SqlServer`** section — RLS session context, read-replica routing (`ReadReplicaRoutedConnectionFactory` for list/governance/manifest lookup routes)
 - **`ISqlConnectionFactory`** — resilient open + optional `SessionContextSqlConnectionFactory`
 - Dapper/SQL implementations for the same repository surface as InMemory

@@ -1,4 +1,4 @@
-# NOTE: Resource addresses in this module may still use the historical `archiforge` token to avoid Terraform state disruption.
+# Grafana / folder / Prometheus rule group addresses use `archlucid`; see moved_archlucid_monitoring.tf for state migration.
 # Rename via `terraform state mv` during a planned maintenance window.
 # Tracked in docs/ARCHLUCID_RENAME_CHECKLIST.md Phase 7.5.
 #
@@ -98,7 +98,7 @@ resource "azurerm_monitor_metric_alert" "worker_container_cpu_high" {
   tags = var.tags
 }
 
-resource "azurerm_dashboard_grafana" "archiforge" {
+resource "azurerm_dashboard_grafana" "archlucid" {
   count = var.enable_managed_grafana ? 1 : 0
 
   name                              = var.grafana_name

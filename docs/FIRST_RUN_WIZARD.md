@@ -6,7 +6,7 @@
 
 **Operator checklist (no screenshots):** **[FIRST_RUN_WALKTHROUGH.md](FIRST_RUN_WALKTHROUGH.md)**
 
-**Last reviewed:** 2026-04-15
+**Last reviewed:** 2026-04-17
 
 ---
 
@@ -17,7 +17,7 @@
 | Seven-step wizard (`/runs/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). |
 | Starter presets (greenfield / modernize / blank) | **Shipped** — see `WizardStepPreset` and preset merge logic. |
 | Live pipeline tracking (step 7) | **Shipped** — `RunProgressTracker` + polling against run detail APIs. |
-| Playwright / Vitest coverage | Partial — extend `archlucid-ui` tests when UX changes; see `archlucid-ui/src/app/runs/new/`. |
+| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/runs/new/*.test.tsx`; E2E smoke: **`archlucid-ui/e2e/first-run-wizard.spec.ts`** (`/runs/new` heading + intro copy). Extend when wizard steps change materially. |
 
 ---
 

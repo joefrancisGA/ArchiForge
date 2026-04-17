@@ -6,6 +6,8 @@
 
 **Not a substitute for:** Full requirements management tooling, 100% test enumeration, or contractual compliance matrices.
 
+**Last reviewed:** 2026-04-17 (integration outbox NFR row).
+
 ---
 
 ## Traceability matrix
@@ -34,6 +36,7 @@ V1_SCOPE emphasizes functional clauses **2.1–2.10**; the rows below map **cros
 | NFR theme | Primary docs | Representative tests / automation | Notes |
 |-----------|----------------|-------------------------------------|--------|
 | **Reliability** | [`RESILIENCE_CONFIGURATION.md`](RESILIENCE_CONFIGURATION.md), [`DEGRADED_MODE.md`](DEGRADED_MODE.md), [`OBSERVABILITY.md`](OBSERVABILITY.md) | `Suite=Core` persistence + outbox tests; `FullyQualifiedName~CircuitBreaker`; `FullyQualifiedName~IntegrationEventOutbox`; `FullyQualifiedName~DualPersistenceRowReconciliation` | Circuit breakers, SQL open retries, outbox convergence, dual-write reconciliation — not a formal SRE error budget in V1 RTM. |
+| **Integration event outbox (async delivery)** | [`API_SLOS.md`](API_SLOS.md) § Outbox convergence, [`INTEGRATION_EVENT_CATALOG.md`](INTEGRATION_EVENT_CATALOG.md) | `FullyQualifiedName~IntegrationEventOutboxProcessorTests`; `FullyQualifiedName~IntegrationEventOutbox`; hosted **`IntegrationEventOutboxHostedService`** | **SLI:** recording series **`archlucid:slo:integration_event_outbox_oldest_age_seconds`** (see **`infra/prometheus/archlucid-slo-rules.yml`**); **alert:** `ArchLucidIntegrationEventOutboxConvergenceSlow` in **`infra/prometheus/archlucid-alerts.yml`**. **Terraform (optional):** managed Prometheus rules mirror depth in **`infra/terraform-monitoring/prometheus_slo_rules.tf`** (`ArchLucidSloOutboxDepthCriticalTf`). |
 | **Security** | [`SECURITY.md`](SECURITY.md), [`SYSTEM_THREAT_MODEL.md`](security/SYSTEM_THREAT_MODEL.md), [`MULTI_TENANT_RLS.md`](security/MULTI_TENANT_RLS.md) | `ArchLucid.Host.Composition.Tests` (`AuthSafetyGuardTests`, `ArchLucidAuthorizationPoliciesRegistrationTests`); `FullyQualifiedName~RlsArchLucidScope` | Auth defaults, RBAC, RLS — pilot auth modes in **2.9** overlap but do not replace threat-model review. |
 | **Performance / capacity** | [`PERFORMANCE_TESTING.md`](PERFORMANCE_TESTING.md), [`LOAD_TEST_BASELINE.md`](LOAD_TEST_BASELINE.md), [`CAPACITY_AND_COST_PLAYBOOK.md`](CAPACITY_AND_COST_PLAYBOOK.md) | `.github/workflows/ci.yml` (`k6-smoke-api`, `k6-ci-smoke`); `tests/load/*.js` | Merge-blocking k6 thresholds are environment-tuned; V1_SCOPE does not mandate universal perf benchmarks. |
 

@@ -5,17 +5,17 @@ output "action_group_id" {
 
 output "grafana_endpoint" {
   description = "HTTPS endpoint for Azure Managed Grafana (null when disabled)."
-  value       = try(azurerm_dashboard_grafana.archiforge[0].endpoint, null)
+  value       = try(azurerm_dashboard_grafana.archlucid[0].endpoint, null)
 }
 
 output "grafana_principal_id" {
   description = "System-assigned managed identity principal ID for Grafana (for Azure Monitor / Log Analytics role assignments)."
-  value       = try(azurerm_dashboard_grafana.archiforge[0].identity[0].principal_id, null)
+  value       = try(azurerm_dashboard_grafana.archlucid[0].identity[0].principal_id, null)
 }
 
 output "prometheus_slo_rule_group_id" {
   description = "Azure Monitor Prometheus rule group resource ID when enable_prometheus_slo_rule_group is true."
-  value       = try(azurerm_monitor_alert_prometheus_rule_group.archiforge_slo[0].id, null)
+  value       = try(azurerm_monitor_alert_prometheus_rule_group.archlucid_slo[0].id, null)
 }
 
 output "application_insights_connection_string" {

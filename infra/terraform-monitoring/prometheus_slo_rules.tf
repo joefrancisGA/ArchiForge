@@ -11,7 +11,7 @@ data "azurerm_resource_group" "prometheus_slo" {
   name  = var.resource_group_name
 }
 
-resource "azurerm_monitor_alert_prometheus_rule_group" "archiforge_slo" {
+resource "azurerm_monitor_alert_prometheus_rule_group" "archlucid_slo" {
   count = local.prometheus_slo_rule_group_enabled ? 1 : 0
 
   name                = "${var.name_prefix}-prom-slo"

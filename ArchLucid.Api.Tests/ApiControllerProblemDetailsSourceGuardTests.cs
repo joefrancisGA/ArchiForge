@@ -5,7 +5,8 @@ using FluentAssertions;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Regression guard: versioned API controllers should not return bare MVC <c>NotFound()</c> / <c>Conflict</c> without RFC 9457 Problem Details (see <c>docs/API_ERROR_CONTRACT.md</c>).
+/// Regression guard: versioned API controllers should not return bare MVC <c>NotFound()</c> / <c>Conflict</c>,
+/// bare numeric <c>StatusCode(404)</c>, or <c>StatusCode(StatusCodes.Status404NotFound)</c> without RFC 9457 Problem Details (see <c>docs/API_ERROR_CONTRACT.md</c>).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
@@ -47,6 +48,9 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
         Regex returnConflict = new(@"\breturn\s+Conflict\s*\(", RegexOptions.CultureInvariant);
         Regex returnBadRequest = new(@"\breturn\s+BadRequest\s*\(", RegexOptions.CultureInvariant);
         Regex bareStatusCode = new(@"\breturn\s+StatusCode\s*\(\s*\d+\s*\)\s*;", RegexOptions.CultureInvariant);
+        Regex statusCodeNamed404 = new(
+            @"\breturn\s+StatusCode\s*\(\s*StatusCodes\.Status404NotFound\s*\)\s*;",
+            RegexOptions.CultureInvariant);
         Regex objectResultWithStatus = new(@"new\s+ObjectResult\s*\([^)]*\)\s*\{[^}]*StatusCode\s*=", RegexOptions.CultureInvariant);
         List<string> violations = [];
 
@@ -72,6 +76,12 @@ public sealed class ApiControllerProblemDetailsSourceGuardTests
             if (bareStatusCode.IsMatch(text))
             {
                 violations.Add($"{file}: bare StatusCode(nnn) — use Problem/IActionResult factory per docs/API_ERROR_CONTRACT.md");
+            }
+
+            if (statusCodeNamed404.IsMatch(text))
+            {
+                violations.Add(
+                    $"{file}: return StatusCode(StatusCodes.Status404NotFound) — use NotFoundProblem per RFC 9457");
             }
 
             if (objectResultWithStatus.IsMatch(text))
