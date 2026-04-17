@@ -19,7 +19,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -41,7 +41,7 @@ jobs:
             -o "${RUNNER_TEMP}/nuget" \
             /p:ArchLucidApiClientPackageVersion=${{ inputs.package_version }}
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: archlucid-api-client-nupkg
           path: ${{ runner.temp }}/nuget/*.nupkg

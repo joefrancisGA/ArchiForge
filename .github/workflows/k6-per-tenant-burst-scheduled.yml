@@ -31,7 +31,7 @@ jobs:
           --health-start-period 20s
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -76,7 +76,7 @@ jobs:
 
       - name: Upload k6 per-tenant burst summary
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: k6-per-tenant-burst-summary
           path: ${{ runner.temp }}/k6-per-tenant-burst-summary.json
@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload k6 burst API log
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: k6-per-tenant-burst-api-log
           path: ${{ runner.temp }}/k6-burst-api.log

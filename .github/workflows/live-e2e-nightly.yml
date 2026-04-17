@@ -32,7 +32,7 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -107,7 +107,7 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-live-e2e-developmentbypass-log
@@ -134,7 +134,7 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -214,7 +214,7 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-live-e2e-apikey-log
@@ -241,7 +241,7 @@ jobs:
           --health-retries 20
           --health-start-period 20s
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-dotnet@v5.2.0
         with:
@@ -252,7 +252,7 @@ jobs:
             global.json
             **/*.csproj
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -342,7 +342,7 @@ jobs:
           npx playwright install --with-deps chromium
           npx playwright test
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-live-e2e-jwt-log
