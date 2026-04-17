@@ -152,6 +152,12 @@ run_one_attempt() {
   head -c 200 "$tmp/openapi.txt"
   echo ""
 
+  if ! jq -e '.info != null and (.info.title | type == "string") and (.info.title | length) > 0' "$tmp/openapi.txt" >/dev/null 2>&1; then
+    dump_body "$tmp/openapi.txt" 2048
+    annotate_error "/openapi/v1.json missing a non-empty .info.title (contract sanity for CD)"
+    return 1
+  fi
+
   echo ""
   echo "---- GET $BASE/version ----"
   code=$(http_get "$BASE/version" "$tmp/version.txt") || {

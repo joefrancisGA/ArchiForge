@@ -20,7 +20,7 @@
 
 | Blocker | Where |
 |---------|--------|
-| Azure topology map | [DEPLOYMENT_TERRAFORM.md](../DEPLOYMENT_TERRAFORM.md), [GOLDEN_PATH.md](../GOLDEN_PATH.md) Phase 3 |
+| Azure topology map | [DEPLOYMENT_TERRAFORM.md](../DEPLOYMENT_TERRAFORM.md) (Terraform roots + order), [DEPLOYMENT.md](../DEPLOYMENT.md) |
 | Observability | [BUILD.md](../BUILD.md) (OpenTelemetry meter), [runbooks/SLO_PROMETHEUS_GRAFANA.md](../runbooks/SLO_PROMETHEUS_GRAFANA.md) |
 | Operator commands | [OPERATOR_QUICKSTART.md](../OPERATOR_QUICKSTART.md) |
 

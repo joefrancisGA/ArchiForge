@@ -45,6 +45,7 @@
   <!-- DbUp: DatabaseMigrator includes only resources whose name contains ".Migrations." (see DatabaseMigrator.cs). -->
   <ItemGroup>
     <EmbeddedResource Include="Migrations\*.sql" />
+    <EmbeddedResource Include="Migrations\Baseline\*.sql" />
   </ItemGroup>
 
   <ItemGroup>

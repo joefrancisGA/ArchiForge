@@ -310,3 +310,19 @@ Add an optional pre-commit governance gate that blocks `POST /v1/architecture/ru
 - Prompts reference specific files, patterns, and conventions from the ArchLucid codebase so the agent has maximum context.
 - Each prompt includes constraints to prevent common pitfalls (breaking existing tests, changing unrelated code, etc.).
 - The prompts are ordered by priority from the quality assessment (highest weighted impact first).
+
+---
+
+## Implementation status (as of 2026-04-17)
+
+Prompts **2–6** below were **executed in prior work**; this table is the canonical “where it landed” map. Re-run verification after large refactors.
+
+| Prompt | Intent (original spec) | Where it lives in the repo | Notes vs original fenced spec |
+|--------|------------------------|------------------------------|--------------------------------|
+| **2** | Full prompt/response blob pointers + model metadata; config-gated persistence; migration; tests; `AGENT_TRACE_FORENSICS.md` | `ArchLucid.Contracts/Agents/AgentExecutionTrace.cs`; `ArchLucid.AgentRuntime/AgentExecutionTraceRecorder.cs`; `ArchLucid.Persistence/Migrations/053_AgentExecutionTrace_FullPromptBlobKeys.sql` (+ later **`062`** inline forensic columns per `CHANGELOG.md`); `docs/AGENT_TRACE_FORENSICS.md`, `docs/OBSERVABILITY.md`; `AgentExecutionTraceRecorderReproTests` | Spec cited migration **`052`**; shipped as **`053`** (+ **`062`**). **`PersistFullPrompts`** / storage defaults evolved—trust **`appsettings*.json`** + `AgentExecutionTraceStorageOptions` + CHANGELOG over this prompt’s literal defaults. |
+| **3** | Read-only k6 smoke, scenarios + thresholds, CI job, `PERFORMANCE_TESTING.md` | `tests/load/smoke.js`; `docs/PERFORMANCE_TESTING.md`; `.github/workflows/ci.yml` jobs **`k6-smoke-api`** (operator path) and **`k6-ci-smoke`** (read+write baseline) | Paths use **`/v1/architecture/runs`** and **`take=`** on audit search to match current API; job names differ from the placeholder string in the prompt. |
+| **4** | Core `dbo.AuditEvents` on comparison persist + richer `/audit` UI | `ExportsController.CompareExportRecordsSummary` → **`AuditEventTypes.ComparisonSummaryPersisted`** + `DataJson`; `archlucid-ui/src/app/audit/page.tsx` + `audit-ui-helpers.ts`; `docs/AUDIT_COVERAGE_MATRIX.md` | Spec suggested **`ReplayExportRecorded`**; product uses **`ComparisonSummaryPersisted`** (clearer semantics). |
+| **5** | `NEXT_REFACTORINGS` triage + Phase 7.5 runbook (docs only) | `docs/NEXT_REFACTORINGS.md` (short active table + pointer to **`docs/archive/NEXT_REFACTORINGS_ARCHIVE_2026_04_15.md`**); **`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`**; `docs/ARCHLUCID_RENAME_CHECKLIST.md` §7.5 “runbook ready” | Execution of **`terraform state mv`** / remote **`plan`** remains **operator-owned** when Azure state exists. |
+| **6** | Optional pre-commit governance gate + migration + docs | `ArchLucid.Contracts/Governance/IPreCommitGovernanceGate.cs`, `PreCommitGateResult.cs`; `ArchLucid.Application/Governance/PreCommitGovernanceGate.cs`; `ArchitectureRunCommitOrchestrator`; `ArchLucid.Persistence/Migrations/054_*` (policy assignment **`BlockCommitOnCritical`**); `docs/PRE_COMMIT_GOVERNANCE_GATE.md`, `docs/API_CONTRACTS.md`; tests under **`PreCommitGovernanceGateTests`**, **`ArchitectureRunCommitPipelineIntegrationTests`**, **`ArchitectureRunServiceExecuteCommitTests`** | Spec cited migration **`053`** for policy column; shipped as **`054`** sequence. |
+
+**Prompt 1** in this file (live-API Playwright + CI job) is **separate**; track in `docs/TEST_STRUCTURE.md` / `archlucid-ui/e2e/` if you extend it.

@@ -11,6 +11,7 @@ Reduce time-to-orientation for a developer or SRE by listing **high-signal paths
 ## 3. Constraints
 
 - This map is **not** exhaustive; grep and `docs/DI_REGISTRATION_MAP.md` fill gaps.
+- **Change checklist (controller → app → SQL → audit):** [GOLDEN_CHANGE_PATH.md](GOLDEN_CHANGE_PATH.md).
 
 ## 4. Architecture overview
 

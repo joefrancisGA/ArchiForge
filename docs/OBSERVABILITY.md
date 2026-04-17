@@ -186,6 +186,17 @@ Import paths and Terraform wiring: [runbooks/SLO_PROMETHEUS_GRAFANA.md](runbooks
 
 ---
 
+## Prometheus alerts (explainability)
+
+**`infra/prometheus/archlucid-alerts.yml`** — group **`archlucid-explainability`**:
+
+- **`ArchLucidExplanationFaithfulnessFallbackTrend`** — spikes in aggregate faithfulness fallbacks (deterministic narrative substitution).
+- **`ArchLucidExplainabilityTraceCompletenessP10Low`** — 10th percentile of **`archlucid_explainability_trace_completeness_ratio`** below **0.35** over a sustained window (tune per environment; requires histogram buckets in Prometheus).
+
+See [EXPLAINABILITY_TRACE_COVERAGE.md](EXPLAINABILITY_TRACE_COVERAGE.md).
+
+---
+
 ## Related documents
 
 - [PERFORMANCE.md](PERFORMANCE.md) — hot-path caching (including aggregate explanation summary TTL and invalidation).

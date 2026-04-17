@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { OnboardingWizardClient } from "@/components/OnboardingWizardClient";
+
 export const metadata: Metadata = {
   title: "Onboarding",
   description: "Guided first steps for operators using the ArchLucid UI shell.",
@@ -23,6 +25,9 @@ export default function OnboardingPage() {
         </Link>
         — then use the links below for deeper areas.
       </p>
+      <div className="mb-10">
+        <OnboardingWizardClient />
+      </div>
       <h1 style={{ marginBottom: 8 }}>Operator onboarding</h1>
       <p style={{ maxWidth: 720, color: "#334155", lineHeight: 1.55, marginBottom: 24 }}>
         Follow these steps once per environment. Each item opens the matching area in the app or documentation.

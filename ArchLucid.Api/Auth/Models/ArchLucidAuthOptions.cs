@@ -42,4 +42,10 @@ public class ArchLucidAuthOptions
 
     /// <summary><c>aud</c> claim value when using <see cref="JwtSigningPublicKeyPemPath"/>.</summary>
     public string JwtLocalAudience { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When true in Production, <see cref="Mode"/> must be <c>JwtBearer</c> (Entra / OIDC). Use for regulated SaaS
+    /// tenants that disallow API-key authentication in production; default is false so ApiKey remains valid for pilots.
+    /// </summary>
+    public bool RequireJwtBearerInProduction { get; set; }
 }

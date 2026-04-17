@@ -17,7 +17,7 @@
 | Seven-step wizard (`/runs/new`) | **Shipped** — preset → identity → description → constraints → advanced → review → track (`WizardStep*` + `NewRunWizardClient`). |
 | Starter presets (greenfield / modernize / blank) | **Shipped** — see `WizardStepPreset` and preset merge logic. |
 | Live pipeline tracking (step 7) | **Shipped** — `RunProgressTracker` + polling against run detail APIs. |
-| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/runs/new/*.test.tsx`; E2E smoke: **`archlucid-ui/e2e/first-run-wizard.spec.ts`** (`/runs/new` heading + intro copy). Extend when wizard steps change materially. |
+| Playwright / Vitest coverage | **Partial** — Vitest: `archlucid-ui/src/app/runs/new/*.test.tsx`; E2E smoke: **`archlucid-ui/e2e/first-run-wizard.spec.ts`** (`/runs/new` heading + intro copy). **`/onboarding`** adds **`OnboardingWizardClient`** (auth / connection / storage checklist with localStorage progress). Extend when wizard steps change materially. |
 
 ---
 

@@ -77,6 +77,7 @@ flowchart LR
 
 ## Related docs
 
+- **`docs/REFERENCE_SAAS_STACK_ORDER.md`** — recommended **Terraform apply order** (private networking → data → compute → edge → monitoring).
 - `docs/RTO_RPO_TARGETS.md` — RTO/RPO targets by environment tier (SQL HA, drills).
 - `docs/CONTAINERIZATION.md` — Docker images and local compose.
 - `infra/terraform/README.md` — APIM-specific variables and OpenAPI import.

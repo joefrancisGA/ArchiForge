@@ -141,3 +141,20 @@ groups:
             finding trace completeness and explanation quality. Tune threshold per environment.
             Operator context: docs/EXPLAINABILITY_TRACE_COVERAGE.md; API narrative field: OpenAPI
             `FindingExplainabilityResult.narrativeText` (see docs/API_ERROR_CONTRACT.md for error shape elsewhere).
+
+      - alert: ArchLucidExplainabilityTraceCompletenessP10Low
+        expr: |
+          histogram_quantile(
+            0.1,
+            sum(rate(archlucid_explainability_trace_completeness_ratio_bucket[30m])) by (le)
+          ) < 0.35
+        for: 2h
+        labels:
+          severity: warning
+        annotations:
+          summary: Advisory explainability trace completeness p10 is low
+          description: >-
+            The 10th percentile of `archlucid_explainability_trace_completeness_ratio` fell below 0.35 over a 30m
+            rate window for 2h. Advisory scans may be missing explainability traces expected for stakeholder narratives.
+            Tune threshold per environment; see docs/EXPLAINABILITY_TRACE_COVERAGE.md and docs/OBSERVABILITY.md.
+            If the histogram is absent in Prometheus (exporter rename), fix scrape config before relying on this alert.

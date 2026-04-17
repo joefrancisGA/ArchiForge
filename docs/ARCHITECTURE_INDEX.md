@@ -14,6 +14,10 @@
   - `docs/FIRST_5_DOCS.md` (canonical); `docs/FIRST_FIVE_DOCS.md` (filename alias)
 - **Golden path (environments: zero → local → prod-like → Azure)** — role lanes, one diagram, phased checklists, advanced appendix  
   - `docs/GOLDEN_PATH.md`
+- **Golden change path (minimum file touch list: controller → app → persistence → audit → tests)** — contributor checklist per change type  
+  - `docs/GOLDEN_CHANGE_PATH.md`
+- **Reference SaaS Terraform apply order (Azure roots)**  
+  - `docs/REFERENCE_SAAS_STACK_ORDER.md`
 - **Week-one role tickets (dev / SRE / security)** — 3–5 checkboxes each  
   - `docs/onboarding/README.md`
 - **C4 diagrams for exec/security (PNG + `.mmd` sources)**  

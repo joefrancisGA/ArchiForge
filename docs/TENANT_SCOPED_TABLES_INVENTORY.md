@@ -68,6 +68,7 @@ Writes on authority tables should set the **same** tenant/workspace/project tupl
 
 - When adding a new table that stores customer data, decide explicitly: **denormalized triple** vs **strict `RunId` FK only**; document the choice here.
 - `ArchLucid.Architecture.Tests` `TenantScopedTableDdlTests` guards a subset of critical tables; expand `TheoryData` when new authority tables ship.
+- CI **`scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py`** asserts every **`dbo.*`** row in the table above has a matching **`CREATE TABLE`** in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**.
 
 ## Reliability / cost / scalability
 

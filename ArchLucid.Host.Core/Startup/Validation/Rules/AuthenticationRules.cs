@@ -97,6 +97,13 @@ internal static class AuthenticationRules
     {
         string? authMode = ArchLucidConfigurationBridge.ResolveAuthConfigurationValue(configuration, "Mode");
 
+        if (configuration.GetValue("ArchLucidAuth:RequireJwtBearerInProduction", false) &&
+            !string.Equals(authMode, "JwtBearer", StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add(
+                "ArchLucidAuth:RequireJwtBearerInProduction is true: Production must use ArchLucidAuth:Mode=JwtBearer (Entra or OIDC Authority).");
+        }
+
         if (string.Equals(authMode, "DevelopmentBypass", StringComparison.OrdinalIgnoreCase))
         {
             errors.Add(

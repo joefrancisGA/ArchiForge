@@ -1,2 +1,0 @@
-# C# case-insensitive `archiforge` substring guard: each line is a fixed string subtracted from grep hits (`grep -v -F -f`).
-# Phase 7 (2026-04-08): product `.cs` sources avoid the literal; no patterns required. Keep this file so the workflow step stays stable.

@@ -19,8 +19,11 @@ public static class DatabaseMigrator
     /// Applies all embedded migration scripts to the SQL Server database.
     /// </summary>
     /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
-    public static void Run(string connectionString) =>
+    public static void Run(string connectionString)
+    {
+        GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
         RunWithScriptFilter(connectionString, static _ => true);
+    }
 
     /// <summary>
     /// Applies embedded migrations in order, excluding the last <paramref name="trailingScriptCountToSkip"/> scripts (upgrade-from-N-1 CI path).
@@ -29,6 +32,7 @@ public static class DatabaseMigrator
     /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
     public static void RunExcludingTrailingScripts(string connectionString, int trailingScriptCountToSkip)
     {
+        GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
         IReadOnlyList<string> ordered = GetOrderedMigrationResourceNames();
 
         if (trailingScriptCountToSkip <= 0 || trailingScriptCountToSkip >= ordered.Count)
@@ -43,17 +47,9 @@ public static class DatabaseMigrator
     }
 
     /// <summary>Ordered embedded migration resource names (same order DbUp uses).</summary>
-    public static IReadOnlyList<string> GetOrderedMigrationResourceNames()
-    {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-
-        return assembly.GetManifestResourceNames()
-            .Where(static n =>
-                n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
-                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
-            .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
-            .ToList();
-    }
+    /// <remarks>Excludes <c>Migrations/Baseline/</c>; baseline is applied via <see cref="GreenfieldBaselineMigrationRunner"/> on empty catalogs.</remarks>
+    public static IReadOnlyList<string> GetOrderedMigrationResourceNames() =>
+        GreenfieldBaselineMigrationRunner.GetOrderedIncrementalMigrationResourceNames();
 
     private static void RunWithScriptFilter(string connectionString, Func<string, bool> includeScript)
     {
@@ -62,7 +58,8 @@ public static class DatabaseMigrator
         List<SqlScript> scripts = assembly.GetManifestResourceNames()
             .Where(static n =>
                 n.Contains(".Migrations.", StringComparison.OrdinalIgnoreCase) &&
-                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+                n.EndsWith(".sql", StringComparison.OrdinalIgnoreCase) &&
+                !n.Contains(".Migrations.Baseline.", StringComparison.OrdinalIgnoreCase))
             .Where(includeScript)
             .OrderBy(static n => n, StringComparer.OrdinalIgnoreCase)
             .Select(name => new SqlScript(name, ReadEmbeddedScript(assembly, name)))

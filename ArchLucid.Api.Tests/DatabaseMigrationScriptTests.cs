@@ -37,6 +37,13 @@ public sealed class DatabaseMigrationScriptTests
         {
             int idx = n.IndexOf(".Migrations.", StringComparison.OrdinalIgnoreCase);
             string tail = idx >= 0 ? n[(idx + ".Migrations.".Length)..] : n;
+
+            if (tail.StartsWith("Baseline.", StringComparison.OrdinalIgnoreCase))
+            {
+                tail.Should().Be("Baseline.000_Baseline_2026_04_17.sql", $"unexpected baseline tail from '{n}'");
+                continue;
+            }
+
             MigrationFileNameRegex.IsMatch(tail).Should().BeTrue(
                 $"migration embedded name should end with Migrations.###_Name.sql (got tail '{tail}' from '{n}')");
 

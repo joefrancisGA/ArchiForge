@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "ArchLucid",
+  "classifications": [ "ArchLucid", "WebAPI" ],
+  "identity": "ArchLucid.Templates.ApiEndpoint",
+  "name": "ArchLucid API endpoint (controller stub)",
+  "description": "Scaffold a versioned ArchLucid-style API controller to copy into ArchLucid.Api.",
+  "shortName": "archlucid-api-endpoint",
+  "sourceName": "FeatureStub",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  }
+}

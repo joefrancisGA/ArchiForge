@@ -2,7 +2,7 @@
 # `archiforge` labels to `archlucid` without replacing Azure resources. On the next
 # `terraform plan` / `terraform apply`, Terraform records these moves automatically.
 # See docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md and docs/ARCHLUCID_RENAME_CHECKLIST.md §7.5.
-# Monitoring stack (`infra/terraform-monitoring`) still uses `archiforge` addresses until a follow-up change.
+# Monitoring stack uses `moved_archlucid_monitoring.tf` the same way.
 
 moved {
   from = azurerm_api_management.archiforge

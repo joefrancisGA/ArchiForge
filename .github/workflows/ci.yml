@@ -60,6 +60,9 @@ jobs:
       - name: Runbook freshness (informational)
         run: python scripts/ci/check_doc_freshness.py
 
+      - name: Tenant inventory tables vs master DDL
+        run: python scripts/ci/assert_tenant_inventory_tables_in_archlucid_sql.py
+
   terraform-validate-private:
     name: "Terraform: validate private stack (no backend)"
     needs:
@@ -199,13 +202,9 @@ jobs:
             echo "ArchLucid rename guard: no case-insensitive 'archiforge' matches in .cs files."
             exit 0
           fi
-          HITS=$(grep -v -F -f scripts/ci/archiforge-rename-allowlist.txt "${RUNNER_TEMP}/archiforge-cs-hits.txt" || true)
-          if [ -n "$HITS" ]; then
-            echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in .cs files:"
-            echo "$HITS"
-            exit 1
-          fi
-          echo "ArchLucid rename guard: .cs hits are limited to allowlisted Phase 7 / compatibility patterns."
+          echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in .cs files:"
+          cat "${RUNNER_TEMP}/archiforge-cs-hits.txt"
+          exit 1
 
       - name: Guard — unexpected archiforge string literals in TS/TSX
         run: |
@@ -223,13 +222,9 @@ jobs:
             echo "ArchLucid rename guard: no 'archiforge' matches in TS/TSX files."
             exit 0
           fi
-          HITS=$(grep -v -F -f scripts/ci/archiforge-rename-allowlist-ts.txt "${RUNNER_TEMP}/archiforge-ts-hits.txt" || true)
-          if [ -n "$HITS" ]; then
-            echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in TS/TSX files:"
-            echo "$HITS"
-            exit 1
-          fi
-          echo "ArchLucid rename guard: TS/TSX hits are limited to allowlisted Phase 7 / compatibility patterns."
+          echo "::error::ArchLucid rename guard: unexpected 'archiforge' references in TS/TSX files:"
+          cat "${RUNNER_TEMP}/archiforge-ts-hits.txt"
+          exit 1
 
       - name: Guard — no direct IIntegrationEventPublisher.PublishAsync bypasses
         run: |

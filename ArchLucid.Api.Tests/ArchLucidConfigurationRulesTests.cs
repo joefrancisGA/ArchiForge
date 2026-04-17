@@ -1505,4 +1505,49 @@ public sealed class ArchLucidConfigurationRulesTests
 
         errors.Should().Contain(e => e.Contains("Cosmos Emulator", StringComparison.OrdinalIgnoreCase));
     }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndRequireJwtBearerInProductionWithApiKey_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "ApiKey",
+            ["ArchLucidAuth:RequireJwtBearerInProduction"] = "true",
+            ["Authentication:ApiKey:Enabled"] = "true",
+            ["Authentication:ApiKey:AdminKey"] = "abcdefghijklmnopqrstuvwxyz1234567890abcd",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("RequireJwtBearerInProduction", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionAndRequireJwtBearerInProductionWithJwtBearer_allows_when_authority_configured()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:RequireJwtBearerInProduction"] = "true",
+            ["ArchLucidAuth:Authority"] = "https://login.microsoftonline.com/tenant/v2.0",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("RequireJwtBearerInProduction", StringComparison.OrdinalIgnoreCase));
+    }
 }

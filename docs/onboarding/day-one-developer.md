@@ -8,8 +8,8 @@
 
 ## Scope (3–5 outcomes — check off by end of week one)
 
-- [ ] **1. Toolchain** — .NET 10 SDK, `git clone`, `dotnet restore` + `dotnet build` at repo root succeed ([CONTRIBUTOR_ONBOARDING.md](../CONTRIBUTOR_ONBOARDING.md)).
-- [ ] **2. Local API + SQL** — SQL reachable (Docker `archlucid dev up` or compose), `ConnectionStrings:ArchLucid` set (user secrets), `dotnet run --project ArchLucid.Api`, **`GET /health/ready`** returns healthy ([GOLDEN_PATH.md](../GOLDEN_PATH.md) Phase 1).
+- [ ] **1. Toolchain** — .NET 10 SDK, `git clone`, `dotnet restore`, then `dotnet build ArchLucid.sln` at repo root (Release optional). Fix any restore errors before continuing.
+- [ ] **2. Local API + SQL** — SQL reachable (Docker: `dotnet run --project ArchLucid.Cli -- dev up` from repo root, or your own instance). Set `ConnectionStrings:ArchLucid` (Development: `dotnet user-secrets set` in `ArchLucid.Api`). Run `dotnet run --project ArchLucid.Api` and confirm **`GET http://localhost:5128/health/ready`** returns **200** (JSON shows SQL + schema checks when `StorageProvider=Sql`).
 - [ ] **3. Fast tests** — Run the Core corset (matches CI fast job):  
   `dotnet test --filter "Suite=Core&Category!=Slow&Category!=Integration"` ([TEST_EXECUTION_MODEL.md](../TEST_EXECUTION_MODEL.md)).
 - [ ] **4. One contract** — Skim [API_CONTRACTS.md](../API_CONTRACTS.md) (versioning `/v1`, correlation ID, one status code you will handle).
