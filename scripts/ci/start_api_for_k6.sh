@@ -26,6 +26,9 @@ export ArchLucid__StorageProvider=Sql
 export ArchLucidAuth__Mode=DevelopmentBypass
 export Authentication__ApiKey__DevelopmentBypassAll=true
 export AgentExecution__Mode=Simulator
+# appsettings.Advanced.json enables SqlServer:RowLevelSecurity:ApplySessionContext; DbUp + ISchemaBootstrapper use SqlRowLevelSecurityBypassAmbient.Enter().
+export ARCHLUCID_ALLOW_RLS_BYPASS=true
+export ArchLucid__Persistence__AllowRlsBypass=true
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1
 

@@ -79,6 +79,8 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
@@ -184,6 +186,8 @@ jobs:
           Authentication__ApiKey__AdminKey: "nightly-apikey-admin"
           Authentication__ApiKey__ReadOnlyKey: "nightly-apikey-readonly"
           AgentExecution__Mode: Simulator
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
@@ -304,6 +308,8 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-nightly-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
