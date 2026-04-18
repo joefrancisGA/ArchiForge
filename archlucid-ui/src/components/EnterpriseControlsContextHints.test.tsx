@@ -15,7 +15,7 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
     render(<GovernanceResolutionRankCue />);
 
     expect(
-      screen.getByText(/Changing assignments uses policy packs or governance workflow/i),
+      screen.getByText(/Read-focused view; use policy packs or governance workflow when you need to change assignments/i),
     ).toBeInTheDocument();
   });
 
@@ -34,13 +34,17 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
   it("AlertsInboxRankCue renders operator triage line outside shell provider (default Admin rank)", () => {
     render(<AlertsInboxRankCue />);
 
-    expect(screen.getByText(/Operational triage surface/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Operational inbox for triage and follow-up; actions remain API-enforced by role/i),
+    ).toBeInTheDocument();
   });
 
   it("AuditLogRankCue renders investigation line outside shell provider (default Admin rank)", () => {
     render(<AuditLogRankCue />);
 
-    expect(screen.getByText(/Audit investigation surface/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Investigation surface for search and export; actions remain API-enforced by role/i),
+    ).toBeInTheDocument();
   });
 
   it("AlertOperatorToolingRankCue renders operator line outside shell provider (default Admin rank)", () => {

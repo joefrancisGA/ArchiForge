@@ -40,9 +40,15 @@ export const enterpriseGovernanceWorkflowOperatorPlusLine =
 export const enterprisePolicyPacksOperatorPlusLine =
   "Read, compare, and review pack content here; stricter lifecycle actions remain API-enforced.";
 
-/** Alert rules, routing, tuning, simulation, composite rules — operator+ reminder */
-export const enterpriseOperatorConfigSurfaceOperatorPlusLine =
-  "Operator configuration surface—writes remain API-enforced by role. Not required for Core Pilot.";
+/**
+ * Alert rules / routing / simulation / tuning / composite — single rank-aware cue (`AlertOperatorToolingRankCue`).
+ * Stacked Execute hint + operator line were consolidated into this pair.
+ */
+export const alertOperatorToolingReaderRankLine =
+  "Read-focused inspection and what-if here; changing rules, routing, or subscriptions uses operator-level API policy where configured. Not required for Core Pilot.";
+
+export const alertOperatorToolingOperatorRankLine =
+  "Operator/admin operational-control surface—writes remain API-enforced by role. Not required for Core Pilot.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine =
