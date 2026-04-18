@@ -37,14 +37,16 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByText(/Evidence surface for search and export\. Not required for Core Pilot\./i),
+      screen.getByText(/Evidence search and bounded export\. Not required for Core Pilot\./i),
     ).toBeInTheDocument();
   });
 
   it("renders governance resolution Enterprise footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Read-focused evidence surface for effective policy in this scope/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Effective policy here; changes live in policy packs or workflow/i),
+    ).toBeInTheDocument();
   });
 
   it("renders Enterprise rank cue on Enterprise Controls audit (operator+ rank line)", () => {
@@ -58,6 +60,16 @@ describe("LayerHeader", () => {
 
   it("switches Enterprise rank cue to reader line when caller rank is Read", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
+    render(<LayerHeader pageKey="audit" />);
+
+    expect(screen.getByTestId("layer-header-enterprise-rank-cue")).toHaveTextContent(
+      layerHeaderEnterpriseReaderRankLine,
+    );
+  });
+
+  /** Below numeric Read (e.g. unset rank): same branch as Reader — conservative UI shaping. */
+  it("uses Enterprise reader rank cue when caller rank is below Read policy floor", () => {
+    navCallerAuthorityRank.current = 0;
     render(<LayerHeader pageKey="audit" />);
 
     expect(screen.getByTestId("layer-header-enterprise-rank-cue")).toHaveTextContent(

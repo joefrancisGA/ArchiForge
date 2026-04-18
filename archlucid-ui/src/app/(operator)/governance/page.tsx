@@ -52,8 +52,12 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   enterpriseGovernanceWorkflowOperatorPlusLine,
   enterpriseMutationControlDisabledTitle,
+  governanceWorkflowActivationsEmptyOperatorHint,
+  governanceWorkflowActivationsEmptyReaderHint,
   governanceWorkflowNoApprovalsOperatorHint,
   governanceWorkflowNoApprovalsReaderHint,
+  governanceWorkflowPromotionsEmptyOperatorHint,
+  governanceWorkflowPromotionsEmptyReaderHint,
   governanceWorkflowQueryCardDescriptionOperator,
   governanceWorkflowQueryCardDescriptionReader,
 } from "@/lib/enterprise-controls-context-copy";
@@ -396,10 +400,7 @@ function GovernanceWorkflowPageInner() {
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
       <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
-        One run ID: submit → approve/reject → promote → activate per environment.
-      </p>
-      <p className="mt-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
-        Auth matches the rest of the shell (proxy API key or browser JWT).
+        One run: load rows below, then submit → approve/reject → promote → activate (per environment).
       </p>
 
       {toast ? (
@@ -555,6 +556,8 @@ function GovernanceWorkflowPageInner() {
                 onChange={(e) => setWorkflowActor(e.target.value)}
                 placeholder="Display name sent with promote/activate calls"
                 autoComplete="username"
+                disabled={!canMutateWorkflow}
+                title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
               />
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
                 The API still binds the authenticated principal; this field supplies the explicit{" "}
@@ -742,7 +745,11 @@ function GovernanceWorkflowPageInner() {
 
         {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (
           <OperatorEmptyState title="No promotions recorded yet">
-            <p className="text-sm">Promote an approved request to see rows here.</p>
+            <p className="text-sm">
+              {canMutateWorkflow
+                ? governanceWorkflowPromotionsEmptyOperatorHint
+                : governanceWorkflowPromotionsEmptyReaderHint}
+            </p>
           </OperatorEmptyState>
         ) : null}
 
@@ -805,7 +812,11 @@ function GovernanceWorkflowPageInner() {
 
         {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
           <OperatorEmptyState title="No activations recorded yet">
-            <p className="text-sm">Use Activate on a promotion card after promotions exist.</p>
+            <p className="text-sm">
+              {canMutateWorkflow
+                ? governanceWorkflowActivationsEmptyOperatorHint
+                : governanceWorkflowActivationsEmptyReaderHint}
+            </p>
           </OperatorEmptyState>
         ) : null}
 

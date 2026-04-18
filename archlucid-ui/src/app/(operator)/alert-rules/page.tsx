@@ -79,7 +79,7 @@ export default function AlertRulesPage() {
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
-        Define which metric thresholds should raise alerts after advisory scans.
+        Inspect current rules above; define new thresholds in the change section below.
       </p>
       <AlertOperatorToolingRankCue />
 

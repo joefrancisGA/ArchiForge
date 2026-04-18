@@ -7,7 +7,11 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertRoutingSubscriptionsEmptyOperatorLine,
+  alertRoutingSubscriptionsEmptyReaderLine,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
 import {
   createAlertRoutingSubscription,
   listAlertRoutingDeliveryAttempts,
@@ -91,7 +95,7 @@ export default function AlertRoutingPage() {
       <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
       <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
-        Control where alerts are delivered once rules fire.
+        Inspect current delivery targets first; create or toggle subscriptions in the section below.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -115,7 +119,9 @@ export default function AlertRoutingPage() {
           </button>
           <div style={{ display: "grid", gap: 12 }}>
             {items.length === 0 ? (
-              <p style={{ color: "#666" }}>None yet.</p>
+              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+                {canMutateRouting ? alertRoutingSubscriptionsEmptyOperatorLine : alertRoutingSubscriptionsEmptyReaderLine}
+              </p>
             ) : (
               items.map((item) => (
                 <div

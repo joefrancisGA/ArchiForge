@@ -20,6 +20,20 @@ describe("nav-authority", () => {
     expect(navLinkVisibleForCallerRank({ href: "/", label: "Home", title: "", tier: "essential" }, 1)).toBe(true);
   });
 
+  /** Same numeric floor as `enterpriseMutationCapabilityFromRank` and `LayerHeader` Enterprise rank cue. */
+  it("flips Execute-tier link visibility at caller rank ExecuteAuthority (not below)", () => {
+    const link = {
+      href: "/governance",
+      label: "Workflow",
+      title: "",
+      tier: "essential" as const,
+      requiredAuthority: "ExecuteAuthority" as const,
+    };
+
+    expect(navLinkVisibleForCallerRank(link, AUTHORITY_RANK.ReadAuthority)).toBe(false);
+    expect(navLinkVisibleForCallerRank(link, AUTHORITY_RANK.ExecuteAuthority)).toBe(true);
+  });
+
   it("filters links by caller rank", () => {
     const links = [
       { href: "/a", label: "A", title: "", tier: "essential" as const },

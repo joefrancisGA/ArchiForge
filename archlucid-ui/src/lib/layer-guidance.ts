@@ -59,55 +59,54 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-dashboard": {
     layerBadge: "Enterprise Controls",
-    headline: "Answers: what approvals, policy, and compliance signals need attention across runs?",
-    useWhen: "Cross-run queue—not the default run-by-run pilot path.",
+    headline: "Answers: which cross-run approvals and governance signals need attention?",
+    useWhen: "Queue with refresh—not run-by-run artifact review.",
     firstPilotNote: "Skip until cross-run signals are in scope.",
     enterpriseFootnote:
-      "Evidence surface for cross-run signals; write actions are operator/admin surface. Not required for Core Pilot.",
+      "Cross-run evidence; writes are operator/admin. Not required for Core Pilot.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
-    useWhen: "Triage first; rules, routing, and tuning are configuration surfaces—not the default pilot path.",
-    firstPilotNote: "Inbox when needed; deeper config can wait.",
-    enterpriseFootnote:
-      "Start with the inbox. Deeper routing, rules, and tuning are operator/admin surfaces when needed.",
+    useWhen: "Read and filter the inbox first; changing how signals fire is a different surface.",
+    firstPilotNote: "Defer deeper config until alerts are a pilot requirement.",
+    enterpriseFootnote: "Inbox first; rules, routing, tuning are follow-on depth.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
-    headline: "Answers: who did what, when, with which correlation id, for audit evidence?",
-    useWhen: "Tenant-scoped trail beyond run detail; export needs a bounded date range.",
+    headline: "Answers: tenant audit trail—who did what, when?",
+    useWhen: "Search in scope; export needs a bounded From/To window.",
     firstPilotNote: "Skip until audit evidence is a pilot requirement.",
-    enterpriseFootnote: "Evidence surface for search and export. Not required for Core Pilot.",
+    enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
   },
   "governance-resolution": {
     layerBadge: "Enterprise Controls",
-    headline: "Answers: which governance policy content is in effect for this scope after pack ordering?",
-    useWhen: "Read the effective stack before changing pack order or assignments.",
+    headline: "Answers: which policy content is in effect for this scope after pack ordering?",
+    useWhen: "Inspect the effective stack before changing assignments or ordering elsewhere.",
     firstPilotNote: "Skip until cross-pack ordering matters to the pilot.",
     enterpriseFootnote:
-      "Read-focused evidence surface for effective policy in this scope. Not required for Core Pilot.",
+      "Effective policy here; changes live in policy packs or workflow. Not required for Core Pilot.",
   },
   "governance-workflow": {
     layerBadge: "Enterprise Controls",
-    headline: "Answers: how do we submit, approve, promote, and activate manifests for one run?",
-    useWhen: "Run-scoped approvals and activation—not day-one artifact review.",
+    headline: "Answers: run-scoped submit, approve/reject, promote, and activate?",
+    useWhen: "One run at a time—not day-one artifact review.",
     firstPilotNote: "Skip until promotions and segregation of duties apply.",
     enterpriseFootnote:
       "Operator/admin surface for approvals and activation. API enforces writes. Not required for Core Pilot.",
   },
   "policy-packs": {
     layerBadge: "Enterprise Controls",
-    headline: "Answers: which policy packs exist, what is published, and what applies to this scope?",
-    useWhen: "Inventory, effective JSON, and lifecycle when governance owns packs.",
+    headline: "Answers: what packs exist, what is published, and what applies in this scope?",
+    useWhen: "Inspect inventory and effective JSON first; lifecycle when governance owns changes.",
     firstPilotNote: "Skip until policy control is explicit.",
     enterpriseFootnote:
-      "Read-focused pack review and comparison; lifecycle actions are configuration surface (API-enforced). Not required for Core Pilot.",
+      "Read/compare first; create, publish, assign are configuration (API-enforced). Not required for Core Pilot.",
   },
   "alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which metric thresholds should raise alerts after advisory scans?",
-    useWhen: "Operational alerting on scan outcomes—not first-pilot proof.",
+    useWhen: "Operational thresholds on scan outcomes—not inbox triage.",
     firstPilotNote: "Skip until thresholds are part of how you operate.",
     enterpriseFootnote:
       "Configuration surface for metric thresholds. Not required for Core Pilot.",
@@ -123,7 +122,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "alert-simulation": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how would rules behave against recent runs before changing production thresholds?",
-    useWhen: "Dry-run on history—does not replace the live inbox.",
+    useWhen: "Dry-run on history; live triage stays on Alerts.",
     firstPilotNote: "Optional until tuning with real scan windows.",
     enterpriseFootnote:
       "Read-focused simulation before production rule changes. Not required for Core Pilot.",
@@ -131,7 +130,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "alert-tuning": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which threshold values balance coverage and noise for a chosen rule?",
-    useWhen: "Scored candidates from simulation—not first-pilot essentials.",
+    useWhen: "Apply scores from simulation when noise or coverage is measurable.",
     firstPilotNote: "Defer until alert noise or coverage is measurable.",
     enterpriseFootnote:
       "Configuration surface for threshold tuning. Not required for Core Pilot.",

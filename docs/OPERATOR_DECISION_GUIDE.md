@@ -111,7 +111,7 @@ Enterprise Controls are valuable, but they are not required to prove the first C
 
 If you have not yet shown that ArchLucid improves speed, packaging effort, or evidence quality, start there first.
 
-The operator shell adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and operator-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document. **LayerHeader** plus compact page intros on those routes also separate **read/inspect** framing from **configure/manage** blocks so Enterprise stays purposeful, not a flat wall of forms.
+The operator shell adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and operator-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document. **LayerHeader** carries the layer question; page leads stay to one or two sentences that order **inspect before configure** where both exist on the same route.
 
 ---
 

@@ -287,14 +287,11 @@ export default function AlertSimulationPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
-      <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        Test how alert rules would behave against recent or historical signals before changing production settings.
+      <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem", marginBottom: 12 }}>
+        Dry-run simple, composite, or threshold-compare tabs against recent runs before changing production rules. Live
+        triage stays on Alerts.
       </p>
       <AlertOperatorToolingRankCue />
-
-      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 8, marginBottom: 12 }}>
-        Configuration surface. Not required for Core Pilot.
-      </p>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {TABS.map((t) => (

@@ -12,6 +12,8 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  *
  * **Same rank source as nav:** uses the numeric rank from **`current-principal.ts`** / **`useNavCallerAuthorityRank()`**;
  * Reader-tier users should not see Execute-only **nav links** *and* should see **soft-disabled** mutation controls where this hook is wired.
+ *
+ * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `enterprise-mutation-capability.test.ts`
  */
 export function enterpriseMutationCapabilityFromRank(rank: number): boolean {
   return rank >= AUTHORITY_RANK.ExecuteAuthority;

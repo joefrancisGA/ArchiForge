@@ -40,7 +40,8 @@
  * *Contributor drift guard*.
  *
  * **Cross-module tests:** `authority-seam-regression.test.ts` exercises `normalizeAuthMeResponse` together with
- * nav visibility and mutation rank; unit coverage remains in `current-principal.test.ts`.
+ * nav visibility and mutation rank; unit coverage remains in `current-principal.test.ts`. Rank-gated Enterprise copy
+ * components: **`EnterpriseControlsContextHints.authority.test.tsx`** (same rank as nav / mutation).
  */
 
 import {

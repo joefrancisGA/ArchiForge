@@ -303,11 +303,7 @@ export default function GovernanceDashboardPage() {
       <LayerHeader pageKey="governance-dashboard" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
       <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
-        One screen for cross-run approvals, decisions, and policy signals (auto-refresh ~30s).
-      </p>
-      <p className="mt-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
-        Use <strong>Review</strong> to open run-scoped workflow for a single run; this page is for breadth, not artifact
-        review.
+        Cross-run queue (auto-refresh ~30s). Review opens per-run workflow; stay here for breadth, not artifact review.
       </p>
       <GovernanceDashboardReaderActionCue />
       <EnterpriseExecutePlusPageCue message={governanceDashboardOperatorPlusLine} />

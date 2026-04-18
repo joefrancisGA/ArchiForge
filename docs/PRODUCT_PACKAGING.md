@@ -78,7 +78,7 @@ When you **add or move** an operator route, touch these in order (skip only what
 4. **Enterprise write affordances** — if the page shows POST/toggle UI, keep **`useEnterpriseMutationCapability()`** (Execute+ rank) aligned with the same policies as the buttons (see **`enterprise-mutation-capability.ts`**).
 5. **This document** — update capability / navigation rows in § Layer inventories when behavior is buyer-visible.
 
-**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts`, `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx`, **`authority-seam-regression.test.ts`** (cross-module `/me` rank vs nav vs mutation), **`EnterpriseControlsReadRankHints.test.tsx`** (read-tier Enterprise hint copy when caller rank is below Execute) — extend when you change rank or filtering rules.
+**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts` (includes Execute-link **`navLinkVisibleForCallerRank`** floor), `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` (footnotes + Enterprise rank cue, including conservative caller rank **0**), **`authority-seam-regression.test.ts`** (cross-module `/me` rank vs Enterprise nav vs mutation; Core Pilot essential hrefs for Reader), **`EnterpriseControlsReadRankHints.test.tsx`**, **`EnterpriseControlsContextHints.authority.test.tsx`** (rank-gated `EnterpriseControlsExecutePageHint`, `EnterpriseExecutePlusPageCue`, nav group + alert tooling cues) — extend when you change rank or filtering rules.
 
 This is the operational-usage model.
 

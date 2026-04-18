@@ -28,7 +28,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertsFilteredEmptyDescriptionOperator,
+  alertsFilteredEmptyDescriptionReader,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
@@ -107,23 +111,35 @@ export default function AlertsPage() {
   }, [load]);
 
   const emptyFilteredProps = useMemo(() => {
-    const inboxEmptyBase = {
+    const description = canMutateAlertInbox
+      ? alertsFilteredEmptyDescriptionOperator
+      : alertsFilteredEmptyDescriptionReader;
+
+    const actions = canMutateAlertInbox
+      ? [
+          { label: "View runs list", href: "/runs?projectId=default" },
+          {
+            label: "Alert tooling (rules, routing, tuning)",
+            href: "/alert-rules",
+            variant: "outline" as const,
+          },
+        ]
+      : [
+          { label: "View runs list", href: "/runs?projectId=default" },
+          {
+            label: "Review alert tooling (read-only)",
+            href: "/alert-rules",
+            variant: "outline" as const,
+          },
+        ];
+
+    return {
       ...ALERTS_EMPTY_FILTERED,
       title: "No alerts match this filter",
-      description:
-        "Nothing in this inbox matches the status filter and page above. Try All or another status, refresh, or adjust paging—an empty list here means no rows matched, not a silent scan failure.",
-      actions: [
-        { label: "View runs list", href: "/runs?projectId=default" },
-        {
-          label: "Alert tooling (rules, routing, tuning)",
-          href: "/alert-rules",
-          variant: "outline" as const,
-        },
-      ],
+      description,
+      actions,
     };
-
-    return inboxEmptyBase;
-  }, []);
+  }, [canMutateAlertInbox]);
 
   const act = useCallback(
     async (alertId: string, action: AlertActionKind, comment: string) => {
@@ -176,14 +192,12 @@ export default function AlertsPage() {
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
-        This page is an inbox: filter and inspect advisory signals first, then triage when a row needs follow-up. Alert rules,
-        routing, and tuning are follow-on depth when you need to change how signals are raised—not the default path on this
-        screen.
+        Inbox: filter and read signals first; triage only when a row needs a state change. Rules, routing, and tuning are
+        off this page.
       </p>
       <p className="mt-1 max-w-prose text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-        First-pilot teams usually only need this inbox when alerts are already in scope for the pilot; otherwise stay
-        on Core Pilot for proof. Dedupe applies across statuses; keyboard shortcuts use the same mutation gate as the
-        triage buttons below.
+        First pilot: skip if alerts are not in scope. Dedupe spans statuses; shortcuts use the same gate as triage
+        buttons below.
       </p>
       <AlertsInboxRankCue />
 

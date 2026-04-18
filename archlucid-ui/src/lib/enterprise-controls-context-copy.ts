@@ -3,6 +3,9 @@
  * Aligned with docs/OPERATOR_DECISION_GUIDE.md (default rule, §2 “Move to Enterprise Controls”) and
  * docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md (Stage 1 — role clarity without commercializing the wedge).
  * Keep wording responsibility-based, not permission-jargon.
+ *
+ * **Rank pairing:** several `*Reader*` / `*Operator*` pairs are chosen in pages via `useEnterpriseMutationCapability()` or
+ * `useNavCallerAuthorityRank()` vs `AUTHORITY_RANK.ExecuteAuthority` — keep thresholds aligned with `nav-authority.ts`.
  */
 
 /** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
@@ -55,7 +58,7 @@ export const enterpriseGovernanceWorkflowOperatorPlusLine =
 
 /** Policy packs — operator+ reminder (Readers see write hint via `EnterpriseControlsExecutePageHint`). */
 export const enterprisePolicyPacksOperatorPlusLine =
-  "Read-focused pack review and comparison; lifecycle actions are configuration surface (API-enforced).";
+  "Read/compare first; lifecycle (create, publish, assign) is configuration—API-enforced.";
 
 /**
  * Alert rules / routing / simulation / tuning / composite — single rank-aware cue (`AlertOperatorToolingRankCue`).
@@ -114,3 +117,35 @@ export const alertRulesDefinedListEmptyReaderLine =
   "No rules in this scope yet. Read-focused threshold review; writes are operator/admin surface (API policy).";
 
 export const alertRulesDefinedListEmptyOperatorLine = "None yet.";
+
+/** Alert routing — empty “Current routing” list (mirrors alert rules empty pattern). */
+export const alertRoutingSubscriptionsEmptyReaderLine =
+  "No routing subscriptions in this scope yet. Read-focused delivery history below; create, enable, and disable are operator/admin surface (API policy).";
+
+export const alertRoutingSubscriptionsEmptyOperatorLine = "None yet.";
+
+/** Governance workflow — promotions timeline empty (after a run is loaded). */
+export const governanceWorkflowPromotionsEmptyReaderHint =
+  "No promotion rows yet for this run. When an operator approves and promotes, evidence appears here for read-focused review.";
+
+export const governanceWorkflowPromotionsEmptyOperatorHint = "Promote an approved request to see rows here.";
+
+/** Governance workflow — activations list empty. */
+export const governanceWorkflowActivationsEmptyReaderHint =
+  "No activation rows yet. Activations appear after an operator runs Activate on a promotion; read-focused inspection only at your rank.";
+
+export const governanceWorkflowActivationsEmptyOperatorHint =
+  "Use Activate on a promotion card after promotions exist.";
+
+/** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
+export const alertsFilteredEmptyDescriptionReader =
+  "Nothing in this inbox matches the status filter and page above. Read-focused view: adjust filters or refresh—state-changing triage needs operator-level access in this shell (API still authoritative).";
+
+export const alertsFilteredEmptyDescriptionOperator =
+  "Nothing in this inbox matches the status filter and page above. Try All or another status, refresh, or adjust paging—an empty list here means no rows matched, not a silent scan failure.";
+
+/** Audit log — zero rows after a successful search. */
+export const auditSearchNoResultsReaderLine =
+  "No audit events match these filters. Read-focused evidence search above; CSV export stays Auditor/Admin-gated on the API.";
+
+export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";

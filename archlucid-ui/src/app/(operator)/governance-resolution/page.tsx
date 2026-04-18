@@ -36,8 +36,8 @@ export default function GovernanceResolutionPage() {
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
       <p style={{ color: "#334155", fontSize: 14, fontWeight: 600, maxWidth: "42rem", marginBottom: 8 }}>
-        This page shows the effective policy currently in force for the selected scope. It is primarily a read and
-        evidence surface; changing assignments or pack ordering happens in policy pack tooling.
+        Effective policy JSON for this scope—read here. Pack ordering and assignments change in policy packs or
+        governance workflow, not on this screen.
       </p>
       <GovernanceResolutionRankCue />
       {failure !== null ? (

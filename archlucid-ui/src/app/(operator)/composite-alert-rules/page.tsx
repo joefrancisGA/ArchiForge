@@ -111,7 +111,7 @@ export default function CompositeAlertRulesPage() {
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        Combine multiple alert conditions into one operational rule.
+        Inspect defined composites above; add or edit using the form below.
       </p>
       <AlertOperatorToolingRankCue />
 

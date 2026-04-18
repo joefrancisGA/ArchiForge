@@ -19,6 +19,7 @@
  * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability.
+ * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `EnterpriseControlsContextHints.authority.test.tsx` — cue components.
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

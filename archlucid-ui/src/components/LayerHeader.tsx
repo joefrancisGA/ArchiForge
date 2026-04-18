@@ -24,6 +24,8 @@ export type LayerHeaderProps = {
  * (read tier vs Execute+ framing) using `useNavCallerAuthorityRank()` — **cognitive / UI shaping only**; same threshold
  * as **`useEnterpriseMutationCapability()`** for buttons, but **ArchLucid.Api** `[Authorize]` remains authoritative
  * (401/403). **Not** entitlements or billing (**docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** Stage 1).
+ *
+ * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const block = LAYER_PAGE_GUIDANCE[pageKey];

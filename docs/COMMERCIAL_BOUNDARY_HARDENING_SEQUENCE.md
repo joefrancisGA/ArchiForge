@@ -70,6 +70,8 @@ Reduce ambiguity and dependency on documentation alone.
 
 **Maintenance map:** which TypeScript files correspond to which packaging layer is summarized in **PRODUCT_PACKAGING.md** §3 *Code seams (operator UI — maintenance map)*—update that table when you add groups or change the shaping pipeline.
 
+**Regression anchors:** the same §3 bullet lists **Vitest** files that guard rank thresholds, nav composition, and rank-gated Enterprise copy—extend them when you add a new shaping surface tied to `/me`.
+
 ### Why this comes first
 
 This improves adoption and clarity without risking the Core Pilot wedge.

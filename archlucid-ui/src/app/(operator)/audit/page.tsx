@@ -5,7 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvider";
+import {
+  useNavCallerAuthorityRank,
+  useOperatorNavAuthority,
+} from "@/components/OperatorNavAuthorityProvider";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { AuditEvent } from "@/lib/api";
@@ -15,7 +18,12 @@ import {
   formatAuditSummaryHeading,
   principalRolesAllowAuditCsvExport,
 } from "@/app/(operator)/audit/audit-ui-helpers";
-import { auditExportControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  auditExportControlDisabledTitle,
+  auditSearchNoResultsOperatorLine,
+  auditSearchNoResultsReaderLine,
+} from "@/lib/enterprise-controls-context-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 function formatUtc(iso: string): string {
   try {
@@ -50,6 +58,7 @@ interface AuditFilterFields {
 
 export default function AuditPage() {
   const { currentPrincipal } = useOperatorNavAuthority();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
   const [eventTypes, setEventTypes] = useState<string[]>([]);
   const [eventType, setEventType] = useState<string>("");
   const [fromUtc, setFromUtc] = useState<string>("");
@@ -208,14 +217,18 @@ export default function AuditPage() {
   const exportDateRangeReady = canExportAuditCsv(fromUtc, toUtc);
   const exportRoleOk = principalRolesAllowAuditCsvExport(currentPrincipal.roleClaimValues);
   const csvExportUiAllowed = exportDateRangeReady && exportRoleOk;
+  const auditSearchEmptyLine =
+    callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+      ? auditSearchNoResultsReaderLine
+      : auditSearchNoResultsOperatorLine;
 
   return (
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "40rem", fontWeight: 600, marginBottom: 6 }}>
-        This page is for searching audit events and exporting audit evidence when you need a bounded extract. It is not
-        part of Core Pilot by default.
+        Search events below; bounded CSV export is at the end (From/To + Auditor/Admin on the API). Not Core Pilot by
+        default.
       </p>
       <AuditLogRankCue />
 
@@ -323,7 +336,7 @@ export default function AuditPage() {
 
         <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
         {events.length === 0 ? (
-          <p style={{ color: "#666" }}>No audit events match your filters.</p>
+          <p style={{ color: "#666" }}>{auditSearchEmptyLine}</p>
         ) : (
           events.map((ev) => (
             <div

@@ -1,7 +1,7 @@
 /**
- * Cross-module authority seams: `/me` read-model, nav policy filtering, and Enterprise mutation capability must stay
- * aligned (same rank numerics and policy names as `nav-authority.ts`). These are narrow regression guards — not a
- * second authZ engine; the API remains authoritative.
+ * Cross-module authority seams: `/me` read-model, nav policy filtering, tier+authority composition, and Enterprise
+ * mutation capability must stay aligned (same rank numerics and policy names as `nav-authority.ts`). These are narrow
+ * regression guards — not a second authZ engine; the API remains authoritative.
  */
 import { describe, expect, it } from "vitest";
 
@@ -13,6 +13,7 @@ import {
   filterNavLinksByAuthority,
   maxAuthorityRankFromMeClaims,
 } from "@/lib/nav-authority";
+import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("authority seam regression", () => {
   const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "alerts-governance")?.links;
@@ -70,5 +71,22 @@ describe("authority seam regression", () => {
 
     expect(operatorNavOutsideProviderPrincipal.authorityRank).toBe(AUTHORITY_RANK.AdminAuthority);
     expect(enterpriseMutationCapabilityFromRank(operatorNavOutsideProviderPrincipal.authorityRank)).toBe(true);
+  });
+
+  /**
+   * Core Pilot defaults must stay broad: accidental `requiredAuthority` on essentials would regress the default path
+   * for Reader-tier pilots (see `nav-config` Authority block).
+   */
+  it("keeps Core Pilot essential destinations visible for Reader with default tier toggles (extended off)", () => {
+    const core = NAV_GROUPS.find((g) => g.id === "runs-review");
+
+    expect(core).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(core!.links, false, false, AUTHORITY_RANK.ReadAuthority);
+    const hrefs = new Set(visible.map((l) => l.href));
+
+    expect(hrefs.has("/")).toBe(true);
+    expect(hrefs.has("/runs/new")).toBe(true);
+    expect(hrefs.has("/runs?projectId=default")).toBe(true);
   });
 });

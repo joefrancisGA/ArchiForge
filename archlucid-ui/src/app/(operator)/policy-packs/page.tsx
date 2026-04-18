@@ -243,8 +243,8 @@ export default function PolicyPacksPage() {
       <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
       <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "52rem", fontWeight: 600, marginBottom: 6 }}>
-        This page is for reviewing policy pack content and lifecycle state in scope. Stricter lifecycle actions—create,
-        publish, assign—are follow-on depth. For how packs resolve in stack order, see{" "}
+        Inspect first: inventory, effective JSON, and diffs in the sections below. Configure last: create, publish,
+        assign at the bottom when you own lifecycle. Stack order:{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           governance resolution
         </Link>
