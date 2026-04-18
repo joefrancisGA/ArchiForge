@@ -81,6 +81,26 @@ A recording rule **`archlucid:explanation_cache_hit_ratio`** is defined in **`in
 
 ---
 
+## Trial funnel (self-service product metrics)
+
+**Purpose:** Quantify the self-service trial as a **funnel** aligned with durable audit types in `AuditEventTypes` (`TrialSignupAttempted`, `TrialSignupFailed`, `TrialFirstRunCompleted`, `BillingCheckoutInitiated`, `BillingCheckoutCompleted`). Operational detail: **`docs/runbooks/TRIAL_FUNNEL.md`**.
+
+| Instrument | Type | Labels | Emitted when |
+|------------|------|--------|----------------|
+| **`archlucid_trial_signups_total`** | Counter | `source`, `mode` | Trial tenant successfully bootstrapped after registration (`TrialTenantBootstrapService`). |
+| **`archlucid_trial_signup_failures_total`** | Counter | `stage`, `reason` | Duplicate slug, validation/provisioning failures, email policy block, or local identity errors. |
+| **`archlucid_trial_first_run_seconds`** | Histogram | (histogram series) | First coordinator **commit** that persists a golden manifest for a trial tenant (`SqlTrialFunnelCommitHook`). |
+| **`archlucid_trial_active_tenants`** | Observable gauge | — | Cached SQL count of active trials; updated from the operational metrics hosted service. |
+| **`archlucid_trial_runs_used_ratio`** | Histogram | (histogram series) | Same hook as first-run latency: `TrialRunsUsed` / limit at first qualifying commit. |
+| **`archlucid_trial_conversion_total`** | Counter | `from_state`, `to_tier` | Manual convert (`TenantTrialController`) or webhook activator path. |
+| **`archlucid_trial_expirations_total`** | Counter | `reason` | **`TrialLifecycleTransitionEngine`** (worker) on lifecycle transitions. |
+| **`archlucid_billing_checkouts_total`** | Counter | `provider`, `tier`, `outcome` | `BillingCheckoutController` validation/conflict/session/provider outcomes. |
+
+**Dashboard:** `infra/grafana/dashboard-archlucid-trial-funnel.json` (Terraform `grafana_dashboard.trial_funnel`).  
+**Alerts:** `infra/prometheus/archlucid-alerts.yml` group **`archlucid-trial-funnel`**.
+
+---
+
 ## Activity sources (custom)
 
 Registered via `tracing.AddSource(...)` in **`ObservabilityExtensions`** (including all names below):
@@ -181,6 +201,7 @@ Wiring: **`ObservabilityTraceSamplingConfigurator.ConfigureTraceSampling`** runs
 | `dashboard-archlucid-llm-usage.json` | LLM token rates. |
 | `dashboards/archlucid-container-apps-overview.json` | Container Apps overview. |
 | **`dashboard-archlucid-run-lifecycle.json`** | Run-lifecycle / traceability: template variable **`runId`**, links to API audit search, authority stage histograms, circuit breaker rates — use with [runbooks/TRACE_A_RUN.md](runbooks/TRACE_A_RUN.md). |
+| **`dashboard-archlucid-trial-funnel.json`** | Self-service trial funnel (signups, failures, first-run latency, billing, conversion) — use with [runbooks/TRIAL_FUNNEL.md](runbooks/TRIAL_FUNNEL.md). |
 
 Import paths and Terraform wiring: [runbooks/SLO_PROMETHEUS_GRAFANA.md](runbooks/SLO_PROMETHEUS_GRAFANA.md).
 
@@ -194,6 +215,8 @@ Import paths and Terraform wiring: [runbooks/SLO_PROMETHEUS_GRAFANA.md](runbooks
 - **`ArchLucidExplainabilityTraceCompletenessP10Low`** — 10th percentile of **`archlucid_explainability_trace_completeness_ratio`** below **0.35** over a sustained window (tune per environment; requires histogram buckets in Prometheus).
 
 See [EXPLAINABILITY_TRACE_COVERAGE.md](EXPLAINABILITY_TRACE_COVERAGE.md).
+
+**`infra/prometheus/archlucid-alerts.yml`** — group **`archlucid-trial-funnel`** (signup failure rate page, first-run p95 ticket): see [runbooks/TRIAL_FUNNEL.md](runbooks/TRIAL_FUNNEL.md).
 
 ---
 

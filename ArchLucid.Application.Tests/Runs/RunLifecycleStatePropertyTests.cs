@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
@@ -374,6 +375,7 @@ public sealed class RunLifecycleStatePropertyTests
                 Mock.Of<IPreCommitGovernanceGate>(),
                 Options.Create(new PreCommitGovernanceGateOptions()),
                 Mock.Of<IAuditService>(),
+                NoOpTrialFunnelCommitHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

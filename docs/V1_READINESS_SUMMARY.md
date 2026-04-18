@@ -8,7 +8,7 @@
 
 ## One-paragraph verdict
 
-The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **platform hygiene** (Terraform `state mv`, repo/Entra renames), **compliance/audit coverage** in specific flows, and **staging validation** beyond CI: **`ui-axe-components`** runs fast **Vitest + jest-axe** on shell components, while **`ui-e2e-live`** is the **merge-blocking** **browser** gate running the full **`live-api-*.spec.ts`** suite (happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke, **live axe**) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
+The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (DbUp), operator UI, CLI, health/version, support bundle, compare/replay/export surfaces, and documented pilot paths. **Self-serve SaaS trial** is covered by a **merge-blocking** live spec ([`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts), runbook [TRIAL_END_TO_END.md](runbooks/TRIAL_END_TO_END.md)) in **`ui-e2e-live`**. **Operational completeness** (your deploy, auth, SQL, and recovery drills) is **your checklist**, not something the repo can sign for you. Remaining gaps are mostly **platform hygiene** (Terraform `state mv`, repo/Entra renames), **compliance/audit coverage** in specific flows, and **staging validation** beyond CI: **`ui-axe-components`** runs fast **Vitest + jest-axe** on shell components, while **`ui-e2e-live`** is the **merge-blocking** **browser** gate running the full **`live-api-*.spec.ts`** suite (including the trial acceptance spec above, plus happy path, conflict, governance rejection, negative paths, advisory/replay/compare/policy packs, alerts, search/graph, digest subscriptions, concurrency, archival smoke, **live axe**) against **real API + SQL** (see [LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md))—still not a substitute for your own staging validation.
 
 ---
 
@@ -23,6 +23,7 @@ The codebase ships a **working V1-shaped product**: HTTP API, SQL persistence (D
 | **Breaking-change trail** | Phase 7 rename and config surface documented in [BREAKING_CHANGES.md](../BREAKING_CHANGES.md); integration events **canonical `com.archlucid.*` only**. |
 | **Deploy artifacts** | Dockerfiles, compose profiles, Terraform modules under `infra/` ([CONTAINERIZATION.md](CONTAINERIZATION.md), [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md)). |
 | **Release checklist** | Actionable boxes in [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) (scope, deploy, health, flows, exports, recovery). |
+| **Self-serve trial** | Shipped in-repo: merge-blocking [`live-api-trial-end-to-end.spec.ts`](../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) + [TRIAL_END_TO_END.md](runbooks/TRIAL_END_TO_END.md). |
 
 ---
 

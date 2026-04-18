@@ -20,6 +20,8 @@ public sealed class InMemoryTenantRepository : ITenantRepository
 
     private readonly object _trialGate = new();
 
+    private readonly ConcurrentDictionary<Guid, byte> _trialFirstManifestCommitted = new();
+
     public Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
         _ = ct;
@@ -339,10 +341,119 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
+    public Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct)
+    {
+        _ = ct;
+
+        List<Guid> ids = _byId.Values
+            .Where(static t =>
+                t.TrialExpiresUtc is not null &&
+                !string.IsNullOrWhiteSpace(t.TrialStatus) &&
+                !string.Equals(t.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+            .Select(static t => t.Id)
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<Guid>>(ids);
+    }
+
+    /// <inheritdoc />
+    public Task<bool> TryRecordTrialLifecycleTransitionAsync(
+        Guid tenantId,
+        string expectedCurrentStatus,
+        string nextStatus,
+        string reason,
+        CancellationToken ct)
+    {
+        _ = reason;
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? existing))
+            {
+                return Task.FromResult(false);
+            }
+
+            if (!string.Equals(existing.TrialStatus, expectedCurrentStatus, StringComparison.Ordinal))
+            {
+                return Task.FromResult(false);
+            }
+
+            _byId[tenantId] = CopyTenant(existing, trialStatus: nextStatus);
+
+            return Task.FromResult(true);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+        Guid tenantId,
+        DateTimeOffset committedUtc,
+        CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
+            {
+                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
+            }
+
+            if (t.TrialExpiresUtc is null)
+            {
+                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
+            }
+
+            if (!_trialFirstManifestCommitted.TryAdd(tenantId, 0))
+            {
+                return Task.FromResult<TrialFirstManifestCommitOutcome?>(null);
+            }
+
+            DateTimeOffset anchor = t.TrialStartUtc ?? t.CreatedUtc;
+            double seconds = (committedUtc - anchor).TotalSeconds;
+
+            double ratio = 0;
+
+            if (t.TrialRunsLimit is { } lim && lim > 0)
+            {
+                ratio = (double)t.TrialRunsUsed / lim;
+            }
+
+            return Task.FromResult<TrialFirstManifestCommitOutcome?>(
+                new TrialFirstManifestCommitOutcome
+                {
+                    SignupToCommitSeconds = seconds,
+                    TrialRunUsageRatio = ratio,
+                });
+        }
+    }
+
+    /// <inheritdoc />
+    public Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct)
+    {
+        _ = ct;
+
+        lock (_trialGate)
+        {
+            if (!_byId.TryGetValue(tenantId, out TenantRecord? t))
+            {
+                return Task.CompletedTask;
+            }
+
+            _byId[tenantId] = CopyTenant(t, trialExpiresUtc: expiresUtc);
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static TenantRecord CopyTenant(
         TenantRecord source,
         int? trialRunsUsed = null,
-        int? trialSeatsUsed = null) =>
+        int? trialSeatsUsed = null,
+        string? trialStatus = null,
+        DateTimeOffset? trialExpiresUtc = null) =>
         new()
         {
             Id = source.Id,
@@ -353,12 +464,12 @@ public sealed class InMemoryTenantRepository : ITenantRepository
             CreatedUtc = source.CreatedUtc,
             SuspendedUtc = source.SuspendedUtc,
             TrialStartUtc = source.TrialStartUtc,
-            TrialExpiresUtc = source.TrialExpiresUtc,
+            TrialExpiresUtc = trialExpiresUtc ?? source.TrialExpiresUtc,
             TrialRunsLimit = source.TrialRunsLimit,
             TrialRunsUsed = trialRunsUsed ?? source.TrialRunsUsed,
             TrialSeatsLimit = source.TrialSeatsLimit,
             TrialSeatsUsed = trialSeatsUsed ?? source.TrialSeatsUsed,
-            TrialStatus = source.TrialStatus,
+            TrialStatus = trialStatus ?? source.TrialStatus,
             TrialSampleRunId = source.TrialSampleRunId,
         };
 

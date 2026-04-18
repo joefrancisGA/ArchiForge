@@ -65,4 +65,29 @@ public interface ITenantRepository
     /// </summary>
     /// <exception cref="TrialLimitExceededException">Seat allowance exhausted for a new principal.</exception>
     Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct);
+
+    /// <summary>Tenants eligible for automated lifecycle transitions (self-service trial; excludes converted commercial tenants).</summary>
+    Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct);
+
+    /// <summary>
+    /// Atomically inserts <c>dbo.TenantLifecycleTransitions</c> and updates <c>dbo.Tenants.TrialStatus</c> when the current
+    /// status matches <paramref name="expectedCurrentStatus"/> (idempotent retry when <c>false</c>).
+    /// </summary>
+    Task<bool> TryRecordTrialLifecycleTransitionAsync(
+        Guid tenantId,
+        string expectedCurrentStatus,
+        string nextStatus,
+        string reason,
+        CancellationToken ct);
+
+    /// <summary>
+    /// Sets <c>TrialFirstManifestCommittedUtc</c> once for self-service trial tenants and returns funnel timing when this invocation performed the transition.
+    /// </summary>
+    Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+        Guid tenantId,
+        DateTimeOffset committedUtc,
+        CancellationToken ct);
+
+    /// <summary>E2E harness only: sets <see cref="TenantRecord.TrialExpiresUtc"/> (clock tests; never product code).</summary>
+    Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct);
 }

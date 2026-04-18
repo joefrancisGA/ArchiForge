@@ -100,10 +100,10 @@ public sealed class HostLeaderElectionCoordinator(
             {
                 await leaderWork(leaderToken);
             }
-            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested
-                                                     && !applicationStoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
-                if (_logger.IsEnabled(LogLevel.Information))
+                // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
+                if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
                 {
                     _logger.LogInformation("Leader work for {LeaseName} stopped after lease loss or handoff.", LogSanitizer.Sanitize(leaseName));
                 }

@@ -147,34 +147,8 @@ public sealed class PolicyPackManagementService(
 
         string normalizedJson = string.IsNullOrWhiteSpace(contentJson) ? "{}" : contentJson;
 
-        PolicyPackVersion? existing = await versionRepository
-            .GetByPackAndVersionAsync(policyPackId, version, ct)
-            ;
-
-        string? previousValue = null;
-        PolicyPackVersion packVersion;
-        if (existing is not null)
-        {
-            previousValue = existing.ContentJson;
-            existing.ContentJson = normalizedJson;
-            existing.IsPublished = true;
-            await versionRepository.UpdateAsync(existing, ct);
-            packVersion = existing;
-        }
-        else
-        {
-            packVersion = new PolicyPackVersion
-            {
-                PolicyPackVersionId = Guid.NewGuid(),
-                PolicyPackId = policyPackId,
-                Version = version,
-                ContentJson = normalizedJson,
-                CreatedUtc = DateTime.UtcNow,
-                IsPublished = true,
-            };
-
-            await versionRepository.CreateAsync(packVersion, ct);
-        }
+        (PolicyPackVersion packVersion, string? previousValue) =
+            await versionRepository.UpsertPublishedVersionAsync(policyPackId, version, normalizedJson, ct);
 
         PolicyPack pack = await packRepository.GetByIdAsync(policyPackId, ct) ?? throw new InvalidOperationException(
                 $"Policy pack '{policyPackId}' was not found. Cannot promote version '{version}' on a non-existent pack.");

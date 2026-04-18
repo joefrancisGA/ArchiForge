@@ -1,8 +1,12 @@
+using System.Text.Json;
+
 using ArchLucid.Api.Models.Auth;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Identity;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using Asp.Versioning;
@@ -22,7 +26,8 @@ namespace ArchLucid.Api.Controllers.Auth;
 public sealed class TrialLocalIdentityAuthController(
     IOptions<TrialAuthOptions> trialOptions,
     ITrialLocalIdentityService identity,
-    ILocalTrialJwtIssuer jwtIssuer) : ControllerBase
+    ILocalTrialJwtIssuer jwtIssuer,
+    IAuditService auditService) : ControllerBase
 {
     private readonly IOptions<TrialAuthOptions> _trialOptions =
         trialOptions ?? throw new ArgumentNullException(nameof(trialOptions));
@@ -31,6 +36,8 @@ public sealed class TrialLocalIdentityAuthController(
         identity ?? throw new ArgumentNullException(nameof(identity));
 
     private readonly ILocalTrialJwtIssuer _jwtIssuer = jwtIssuer ?? throw new ArgumentNullException(nameof(jwtIssuer));
+
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <summary>Registers a pending user; email must be verified before trial provisioning when LocalIdentity is enabled.</summary>
     [HttpPost("register")]
@@ -48,10 +55,27 @@ public sealed class TrialLocalIdentityAuthController(
         if (body?.Email is null || body.Password is null)
             return this.BadRequestProblem("Email and password are required.", ProblemTypes.ValidationFailed);
 
+        string email = body.Email.Trim();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.TrialSignupAttempted,
+                ActorUserId = email,
+                ActorUserName = email,
+                TenantId = Guid.Empty,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                DataJson = JsonSerializer.Serialize(new { channel = "trial_local_register" }),
+            },
+            cancellationToken);
+
         try
         {
             TrialLocalRegistrationResult created =
                 await _identity.RegisterAsync(body.Email, body.Password, cancellationToken);
+
+            ArchLucidInstrumentation.RecordTrialSignup("trial_local", "local_identity_register");
 
             return StatusCode(
                 StatusCodes.Status201Created,
@@ -59,10 +83,40 @@ public sealed class TrialLocalIdentityAuthController(
         }
         catch (ArgumentException ex)
         {
+            ArchLucidInstrumentation.RecordTrialSignupFailure("trial_local_register", ex.GetType().Name);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialSignupFailed,
+                    ActorUserId = email,
+                    ActorUserName = email,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(new { stage = "trial_local_register", reason = ex.GetType().Name }),
+                },
+                cancellationToken);
+
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (InvalidOperationException ex)
         {
+            ArchLucidInstrumentation.RecordTrialSignupFailure("trial_local_register", ex.GetType().Name);
+
+            await _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialSignupFailed,
+                    ActorUserId = email,
+                    ActorUserName = email,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(new { stage = "trial_local_register", reason = ex.GetType().Name }),
+                },
+                cancellationToken);
+
             return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
     }

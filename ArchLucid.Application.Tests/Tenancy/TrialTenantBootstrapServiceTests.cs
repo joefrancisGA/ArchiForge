@@ -148,5 +148,8 @@ public sealed class TrialTenantBootstrapServiceTests
         audit.Verify(
             a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialProvisioned), It.IsAny<CancellationToken>()),
             Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.TrialSignupFailed), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

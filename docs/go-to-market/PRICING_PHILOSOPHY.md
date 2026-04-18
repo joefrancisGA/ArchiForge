@@ -185,6 +185,8 @@ Each gate below removes its associated discount from the stack. Trigger a **prod
 | Two named, referenceable customers (case study or logo + quote) | −15% reference discount | Raise list ~15% |
 | Self-serve signup → tenant → billing loop in production | −10% self-serve discount | Raise list ~10% |
 
+**Gate #3 (2026-04-17):** In-repo evidence clears the *engineering* bar: merge-blocking **`ui-e2e-live`** runs [`archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts`](../../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) (register → SQL trial → metering → Noop checkout → harness activation → Prometheus counters). **This still triggers a product-leadership pricing review**, not an automatic list-price change — see §5.3 intro and §7.
+
 **All three gates cleared:** fair-value pricing (~$408–$817 / seat / month) becomes defensible. Re-rate to Professional seat ~$299 / seat / month as a full-discount-cleared target.
 
 ---

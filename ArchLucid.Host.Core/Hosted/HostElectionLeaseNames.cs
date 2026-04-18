@@ -16,4 +16,6 @@ public static class HostElectionLeaseNames
     public const string AuthorityPipelineWorkOutbox = "hosted:authority-pipeline-work-outbox";
 
     public const string TrialLifecycleEmailPolling = "hosted:trial-lifecycle-email-polling";
+
+    public const string TrialLifecycleAutomation = "hosted:trial-lifecycle-automation";
 }

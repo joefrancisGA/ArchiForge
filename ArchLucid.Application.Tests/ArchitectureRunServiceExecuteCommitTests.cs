@@ -17,6 +17,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -1074,6 +1075,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 Mock.Of<IPreCommitGovernanceGate>(),
                 Options.Create(new PreCommitGovernanceGateOptions()),
                 Mock.Of<IAuditService>(),
+                NoOpTrialFunnelCommitHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 
@@ -1181,6 +1183,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 preCommitGovernanceGate,
                 preCommitGovernanceGateOptions,
                 auditService,
+                NoOpTrialFunnelCommitHook.Instance,
                 NullLogger<ArchitectureRunCommitOrchestrator>.Instance));
     }
 }

@@ -24,6 +24,10 @@ public sealed class TrialLimitExceededException : Exception
             TrialLimitReason.Expired => "The self-service trial has expired.",
             TrialLimitReason.RunsExceeded => "The trial included run allowance has been exhausted.",
             TrialLimitReason.SeatsExceeded => "The trial seat allowance has been exhausted.",
+            TrialLimitReason.LifecycleWritesFrozen =>
+                "This tenant is in a post-trial lifecycle phase where changes are not allowed.",
+            TrialLimitReason.LifecycleDeletesFrozen =>
+                "This tenant is in a read-only or export-only lifecycle phase where deletes are not allowed.",
             _ => "A trial limit was exceeded.",
         };
 }

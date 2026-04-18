@@ -393,6 +393,158 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
         await tran.CommitAsync(ct);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             SELECT Id
+                             FROM dbo.Tenants
+                             WHERE TrialExpiresUtc IS NOT NULL
+                               AND TrialStatus IS NOT NULL
+                               AND TrialStatus <> @Converted
+                             ORDER BY CreatedUtc ASC;
+                             """;
+
+        IEnumerable<Guid> ids = await connection.QueryAsync<Guid>(
+            new CommandDefinition(
+                sql,
+                new { Converted = TrialLifecycleStatus.Converted },
+                cancellationToken: ct));
+
+        return ids.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryRecordTrialLifecycleTransitionAsync(
+        Guid tenantId,
+        string expectedCurrentStatus,
+        string nextStatus,
+        string reason,
+        CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(expectedCurrentStatus);
+        ArgumentException.ThrowIfNullOrWhiteSpace(nextStatus);
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct);
+
+        const string insertLog = """
+                                 INSERT INTO dbo.TenantLifecycleTransitions (TenantId, FromStatus, ToStatus, OccurredUtc, Reason)
+                                 VALUES (@TenantId, @FromStatus, @ToStatus, SYSUTCDATETIME(), @Reason);
+                                 """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                insertLog,
+                new
+                {
+                    TenantId = tenantId,
+                    FromStatus = expectedCurrentStatus,
+                    ToStatus = nextStatus,
+                    Reason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim(),
+                },
+                transaction: tran,
+                cancellationToken: ct));
+
+        const string updateTenant = """
+                                    UPDATE dbo.Tenants
+                                    SET TrialStatus = @NextStatus
+                                    WHERE Id = @TenantId AND TrialStatus = @ExpectedStatus;
+                                    """;
+
+        int updated = await connection.ExecuteAsync(
+            new CommandDefinition(
+                updateTenant,
+                new
+                {
+                    TenantId = tenantId,
+                    ExpectedStatus = expectedCurrentStatus,
+                    NextStatus = nextStatus,
+                },
+                transaction: tran,
+                cancellationToken: ct));
+
+        if (updated == 0)
+        {
+            await tran.RollbackAsync(ct);
+
+            return false;
+        }
+
+        await tran.CommitAsync(ct);
+
+        return true;
+    }
+
+    /// <inheritdoc />
+    public async Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
+        Guid tenantId,
+        DateTimeOffset committedUtc,
+        CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             UPDATE dbo.Tenants
+                             SET TrialFirstManifestCommittedUtc = @CommittedUtc
+                             OUTPUT INSERTED.TrialRunsUsed,
+                                    INSERTED.TrialRunsLimit,
+                                    INSERTED.CreatedUtc,
+                                    INSERTED.TrialStartUtc
+                             WHERE Id = @TenantId
+                               AND TrialExpiresUtc IS NOT NULL
+                               AND TrialFirstManifestCommittedUtc IS NULL;
+                             """;
+
+        TrialFirstManifestOutputRow? row = await connection.QuerySingleOrDefaultAsync<TrialFirstManifestOutputRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    CommittedUtc = committedUtc,
+                },
+                cancellationToken: ct));
+
+        if (row is null)
+        {
+            return null;
+        }
+
+        DateTimeOffset anchor = row.TrialStartUtc ?? row.CreatedUtc;
+        double seconds = (committedUtc - anchor).TotalSeconds;
+
+        double ratio = 0;
+
+        if (row.TrialRunsLimit is { } lim && lim > 0)
+        {
+            ratio = (double)row.TrialRunsUsed / lim;
+        }
+
+        return new TrialFirstManifestCommitOutcome
+        {
+            SignupToCommitSeconds = seconds,
+            TrialRunUsageRatio = ratio,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct)
+    {
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(ct);
+
+        const string sql = """
+                             UPDATE dbo.Tenants
+                             SET TrialExpiresUtc = @ExpiresUtc
+                             WHERE Id = @TenantId;
+                             """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(sql, new { TenantId = tenantId, ExpiresUtc = expiresUtc }, cancellationToken: ct));
+    }
+
     private static int ComputeDaysRemaining(DateTimeOffset? trialExpiresUtc)
     {
         if (trialExpiresUtc is null)
@@ -451,6 +603,17 @@ public sealed class DapperTenantRepository(ISqlConnectionFactory connectionFacto
                 TrialLimitReason.RunsExceeded,
                 ComputeDaysRemaining(row.TrialExpiresUtc));
         }
+    }
+
+    private sealed class TrialFirstManifestOutputRow
+    {
+        public int TrialRunsUsed { get; init; }
+
+        public int? TrialRunsLimit { get; init; }
+
+        public DateTimeOffset CreatedUtc { get; init; }
+
+        public DateTimeOffset? TrialStartUtc { get; init; }
     }
 
     private sealed class TrialRunGateRow

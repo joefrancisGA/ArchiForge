@@ -1,5 +1,6 @@
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.Diagnostics;
+using ArchLucid.Persistence.Tenancy.Diagnostics;
 
 namespace ArchLucid.Host.Core.Hosted;
 
@@ -60,6 +61,15 @@ public sealed class OutboxOperationalMetricsHostedService(
         }
 
         OutboxOperationalMetricsSnapshot snap = await reader.ReadSnapshotAsync(ct);
+
+        ITrialFunnelOperationalMetricsReader? trialReader =
+            scope.ServiceProvider.GetService<ITrialFunnelOperationalMetricsReader>();
+
+        if (trialReader is not null)
+        {
+            long activeTrials = await trialReader.CountActiveSelfServiceTrialsAsync(ct);
+            ArchLucidInstrumentation.PublishTrialActiveTenantCount(activeTrials);
+        }
 
         OutboxDepthGaugeValues values = new(
             snap.AuthorityPipelineWorkPending,

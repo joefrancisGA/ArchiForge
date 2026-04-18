@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Persistence.Billing;
@@ -50,6 +51,8 @@ public sealed class BillingWebhookTrialActivator(
 
         await _tenantRepository.MarkTrialConvertedAsync(tenantId, commercialTier, cancellationToken);
 
+        ArchLucidInstrumentation.RecordTrialConversion(TrialLifecycleStatus.Active, checkoutTierLabel.Trim());
+
         string actor = $"billing:{provider}";
 
         await _auditService.LogAsync(
@@ -70,5 +73,7 @@ public sealed class BillingWebhookTrialActivator(
                     }),
             },
             cancellationToken);
+
+        ArchLucidInstrumentation.RecordBillingCheckout(provider, checkoutTierLabel.Trim(), "completed");
     }
 }

@@ -10,6 +10,7 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
@@ -156,6 +157,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             Mock.Of<IPreCommitGovernanceGate>(),
             Options.Create(new PreCommitGovernanceGateOptions()),
             Mock.Of<IAuditService>(),
+            NoOpTrialFunnelCommitHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);
@@ -361,6 +363,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             gate,
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             auditService.Object,
+            NoOpTrialFunnelCommitHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         Func<Task> act = async () => await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);
@@ -541,6 +544,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
             gate,
             Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
             Mock.Of<IAuditService>(),
+            NoOpTrialFunnelCommitHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult committed = await commitOrchestrator.CommitRunAsync(runId, CancellationToken.None);

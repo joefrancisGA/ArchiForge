@@ -187,3 +187,32 @@ groups:
             rate window for 2h. Advisory scans may be missing explainability traces expected for stakeholder narratives.
             Tune threshold per environment; see docs/EXPLAINABILITY_TRACE_COVERAGE.md and docs/OBSERVABILITY.md.
             If the histogram is absent in Prometheus (exporter rename), fix scrape config before relying on this alert.
+
+  - name: archlucid-trial-funnel
+    rules:
+      - alert: ArchLucidTrialSignupFailuresHigh
+        expr: sum(rate(archlucid_trial_signup_failures_total[1m])) > (5.0 / 60.0)
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: Trial signup failures sustained above 5/min
+          description: >-
+            `archlucid_trial_signup_failures_total` rate exceeded 5 events/min for 10m. Check registration / local identity /
+            trial bootstrap logs; see docs/runbooks/TRIAL_FUNNEL.md.
+
+      - alert: ArchLucidTrialFirstRunLatencyP95High
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(archlucid_trial_first_run_seconds_bucket[15m])) by (le)
+          ) > 600
+        for: 30m
+        labels:
+          severity: warning
+          escalation: ticket
+        annotations:
+          summary: Trial time-to-first-manifest p95 exceeds 600s
+          description: >-
+            p95 of `archlucid_trial_first_run_seconds` is above 600s for 30m. Treat as product funnel friction; see
+            docs/runbooks/TRIAL_FUNNEL.md and Grafana dashboard `archlucid-trial-funnel`.

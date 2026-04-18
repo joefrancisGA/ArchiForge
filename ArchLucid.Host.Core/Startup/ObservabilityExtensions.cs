@@ -43,7 +43,6 @@ public static class ObservabilityExtensions
         IHostEnvironment environment,
         string telemetryServiceName)
     {
-        bool prometheusEnabled = configuration.GetValue("Observability:Prometheus:Enabled", false);
         bool consoleExporterEnabled = configuration.GetValue("Observability:ConsoleExporter:Enabled", environment.IsDevelopment());
 
         string? otlpEndpointRaw = configuration["Observability:Otlp:Endpoint"]?.Trim();
@@ -75,6 +74,7 @@ public static class ObservabilityExtensions
         BuildProvenance build = BuildProvenance.FromAssembly(typeof(ObservabilityExtensions).Assembly);
 
         ArchLucidInstrumentation.EnsureOutboxDepthObservableGaugesRegistered();
+        ArchLucidInstrumentation.EnsureTrialFunnelObservableGaugesRegistered();
 
         services.Configure<ObservabilityHostOptions>(
             configuration.GetSection(ObservabilityHostOptions.SectionName));
@@ -133,8 +133,10 @@ public static class ObservabilityExtensions
                 metrics.AddMeter(SchemaValidationService.MeterName);
                 metrics.AddMeter(ArchLucidInstrumentation.MeterName);
 
-                if (prometheusEnabled)
-                    metrics.AddPrometheusExporter();
+                // Always register the Prometheus exporter on the shared MeterProvider so
+                // UseOpenTelemetryPrometheusScrapingEndpoint can resolve it whenever scrape is enabled
+                // (integration tests flip Prometheus on after the host builder merges configuration).
+                metrics.AddPrometheusExporter();
 
                 if (otlpEndpointUri is not null)
                 {

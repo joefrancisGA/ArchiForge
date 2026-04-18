@@ -54,6 +54,7 @@ Execute the **core path** from [V1_SCOPE.md](V1_SCOPE.md) §4 (or [PILOT_GUIDE.m
 - [ ] **Replay** — run replay or comparison replay path exercised per your pilot script ([ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)).
 - [ ] **Graph** — load graph for one **run ID** in UI ([operator-shell.md](operator-shell.md), [KNOWLEDGE_GRAPH.md](KNOWLEDGE_GRAPH.md)).
 - [ ] **Auth:** pilot role (**Reader** / **Operator** / **Admin**) matches documented policies ([README.md](../README.md)).
+- [ ] **Self-serve trial (automated)** — merge-blocking workflow **`ui-e2e-live`** includes [`live-api-trial-end-to-end.spec.ts`](../archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts) (register → trial metering → Noop checkout → harness activation → metrics); operator runbook [TRIAL_END_TO_END.md](runbooks/TRIAL_END_TO_END.md).
 
 ---
 

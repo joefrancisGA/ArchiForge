@@ -2000,7 +2000,7 @@ BEGIN
         ContentJson NVARCHAR(MAX) NOT NULL,
         CreatedUtc DATETIME2 NOT NULL,
         IsPublished BIT NOT NULL,
-        INDEX IX_PolicyPackVersions_PolicyPackId_Version NONCLUSTERED (PolicyPackId, [Version])
+        INDEX UQ_PolicyPackVersions_PolicyPackId_Version UNIQUE NONCLUSTERED (PolicyPackId, [Version])
     );
 END;
 GO
@@ -3099,5 +3099,63 @@ BEGIN
 
     CREATE NONCLUSTERED INDEX IX_BillingWebhookEvents_ProviderReceived2
         ON dbo.BillingWebhookEvents (Provider, ReceivedUtc);
+END;
+GO
+
+/* 079: Trial lifecycle transition log (see Migrations/079_TenantLifecycleTransitions.sql). */
+IF OBJECT_ID(N'dbo.TenantLifecycleTransitions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantLifecycleTransitions
+    (
+        TransitionId BIGINT            NOT NULL IDENTITY(1, 1) CONSTRAINT PK_TenantLifecycleTransitions2 PRIMARY KEY,
+        TenantId       UNIQUEIDENTIFIER NOT NULL,
+        FromStatus     NVARCHAR(32)     NOT NULL,
+        ToStatus       NVARCHAR(32)     NOT NULL,
+        OccurredUtc    DATETIMEOFFSET   NOT NULL CONSTRAINT DF_TenantLifecycleTransitions_OccurredUtc2 DEFAULT (SYSUTCDATETIME()),
+        Reason         NVARCHAR(256)    NULL
+    );
+
+    CREATE NONCLUSTERED INDEX IX_TenantLifecycleTransitions_Tenant_OccurredUtc2
+        ON dbo.TenantLifecycleTransitions (TenantId, OccurredUtc DESC);
+END;
+GO
+
+/* 080: Enforce one row per (PolicyPackId, Version); see Migrations/080_PolicyPackVersions_UniquePackVersion.sql. */
+IF OBJECT_ID(N'dbo.PolicyPackVersions', N'U') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1
+       FROM sys.indexes
+       WHERE object_id = OBJECT_ID(N'dbo.PolicyPackVersions')
+         AND name = N'UQ_PolicyPackVersions_PolicyPackId_Version')
+BEGIN
+    ;WITH Ranked080 AS (
+        SELECT
+            PolicyPackVersionId,
+            ROW_NUMBER() OVER (
+                PARTITION BY PolicyPackId, [Version]
+                ORDER BY CreatedUtc DESC, PolicyPackVersionId DESC) AS rn
+        FROM dbo.PolicyPackVersions
+    )
+    DELETE v
+    FROM dbo.PolicyPackVersions v
+    INNER JOIN Ranked080 r ON r.PolicyPackVersionId = v.PolicyPackVersionId
+    WHERE r.rn > 1;
+
+    IF EXISTS (
+        SELECT 1
+        FROM sys.indexes
+        WHERE object_id = OBJECT_ID(N'dbo.PolicyPackVersions')
+          AND name = N'IX_PolicyPackVersions_PolicyPackId_Version')
+        DROP INDEX IX_PolicyPackVersions_PolicyPackId_Version ON dbo.PolicyPackVersions;
+
+    CREATE UNIQUE NONCLUSTERED INDEX UQ_PolicyPackVersions_PolicyPackId_Version
+        ON dbo.PolicyPackVersions (PolicyPackId, [Version]);
+END;
+GO
+
+/* 081: Trial funnel first manifest timestamp (see Migrations/081_Tenants_TrialFirstManifestCommittedUtc.sql). */
+IF OBJECT_ID(N'dbo.Tenants', N'U') IS NOT NULL AND COL_LENGTH(N'dbo.Tenants', N'TrialFirstManifestCommittedUtc') IS NULL
+BEGIN
+    ALTER TABLE dbo.Tenants ADD TrialFirstManifestCommittedUtc DATETIMEOFFSET NULL;
 END;
 GO

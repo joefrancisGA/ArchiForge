@@ -4,6 +4,7 @@ using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
@@ -48,6 +49,21 @@ public sealed class RegistrationController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
         }
 
+        string actorEmail = body.AdminEmail.Trim();
+
+        await _audit.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.TrialSignupAttempted,
+                ActorUserId = actorEmail,
+                ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
+                TenantId = Guid.Empty,
+                WorkspaceId = Guid.Empty,
+                ProjectId = Guid.Empty,
+                DataJson = JsonSerializer.Serialize(new { channel = "api_register" }),
+            },
+            cancellationToken);
+
         try
         {
             TenantProvisioningResult result = await _provisioning.ProvisionAsync(
@@ -62,6 +78,21 @@ public sealed class RegistrationController(
 
             if (result.WasAlreadyProvisioned)
             {
+                ArchLucidInstrumentation.RecordTrialSignupFailure("provision", "duplicate_slug");
+
+                await _audit.LogAsync(
+                    new AuditEvent
+                    {
+                        EventType = AuditEventTypes.TrialSignupFailed,
+                        ActorUserId = actorEmail,
+                        ActorUserName = string.IsNullOrWhiteSpace(body.AdminDisplayName) ? actorEmail : body.AdminDisplayName.Trim(),
+                        TenantId = Guid.Empty,
+                        WorkspaceId = Guid.Empty,
+                        ProjectId = Guid.Empty,
+                        DataJson = JsonSerializer.Serialize(new { stage = "provision", reason = "duplicate_slug" }),
+                    },
+                    cancellationToken);
+
                 return this.ConflictProblem(
                     "An organization with this name is already registered.",
                     ProblemTypes.Conflict);
@@ -93,10 +124,40 @@ public sealed class RegistrationController(
         }
         catch (ArgumentException ex)
         {
+            ArchLucidInstrumentation.RecordTrialSignupFailure("validation", ex.GetType().Name);
+
+            await _audit.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialSignupFailed,
+                    ActorUserId = actorEmail,
+                    ActorUserName = actorEmail,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(new { stage = "validation", reason = ex.GetType().Name, message = ex.Message }),
+                },
+                cancellationToken);
+
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
         catch (InvalidOperationException ex)
         {
+            ArchLucidInstrumentation.RecordTrialSignupFailure("validation", ex.GetType().Name);
+
+            await _audit.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.TrialSignupFailed,
+                    ActorUserId = actorEmail,
+                    ActorUserName = actorEmail,
+                    TenantId = Guid.Empty,
+                    WorkspaceId = Guid.Empty,
+                    ProjectId = Guid.Empty,
+                    DataJson = JsonSerializer.Serialize(new { stage = "validation", reason = ex.GetType().Name, message = ex.Message }),
+                },
+                cancellationToken);
+
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
     }

@@ -165,16 +165,24 @@ public sealed class PolicyPackManagementServiceTests
         packRepo.Setup(p => p.UpdateAsync(It.IsAny<PolicyPack>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        PolicyPackVersion publishedRow = new()
+        {
+            PolicyPackVersionId = Guid.NewGuid(),
+            PolicyPackId = packId,
+            Version = "2.0.0",
+            ContentJson = """{"k":1}""",
+            CreatedUtc = DateTime.UtcNow,
+            IsPublished = true,
+        };
+
         Mock<IPolicyPackVersionRepository> versionRepo = new();
-        versionRepo.Setup(v => v.GetByPackAndVersionAsync(packId, "2.0.0", It.IsAny<CancellationToken>()))
-            .ReturnsAsync((PolicyPackVersion?)null);
         versionRepo.Setup(
-                v => v.CreateAsync(
-                    It.IsAny<PolicyPackVersion>(),
-                    It.IsAny<CancellationToken>(),
-                    It.IsAny<IDbConnection?>(),
-                    It.IsAny<IDbTransaction?>()))
-            .Returns(Task.CompletedTask);
+                v => v.UpsertPublishedVersionAsync(
+                    packId,
+                    "2.0.0",
+                    """{"k":1}""",
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((publishedRow, (string?)null));
 
         Mock<IPolicyPackChangeLogRepository> changeLog = new();
         changeLog
@@ -227,11 +235,24 @@ public sealed class PolicyPackManagementServiceTests
             IsPublished = false,
         };
 
+        PolicyPackVersion publishedRow = new()
+        {
+            PolicyPackVersionId = existing.PolicyPackVersionId,
+            PolicyPackId = packId,
+            Version = "1.0.0",
+            ContentJson = """{"new":true}""",
+            CreatedUtc = existing.CreatedUtc,
+            IsPublished = true,
+        };
+
         Mock<IPolicyPackVersionRepository> versionRepo = new();
-        versionRepo.Setup(v => v.GetByPackAndVersionAsync(packId, "1.0.0", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(existing);
-        versionRepo.Setup(v => v.UpdateAsync(It.IsAny<PolicyPackVersion>(), It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+        versionRepo.Setup(
+                v => v.UpsertPublishedVersionAsync(
+                    packId,
+                    "1.0.0",
+                    """{"new":true}""",
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync((publishedRow, """{"old":true}"""));
 
         Mock<IPolicyPackRepository> packRepo = new();
         packRepo.Setup(p => p.GetByIdAsync(packId, It.IsAny<CancellationToken>()))

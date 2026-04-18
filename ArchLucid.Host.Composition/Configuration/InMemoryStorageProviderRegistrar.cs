@@ -46,6 +46,7 @@ using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Tenancy.Diagnostics;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Provenance;
 
@@ -65,6 +66,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<ITenantHardPurgeService, NoOpTenantHardPurgeService>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();
         services.AddSingleton<IRunRepository>(sp =>
@@ -128,6 +130,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         ArchLucidStorageServiceCollectionExtensions.RegisterSharedDistributedCacheAndLlmCompletion(services, configuration);
 
         services.AddSingleton<IOutboxOperationalMetricsReader, InMemoryOutboxOperationalMetricsReader>();
+        services.AddSingleton<ITrialFunnelOperationalMetricsReader, InMemoryTrialFunnelOperationalMetricsReader>();
+        services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
+
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
     }
 }

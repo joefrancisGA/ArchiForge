@@ -95,6 +95,89 @@ public sealed class DapperPolicyPackVersionRepository(
     }
 
     /// <inheritdoc />
+    public async Task<(PolicyPackVersion Version, string? PreviousContentJson)> UpsertPublishedVersionAsync(
+        Guid policyPackId,
+        string version,
+        string contentJson,
+        CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+
+        const string selectSql = """
+            SELECT PolicyPackVersionId, PolicyPackId, [Version] AS Version, ContentJson, CreatedUtc, IsPublished
+            FROM dbo.PolicyPackVersions WITH (UPDLOCK, HOLDLOCK)
+            WHERE PolicyPackId = @PolicyPackId AND [Version] = @Ver;
+            """;
+
+        const string updateSql = """
+            UPDATE dbo.PolicyPackVersions
+            SET ContentJson = @ContentJson, IsPublished = @IsPublished
+            WHERE PolicyPackVersionId = @PolicyPackVersionId;
+            """;
+
+        const string insertSql = """
+            INSERT INTO dbo.PolicyPackVersions
+            (PolicyPackVersionId, PolicyPackId, [Version], ContentJson, CreatedUtc, IsPublished)
+            VALUES
+            (@PolicyPackVersionId, @PolicyPackId, @Version, @ContentJson, @CreatedUtc, @IsPublished);
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await using SqlTransaction transaction =
+            (SqlTransaction)await connection.BeginTransactionAsync(IsolationLevel.Serializable, ct);
+
+        try
+        {
+            PolicyPackVersion? existing = await connection.QueryFirstOrDefaultAsync<PolicyPackVersion>(
+                new CommandDefinition(
+                    selectSql,
+                    new
+                    {
+                        PolicyPackId = policyPackId,
+                        Ver = version
+                    },
+                    transaction: transaction,
+                    cancellationToken: ct));
+
+            if (existing is not null)
+            {
+                string? previous = existing.ContentJson;
+                existing.ContentJson = contentJson;
+                existing.IsPublished = true;
+
+                await connection.ExecuteAsync(
+                    new CommandDefinition(updateSql, existing, transaction: transaction, cancellationToken: ct));
+
+                await transaction.CommitAsync(ct);
+
+                return (existing, previous);
+            }
+
+            PolicyPackVersion inserted = new()
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
+                Version = version,
+                ContentJson = contentJson,
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            };
+
+            await connection.ExecuteAsync(
+                new CommandDefinition(insertSql, inserted, transaction: transaction, cancellationToken: ct));
+
+            await transaction.CommitAsync(ct);
+
+            return (inserted, null);
+        }
+        catch
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
         const string sql = """

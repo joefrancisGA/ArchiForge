@@ -43,6 +43,39 @@ export const liveAuthActorName = isJwtMode
 /** Distinct `reviewedBy` body value vs {@link liveAuthActorName} for approve/reject paths. */
 export const livePeerReviewerActorName = "e2e-peer-reviewer";
 
+/** Scope headers for mutating/reading architecture + tenant routes in a specific tenant (self-service registration E2E). */
+export type LiveTenantScopeHeaders = {
+  tenantId: string;
+  workspaceId: string;
+  projectId: string;
+};
+
+/** Builds `x-tenant-id` / `x-workspace-id` / `x-project-id` headers for {@link LiveTenantScopeHeaders}. */
+export function liveTenantScopeHeaders(scope: LiveTenantScopeHeaders): Record<string, string> {
+  return {
+    "x-tenant-id": scope.tenantId.trim(),
+    "x-workspace-id": scope.workspaceId.trim(),
+    "x-project-id": scope.projectId.trim(),
+  };
+}
+
+function mergeTenantScope(
+  headers: Record<string, string>,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Record<string, string> {
+  if (
+    tenantScope === undefined ||
+    tenantScope === null ||
+    tenantScope.tenantId.trim().length === 0 ||
+    tenantScope.workspaceId.trim().length === 0 ||
+    tenantScope.projectId.trim().length === 0
+  ) {
+    return headers;
+  }
+
+  return { ...headers, ...liveTenantScopeHeaders(tenantScope) };
+}
+
 /**
  * Compares run ids across API surfaces: architecture routes use 32-char hex (`Guid.ToString("N")`),
  * while authority run detail JSON serializes `Guid` with hyphens. The operator UI shows the authority value.
@@ -160,10 +193,11 @@ async function delayAfterRateLimitedResponse(res: APIResponse): Promise<void> {
 export async function postArchitectureRequestRaw(
   request: APIRequestContext,
   body: unknown,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<APIResponse> {
   return request.post(`${liveApiBase}/v1/architecture/request`, {
     data: body,
-    headers: liveJsonHeaders(),
+    headers: mergeTenantScope(liveJsonHeaders(), tenantScope),
   });
 }
 
@@ -174,9 +208,10 @@ const maxArchitectureMutationAttempts = 8;
 export async function createRun(
   request: APIRequestContext,
   body: Record<string, unknown>,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<{ runId: string }> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
-    const res = await postArchitectureRequestRaw(request, body);
+    const res = await postArchitectureRequestRaw(request, body, tenantScope);
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
       await delayAfterRateLimitedResponse(res);
@@ -206,10 +241,14 @@ export async function createRun(
 }
 
 /** POST `/v1/architecture/run/{runId}/execute` — run agents (Simulator in CI). */
-export async function executeRun(request: APIRequestContext, runId: string): Promise<unknown> {
+export async function executeRun(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<unknown> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
     const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/execute`, {
-      headers: liveAcceptHeaders(),
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
@@ -233,10 +272,14 @@ export async function executeRun(request: APIRequestContext, runId: string): Pro
 }
 
 /** POST `/v1/architecture/run/{runId}/commit` — merge and persist golden manifest. */
-export async function commitRun(request: APIRequestContext, runId: string): Promise<CommitRunResponseJson> {
+export async function commitRun(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<CommitRunResponseJson> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
     const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
-      headers: liveAcceptHeaders(),
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
@@ -263,10 +306,14 @@ export async function commitRun(request: APIRequestContext, runId: string): Prom
  * Same as {@link commitRun} but returns the raw response for negative-path assertions (409, 404, …).
  * Retries **429** / transient **5xx** only so callers still see the first definitive 4xx (e.g. 404) body.
  */
-export async function commitRunRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
+export async function commitRunRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
   for (let attempt = 0; attempt < maxArchitectureMutationAttempts; attempt++) {
     const res = await request.post(`${liveApiBase}/v1/architecture/run/${runId}/commit`, {
-      headers: liveAcceptHeaders(),
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
 
     if (res.status() === 429 && attempt < maxArchitectureMutationAttempts - 1) {
@@ -295,15 +342,23 @@ export type CommitRunResponseJson = {
 };
 
 /** GET `/v1/architecture/run/{runId}` — raw response (404/409 negative paths). */
-export async function getRunDetailsRaw(request: APIRequestContext, runId: string): Promise<APIResponse> {
+export async function getRunDetailsRaw(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<APIResponse> {
   return request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
-    headers: liveAcceptHeaders(),
+    headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
   });
 }
 
 /** GET `/v1/architecture/run/{runId}` — run aggregate including golden manifest id after commit. */
-export async function getRunDetails(request: APIRequestContext, runId: string): Promise<RunDetailsJson> {
-  const res = await getRunDetailsRaw(request, runId);
+export async function getRunDetails(
+  request: APIRequestContext,
+  runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
+): Promise<RunDetailsJson> {
+  const res = await getRunDetailsRaw(request, runId, tenantScope);
 
   await throwIfNotOk(res, "GET /v1/architecture/run/...");
 
@@ -319,10 +374,11 @@ const maxRunDetailPollAttempts = 16;
 export async function getRunDetailsWithTransientRetries(
   request: APIRequestContext,
   runId: string,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<RunDetailsJson> {
   for (let attempt = 0; attempt < maxRunDetailPollAttempts; attempt++) {
     const res = await request.get(`${liveApiBase}/v1/architecture/run/${runId}`, {
-      headers: liveAcceptHeaders(),
+      headers: mergeTenantScope(liveAcceptHeaders(), tenantScope),
     });
     const code = res.status();
 
@@ -354,11 +410,12 @@ export async function waitForReadyForCommit(
   request: APIRequestContext,
   runId: string,
   timeoutMs: number,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<void> {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    const detail = await getRunDetailsWithTransientRetries(request, runId);
+    const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
     const status = detail.run?.status;
 
     if (status === 4 || status === "ReadyForCommit") {
@@ -421,11 +478,12 @@ export async function waitForRunDetailCommitted(
   request: APIRequestContext,
   runId: string,
   timeoutMs: number,
+  tenantScope?: LiveTenantScopeHeaders | null,
 ): Promise<void> {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    const detail = await getRunDetailsWithTransientRetries(request, runId);
+    const detail = await getRunDetailsWithTransientRetries(request, runId, tenantScope);
 
     if (isArchitectureRunStatusCommitted(detail.run?.status)) {
       return;
@@ -926,4 +984,74 @@ export async function toggleDigestSubscription(
   await throwIfNotOk(res, "POST /v1/digest-subscriptions/.../toggle");
 
   return res.json() as Promise<DigestSubscriptionJson>;
+}
+
+/** Headers for non-production `POST /v1/e2e/*` harness routes (must match `ArchLucid:E2eHarness:SharedSecret` on the API). */
+export function liveE2eHarnessHeaders(): Record<string, string> {
+  const s = process.env.LIVE_E2E_HARNESS_SECRET?.trim() ?? "";
+
+  if (s.length < 16) {
+    throw new Error("LIVE_E2E_HARNESS_SECRET must be set to >= 16 chars for harness calls.");
+  }
+
+  return {
+    "X-ArchLucid-E2e-Harness-Secret": s,
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+}
+
+/** POST `/v1/e2e/trial/set-expires` — clock harness (SQL updates `TrialExpiresUtc`). */
+export async function postHarnessTrialSetExpires(
+  request: APIRequestContext,
+  tenantId: string,
+  expiresUtcIso: string,
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/e2e/trial/set-expires`, {
+    headers: liveE2eHarnessHeaders(),
+    data: { tenantId, expiresUtc: expiresUtcIso },
+  });
+}
+
+/** POST `/v1/e2e/billing/simulate-subscription-activated` — invokes billing activator (Stripe-style outcome). */
+export async function postHarnessBillingSimulateActivated(
+  request: APIRequestContext,
+  body: Record<string, unknown>,
+): Promise<APIResponse> {
+  return request.post(`${liveApiBase}/v1/e2e/billing/simulate-subscription-activated`, {
+    headers: liveE2eHarnessHeaders(),
+    data: body,
+  });
+}
+
+/** GET `/v1/tenant/trial-status` for the given tenant scope. */
+export async function getTenantTrialStatus(
+  request: APIRequestContext,
+  scope: LiveTenantScopeHeaders,
+): Promise<{
+  status?: string;
+  daysRemaining?: number | null;
+  trialRunsUsed?: number;
+  trialRunsLimit?: number | null;
+  trialSeatsUsed?: number;
+  trialSeatsLimit?: number | null;
+  trialSampleRunId?: string | null;
+  trialExpiresUtc?: string | null;
+}> {
+  const res = await request.get(`${liveApiBase}/v1/tenant/trial-status`, {
+    headers: mergeTenantScope(liveAcceptHeaders(), scope),
+  });
+
+  await throwIfNotOk(res, "GET /v1/tenant/trial-status");
+
+  return res.json() as Promise<{
+    status?: string;
+    daysRemaining?: number | null;
+    trialRunsUsed?: number;
+    trialRunsLimit?: number | null;
+    trialSeatsUsed?: number;
+    trialSeatsLimit?: number | null;
+    trialSampleRunId?: string | null;
+    trialExpiresUtc?: string | null;
+  }>;
 }

@@ -15,6 +15,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Connections;
@@ -47,6 +48,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
     IPreCommitGovernanceGate preCommitGovernanceGate,
     IOptions<PreCommitGovernanceGateOptions> preCommitGovernanceGateOptions,
     IAuditService auditService,
+    ITrialFunnelCommitHook trialFunnelCommitHook,
     ILogger<ArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -75,6 +77,10 @@ public sealed class ArchitectureRunCommitOrchestrator(
         preCommitGovernanceGateOptions ?? throw new ArgumentNullException(nameof(preCommitGovernanceGateOptions));
 
     private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ITrialFunnelCommitHook _trialFunnelCommitHook =
+        trialFunnelCommitHook ?? throw new ArgumentNullException(nameof(trialFunnelCommitHook));
+
     private readonly ILogger<ArchitectureRunCommitOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     private const int CommitRunTransientMaxAttempts = 5;
@@ -357,11 +363,11 @@ public sealed class ArchitectureRunCommitOrchestrator(
                 $"ManifestVersion={merge.Manifest.Metadata.ManifestVersion}; WarningCount={merge.Warnings.Count}",
                 cancellationToken);
 
+        ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
+        Guid? commitRunGuid = Guid.TryParse(runId, out Guid ridCommit) ? ridCommit : null;
+
         try
         {
-            ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
-            Guid? commitRunGuid = Guid.TryParse(runId, out Guid ridCommit) ? ridCommit : null;
-
             await _auditService.LogAsync(
                 new AuditEvent
                 {
@@ -391,6 +397,12 @@ public sealed class ArchitectureRunCommitOrchestrator(
                     LogSanitizer.Sanitize(runId));
             }
         }
+
+        DateTimeOffset committedUtc = DateTimeOffset.UtcNow;
+
+        await _trialFunnelCommitHook
+            .OnTrialTenantManifestCommittedAsync(commitScope.TenantId, committedUtc, cancellationToken)
+            .ConfigureAwait(false);
 
         if (_logger.IsEnabled(LogLevel.Information))
         {

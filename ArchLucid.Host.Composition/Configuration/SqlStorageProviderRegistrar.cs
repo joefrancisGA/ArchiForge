@@ -53,6 +53,7 @@ using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Tenancy.Diagnostics;
 using ArchLucid.Persistence.Transactions;
 using ArchLucid.Provenance;
 
@@ -189,6 +190,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
+        services.AddScoped<ITenantHardPurgeService, SqlTenantHardPurgeService>();
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();
         services.AddScoped<IUsageEventRepository, DapperUsageEventRepository>();
@@ -200,6 +202,9 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
         services.AddSingleton<Persistence.Data.Repositories.IHostLeaderLeaseRepository, Persistence.Data.Repositories.SqlHostLeaderLeaseRepository>();
+
+        services.AddSingleton<ITrialFunnelOperationalMetricsReader, DapperTrialFunnelOperationalMetricsReader>();
+        services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
         services.AddHostedService<DataConsistencyOrphanProbeHostedService>();

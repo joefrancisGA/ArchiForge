@@ -17,6 +17,13 @@ resource "grafana_dashboard" "slo" {
   config_json = file("${path.module}/../grafana/dashboard-archlucid-slo.json")
 }
 
+resource "grafana_dashboard" "trial_funnel" {
+  count = local.grafana_dashboards_enabled ? 1 : 0
+
+  folder      = grafana_folder.archlucid[0].id
+  config_json = file("${path.module}/../grafana/dashboard-archlucid-trial-funnel.json")
+}
+
 resource "grafana_dashboard" "llm_usage" {
   count = local.grafana_dashboards_enabled ? 1 : 0
 

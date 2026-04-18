@@ -1,10 +1,14 @@
 using System.Text;
+using System.Text.Json;
 
 using ArchLucid.Api.Models.Billing;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -21,7 +25,8 @@ namespace ArchLucid.Api.Controllers.Billing;
 public sealed class BillingCheckoutController(
     IBillingProviderRegistry billingProviderRegistry,
     IBillingLedger billingLedger,
-    IScopeContextProvider scopeProvider) : ControllerBase
+    IScopeContextProvider scopeProvider,
+    IAuditService auditService) : ControllerBase
 {
     private readonly IBillingProviderRegistry _billingProviderRegistry =
         billingProviderRegistry ?? throw new ArgumentNullException(nameof(billingProviderRegistry));
@@ -31,7 +36,10 @@ public sealed class BillingCheckoutController(
     private readonly IScopeContextProvider _scopeProvider =
         scopeProvider ?? throw new ArgumentNullException(nameof(scopeProvider));
 
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     [HttpPost("checkout")]
+    [SkipTrialWriteLimit]
     [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
     [ProducesResponseType(typeof(BillingCheckoutResponseDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> CheckoutAsync(
@@ -40,23 +48,52 @@ public sealed class BillingCheckoutController(
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        if (await _billingLedger.TenantHasActiveSubscriptionAsync(scope.TenantId, cancellationToken))
-        {
-            return this.ConflictProblem(
-                "An active billing subscription already exists for this tenant.",
-                ProblemTypes.Conflict);
-        }
-
         if (body is null ||
             string.IsNullOrWhiteSpace(body.ReturnUrl) ||
             string.IsNullOrWhiteSpace(body.CancelUrl))
         {
+            IBillingProvider badReqProvider = _billingProviderRegistry.ResolveActiveProvider();
+            ArchLucidInstrumentation.RecordBillingCheckout(badReqProvider.ProviderName, "unknown", "validation_failed");
+
             return this.BadRequestProblem(
                 "ReturnUrl, CancelUrl, and TargetTier are required.",
                 ProblemTypes.ValidationFailed);
         }
 
         BillingCheckoutTier tier = ParseCheckoutTier(body.TargetTier);
+
+        if (await _billingLedger.TenantHasActiveSubscriptionAsync(scope.TenantId, cancellationToken))
+        {
+            IBillingProvider conflictProvider = _billingProviderRegistry.ResolveActiveProvider();
+            ArchLucidInstrumentation.RecordBillingCheckout(
+                conflictProvider.ProviderName,
+                tier.ToString(),
+                "conflict_active_subscription");
+
+            return this.ConflictProblem(
+                "An active billing subscription already exists for this tenant.",
+                ProblemTypes.Conflict);
+        }
+
+        IBillingProvider providerForAudit = _billingProviderRegistry.ResolveActiveProvider();
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BillingCheckoutInitiated,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        provider = providerForAudit.ProviderName,
+                        tier = tier.ToString(),
+                    }),
+            },
+            cancellationToken);
 
         BillingCheckoutRequest request = new()
         {
@@ -81,8 +118,31 @@ public sealed class BillingCheckoutController(
         }
         catch (InvalidOperationException ex)
         {
+            ArchLucidInstrumentation.RecordBillingCheckout(provider.ProviderName, tier.ToString(), "provider_error");
+
             return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
         }
+
+        ArchLucidInstrumentation.RecordBillingCheckout(provider.ProviderName, tier.ToString(), "session_created");
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.BillingCheckoutCompleted,
+                ActorUserId = User.Identity?.Name ?? "admin",
+                ActorUserName = User.Identity?.Name ?? "admin",
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        provider = provider.ProviderName,
+                        tier = tier.ToString(),
+                        providerSessionId = result.ProviderSessionId,
+                    }),
+            },
+            cancellationToken);
 
         return Ok(
             new BillingCheckoutResponseDto

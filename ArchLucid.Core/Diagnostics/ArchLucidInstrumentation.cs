@@ -38,6 +38,10 @@ public static class ArchLucidInstrumentation
 
     private static int _outboxObservableGaugesRegistered;
 
+    private static int _trialFunnelObservableGaugesRegistered;
+
+    private static long _trialActiveTenantsCached;
+
     private static Func<long>? _auditRetryQueuePendingReader;
 
     private static long _rlsBypassProductionLikeEnabled;
@@ -115,6 +119,31 @@ public static class ArchLucidInstrumentation
                 new KeyValuePair<string, object?>("scope", "production_like")),
             description:
             "1 when SQL RLS break-glass bypass is enabled (env + ArchLucid:Persistence:AllowRlsBypass) on a Production/Staging-classified host.");
+    }
+
+    /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
+    public static void EnsureTrialFunnelObservableGaugesRegistered()
+    {
+        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
+        {
+            return;
+        }
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_trial_active_tenants",
+            () => new Measurement<long>(Volatile.Read(ref _trialActiveTenantsCached)),
+            description: "Tenants currently on an active self-service trial (TrialStatus=Active, TrialExpiresUtc set).");
+    }
+
+    /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>
+    public static void PublishTrialActiveTenantCount(long count)
+    {
+        if (count < 0)
+        {
+            count = 0;
+        }
+
+        Volatile.Write(ref _trialActiveTenantsCached, count);
     }
 
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
@@ -286,6 +315,63 @@ public static class ArchLucidInstrumentation
             "archlucid_authority_pipeline_stage_duration_ms",
             unit: "ms",
             description: "Per-stage wall time inside the authority pipeline (labels: stage, outcome).");
+
+    /// <summary>Successful self-service trial activations (labels: <c>source</c>, <c>mode</c>).</summary>
+    public static readonly Counter<long> TrialSignupsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_signups_total",
+            description: "Self-service trial funnel: successful trial activations (labels: source, mode).");
+
+    /// <summary>Failed signup / trial bootstrap attempts (labels: <c>stage</c>, <c>reason</c>).</summary>
+    public static readonly Counter<long> TrialSignupFailuresTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_signup_failures_total",
+            description: "Self-service trial funnel: failed signup or bootstrap attempts (labels: stage, reason).");
+
+    /// <summary>Seconds from trial anchor to first golden manifest commit (self-service trials).</summary>
+    public static readonly Histogram<double> TrialFirstRunSeconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_trial_first_run_seconds",
+            unit: "s",
+            description: "Seconds from tenant trial anchor (TrialStartUtc or CreatedUtc) to first committed manifest.",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    5, 15, 30, 60, 120, 300, 600, 1200, 3600, 7200, 86400,
+                ],
+            });
+
+    /// <summary><c>TrialRunsUsed / TrialRunsLimit</c> at first manifest commit for metered trials (0.0–1.0+).</summary>
+    public static readonly Histogram<double> TrialRunsUsedRatio =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_trial_runs_used_ratio",
+            description: "TrialRunsUsed divided by TrialRunsLimit when the first manifest commits (labels none).",
+            advice: new InstrumentAdvice<double>
+            {
+                HistogramBucketBoundaries =
+                [
+                    0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.0, 1.25, 2.0,
+                ],
+            });
+
+    /// <summary>Trial conversions to paid or higher tier (labels: <c>from_state</c>, <c>to_tier</c>).</summary>
+    public static readonly Counter<long> TrialConversionTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_conversion_total",
+            description: "Trial conversions (labels: from_state, to_tier).");
+
+    /// <summary>Automated lifecycle transitions toward expiry / deletion (label <c>reason</c>).</summary>
+    public static readonly Counter<long> TrialExpirationsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_expirations_total",
+            description: "Trial lifecycle transitions applied by automation (label: reason).");
+
+    /// <summary>Billing checkout attempts (labels: <c>provider</c>, <c>tier</c>, <c>outcome</c>).</summary>
+    public static readonly Counter<long> BillingCheckoutsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_billing_checkouts_total",
+            description: "Billing checkout sessions (labels: provider, tier, outcome).");
 
     /// <summary>Production agent handler completions (label: <c>agent_type_key</c>, <c>outcome</c>=success|error).</summary>
     public static readonly Counter<long> AgentHandlerInvocationsTotal =
@@ -460,6 +546,86 @@ public static class ArchLucidInstrumentation
     {
         double clamped = Math.Clamp(ratio, 0.0, 1.0);
         ExplanationFaithfulnessRatio.Record(clamped);
+    }
+
+    /// <summary>Increments <see cref="TrialSignupsTotal"/>.</summary>
+    public static void RecordTrialSignup(string source, string mode)
+    {
+        TagList tags = new()
+        {
+            { "source", string.IsNullOrWhiteSpace(source) ? "unknown" : source.Trim() },
+            { "mode", string.IsNullOrWhiteSpace(mode) ? "unknown" : mode.Trim() },
+        };
+
+        TrialSignupsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="TrialSignupFailuresTotal"/>.</summary>
+    public static void RecordTrialSignupFailure(string stage, string reason)
+    {
+        TagList tags = new()
+        {
+            { "stage", string.IsNullOrWhiteSpace(stage) ? "unknown" : stage.Trim() },
+            { "reason", string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim() },
+        };
+
+        TrialSignupFailuresTotal.Add(1, tags);
+    }
+
+    /// <summary>Records <see cref="TrialFirstRunSeconds"/> when positive and finite.</summary>
+    public static void RecordTrialFirstRunLatencySeconds(double seconds)
+    {
+        if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
+        {
+            return;
+        }
+
+        TrialFirstRunSeconds.Record(seconds);
+    }
+
+    /// <summary>Records <see cref="TrialRunsUsedRatio"/> clamped to non-negative values.</summary>
+    public static void RecordTrialRunsUsedRatio(double ratio)
+    {
+        if (double.IsNaN(ratio) || double.IsInfinity(ratio))
+        {
+            return;
+        }
+
+        TrialRunsUsedRatio.Record(Math.Max(0, ratio));
+    }
+
+    /// <summary>Increments <see cref="TrialConversionTotal"/>.</summary>
+    public static void RecordTrialConversion(string fromState, string toTier)
+    {
+        TagList tags = new()
+        {
+            { "from_state", string.IsNullOrWhiteSpace(fromState) ? "unknown" : fromState.Trim() },
+            { "to_tier", string.IsNullOrWhiteSpace(toTier) ? "unknown" : toTier.Trim() },
+        };
+
+        TrialConversionTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="TrialExpirationsTotal"/>.</summary>
+    public static void RecordTrialExpiration(string reason)
+    {
+        string r = string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim();
+        TagList tags = new() { { "reason", r } };
+
+        TrialExpirationsTotal.Add(1, tags);
+    }
+
+    /// <summary>Increments <see cref="BillingCheckoutsTotal"/>.</summary>
+    public static void RecordBillingCheckout(string provider, string tier, string outcome)
+    {
+        TagList tags = new()
+        {
+            { "provider", string.IsNullOrWhiteSpace(provider) ? "unknown" : provider.Trim() },
+            { "tier", string.IsNullOrWhiteSpace(tier) ? "unknown" : tier.Trim() },
+            { "outcome", string.IsNullOrWhiteSpace(outcome) ? "unknown" : outcome.Trim() },
+        };
+
+        BillingCheckoutsTotal.Add(1, tags);
     }
 
     /// <summary>Adds <paramref name="estimatedCostUsd"/> to <see cref="LlmCostUsdTotal"/> when positive.</summary>

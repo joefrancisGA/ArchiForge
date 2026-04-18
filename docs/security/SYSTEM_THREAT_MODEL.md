@@ -32,6 +32,7 @@ Give security reviewers a **single** STRIDE-oriented view of the **whole** produ
 | API → Blob | SAS misuse | Object tamper | — | Blob exfiltration | — | — | Private endpoint, MI, container ACLs |
 | Worker → Service Bus | — | Message tamper | — | Payload leak | Queue flood | — | Namespace auth, DLQ, admin retry APIs |
 | Billing webhooks (Stripe / Azure Marketplace) | Forged webhook replay, stolen signing secrets | Tampered payloads → wrong tenant conversion | — | **Stripe-Signature** HMAC + **Marketplace JWT** validation; **dbo.BillingWebhookEvents** idempotency key | Webhook flood | Replay after partial failure | Anonymous endpoints only after crypto verification; return **200** only after SQL commit; see **`docs/BILLING.md`** |
+| Worker → SQL (trial lifecycle + hard purge) | Mis-timed transitions, operator panic deletes | Orphan / cross-tenant purge if mis-scoped | — | **Idempotent** `TryRecordTrialLifecycleTransitionAsync`; `SqlTenantHardPurgeService` scopes **`WHERE TenantId=@TenantId`**; **`dbo.AuditEvents`** excluded | Long `DELETE TOP` loops | Break-glass abuse | **`SqlRowLevelSecurityBypassAmbient`** policy + **`TrialLifecycleSchedulerHostedService`** leader lease; see **`docs/runbooks/TRIAL_LIFECYCLE.md`** |
 | Logs / audit | — | Log forging (**CWE-117**) | Repudiation if audit skipped | Sensitive data in logs | Log volume DoS | — | **`LogSanitizer`**, append-only **`dbo.AuditEvents`** (role **DENY**) |
 
 ## 6. Data flow (high level)

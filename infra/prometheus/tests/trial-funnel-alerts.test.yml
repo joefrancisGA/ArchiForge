@@ -1,0 +1,17 @@
+# promtool test rules trial-funnel-alerts.test.yml
+# Run from repo root:
+#   promtool test rules infra/prometheus/tests/trial-funnel-alerts.test.yml
+rule_files:
+  - ../archlucid-alerts.yml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'archlucid_trial_signup_failures_total{stage="validation",reason="ArgumentException"}'
+        values: "0+6x60"
+    alert_rule_test:
+      eval_time: 62m
+      exp_alerts:
+        - alertname: ArchLucidTrialSignupFailuresHigh

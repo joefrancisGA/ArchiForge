@@ -11,7 +11,18 @@
  */
 import { expect, test } from "@playwright/test";
 
-import { liveApiBase, liveAuthMode, searchAudit } from "./helpers/live-api-client";
+import {
+  commitRun,
+  createRun,
+  executeRun,
+  liveApiBase,
+  liveAuthMode,
+  liveJsonHeaders,
+  liveTenantScopeHeaders,
+  searchAudit,
+  waitForReadyForCommit,
+  waitForRunDetailCommitted,
+} from "./helpers/live-api-client";
 
 const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
   .split(",")
@@ -20,6 +31,25 @@ const modes = (process.env.LIVE_TRIAL_E2E_MODES ?? "register-baseline")
 
 function modeEnabled(tag: string): boolean {
   return modes.includes(tag);
+}
+
+/** Base metric names (histograms appear as `_bucket` / `_sum` lines in Prometheus text). */
+function expectPrometheusTextContainsTrialFunnelMetrics(text: string): void {
+  const needles = [
+    "archlucid_trial_signups_total",
+    "archlucid_trial_signup_failures_total",
+    "archlucid_trial_first_run_seconds",
+    "archlucid_trial_active_tenants",
+    "archlucid_trial_runs_used_ratio",
+    "archlucid_trial_conversion_total",
+    "archlucid_billing_checkouts_total",
+  ];
+
+  for (const m of needles) {
+    expect(text, `Prometheus scrape should mention ${m}`).toContain(m);
+  }
+
+  // archlucid_trial_expirations_total is emitted by TrialLifecycleTransitionEngine (Worker); see docs/runbooks/TRIAL_FUNNEL.md.
 }
 
 test.describe("live-api-trial-signup", () => {
@@ -176,5 +206,112 @@ test.describe("live-api-trial-signup", () => {
     });
 
     await expect(manifestMain.getByRole("heading", { name: "Manifest", level: 2 })).toBeVisible({ timeout: 120_000 });
+
+    const metricsRes = await request.get(`${liveApiBase}/metrics`, { timeout: 30_000 });
+
+    if (!metricsRes.ok()) {
+      test.skip(true, `GET /metrics returned ${metricsRes.status()} (enable Observability:Prometheus:Enabled for trial funnel checks).`);
+    }
+
+    const metricsText = await metricsRes.text();
+
+    expect(metricsText).toContain("archlucid_trial_signups_total");
+  });
+
+  test("trial funnel: /metrics lists trial instruments after register + coordinator + billing + convert", async ({
+    request,
+  }) => {
+    test.setTimeout(300_000);
+    test.skip(liveAuthMode !== "bypass", "Requires DevelopmentBypass (AdminAuthority) for tenant billing and convert.");
+
+    const suffix = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+    const orgName = `Metrics Funnel Org ${suffix}`;
+    const adminEmail = `metrics-funnel-${suffix}@example.com`;
+
+    const first = await request.post(`${liveApiBase}/v1/register`, {
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      data: {
+        organizationName: orgName,
+        adminEmail,
+        adminDisplayName: "Metrics Funnel Admin",
+      },
+    });
+
+    expect(first.status(), await first.text()).toBe(201);
+
+    const provisioned = (await first.json()) as {
+      tenantId?: string;
+      defaultWorkspaceId?: string;
+      defaultProjectId?: string;
+    };
+
+    expect(provisioned.tenantId).toBeTruthy();
+    expect(provisioned.defaultWorkspaceId).toBeTruthy();
+    expect(provisioned.defaultProjectId).toBeTruthy();
+
+    const dup = await request.post(`${liveApiBase}/v1/register`, {
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      data: {
+        organizationName: orgName,
+        adminEmail: `other-${suffix}@example.com`,
+        adminDisplayName: "Other Admin",
+      },
+    });
+
+    expect(dup.status(), await dup.text()).toBe(409);
+
+    const scope = {
+      tenantId: provisioned.tenantId!,
+      workspaceId: provisioned.defaultWorkspaceId!,
+      projectId: provisioned.defaultProjectId!,
+    };
+
+    const createBody = {
+      requestId: `TRIAL-FUNNEL-${suffix}`,
+      description:
+        "Design a secure Azure RAG system for enterprise internal documents using Azure AI Search, managed identity, private endpoints, SQL metadata storage, and moderate cost sensitivity.",
+      systemName: "EnterpriseRag",
+      environment: "prod",
+      cloudProvider: 1,
+      constraints: ["Private endpoints required", "Use managed identity"],
+      requiredCapabilities: ["Azure AI Search", "SQL", "Managed Identity", "Private Networking"],
+      assumptions: [] as string[],
+      priorManifestVersion: null as string | null,
+    };
+
+    const { runId } = await createRun(request, createBody, scope);
+
+    await executeRun(request, runId, scope);
+    await waitForReadyForCommit(request, runId, 120_000, scope);
+    await commitRun(request, runId, scope);
+    await waitForRunDetailCommitted(request, runId, 90_000, scope);
+
+    const checkout = await request.post(`${liveApiBase}/v1/tenant/billing/checkout`, {
+      headers: { ...liveJsonHeaders(), ...liveTenantScopeHeaders(scope) },
+      data: {
+        targetTier: "Team",
+        returnUrl: "https://example.com/billing/return",
+        cancelUrl: "https://example.com/billing/cancel",
+      },
+    });
+
+    expect(checkout.status(), await checkout.text()).toBe(200);
+
+    const convert = await request.post(`${liveApiBase}/v1/tenant/convert`, {
+      headers: { ...liveJsonHeaders(), ...liveTenantScopeHeaders(scope) },
+      data: { targetTier: "Team" },
+    });
+
+    expect(convert.status(), await convert.text()).toBe(204);
+
+    const metricsRes = await request.get(`${liveApiBase}/metrics`, { timeout: 30_000 });
+
+    if (!metricsRes.ok()) {
+      test.skip(true, `GET /metrics returned ${metricsRes.status()} (enable Observability:Prometheus:Enabled).`);
+    }
+
+    const metricsText = await metricsRes.text();
+
+    expectPrometheusTextContainsTrialFunnelMetrics(metricsText);
   });
 });

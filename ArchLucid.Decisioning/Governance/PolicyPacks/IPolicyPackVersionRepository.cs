@@ -26,6 +26,17 @@ public interface IPolicyPackVersionRepository
         string version,
         CancellationToken ct);
 
+    /// <summary>
+    /// Atomically publishes version content under a single transactional read-modify-write so concurrent publishes
+    /// of the same (<paramref name="policyPackId"/>, <paramref name="version"/>) cannot create duplicate rows.
+    /// </summary>
+    /// <returns>The persisted row and the prior <see cref="PolicyPackVersion.ContentJson"/> when an existing row was updated; otherwise <c>null</c>.</returns>
+    Task<(PolicyPackVersion Version, string? PreviousContentJson)> UpsertPublishedVersionAsync(
+        Guid policyPackId,
+        string version,
+        string contentJson,
+        CancellationToken ct);
+
     /// <summary>All versions for a pack, typically newest first (UI / operator tooling).</summary>
     Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(
         Guid policyPackId,

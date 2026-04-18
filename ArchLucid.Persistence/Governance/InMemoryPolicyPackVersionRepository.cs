@@ -61,6 +61,51 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
         }
     }
 
+    public Task<(PolicyPackVersion Version, string? PreviousContentJson)> UpsertPublishedVersionAsync(
+        Guid policyPackId,
+        string version,
+        string contentJson,
+        CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+        ct.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int idx = _items.FindIndex(
+                x => x.PolicyPackId == policyPackId &&
+                     string.Equals(x.Version, version, StringComparison.Ordinal));
+
+            if (idx >= 0)
+            {
+                PolicyPackVersion existing = _items[idx];
+                string? previous = existing.ContentJson;
+                existing.ContentJson = contentJson;
+                existing.IsPublished = true;
+                _items[idx] = existing;
+
+                return Task.FromResult<(PolicyPackVersion, string?)>((existing, previous));
+            }
+
+            PolicyPackVersion inserted = new()
+            {
+                PolicyPackVersionId = Guid.NewGuid(),
+                PolicyPackId = policyPackId,
+                Version = version,
+                ContentJson = contentJson,
+                CreatedUtc = DateTime.UtcNow,
+                IsPublished = true,
+            };
+
+            _items.Add(inserted);
+
+            if (_items.Count > MaxEntries)
+                _items.RemoveRange(0, _items.Count - MaxEntries);
+
+            return Task.FromResult<(PolicyPackVersion, string?)>((inserted, null));
+        }
+    }
+
     public Task<IReadOnlyList<PolicyPackVersion>> ListByPackAsync(Guid policyPackId, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();

@@ -1,6 +1,6 @@
 # Data consistency matrix
 
-**Last reviewed:** 2026-04-16 (run archival cascades include ArtifactBundles, AgentExecutionTraces, ComparisonRecords **ArchivedUtc** when migration **073** is applied; see `SqlRunRepositoryArchivalCascadeTests`, `SqlRunRepositoryArchivalExtendedCascadeTests`)
+**Last reviewed:** 2026-04-17 (trial lifecycle hard purge: `SqlTenantHardPurgeService` deletes tenant-scoped `dbo` rows in bounded batches; `dbo.AuditEvents` retained; see `TenantHardPurgeServiceSqlIntegrationTests`; prior **2026-04-16** — run archival cascades include ArtifactBundles, AgentExecutionTraces, ComparisonRecords **ArchivedUtc** when migration **073** is applied; see `SqlRunRepositoryArchivalCascadeTests`, `SqlRunRepositoryArchivalExtendedCascadeTests`)
 
 This document states **what consistency guarantees callers should assume** for major aggregates. It complements `docs/SQL_DDL_DISCIPLINE.md` and `docs/API_CONTRACTS.md`.
 
@@ -24,6 +24,7 @@ Make explicit which paths are **strongly consistent** (read-your-writes within a
 | Idempotency key on create run | Scoped replay-safe | Hash of body + scope keys | Treat as **best-effort** under extreme duplicate-key races; authority **`dbo.Runs`** is the durable header. |
 | Demo trusted-baseline seed | Transactional per repository | **`IRunRepository.SaveAsync`** / **`UpdateAsync`** on **`dbo.Runs`** plus coordinator rows | No legacy table write path. |
 | Multi-tenant isolation (SQL) | Defense in depth | RLS policies + `SESSION_CONTEXT` when `SqlServer:RowLevelSecurity:ApplySessionContext=true` | Not every table carries scope columns; see `docs/security/MULTI_TENANT_RLS.md`. |
+| Trial lifecycle → hard purge (DPA) | Eventual / operator-retryable | `TrialLifecycleSchedulerHostedService` + `TrialLifecycleTransitionEngine` + `SqlTenantHardPurgeService` (`SqlRowLevelSecurityBypassAmbient`) | Transitions are idempotent per `TryRecordTrialLifecycleTransitionAsync`; purge runs in `DELETE TOP` loops; `dbo.AuditEvents` excluded from purge; failed purge leaves `TrialStatus=Deleted` for retry. See `docs/runbooks/TRIAL_LIFECYCLE.md`. |
 | Policy pack assignments | Per-row transactional | SQL writes | `ROWVERSION` on assignments supports future optimistic flows. |
 | LLM completion cache | Best-effort | Distributed/memory cache | Cache hits do not consume Azure usage; stale entries TTL-bound. |
 | Hot-path read cache (runs, golden manifests, policy pack metadata) | Read-through + TTL | `IHotPathReadCache` (memory or Redis; see `HotPathCache:*`) | **Does not cache list endpoints** (e.g. runs list). **Single-row writes** remove the matching key (`Save`/`Update` on runs; `Save` on manifests; `Create`/`Update` on policy packs). **Bulk run archival** (`ArchiveRunsCreatedBeforeAsync`) removes **each archived run’s** cache key using `OUTPUT` scope columns so operators do not see archived runs until TTL expiry. Remaining risk: TTL-bound staleness if data changes **outside** these repository methods (ad-hoc SQL, future writers). |

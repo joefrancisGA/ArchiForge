@@ -59,6 +59,7 @@ public partial class Program
             builder.Environment,
             telemetryServiceName: "ArchLucid.Api");
         builder.Services.AddArchLucidRateLimiting(builder.Configuration);
+        builder.Services.Configure<E2eHarnessOptions>(builder.Configuration.GetSection(E2eHarnessOptions.SectionName));
         builder.Services.AddArchLucidCors(builder.Configuration);
         builder.Services.AddArchLucidResponseCompression();
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, hostingRole);

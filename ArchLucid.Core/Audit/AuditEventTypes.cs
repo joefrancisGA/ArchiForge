@@ -150,8 +150,26 @@ public static class AuditEventTypes
     /// <summary>Trial marked converted (billing integration stub).</summary>
     public const string TenantTrialConverted = "TenantTrialConverted";
 
+    /// <summary>Automated trial lifecycle state transition (Worker scheduler; SQL row in <c>dbo.TenantLifecycleTransitions</c>).</summary>
+    public const string TrialLifecycleTransition = "TrialLifecycleTransition";
+
     /// <summary>Emitted when a mutating request is blocked because the tenant trial expired or exceeded runs/seats (HTTP 402).</summary>
     public const string TrialLimitExceeded = "TrialLimitExceeded";
+
+    /// <summary>Self-service signup or local trial identity registration attempt observed at HTTP entry (funnel top).</summary>
+    public const string TrialSignupAttempted = "TrialSignupAttempted";
+
+    /// <summary>Signup or trial bootstrap failed after <see cref="TrialSignupAttempted"/> (payload includes stage/reason).</summary>
+    public const string TrialSignupFailed = "TrialSignupFailed";
+
+    /// <summary>First golden manifest commit recorded for a self-service trial tenant (funnel depth).</summary>
+    public const string TrialFirstRunCompleted = "TrialFirstRunCompleted";
+
+    /// <summary>Admin initiated hosted billing checkout for trial conversion.</summary>
+    public const string BillingCheckoutInitiated = "BillingCheckoutInitiated";
+
+    /// <summary>Hosted billing checkout session created successfully (payload may include provider session id).</summary>
+    public const string BillingCheckoutCompleted = "BillingCheckoutCompleted";
 
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).

@@ -17,6 +17,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Concurrency;
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -386,6 +387,7 @@ public sealed class CoordinatorAuditDurableTests
             Mock.Of<IPreCommitGovernanceGate>(),
             Options.Create(new PreCommitGovernanceGateOptions()),
             auditService.Object,
+            NoOpTrialFunnelCommitHook.Instance,
             NullLogger<ArchitectureRunCommitOrchestrator>.Instance);
 
         CommitRunResult result = await sut.CommitRunAsync(runId);

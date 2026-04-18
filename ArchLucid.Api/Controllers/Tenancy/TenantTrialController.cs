@@ -3,8 +3,11 @@ using System.Text.Json;
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Billing;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
@@ -12,6 +15,7 @@ using Asp.Versioning;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Controllers.Tenancy;
 
@@ -24,7 +28,8 @@ public sealed class TenantTrialController(
     ITenantRepository tenantRepository,
     IScopeContextProvider scopeProvider,
     IAuditService auditService,
-    IBillingTrialConversionGate billingTrialConversionGate) : ControllerBase
+    IBillingTrialConversionGate billingTrialConversionGate,
+    IOptionsMonitor<TrialLifecycleSchedulerOptions> trialLifecycleSchedulerOptions) : ControllerBase
 {
     private readonly ITenantRepository _tenantRepository =
         tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
@@ -36,6 +41,9 @@ public sealed class TenantTrialController(
 
     private readonly IBillingTrialConversionGate _billingTrialConversionGate =
         billingTrialConversionGate ?? throw new ArgumentNullException(nameof(billingTrialConversionGate));
+
+    private readonly IOptionsMonitor<TrialLifecycleSchedulerOptions> _trialLifecycleSchedulerOptions =
+        trialLifecycleSchedulerOptions ?? throw new ArgumentNullException(nameof(trialLifecycleSchedulerOptions));
 
     /// <summary>Returns trial window metadata when the tenant row was provisioned via self-service bootstrap.</summary>
     [HttpGet("trial-status")]
@@ -62,7 +70,16 @@ public sealed class TenantTrialController(
 
         int? daysRemaining = null;
 
-        if (tenant.TrialExpiresUtc is { } expires)
+        if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) &&
+            tenant.TrialExpiresUtc is not null &&
+            !string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
+        {
+            daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
+                tenant,
+                DateTimeOffset.UtcNow,
+                _trialLifecycleSchedulerOptions.CurrentValue);
+        }
+        else if (tenant.TrialExpiresUtc is { } expires)
         {
             double totalDays = (expires - DateTimeOffset.UtcNow).TotalDays;
             daysRemaining = (int)Math.Floor(totalDays);
@@ -114,6 +131,10 @@ public sealed class TenantTrialController(
         }
 
         TenantTier? tier = MapRequestTier(body?.TargetTier);
+
+        ArchLucidInstrumentation.RecordTrialConversion(
+            TrialLifecycleStatus.Active,
+            tier?.ToString() ?? "unspecified");
 
         await _tenantRepository.MarkTrialConvertedAsync(tenant.Id, tier, cancellationToken);
 

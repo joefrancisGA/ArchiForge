@@ -23,6 +23,8 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ArchLucid.Core.Metering.MeteringOptions.SectionName));
         services.Configure<ArchLucidSecretOptions>(configuration.GetSection(ArchLucidSecretOptions.SectionName));
         services.Configure<TrialAuthOptions>(configuration.GetSection(TrialAuthOptions.SectionPath));
+        services.Configure<TrialLifecycleSchedulerOptions>(
+            configuration.GetSection(TrialLifecycleSchedulerOptions.SectionName));
 
         services.AddScoped<ITrialBootstrapEmailVerificationPolicy, TrialBootstrapEmailVerificationPolicy>();
         services.AddSingleton<PasswordHasher<TrialIdentityHasherUser>>();
@@ -40,6 +42,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITrialTenantBootstrapService, TrialTenantBootstrapService>();
         services.AddScoped<TrialLimitGate>();
         services.AddScoped<TrialSeatAccountant>();
+        services.AddScoped<TrialLifecycleTransitionEngine>();
 
         services.AddSingleton<ISecretProvider>(sp =>
         {

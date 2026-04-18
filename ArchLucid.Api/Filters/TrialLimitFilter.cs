@@ -39,10 +39,19 @@ public sealed class TrialLimitAuthorizationHandler : AuthorizationHandler<TrialA
 
         TrialLimitGate gate = httpContext.RequestServices.GetRequiredService<TrialLimitGate>();
         IScopeContextProvider scopes = httpContext.RequestServices.GetRequiredService<IScopeContextProvider>();
+        ScopeContext scope = scopes.GetCurrentScope();
 
         try
         {
-            await gate.GuardWriteAsync(scopes.GetCurrentScope(), httpContext.RequestAborted);
+            if (string.Equals(httpContext.Request.Method, HttpMethods.Delete, StringComparison.OrdinalIgnoreCase))
+            {
+                await gate.GuardDeleteAsync(scope, httpContext.RequestAborted);
+            }
+            else
+            {
+                await gate.GuardWriteAsync(scope, httpContext.RequestAborted);
+            }
+
             context.Succeed(requirement);
         }
         catch (TrialLimitExceededException ex)

@@ -383,6 +383,9 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          # Demo seed / schema bootstrap use SqlRowLevelSecurityBypassAmbient when RLS session context is on.
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
         run: |
           set -e
           nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/greenfield-boot.log" 2>&1 &
@@ -915,6 +918,12 @@ jobs:
           ArchLucidAuth__Mode: DevelopmentBypass
           Authentication__ApiKey__DevelopmentBypassAll: "true"
           AgentExecution__Mode: Simulator
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
+          RateLimiting__Registration__PermitLimit: "500"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
@@ -940,6 +949,7 @@ jobs:
           CI: true
           LIVE_API_URL: http://127.0.0.1:5128
           LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
           NODE_OPTIONS: --max-old-space-size=6144
         run: |
           npx playwright install --with-deps chromium
@@ -1033,6 +1043,8 @@ jobs:
           Authentication__ApiKey__AdminKey: "e2e-admin-key-ci"
           Authentication__ApiKey__ReadOnlyKey: "e2e-readonly-key-ci"
           AgentExecution__Mode: Simulator
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
@@ -1169,6 +1181,8 @@ jobs:
           ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-jwt"
           Authentication__ApiKey__DevelopmentBypassAll: "false"
           AgentExecution__Mode: Simulator
+          ARCHLUCID_ALLOW_RLS_BYPASS: "true"
+          ArchLucid__Persistence__AllowRlsBypass: "true"
           Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
           Cors__AllowedOrigins__1: "http://localhost:3000"
         run: |
