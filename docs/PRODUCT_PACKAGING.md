@@ -4,7 +4,7 @@
 
 **Status:** V1 capability inventory. This document describes what is **implemented and supportable today** — not a roadmap.
 
-**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [operator-shell.md](operator-shell.md) (UI reference)
+**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [operator-shell.md](operator-shell.md) (UI reference)
 
 ---
 
@@ -14,7 +14,49 @@
 2. **Time-to-value.** The Core Pilot layer is deliberately narrow so a pilot operator can go from zero to a committed manifest in a single session with no additional configuration.
 3. **Packaging clarity.** Advanced Analysis and Enterprise Controls have distinct buyers (architects/analysts vs compliance/security/audit teams). Naming them separately makes that obvious.
 
-For a pilot-success model tied to these layers, see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)**.
+For a pilot-success model tied to these layers, see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)**. For guidance on when to move between layers, see **[OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md)**.
+
+---
+
+## What the layer model means today
+
+The layer model describes four different things that should not be confused:
+
+### 1. Narrative packaging
+
+The three layers explain **how to understand the product**:
+
+- **Core Pilot** = first useful pilot result
+- **Advanced Analysis** = deeper investigation and comparison
+- **Enterprise Controls** = governance, auditability, compliance, and trust operations
+
+This is the buyer-facing story.
+
+### 2. UI progressive disclosure
+
+The operator shell uses **progressive disclosure** so users do not see the full product surface by default.
+
+- **Core Pilot** links are visible by default.
+- **Advanced Analysis** appears after **Show more links**.
+- deeper Enterprise Controls surfaces appear after extended or advanced disclosure.
+
+This is the default user-experience model.
+
+### 3. Role-based restriction
+
+Some capabilities are better suited to operator/admin roles, especially in **Enterprise Controls**.
+
+That means some surfaces are shaped not just by navigation tier but also by who should reasonably use them in a real environment.
+
+This is the operational-usage model.
+
+### 4. Future entitlement or pricing boundaries
+
+The layer model is also the most likely foundation for future commercial packaging.
+
+But in V1, the layer model is **not yet an entitlement engine** and is **not yet a hard pricing boundary**.
+
+This is the future commercialization model.
 
 ---
 
@@ -165,6 +207,41 @@ Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert si
 - This is **not a commitment to separate binary builds.** All layers ship in the same API and UI; packaging is expressed through progressive disclosure and documentation, not feature flags or separate binaries in V1.
 
 If entitlement-level gating is required in a future commercial release, the progressive disclosure tier system (`nav-tier.ts`, `nav-config.ts`) is the intended extension point.
+
+---
+
+## Packaging today vs future commercial enforcement
+
+### Packaging today
+
+In V1, packaging is expressed through:
+
+- product narrative,
+- operator guidance,
+- UI progressive disclosure,
+- and role-appropriate usage.
+
+That means the layer model is already useful for buyers and pilots today even though it is not yet a hard commercial gate.
+
+### What remains intentionally soft in V1
+
+In V1, the following are intentionally **not** hard-enforced commercial boundaries:
+
+- separate binaries,
+- feature entitlements,
+- pricing-enforced capability gating,
+- distinct deployment artifacts per tier.
+
+### What future commercial enforcement would build on
+
+If future commercialization requires stronger packaging, the natural extension points are:
+
+- `nav-tier.ts` and `nav-config.ts` for visibility rules,
+- role-aware UI and API shaping,
+- pricing/plan definitions,
+- future entitlement or billing controls.
+
+The current layer model is therefore a **foundation for future commercialization**, not merely a documentation convenience.
 
 ---
 
