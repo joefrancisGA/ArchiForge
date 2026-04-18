@@ -16,6 +16,7 @@ using ArchLucid.Host.Core.Startup;
 using ArchLucid.Host.Core.Startup.Diagnostics;
 using ArchLucid.Host.Core.Startup.Validation;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Api;
@@ -32,6 +33,11 @@ public partial class Program
             Path.Combine(builder.Environment.ContentRootPath, "appsettings.Advanced.json"),
             optional: true,
             reloadOnChange: true);
+
+        // Advanced.json is chained after default env vars, so it can override ARCHLUCID_* / ArchLucid__* (e.g.
+        // ArchLucid:Persistence:AllowRlsBypass=false for fail-closed defaults). Re-apply environment variables so
+        // deployment and CI break-glass (RLS bypass for DbUp + schema bootstrap) still wins.
+        builder.Configuration.AddEnvironmentVariables();
 
         // DAST / defense in depth: omit Kestrel "Server" version token (ZAP 10036); TLS identity lives at the ingress.
         builder.WebHost.ConfigureKestrel(static options => options.AddServerHeader = false);

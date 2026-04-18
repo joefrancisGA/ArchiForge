@@ -37,16 +37,14 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByText(
-        /Evidence and export surface—use when governance or audit requires it, not for Core Pilot by default\./i,
-      ),
+      screen.getByText(/Evidence surface for search and export\. Not required for Core Pilot\./i),
     ).toBeInTheDocument();
   });
 
   it("renders governance resolution Enterprise footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Read-oriented governance evidence/i)).toBeInTheDocument();
+    expect(screen.getByText(/Read-focused evidence surface for effective policy in this scope/i)).toBeInTheDocument();
   });
 
   it("renders Enterprise rank cue on Enterprise Controls audit (operator+ rank line)", () => {
