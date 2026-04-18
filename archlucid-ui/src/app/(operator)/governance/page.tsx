@@ -31,7 +31,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
+import {
+  EnterpriseControlsExecutePageHint,
+  EnterpriseExecutePlusPageCue,
+} from "@/components/EnterpriseControlsContextHints";
 import {
   activateEnvironment,
   approveRequest,
@@ -45,6 +48,7 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
+import { enterpriseGovernanceWorkflowOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 import type {
   GovernanceApprovalRequest,
@@ -351,6 +355,7 @@ function GovernanceWorkflowPageInner() {
     <main className="mx-auto max-w-4xl">
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         Submit manifest promotion requests, review them, record promotions, and activate baselines per environment.
         Uses the same API auth as the rest of the shell (API key via proxy or JWT in the browser).

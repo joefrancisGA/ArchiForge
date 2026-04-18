@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { GovernanceDashboardReaderActionCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { ComplianceDriftChart } from "@/components/ComplianceDriftChart";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -277,6 +278,7 @@ export default function GovernanceDashboardPage() {
         Cross-run view of pending approvals, recent decisions, and policy pack changes for the current tenant scope.
         Refreshes every 30 seconds. Use <strong>Review</strong> to open the run-scoped workflow.
       </p>
+      <GovernanceDashboardReaderActionCue />
 
       {failure !== null ? (
         <div className="mb-6" role="alert">

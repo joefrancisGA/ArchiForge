@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
+import {
+  EnterpriseControlsExecutePageHint,
+  EnterpriseExecutePlusPageCue,
+} from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
+import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -205,6 +209,7 @@ export default function AlertTuningPage() {
         balances coverage, alert volume, suppression load, and per-run density against your target created-alert band.
       </p>
       <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
 
       {failure !== null ? (
         <div role="alert">

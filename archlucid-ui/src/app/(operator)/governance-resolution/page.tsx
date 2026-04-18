@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getGovernanceResolution } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -36,6 +37,7 @@ export default function GovernanceResolutionPage() {
       <p className="mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400" role="note">
         {governanceResolutionContextLine}
       </p>
+      <GovernanceResolutionRankCue />
       <p style={{ color: "#444", fontSize: 14 }}>
         Hierarchical policy resolution for the current scope: <strong>Project</strong> overrides{" "}
         <strong>Workspace</strong> overrides <strong>Tenant</strong>; pinned assignments rank above unpinned within the

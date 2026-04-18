@@ -36,8 +36,8 @@ export type NavLinkItem = {
   /** Progressive disclosure: essential always; extended after “Show more”; advanced after gear toggle. */
   tier: NavTier;
   /**
-   * Optional minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
-   * See the **Authority** section in the `NAV_GROUPS` module docstring for the first-pass assignment map.
+   * Minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
+   * **Core Pilot essentials** omit this (broad default path). **Advanced** and **Enterprise** links in `NAV_GROUPS` set it — see the module **Authority** section.
    */
   requiredAuthority?: RequiredAuthority;
   /** Registry combo for `aria-keyshortcuts`, e.g. `alt+n` */
@@ -74,15 +74,16 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * - **Core Pilot · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`,
  *   `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`**
  *   (`AuthorityReplayController`).
- * - **Advanced Analysis:** read/analytics pages → **`ReadAuthority`** unless the backing API is Execute-class for the
- *   primary workflow (planning, evolution candidates, advisory **schedules**, digest **subscriptions** → **`ExecuteAuthority`**).
+ * - **Advanced Analysis:** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the
+ *   API primary workflow is Execute-class (planning, evolution candidates, advisory **schedules**, digest **subscriptions** → **`ExecuteAuthority`**).
+ *   Link `title` strings use **“Label — short description”** for tooltips (same convention as Enterprise).
  * - **Enterprise Controls:** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers
  *   are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
  *   Do not use **`AdminAuthority`** on nav entries: Admin-only actions (e.g. policy pack create) are enforced on POST;
  *   the UI page is still reachable at Read for list/effective views.
  *
- * Omitting `requiredAuthority` means “show for every signed-in rank” — reserve that for Core Pilot breadth, not for
- * hiding mistakes in Enterprise. Composed with tiers in `@/lib/nav-shell-visibility`.
+ * Omitting `requiredAuthority` is used only for **Core Pilot essentials** (default path for any authenticated rank).
+ * Every **Enterprise Controls** link in this file sets `requiredAuthority`. Composed with tiers in `@/lib/nav-shell-visibility`.
  *
  * Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.
  */
@@ -167,7 +168,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/ask",
         label: "Ask",
-        title: navTitleWithShortcut("Natural language ask against architecture context", "alt+a"),
+        title: navTitleWithShortcut("Ask — natural language Q&A over architecture context", "alt+a"),
         keyShortcut: "alt+a",
         icon: MessageSquare,
         tier: "essential",
@@ -176,7 +177,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/search",
         label: "Search",
-        title: "Search indexed architecture content",
+        title: "Search — indexed architecture content",
         icon: Search,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -184,7 +185,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/advisory",
         label: "Advisory",
-        title: "Advisory scans and architecture digests",
+        title: "Advisory — scans and architecture digests",
         icon: Activity,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -192,7 +193,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/recommendation-learning",
         label: "Recommendation learning",
-        title: "Recommendation learning profiles",
+        title: "Recommendation learning — profiles and ranking signals",
         icon: Sparkles,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -200,7 +201,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/product-learning",
         label: "Pilot feedback",
-        title: "Pilot feedback rollups and triage (58R)",
+        title: "Pilot feedback — rollups and triage (58R)",
         icon: ClipboardList,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -208,7 +209,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/planning",
         label: "Planning",
-        title: "Improvement themes and prioritized plans (59R)",
+        title: "Planning — improvement themes and prioritized plans (59R)",
         icon: BarChart3,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
@@ -216,7 +217,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/evolution-review",
         label: "Evolution candidates",
-        title: "Candidate simulations and before/after review (60R)",
+        title: "Evolution candidates — simulations and before/after review (60R)",
         icon: GitBranch,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
@@ -224,7 +225,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/advisory-scheduling",
         label: "Schedules",
-        title: "Advisory scan schedules",
+        title: "Schedules — advisory scan windows",
         icon: Wrench,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
@@ -232,7 +233,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/digests",
         label: "Digests",
-        title: "Architecture digests",
+        title: "Digests — generated architecture digests",
         icon: FileSearch,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -240,7 +241,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/digest-subscriptions",
         label: "Subscriptions",
-        title: "Digest email subscriptions",
+        title: "Subscriptions — digest email delivery",
         icon: Mail,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
@@ -251,12 +252,12 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "alerts-governance",
     // Product layer: Enterprise Controls
     label: "Enterprise Controls",
-    caption: "Approvals, policy, audit evidence, and alert operations — primarily operator/admin responsibilities.",
+    caption: "Governance, audit, policy packs, and alert tooling—mainly for governance and platform operators.",
     links: [
       {
         href: "/alerts",
         label: "Alerts",
-        title: navTitleWithShortcut("Open and acknowledged alerts — core operational inbox", "alt+l"),
+        title: navTitleWithShortcut("Alerts — open and acknowledged operational inbox", "alt+l"),
         keyShortcut: "alt+l",
         icon: Bell,
         tier: "essential",
@@ -265,7 +266,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/alert-rules",
         label: "Alert rules",
-        title: "Configure alert rules",
+        title: "Alert rules — metric thresholds evaluated on advisory scans",
         icon: Tags,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -273,7 +274,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/alert-routing",
         label: "Alert routing",
-        title: "Alert routing subscriptions",
+        title: "Alert routing — delivery subscriptions when new alerts fire",
         icon: Mail,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -281,7 +282,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/composite-alert-rules",
         label: "Composite rules",
-        title: "Composite alert rules",
+        title: "Composite rules — multi-metric AND/OR alert conditions",
         icon: Tags,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -289,7 +290,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/alert-simulation",
         label: "Alert simulation",
-        title: "Simulate alert evaluation",
+        title: "Alert simulation — evaluate rules against recent runs (what-if)",
         icon: Activity,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -297,7 +298,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/alert-tuning",
         label: "Alert tuning",
-        title: "Alert noise and threshold tuning",
+        title: "Alert tuning — threshold recommendations from simulation",
         icon: Wrench,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -305,7 +306,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/policy-packs",
         label: "Policy packs",
-        title: "Policy packs and versions",
+        title: "Policy packs — versions, effective content, and assignments",
         icon: Shield,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -313,7 +314,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/governance-resolution",
         label: "Governance resolution",
-        title: "Effective governance resolution — operator/admin surface",
+        title: "Governance resolution — effective policy for this scope (read view)",
         icon: Scale,
         tier: "extended",
         requiredAuthority: "ReadAuthority",
@@ -322,7 +323,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         href: "/governance/dashboard",
         label: "Dashboard",
         title: navTitleWithShortcut(
-          "Cross-run governance dashboard — pending approvals and policy changes (operator/admin)",
+          "Governance dashboard — cross-run approvals, decisions, and policy signals (governance operators)",
           "alt+g",
         ),
         keyShortcut: "alt+g",
@@ -333,7 +334,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/governance",
         label: "Governance workflow",
-        title: "Approval, promotion, and activation workflow — operator/admin surface",
+        title: "Governance workflow — approvals, promotions, and environment activation",
         icon: GitBranch,
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
@@ -341,7 +342,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
       {
         href: "/audit",
         label: "Audit log",
-        title: "Search and filter audit events",
+        title: "Audit log — search and export scoped audit events",
         icon: FileSearch,
         tier: "advanced",
         requiredAuthority: "ReadAuthority",
@@ -351,8 +352,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
 ];
 
 /**
- * Flat list for command palette search (value = href) — all tiers; progressive disclosure does not apply.
- * Authority metadata is present on each item but callers may still filter (palette uses the same rank as the sidebar).
+ * Flat list of configured nav links (sidebar + palette source of truth).
+ * Callers such as the command palette still apply **tier + authority** filters (`filterNavLinksForOperatorShell`) like the sidebar.
  */
 export function flattenNavLinks(): NavLinkItem[] {
   return NAV_GROUPS.flatMap((g) => g.links);

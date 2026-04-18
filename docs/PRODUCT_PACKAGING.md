@@ -48,7 +48,7 @@ Some capabilities are better suited to operator/admin roles, especially in **Ent
 
 That means some surfaces are shaped not just by navigation tier but also by who should reasonably use them in a real environment.
 
-**Implemented in the operator UI (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with optional per-link **`requiredAuthority`** in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Enterprise Controls** carry most `requiredAuthority` assignments and short context copy; **Core Pilot** defaults stay broadly visible. This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
+**Implemented in the operator UI (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with per-link **`requiredAuthority`** on **Advanced Analysis** and **Enterprise Controls** entries in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Core Pilot** essentials omit `requiredAuthority` so the default path stays visible; extended Core links (graph, compare, replay) set Read or Execute to match API policies. Short rank-aware copy also appears on key Enterprise pages (`EnterpriseControlsContextHints.tsx`). This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
 
 This is the operational-usage model.
 
@@ -96,7 +96,7 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 
 Sidebar group label: **Core Pilot** (always visible — no disclosure toggle required).
 
-Default links: Home · Onboarding · New run · Runs · Alerts (inbox only).
+Default links in the **Core Pilot** sidebar group: Home · Onboarding · New run · Runs. The **Alerts** inbox lives under **Enterprise Controls** (same tier/authority rules as other Enterprise links).
 
 ### How to judge success
 

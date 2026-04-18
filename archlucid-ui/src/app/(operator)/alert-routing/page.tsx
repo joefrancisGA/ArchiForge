@@ -1,7 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
+import {
+  EnterpriseControlsExecutePageHint,
+  EnterpriseExecutePlusPageCue,
+} from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -11,6 +14,7 @@ import {
   listAlertRoutingSubscriptions,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
+import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 export default function AlertRoutingPage() {
@@ -86,6 +90,7 @@ export default function AlertRoutingPage() {
         <strong>minimum severity</strong> is met receive the alert. Dev uses fake email/webhook loggers.
       </p>
       <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
 
       {failure !== null ? (
         <div role="alert">

@@ -7,9 +7,15 @@ import {
   enterpriseExecutePageHintReaderRank,
   enterpriseNavHintOperatorRank,
   enterpriseNavHintReaderRank,
+  governanceDashboardReaderActionLine,
+  governanceResolutionRankOperatorLine,
+  governanceResolutionRankReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
+
+const pageCueClassName =
+  "mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400";
 
 /**
  * Second line under the Enterprise Controls nav group caption (sidebar + mobile drawer).
@@ -46,14 +52,52 @@ export function EnterpriseControlsExecutePageHint({
   }
 
   return (
-    <p
-      className={cn(
-        "mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400",
-        className,
-      )}
-      role="note"
-    >
+    <p className={cn(pageCueClassName, className)} role="note">
       {enterpriseExecutePageHintReaderRank}
     </p>
   );
+}
+
+/**
+ * Governance resolution: rank-aware second line (read evidence vs where operators change policy).
+ */
+export function GovernanceResolutionRankCue({ className }: { className?: string }): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  const text =
+    rank < AUTHORITY_RANK.ExecuteAuthority ? governanceResolutionRankReaderLine : governanceResolutionRankOperatorLine;
+
+  return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
+}
+
+/**
+ * Governance dashboard: clarifies that in-product approvals still need execute on the API when rank is below operator.
+ */
+export function GovernanceDashboardReaderActionCue({ className }: { className?: string }): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  if (rank >= AUTHORITY_RANK.ExecuteAuthority) {
+    return null;
+  }
+
+  return <p className={cn(pageCueClassName, className)} role="note">{governanceDashboardReaderActionLine}</p>;
+}
+
+export type EnterpriseExecutePlusPageCueProps = {
+  /** One line from `enterprise-controls-context-copy` */
+  message: string;
+  className?: string;
+};
+
+/**
+ * Single muted line for operator/admin visitors on mutation-heavy Enterprise pages (hidden for Reader to avoid stacking with `EnterpriseControlsExecutePageHint`).
+ */
+export function EnterpriseExecutePlusPageCue({ message, className }: EnterpriseExecutePlusPageCueProps): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  if (rank < AUTHORITY_RANK.ExecuteAuthority) {
+    return null;
+  }
+
+  return <p className={cn(pageCueClassName, className)} role="note">{message}</p>;
 }

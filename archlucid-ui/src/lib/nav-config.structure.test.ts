@@ -17,4 +17,24 @@ describe("nav-config structure", () => {
 
     expect(flattenNavLinks().length).toBe(fromGroups);
   });
+
+  it("sets requiredAuthority on every Enterprise Controls link (Core Pilot essentials may omit)", () => {
+    const enterprise = NAV_GROUPS.find((group) => group.id === "alerts-governance");
+
+    expect(enterprise).toBeDefined();
+
+    for (const link of enterprise!.links) {
+      expect(link.requiredAuthority, link.href).toBeDefined();
+    }
+  });
+
+  it("sets requiredAuthority on every Advanced Analysis nav link", () => {
+    const advanced = NAV_GROUPS.find((group) => group.id === "qa-advisory");
+
+    expect(advanced).toBeDefined();
+
+    for (const link of advanced!.links) {
+      expect(link.requiredAuthority, link.href).toBeDefined();
+    }
+  });
 });

@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import {
+  EnterpriseControlsExecutePageHint,
+  EnterpriseExecutePlusPageCue,
+} from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -14,6 +18,7 @@ import {
   listPolicyPacks,
   publishPolicyPackVersion,
 } from "@/lib/api";
+import { enterprisePolicyPacksOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type {
   EffectivePolicyPackSet,
   PolicyPack,
@@ -219,6 +224,8 @@ export default function PolicyPacksPage() {
         <strong>hierarchically resolved</strong> (see Governance resolution). Alert evaluators use resolved{" "}
         <code>alertRuleIds</code> / <code>compositeAlertRuleIds</code> when non-empty.
       </p>
+      <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterprisePolicyPacksOperatorPlusLine} />
 
       <p>
         <button type="button" onClick={() => void load()} disabled={loading}>

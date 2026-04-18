@@ -1,11 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
+import {
+  EnterpriseControlsExecutePageHint,
+  EnterpriseExecutePlusPageCue,
+} from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [
@@ -107,6 +111,7 @@ export default function CompositeAlertRulesPage() {
         same dedupe key are cleared.
       </p>
       <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
 
       {failure !== null ? (
         <div role="alert">

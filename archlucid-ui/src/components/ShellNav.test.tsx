@@ -106,7 +106,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     expect(screen.getByRole("navigation", { name: "Enterprise Controls" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
     expect(
-      screen.getByText(/Typically governance or platform operators\. Not required for Core Pilot\./i),
+      screen.getByText(/mainly for governance and platform operators\. Not required for Core Pilot\./i),
     ).toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();

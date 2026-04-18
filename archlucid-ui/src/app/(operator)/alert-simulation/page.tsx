@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
+import {
+  EnterpriseControlsExecutePageHint,
+  EnterpriseExecutePlusPageCue,
+} from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
@@ -290,6 +294,7 @@ export default function AlertSimulationPage() {
         composite suppression policy as production; no alerts are persisted or delivered.
       </p>
       <EnterpriseControlsExecutePageHint />
+      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {TABS.map((t) => (
