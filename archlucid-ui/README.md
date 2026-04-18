@@ -18,6 +18,21 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 | Tier + authority composition (sidebar, mobile, palette) | `src/lib/nav-shell-visibility.ts` |
 | React context + refresh + shared `currentPrincipal` | `src/components/OperatorNavAuthorityProvider.tsx` |
 | Enterprise one-liners | `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts` (`enterpriseFootnote`) |
+| Route strip (layer / when / Enterprise footnote) | `src/components/LayerHeader.tsx` + keys in `src/lib/layer-guidance.ts` |
+
+### Seam maintenance (anti-drift)
+
+**Canonical packaging:** [../docs/PRODUCT_PACKAGING.md](../docs/PRODUCT_PACKAGING.md) §3 (*Code seams* + *Contributor drift guard*). **Stage 1 commercial framing (not entitlements):** [../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
+
+When you change who can use a route or which product layer it belongs to, update artifacts in **dependency order**:
+
+1. **C#** — `[Authorize(Policy = …)]` on the controller/action (`ArchLucidPolicies`).
+2. **`nav-config.ts`** — `tier`, `href`, `requiredAuthority` for the `NavLinkItem` (see file header **Authority** block).
+3. **In-product guidance** — `layer-guidance.ts` + `LayerHeader` on the page when the route should show layer / when-to-use copy; Enterprise footnotes and rank lines pull from `enterprise-controls-context-copy.ts`.
+4. **Enterprise mutations** — keep `useEnterpriseMutationCapability()` in sync with the same Execute+ expectation as server write policies on that page.
+5. **Docs** — `PRODUCT_PACKAGING.md` capability / nav rows if the change is buyer-visible.
+
+Vitest regression anchors: `nav-authority.test.ts`, `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx`.
 
 ### Current principal utility (`src/lib/current-principal.ts`)
 

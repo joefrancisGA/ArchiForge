@@ -34,6 +34,10 @@
  * prefer **`useOperatorNavAuthority().currentPrincipal`** in the shell so shaping stays aligned.
  *
  * **Do not duplicate backend authorization** — use this only for UX shaping. The API remains authoritative for 401/403.
+ *
+ * **Alignment:** `authorityRank` / `maxAuthority` must stay consistent with **`nav-config.ts`** `requiredAuthority` on
+ * each link (same policy names as `ArchLucidPolicies`). Contributor checklist: **docs/PRODUCT_PACKAGING.md** §3
+ * *Contributor drift guard*.
  */
 
 import {

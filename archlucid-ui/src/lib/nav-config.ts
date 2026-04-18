@@ -68,9 +68,9 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
  *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
  *
- * **Drift guard:** When adding or moving a route, update **`requiredAuthority`** and **tier** here, verify the **C#
- *   controller policy** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) still matches, and reflect capability
- *   changes in **docs/PRODUCT_PACKAGING.md** so the inventory and sidebar stay one story.
+ * **Drift guard:** When adding or moving a route, follow the **ordered checklist** in **docs/PRODUCT_PACKAGING.md** §3
+ *   *Contributor drift guard* (API policy → this file → `layer-guidance` / `LayerHeader` → Enterprise mutation hook →
+ *   packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *

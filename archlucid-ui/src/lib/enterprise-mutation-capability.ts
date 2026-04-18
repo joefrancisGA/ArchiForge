@@ -7,7 +7,11 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  * dashboard empty-state copy, policy packs empty-scope copy, alert rules inspect-first layout + empty list copy, etc.). Matches
  * the Reader vs Operator framing of `EnterpriseControlsExecutePageHint` /
  * `EnterpriseExecutePlusPageCue` in `EnterpriseControlsContextHints.tsx`—not a second authZ engine; the API still
- * returns 401/403. See **docs/PRODUCT_PACKAGING.md** (§3, code seams) and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** Stage 1.
+ * returns 401/403. See **docs/PRODUCT_PACKAGING.md** (§3, code seams + contributor drift guard) and
+ * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** Stage 1.
+ *
+ * **Same rank source as nav:** uses the numeric rank from **`current-principal.ts`** / **`useNavCallerAuthorityRank()`**;
+ * Reader-tier users should not see Execute-only **nav links** *and* should see **soft-disabled** mutation controls where this hook is wired.
  */
 export function enterpriseMutationCapabilityFromRank(rank: number): boolean {
   return rank >= AUTHORITY_RANK.ExecuteAuthority;

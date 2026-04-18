@@ -64,6 +64,20 @@ Keep **docs**, **`nav-config.ts`**, and **controller policies** aligned when rou
 
 Shell composition order: **tier first, then authority** (`filterNavLinksForOperatorShell`). **Hardening sequence:** [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) Stage 1 describes what shipped without entitlements.
 
+#### Contributor drift guard (operator UI — keep packaging, nav, and API aligned)
+
+**Rule:** the **API** (`ArchLucid.Api` `[Authorize(Policy = …)]` on controllers) is **authoritative** for 401/403. The operator UI only **shapes** visibility, copy, and soft-disabled controls from **`GET /api/auth/me`** so the default path stays honest.
+
+When you **add or move** an operator route, touch these in order (skip only what does not apply):
+
+1. **C#** — confirm policy names (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` in `ArchLucidPolicies`) match the lowest tier that should succeed for the page’s primary workflow.
+2. **`archlucid-ui/src/lib/nav-config.ts`** — `tier`, `href`, `requiredAuthority` on the `NavLinkItem` (see file header **Authority** section). Stable **`NAV_GROUPS[].id`** values map to this document’s **Code seams** table above.
+3. **Guidance strip** — for routes that should explain “which layer / when,” add or extend a key in **`archlucid-ui/src/lib/layer-guidance.ts`** and render **`LayerHeader`** on the page (`LayerGuidancePageKey` must match the route family).
+4. **Enterprise write affordances** — if the page shows POST/toggle UI, keep **`useEnterpriseMutationCapability()`** (Execute+ rank) aligned with the same policies as the buttons (see **`enterprise-mutation-capability.ts`**).
+5. **This document** — update capability / navigation rows in § Layer inventories when behavior is buyer-visible.
+
+**Light regression tests** (Vitest, not snapshots): `nav-authority.test.ts`, `nav-shell-visibility.test.ts`, `current-principal.test.ts`, `enterprise-mutation-capability.test.ts`, `use-enterprise-mutation-capability.test.tsx`, `LayerHeader.test.tsx` — extend when you change rank or filtering rules.
+
 This is the operational-usage model.
 
 ### 4. Future entitlement or pricing boundaries

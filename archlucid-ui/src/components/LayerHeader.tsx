@@ -15,12 +15,13 @@ export type LayerHeaderProps = {
 };
 
 /**
- * Compact route-level reminder of which product layer the page belongs to and
- * when to use it. Keeps copy short per docs/OPERATOR_DECISION_GUIDE.md.
+ * Compact route-level reminder of which **product packaging layer** the page belongs to and when to use it.
+ * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family); keep keys in sync when adding pages.
+ * Buyer-facing layer model: **docs/PRODUCT_PACKAGING.md** §1–3; operator “when to use” narrative: **docs/OPERATOR_DECISION_GUIDE.md**.
  *
- * For Enterprise Controls pages, this header also adds a small rank-aware cue so
- * reader-tier visitors get an explicit read/evidence framing while operator+
- * visitors get a concise operational framing. API enforcement remains authoritative.
+ * **Enterprise Controls** (`layerBadge === "Enterprise Controls"`): adds a **rank-aware** line under the footnote
+ * (reader vs operator+ framing) using `useNavCallerAuthorityRank()` — **UI shaping only**; writes still require matching
+ * API policies. **Not** entitlements or billing (**docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** Stage 1).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const block = LAYER_PAGE_GUIDANCE[pageKey];

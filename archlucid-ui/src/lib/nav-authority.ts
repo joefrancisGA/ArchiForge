@@ -11,6 +11,12 @@
  *
  * This is **not** enforcement: routes still 401/403 from the API. It is structural metadata for progressive disclosure + role-aware nav.
  * Enterprise **in-page** mutation affordances reuse the same **Execute+** rank threshold as `enterpriseMutationCapabilityFromRank` in `enterprise-mutation-capability.ts`.
+ *
+ * **Read-tier vs Execute+ in the UI:** **`navLinkVisibleForCallerRank`** / **`filterNavLinksByAuthority`** only decide
+ * whether a **destination appears** in nav (and empty groups are dropped in `nav-shell-visibility.ts`). **`rank >= Execute`**
+ * is additionally used for **soft-enabled POST/toggle controls** via `useEnterpriseMutationCapability()` — same numeric
+ * scale, different surface. Packaging narrative: **docs/PRODUCT_PACKAGING.md** §3; Stage 1 framing:
+ * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

@@ -1,6 +1,9 @@
 /**
- * In-product copy for the three product layers (see docs/PRODUCT_PACKAGING.md,
- * docs/OPERATOR_DECISION_GUIDE.md). Keep strings short — long-form stays in docs.
+ * In-product copy for the three **product packaging** layers (**docs/PRODUCT_PACKAGING.md**,
+ * **docs/OPERATOR_DECISION_GUIDE.md**). Consumed by **`LayerHeader`** (`LayerGuidancePageKey` per route family).
+ *
+ * **Drift guard:** adding a key requires wiring **`LayerHeader`** on the page and, if the capability is listed for
+ * buyers, updating **PRODUCT_PACKAGING.md** — see §3 *Contributor drift guard*.
  */
 
 export type LayerGuidancePageKey =

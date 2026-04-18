@@ -20,6 +20,9 @@ export type NavGroupWithVisibleLinks = {
  * Composition order is deliberate: **tier → authority**. Pass **`useNavCallerAuthorityRank()`** (or
  * `CurrentPrincipal.authorityRank`) so filtering matches `OperatorNavAuthorityProvider`. Call sites should skip
  * rendering a group when this returns an empty array to avoid empty headings.
+ *
+ * **Not authorization:** visible links do not guarantee successful HTTP calls — **ArchLucid.Api** policies return 401/403.
+ * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*).
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,
