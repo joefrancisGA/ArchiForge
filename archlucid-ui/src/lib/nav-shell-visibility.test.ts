@@ -116,6 +116,41 @@ describe("listNavGroupsVisibleInOperatorShell", () => {
     expect(rowsOn[0]!.visibleLinks.some((l) => l.href === "/synthetic-extended")).toBe(true);
   });
 
+  // Complements the tier-only empty-group case: authority can zero a group even when tiers would allow the hrefs.
+  it("omits a group when authority filtering removes every link (Execute-only group, Read caller)", () => {
+    const executeOnlyGroup: NavGroupConfig[] = [
+      {
+        id: "synthetic-execute-only",
+        label: "Synthetic",
+        links: [
+          {
+            href: "/synthetic-exec-a",
+            label: "A",
+            title: "Test",
+            tier: "essential",
+            requiredAuthority: "ExecuteAuthority",
+          },
+          {
+            href: "/synthetic-exec-b",
+            label: "B",
+            title: "Test",
+            tier: "essential",
+            requiredAuthority: "ExecuteAuthority",
+          },
+        ],
+      },
+    ];
+
+    const rows = listNavGroupsVisibleInOperatorShell(
+      executeOnlyGroup,
+      true,
+      true,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    expect(rows).toEqual([]);
+  });
+
   it("matches filterNavLinksForOperatorShell for the Enterprise group when extended is on", () => {
     const enterprise = NAV_GROUPS.find((g) => g.id === "alerts-governance");
 

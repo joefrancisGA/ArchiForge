@@ -65,7 +65,11 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
         </p>
       ) : null}
       {enterpriseRankCue ? (
-        <p className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400" role="note">
+        <p
+          className="m-0 mt-1 text-xs text-neutral-600 dark:text-neutral-400"
+          data-testid="layer-header-enterprise-rank-cue"
+          role="note"
+        >
           {enterpriseRankCue}
         </p>
       ) : null}

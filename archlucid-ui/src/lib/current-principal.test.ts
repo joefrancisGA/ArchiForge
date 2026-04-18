@@ -1,94 +1,56 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {
-  getCurrentAuthority,
-  getCurrentAuthorityRank,
-  normalizeAuthMeResponse,
-  type AuthMeResponse,
-} from "@/lib/current-principal";
+import { normalizeAuthMeResponse } from "@/lib/current-principal";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
-describe("current-principal", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
-  });
-
-  it("normalizes Admin role to AdminAuthority and enterprise surfacing", () => {
-    const payload: AuthMeResponse = {
-      name: "dev-admin",
-      claims: [{ type: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", value: "Admin" }],
-    };
-    const principal = normalizeAuthMeResponse(payload);
-
-    expect(principal.provenance).toBe("auth-me");
-    expect(principal.name).toBe("dev-admin");
-    expect(principal.primaryAppRole).toBe("Admin");
-    expect(principal.maxAuthority).toBe("AdminAuthority");
-    expect(principal.authorityRank).toBe(AUTHORITY_RANK.AdminAuthority);
-    expect(principal.hasEnterpriseOperatorSurfaces).toBe(true);
-  });
-
-  it("normalizes Reader to ReadAuthority without enterprise surfacing", () => {
+/** Guards the `/me` → `CurrentPrincipal` seam used by `OperatorNavAuthorityProvider` (rank + enterprise surfacing flag). */
+describe("normalizeAuthMeResponse", () => {
+  it("maps Operator role to Execute rank and enables enterprise operator surfacing", () => {
     const principal = normalizeAuthMeResponse({
-      claims: [{ type: "roles", value: "Reader" }],
+      name: "ops",
+      claims: [{ type: "roles", value: "Operator" }],
     });
 
-    expect(principal.primaryAppRole).toBe("Reader");
-    expect(principal.maxAuthority).toBe("ReadAuthority");
-    expect(principal.hasEnterpriseOperatorSurfaces).toBe(false);
+    expect(principal.provenance).toBe("auth-me");
+    expect(principal.authorityRank).toBe(AUTHORITY_RANK.ExecuteAuthority);
+    expect(principal.maxAuthority).toBe("ExecuteAuthority");
+    expect(principal.primaryAppRole).toBe("Operator");
+    expect(principal.hasEnterpriseOperatorSurfaces).toBe(true);
+    expect(principal.roleClaimValues).toEqual(["Operator"]);
   });
 
-  it("maps Auditor at read rank to primaryAppRole Auditor", () => {
+  it("maps Reader to Read rank without enterprise operator surfacing", () => {
+    const principal = normalizeAuthMeResponse({
+      claims: [{ type: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", value: "Reader" }],
+    });
+
+    expect(principal.authorityRank).toBe(AUTHORITY_RANK.ReadAuthority);
+    expect(principal.maxAuthority).toBe("ReadAuthority");
+    expect(principal.hasEnterpriseOperatorSurfaces).toBe(false);
+    expect(principal.primaryAppRole).toBe("Reader");
+  });
+
+  it("maps Auditor to Read rank but preserves Auditor as primaryAppRole", () => {
     const principal = normalizeAuthMeResponse({
       claims: [{ type: "roles", value: "Auditor" }],
     });
 
+    expect(principal.authorityRank).toBe(AUTHORITY_RANK.ReadAuthority);
     expect(principal.primaryAppRole).toBe("Auditor");
-    expect(principal.maxAuthority).toBe("ReadAuthority");
+    expect(principal.hasEnterpriseOperatorSurfaces).toBe(false);
   });
 
-  it("getCurrentAuthority returns maxAuthority from loadCurrentPrincipal", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () =>
-        Promise.resolve({
-          ok: true,
-          json: async () =>
-            Promise.resolve({
-              name: "op",
-              claims: [{ type: "roles", value: "Operator" }],
-            } satisfies AuthMeResponse),
-        } as Response),
-      ),
-    );
-
-    const auth = await getCurrentAuthority({
-      init: { headers: new Headers({ Accept: "application/json" }) },
+  it("picks Admin when multiple role claims are present", () => {
+    const principal = normalizeAuthMeResponse({
+      claims: [
+        { type: "roles", value: "Reader" },
+        { type: "roles", value: "Admin" },
+      ],
     });
 
-    expect(auth).toBe("ExecuteAuthority");
-  });
-
-  it("getCurrentAuthorityRank returns numeric rank from loadCurrentPrincipal", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () =>
-        Promise.resolve({
-          ok: true,
-          json: async () =>
-            Promise.resolve({
-              name: "op",
-              claims: [{ type: "roles", value: "Operator" }],
-            } satisfies AuthMeResponse),
-        } as Response),
-      ),
-    );
-
-    const rank = await getCurrentAuthorityRank({
-      init: { headers: new Headers({ Accept: "application/json" }) },
-    });
-
-    expect(rank).toBe(AUTHORITY_RANK.ExecuteAuthority);
+    expect(principal.authorityRank).toBe(AUTHORITY_RANK.AdminAuthority);
+    expect(principal.maxAuthority).toBe("AdminAuthority");
+    expect(principal.hasEnterpriseOperatorSurfaces).toBe(true);
+    expect(principal.primaryAppRole).toBe("Admin");
   });
 });
