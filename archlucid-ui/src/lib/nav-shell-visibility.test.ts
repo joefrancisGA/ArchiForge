@@ -21,6 +21,23 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
   });
 
+  /**
+   * Default shell (no extended / no advanced): Reader should still see Enterprise Controls as a single inbox entry.
+   * If `/alerts` moves off `essential` tier, this fails loudly—avoiding an empty Enterprise group for first pilots.
+   */
+  it("exposes only the Alerts inbox link in Enterprise Controls for Reader when extended and advanced are off", () => {
+    expect(enterprise).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
+  });
+
   it("shows read-tier Enterprise extended links for Reader when extended disclosure is on", () => {
     expect(enterprise).toBeDefined();
 

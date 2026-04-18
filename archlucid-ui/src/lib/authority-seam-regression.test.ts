@@ -2,6 +2,8 @@
  * Cross-module authority seams: `/me` read-model, nav policy filtering, tier+authority composition, and Enterprise
  * mutation capability must stay aligned (same rank numerics and policy names as `nav-authority.ts`). These are narrow
  * regression guards — not a second authZ engine; the API remains authoritative.
+ *
+ * @see `OperatorNavAuthorityProvider.test.tsx` — conservative `useNavCallerAuthorityRank` while JWT `/me` refetches.
  */
 import { describe, expect, it } from "vitest";
 
@@ -12,6 +14,7 @@ import {
   AUTHORITY_RANK,
   filterNavLinksByAuthority,
   maxAuthorityRankFromMeClaims,
+  navLinkVisibleForCallerRank,
 } from "@/lib/nav-authority";
 import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
 
@@ -31,6 +34,33 @@ describe("authority seam regression", () => {
     const hrefsExec = new Set(executeVisible.map((l) => l.href));
 
     expect(hrefsExec.has("/governance")).toBe(true);
+  });
+
+  /**
+   * Drift guard: every `ExecuteAuthority` row in `nav-config` must stay invisible to Read callers and visible at Execute+.
+   * Uses hrefs from config (not copy) so new links inherit the same contract automatically.
+   */
+  it("hides every ExecuteAuthority-marked Advanced Analysis and Enterprise nav link from Read callers", () => {
+    const groupIds = ["qa-advisory", "alerts-governance"] as const;
+
+    for (const groupId of groupIds) {
+      const links = NAV_GROUPS.find((g) => g.id === groupId)?.links;
+
+      expect(links, groupId).toBeDefined();
+
+      const executeLinks = links!.filter((l) => l.requiredAuthority === "ExecuteAuthority");
+
+      expect(executeLinks.length, `${groupId} should declare at least one Execute-tier destination`).toBeGreaterThan(0);
+
+      const readerHrefs = new Set(
+        filterNavLinksByAuthority(links!, AUTHORITY_RANK.ReadAuthority).map((l) => l.href),
+      );
+
+      for (const link of executeLinks) {
+        expect(readerHrefs.has(link.href), link.href).toBe(false);
+        expect(navLinkVisibleForCallerRank(link, AUTHORITY_RANK.ExecuteAuthority), link.href).toBe(true);
+      }
+    }
   });
 
   it("keeps maxAuthorityRankFromMeClaims aligned with normalizeAuthMeResponse.authorityRank for representative /me claims", () => {

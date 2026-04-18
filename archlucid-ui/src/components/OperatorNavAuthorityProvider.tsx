@@ -104,6 +104,8 @@ export function useOperatorNavAuthority(): OperatorNavAuthorityContextValue {
 /**
  * Rank used for **filtering** nav links: while JWT `/me` is in flight for a signed-in session, stay conservative (Read)
  * so Operator-only destinations do not flash for Reader before claims resolve.
+ *
+ * @see `OperatorNavAuthorityProvider.test.tsx` — refetch + `/me` failure regressions.
  */
 export function useNavCallerAuthorityRank(): number {
   const { callerAuthorityRank, isAuthorityLoading } = useOperatorNavAuthority();
