@@ -8,7 +8,12 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
+import {
+  alertRulesDefinedListEmptyOperatorLine,
+  alertRulesDefinedListEmptyReaderLine,
+  enterpriseMutationControlDisabledTitle,
+} from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [
@@ -76,7 +81,8 @@ export default function AlertRulesPage() {
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
         <strong>Thresholds</strong> evaluated on each advisory scan (meaning depends on rule type: count, percent, or
-        days). Define below; browse what already exists under <strong>Defined rules</strong>.
+        days). Browse <strong>Defined rules</strong>; add or change thresholds in <strong>Configure new rule</strong> when
+        operator-level access applies to you.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -90,104 +96,112 @@ export default function AlertRulesPage() {
         </div>
       ) : null}
 
-      <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
-        {canMutateAlertRules ? "Configure new rule" : "Configure new rule (operator access)"}
-      </h3>
-      <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 24 }}>
-        <label>
-          Name
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            disabled={!canMutateAlertRules}
-            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-          />
-        </label>
-        <label>
-          Rule type
-          <select
-            value={ruleType}
-            onChange={(e) => setRuleType(e.target.value)}
-            disabled={!canMutateAlertRules}
-            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-          >
-            {RULE_TYPES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Severity (when triggered)
-          <select
-            value={severity}
-            onChange={(e) => setSeverity(e.target.value)}
-            disabled={!canMutateAlertRules}
-            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-          >
-            {SEVERITIES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Threshold value
-          <input
-            type="number"
-            step="any"
-            value={threshold}
-            onChange={(e) => setThreshold(Number(e.target.value))}
-            disabled={!canMutateAlertRules}
-            title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-          />
-        </label>
-        <button
-          type="button"
-          onClick={() => void onCreate()}
-          disabled={loading || !canMutateAlertRules}
-          title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
-        >
-          Create rule
-        </button>
-      </div>
-
-      <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 16 }}>
-        {loading ? "Loading…" : "Refresh"}
-      </button>
-
-      <h3 style={{ fontSize: "1rem", marginTop: 8 }}>Defined rules</h3>
-      <div style={{ display: "grid", gap: 12 }}>
-        {items.length === 0 ? (
-          <p style={{ color: "#666" }}>None yet.</p>
-        ) : (
-          items.map((r) => (
-            <div
-              key={r.ruleId}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 12,
-                background: "#fff",
-              }}
+      <div className={cn("flex flex-col", !canMutateAlertRules && "flex-col-reverse")}>
+        <div className="min-w-0">
+          <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+            {canMutateAlertRules ? "Configure new rule" : "Configure new rule (operator access)"}
+          </h3>
+          <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
+            <label>
+              Name
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={!canMutateAlertRules}
+                title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              />
+            </label>
+            <label>
+              Rule type
+              <select
+                value={ruleType}
+                onChange={(e) => setRuleType(e.target.value)}
+                disabled={!canMutateAlertRules}
+                title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {RULE_TYPES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Severity (when triggered)
+              <select
+                value={severity}
+                onChange={(e) => setSeverity(e.target.value)}
+                disabled={!canMutateAlertRules}
+                title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              >
+                {SEVERITIES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Threshold value
+              <input
+                type="number"
+                step="any"
+                value={threshold}
+                onChange={(e) => setThreshold(Number(e.target.value))}
+                disabled={!canMutateAlertRules}
+                title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
+                style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={() => void onCreate()}
+              disabled={loading || !canMutateAlertRules}
+              title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
             >
-              <strong>{r.name}</strong>
-              <div style={{ fontSize: 14, marginTop: 8 }}>
-                <div>Type: {r.ruleType}</div>
-                <div>Severity: {r.severity}</div>
-                <div>Threshold: {r.thresholdValue}</div>
-                <div>Enabled: {String(r.isEnabled)}</div>
-                <div>Channel: {r.targetChannelType}</div>
-              </div>
-            </div>
-          ))
-        )}
+              Create rule
+            </button>
+          </div>
+        </div>
+
+        <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
+          {loading ? "Loading…" : "Refresh"}
+        </button>
+
+        <div className="min-w-0">
+          <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Defined rules</h3>
+          <div style={{ display: "grid", gap: 12 }}>
+            {items.length === 0 ? (
+              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+                {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
+              </p>
+            ) : (
+              items.map((r) => (
+                <div
+                  key={r.ruleId}
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    padding: 12,
+                    background: "#fff",
+                  }}
+                >
+                  <strong>{r.name}</strong>
+                  <div style={{ fontSize: 14, marginTop: 8 }}>
+                    <div>Type: {r.ruleType}</div>
+                    <div>Severity: {r.severity}</div>
+                    <div>Threshold: {r.thresholdValue}</div>
+                    <div>Enabled: {String(r.isEnabled)}</div>
+                    <div>Channel: {r.targetChannelType}</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

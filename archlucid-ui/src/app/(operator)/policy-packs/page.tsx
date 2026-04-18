@@ -25,6 +25,8 @@ import {
 import {
   enterpriseMutationControlDisabledTitle,
   enterprisePolicyPacksOperatorPlusLine,
+  policyPacksEmptyScopeOperatorLine,
+  policyPacksEmptyScopeReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 import type {
   EffectivePolicyPackSet,
@@ -257,7 +259,9 @@ export default function PolicyPacksPage() {
       <section style={{ marginBottom: 32 }}>
         <h3>Packs in scope</h3>
         {packs.length === 0 ? (
-          <p style={{ color: "#666" }}>No packs yet.</p>
+          <p style={{ color: "#666", maxWidth: "42rem", fontSize: 14 }}>
+            {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
+          </p>
         ) : (
           <ul>
             {packs.map((p) => (

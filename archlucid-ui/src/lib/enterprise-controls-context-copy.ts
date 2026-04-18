@@ -1,5 +1,5 @@
 /**
- * Short, sober copy for Enterprise Controls context (nav + key pages).
+ * Short, sober copy for Enterprise Controls context (nav, key pages, and selected empty-state / card-description strings).
  * Aligned with docs/OPERATOR_DECISION_GUIDE.md (default rule, §2 “Move to Enterprise Controls”) and
  * docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md (Stage 1 — role clarity without commercializing the wedge).
  * Keep wording responsibility-based, not permission-jargon.
@@ -77,3 +77,33 @@ export const auditLogRankOperatorLine =
 /** Governance dashboard — operator+ when `GovernanceDashboardReaderActionCue` is hidden */
 export const governanceDashboardOperatorPlusLine =
   "Cross-run oversight for approvals, decisions, and policy signals; write actions remain API-enforced.";
+
+/** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
+export const governanceDashboardPendingClearReaderSupplement =
+  "Read-tier view: when items appear here, approve, reject, and batch actions stay disabled in this shell until operator-level access applies to you—the API remains authoritative.";
+
+/** Governance workflow — “Approval requests for a run” card description by rank. */
+export const governanceWorkflowQueryCardDescriptionReader =
+  "Load one run to inspect approvals, promotions, and activations. Approve, reject, promote, and activate follow operator-level API policy where configured.";
+
+export const governanceWorkflowQueryCardDescriptionOperator =
+  "Load rows for one run, then approve, reject, or promote according to status.";
+
+/** No rows returned for the loaded run — reader copy references submit section position when inspect-first layout is used. */
+export const governanceWorkflowNoApprovalsReaderHint =
+  "Nothing in Submitted/Draft for this run. Pick another run ID, or ask an operator to submit from the Submit section.";
+
+export const governanceWorkflowNoApprovalsOperatorHint =
+  "Submit a request above or pick another run ID.";
+
+/** Policy packs — empty list under “Packs in scope”. */
+export const policyPacksEmptyScopeReaderLine =
+  "No packs in this scope yet. Inspect effective packs and JSON below; create, publish, and assign require operator-level access where configured.";
+
+export const policyPacksEmptyScopeOperatorLine = "No packs yet.";
+
+/** Alert rules — empty “Defined rules” list. */
+export const alertRulesDefinedListEmptyReaderLine =
+  "No rules in this scope yet. Review thresholds under Configure new rule (read-only here); operators enable writes on the API.";
+
+export const alertRulesDefinedListEmptyOperatorLine = "None yet.";

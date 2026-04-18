@@ -36,6 +36,7 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceDashboardOperatorPlusLine,
+  governanceDashboardPendingClearReaderSupplement,
 } from "@/lib/enterprise-controls-context-copy";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import { showError, showSuccess } from "@/lib/toast";
@@ -459,6 +460,11 @@ export default function GovernanceDashboardPage() {
             {pending.length === 0 ? (
               <OperatorEmptyState title="No pending approvals — all clear.">
                 <p className="text-sm">Nothing requires review in Draft or Submitted state.</p>
+                {!canMutateGovernance ? (
+                  <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+                    {governanceDashboardPendingClearReaderSupplement}
+                  </p>
+                ) : null}
               </OperatorEmptyState>
             ) : (
               <div className="grid gap-4">

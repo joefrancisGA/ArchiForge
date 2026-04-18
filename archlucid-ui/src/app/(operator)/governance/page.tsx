@@ -52,6 +52,10 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   enterpriseGovernanceWorkflowOperatorPlusLine,
   enterpriseMutationControlDisabledTitle,
+  governanceWorkflowNoApprovalsOperatorHint,
+  governanceWorkflowNoApprovalsReaderHint,
+  governanceWorkflowQueryCardDescriptionOperator,
+  governanceWorkflowQueryCardDescriptionReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
@@ -426,6 +430,7 @@ function GovernanceWorkflowPageInner() {
         </div>
       ) : null}
 
+      <div className={cn(canMutateWorkflow ? "flex flex-col" : "flex flex-col-reverse")}>
       <section className="mb-10">
         <Card>
           <CardHeader>
@@ -519,7 +524,9 @@ function GovernanceWorkflowPageInner() {
           <CardHeader>
             <CardTitle>Approval requests for a run</CardTitle>
             <CardDescription>
-              Load rows for one run, then approve, reject, or promote according to status.
+              {canMutateWorkflow
+                ? governanceWorkflowQueryCardDescriptionOperator
+                : governanceWorkflowQueryCardDescriptionReader}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -565,7 +572,11 @@ function GovernanceWorkflowPageInner() {
 
           {!listsLoading && activeRunId !== null && approvals.length === 0 && listFailure === null ? (
             <OperatorEmptyState title="No approval requests for this run">
-              <p className="text-sm">Submit a request above or pick another run ID.</p>
+              <p className="text-sm">
+                {canMutateWorkflow
+                  ? governanceWorkflowNoApprovalsOperatorHint
+                  : governanceWorkflowNoApprovalsReaderHint}
+              </p>
             </OperatorEmptyState>
           ) : null}
 
@@ -716,6 +727,7 @@ function GovernanceWorkflowPageInner() {
           ))}
         </div>
       </section>
+      </div>
 
       <Separator className="mb-10" />
 
