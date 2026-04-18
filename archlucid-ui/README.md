@@ -6,7 +6,7 @@ For the canonical sponsor-facing value summary, start with [../docs/EXECUTIVE_SP
 
 **In-product guidance:** sidebar group **captions** summarize each layer; key Advanced Analysis / Enterprise routes render a **`LayerHeader`** strip (what question the page answers); **Home** shows a post-checklist nudge when all Core Pilot boxes are checked; **run detail** shows an optional Advanced Analysis strip after commit. Full routing logic stays in **`docs/OPERATOR_DECISION_GUIDE.md`** (repo root).
 
-**Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`** (`ReadAuthority` | `ExecuteAuthority` | `AdminAuthority`, aligned with the API policies in the repo root `README.md`). `OperatorNavAuthorityProvider` + `GET /api/auth/me` supply a caller rank; sidebar, mobile drawer, and command palette filter links structurally (not a substitute for server-side 401/403).
+**Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`** (`ReadAuthority` | `ExecuteAuthority` | `AdminAuthority`, aligned with the API policies in the repo root `README.md`). `OperatorNavAuthorityProvider` + `GET /api/auth/me` supply a caller rank; **`src/lib/nav-shell-visibility.ts`** composes **tier + authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
 
 ## Core Pilot path (start here)
 

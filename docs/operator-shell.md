@@ -31,7 +31,7 @@ Long-form “when to expand” tables remain in **OPERATOR_DECISION_GUIDE.md**; 
 
 The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual destinations when the signed-in principal is unlikely to satisfy the API for that workflow. Link metadata lives on **`NavLinkItem.requiredAuthority`** in `archlucid-ui/src/lib/nav-config.ts` and mirrors ASP.NET policy names **`ReadAuthority`**, **`ExecuteAuthority`**, and **`AdminAuthority`** (see repo root **`README.md`**, API authentication section).
 
-The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims) via **`archlucid-ui/src/lib/current-principal.ts`** (`loadCurrentPrincipal`); `OperatorNavAuthorityProvider` consumes the same helper. **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home** and **Onboarding** so the Core Pilot wedge stays open).
+The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims) via **`archlucid-ui/src/lib/current-principal.ts`** (`loadCurrentPrincipal`); `OperatorNavAuthorityProvider` consumes the same helper. Sidebar, mobile drawer, and command palette compose **tier + authority** in **`archlucid-ui/src/lib/nav-shell-visibility.ts`** and **omit whole nav groups** when every link in that group is filtered out (no empty headings). **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home**, **Onboarding**, and other Core Pilot essentials so the default path stays open).
 
 ---
 

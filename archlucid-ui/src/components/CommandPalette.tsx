@@ -45,7 +45,9 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
 }
 
 /**
- * Ctrl+K / ⌘K command palette: jump to any operator page; optional run UUID opens run detail.
+ * Ctrl+K / ⌘K command palette: jump to operator pages surfaced in nav config.
+ * Uses the same **tier + authority** composition as the sidebar (`filterNavLinksForOperatorShell`); empty groups are omitted.
+ * Optional run UUID quick-open is unchanged.
  */
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -96,11 +98,20 @@ export function CommandPalette() {
           <RunIdQuickOpen onNavigate={navigate} />
           <CommandEmpty>No matching pages. Try another search or paste a run UUID.</CommandEmpty>
           {NAV_GROUPS.map((group) => {
-            const authorityFiltered = filterNavLinksByAuthority(group.links, callerAuthorityRank);
+            const visibleLinks = filterNavLinksForOperatorShell(
+              group.links,
+              showExtended,
+              showAdvanced,
+              callerAuthorityRank,
+            );
+
+            if (visibleLinks.length === 0) {
+              return null;
+            }
 
             return (
               <CommandGroup key={group.id} heading={group.label}>
-                {authorityFiltered.map((link) => (
+                {visibleLinks.map((link) => (
                   <CommandItem
                     key={link.href}
                     value={`${link.label} ${link.href}`}

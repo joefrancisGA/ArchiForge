@@ -188,7 +188,7 @@ export function SidebarNav() {
               Control which sidebar links appear by progressive disclosure tier. The same destination list also
               respects optional minimum API authority hints (Read / Execute / Admin) when the shell can resolve your
               principal via <code className="text-xs">GET /api/auth/me</code>; the command palette (Ctrl+K) uses the
-              same hints.
+              same tier + authority composition (see <code className="text-xs">nav-shell-visibility.ts</code>).
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
