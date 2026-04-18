@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import {
+  AlertOperatorToolingRankCue,
   AlertsInboxRankCue,
   AuditLogRankCue,
   EnterpriseExecutePlusPageCue,
@@ -40,5 +41,11 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
     render(<AuditLogRankCue />);
 
     expect(screen.getByText(/Audit investigation surface/i)).toBeInTheDocument();
+  });
+
+  it("AlertOperatorToolingRankCue renders operator line outside shell provider (default Admin rank)", () => {
+    render(<AlertOperatorToolingRankCue />);
+
+    expect(screen.getByText(/Operator\/admin operational-control surface/i)).toBeInTheDocument();
   });
 });

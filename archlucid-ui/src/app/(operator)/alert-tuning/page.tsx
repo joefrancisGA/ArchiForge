@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  EnterpriseControlsExecutePageHint,
-  EnterpriseExecutePlusPageCue,
-} from "@/components/EnterpriseControlsContextHints";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
-import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -203,13 +200,13 @@ export default function AlertTuningPage() {
 
   return (
     <main style={{ maxWidth: 900 }}>
+      <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
         <strong>Suggest thresholds</strong> from simulated candidates (same evaluators as production), balancing noise vs
         coverage for a target alert band.
       </p>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
+      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">

@@ -2,11 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getGovernanceResolution } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { governanceResolutionContextLine } from "@/lib/enterprise-controls-context-copy";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 export default function GovernanceResolutionPage() {
@@ -33,10 +33,8 @@ export default function GovernanceResolutionPage() {
 
   return (
     <main style={{ maxWidth: 1100 }}>
+      <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
-      <p className="mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400" role="note">
-        {governanceResolutionContextLine}
-      </p>
       <GovernanceResolutionRankCue />
       <details style={{ marginBottom: 12, maxWidth: "52rem" }}>
         <summary style={{ cursor: "pointer", color: "#444", fontSize: 14, fontWeight: 600 }}>

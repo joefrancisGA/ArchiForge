@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  EnterpriseControlsExecutePageHint,
-  EnterpriseExecutePlusPageCue,
-} from "@/components/EnterpriseControlsContextHints";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -14,7 +12,6 @@ import {
   listAlertRoutingSubscriptions,
   toggleAlertRoutingSubscription,
 } from "@/lib/api";
-import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 
 export default function AlertRoutingPage() {
@@ -84,13 +81,13 @@ export default function AlertRoutingPage() {
 
   return (
     <main style={{ maxWidth: 800 }}>
+      <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
         <strong>Real-time delivery</strong> when a new alert fires (not digest email). Only destinations at or above{" "}
         <strong>minimum severity</strong> receive it. Dev stacks log to fake channels.
       </p>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
+      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">

@@ -21,10 +21,6 @@ export const enterpriseNavHintOperatorRank =
 export const enterpriseExecutePageHintReaderRank =
   "Operator/admin surface. The API still enforces writes—not required for Core Pilot.";
 
-/** Governance resolution (no LayerHeader page key): read-only effective policy view */
-export const governanceResolutionContextLine =
-  "Effective policy for the current scope—usually reviewed by governance or platform leads. Not required for Core Pilot.";
-
 /** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
 export const governanceResolutionRankReaderLine =
   "Reader-oriented evidence of what is in effect for this scope—not required for Core Pilot.";
@@ -44,9 +40,15 @@ export const enterpriseGovernanceWorkflowOperatorPlusLine =
 export const enterprisePolicyPacksOperatorPlusLine =
   "Pack lifecycle mixes reads with publish, assign, and create; stricter steps require admin on the API. Not required for Core Pilot.";
 
-/** Alert rules, routing, tuning, simulation, composite rules — operator+ reminder */
-export const enterpriseOperatorConfigSurfaceOperatorPlusLine =
-  "Operator configuration surface—writes remain API-enforced by role. Not required for Core Pilot.";
+/**
+ * Alert operator tooling pages — rank-aware single line (replaces stacked Execute hint + operator cue on those routes).
+ * Readers: evidence / what-if framing; operators: control surface framing (see `AlertOperatorToolingRankCue`).
+ */
+export const alertOperatorToolingReaderRankLine =
+  "Read-oriented inspection and what-if here; changing rules, routing, or subscriptions uses operator-level API access where your tenant expects it—not required for Core Pilot.";
+
+export const alertOperatorToolingOperatorRankLine =
+  "Operator/admin operational-control surface—writes remain API-enforced by role. Not required for Core Pilot.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
 export const alertsInboxRankReaderLine =

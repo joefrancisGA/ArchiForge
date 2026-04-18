@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import {
+  alertOperatorToolingOperatorRankLine,
+  alertOperatorToolingReaderRankLine,
   alertsInboxRankOperatorLine,
   alertsInboxRankReaderLine,
   auditLogRankOperatorLine,
@@ -92,6 +94,18 @@ export function AuditLogRankCue({ className }: { className?: string }): ReactNod
   const rank = useNavCallerAuthorityRank();
 
   const text = rank < AUTHORITY_RANK.ExecuteAuthority ? auditLogRankReaderLine : auditLogRankOperatorLine;
+
+  return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
+}
+
+/**
+ * Alert rules, routing, simulation, tuning, composite rules: one rank-aware line (read vs operator/admin framing).
+ */
+export function AlertOperatorToolingRankCue({ className }: { className?: string }): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  const text =
+    rank < AUTHORITY_RANK.ExecuteAuthority ? alertOperatorToolingReaderRankLine : alertOperatorToolingOperatorRankLine;
 
   return <p className={cn(pageCueClassName, className)} role="note">{text}</p>;
 }

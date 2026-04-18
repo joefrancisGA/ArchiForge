@@ -35,6 +35,7 @@ import {
   EnterpriseControlsExecutePageHint,
   EnterpriseExecutePlusPageCue,
 } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import {
   activateEnvironment,
   approveRequest,
@@ -386,6 +387,7 @@ function GovernanceWorkflowPageInner() {
   return (
     <TooltipProvider delayDuration={300}>
     <main className="mx-auto max-w-4xl">
+      <LayerHeader pageKey="governance-workflow" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />

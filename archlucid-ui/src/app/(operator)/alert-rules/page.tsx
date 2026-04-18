@@ -1,15 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  EnterpriseControlsExecutePageHint,
-  EnterpriseExecutePlusPageCue,
-} from "@/components/EnterpriseControlsContextHints";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [
@@ -68,13 +65,13 @@ export default function AlertRulesPage() {
 
   return (
     <main style={{ maxWidth: 800 }}>
+      <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
         <strong>Thresholds</strong> evaluated on each advisory scan (meaning depends on rule type: count, percent, or
         days). Define below; browse what already exists under <strong>Defined rules</strong>.
       </p>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
+      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">

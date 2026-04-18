@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  EnterpriseControlsExecutePageHint,
-  EnterpriseExecutePlusPageCue,
-} from "@/components/EnterpriseControlsContextHints";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type {
   RuleCandidateComparisonResult,
   RuleSimulationResult,
@@ -288,13 +285,13 @@ export default function AlertSimulationPage() {
 
   return (
     <main style={{ maxWidth: 1100 }}>
+      <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
         <strong>What-if</strong> against recent runs (or one run ID): same evaluators and suppression as production;{" "}
         <strong>no</strong> alerts persisted or delivered.
       </p>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
+      <AlertOperatorToolingRankCue />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {TABS.map((t) => (

@@ -1,15 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  EnterpriseControlsExecutePageHint,
-  EnterpriseExecutePlusPageCue,
-} from "@/components/EnterpriseControlsContextHints";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { enterpriseOperatorConfigSurfaceOperatorPlusLine } from "@/lib/enterprise-controls-context-copy";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
 
 const METRICS = [
@@ -104,13 +101,13 @@ export default function CompositeAlertRulesPage() {
 
   return (
     <main style={{ maxWidth: 900 }}>
+      <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
         <strong>AND/OR metrics</strong> with cooldown and suppression so routing is not spammed. A new firing after
         suppression still respects dedupe against prior open or acknowledged rows for the same key.
       </p>
-      <EnterpriseControlsExecutePageHint />
-      <EnterpriseExecutePlusPageCue message={enterpriseOperatorConfigSurfaceOperatorPlusLine} />
+      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">

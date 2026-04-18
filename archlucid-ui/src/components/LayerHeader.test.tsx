@@ -18,4 +18,10 @@ describe("LayerHeader", () => {
       screen.getByText(/Evidence for sponsors and audit—still not required for Core Pilot\./i),
     ).toBeInTheDocument();
   });
+
+  it("renders governance resolution Enterprise footnote", () => {
+    render(<LayerHeader pageKey="governance-resolution" />);
+
+    expect(screen.getByText(/Read-oriented governance evidence/i)).toBeInTheDocument();
+  });
 });

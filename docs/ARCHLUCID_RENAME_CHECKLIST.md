@@ -114,6 +114,7 @@ See `.cursor/rules/ArchLucid-Rename.mdc` for the standing instruction.
 
 | Date | Batch | Notes |
 |------|-------|-------|
+| 2026-04-18 | **`archlucid-ui`** — Enterprise page **`LayerHeader`** + alert tooling rank cue | **`layer-guidance.ts`** keys (**`governance-resolution`**, **`governance-workflow`**, **`policy-packs`**, **`alert-rules`**, **`alert-routing`**, **`alert-simulation`**, **`alert-tuning`**, **`composite-alert-rules`**); **`AlertOperatorToolingRankCue`** + copy; pages wired; removed unused **`governanceResolutionContextLine`** / **`enterpriseOperatorConfigSurfaceOperatorPlusLine`**; Vitest + **`archlucid-ui/README.md`**. Phase **7.5–7.8** unchanged (deferred). |
 | 2026-04-18 | **`ArchLucid.Cli`** — NSwag comparison history call | **`ArchLucidCliApiClient.SearchComparisonsAsync`** → **`ComparisonsGETAsync`** (was **`ComparisonsGET4Async`**, now run-only). Phase **7.5–7.8** unchanged (deferred). |
 | 2026-04-18 | CI — Trivy binary pin | **`.github/workflows/ci.yml`**: all **`aquasecurity/trivy-action`** steps pass **`version: v0.70.0`** (default **`v0.69.3`** no longer installs via **`setup-trivy`**). Phase **7.5–7.8** unchanged (deferred). |
 | 2026-04-18 | CodeQL **`cs/log-forging`** — comparison replay warning sink | **`SanitizedLoggerWarningExtensions.LogWarningComparisonReplayFailed`** (sanitized strings adjacent to **`LogWarning`** + suppression on sink line); **`ComparisonReplayApiService`** uses it; **`SanitizedLoggerWarningExtensionsTests`** + **`CODEQL_TRIAGE.md`**. Phase **7.5–7.8** unchanged (deferred). |

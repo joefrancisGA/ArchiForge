@@ -8,6 +8,7 @@ import {
   EnterpriseControlsExecutePageHint,
   EnterpriseExecutePlusPageCue,
 } from "@/components/EnterpriseControlsContextHints";
+import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
@@ -224,6 +225,7 @@ export default function PolicyPacksPage() {
 
   return (
     <main style={{ maxWidth: 960 }}>
+      <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "52rem" }}>
         <strong>Inspect</strong> packs and resolved JSON for this scope. One readout of what applies:{" "}
