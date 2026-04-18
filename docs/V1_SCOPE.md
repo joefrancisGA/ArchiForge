@@ -22,7 +22,7 @@ For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md)
 
 ## 2. In scope for V1 — organized by product layer
 
-V1 capabilities map to three product layers. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full inventory and [CORE_PILOT.md](CORE_PILOT.md) for the first-pilot walkthrough.
+V1 capabilities map to three product layers. See [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) for the full inventory, [CORE_PILOT.md](CORE_PILOT.md) for the first-pilot walkthrough, and [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for when to stay in Core Pilot versus move to Advanced Analysis or Enterprise Controls.
 
 ---
 
@@ -85,6 +85,8 @@ Deeper investigation and comparison tools. Available once you have at least one 
 - **Recommendation learning** — learning profiles per run.
 - **Integration events** (optional Azure Service Bus, CloudEvents envelope, webhooks) ([INTEGRATION_EVENTS_AND_WEBHOOKS.md](INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
 
+Use this layer when the next question is analytical: what changed, why it changed, what the architecture or provenance graph shows, or how two runs differ.
+
 ---
 
 ### Layer 3 — Enterprise Controls
@@ -116,6 +118,8 @@ Governance, auditability, and compliance tooling. Configuration-driven; most fea
 - **Entra ID / JWT bearer, API key, RBAC roles** (Admin / Operator / Reader / Auditor).
 - **Private endpoints** and WAF Terraform modules; no SMB/445 public exposure.
 - **DPA template, subprocessors register, SOC 2 roadmap** ([go-to-market/TRUST_CENTER.md](go-to-market/TRUST_CENTER.md)).
+
+Use this layer when the next question is governance or trust: approvals, policy enforcement, audit evidence, compliance drift, alerts, or operational control.
 
 ---
 
@@ -156,6 +160,8 @@ Enable these once you have at least one committed run. In the operator UI, click
 - **Graph** (`/graph`) — visual provenance or architecture graph for a single run ID.
 - **Export** — download bundle ZIP and run-export ZIP from run detail → Artifacts.
 
+Use these when the next question is analytical rather than operational: what changed, why it changed, or how to inspect the result more deeply.
+
 ### 4.3 Enterprise Controls (available but not required for the Core Pilot)
 
 Enable extended and advanced links in the sidebar to surface the full Enterprise Controls surface.
@@ -163,6 +169,8 @@ Enable extended and advanced links in the sidebar to surface the full Enterprise
 - **Governance** — approval workflows, policy packs, pre-commit gate, governance dashboard.
 - **Audit** — append-only audit log, CSV export, compliance drift tracking.
 - **Alerts** — rules, routing, composite rules, simulation, tuning.
+
+Use these when the next question is governance or trust: approvals, policy enforcement, audit, compliance, or operational control.
 
 Optional: run **readiness** or **release-smoke** before a demo ([PILOT_GUIDE.md](PILOT_GUIDE.md), [RELEASE_SMOKE.md](RELEASE_SMOKE.md)).
 
@@ -191,6 +199,7 @@ These are **practical gates** already encoded or described in-repo—not an exha
 |-----|-----|
 | [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) | **Three-layer capability inventory:** Core Pilot · Advanced Analysis · Enterprise Controls |
 | [CORE_PILOT.md](CORE_PILOT.md) | First-pilot walkthrough (4 steps) |
+| [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) | Practical guide for which layer to use next and what can be ignored for now |
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | Actionable pre-handoff checklist (scope freeze, deploy, health, operator flow, exports, recovery) |
 | [V1_DEFERRED.md](V1_DEFERRED.md) | Doc inventory: V1.1+ candidates, audit gaps, Phase 7 rename, infra polish, maintainer backlog |
 | [PILOT_GUIDE.md](PILOT_GUIDE.md) | Pilot onboarding narrative |
