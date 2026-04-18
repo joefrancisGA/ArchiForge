@@ -30,18 +30,18 @@ vi.mock("@/components/OperatorHomeGate", () => ({
 import HomePage from "./page";
 
 describe("HomePage (55R smoke — landing)", () => {
-  it("renders dashboard tagline and quick links", async () => {
+  it("renders dashboard tagline and product-layer sections", async () => {
     render(<HomePage />);
 
     expect(screen.getByRole("heading", { level: 2, name: "Operator home" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 3, name: "Quick links" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Core Pilot path" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Advanced Analysis" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 3, name: "Enterprise Controls" })).toBeInTheDocument();
     expect(screen.getByTestId("first-run-panel-mock")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByTestId("welcome-banner-mock")).toBeInTheDocument();
     });
-    expect(
-      screen.getByText("Create architecture runs, review manifests, and track governance from this dashboard."),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/three product layers/i)).toBeInTheDocument();
   });
 
   it("exposes primary workflow destinations matching shell review paths", () => {
