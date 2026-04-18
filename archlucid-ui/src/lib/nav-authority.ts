@@ -1,22 +1,32 @@
 /**
- * UI-side authority hints for operator navigation (sidebar, mobile drawer, command palette).
- * Mirrors server `ArchLucidPolicies` (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` in `ArchLucid.Core`)
- * so nav shaping can align with API RBAC without duplicating a full authZ engine.
+ * ## Purpose
  *
- * **Packaging alignment:** `ReadAuthority` on a `NavLinkItem` marks **read-mostly** destinations (typical Advanced
- * Analysis inspection and many **Enterprise Controls** evidence or inbox views). `ExecuteAuthority` marks workflows
- * whose primary API verbs are Execute-class (replay, governance workflow, selected alert configuration). **`AdminAuthority`**
- * is reserved for nav only when a whole area is admin-scoped; many admin-only POSTs stay gated on the server while
- * the list page stays `ReadAuthority`—see comments in `nav-config.ts`.
+ * UI-side authority hints for operator navigation (sidebar, mobile drawer, command palette). Policy **names** mirror
+ * **`ArchLucidPolicies`** on **`ArchLucid.Api`** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority` in **`ArchLucid.Core`**)
+ * so the shell stays aligned with RBAC vocabulary — **not** a second authorization engine.
  *
- * This is **not** enforcement: routes still 401/403 from the API. It is structural metadata for progressive disclosure + role-aware nav.
- * Enterprise **in-page** mutation affordances reuse the same **Execute+** rank threshold as `enterpriseMutationCapabilityFromRank` in `enterprise-mutation-capability.ts`.
+ * ## API vs UI (hard boundary)
  *
- * **Read-tier vs Execute+ in the UI:** **`navLinkVisibleForCallerRank`** / **`filterNavLinksByAuthority`** only decide
- * whether a **destination appears** in nav (and empty groups are dropped in `nav-shell-visibility.ts`). **`rank >= Execute`**
- * is additionally used for **soft-enabled POST/toggle controls** via `useEnterpriseMutationCapability()` — same numeric
- * scale, different surface. Packaging narrative: **docs/PRODUCT_PACKAGING.md** §3; Stage 1 framing:
- * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
+ * **`[Authorize(Policy = …)]`** on controllers is **authoritative** (**401/403**). This module answers *whether a nav
+ * destination should appear for rank R* and supplies **`maxAuthorityRankFromMeClaims`** for **`GET /api/auth/me`**
+ * parsing. **Deep links** still hit the route; omission here never implies a POST or toggle is allowed.
+ *
+ * ## Read-tier vs Execute+ (same numerics, different surfaces)
+ *
+ * - **Nav / palette:** **`navLinkVisibleForCallerRank`** / **`filterNavLinksByAuthority`** — link visible iff
+ *   `callerRank >= requiredAuthorityRank(link.requiredAuthority)` (missing `requiredAuthority` ⇒ visible at every rank).
+ * - **Enterprise write affordances:** **`enterpriseMutationCapabilityFromRank`** / **`useEnterpriseMutationCapability()`**
+ *   — **`callerRank >= AUTHORITY_RANK.ExecuteAuthority`**. Shell composition is **tier → authority** in
+ *   **`nav-shell-visibility.ts`**; empty groups are dropped there.
+ *
+ * **`ReadAuthority`** on a **`NavLinkItem`** marks read-mostly destinations; **`ExecuteAuthority`** marks Execute-class
+ * primary workflows (replay, governance workflow, selected alert configuration). **`AdminAuthority`** is rare on nav;
+ * many admin-only POSTs stay server-gated while list pages stay **`ReadAuthority`** — see **`nav-config.ts`** header.
+ *
+ * ## Packaging references
+ *
+ * **`nav-config.ts`** owns link metadata. Contributor order: **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard*;
+ * Stage 1 framing: **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read.
  * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `EnterpriseControlsContextHints.authority.test.tsx` — cue components.

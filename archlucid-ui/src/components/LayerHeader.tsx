@@ -17,14 +17,15 @@ export type LayerHeaderProps = {
 /**
  * Compact route-level reminder of which **product packaging layer** the page belongs to and when to use it.
  * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family); keep keys in sync when adding pages.
- * Buyer-facing layer model: **docs/PRODUCT_PACKAGING.md** §1–3; **§3 *Code seams*** maps `NAV_GROUPS[].id` to this UI;
- * **§3 *Contributor drift guard*** ties this strip to `nav-config` + API policies; operator “when to use” narrative:
- * **docs/OPERATOR_DECISION_GUIDE.md**.
  *
- * **Enterprise Controls** (`layerBadge === "Enterprise Controls"`): adds a **rank-aware** line under the footnote
- * (read tier vs Execute+ framing) using `useNavCallerAuthorityRank()` — **cognitive / UI shaping only**; same threshold
- * as **`useEnterpriseMutationCapability()`** for buttons, but **ArchLucid.Api** `[Authorize]` remains authoritative
- * (401/403). **Not** entitlements or billing (**docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** Stage 1).
+ * **Doc map:** buyer layers — **docs/PRODUCT_PACKAGING.md** §1–2; operator “when to use” — **docs/OPERATOR_DECISION_GUIDE.md**;
+ * contributor seam table — **docs/PRODUCT_PACKAGING.md** §3 *Code seams*; change checklist — §3 *Contributor drift guard*
+ * (align **`nav-config.ts`** `requiredAuthority` with C# **`ArchLucidPolicies`**).
+ *
+ * **Enterprise Controls** (`layerBadge === "Enterprise Controls"`): rank-aware line under **`enterpriseFootnote`**
+ * (`callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority` ⇒ reader line, else operator line). **Cognitive / UI shaping
+ * only** — same **Execute** numeric floor as **`useEnterpriseMutationCapability()`**, but **`[Authorize(Policy = …)]`**
+ * on **ArchLucid.Api** is still authoritative (**401/403**). Not entitlements or billing — **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**).
  */

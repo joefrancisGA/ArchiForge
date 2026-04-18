@@ -16,6 +16,13 @@
  * - **`normalizeAuthMeResponse`** — pure parse for tests or callers that already have JSON.
  * - **`buildAuthMeProxyRequestInit`** — shared `RequestInit` (bearer + registration scope) for `/me` or diagnostics.
  *
+ * ## Where `authorityRank` flows (keep in sync)
+ *
+ * **`OperatorNavAuthorityProvider`** exposes the same rank to **`useNavCallerAuthorityRank()`**, which feeds
+ * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) and
+ * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). Drift between
+ * those consumers breaks the story in **docs/PRODUCT_PACKAGING.md** §3.
+ *
  * ## Role → policy normalization (UX only; server enforces policies)
  *
  * App roles are read from Entra-style **`roles`** and **`ClaimTypes.Role`** claims (`nav-authority.ts`).

@@ -4,6 +4,7 @@ import {
   AUTHORITY_RANK,
   collectArchLucidRoleClaimValues,
   filterNavLinksByAuthority,
+  isArchLucidRoleClaimType,
   maxAuthorityRankFromMeClaims,
   navLinkVisibleForCallerRank,
   requiredAuthorityFromRank,
@@ -62,6 +63,32 @@ describe("nav-authority", () => {
       { type: "http://schemas.microsoft.com/ws/2008/06/identity/claims/role", value: "Admin" },
     ]);
     expect(adminRank).toBe(AUTHORITY_RANK.AdminAuthority);
+  });
+
+  /**
+   * Entra often emits app-specific role types ending in `/claims/role`. Missing this keeps `maxAuthorityRankFromMeClaims`
+   * at the Reader default and would silently mis-shape nav + Enterprise affordances for real tokens.
+   */
+  it("counts roles carried on claim types that end with /claims/role (Entra-style URI)", () => {
+    expect(
+      isArchLucidRoleClaimType("https://login.microsoftonline.com/tenant/v2.0/claims/role"),
+    ).toBe(true);
+
+    const rank = maxAuthorityRankFromMeClaims([
+      {
+        type: "https://login.microsoftonline.com/tenant/v2.0/claims/role",
+        value: "Operator",
+      },
+    ]);
+
+    expect(rank).toBe(AUTHORITY_RANK.ExecuteAuthority);
+  });
+
+  /** Unknown role strings must not inflate rank; empty-known set still falls back to Read (same as no claims). */
+  it("defaults to Read rank when only non-ArchLucid role values are present", () => {
+    expect(
+      maxAuthorityRankFromMeClaims([{ type: "roles", value: "CustomVendorRole" }]),
+    ).toBe(AUTHORITY_RANK.ReadAuthority);
   });
 
   it("defaults to Read rank when no known roles are present", () => {

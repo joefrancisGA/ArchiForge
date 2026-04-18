@@ -62,9 +62,11 @@ Keep **docs**, **`nav-config.ts`**, and **controller policies** aligned when rou
 | **Advanced Analysis** | `qa-advisory` | Every link sets `requiredAuthority`; composed by `filterNavLinksForOperatorShell` (`nav-shell-visibility.ts`) |
 | **Enterprise Controls** | `alerts-governance` | Every link sets `requiredAuthority`; rank from `current-principal.ts`; **Execute-tier** in-page mutations also use `enterprise-mutation-capability.ts` / `useEnterpriseMutationCapability` |
 
-**Read vs Execute in the UI (numeric):** `AUTHORITY_RANK.ExecuteAuthority` (value **2**) is the shared threshold — **`callerRank < 2`** ⇒ **read tier** (nav may still show `ReadAuthority` destinations; `useEnterpriseMutationCapability()` is **false**). **`callerRank >= 2`** ⇒ **Execute+** for mutation soft-enable and operator-oriented rank cues. Example: **`/governance`** is **`ExecuteAuthority`** in `nav-config.ts` so Readers do not see it in nav; the API remains authoritative if they deep-link.
+**Read vs Execute in the UI (numeric):** `AUTHORITY_RANK.ExecuteAuthority` (value **2**) is the shared threshold — **`callerRank < 2`** ⇒ **read tier** (nav may still show `ReadAuthority` destinations; `useEnterpriseMutationCapability()` is **false**). **`callerRank >= 2`** ⇒ **Execute+** for mutation soft-enable and operator-oriented rank cues. Example: **`/governance`** is **`ExecuteAuthority`** in `nav-config.ts` so Readers do not see it in nav; the API remains authoritative if they deep-link (nav shaping never implies POST success).
 
 Shell composition order: **tier first, then authority** (`filterNavLinksForOperatorShell`). **Hardening sequence:** [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) Stage 1 describes what shipped without entitlements.
+
+**Cross-surface lock:** `archlucid-ui/src/lib/authority-seam-regression.test.ts` asserts **`enterpriseMutationCapabilityFromRank(rank)`** matches **`ExecuteAuthority`** link visibility for ranks **0–3**, so nav omission and Enterprise mutation soft-disable cannot drift to different numeric floors.
 
 #### Contributor drift guard (operator UI — keep packaging, nav, and API aligned)
 

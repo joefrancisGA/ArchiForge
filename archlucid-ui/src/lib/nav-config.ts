@@ -79,6 +79,10 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
  *   **`ExecuteAuthority`** numeric floor as mutation hooks.
  *
+ * **`requiredAuthority` vs Enterprise POSTs:** this field shapes **nav / palette visibility** after tier filtering only.
+ * In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses **`useEnterpriseMutationCapability()`** — same
+ * **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`** links here; keep both aligned with C# policies.
+ *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *
  * - **Omit** on Core Pilot *essentials* (home, onboarding, new run, runs) so Reader-signed-in pilots keep the default path.

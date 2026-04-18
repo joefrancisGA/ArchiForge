@@ -36,4 +36,13 @@ describe("useEnterpriseMutationCapability", () => {
     navCallerAuthorityRank.current = AUTHORITY_RANK.AdminAuthority;
     expect(renderHook(() => useEnterpriseMutationCapability()).result.current).toBe(true);
   });
+
+  /** Aligns with `LayerHeader` Enterprise rank cue: sub-Read numeric rank stays non-mutating (conservative shell). */
+  it("is false when nav rank is below Read policy floor (e.g. unset 0)", () => {
+    navCallerAuthorityRank.current = 0;
+
+    const { result } = renderHook(() => useEnterpriseMutationCapability());
+
+    expect(result.current).toBe(false);
+  });
 });

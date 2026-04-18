@@ -68,6 +68,8 @@ Reduce ambiguity and dependency on documentation alone.
 
 **Read vs Execute (same threshold, two surfaces):** **`navLinkVisibleForCallerRank`** only controls **whether a link appears** after tier filtering. **`useEnterpriseMutationCapability()`** uses **`rank >= AUTHORITY_RANK.ExecuteAuthority`** for **soft-disabled controls** on mutation-heavy pages — not a second policy matrix; keep both aligned with **C#** `[Authorize(Policy = …)]` when routes move.
 
+**Deep links:** hiding a destination in the shell does **not** remove the route — callers can still open URLs directly; **ArchLucid.Api** returns **401/403** when the token does not satisfy the controller policy.
+
 **Maintenance map:** which TypeScript files correspond to which packaging layer is summarized in **PRODUCT_PACKAGING.md** §3 *Code seams (operator UI — maintenance map)*—update that table when you add groups or change the shaping pipeline.
 
 **Regression anchors:** **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard* lists **Vitest** files that guard rank thresholds, nav composition (including default Enterprise **Reader** strip), JWT `/me` refetch conservative rank (`OperatorNavAuthorityProvider.test.tsx`), cross-module Execute-link visibility (`authority-seam-regression.test.ts`), and rank-gated Enterprise copy—extend that list when you add a new shaping surface tied to `/me`.

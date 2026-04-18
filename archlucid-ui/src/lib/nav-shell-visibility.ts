@@ -9,21 +9,26 @@ export type NavGroupWithVisibleLinks = {
 };
 
 /**
+ * ## Role
+ *
  * Single composition point for operator shell navigation (sidebar, mobile drawer, command palette).
  *
- * **Packaging alignment (see docs/PRODUCT_PACKAGING.md):** within each `NAV_GROUPS` block from `nav-config.ts`,
- * **tier** (`nav-tier.ts`) implements **progressive disclosure** (Core Pilot visible first; Advanced Analysis after
- * “Show more”; deeper Enterprise after extended/advanced toggles). **Authority** (`nav-authority.ts`) then filters
- * links by the caller’s resolved policy rank so Advanced / Enterprise destinations match **API reality**, not a
- * second authZ engine.
+ * ## Composition order (do not reorder)
  *
- * Composition order is deliberate: **tier → authority**. Pass **`useNavCallerAuthorityRank()`** (or
- * `CurrentPrincipal.authorityRank`) so filtering matches `OperatorNavAuthorityProvider`. Call sites should skip
- * rendering a group when this returns an empty array to avoid empty headings.
+ * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **tier** (`nav-tier.ts`) runs first (**progressive disclosure**
+ * — Core Pilot first; Advanced after “Show more”; deeper Enterprise after extended/advanced toggles). **Authority**
+ * (`filterNavLinksByAuthority` in **`nav-authority.ts`**) runs second so link visibility matches policy **names** aligned
+ * with **`ArchLucid.Api`**, not a parallel matrix.
  *
- * **Not authorization:** visible links do not guarantee successful HTTP calls — **ArchLucid.Api** policies return 401/403.
- * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*). Pass the same rank source as
- * **`OperatorNavAuthorityProvider`** (**`useNavCallerAuthorityRank()`**), not a stale or ad-hoc rank.
+ * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) so filtering matches
+ * **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
+ * results — this module already drops groups with zero visible links.
+ *
+ * ## API vs UI
+ *
+ * Visible links **do not** guarantee successful HTTP calls — **`[Authorize(Policy = …)]`** still returns **401/403**.
+ * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*). **Stage 1 framing:**
+ * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants).
  * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip.

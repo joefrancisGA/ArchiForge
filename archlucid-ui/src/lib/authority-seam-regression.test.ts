@@ -16,7 +16,7 @@ import {
   maxAuthorityRankFromMeClaims,
   navLinkVisibleForCallerRank,
 } from "@/lib/nav-authority";
-import { filterNavLinksForOperatorShell } from "@/lib/nav-shell-visibility";
+import { filterNavLinksForOperatorShell, listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 
 describe("authority seam regression", () => {
   const enterpriseLinks = NAV_GROUPS.find((g) => g.id === "alerts-governance")?.links;
@@ -118,5 +118,47 @@ describe("authority seam regression", () => {
     expect(hrefs.has("/")).toBe(true);
     expect(hrefs.has("/runs/new")).toBe(true);
     expect(hrefs.has("/runs?projectId=default")).toBe(true);
+  });
+
+  /**
+   * Single numeric floor for Execute-class nav rows and Enterprise mutation soft-enable (`AUTHORITY_RANK.ExecuteAuthority`).
+   * Catches accidental divergence if either helper changes threshold independently.
+   */
+  it("matches enterpriseMutationCapabilityFromRank to ExecuteAuthority nav visibility for ranks 0 through Admin", () => {
+    const executeTierLink = {
+      href: "/_seam-probe-execute",
+      label: "Probe",
+      title: "Probe",
+      tier: "essential" as const,
+      requiredAuthority: "ExecuteAuthority" as const,
+    };
+
+    for (let rank = 0; rank <= AUTHORITY_RANK.AdminAuthority; rank += 1) {
+      expect(enterpriseMutationCapabilityFromRank(rank)).toBe(
+        navLinkVisibleForCallerRank(executeTierLink, rank),
+      );
+    }
+  });
+
+  /**
+   * End-to-end strip for first-pilot Reader: `listNavGroupsVisibleInOperatorShell` must still emit Enterprise Controls
+   * with only the inbox (not an empty group after tier + authority).
+   */
+  it("Reader default shell lists Core Pilot and Enterprise Controls with only the Alerts inbox href", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+
+    const ids = rows.map((r) => r.group.id);
+
+    expect(ids).toContain("runs-review");
+    expect(ids).toContain("alerts-governance");
+
+    const enterprise = rows.find((r) => r.group.id === "alerts-governance");
+
+    expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/alerts"]);
   });
 });
