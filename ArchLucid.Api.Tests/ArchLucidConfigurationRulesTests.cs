@@ -1723,7 +1723,8 @@ public sealed class ArchLucidConfigurationRulesTests
             ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
             ["WebhookDelivery:UseHttpClient"] = "false",
             ["Billing:Provider"] = BillingProviderNames.Stripe,
-            ["Billing:Stripe:SecretKey"] = "sk_test_12345678901234567890123456789012",
+            // Intentionally not sk_test_/sk_live_ shaped — gitleaks flags those as real Stripe tokens.
+            ["Billing:Stripe:SecretKey"] = "unit-test-keyvault-ref-stripe-secret-not-a-real-key",
         };
 
         IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
