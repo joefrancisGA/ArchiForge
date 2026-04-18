@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -105,6 +106,7 @@ export default function CompositeAlertRulesPage() {
         channels. After the suppression window, a new alert is only created once prior open/acknowledged alerts for the
         same dedupe key are cleared.
       </p>
+      <EnterpriseControlsExecutePageHint />
 
       {failure !== null ? (
         <div role="alert">

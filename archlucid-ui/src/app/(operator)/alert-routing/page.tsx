@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -84,6 +85,7 @@ export default function AlertRoutingPage() {
         Immediate delivery when a new alert is created (separate from digest subscriptions). Only subscriptions whose{" "}
         <strong>minimum severity</strong> is met receive the alert. Dev uses fake email/webhook loggers.
       </p>
+      <EnterpriseControlsExecutePageHint />
 
       {failure !== null ? (
         <div role="alert">

@@ -28,6 +28,11 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
       {block.firstPilotNote ? (
         <p className="m-0 mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">{block.firstPilotNote}</p>
       ) : null}
+      {block.enterpriseFootnote ? (
+        <p className="m-0 mt-1.5 text-xs font-medium text-neutral-700 dark:text-neutral-300">
+          {block.enterpriseFootnote}
+        </p>
+      ) : null}
     </aside>
   );
 }

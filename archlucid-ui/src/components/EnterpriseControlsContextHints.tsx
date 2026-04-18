@@ -1,0 +1,59 @@
+"use client";
+
+import type { ReactNode } from "react";
+
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import {
+  enterpriseExecutePageHintReaderRank,
+  enterpriseNavHintOperatorRank,
+  enterpriseNavHintReaderRank,
+} from "@/lib/enterprise-controls-context-copy";
+import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { cn } from "@/lib/utils";
+
+/**
+ * Second line under the Enterprise Controls nav group caption (sidebar + mobile drawer).
+ * Explains omission for readers vs responsibility framing for operator+.
+ */
+export function EnterpriseControlsNavGroupHint(): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  const text =
+    rank < AUTHORITY_RANK.ExecuteAuthority ? enterpriseNavHintReaderRank : enterpriseNavHintOperatorRank;
+
+  return (
+    <span className="mt-0.5 block max-w-[14rem] text-[10px] font-normal normal-case leading-snug tracking-normal text-neutral-500 dark:text-neutral-500">
+      {text}
+    </span>
+  );
+}
+
+type EnterpriseControlsExecutePageHintProps = {
+  className?: string;
+};
+
+/**
+ * One line for alert/governance **mutation** pages when the resolved principal is below Execute
+ * (e.g. Reader bookmarked the URL). Hidden for operator/admin to avoid clutter.
+ */
+export function EnterpriseControlsExecutePageHint({
+  className,
+}: EnterpriseControlsExecutePageHintProps): ReactNode {
+  const rank = useNavCallerAuthorityRank();
+
+  if (rank >= AUTHORITY_RANK.ExecuteAuthority) {
+    return null;
+  }
+
+  return (
+    <p
+      className={cn(
+        "mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400",
+        className,
+      )}
+      role="note"
+    >
+      {enterpriseExecutePageHintReaderRank}
+    </p>
+  );
+}

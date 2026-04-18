@@ -20,6 +20,11 @@ export type LayerGuidanceBlock = {
   useWhen: string;
   /** Optional reminder for first pilots */
   firstPilotNote: string | null;
+  /**
+   * Optional one line for Enterprise Controls pages: who usually owns the surface vs Core Pilot default.
+   * See docs/OPERATOR_DECISION_GUIDE.md §2.
+   */
+  enterpriseFootnote?: string | null;
 };
 
 export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBlock> = {
@@ -46,17 +51,22 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Answers: what approvals, policy, and compliance signals need attention across runs?",
     useWhen: "Use when segregation of duties, promotions, or cross-run governance is in scope.",
     firstPilotNote: "Usually not required to judge first-pilot value from Core Pilot alone.",
+    enterpriseFootnote:
+      "Cross-run readout—typically governance or platform operators. Not required for Core Pilot.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
     useWhen: "Use when alert routing, acknowledgment, or investigation is part of your operating model.",
     firstPilotNote: "Inbox is available early; deep rule tuning can wait until governance needs it.",
+    enterpriseFootnote:
+      "Deeper routing, rules, and tuning are operator/admin surfaces when you need them—not required for Core Pilot.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: who did what, when, with which correlation id, for audit evidence?",
     useWhen: "Use when you need exportable evidence or investigations beyond run-scoped timeline.",
     firstPilotNote: "Not required until sponsors or compliance ask for durable audit trails.",
+    enterpriseFootnote: "Evidence for sponsors and audit—still not required for Core Pilot.",
   },
 };

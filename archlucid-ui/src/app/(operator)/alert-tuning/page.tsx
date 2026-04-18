@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -203,6 +204,7 @@ export default function AlertTuningPage() {
         Deterministic noise scoring over simulated candidates (same evaluators as production). Suggests a threshold that
         balances coverage, alert volume, suppression load, and per-run density against your target created-alert band.
       </p>
+      <EnterpriseControlsExecutePageHint />
 
       {failure !== null ? (
         <div role="alert">

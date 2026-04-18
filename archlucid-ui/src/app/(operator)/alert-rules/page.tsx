@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -68,6 +69,7 @@ export default function AlertRulesPage() {
         Typed, deterministic rules evaluated on each scheduled advisory scan. Threshold meaning depends on rule type
         (count, percent, or days).
       </p>
+      <EnterpriseControlsExecutePageHint />
 
       {failure !== null ? (
         <div role="alert">

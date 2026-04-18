@@ -109,6 +109,8 @@ Enterprise Controls are valuable, but they are not required to prove the first C
 
 If you have not yet shown that ArchLucid improves speed, packaging effort, or evidence quality, start there first.
 
+The operator shell adds **short in-product lines** on Enterprise entry points (nav, governance dashboard, alerts, audit, and operator-heavy alert tooling) so “optional vs Core Pilot” stays visible without replacing this document.
+
 ---
 
 ## 6. What to do next after a successful Core Pilot

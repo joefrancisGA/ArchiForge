@@ -63,6 +63,7 @@ Reduce ambiguity and dependency on documentation alone.
 - make “use this when” and “ignore this unless” guidance more visible in product surfaces,
 - shape advanced surfaces more explicitly by context,
 - clarify where operator/admin responsibility changes the expected experience.
+- optional: contextual one-line copy on Enterprise entry points (see `archlucid-ui` `enterprise-controls-context-copy.ts` + `LayerHeader` enterprise footnotes)—Stage 1 clarity, not licensing.
 
 ### Why this comes first
 

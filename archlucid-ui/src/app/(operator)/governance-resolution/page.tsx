@@ -5,6 +5,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { getGovernanceResolution } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { governanceResolutionContextLine } from "@/lib/enterprise-controls-context-copy";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 export default function GovernanceResolutionPage() {
@@ -32,6 +33,9 @@ export default function GovernanceResolutionPage() {
   return (
     <main style={{ maxWidth: 1100 }}>
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
+      <p className="mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400" role="note">
+        {governanceResolutionContextLine}
+      </p>
       <p style={{ color: "#444", fontSize: 14 }}>
         Hierarchical policy resolution for the current scope: <strong>Project</strong> overrides{" "}
         <strong>Workspace</strong> overrides <strong>Tenant</strong>; pinned assignments rank above unpinned within the

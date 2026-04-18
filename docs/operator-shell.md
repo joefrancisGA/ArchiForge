@@ -33,6 +33,8 @@ The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual d
 
 The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims) via **`archlucid-ui/src/lib/current-principal.ts`** (`loadCurrentPrincipal`); `OperatorNavAuthorityProvider` consumes the same helper. Sidebar, mobile drawer, and command palette compose **tier + authority** in **`archlucid-ui/src/lib/nav-shell-visibility.ts`** and **omit whole nav groups** when every link in that group is filtered out (no empty headings). **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home**, **Onboarding**, and other Core Pilot essentials so the default path stays open).
 
+Short **Enterprise Controls** context lines (nav subtitle + `LayerHeader` footnotes + execute-page hints) live in **`archlucid-ui/src/lib/enterprise-controls-context-copy.ts`** and **`EnterpriseControlsContextHints.tsx`** so omission does not feel arbitrary for readers (see **OPERATOR_DECISION_GUIDE.md** §2).
+
 ---
 
 ## Main workflow

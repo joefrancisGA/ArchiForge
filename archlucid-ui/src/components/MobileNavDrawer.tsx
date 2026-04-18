@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EnterpriseControlsNavGroupHint } from "@/components/EnterpriseControlsContextHints";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
@@ -70,6 +71,7 @@ export function MobileNavDrawer() {
                       {group.caption}
                     </span>
                   ) : null}
+                  {group.id === "alerts-governance" ? <EnterpriseControlsNavGroupHint /> : null}
                 </div>
                 <nav className="flex flex-col gap-0.5" aria-label={group.label}>
                   {visibleLinks.map((link) => {

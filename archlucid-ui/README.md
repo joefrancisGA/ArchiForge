@@ -8,6 +8,8 @@ For the canonical sponsor-facing value summary, start with [../docs/EXECUTIVE_SP
 
 **Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`** (`ReadAuthority` | `ExecuteAuthority` | `AdminAuthority`, aligned with the API policies in the repo root `README.md`). `OperatorNavAuthorityProvider` + `GET /api/auth/me` supply a caller rank; **`src/lib/nav-shell-visibility.ts`** composes **tier + authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
 
+**Enterprise context copy:** `src/lib/enterprise-controls-context-copy.ts` + `EnterpriseControlsNavGroupHint` / `EnterpriseControlsExecutePageHint` add short, rank-aware lines (nav + execute-heavy pages); **`LayerHeader`** adds optional **`enterpriseFootnote`** on governance dashboard, alerts, and audit (`layer-guidance.ts`).
+
 ## Core Pilot path (start here)
 
 The default experience is the **Core Pilot path** — four steps from an empty workspace to a reviewed, exportable run:

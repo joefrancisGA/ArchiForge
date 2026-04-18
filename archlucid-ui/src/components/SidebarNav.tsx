@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
+import { EnterpriseControlsNavGroupHint } from "@/components/EnterpriseControlsContextHints";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
@@ -111,6 +112,7 @@ export function SidebarNav() {
                     {group.caption}
                   </span>
                 ) : null}
+                {group.id === "alerts-governance" ? <EnterpriseControlsNavGroupHint /> : null}
               </span>
               <ChevronDown
                 className={cn("mt-0.5 h-4 w-4 shrink-0 transition-transform", isOpen ? "rotate-0" : "-rotate-90")}

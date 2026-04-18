@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -288,6 +289,7 @@ export default function AlertSimulationPage() {
         Side-effect-free dry runs against recent authority runs (or a specific run). Uses the same evaluators and
         composite suppression policy as production; no alerts are persisted or delivered.
       </p>
+      <EnterpriseControlsExecutePageHint />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {TABS.map((t) => (
