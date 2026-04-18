@@ -1,6 +1,8 @@
 # ArchLucid
 
-ArchLucid is an API for orchestrating AI-driven architecture design. It coordinates topology, cost, and compliance agents to produce architecture manifests from high-level requests.
+ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package. It helps teams produce committed manifests, reviewable artifacts, and stronger governance evidence with less manual assembly and less ambiguity about what changed and why.
+
+At the product level, ArchLucid is an AI-assisted architecture workflow system: it coordinates topology, cost, and compliance analysis to produce manifests, artifacts, and evidence that architects, reviewers, and governance stakeholders can actually use.
 
 **Repository layout:** Source lives under **`ArchLucid.*`** projects, **`archlucid-ui/`**, and **`docs/`**. Local packaging writes to **`artifacts/`** (gitignored). See **[docs/REPO_HYGIENE.md](docs/REPO_HYGIENE.md)** for what to commit vs regenerate.
 
@@ -16,25 +18,26 @@ ArchLucid is an API for orchestrating AI-driven architecture design. It coordina
 | **[docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md)** | **SRE / Platform Day-1:** health model, deploy order, Terraform validate, migrations posture |
 | **[docs/onboarding/day-one-security.md](docs/onboarding/day-one-security.md)** | **Security Day-1:** trust boundaries, authZ, RLS, supply chain |
 | **[docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md)** | **Operator Day-1:** health, curl, CLI, smoke/tests (commands only) |
+| **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)** | **Pilot ROI model:** what to measure, what success looks like, and how sponsors can justify a pilot |
 | **[docs/archive/README.md](docs/archive/README.md)** | **Archive index** — historical write-ups (including superseded long-form onboarding bodies) |
 
 Everything else (architecture index, V1 scope, SQL reference, runbooks, etc.) is linked from **[docs/ARCHITECTURE_INDEX.md](docs/ARCHITECTURE_INDEX.md)** and the Day-1 docs above.
 
 ## Product layers
 
-ArchLucid ships as three distinct capability layers. Start with **Core Pilot**; the other two are available immediately but are not required for a first pilot to succeed.
+ArchLucid ships as three distinct capability layers. Start with **Core Pilot** so a team can go from request to committed manifest and reviewable artifacts quickly; then expand into deeper analysis or governance controls as needed.
 
-| Layer | What it covers | How to reach it |
-|-------|---------------|-----------------|
-| **Core Pilot** | Create run → execute → commit → review manifest and artifacts | Default sidebar and home page |
-| **Advanced Analysis** | Compare runs, replay authority chains, explore provenance graphs, Ask Q&A, advisory scans, pilot feedback | **Show more links** in the sidebar |
-| **Enterprise Controls** | Governance approvals, policy packs, audit log, compliance drift, alerts and rules | Extended and advanced sidebar links; requires operator/admin role |
+| Layer | What it covers | Why it matters | How to reach it |
+|-------|---------------|----------------|-----------------|
+| **Core Pilot** | Create run → execute → commit → review manifest and artifacts | Proves fast path from request to reviewable output with less manual packaging effort | Default sidebar and home page |
+| **Advanced Analysis** | Compare runs, replay authority chains, explore provenance graphs, Ask Q&A, advisory scans, pilot feedback | Helps architects and reviewers understand what changed, why it changed, and what needs attention | **Show more links** in the sidebar |
+| **Enterprise Controls** | Governance approvals, policy packs, audit log, compliance drift, alerts and rules | Helps governance, audit, and security stakeholders trust and operationalize architecture decisions | Extended and advanced sidebar links; requires operator/admin role |
 
-Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md)**. First-pilot walkthrough: **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)**.
+Full capability inventory: **[docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md)**. First-pilot walkthrough: **[docs/CORE_PILOT.md](docs/CORE_PILOT.md)**. Pilot value model: **[docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md)**.
 
 ## Pilot onboarding (56R)
 
-**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
+**Product boundary (V1):** [docs/V1_SCOPE.md](docs/V1_SCOPE.md). **Pre-handoff checklist:** [docs/V1_RELEASE_CHECKLIST.md](docs/V1_RELEASE_CHECKLIST.md). **Commands:** [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md). **ROI and success criteria:** [docs/PILOT_ROI_MODEL.md](docs/PILOT_ROI_MODEL.md). **Narrative (archived):** [docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md](docs/archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md). **Fix issues:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md). **Package an RC:** [docs/RELEASE_LOCAL.md](docs/RELEASE_LOCAL.md).
 
 **Before a handoff or demo:** `run-readiness-check.cmd` or `.\run-readiness-check.ps1`. For **API + CLI quick run + artifacts** in one script, set **`ARCHLUCID_SMOKE_SQL`** and run **`release-smoke.cmd`** ([docs/RELEASE_SMOKE.md](docs/RELEASE_SMOKE.md)); optional UI E2E: **`.\release-smoke.ps1 -RunPlaywright`** ([archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright)).
 
