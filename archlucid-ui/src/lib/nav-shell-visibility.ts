@@ -18,7 +18,9 @@ export type NavGroupWithVisibleLinks = {
  * Within each **`NAV_GROUPS`** block from **`nav-config.ts`**: **tier** (`nav-tier.ts`) runs first (**progressive disclosure**
  * — Core Pilot first; Advanced after “Show more”; deeper Enterprise after extended/advanced toggles). **Authority**
  * (`filterNavLinksByAuthority` in **`nav-authority.ts`**) runs second so link visibility matches policy **names** aligned
- * with **`ArchLucid.Api`**, not a parallel matrix.
+ * with **`ArchLucid.Api`**, not a parallel matrix. **Rank never substitutes extended/advanced disclosure:** an
+ * **Execute+** caller still sees only **essential**-tier Enterprise links until the user opts into extended/advanced
+ * (`nav-tier.ts` gates apply before authority).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) so filtering matches
  * **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
@@ -26,12 +28,14 @@ export type NavGroupWithVisibleLinks = {
  *
  * ## API vs UI
  *
- * Visible links **do not** guarantee successful HTTP calls — **`[Authorize(Policy = …)]`** still returns **401/403**.
+ * **UI shaping only** — same boundary as **`nav-config.ts`** / **`nav-authority.ts`**: visible links **do not** guarantee
+ * successful HTTP calls — **`[Authorize(Policy = …)]`** still returns **401/403**.
  * **Packaging:** **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* + *Contributor drift guard*). **Stage 1 framing:**
  * **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants).
- * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip.
+ * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
+ *   Execute rank does not bypass extended tier without disclosure toggles.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  */
 export function filterNavLinksForOperatorShell(

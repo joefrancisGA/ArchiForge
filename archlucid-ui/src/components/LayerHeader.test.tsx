@@ -5,6 +5,7 @@ import {
   layerHeaderEnterpriseOperatorRankLine,
   layerHeaderEnterpriseReaderRankLine,
 } from "@/lib/enterprise-controls-context-copy";
+import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /** Default Admin rank for tests — literal `3` because `vi.hoisted` runs before `AUTHORITY_RANK` is available. */
@@ -81,5 +82,24 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.queryByTestId("layer-header-enterprise-rank-cue")).toBeNull();
+  });
+
+  /**
+   * Every Enterprise Controls guidance key must surface the rank-aware note — otherwise new routes could miss the same
+   * Execute-floor story as nav and `useEnterpriseMutationCapability` (see `layer-guidance.ts` + `LayerHeader` impl).
+   */
+  it("renders Enterprise rank cue for every Enterprise Controls layer-guidance page key", () => {
+    const enterpriseKeys = (Object.keys(LAYER_PAGE_GUIDANCE) as LayerGuidancePageKey[]).filter(
+      (key) => LAYER_PAGE_GUIDANCE[key].layerBadge === "Enterprise Controls",
+    );
+
+    expect(enterpriseKeys.length).toBeGreaterThan(0);
+
+    for (const pageKey of enterpriseKeys) {
+      const { unmount } = render(<LayerHeader pageKey={pageKey} />);
+
+      expect(screen.getByTestId("layer-header-enterprise-rank-cue")).toBeInTheDocument();
+      unmount();
+    }
   });
 });

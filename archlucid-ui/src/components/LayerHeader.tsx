@@ -25,7 +25,9 @@ export type LayerHeaderProps = {
  * **Enterprise Controls** (`layerBadge === "Enterprise Controls"`): rank-aware line under **`enterpriseFootnote`**
  * (`callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority` ⇒ reader line, else operator line). **Cognitive / UI shaping
  * only** — same **Execute** numeric floor as **`useEnterpriseMutationCapability()`**, but **`[Authorize(Policy = …)]`**
- * on **ArchLucid.Api** is still authoritative (**401/403**). Not entitlements or billing — **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
+ * on **ArchLucid.Api** is still authoritative (**401/403**). **Does not implement** sidebar **tier** or **nav** inclusion
+ * (**`nav-shell-visibility.ts`**); pair **`LayerHeader`** with correct **`nav-config.ts`** / route policies when adding pages.
+ * Not entitlements or billing — **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**).
  */

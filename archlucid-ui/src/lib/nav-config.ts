@@ -38,6 +38,7 @@ export type NavLinkItem = {
   /**
    * Minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
    * **Core Pilot essentials** omit this (broad default path). **Advanced** and **Enterprise** links in `NAV_GROUPS` set it — see the module **Authority** section.
+   * Enforced after **`tier`** in **`nav-shell-visibility.ts`** (`filterNavLinksForOperatorShell`).
    */
   requiredAuthority?: RequiredAuthority;
   /** Registry combo for `aria-keyshortcuts`, e.g. `alt+n` */
@@ -63,6 +64,11 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
 /**
  * Canonical operator shell navigation — sidebar, command palette, and mobile drawer.
  *
+ * **API vs. UI:** `tier` and `requiredAuthority` describe how the shell **should** present routes. **Computed visibility**
+ * is **`filterNavLinksForOperatorShell`** in **`nav-shell-visibility.ts`** (**tier → authority**; empty groups dropped).
+ * **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is **authoritative** (`401`/`403`); nav omission or soft-disabled
+ * controls never imply a safe POST or deep link.
+ *
  * Nav groups map to product packaging layers (see docs/PRODUCT_PACKAGING.md):
  *   runs-review    → Core Pilot        (request · run · commit · review)
  *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
@@ -79,9 +85,11 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
  *   **`ExecuteAuthority`** numeric floor as mutation hooks.
  *
- * **`requiredAuthority` vs Enterprise POSTs:** this field shapes **nav / palette visibility** after tier filtering only.
- * In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses **`useEnterpriseMutationCapability()`** — same
- * **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`** links here; keep both aligned with C# policies.
+ * **`requiredAuthority` vs Enterprise POSTs:** this field shapes **nav / palette visibility** after tier filtering only
+ * (higher **caller rank** does **not** bypass **`tier`** — e.g. Enterprise **extended** hrefs stay hidden until “Show more”;
+ * **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses
+ * **`useEnterpriseMutationCapability()`** — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`**
+ * links here; keep both aligned with C# policies.
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *

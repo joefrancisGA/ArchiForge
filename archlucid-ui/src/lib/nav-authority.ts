@@ -16,8 +16,9 @@
  * - **Nav / palette:** **`navLinkVisibleForCallerRank`** / **`filterNavLinksByAuthority`** — link visible iff
  *   `callerRank >= requiredAuthorityRank(link.requiredAuthority)` (missing `requiredAuthority` ⇒ visible at every rank).
  * - **Enterprise write affordances:** **`enterpriseMutationCapabilityFromRank`** / **`useEnterpriseMutationCapability()`**
- *   — **`callerRank >= AUTHORITY_RANK.ExecuteAuthority`**. Shell composition is **tier → authority** in
- *   **`nav-shell-visibility.ts`**; empty groups are dropped there.
+ *   — **`callerRank >= AUTHORITY_RANK.ExecuteAuthority`**. **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
+ *   (**`current-principal.ts`**) must use that **same numeric floor** (see **`current-principal.test.ts`**).
+ *   Shell composition is **tier → authority** in **`nav-shell-visibility.ts`**; empty groups are dropped there.
  *
  * **`ReadAuthority`** on a **`NavLinkItem`** marks read-mostly destinations; **`ExecuteAuthority`** marks Execute-class
  * primary workflows (replay, governance workflow, selected alert configuration). **`AdminAuthority`** is rare on nav;

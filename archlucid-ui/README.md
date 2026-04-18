@@ -12,7 +12,7 @@ Thin Next.js App Router UI for the ArchLucid operator experience. The default jo
 
 The shell **already** shapes nav and light copy by **principal + policy tier names** aligned with the C# API (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`). This is **[COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md)** Stage 1–style **clarity**, not licensing: **Core Pilot** stays broadly accessible; **Enterprise Controls** are the first hardening target for `requiredAuthority` and omission hints.
 
-**Seam contract (one sentence):** **`ArchLucid.Api`** **`[Authorize(Policy = …)]`** decides success; **`nav-config.ts`** + **`nav-shell-visibility.ts`** decide **sidebar/palette** inclusion after tier filters; **`useEnterpriseMutationCapability()`** decides **Enterprise POST/toggle** soft-enable — all three use the **same policy names** and the **same `AUTHORITY_RANK.ExecuteAuthority` floor** for “Execute-class” work.
+**Seam contract (one sentence):** **`ArchLucid.Api`** **`[Authorize(Policy = …)]`** decides success; **`nav-config.ts`** + **`nav-shell-visibility.ts`** decide **sidebar/palette** inclusion after **tier then authority** filters (higher rank does not skip progressive disclosure); **`useEnterpriseMutationCapability()`** decides **Enterprise POST/toggle** soft-enable — all three use the **same policy names** and the **same `AUTHORITY_RANK.ExecuteAuthority` floor** for “Execute-class” work.
 
 | Concern | Source file(s) |
 |---------|----------------|

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { normalizeAuthMeResponse } from "@/lib/current-principal";
+import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 /** Guards the `/me` → `CurrentPrincipal` seam used by `OperatorNavAuthorityProvider` (rank + enterprise surfacing flag). */
@@ -52,5 +53,35 @@ describe("normalizeAuthMeResponse", () => {
     expect(principal.maxAuthority).toBe("AdminAuthority");
     expect(principal.hasEnterpriseOperatorSurfaces).toBe(true);
     expect(principal.primaryAppRole).toBe("Admin");
+  });
+
+  /**
+   * `hasEnterpriseOperatorSurfaces` and `useEnterpriseMutationCapability` must stay on the same Execute floor;
+   * diverging formulas would mis-label principals or soft-enable writes inconsistently.
+   */
+  it("keeps hasEnterpriseOperatorSurfaces aligned with enterpriseMutationCapabilityFromRank for /me-shaped payloads", () => {
+    const payloads = [
+      { claims: [{ type: "roles", value: "Reader" }] },
+      { claims: [{ type: "roles", value: "Auditor" }] },
+      {
+        claims: [
+          {
+            type: "https://login.microsoftonline.com/tenant/v2.0/claims/role",
+            value: "Operator",
+          },
+        ],
+      },
+      { claims: [{ type: "roles", value: "Operator" }] },
+      { claims: [{ type: "roles", value: "Admin" }] },
+      { claims: [] as { type: string; value: string }[] },
+    ];
+
+    for (const body of payloads) {
+      const principal = normalizeAuthMeResponse(body);
+
+      expect(principal.hasEnterpriseOperatorSurfaces).toBe(
+        enterpriseMutationCapabilityFromRank(principal.authorityRank),
+      );
+    }
   });
 });

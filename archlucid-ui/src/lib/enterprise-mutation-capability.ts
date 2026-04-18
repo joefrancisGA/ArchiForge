@@ -9,8 +9,10 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  *
  * **Single threshold with nav:** `rank >= AUTHORITY_RANK.ExecuteAuthority` — the same numeric floor used for
  * **`requiredAuthority: "ExecuteAuthority"`** link visibility after **`filterNavLinksByAuthority`** (see **docs/PRODUCT_PACKAGING.md**
- * §3 *Read vs Execute* and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4). Rank comes from **`current-principal.ts`** /
- * **`useNavCallerAuthorityRank()`** (conservative **Read** while JWT **`/me`** refetches — **`OperatorNavAuthorityProvider`**).
+ * §3 *Read vs Execute* and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4). Matches **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
+ * (**`normalizeAuthMeResponse`**). Rank comes from **`current-principal.ts`** / **`useNavCallerAuthorityRank()`**
+ * (conservative **Read** while JWT **`/me`** refetches — **`OperatorNavAuthorityProvider`**). **Not** tier disclosure — that is
+ * **`nav-shell-visibility.ts`** only.
  *
  * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`,
  *   `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`

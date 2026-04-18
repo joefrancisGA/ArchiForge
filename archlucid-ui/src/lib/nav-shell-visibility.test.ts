@@ -77,6 +77,42 @@ describe("filterNavLinksForOperatorShell", () => {
     expect(visible.some((l) => l.href === "/governance")).toBe(false);
     expect(visible.some((l) => l.href === "/governance/dashboard")).toBe(true);
   });
+
+  /**
+   * Tier runs before authority (`nav-shell-visibility`): higher rank must not “punch through” extended disclosure.
+   * Regression: reordering filters or mis-stating tiers would expose `/policy-packs` without “Show more links”.
+   */
+  it("keeps extended-tier Enterprise links hidden when showExtended is off even for Execute rank and advanced on", () => {
+    expect(enterprise).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      false,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+    );
+
+    expect(visible.some((l) => l.href === "/policy-packs")).toBe(false);
+    expect(visible.some((l) => l.href === "/governance")).toBe(true);
+    expect(visible.some((l) => l.href === "/alerts")).toBe(true);
+  });
+
+  /**
+   * Default shell (no extended, no advanced): Execute-ranked operators see the same essential Enterprise strip as Reader
+   * — only the inbox. Rank widens authority-eligible hrefs but does not replace progressive disclosure.
+   */
+  it("limits Enterprise Controls to the inbox for Execute rank when extended and advanced are off", () => {
+    expect(enterprise).toBeDefined();
+
+    const visible = filterNavLinksForOperatorShell(
+      enterprise!.links,
+      false,
+      false,
+      AUTHORITY_RANK.ExecuteAuthority,
+    );
+
+    expect(visible.map((l) => l.href)).toEqual(["/alerts"]);
+  });
 });
 
 describe("listNavGroupsVisibleInOperatorShell", () => {

@@ -20,8 +20,11 @@
  *
  * **`OperatorNavAuthorityProvider`** exposes the same rank to **`useNavCallerAuthorityRank()`**, which feeds
  * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) and
- * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). Drift between
- * those consumers breaks the story in **docs/PRODUCT_PACKAGING.md** §3.
+ * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). **`hasEnterpriseOperatorSurfaces`**
+ * uses that **same Execute floor** as **`enterpriseMutationCapabilityFromRank(authorityRank)`** — do not diverge (guarded in
+ * **`current-principal.test.ts`**). **Progressive disclosure** (`nav-tier`) is **not** applied here; it runs only in
+ * **`nav-shell-visibility.ts`** before **`filterNavLinksByAuthority`**. Drift between consumers breaks the story in
+ * **docs/PRODUCT_PACKAGING.md** §3.
  *
  * ## Role → policy normalization (UX only; server enforces policies)
  *
