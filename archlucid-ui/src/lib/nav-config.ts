@@ -26,6 +26,7 @@ import {
 
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
 
+import type { RequiredAuthority } from "@/lib/nav-authority";
 import type { NavTier } from "@/lib/nav-tier";
 
 export type NavLinkItem = {
@@ -34,6 +35,11 @@ export type NavLinkItem = {
   title: string;
   /** Progressive disclosure: essential always; extended after “Show more”; advanced after gear toggle. */
   tier: NavTier;
+  /**
+   * Optional minimum API policy tier this destination assumes (see `ArchLucidPolicies` on the server).
+   * Omitted for Core Pilot breadth and for pages that are intentionally not role-gated in nav yet.
+   */
+  requiredAuthority?: RequiredAuthority;
   /** Registry combo for `aria-keyshortcuts`, e.g. `alt+n` */
   keyShortcut?: string;
   /** Optional icon for sidebar and mobile drawer. */
@@ -61,6 +67,9 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   runs-review    → Core Pilot        (request · run · commit · review)
  *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)
  *   alerts-governance → Enterprise Controls (governance, audit, policy, compliance)
+ *
+ * **Authority:** optional `requiredAuthority` aligns with API `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`
+ * (see `README.md` and `@/lib/nav-authority`). Omitted entries stay visible for every resolved principal rank.
  *
  * Group IDs are intentionally stable (used as localStorage keys); only labels are user-visible.
  */
@@ -96,6 +105,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+n",
         icon: Rocket,
         tier: "essential",
+        requiredAuthority: "ExecuteAuthority",
       },
       {
         href: "/runs?projectId=default",
@@ -104,6 +114,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+r",
         icon: ListOrdered,
         tier: "essential",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/graph",
@@ -114,6 +125,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         // Graph is a useful inspection tool but is not part of the Core Pilot path
         // (create → run → commit → review). It surfaces under "Show more links".
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/compare",
@@ -122,6 +134,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+c",
         icon: GitCompare,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/replay",
@@ -130,6 +143,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+p",
         icon: Play,
         tier: "extended",
+        requiredAuthority: "ExecuteAuthority",
       },
     ],
   },
@@ -146,15 +160,31 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+a",
         icon: MessageSquare,
         tier: "essential",
+        requiredAuthority: "ReadAuthority",
       },
-      { href: "/search", label: "Search", title: "Search indexed architecture content", icon: Search, tier: "advanced" },
-      { href: "/advisory", label: "Advisory", title: "Advisory scans and architecture digests", icon: Activity, tier: "extended" },
+      {
+        href: "/search",
+        label: "Search",
+        title: "Search indexed architecture content",
+        icon: Search,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/advisory",
+        label: "Advisory",
+        title: "Advisory scans and architecture digests",
+        icon: Activity,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
       {
         href: "/recommendation-learning",
         label: "Recommendation learning",
         title: "Recommendation learning profiles",
         icon: Sparkles,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/product-learning",
@@ -162,18 +192,48 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: "Pilot feedback rollups and triage (58R)",
         icon: ClipboardList,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
-      { href: "/planning", label: "Planning", title: "Improvement themes and prioritized plans (59R)", icon: BarChart3, tier: "advanced" },
+      {
+        href: "/planning",
+        label: "Planning",
+        title: "Improvement themes and prioritized plans (59R)",
+        icon: BarChart3,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
       {
         href: "/evolution-review",
         label: "Evolution candidates",
         title: "Candidate simulations and before/after review (60R)",
         icon: GitBranch,
         tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
       },
-      { href: "/advisory-scheduling", label: "Schedules", title: "Advisory scan schedules", icon: Wrench, tier: "advanced" },
-      { href: "/digests", label: "Digests", title: "Architecture digests", icon: FileSearch, tier: "advanced" },
-      { href: "/digest-subscriptions", label: "Subscriptions", title: "Digest email subscriptions", icon: Mail, tier: "advanced" },
+      {
+        href: "/advisory-scheduling",
+        label: "Schedules",
+        title: "Advisory scan schedules",
+        icon: Wrench,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/digests",
+        label: "Digests",
+        title: "Architecture digests",
+        icon: FileSearch,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/digest-subscriptions",
+        label: "Subscriptions",
+        title: "Digest email subscriptions",
+        icon: Mail,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
     ],
   },
   {
@@ -189,19 +249,63 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+l",
         icon: Bell,
         tier: "essential",
+        requiredAuthority: "ReadAuthority",
       },
-      { href: "/alert-rules", label: "Alert rules", title: "Configure alert rules", icon: Tags, tier: "advanced" },
-      { href: "/alert-routing", label: "Alert routing", title: "Alert routing subscriptions", icon: Mail, tier: "advanced" },
-      { href: "/composite-alert-rules", label: "Composite rules", title: "Composite alert rules", icon: Tags, tier: "advanced" },
-      { href: "/alert-simulation", label: "Alert simulation", title: "Simulate alert evaluation", icon: Activity, tier: "advanced" },
-      { href: "/alert-tuning", label: "Alert tuning", title: "Alert noise and threshold tuning", icon: Wrench, tier: "advanced" },
-      { href: "/policy-packs", label: "Policy packs", title: "Policy packs and versions", icon: Shield, tier: "extended" },
+      {
+        href: "/alert-rules",
+        label: "Alert rules",
+        title: "Configure alert rules",
+        icon: Tags,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/alert-routing",
+        label: "Alert routing",
+        title: "Alert routing subscriptions",
+        icon: Mail,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/composite-alert-rules",
+        label: "Composite rules",
+        title: "Composite alert rules",
+        icon: Tags,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/alert-simulation",
+        label: "Alert simulation",
+        title: "Simulate alert evaluation",
+        icon: Activity,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/alert-tuning",
+        label: "Alert tuning",
+        title: "Alert noise and threshold tuning",
+        icon: Wrench,
+        tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/policy-packs",
+        label: "Policy packs",
+        title: "Policy packs and versions",
+        icon: Shield,
+        tier: "extended",
+        requiredAuthority: "AdminAuthority",
+      },
       {
         href: "/governance-resolution",
         label: "Governance resolution",
         title: "Effective governance resolution",
         icon: Scale,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/governance/dashboard",
@@ -213,6 +317,7 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         keyShortcut: "alt+g",
         icon: LayoutDashboard,
         tier: "extended",
+        requiredAuthority: "ReadAuthority",
       },
       {
         href: "/governance",
@@ -220,13 +325,24 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: "Approval, promotion, and activation workflow",
         icon: GitBranch,
         tier: "advanced",
+        requiredAuthority: "ExecuteAuthority",
       },
-      { href: "/audit", label: "Audit log", title: "Search and filter audit events", icon: FileSearch, tier: "advanced" },
+      {
+        href: "/audit",
+        label: "Audit log",
+        title: "Search and filter audit events",
+        icon: FileSearch,
+        tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
     ],
   },
 ];
 
-/** Flat list for command palette search (value = href) — all tiers; progressive disclosure does not apply. */
+/**
+ * Flat list for command palette search (value = href) — all tiers; progressive disclosure does not apply.
+ * Authority metadata is present on each item but callers may still filter (palette uses the same rank as the sidebar).
+ */
 export function flattenNavLinks(): NavLinkItem[] {
   return NAV_GROUPS.flatMap((g) => g.links);
 }

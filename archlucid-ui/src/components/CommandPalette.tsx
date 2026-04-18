@@ -14,7 +14,9 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { NAV_GROUPS } from "@/lib/nav-config";
+import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47,6 +49,7 @@ function RunIdQuickOpen({ onNavigate }: { onNavigate: (href: string) => void }) 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -90,21 +93,25 @@ export function CommandPalette() {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} />
           <CommandEmpty>No matching pages. Try another search or paste a run UUID.</CommandEmpty>
-          {NAV_GROUPS.map((group) => (
-            <CommandGroup key={group.id} heading={group.label}>
-              {group.links.map((link) => (
-                <CommandItem
-                  key={link.href}
-                  value={`${link.label} ${link.href}`}
-                  onSelect={() => {
-                    navigate(link.href);
-                  }}
-                >
-                  {link.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))}
+          {NAV_GROUPS.map((group) => {
+            const authorityFiltered = filterNavLinksByAuthority(group.links, callerAuthorityRank);
+
+            return (
+              <CommandGroup key={group.id} heading={group.label}>
+                {authorityFiltered.map((link) => (
+                  <CommandItem
+                    key={link.href}
+                    value={`${link.label} ${link.href}`}
+                    onSelect={() => {
+                      navigate(link.href);
+                    }}
+                  >
+                    {link.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            );
+          })}
           <CommandSeparator />
           <CommandGroup heading="Keyboard shortcuts (navigation)">
             {SHORTCUTS.filter((entry) => entry.route !== undefined && entry.route !== "").map((entry) => (

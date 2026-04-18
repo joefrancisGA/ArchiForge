@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
+import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS, type NavLinkItem } from "@/lib/nav-config";
+import { filterNavLinksByAuthority } from "@/lib/nav-authority";
 import { filterNavLinksByTier } from "@/lib/nav-tier";
 import { isNavLinkActive } from "@/lib/nav-link-active";
 import { registryKeyToAriaKeyShortcuts } from "@/lib/shortcut-registry";
@@ -42,6 +44,7 @@ export function SidebarNav() {
   const [mounted, setMounted] = useState(false);
   const [openByGroup, setOpenByGroup] = useState<Record<string, boolean>>({});
   const { showExtended, showAdvanced, setShowExtended, setShowAdvanced } = useNavProgressiveDisclosure();
+  const callerAuthorityRank = useNavCallerAuthorityRank();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   useEffect(() => {
@@ -78,7 +81,10 @@ export function SidebarNav() {
     <div className="flex h-full flex-col gap-1 pb-6 pr-1">
       {NAV_GROUPS.map((group) => {
         const isOpen = !mounted || openByGroup[group.id] !== false;
-        const visibleLinks: NavLinkItem[] = filterNavLinksByTier(group.links, showExtended, showAdvanced);
+        const visibleLinks: NavLinkItem[] = filterNavLinksByAuthority(
+          filterNavLinksByTier(group.links, showExtended, showAdvanced),
+          callerAuthorityRank,
+        );
 
         return (
           <Collapsible
@@ -174,7 +180,10 @@ export function SidebarNav() {
           <DialogHeader>
             <DialogTitle>Navigation settings</DialogTitle>
             <DialogDescription>
-              Control which sidebar links appear. The command palette (Ctrl+K) still lists every destination.
+              Control which sidebar links appear by progressive disclosure tier. The same destination list also
+              respects optional minimum API authority hints (Read / Execute / Admin) when the shell can resolve your
+              principal via <code className="text-xs">GET /api/auth/me</code>; the command palette (Ctrl+K) uses the
+              same hints.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">

@@ -71,7 +71,7 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 ## Operator UI (`archlucid-ui`)
 
-A thin Next.js shell organized around the three product layers: **Core Pilot** (runs, commit, manifest, artifacts) visible by default; **Advanced Analysis** (compare, replay, graph, advisory) and **Enterprise Controls** (governance, audit, alerts, policy) via progressive disclosure. **Operator workflow:** [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright). Setup and doc index: [archlucid-ui/README.md](archlucid-ui/README.md).
+A thin Next.js shell organized around the three product layers: **Core Pilot** (runs, commit, manifest, artifacts) visible by default; **Advanced Analysis** (compare, replay, graph, advisory) and **Enterprise Controls** (governance, audit, alerts, policy) via progressive disclosure. Navigation links may declare optional **`requiredAuthority`** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) filtered against **`GET /api/auth/me`** — see [archlucid-ui/README.md](archlucid-ui/README.md) and [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
 
 ## API authentication (`ArchLucidAuth`)
 

@@ -27,6 +27,12 @@ The shell surfaces the three-layer model without duplicating [OPERATOR_DECISION_
 
 Long-form “when to expand” tables remain in **OPERATOR_DECISION_GUIDE.md**; the UI carries only minimal affordances.
 
+### Navigation authority hints (structural)
+
+The sidebar, mobile drawer, and **Ctrl+K** command palette can hide individual destinations when the signed-in principal is unlikely to satisfy the API for that workflow. Link metadata lives on **`NavLinkItem.requiredAuthority`** in `archlucid-ui/src/lib/nav-config.ts` and mirrors ASP.NET policy names **`ReadAuthority`**, **`ExecuteAuthority`**, and **`AdminAuthority`** (see repo root **`README.md`**, API authentication section).
+
+The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-origin **`/api/proxy/api/auth/me`**, role claims). **This is not authorization:** routes still enforce policies server-side. Omitted `requiredAuthority` keeps a link visible for every resolved rank (used for **Home** and **Onboarding** so the Core Pilot wedge stays open).
+
 ---
 
 ## Main workflow

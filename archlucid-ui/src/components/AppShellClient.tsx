@@ -11,6 +11,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { HelpPanel } from "@/components/HelpPanel";
 import { KeyboardShortcutProvider } from "@/components/KeyboardShortcutProvider";
 import { MobileNavDrawer } from "@/components/MobileNavDrawer";
+import { OperatorNavAuthorityProvider } from "@/components/OperatorNavAuthorityProvider";
 import { RouteAnnouncer } from "@/components/RouteAnnouncer";
 import { SidebarNav } from "@/components/SidebarNav";
 import { TrialBanner } from "@/components/TrialBanner";
@@ -30,7 +31,7 @@ export function AppShellClient({ children }: AppShellClientProps) {
   useRouteChangeFocus("main-content");
 
   return (
-    <>
+    <OperatorNavAuthorityProvider>
       <a href="#main-content" className="skip-to-main">
         Skip to main content
       </a>
@@ -100,6 +101,6 @@ export function AppShellClient({ children }: AppShellClientProps) {
       <AppToaster />
       <RouteAnnouncer />
       <HelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
-    </>
+    </OperatorNavAuthorityProvider>
   );
 }

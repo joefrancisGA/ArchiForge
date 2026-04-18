@@ -1,4 +1,7 @@
-/** Progressive disclosure tier for operator shell navigation (sidebar + mobile drawer). */
+/**
+ * Progressive disclosure tier for operator shell navigation (sidebar + mobile drawer).
+ * Composed with optional `requiredAuthority` on `NavLinkItem` (`@/lib/nav-config` + `@/lib/nav-authority`).
+ */
 export type NavTier = "essential" | "extended" | "advanced";
 
 /**
