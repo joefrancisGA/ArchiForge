@@ -36,7 +36,7 @@ These map to `.cursor/rules/Security-Default-Rule-Port-445-Alignment.mdc` and th
 - **Least privilege & deny-by-default.** Wildcard role assignments (`Owner`, `Contributor` at subscription scope), `*` in IAM actions, or `--allow-all` flags require explicit justification.
 - **No new TLS-disabled or HTTP-only endpoints.** Inbound HTTP without redirect-to-HTTPS, or `MinimumTlsVersion < 1.2`, is a hard block.
 - **Secrets handling.** Watch for secrets logged via `ILogger`, written to telemetry, or returned in API responses. The repo has a log-sanitizer barrier (`.github/codeql/archlucid-csharp-log-sanitizer-models/`) — flag attempts to weaken or bypass it.
-- **Gitleaks gate.** New credential-shaped strings must either be obvious test fixtures or be added to `.gitleaks.toml` allowlists with a comment.
+- **Gitleaks gate.** New credential-shaped strings must either be obvious test fixtures or be added to `.gitleaks.toml` allowlists with a comment. **Do not** use `sk_test_` / `sk_live_` shaped literals in tests or config samples — gitleaks treats them as real Stripe tokens; use non-Stripe-shaped placeholders (see `ArchLucidConfigurationRulesTests` Stripe billing secret tests). Full-history scans still see old blobs; allowlist entries must name the exact retired string and why.
 
 ## Architecture rules to enforce
 

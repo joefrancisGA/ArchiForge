@@ -8,9 +8,11 @@ title = "ArchLucid"
 useDefault = true
 
 [allowlist]
-description = "Published dev/CI SQL passwords only — rotate if you reuse outside this repo"
+description = "Documented non-production literals (SQL dev passwords, one retired Stripe-shaped test fixture in git history) — rotate SQL passwords if you reuse outside this repo"
 regexes = [
   "ArchiForge_Dev_Pass123!",
   "ArchLucid_Dev_Pass123!",
   "LocalTesting123!",
+  # Removed from HEAD (ArchLucidConfigurationRulesTests) but still present in git blobs; gitleaks scans full history (ci.yml fetch-depth: 0). Not a real Stripe key — never reuse this pattern in new commits.
+  "sk_test_12345678901234567890123456789012",
 ]
