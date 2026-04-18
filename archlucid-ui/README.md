@@ -1,6 +1,8 @@
 # ArchLucid UI (operator shell)
 
-Thin Next.js App Router UI organized around three product layers: **Core Pilot** (runs, commit, manifests, artifacts), **Advanced Analysis** (compare, replay, graph, advisory), and **Enterprise Controls** (governance, audit, alerts, policy).
+Thin Next.js App Router UI for the ArchLucid operator experience. The default job of the UI is to help a team move from an architecture request to a reviewable, defensible output quickly through the **Core Pilot** path, then expand into **Advanced Analysis** or **Enterprise Controls** only when needed.
+
+For the canonical sponsor-facing value summary, start with [../docs/EXECUTIVE_SPONSOR_BRIEF.md](../docs/EXECUTIVE_SPONSOR_BRIEF.md). For the pilot measurement model, see [../docs/PILOT_ROI_MODEL.md](../docs/PILOT_ROI_MODEL.md).
 
 **In-product guidance:** sidebar group **captions** summarize each layer; key Advanced Analysis / Enterprise routes render a **`LayerHeader`** strip (what question the page answers); **Home** shows a post-checklist nudge when all Core Pilot boxes are checked; **run detail** shows an optional Advanced Analysis strip after commit. Full routing logic stays in **`docs/OPERATOR_DECISION_GUIDE.md`** (repo root).
 
@@ -24,6 +26,13 @@ New run (wizard) → pipeline runs → Commit → Artifacts
 
 Enable via **Show more links** in the sidebar. These are **Advanced Analysis** layer features.
 
+Use this layer when the next question is analytical:
+
+- what changed,
+- why it changed,
+- how to replay the authority chain,
+- or how to inspect architecture/provenance more deeply.
+
 - **Graph** (`/graph`) — provenance or architecture graph for one run ID.
 - **Compare** (`/compare`) — structured manifest diff between two runs.
 - **Replay** (`/replay`) — re-validate the authority chain for a run.
@@ -33,6 +42,15 @@ Enable via **Show more links** in the sidebar. These are **Advanced Analysis** l
 ## Enterprise Controls (governance, audit, compliance)
 
 Enable extended and advanced links in the sidebar. These are **Enterprise Controls** layer features.
+
+Use this layer when the next question is governance or trust:
+
+- approvals,
+- policy enforcement,
+- audit evidence,
+- compliance drift,
+- alerts,
+- or operational control.
 
 - **Governance dashboard / Policy packs / Governance resolution** — approval workflows, segregation of duties, effective policy. Enable **Show more links**.
 - **Alerts** — open and acknowledged alerts (essential tier by default); rules, routing, and tuning via **Show advanced links**.
@@ -47,8 +65,10 @@ Enable extended and advanced links in the sidebar. These are **Enterprise Contro
 
 | Document | What it covers |
 |----------|---------------|
+| [Executive sponsor brief](../docs/EXECUTIVE_SPONSOR_BRIEF.md) | **Canonical buyer narrative:** what ArchLucid does, what a pilot proves, and why expansion matters. |
+| [Pilot ROI model](../docs/PILOT_ROI_MODEL.md) | **How to judge pilot success:** measures, scorecard, sponsor-ready outcome language. |
+| [Operator decision guide](../docs/OPERATOR_DECISION_GUIDE.md) | **Which layer to use next:** stay narrow unless a real question requires expansion. |
 | [Operator quickstart](../docs/OPERATOR_QUICKSTART.md) | **Pilots / operators:** commands, health, first run. |
-| [Operator quickstart (56R)](../docs/OPERATOR_QUICKSTART.md) | Copy-paste commands (API, CLI, UI, tests). |
 | [Product learning (58R)](../docs/PRODUCT_LEARNING.md) | Pilot feedback dashboard, triage export. |
 | [Troubleshooting (56R)](../docs/TROUBLESHOOTING.md) | Common failures (health, auth, SQL, proxy). |
 | [Operator shell guide (55R)](../docs/operator-shell.md) | **Start here for operators.** Workflow, artifacts, graph vs compare/replay, UI test commands, API expectations. |

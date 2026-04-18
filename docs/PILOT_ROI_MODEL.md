@@ -4,7 +4,7 @@
 
 **Status:** Practical V1 pilot-evaluation guidance. This document explains **how to measure pilot success using capabilities ArchLucid supports today**. It is not a pricing model and it is not a guaranteed ROI calculator.
 
-**Related:** [README.md](../README.md) · [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
+**Related:** [README.md](../README.md) · [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
 
 ---
 
@@ -20,6 +20,8 @@ For most pilots, the goal is **not** to prove enterprise-wide transformation. Th
 - produce reviewable artifacts with less manual assembly,
 - improve traceability and governance evidence,
 - and shorten the path to architecture discussion or approval.
+
+For the one-page sponsor summary of this value story, see **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**.
 
 ---
 
