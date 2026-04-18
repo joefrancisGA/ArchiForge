@@ -24,7 +24,7 @@ export default function OnboardingPage() {
           Getting started
         </Link>{" "}
         before treating Advanced Analysis or Enterprise Controls as in-scope. The sidebar lists three layers with
-        short captions; <strong>only Core Pilot</strong> is the default wedge—see{" "}
+        short captions; Enterprise entries can shorten by role. <strong>Only Core Pilot</strong> is the default wedge—see{" "}
         <code className="text-[0.85em]">docs/OPERATOR_DECISION_GUIDE.md</code> for when to expand.
       </p>
       <div className="mb-10">

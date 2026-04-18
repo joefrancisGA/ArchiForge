@@ -113,8 +113,9 @@ export default function HomePage() {
           Enterprise Controls
         </h3>
         <p className="mb-2 max-w-3xl text-xs font-medium text-neutral-600 dark:text-neutral-400">
-          Not required for first-pilot proof. Governance, audit, and alerts when your operating model or sponsors need
-          them. Sidebar: extended and advanced links.
+          Not required for Core Pilot. Operator/admin layer when governance, audit, or alerts matter—typically governance
+          or platform operators. Use extended and advanced sidebar links; the list can reflect your role (API enforces
+          writes).
         </p>
         <ul className="m-0 max-w-3xl list-disc space-y-1 pl-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
           <li>

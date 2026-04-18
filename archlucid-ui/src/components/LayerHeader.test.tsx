@@ -26,4 +26,12 @@ describe("LayerHeader", () => {
 
     expect(screen.getByText(/Read-oriented governance evidence/i)).toBeInTheDocument();
   });
+
+  it("renders Enterprise rank-aware note under footnote on audit (default rank outside provider)", () => {
+    render(<LayerHeader pageKey="audit" />);
+
+    expect(
+      screen.getByText(/Operator\/admin surface when your operating model needs it—not required for Core Pilot\./i),
+    ).toBeInTheDocument();
+  });
 });

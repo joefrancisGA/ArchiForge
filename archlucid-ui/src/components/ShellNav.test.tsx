@@ -106,7 +106,12 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
     expect(screen.getByRole("navigation", { name: "Enterprise Controls" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Alerts" })).toHaveAttribute("href", "/alerts");
     expect(
-      screen.getByText(/mainly for governance and platform operators\. Not required for Core Pilot\./i),
+      screen.getByText(
+        /Operator\/admin layer—governance, audit, policy packs, and alert tooling\. Typically governance or platform operators; not required for Core Pilot\./i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Typically used by governance or platform operators\. Not required for Core Pilot\./i),
     ).toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();

@@ -256,7 +256,8 @@ export const NAV_GROUPS: NavGroupConfig[] = [
     id: "alerts-governance",
     // Product layer: Enterprise Controls
     label: "Enterprise Controls",
-    caption: "Governance, audit, policy packs, and alert tooling—mainly for governance and platform operators.",
+    caption:
+      "Operator/admin layer—governance, audit, policy packs, and alert tooling. Typically governance or platform operators; not required for Core Pilot.",
     links: [
       {
         href: "/alerts",

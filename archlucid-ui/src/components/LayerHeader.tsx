@@ -1,6 +1,10 @@
 "use client";
 
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
+import {
+  layerHeaderEnterpriseOperatorRankLine,
+  layerHeaderEnterpriseReaderRankLine,
+} from "@/lib/enterprise-controls-context-copy";
 import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
@@ -23,8 +27,8 @@ export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const enterpriseRankCue =
     block.layerBadge === "Enterprise Controls"
       ? callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-        ? "Read-focused surface in this shell; deeper change and triage controls follow operator-level access where configured."
-        : "Operator-oriented surface in this shell; write paths remain API-enforced by role."
+        ? layerHeaderEnterpriseReaderRankLine
+        : layerHeaderEnterpriseOperatorRankLine
       : null;
 
   return (

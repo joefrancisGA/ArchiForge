@@ -11,11 +11,21 @@ export const enterpriseMutationControlDisabledTitle =
 
 /** Sidebar / mobile: reader sees fewer links in this group */
 export const enterpriseNavHintReaderRank =
-  "Some operator/admin destinations stay out of the list for your role. Not required for Core Pilot.";
+  "Some operator/admin destinations stay out of your list for this role. Not required for Core Pilot.";
 
 /** Sidebar / mobile: operator+ still reminded this layer is optional vs Core Pilot */
 export const enterpriseNavHintOperatorRank =
-  "Governance, audit, policy, and alert tooling—mainly for governance and platform operators. Not required for Core Pilot.";
+  "Typically used by governance or platform operators. Not required for Core Pilot.";
+
+/**
+ * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:
+ * below Execute → reader framing).
+ */
+export const layerHeaderEnterpriseReaderRankLine =
+  "Typically used by governance or platform operators for operational changes; read views still help. Not required for Core Pilot.";
+
+export const layerHeaderEnterpriseOperatorRankLine =
+  "Operator/admin surface when your operating model needs it—not required for Core Pilot.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank =
