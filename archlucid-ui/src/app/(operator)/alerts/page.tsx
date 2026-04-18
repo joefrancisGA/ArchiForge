@@ -107,18 +107,23 @@ export default function AlertsPage() {
   }, [load]);
 
   const emptyFilteredProps = useMemo(() => {
-    if (canMutateAlertInbox) {
-      return ALERTS_EMPTY_FILTERED;
-    }
-
-    return {
+    const inboxEmptyBase = {
       ...ALERTS_EMPTY_FILTERED,
+      title: "No alerts match this filter",
+      description:
+        "Nothing in this inbox matches the status filter and page above. Try All or another status, refresh, or adjust paging—an empty list here means no rows matched, not a silent scan failure.",
       actions: [
-        { label: "Browse alert rules", href: "/alert-rules" },
-        { label: "View runs list", href: "/runs?projectId=default", variant: "outline" as const },
+        { label: "View runs list", href: "/runs?projectId=default" },
+        {
+          label: "Alert tooling (rules, routing, tuning)",
+          href: "/alert-rules",
+          variant: "outline" as const,
+        },
       ],
     };
-  }, [canMutateAlertInbox]);
+
+    return inboxEmptyBase;
+  }, []);
 
   const act = useCallback(
     async (alertId: string, action: AlertActionKind, comment: string) => {
@@ -171,10 +176,14 @@ export default function AlertsPage() {
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="max-w-prose text-sm font-medium leading-snug text-neutral-800 dark:text-neutral-200">
-        Inbox for advisory scan signals—filter, page, then triage when your role allows.
+        This page is an inbox: filter and inspect advisory signals first, then triage when a row needs follow-up. Alert rules,
+        routing, and tuning are follow-on depth when you need to change how signals are raised—not the default path on this
+        screen.
       </p>
       <p className="mt-1 max-w-prose text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-        Dedupe rules apply across statuses; keyboard shortcuts follow the same mutation gate as buttons.
+        First-pilot teams usually only need this inbox when alerts are already in scope for the pilot; otherwise stay
+        on Core Pilot for proof. Dedupe applies across statuses; keyboard shortcuts use the same mutation gate as the
+        triage buttons below.
       </p>
       <AlertsInboxRankCue />
 
@@ -250,65 +259,80 @@ export default function AlertsPage() {
                 data-alert-id={alert.alertId}
                 className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-neutral-900"
               >
-                <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                  <strong className="text-base text-neutral-900 dark:text-neutral-100">{alert.title}</strong>
-                  <Badge className={cn("text-xs font-semibold", severityBadgeClass(alert.severity))} variant="outline">
-                    {alert.severity}
-                  </Badge>
+                <div>
+                  <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                    <strong className="text-base text-neutral-900 dark:text-neutral-100">{alert.title}</strong>
+                    <Badge className={cn("text-xs font-semibold", severityBadgeClass(alert.severity))} variant="outline">
+                      {alert.severity}
+                    </Badge>
+                  </div>
+                  <div className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
+                    <span className="text-neutral-500 dark:text-neutral-500">Category:</span> {alert.category}
+                  </div>
+                  <div className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
+                    <span className="text-neutral-500 dark:text-neutral-500">Status:</span> {alert.status}
+                  </div>
+                  <div className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">
+                    <span className="text-neutral-500 dark:text-neutral-500">Trigger:</span> {alert.triggerValue}
+                  </div>
+                  <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{alert.description}</p>
                 </div>
-                <div className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
-                  <span className="text-neutral-500 dark:text-neutral-500">Category:</span> {alert.category}
-                </div>
-                <div className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">
-                  <span className="text-neutral-500 dark:text-neutral-500">Status:</span> {alert.status}
-                </div>
-                <div className="mb-2 text-sm text-neutral-600 dark:text-neutral-400">
-                  <span className="text-neutral-500 dark:text-neutral-500">Trigger:</span> {alert.triggerValue}
-                </div>
-                <p className="mb-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">{alert.description}</p>
 
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    disabled={!canMutateAlertInbox}
-                    title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => {
-                      setPendingAction({ alertId: alert.alertId, action: "Acknowledge" });
-                      setActionComment("");
-                    }}
-                  >
-                    Acknowledge
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    disabled={!canMutateAlertInbox}
-                    title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => {
-                      setPendingAction({ alertId: alert.alertId, action: "Resolve" });
-                      setActionComment("");
-                    }}
-                  >
-                    Resolve
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
-                    disabled={!canMutateAlertInbox}
-                    title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
-                    onClick={() => {
-                      setPendingAction({ alertId: alert.alertId, action: "Suppress" });
-                      setActionComment("");
-                    }}
-                  >
-                    Suppress
-                  </Button>
-                </div>
+                <section
+                  className="mt-4 border-t border-neutral-200 pt-3 dark:border-neutral-700"
+                  aria-label="Triage actions"
+                >
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                    Triage actions
+                  </h3>
+                  <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                    {canMutateAlertInbox
+                      ? "Use triage actions when this signal needs follow-up."
+                      : "Read-focused inbox view. Triage actions require operator-level access in this shell."}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      disabled={!canMutateAlertInbox}
+                      title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+                      onClick={() => {
+                        setPendingAction({ alertId: alert.alertId, action: "Acknowledge" });
+                        setActionComment("");
+                      }}
+                    >
+                      Acknowledge
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      disabled={!canMutateAlertInbox}
+                      title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+                      onClick={() => {
+                        setPendingAction({ alertId: alert.alertId, action: "Resolve" });
+                        setActionComment("");
+                      }}
+                    >
+                      Resolve
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/50"
+                      disabled={!canMutateAlertInbox}
+                      title={canMutateAlertInbox ? undefined : enterpriseMutationControlDisabledTitle}
+                      onClick={() => {
+                        setPendingAction({ alertId: alert.alertId, action: "Suppress" });
+                        setActionComment("");
+                      }}
+                    >
+                      Suppress
+                    </Button>
+                  </div>
+                </section>
               </article>
             ))
           : null}
