@@ -34,6 +34,8 @@ ArchLucid ships as three distinct capability layers.
 
 **Default buying motion:** start with **Core Pilot** so a team can move from request to committed manifest and reviewable artifacts quickly. Only then expand into **Advanced Analysis** or **Enterprise Controls** when a real analytical or governance question requires them.
 
+**First-pilot rule:** if you are evaluating whether ArchLucid creates value, stay on the **Core Pilot** path first. Treat deeper layers as follow-on maturity paths, not as co-equal Day-1 requirements.
+
 | Layer | What it covers | Why it matters | How to reach it |
 |-------|---------------|----------------|-----------------|
 | **Core Pilot** | Create run → execute → commit → review manifest and artifacts | Proves fast path from request to reviewable output with less manual packaging effort | Default sidebar and home page |
