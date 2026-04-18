@@ -4,7 +4,7 @@
 
 **Status:** V1 capability inventory. This document describes what is **implemented and supportable today** — not a roadmap.
 
-**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) (sponsor-ready summary) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference)
+**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) (which layer to use next) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) (sponsor-ready summary) · [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) (future packaging map) · [operator-shell.md](operator-shell.md) (UI reference) · [archlucid-ui/README.md](../archlucid-ui/README.md#role-aware-shaping-first-wave) (implemented role-aware shaping)
 
 ---
 
@@ -47,6 +47,8 @@ This is the default user-experience model.
 Some capabilities are better suited to operator/admin roles, especially in **Enterprise Controls**.
 
 That means some surfaces are shaped not just by navigation tier but also by who should reasonably use them in a real environment.
+
+**Implemented in the operator UI (first wave):** `archlucid-ui` composes **tier** (`nav-tier` / progressive disclosure) with optional per-link **`requiredAuthority`** in `nav-config.ts`, resolved from **`GET /api/auth/me`** via `current-principal.ts` and `nav-shell-visibility.ts` (see `archlucid-ui/README.md` § *Role-aware shaping*). **Enterprise Controls** carry most `requiredAuthority` assignments and short context copy; **Core Pilot** defaults stay broadly visible. This is **operational accountability** in the shell—**not** the entitlement or pricing model in §4.
 
 This is the operational-usage model.
 

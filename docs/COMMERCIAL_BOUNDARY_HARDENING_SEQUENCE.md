@@ -4,7 +4,7 @@
 
 **Status:** Future-state commercialization guidance. This document does **not** implement licensing, billing, entitlement, or pricing enforcement. It explains **how boundary hardening should happen in sequence** so the product gains commercial discipline without damaging the Core Pilot wedge.
 
-**Related:** [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)
+**Related:** [FUTURE_PACKAGING_ENFORCEMENT.md](FUTURE_PACKAGING_ENFORCEMENT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [archlucid-ui/README.md](../archlucid-ui/README.md#role-aware-shaping-first-wave) (Stage 1 UI shipped)
 
 ---
 
@@ -63,7 +63,8 @@ Reduce ambiguity and dependency on documentation alone.
 - make “use this when” and “ignore this unless” guidance more visible in product surfaces,
 - shape advanced surfaces more explicitly by context,
 - clarify where operator/admin responsibility changes the expected experience.
-- optional: contextual one-line copy on Enterprise entry points (see `archlucid-ui` `enterprise-controls-context-copy.ts` + `LayerHeader` enterprise footnotes)—Stage 1 clarity, not licensing.
+
+**Shipped in `archlucid-ui` (first wave, not commercial gating):** tier + `requiredAuthority` nav shaping (`nav-config.ts`, `nav-authority.ts`, `nav-shell-visibility.ts`, `OperatorNavAuthorityProvider.tsx`, `current-principal.ts`), plus short Enterprise context copy (`enterprise-controls-context-copy.ts`, `EnterpriseControlsContextHints.tsx`, `layer-guidance.ts` `enterpriseFootnote`). **Core Pilot** remains the default path; **Enterprise Controls** are the primary place for stricter shaping. This does **not** implement billing, entitlements, or plan-based feature flags—see **Stage 2** for stronger role-enforced boundaries as a separate step.
 
 ### Why this comes first
 

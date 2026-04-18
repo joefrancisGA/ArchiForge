@@ -6,9 +6,24 @@ For the canonical sponsor-facing value summary, start with [../docs/EXECUTIVE_SP
 
 **In-product guidance:** sidebar group **captions** summarize each layer; key Advanced Analysis / Enterprise routes render a **`LayerHeader`** strip (what question the page answers); **Home** shows a post-checklist nudge when all Core Pilot boxes are checked; **run detail** shows an optional Advanced Analysis strip after commit. Full routing logic stays in **`docs/OPERATOR_DECISION_GUIDE.md`** (repo root).
 
-**Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`** (`ReadAuthority` | `ExecuteAuthority` | `AdminAuthority`, aligned with the API policies in the repo root `README.md`). `OperatorNavAuthorityProvider` + `GET /api/auth/me` supply a caller rank; **`src/lib/nav-shell-visibility.ts`** composes **tier + authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
+## Role-aware shaping (first wave)
 
-**Enterprise context copy:** `src/lib/enterprise-controls-context-copy.ts` + `EnterpriseControlsNavGroupHint` / `EnterpriseControlsExecutePageHint` add short, rank-aware lines (nav + execute-heavy pages); **`LayerHeader`** adds optional **`enterpriseFootnote`** on governance dashboard, alerts, and audit (`layer-guidance.ts`).
+The shell **already** shapes nav and light copy by **principal + policy tier names** aligned with the C# API (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`). This is **[COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md)** Stage 1–style **clarity**, not licensing: **Core Pilot** stays broadly accessible; **Enterprise Controls** are the first hardening target for `requiredAuthority` and omission hints.
+
+| Concern | Source file(s) |
+|---------|----------------|
+| Link metadata + product grouping | `src/lib/nav-config.ts` |
+| Policy tier names + rank helpers | `src/lib/nav-authority.ts` |
+| `GET /api/auth/me` read-model | `src/lib/current-principal.ts` |
+| Tier + authority composition (sidebar, mobile, palette) | `src/lib/nav-shell-visibility.ts` |
+| React context + refresh | `src/components/OperatorNavAuthorityProvider.tsx` |
+| Enterprise one-liners | `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts` (`enterpriseFootnote`) |
+
+**Do not:** add parallel `/me` clients, re-implement policy matrices in TypeScript, or treat UI hiding as authZ. **Do:** keep `requiredAuthority` sparse on Core Pilot essentials; extend Enterprise first when product asks for clearer accountability.
+
+**Nav authority:** `NavLinkItem` may declare optional **`requiredAuthority`**. `OperatorNavAuthorityProvider` + `GET /api/auth/me` supply a caller rank; **`nav-shell-visibility.ts`** composes **tier + authority** for the sidebar, mobile drawer, and command palette (empty groups omitted). Not a substitute for server-side 401/403.
+
+**Enterprise context copy:** `enterprise-controls-context-copy.ts` + `EnterpriseControlsNavGroupHint` / `EnterpriseControlsExecutePageHint` add short, rank-aware lines; **`LayerHeader`** adds optional **`enterpriseFootnote`** on governance dashboard, alerts, and audit (`layer-guidance.ts`).
 
 ## Core Pilot path (start here)
 

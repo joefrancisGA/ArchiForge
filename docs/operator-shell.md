@@ -35,6 +35,8 @@ The shell resolves a monotonic caller rank from **`GET /api/auth/me`** (same-ori
 
 Short **Enterprise Controls** context lines (nav subtitle + `LayerHeader` footnotes + execute-page hints) live in **`archlucid-ui/src/lib/enterprise-controls-context-copy.ts`** and **`EnterpriseControlsContextHints.tsx`** so omission does not feel arbitrary for readers (see **OPERATOR_DECISION_GUIDE.md** §2).
 
+**Contributors:** treat **`archlucid-ui/README.md`** (*Role-aware shaping*) as the canonical pointer list. Do not add ad-hoc `/me` fetches or duplicate policy logic in the browser; extend **`nav-config.ts`** + **`nav-shell-visibility.ts`** when adding routes so sidebar, mobile drawer, and palette stay consistent.
+
 ---
 
 ## Main workflow

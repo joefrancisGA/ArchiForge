@@ -129,6 +129,19 @@ The operator shell is a single Next.js application. Inside it are four logical c
 
 ---
 
+## 4a. Role-aware UI shaping (first wave, implemented)
+
+The shell **does** shape navigation (and light Enterprise copy) using the authenticated principal from **`GET /api/proxy/api/auth/me`** plus optional per-link **`requiredAuthority`** aligned with API policy names. **Intent:** operational accountability and less arbitrary hiding—**not** pricing, billing, or entitlements (see repo **`docs/PRODUCT_PACKAGING.md`** *Role-based restriction* vs *Future entitlement*, and **`docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md`** Stage 1).
+
+| Layer | Shaping posture |
+|-------|-----------------|
+| **Core Pilot** | Keep default links broadly visible; avoid sprinkling `requiredAuthority` on first-pilot essentials without an explicit product decision. |
+| **Enterprise Controls** | Primary target for `requiredAuthority`, nav omission, and short context lines. |
+
+**Source files:** `src/lib/nav-config.ts`, `src/lib/nav-authority.ts`, `src/lib/current-principal.ts`, `src/lib/nav-shell-visibility.ts`, `src/components/OperatorNavAuthorityProvider.tsx`, `src/lib/enterprise-controls-context-copy.ts`, `src/components/EnterpriseControlsContextHints.tsx`, `src/lib/layer-guidance.ts`. **Product doc:** [../../docs/PRODUCT_PACKAGING.md](../../docs/PRODUCT_PACKAGING.md).
+
+---
+
 ## 5. Component Breakdown
 
 ### 5.1 Route pages (src/app/)

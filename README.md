@@ -71,7 +71,9 @@ lifecycle hooks (run completion, governance, alerts, advisory scans).
 
 ## Operator UI (`archlucid-ui`)
 
-A thin Next.js shell organized around the three product layers: **Core Pilot** (runs, commit, manifest, artifacts) visible by default; **Advanced Analysis** (compare, replay, graph, advisory) and **Enterprise Controls** (governance, audit, alerts, policy) via progressive disclosure. Navigation links may declare optional **`requiredAuthority`** (`ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) filtered against **`GET /api/auth/me`** — see [archlucid-ui/README.md](archlucid-ui/README.md) and [docs/operator-shell.md](docs/operator-shell.md). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
+A thin Next.js shell organized around the three product layers: **Core Pilot** (runs, commit, manifest, artifacts) visible by default; **Advanced Analysis** (compare, replay, graph, advisory) and **Enterprise Controls** (governance, audit, alerts, policy) via progressive disclosure.
+
+**Role-aware shaping (first wave, implemented):** the UI composes **disclosure tier** + optional per-link **`requiredAuthority`** (same names as API policies: `ReadAuthority` / `ExecuteAuthority` / `AdminAuthority`) using **`GET /api/auth/me`** via the proxy. That is **operational accountability** (who should see operator/admin surfaces)—**not** pricing, billing, or entitlements. Do not bypass or duplicate this stack ad hoc; see [archlucid-ui/README.md](archlucid-ui/README.md#role-aware-shaping-first-wave), [docs/operator-shell.md](docs/operator-shell.md), and [docs/PRODUCT_PACKAGING.md](docs/PRODUCT_PACKAGING.md#what-the-layer-model-means-today) (role-based restriction vs future entitlement). **57R:** Playwright operator-journey smoke uses **deterministic mocks** (no live C# API in that suite) — see [archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md](archlucid-ui/docs/TESTING_AND_TROUBLESHOOTING.md#8-e2e-tests-playwright).
 
 ## API authentication (`ArchLucidAuth`)
 

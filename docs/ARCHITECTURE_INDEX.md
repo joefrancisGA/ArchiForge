@@ -81,7 +81,7 @@
 
 - **Operator shell guide (55R)** – workflow, artifact review, graph vs compare/replay, run **pipeline timeline** (`AuthorityPipelineTimeline` on run detail), focused UI tests, API expectations  
   - `docs/operator-shell.md`
-- **Architecture** – context, containers, components, data flow, security model, operational concerns  
+- **Architecture** – context, containers, components, data flow, security model, operational concerns; **§4a** documents first-wave **role-aware UI shaping** (nav + principal read-model, not entitlements)  
   - `archlucid-ui/docs/ARCHITECTURE.md`
 - **Tutorial** – Next.js/React concepts for back-end developers  
   - `archlucid-ui/docs/OPERATOR_SHELL_TUTORIAL.md`
