@@ -67,12 +67,11 @@ public sealed class ComparisonReplayApiService(
 
             if (logger.IsEnabled(LogLevel.Information))
             {
-                logger.LogInformation(
-                    "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
-                    LogSanitizer.Sanitize(request.ComparisonRecordId),
-                    LogSanitizer.Sanitize(result.ComparisonType),
-                    LogSanitizer.Sanitize(result.Format),
-                    LogSanitizer.Sanitize(result.ReplayMode),
+                logger.LogInformationComparisonReplaySucceeded(
+                    request.ComparisonRecordId,
+                    result.ComparisonType,
+                    result.Format,
+                    result.ReplayMode,
                     request.PersistReplay,
                     metadataOnly,
                     sw.ElapsedMilliseconds,

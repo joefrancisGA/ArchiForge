@@ -141,22 +141,29 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// inconsistent on a reused test catalog.
     /// </summary>
     /// <remarks>
-    /// <c>001_InitialSchema.sql</c> uses <c>CREATE TABLE ArchitectureRequests</c> without a schema prefix, so the table
-    /// may land in the login default schema rather than <c>dbo</c>. We use <c>sys.objects</c> (user table type
-    /// <c>U</c>) across schemas, plus an explicit <c>dbo</c> probe, instead of <c>OBJECT_ID</c> on
-    /// <c>dbo</c> only.
+    /// <para>
+    /// <c>001_InitialSchema.sql</c> uses <c>CREATE TABLE ArchitectureRequests</c> without a schema prefix, so the object
+    /// lands in the <b>connection default schema</b> (<c>SCHEMA_NAME()</c>), often <c>dbo</c> but not guaranteed. Probing
+    /// only <c>dbo.ArchitectureRequests</c> or only <c>sys.objects</c> with <c>type = N'U'</c> can miss real catalogs and
+    /// replay <c>001</c>, producing &quot;already an object named …&quot;.
+    /// </para>
+    /// <para>
+    /// Any non-system object named <c>ArchitectureRequests</c> in the caller default schema (table, view, synonym, …)
+    /// blocks the same unqualified <c>CREATE</c> and is treated as &quot;tenant core already present&quot;.
+    /// </para>
     /// </remarks>
     private static bool TenantCoreTablesFromInitialMigrationExist(SqlConnection connection)
     {
         const string sql = """
             SELECT CASE
                 WHEN OBJECT_ID(N'dbo.ArchitectureRequests', N'U') IS NOT NULL THEN 1
+                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.ArchitectureRequests', N'U') IS NOT NULL THEN 1
                 WHEN EXISTS (
                     SELECT 1
                     FROM sys.objects AS o
                     INNER JOIN sys.schemas AS s ON o.schema_id = s.schema_id
                     WHERE o.name = N'ArchitectureRequests'
-                      AND o.type = N'U'
+                      AND s.name = SCHEMA_NAME()
                       AND o.is_ms_shipped = 0
                 ) THEN 1
                 ELSE 0

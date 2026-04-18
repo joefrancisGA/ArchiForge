@@ -54,4 +54,38 @@ public static class SanitizedLoggerInformationExtensions
             safeManifestVersion,
             traceCount);
     }
+
+    /// <summary>
+    /// Logs a successful comparison replay with four externally influenced string placeholders sanitized before the sink.
+    /// </summary>
+    public static void LogInformationComparisonReplaySucceeded(
+        this ILogger logger,
+        string? comparisonRecordId,
+        string? comparisonType,
+        string? format,
+        string? replayMode,
+        bool persistReplay,
+        bool metadataOnly,
+        long durationMs,
+        bool verificationPassed)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeComparisonRecordId = LogSanitizer.Sanitize(comparisonRecordId);
+        string safeComparisonType = LogSanitizer.Sanitize(comparisonType);
+        string safeFormat = LogSanitizer.Sanitize(format);
+        string safeReplayMode = LogSanitizer.Sanitize(replayMode);
+
+        // codeql[cs/log-forging]: string placeholders sanitized immediately above; bool/long args cannot inject log lines.
+        logger.LogInformation(
+            "Comparison replay: ComparisonRecordId={ComparisonRecordId}, Type={ComparisonType}, Format={Format}, ReplayMode={ReplayMode}, PersistReplay={PersistReplay}, MetadataOnly={MetadataOnly}, DurationMs={DurationMs}, VerificationPassed={VerificationPassed}",
+            safeComparisonRecordId,
+            safeComparisonType,
+            safeFormat,
+            safeReplayMode,
+            persistReplay,
+            metadataOnly,
+            durationMs,
+            verificationPassed);
+    }
 }
