@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -32,6 +33,11 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// When the catalog has no <c>001_InitialSchema</c> journal row, applies baseline SQL and stamps 001–050 in
     /// <c>dbo.SchemaVersions</c>. No-op when incremental history is already present.
     /// </summary>
+    /// <remarks>
+    /// Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while <c>001_InitialSchema</c>
+    /// objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
+    /// 001–050 so DbUp continues without re-executing DDL.
+    /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
@@ -40,14 +46,22 @@ public static partial class GreenfieldBaselineMigrationRunner
         if (!ShouldApplyBaseline(connectionString))
             return;
 
+        using SqlConnection connection = new(connectionString);
+        connection.Open();
+
+        if (TenantCoreTablesFromInitialMigrationExist(connection))
+        {
+            EnsureSchemaVersionsTable(connection, null);
+            StampIncrementalScriptsThrough050(connection, null);
+
+            return;
+        }
+
         Assembly assembly = Assembly.GetExecutingAssembly();
 
         // Replay 001–050 from embedded incremental scripts (same SQL as `Migrations/Baseline/000_Baseline_2026_04_17.sql`,
         // which is kept for human review / optional tooling). We execute **per migration file** so `GO` lines inside
         // block comments in a concatenated mega-file cannot be mistaken for batch separators.
-        using SqlConnection connection = new(connectionString);
-        connection.Open();
-
         foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
         {
             Match match = MigrationNumberRegex().Match(resourceName);
@@ -74,6 +88,23 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         EnsureSchemaVersionsTable(connection, null);
         StampIncrementalScriptsThrough050(connection, null);
+    }
+
+    /// <summary>
+    /// True when <c>001_InitialSchema</c> already created its primary tenant table — journal may be missing or empty
+    /// on a reused test catalog.
+    /// </summary>
+    private static bool TenantCoreTablesFromInitialMigrationExist(SqlConnection connection)
+    {
+        using SqlCommand command = new(
+            "SELECT CASE WHEN OBJECT_ID(N'dbo.ArchitectureRequests', N'U') IS NOT NULL THEN 1 ELSE 0 END;",
+            connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null || scalar is DBNull)
+            return false;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     private static bool ShouldApplyBaseline(string connectionString)
