@@ -1,8 +1,11 @@
 # ── ArchLucid Operator UI ───────────────────────────────────────────
 # Multi-stage build: install + build → Alpine runtime with standalone output.
-# Build context is the archlucid-ui directory.
 #
-#   docker build -t archlucid-ui archlucid-ui/
+# Build context: REPO ROOT (not archlucid-ui/).
+# The pricing generator reads docs/go-to-market/PRICING_PHILOSOPHY.md,
+# which lives at the repo root and is outside the archlucid-ui/ subtree.
+#
+#   docker build -t archlucid-ui -f archlucid-ui/Dockerfile .
 # ────────────────────────────────────────────────────────────────────
 
 # ── Stage 1: dependencies (layer-cached until package-lock changes) ─
@@ -10,7 +13,8 @@ FROM node:22-alpine AS deps
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+# Paths are relative to the repo-root build context.
+COPY archlucid-ui/package.json archlucid-ui/package-lock.json ./
 RUN npm ci --ignore-scripts
 
 # ── Stage 2: build ──────────────────────────────────────────────────
@@ -19,16 +23,26 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
-# Ensure public/ exists so the runtime COPY always succeeds
-# (files added later — favicon, robots.txt — are picked up automatically).
-RUN mkdir -p public
+# Copy the UI source tree (everything in archlucid-ui/ becomes /app/).
+COPY archlucid-ui/ .
 
-# next build reads output:"standalone" from next.config.ts and produces
-# .next/standalone (server) + .next/static (client assets).
+# The pricing generator and its single-source document must be present at
+# build time.  They live outside the archlucid-ui/ subtree, so we copy them
+# to a dedicated directory (/pricing-source/) and invoke the generator with
+# --repo-root pointing there.
+COPY scripts/ci/generate_pricing_json.py /pricing-source/scripts/ci/generate_pricing_json.py
+COPY docs/go-to-market/PRICING_PHILOSOPHY.md /pricing-source/docs/go-to-market/PRICING_PHILOSOPHY.md
+
+# python3 is only needed in this build stage; it is NOT carried into the
+# runtime image.  Run the generator then immediately call next build so we
+# do not re-invoke npm run generate:pricing (which assumes the ../scripts/
+# path available in local dev but not inside the container).
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build
+RUN apk add --no-cache python3 \
+    && mkdir -p public \
+    && python3 /pricing-source/scripts/ci/generate_pricing_json.py --repo-root /pricing-source \
+    && npx next build
 
 # ── Stage 3: runtime ───────────────────────────────────────────────
 FROM node:22-alpine AS runtime

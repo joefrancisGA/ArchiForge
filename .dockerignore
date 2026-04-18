@@ -18,11 +18,16 @@
 **/*.user
 **/*.suo
 
-# Node (UI project — not needed for API image)
+# Node (UI project — not needed for either image)
 archlucid-ui/node_modules/
 archlucid-ui/.next/
+archlucid-ui/out/
+archlucid-ui/build/
 archlucid-ui/playwright-report/
 archlucid-ui/test-results/
+archlucid-ui/coverage/
+archlucid-ui/e2e/
+archlucid-ui/*.tsbuildinfo
 
 # Git
 .git/
@@ -33,8 +38,11 @@ archlucid-ui/test-results/
 docker-compose*.yml
 **/.dockerignore
 
-# Docs (not needed in images)
+# Docs — excluded from images except the pricing single-source document,
+# which the archlucid-ui Dockerfile build stage needs to generate pricing.json.
 docs/
+!docs/go-to-market/
+!docs/go-to-market/PRICING_PHILOSOPHY.md
 
 # CI
 .github/

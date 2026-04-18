@@ -141,7 +141,8 @@ jobs:
         if: steps.acr.outputs.configured == 'true'
         uses: docker/build-push-action@v7
         with:
-          context: ./archlucid-ui
+          context: .
+          file: archlucid-ui/Dockerfile
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.IMAGE_TAG }}
             ${{ secrets.ACR_LOGIN_SERVER }}/archlucid-ui:${{ env.LATEST_ALIAS }}

@@ -758,7 +758,8 @@ jobs:
         if: steps.gha_cache_write.outputs.enabled == 'true'
         uses: docker/build-push-action@v7
         with:
-          context: ./archlucid-ui
+          context: .
+          file: archlucid-ui/Dockerfile
           tags: archlucid-ui:ci
           load: true
           provenance: false
@@ -770,7 +771,8 @@ jobs:
         if: steps.gha_cache_write.outputs.enabled != 'true'
         uses: docker/build-push-action@v7
         with:
-          context: ./archlucid-ui
+          context: .
+          file: archlucid-ui/Dockerfile
           tags: archlucid-ui:ci
           load: true
           provenance: false
