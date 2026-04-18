@@ -4,7 +4,7 @@
 
 **Status:** V1 capability inventory. This document describes what is **implemented and supportable today** — not a roadmap.
 
-**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [operator-shell.md](operator-shell.md) (UI reference)
+**Related:** [V1_SCOPE.md](V1_SCOPE.md) (engineering scope contract) · [CORE_PILOT.md](CORE_PILOT.md) (first-pilot walkthrough) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) (how to measure pilot success) · [operator-shell.md](operator-shell.md) (UI reference)
 
 ---
 
@@ -13,6 +13,8 @@
 1. **Explainability.** A buyer needs to understand what they get on day one vs what they unlock for governance or deep investigation.
 2. **Time-to-value.** The Core Pilot layer is deliberately narrow so a pilot operator can go from zero to a committed manifest in a single session with no additional configuration.
 3. **Packaging clarity.** Advanced Analysis and Enterprise Controls have distinct buyers (architects/analysts vs compliance/security/audit teams). Naming them separately makes that obvious.
+
+For a pilot-success model tied to these layers, see **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)**.
 
 ---
 
@@ -49,6 +51,16 @@ Every pilot starts here. The operator UI presents this layer by default with no 
 Sidebar group label: **Core Pilot** (always visible — no disclosure toggle required).
 
 Default links: Home · Onboarding · New run · Runs · Alerts (inbox only).
+
+### How to judge success
+
+A strong Core Pilot result should demonstrate:
+
+- faster movement from request to committed manifest,
+- less manual packaging effort,
+- and a cleaner path to reviewable artifacts.
+
+Use **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** for the scorecard and suggested pilot metrics.
 
 ---
 
