@@ -411,7 +411,7 @@ public sealed class ArchLucidApiClient
                 ? null
                 : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-            Gen.ComparisonHistoryResponse history = await _api.ComparisonsGET4Async(
+            Gen.ComparisonHistoryResponse history = await _api.ComparisonsGETAsync(
                 comparisonType,
                 leftRunId,
                 rightRunId,
