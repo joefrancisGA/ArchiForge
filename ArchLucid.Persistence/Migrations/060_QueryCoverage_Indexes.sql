@@ -3,7 +3,8 @@
 -- AuditEvents: EventType filter used by /v1/audit/search?eventType=...
 -- Existing IX_AuditEvents_Scope_OccurredUtc leads with scope columns but EventType
 -- is appended as a residual predicate, causing extra page reads on large audit tables.
-IF NOT EXISTS (
+IF OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL
+   AND NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE name = N'IX_AuditEvents_EventType_OccurredUtc'
       AND object_id = OBJECT_ID(N'dbo.AuditEvents'))

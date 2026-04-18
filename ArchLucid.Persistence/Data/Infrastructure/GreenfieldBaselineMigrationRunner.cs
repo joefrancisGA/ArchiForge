@@ -33,12 +33,14 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// When the catalog has no <c>001_InitialSchema</c> journal row, applies baseline SQL and stamps 001–050 in
     /// <c>dbo.SchemaVersions</c>. No-op when incremental history is already present.
     /// </summary>
-    /// <remarks>
-    /// Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while <c>001_InitialSchema</c>
-    /// objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
-    /// 001–050 so DbUp continues without re-executing DDL.
-    /// </remarks>
-    public static void TryApplyBaselineAndStampThrough050(string connectionString)
+/// <remarks>
+/// Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while <c>001_InitialSchema</c>
+/// objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
+/// 001–050 so DbUp continues without re-executing DDL — but only when <c>dbo.AuditEvents</c> already exists (migration
+/// <c>035</c>). Otherwise we replay <c>035</c>–<c>050</c> first so later DbUp scripts (e.g. <c>060</c> indexes on
+/// <c>dbo.AuditEvents</c>) do not run against a missing table.
+/// </remarks>
+public static void TryApplyBaselineAndStampThrough050(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
             throw new ArgumentException("Connection string is required.", nameof(connectionString));
@@ -49,19 +51,38 @@ public static partial class GreenfieldBaselineMigrationRunner
         using SqlConnection connection = new(connectionString);
         connection.Open();
 
+        Assembly assembly = Assembly.GetExecutingAssembly();
+
         if (TenantCoreTablesFromInitialMigrationExist(connection))
         {
+            if (!DboAuditEventsTableExists(connection))
+            {
+                // Partial catalog: stamp-only would record 001–050 as applied without creating 035 targets (AuditEvents, …).
+                ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 35, 50);
+            }
+
             EnsureSchemaVersionsTable(connection, null);
             StampIncrementalScriptsThrough050(connection, null);
 
             return;
         }
 
-        Assembly assembly = Assembly.GetExecutingAssembly();
-
         // Replay 001–050 from embedded incremental scripts (same SQL as `Migrations/Baseline/000_Baseline_2026_04_17.sql`,
         // which is kept for human review / optional tooling). We execute **per migration file** so `GO` lines inside
         // block comments in a concatenated mega-file cannot be mistaken for batch separators.
+        ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
+
+        EnsureSchemaVersionsTable(connection, null);
+        StampIncrementalScriptsThrough050(connection, null);
+    }
+
+    /// <summary>Runs embedded incremental migrations whose script number is in <paramref name="minInclusive"/>–<paramref name="maxInclusive"/> (inclusive).</summary>
+    private static void ExecuteIncrementalMigrationScriptsInInclusiveRange(
+        SqlConnection connection,
+        Assembly assembly,
+        int minInclusive,
+        int maxInclusive)
+    {
         foreach (string resourceName in GetOrderedIncrementalMigrationResourceNames())
         {
             Match match = MigrationNumberRegex().Match(resourceName);
@@ -69,7 +90,7 @@ public static partial class GreenfieldBaselineMigrationRunner
                 continue;
 
             int n = int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
-            if (n < 1 || n > 50)
+            if (n < minInclusive || n > maxInclusive)
                 continue;
 
             string sql = ReadEmbeddedScript(assembly, resourceName);
@@ -85,9 +106,25 @@ public static partial class GreenfieldBaselineMigrationRunner
                 batchCommand.ExecuteNonQuery();
             }
         }
+    }
 
-        EnsureSchemaVersionsTable(connection, null);
-        StampIncrementalScriptsThrough050(connection, null);
+    /// <summary>True when <c>dbo.AuditEvents</c> exists (created in <c>035_AuditProvenanceConversationTables</c>).</summary>
+    private static bool DboAuditEventsTableExists(SqlConnection connection)
+    {
+        const string sql = """
+            SELECT CASE WHEN OBJECT_ID(N'dbo.AuditEvents', N'U') IS NOT NULL THEN 1 ELSE 0 END;
+            """;
+
+        using SqlCommand command = new(sql, connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null || scalar is DBNull)
+            return false;
+
+        if (scalar is bool asBool)
+            return asBool;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     /// <summary>
