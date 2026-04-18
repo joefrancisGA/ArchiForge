@@ -31,6 +31,7 @@
  *
  * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read.
  * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `EnterpriseControlsContextHints.authority.test.tsx` — cue components.
+ * @see `current-principal.test.ts` — **`normalizeAuthMeResponse`**: **`maxAuthority`** must track **`requiredAuthorityFromRank(authorityRank)`**.
  * @see `OperatorNavAuthorityProvider.test.tsx` — rank fed into consumers of this module during JWT `/me` refetch.
  */
 

@@ -11,6 +11,7 @@ import {
   alertRoutingChangeConfigurationLeadReaderLine,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
+  alertToolingConfigureSectionSubline,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
@@ -151,6 +152,10 @@ export default function AlertRoutingPage() {
                       onClick={() => void onToggle(item.routingSubscriptionId)}
                       disabled={!canMutateRouting}
                       title={canMutateRouting ? undefined : enterpriseMutationControlDisabledTitle}
+                      className={cn(
+                        !canMutateRouting &&
+                          "rounded border border-dashed border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-400",
+                      )}
                     >
                       {item.isEnabled ? "Disable" : "Enable"}
                     </button>
@@ -188,7 +193,7 @@ export default function AlertRoutingPage() {
             </p>
           )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
-            Configuration surface. Not required for Core Pilot.
+            {alertToolingConfigureSectionSubline}
           </p>
           <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
             <label>

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { normalizeAuthMeResponse } from "@/lib/current-principal";
 import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
-import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { AUTHORITY_RANK, requiredAuthorityFromRank } from "@/lib/nav-authority";
 
 /** Guards the `/me` → `CurrentPrincipal` seam used by `OperatorNavAuthorityProvider` (rank + enterprise surfacing flag). */
 describe("normalizeAuthMeResponse", () => {
@@ -59,6 +59,25 @@ describe("normalizeAuthMeResponse", () => {
    * `hasEnterpriseOperatorSurfaces` and `useEnterpriseMutationCapability` must stay on the same Execute floor;
    * diverging formulas would mis-label principals or soft-enable writes inconsistently.
    */
+  /**
+   * `CurrentPrincipal.maxAuthority` must stay the string tier for `authorityRank` — otherwise nav labels and
+   * diagnostics drift from `nav-authority.requiredAuthorityFromRank`.
+   */
+  it("maps maxAuthority to requiredAuthorityFromRank(authorityRank) for representative /me payloads", () => {
+    const payloads = [
+      { claims: [{ type: "roles", value: "Reader" }] },
+      { claims: [{ type: "roles", value: "Operator" }] },
+      { claims: [{ type: "roles", value: "Admin" }] },
+      { claims: [] as { type: string; value: string }[] },
+    ];
+
+    for (const body of payloads) {
+      const principal = normalizeAuthMeResponse(body);
+
+      expect(principal.maxAuthority).toBe(requiredAuthorityFromRank(principal.authorityRank));
+    }
+  });
+
   it("keeps hasEnterpriseOperatorSurfaces aligned with enterpriseMutationCapabilityFromRank for /me-shaped payloads", () => {
     const payloads = [
       { claims: [{ type: "roles", value: "Reader" }] },

@@ -7,6 +7,7 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { recommendAlertThreshold } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
+import { alertToolingConfigureSectionSubline } from "@/lib/enterprise-controls-context-copy";
 import type { ThresholdCandidateEvaluation, ThresholdRecommendationResult } from "@/types/alert-tuning";
 
 const SIMPLE_RULE_TYPES = [
@@ -263,7 +264,7 @@ export default function AlertTuningPage() {
             Change configuration
           </h3>
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
-            Configuration surface. Not required for Core Pilot.
+            {alertToolingConfigureSectionSubline}
           </p>
       <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 24 }}>
         <label>

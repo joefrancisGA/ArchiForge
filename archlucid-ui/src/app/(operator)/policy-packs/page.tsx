@@ -423,7 +423,9 @@ export default function PolicyPacksPage() {
       </div>
 
       <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-lifecycle-heading">
-        <h3 id="policy-packs-lifecycle-heading">Lifecycle actions</h3>
+        <h3 id="policy-packs-lifecycle-heading">
+          {canMutatePacks ? "Lifecycle actions" : "Lifecycle actions (operator writes)"}
+        </h3>
         {canMutatePacks ? null : (
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "48rem", marginTop: 4, marginBottom: 8 }}>
             {policyPacksLifecycleLeadReaderLine}
@@ -439,6 +441,7 @@ export default function PolicyPacksPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   readOnly={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
                 />
               </label>
@@ -448,6 +451,7 @@ export default function PolicyPacksPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   readOnly={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
                 />
               </label>
@@ -473,6 +477,7 @@ export default function PolicyPacksPage() {
                   value={createJson}
                   onChange={(e) => setCreateJson(e.target.value)}
                   readOnly={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   rows={12}
                   style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
                 />
@@ -482,6 +487,10 @@ export default function PolicyPacksPage() {
                 onClick={() => void onCreate()}
                 disabled={loading || !canMutatePacks}
                 title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                className={cn(
+                  !canMutatePacks &&
+                    "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+                )}
               >
                 Create pack
               </button>
@@ -500,6 +509,7 @@ export default function PolicyPacksPage() {
                   value={publishVersion}
                   onChange={(e) => setPublishVersion(e.target.value)}
                   readOnly={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
                 />
               </label>
@@ -509,6 +519,7 @@ export default function PolicyPacksPage() {
                   value={publishJson}
                   onChange={(e) => setPublishJson(e.target.value)}
                   readOnly={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   rows={12}
                   style={{ display: "block", width: "100%", fontFamily: "monospace", fontSize: 12, marginTop: 4 }}
                 />
@@ -518,6 +529,10 @@ export default function PolicyPacksPage() {
                 onClick={() => void onPublish()}
                 disabled={loading || !selectedPackId || !canMutatePacks}
                 title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                className={cn(
+                  !canMutatePacks &&
+                    "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+                )}
               >
                 Publish
               </button>
@@ -536,6 +551,7 @@ export default function PolicyPacksPage() {
                   value={assignVersion}
                   onChange={(e) => setAssignVersion(e.target.value)}
                   readOnly={!canMutatePacks}
+                  title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
                   style={{ display: "block", padding: 8, marginTop: 4, width: 160 }}
                 />
               </label>
@@ -568,6 +584,10 @@ export default function PolicyPacksPage() {
                 onClick={() => void onAssign()}
                 disabled={loading || !selectedPackId || !canMutatePacks}
                 title={canMutatePacks ? undefined : enterpriseMutationControlDisabledTitle}
+                className={cn(
+                  !canMutatePacks &&
+                    "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+                )}
               >
                 Assign
               </button>

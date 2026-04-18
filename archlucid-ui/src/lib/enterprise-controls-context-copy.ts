@@ -8,6 +8,13 @@
  * `useNavCallerAuthorityRank()` vs `AUTHORITY_RANK.ExecuteAuthority` — keep thresholds aligned with `nav-authority.ts`.
  */
 
+/**
+ * Shared one-liner under alert-tooling “Change configuration” sections — replaces repeating “Configuration surface…”
+ * on every page (`alert-rules`, `alert-routing`, `alert-tuning`, `composite-alert-rules`).
+ */
+export const alertToolingConfigureSectionSubline =
+  "Below: operator configuration (API-gated). First pilot stays inbox-first.";
+
 /** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
 export const enterpriseMutationControlDisabledTitle =
   "Requires operator-level access in this shell; the API still enforces every write.";
@@ -90,7 +97,7 @@ export const alertsTriageDialogReaderNote =
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine =
-  "Read-focused evidence surface; CSV export is operator/admin surface (API policy for your role).";
+  "Inspect/search here; CSV export is Auditor or Admin on the API for your role.";
 
 export const auditLogRankOperatorLine =
   "Evidence surface for search and export; actions API-enforced by role.";
@@ -119,7 +126,7 @@ export const governanceWorkflowNoApprovalsOperatorHint =
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
-  "No packs in this scope yet. Read-focused review below; create, publish, and assign are operator/admin surface (API policy).";
+  "None in scope yet. Inspect effective data when present; create and lifecycle need operator on the API.";
 
 export const policyPacksEmptyScopeOperatorLine = "No packs yet.";
 

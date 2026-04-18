@@ -400,7 +400,7 @@ function GovernanceWorkflowPageInner() {
       <LayerHeader pageKey="governance-workflow" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        One run: load below, then submit → approve/reject → promote → activate per environment.
+        One run: load ID below, then submit → approve/reject → promote → activate (per environment).
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />

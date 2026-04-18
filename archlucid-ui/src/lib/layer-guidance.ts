@@ -72,14 +72,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
     useWhen: "Inbox first; thresholds, routing, and tuning live under Alert tooling.",
-    firstPilotNote: "Defer Alert tooling until thresholds are in scope.",
+    firstPilotNote: "Defer tooling until thresholds are a pilot topic.",
     enterpriseFootnote: "Inbox first; rules, routing, tuning are follow-on depth.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
     useWhen: "Rows here; CSV export needs From/To plus Auditor or Admin on the API.",
-    firstPilotNote: "Defer export until the evidence window is settled.",
+    firstPilotNote: "Defer CSV until From/To and role are settled.",
     enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
   },
   "governance-resolution": {
@@ -126,7 +126,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Enterprise Controls",
     headline: "Answers: how would rules behave against recent runs before changing production thresholds?",
     useWhen: "Dry-run on history; live triage stays on Alerts.",
-    firstPilotNote: "Optional until tuning with real scan windows.",
+    firstPilotNote: "Defer until you have scan-backed what-if questions.",
     enterpriseFootnote:
       "Read-focused simulation before production rule changes. Not required for Core Pilot.",
   },
@@ -134,7 +134,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Enterprise Controls",
     headline: "Answers: which threshold values balance coverage and noise for a chosen rule?",
     useWhen: "Apply scores from simulation when noise or coverage is measurable.",
-    firstPilotNote: "Defer until alert noise or coverage is measurable.",
+    firstPilotNote: "Defer until simulation shows a measurable noise/coverage tradeoff.",
     enterpriseFootnote:
       "Configuration surface for threshold tuning. Not required for Core Pilot.",
   },

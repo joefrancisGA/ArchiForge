@@ -193,7 +193,7 @@ export default function AlertsPage() {
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        Inbox: filter first; triage changes row state. Shortcuts match the row actions below.
+        Inbox: filter first; triage changes state. Shortcuts mirror Ack / Resolve / Suppress below.
       </p>
       <AlertsInboxRankCue />
 

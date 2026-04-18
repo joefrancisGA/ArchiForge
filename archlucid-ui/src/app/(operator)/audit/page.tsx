@@ -426,7 +426,10 @@ export default function AuditPage() {
 
       <section
         aria-labelledby="audit-export-heading"
-        className={cn(callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority && "opacity-90")}
+        className={cn(
+          /* Deemphasize write path whenever CSV is not actionable (Read tier, missing window, or non-Auditor Operator). */
+          !csvExportUiAllowed && "opacity-90",
+        )}
         style={{
           border: "1px solid #ddd",
           borderRadius: 8,
@@ -436,7 +439,7 @@ export default function AuditPage() {
         }}
       >
         <h3 id="audit-export-heading" style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>
-          Export
+          {csvExportUiAllowed ? "Export" : "Export (restricted)"}
         </h3>
         <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 12 }}>
           CSV export uses the From and To values from Search audit events above. Auditor or Admin on the API is required

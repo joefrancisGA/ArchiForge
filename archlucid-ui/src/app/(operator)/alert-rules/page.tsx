@@ -12,6 +12,7 @@ import {
   alertRulesChangeConfigurationLeadReaderLine,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
+  alertToolingConfigureSectionSubline,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
@@ -146,7 +147,7 @@ export default function AlertRulesPage() {
             </p>
           )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
-            Configuration surface. Not required for Core Pilot.
+            {alertToolingConfigureSectionSubline}
           </p>
           <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
             <label>
@@ -208,6 +209,10 @@ export default function AlertRulesPage() {
               onClick={() => void onCreate()}
               disabled={loading || !canMutateAlertRules}
               title={canMutateAlertRules ? undefined : enterpriseMutationControlDisabledTitle}
+              className={cn(
+                !canMutateAlertRules &&
+                  "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+              )}
             >
               Create rule
             </button>

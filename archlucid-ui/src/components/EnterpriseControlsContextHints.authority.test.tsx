@@ -8,9 +8,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   alertOperatorToolingOperatorRankLine,
   alertOperatorToolingReaderRankLine,
+  auditLogRankOperatorLine,
+  auditLogRankReaderLine,
   enterpriseExecutePageHintReaderRank,
   enterpriseNavHintOperatorRank,
   enterpriseNavHintReaderRank,
+  governanceResolutionRankOperatorLine,
+  governanceResolutionRankReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
 
 /** Literal `1` — hoisted factory runs before `AUTHORITY_RANK` import is safe to reference. */
@@ -24,9 +28,11 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import {
   AlertOperatorToolingRankCue,
+  AuditLogRankCue,
   EnterpriseControlsExecutePageHint,
   EnterpriseControlsNavGroupHint,
   EnterpriseExecutePlusPageCue,
+  GovernanceResolutionRankCue,
 } from "./EnterpriseControlsContextHints";
 
 describe("EnterpriseControlsContextHints authority shaping", () => {
@@ -96,6 +102,38 @@ describe("EnterpriseControlsContextHints authority shaping", () => {
       render(<AlertOperatorToolingRankCue />);
 
       expect(screen.getByRole("note")).toHaveTextContent(alertOperatorToolingOperatorRankLine);
+    });
+  });
+
+  /** Governance resolution page: inspect vs configure copy must flip at the same rank as nav + mutation hook. */
+  describe("GovernanceResolutionRankCue", () => {
+    it("selects reader vs operator lines at the Execute boundary", () => {
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
+      const { unmount } = render(<GovernanceResolutionRankCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(governanceResolutionRankReaderLine);
+
+      unmount();
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
+      render(<GovernanceResolutionRankCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(governanceResolutionRankOperatorLine);
+    });
+  });
+
+  /** Audit log page: rank cue uses the same Execute threshold (CSV role story is separate on the page). */
+  describe("AuditLogRankCue", () => {
+    it("selects reader vs operator lines at the Execute boundary", () => {
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
+      const { unmount } = render(<AuditLogRankCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(auditLogRankReaderLine);
+
+      unmount();
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
+      render(<AuditLogRankCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(auditLogRankOperatorLine);
     });
   });
 });

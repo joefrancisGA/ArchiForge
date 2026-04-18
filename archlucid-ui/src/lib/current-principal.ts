@@ -46,8 +46,9 @@
  * **Do not duplicate backend authorization** — use this only for UX shaping. The API remains authoritative for 401/403.
  *
  * **Alignment:** `authorityRank` / `maxAuthority` must stay consistent with **`nav-config.ts`** `requiredAuthority` on
- * each link (same policy names as `ArchLucidPolicies`). Contributor checklist: **docs/PRODUCT_PACKAGING.md** §3
- * *Contributor drift guard*.
+ * each link (same policy names as `ArchLucidPolicies`). In **`normalizeAuthMeResponse`**, **`maxAuthority`** is always
+ * **`requiredAuthorityFromRank(authorityRank)`** from **`nav-authority.ts`** — regression in **`current-principal.test.ts`**.
+ * Contributor checklist: **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard*.
  *
  * **Cross-module tests:** `authority-seam-regression.test.ts` exercises `normalizeAuthMeResponse` together with
  * nav visibility and mutation rank; **`OperatorNavAuthorityProvider.test.tsx`** locks conservative **`useNavCallerAuthorityRank`**

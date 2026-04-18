@@ -9,6 +9,7 @@ import { createCompositeAlertRule, listCompositeAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  alertToolingConfigureSectionSubline,
   compositeRulesChangeConfigurationLeadReaderLine,
   compositeRulesDefinedListEmptyOperatorLine,
   compositeRulesDefinedListEmptyReaderLine,
@@ -186,7 +187,7 @@ export default function CompositeAlertRulesPage() {
             </p>
           )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
-            Configuration surface. Not required for Core Pilot.
+            {alertToolingConfigureSectionSubline}
           </p>
       <fieldset
         disabled={!canMutateComposite}
@@ -363,7 +364,16 @@ export default function CompositeAlertRulesPage() {
           </select>
         </label>
 
-        <button type="button" onClick={() => void onCreate()} disabled={loading || !canMutateComposite}>
+        <button
+          type="button"
+          onClick={() => void onCreate()}
+          disabled={loading || !canMutateComposite}
+          title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
+          className={cn(
+            !canMutateComposite &&
+              "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
+          )}
+        >
           Create composite rule
         </button>
       </div>

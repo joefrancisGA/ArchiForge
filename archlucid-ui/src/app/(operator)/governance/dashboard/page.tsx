@@ -303,7 +303,7 @@ export default function GovernanceDashboardPage() {
       <LayerHeader pageKey="governance-dashboard" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        Cross-run queue (~30s refresh). Open a row for that run’s workflow; stay here for breadth.
+        Cross-run queue (~30s). Row → that run’s workflow; this page is breadth, not per-run artifacts.
       </p>
       <GovernanceDashboardReaderActionCue />
       <EnterpriseExecutePlusPageCue message={governanceDashboardOperatorPlusLine} />

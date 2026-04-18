@@ -35,7 +35,8 @@ export type NavGroupWithVisibleLinks = {
  *
  * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants).
  * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
- *   Execute rank does not bypass extended tier without disclosure toggles.
+ *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
+ *   stays hidden until **Show more** even at Admin rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
  */
 export function filterNavLinksForOperatorShell(
