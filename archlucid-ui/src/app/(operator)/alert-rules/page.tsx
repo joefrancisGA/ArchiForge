@@ -13,7 +13,6 @@ import {
   alertRulesDefinedListEmptyReaderLine,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
-import { cn } from "@/lib/utils";
 import type { AlertRule } from "@/types/alerts";
 
 const RULE_TYPES = [
@@ -80,9 +79,7 @@ export default function AlertRulesPage() {
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "40rem" }}>
-        <strong>Thresholds</strong> evaluated on each advisory scan (meaning depends on rule type: count, percent, or
-        days). Browse <strong>Defined rules</strong>; add or change thresholds in <strong>Configure new rule</strong> when
-        operator-level access applies to you.
+        Define which metric thresholds should raise alerts after advisory scans.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -96,11 +93,51 @@ export default function AlertRulesPage() {
         </div>
       ) : null}
 
-      <div className={cn("flex flex-col", !canMutateAlertRules && "flex-col-reverse")}>
-        <div className="min-w-0">
-          <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
-            {canMutateAlertRules ? "Configure new rule" : "Configure new rule (operator access)"}
+      <div className="flex flex-col gap-6">
+        <section className="min-w-0" aria-labelledby="alert-rules-current-heading">
+          <h3 id="alert-rules-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+            Current rules
           </h3>
+          <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
+            {loading ? "Loading…" : "Refresh"}
+          </button>
+          <div style={{ display: "grid", gap: 12 }}>
+            {items.length === 0 ? (
+              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
+                {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
+              </p>
+            ) : (
+              items.map((r) => (
+                <div
+                  key={r.ruleId}
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 8,
+                    padding: 12,
+                    background: "#fff",
+                  }}
+                >
+                  <strong>{r.name}</strong>
+                  <div style={{ fontSize: 14, marginTop: 8 }}>
+                    <div>Type: {r.ruleType}</div>
+                    <div>Severity: {r.severity}</div>
+                    <div>Threshold: {r.thresholdValue}</div>
+                    <div>Enabled: {String(r.isEnabled)}</div>
+                    <div>Channel: {r.targetChannelType}</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="min-w-0" aria-labelledby="alert-rules-change-heading">
+          <h3 id="alert-rules-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
+            {canMutateAlertRules ? "Change configuration" : "Change configuration (operator access)"}
+          </h3>
+          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
+            Configuration surface. Not required for Core Pilot.
+          </p>
           <div style={{ display: "grid", gap: 12, maxWidth: 700, marginBottom: 16 }}>
             <label>
               Name
@@ -165,43 +202,7 @@ export default function AlertRulesPage() {
               Create rule
             </button>
           </div>
-        </div>
-
-        <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
-          {loading ? "Loading…" : "Refresh"}
-        </button>
-
-        <div className="min-w-0">
-          <h3 style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>Defined rules</h3>
-          <div style={{ display: "grid", gap: 12 }}>
-            {items.length === 0 ? (
-              <p style={{ color: "#666", maxWidth: "40rem", fontSize: 14 }}>
-                {canMutateAlertRules ? alertRulesDefinedListEmptyOperatorLine : alertRulesDefinedListEmptyReaderLine}
-              </p>
-            ) : (
-              items.map((r) => (
-                <div
-                  key={r.ruleId}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 8,
-                    padding: 12,
-                    background: "#fff",
-                  }}
-                >
-                  <strong>{r.name}</strong>
-                  <div style={{ fontSize: 14, marginTop: 8 }}>
-                    <div>Type: {r.ruleType}</div>
-                    <div>Severity: {r.severity}</div>
-                    <div>Threshold: {r.thresholdValue}</div>
-                    <div>Enabled: {String(r.isEnabled)}</div>
-                    <div>Channel: {r.targetChannelType}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        </section>
       </div>
     </main>
   );

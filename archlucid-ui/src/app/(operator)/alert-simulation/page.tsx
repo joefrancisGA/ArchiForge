@@ -103,8 +103,8 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
 function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
   if (!result) return null;
   return (
-    <section style={{ marginTop: 16 }}>
-      <h3 style={{ margin: "0 0 8px" }}>Summary</h3>
+    <div style={{ marginTop: 16 }}>
+      <h4 style={{ margin: "0 0 8px" }}>Summary</h4>
       <ul style={{ margin: 0 }}>
         <li>Evaluated runs: {result.evaluatedRunCount}</li>
         <li>Matched: {result.matchedCount}</li>
@@ -120,7 +120,7 @@ function SummaryBlock({ result }: { result: RuleSimulationResult | null }) {
       ) : null}
       <h4 style={{ margin: "16px 0 8px" }}>Outcomes</h4>
       <OutcomeTable outcomes={result.outcomes} />
-    </section>
+    </div>
   );
 }
 
@@ -288,10 +288,13 @@ export default function AlertSimulationPage() {
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        <strong>What-if</strong> on recent runs or one run ID—production evaluators and suppression; nothing persisted or
-        delivered.
+        Test how alert rules would behave against recent or historical signals before changing production settings.
       </p>
       <AlertOperatorToolingRankCue />
+
+      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 8, marginBottom: 12 }}>
+        Configuration surface. Not required for Core Pilot.
+      </p>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {TABS.map((t) => (
@@ -324,9 +327,12 @@ export default function AlertSimulationPage() {
       ) : null}
 
       {tab === "simple" ? (
-        <section>
-          <h3 style={{ marginTop: 0 }}>Simple rule</h3>
-          <div style={{ display: "grid", gap: 12, maxWidth: 640 }}>
+        <>
+          <section aria-labelledby="sim-simple-inputs-heading">
+            <h3 id="sim-simple-inputs-heading" style={{ marginTop: 0 }}>
+              Simulation inputs
+            </h3>
+            <div style={{ display: "grid", gap: 12, maxWidth: 640 }}>
             <label>
               Name
               <input
@@ -425,14 +431,27 @@ export default function AlertSimulationPage() {
               {loading ? "Running…" : "Simulate"}
             </button>
           </div>
-          <SummaryBlock result={simpleResult} />
-        </section>
+          </section>
+          <section aria-labelledby="sim-simple-behavior-heading" style={{ marginTop: 24 }}>
+            <h3 id="sim-simple-behavior-heading" style={{ marginTop: 0 }}>
+              Current behavior
+            </h3>
+            {simpleResult ? (
+              <SummaryBlock result={simpleResult} />
+            ) : (
+              <p style={{ color: "#666", fontSize: 14, marginTop: 8 }}>Run a simulation to see outcomes here.</p>
+            )}
+          </section>
+        </>
       ) : null}
 
       {tab === "composite" ? (
-        <section>
-          <h3 style={{ marginTop: 0 }}>Composite rule</h3>
-          <div style={{ display: "grid", gap: 12, maxWidth: 720 }}>
+        <>
+          <section aria-labelledby="sim-composite-inputs-heading">
+            <h3 id="sim-composite-inputs-heading" style={{ marginTop: 0 }}>
+              Simulation inputs
+            </h3>
+            <div style={{ display: "grid", gap: 12, maxWidth: 720 }}>
             <label>
               Name
               <input
@@ -562,17 +581,30 @@ export default function AlertSimulationPage() {
               {loading ? "Running…" : "Simulate"}
             </button>
           </div>
-          <SummaryBlock result={compositeResult} />
-        </section>
+          </section>
+          <section aria-labelledby="sim-composite-behavior-heading" style={{ marginTop: 24 }}>
+            <h3 id="sim-composite-behavior-heading" style={{ marginTop: 0 }}>
+              Current behavior
+            </h3>
+            {compositeResult ? (
+              <SummaryBlock result={compositeResult} />
+            ) : (
+              <p style={{ color: "#666", fontSize: 14, marginTop: 8 }}>Run a simulation to see outcomes here.</p>
+            )}
+          </section>
+        </>
       ) : null}
 
       {tab === "compare" ? (
-        <section>
-          <h3 style={{ marginTop: 0 }}>Compare simple-rule thresholds</h3>
-          <p style={{ color: "#555", fontSize: 14 }}>
-            Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
-          </p>
-          <div style={{ display: "grid", gap: 12, maxWidth: 640 }}>
+        <>
+          <section aria-labelledby="sim-compare-inputs-heading">
+            <h3 id="sim-compare-inputs-heading" style={{ marginTop: 0 }}>
+              Simulation inputs
+            </h3>
+            <p style={{ color: "#555", fontSize: 14 }}>
+              Same rule type and severity; only thresholds differ. Useful for tuning (e.g. 10 vs 20).
+            </p>
+            <div style={{ display: "grid", gap: 12, maxWidth: 640 }}>
             <label>
               Name
               <input
@@ -655,21 +687,29 @@ export default function AlertSimulationPage() {
               {loading ? "Running…" : "Compare candidates"}
             </button>
           </div>
-          {compareResult ? (
-            <div style={{ marginTop: 24 }}>
-              <h3>Comparison notes</h3>
-              <ul>
-                {compareResult.summaryNotes.map((n, i) => (
-                  <li key={i}>{n}</li>
-                ))}
-              </ul>
-              <h3>Candidate A</h3>
-              <SummaryBlock result={compareResult.candidateA} />
-              <h3>Candidate B</h3>
-              <SummaryBlock result={compareResult.candidateB} />
-            </div>
-          ) : null}
-        </section>
+          </section>
+          <section aria-labelledby="sim-compare-behavior-heading" style={{ marginTop: 24 }}>
+            <h3 id="sim-compare-behavior-heading" style={{ marginTop: 0 }}>
+              Current behavior
+            </h3>
+            {compareResult ? (
+              <div style={{ marginTop: 8 }}>
+                <h4 style={{ margin: "0 0 8px" }}>Comparison notes</h4>
+                <ul>
+                  {compareResult.summaryNotes.map((n, i) => (
+                    <li key={i}>{n}</li>
+                  ))}
+                </ul>
+                <h4 style={{ margin: "16px 0 8px" }}>Candidate A</h4>
+                <SummaryBlock result={compareResult.candidateA} />
+                <h4 style={{ margin: "16px 0 8px" }}>Candidate B</h4>
+                <SummaryBlock result={compareResult.candidateB} />
+              </div>
+            ) : (
+              <p style={{ color: "#666", fontSize: 14, marginTop: 8 }}>Run a comparison to see outcomes here.</p>
+            )}
+          </section>
+        </>
       ) : null}
     </main>
   );

@@ -111,8 +111,7 @@ export default function CompositeAlertRulesPage() {
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        <strong>Multi-metric AND/OR</strong> with cooldown and suppression—use when one threshold is not enough. Dedupe
-        still applies to prior open or acknowledged rows for the same key.
+        Combine multiple alert conditions into one operational rule.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -126,9 +125,53 @@ export default function CompositeAlertRulesPage() {
         </div>
       ) : null}
 
-      <h3 style={{ fontSize: "1rem" }}>
-        {canMutateComposite ? "Configure new composite (2 conditions)" : "Configure new composite (operator access)"}
-      </h3>
+      <div className="flex flex-col gap-8">
+        <section className="min-w-0" aria-labelledby="composite-rules-current-heading">
+          <h3 id="composite-rules-current-heading" style={{ fontSize: "1rem", marginTop: 8 }}>
+            Current composite rules
+          </h3>
+          <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 16 }}>
+            {loading ? "Loading…" : "Refresh"}
+          </button>
+          <div style={{ display: "grid", gap: 14 }}>
+            {items.length === 0 ? (
+              <p style={{ color: "#666" }}>None yet.</p>
+            ) : (
+              items.map((r) => (
+                <div
+                  key={r.compositeRuleId}
+                  style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fff" }}
+                >
+                  <strong>{r.name}</strong>
+                  <div style={{ fontSize: 14, marginTop: 8 }}>
+                    <div>
+                      Join: {r.operator} · Severity: {r.severity} · Enabled: {String(r.isEnabled)}
+                    </div>
+                    <div>
+                      Suppression: {r.suppressionWindowMinutes} min · Cooldown: {r.cooldownMinutes} min · Dedupe:{" "}
+                      {r.dedupeScope}
+                    </div>
+                    <ul style={{ marginTop: 8 }}>
+                      {(r.conditions ?? []).map((c) => (
+                        <li key={c.conditionId ?? `${c.metricType}-${c.thresholdValue}`}>
+                          {c.metricType} {c.operator} {c.thresholdValue}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="min-w-0" aria-labelledby="composite-rules-change-heading">
+          <h3 id="composite-rules-change-heading" style={{ fontSize: "1rem" }}>
+            {canMutateComposite ? "Change configuration" : "Change configuration (operator access)"}
+          </h3>
+          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 4, marginBottom: 10 }}>
+            Configuration surface. Not required for Core Pilot.
+          </p>
       <fieldset
         disabled={!canMutateComposite}
         title={canMutateComposite ? undefined : enterpriseMutationControlDisabledTitle}
@@ -309,41 +352,7 @@ export default function CompositeAlertRulesPage() {
         </button>
       </div>
       </fieldset>
-
-      <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 16 }}>
-        {loading ? "Loading…" : "Refresh"}
-      </button>
-
-      <h3 style={{ fontSize: "1rem", marginTop: 8 }}>Defined composites</h3>
-      <div style={{ display: "grid", gap: 14 }}>
-        {items.length === 0 ? (
-          <p style={{ color: "#666" }}>None yet.</p>
-        ) : (
-          items.map((r) => (
-            <div
-              key={r.compositeRuleId}
-              style={{ border: "1px solid #ddd", borderRadius: 8, padding: 12, background: "#fff" }}
-            >
-              <strong>{r.name}</strong>
-              <div style={{ fontSize: 14, marginTop: 8 }}>
-                <div>
-                  Join: {r.operator} · Severity: {r.severity} · Enabled: {String(r.isEnabled)}
-                </div>
-                <div>
-                  Suppression: {r.suppressionWindowMinutes} min · Cooldown: {r.cooldownMinutes} min · Dedupe:{" "}
-                  {r.dedupeScope}
-                </div>
-                <ul style={{ marginTop: 8 }}>
-                  {(r.conditions ?? []).map((c) => (
-                    <li key={c.conditionId ?? `${c.metricType}-${c.thresholdValue}`}>
-                      {c.metricType} {c.operator} {c.thresholdValue}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))
-        )}
+        </section>
       </div>
     </main>
   );

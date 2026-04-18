@@ -243,14 +243,12 @@ export default function PolicyPacksPage() {
       <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
       <p style={{ color: "#1e293b", fontSize: 14, maxWidth: "52rem", fontWeight: 600, marginBottom: 6 }}>
-        Read what applies: packs in scope, effective JSON, and{" "}
+        This page is for reviewing policy pack content and lifecycle state in scope. Stricter lifecycle actions—create,
+        publish, assign—are follow-on depth. For how packs resolve in stack order, see{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           governance resolution
-        </Link>{" "}
-        for ordering.
-      </p>
-      <p style={{ color: "#64748b", fontSize: 12, maxWidth: "52rem", marginTop: 0 }}>
-        Create, publish, and assign are below—only when pack lifecycle is in scope (not Core Pilot).
+        </Link>
+        .
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterprisePolicyPacksOperatorPlusLine} />

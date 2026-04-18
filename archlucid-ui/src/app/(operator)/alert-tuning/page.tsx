@@ -203,8 +203,7 @@ export default function AlertTuningPage() {
       <LayerHeader pageKey="alert-tuning" />
       <h2 style={{ marginTop: 0 }}>Alert tuning</h2>
       <p style={{ color: "#444", fontSize: 14, maxWidth: "42rem" }}>
-        <strong>Suggest thresholds</strong> from simulation-backed candidates (production evaluators), targeting a band of
-        fired-alert counts.
+        Adjust thresholds to balance coverage and alert noise.
       </p>
       <AlertOperatorToolingRankCue />
 
@@ -218,6 +217,54 @@ export default function AlertTuningPage() {
         </div>
       ) : null}
 
+      <div className="flex flex-col gap-10">
+        <section className="min-w-0" aria-labelledby="alert-tuning-current-heading">
+          <h3 id="alert-tuning-current-heading" style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>
+            Current tuning
+          </h3>
+          {result ? (
+            <>
+              <h4 style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>Summary</h4>
+              <ul>
+                {result.summaryNotes.map((note, index) => (
+                  <li key={index}>{note}</li>
+                ))}
+              </ul>
+
+              {result.recommendedCandidate ? (
+                <section style={{ marginBottom: 24, marginTop: 16 }}>
+                  <h4 style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>Recommended candidate</h4>
+                  <CandidateCard evaluation={result.recommendedCandidate} highlight />
+                </section>
+              ) : null}
+
+              <h4 style={{ fontSize: "1rem", marginTop: 8, marginBottom: 8 }}>All candidates (sorted by final score, highest first)</h4>
+              <div style={{ display: "grid", gap: 12 }}>
+                {[...result.candidates]
+                  .sort((a, b) => b.scoreBreakdown.finalScore - a.scoreBreakdown.finalScore)
+                  .map((c, i) => (
+                    <CandidateCard
+                      key={`${c.candidate.thresholdValue}-${i}`}
+                      evaluation={c}
+                      highlight={c.candidate.label === recommendedLabel}
+                    />
+                  ))}
+              </div>
+            </>
+          ) : (
+            <p style={{ color: "#666", fontSize: 14, maxWidth: "42rem", marginTop: 0 }}>
+              No tuning results yet. Run a recommendation below to compare candidate thresholds against recent runs.
+            </p>
+          )}
+        </section>
+
+        <section className="min-w-0" aria-labelledby="alert-tuning-change-heading">
+          <h3 id="alert-tuning-change-heading" style={{ fontSize: "1rem", marginTop: 0, marginBottom: 8 }}>
+            Change configuration
+          </h3>
+          <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
+            Configuration surface. Not required for Core Pilot.
+          </p>
       <div style={{ display: "grid", gap: 12, maxWidth: 720, marginBottom: 24 }}>
         <label>
           Rule kind
@@ -431,37 +478,8 @@ export default function AlertTuningPage() {
           {loading ? "Running…" : "Recommend threshold"}
         </button>
       </div>
-
-      {result ? (
-        <>
-          <h3>Summary</h3>
-          <ul>
-            {result.summaryNotes.map((note, index) => (
-              <li key={index}>{note}</li>
-            ))}
-          </ul>
-
-          {result.recommendedCandidate ? (
-            <section style={{ marginBottom: 24 }}>
-              <h3>Recommended candidate</h3>
-              <CandidateCard evaluation={result.recommendedCandidate} highlight />
-            </section>
-          ) : null}
-
-          <h3>All candidates (sorted by final score, highest first)</h3>
-          <div style={{ display: "grid", gap: 12 }}>
-            {[...result.candidates]
-              .sort((a, b) => b.scoreBreakdown.finalScore - a.scoreBreakdown.finalScore)
-              .map((c, i) => (
-                <CandidateCard
-                  key={`${c.candidate.thresholdValue}-${i}`}
-                  evaluation={c}
-                  highlight={c.candidate.label === recommendedLabel}
-                />
-              ))}
-          </div>
-        </>
-      ) : null}
+        </section>
+      </div>
     </main>
   );
 }
