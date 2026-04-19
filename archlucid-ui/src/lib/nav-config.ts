@@ -93,7 +93,9 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
  *   **`ExecuteAuthority`** numeric floor as mutation hooks (governance resolution, audit log, **Alerts inbox**, **governance
  *   dashboard** reader cue, alert tooling). **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic
- *   **`ExecuteAuthority`** row vs **`enterpriseMutationCapabilityFromRank`**; **`alerts-governance`** monotonicity Reader→Admin.
+ *   **`ExecuteAuthority`** row vs **`enterpriseMutationCapabilityFromRank`**; **`authority-shaped-ui-regression.test.ts`** —
+ *   every catalog **`ExecuteAuthority`** link hidden at Read / visible at Execute (new rows cannot drift untested).
+ *   **`alerts-governance`** monotonicity Reader→Admin.
  *   **`nav-shell-visibility.test.ts`** also locks **Core Pilot** extended **Execute**
  *   links (e.g. **`/replay`**) behind **Show more** — tier before rank. **`current-principal.test.ts`** locks **`maxAuthority`**
  *   vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.

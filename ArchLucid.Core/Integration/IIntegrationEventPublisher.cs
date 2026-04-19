@@ -17,4 +17,12 @@ public interface IIntegrationEventPublisher
         ReadOnlyMemory<byte> utf8JsonPayload,
         string? messageId,
         CancellationToken cancellationToken);
+
+    /// <param name="applicationProperties">Optional user properties merged with <c>event_type</c> (e.g. <see cref="IntegrationEventServiceBusApplicationProperties.PromotionEnvironmentPropertyName"/> for SQL subscription filters).</param>
+    Task PublishAsync(
+        string eventType,
+        ReadOnlyMemory<byte> utf8JsonPayload,
+        string? messageId,
+        IReadOnlyDictionary<string, object>? applicationProperties,
+        CancellationToken cancellationToken);
 }
