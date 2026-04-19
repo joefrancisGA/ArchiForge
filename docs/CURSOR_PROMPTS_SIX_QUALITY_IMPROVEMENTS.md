@@ -143,7 +143,7 @@ You are working in the ArchLucid repo.
 **Goal:** Tighten test quality signals by (1) **raising or hardening** coverage gates so weak assemblies cannot hide behind the merged average, and (2) adding **property-based** tests (FsCheck or FsCheck.Xunit for C#) for pure domain functions where random input finds edge cases faster than example-only tests.
 
 **Context (read first):**
-- `docs/CODE_COVERAGE.md` — merged line ≥76%, branch ≥60%, per-package floors via `scripts/ci/assert_merged_line_coverage_min.py`.
+- `docs/CODE_COVERAGE.md` — merged line ≥79%, branch ≥63%, per-package line ≥63% via `scripts/ci/assert_merged_line_coverage_min.py`.
 - `.github/workflows/ci.yml` — invocation of `assert_merged_line_coverage_min.py` with `--min-package-line-pct` (verify current values).
 - `docs/TEST_STRUCTURE.md`, `docs/TEST_EXECUTION_MODEL.md`.
 - Strong pure-logic targets: `ArchLucid.Decisioning` (governance resolution, manifest merge invariants), `ArchLucid.Application` hashing/idempotency helpers — pick **one** bounded area first.

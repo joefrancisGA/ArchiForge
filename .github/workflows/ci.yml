@@ -492,20 +492,17 @@ jobs:
           cat "${OUT}/SummaryGithub.md" >> "${GITHUB_STEP_SUMMARY}"
           head -n 50 "${OUT}/Summary.txt" | grep -E 'Line coverage:|Branch coverage:' | sed 's/^[[:space:]]*//' > "${{ runner.temp }}/coverage-metrics.txt"
 
-      # Merged floors track full-regression reality (Container Apps Jobs CLI + API surface growth).
-      # Per-package floor is below legacy 63% until ArchLucid.Api / Persistence tests catch up;
-      # ArchLucid.Jobs.Cli stays excluded from the per-package line gate (host-heavy entrypoint).
-      - name: Enforce merged coverage gates (line 76%, branch 60%, product packages 59% line)
+      # Strict profile (see docs/CODE_COVERAGE.md): merged + per-product-package line gates; no per-package skips.
+      - name: Enforce merged coverage gates (line 79%, branch 63%, product packages 63% line)
         if: success()
         run: |
           set -e
           ART_DIR="${{ runner.temp }}/coverage-metrics-artifact"
           mkdir -p "${ART_DIR}"
           python3 scripts/ci/assert_merged_line_coverage_min.py \
-            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 76 \
-            --min-branch-pct 60 \
-            --min-package-line-pct 59 \
-            --skip-package-line-gate ArchLucid.Jobs.Cli \
+            "${{ runner.temp }}/coverage-report-full/Cobertura.xml" 79 \
+            --min-branch-pct 63 \
+            --min-package-line-pct 63 \
             --warn-below-package-line-pct 70 \
             --annotations-file "${ART_DIR}/coverage-annotations-assert.txt"
           cp "${{ runner.temp }}/coverage-metrics.txt" "${ART_DIR}/coverage-metrics.txt"

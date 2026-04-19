@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 CI guard: merged Cobertura (ReportGenerator output) must meet:
-  - minimum merged line coverage (default 70%; CI passes explicit pct; full-regression job currently uses 76),
-  - minimum merged branch coverage (default 50%; root branch-rate required; full-regression job currently uses 60),
-  - minimum line coverage per product ArchLucid.* package with coverable lines (default 60%; full-regression uses 59, with optional skips).
+  - minimum merged line coverage (default 70%; CI passes explicit pct; full-regression job currently uses 79),
+  - minimum merged branch coverage (default 50%; root branch-rate required; full-regression job currently uses 63),
+  - minimum line coverage per product ArchLucid.* package with coverable lines (default 60%; full-regression uses 63, optional skips).
 
 Coverlet runs per test assembly; enforcing <Threshold> in coverage.runsettings would not
 represent solution-wide coverage. The full-regression job merges Cobertura files first.
