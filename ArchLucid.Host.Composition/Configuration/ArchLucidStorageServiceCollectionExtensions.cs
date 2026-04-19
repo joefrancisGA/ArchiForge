@@ -95,7 +95,7 @@ public static class ArchLucidStorageServiceCollectionExtensions
         {
             IOptionsMonitor<EmailNotificationOptions> monitor = sp.GetRequiredService<IOptionsMonitor<EmailNotificationOptions>>();
             EmailNotificationOptions opts = monitor.CurrentValue;
-            string provider = opts.Provider?.Trim() ?? EmailProviderNames.Noop;
+            string provider = opts.Provider.Trim();
 
             if (string.Equals(provider, EmailProviderNames.AzureCommunicationServices, StringComparison.OrdinalIgnoreCase))
             {

@@ -79,12 +79,7 @@ public static class AuthSafetyGuard
             archLucidEnv = Environment.GetEnvironmentVariable("ARCHLUCID_ENVIRONMENT");
         }
 
-        if (EnvironmentNameImpliesProductionLike(archLucidEnv))
-        {
-            return true;
-        }
-
-        return false;
+        return EnvironmentNameImpliesProductionLike(archLucidEnv);
     }
 
     /// <summary>
@@ -106,11 +101,6 @@ public static class AuthSafetyGuard
             return false;
         }
 
-        if (trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
+        return !trimmed.Contains("nonproduction", StringComparison.OrdinalIgnoreCase) && trimmed.Contains("prod", StringComparison.OrdinalIgnoreCase);
     }
 }

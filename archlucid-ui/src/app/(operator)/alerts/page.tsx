@@ -172,8 +172,8 @@ export default function AlertsPage() {
     }
   }, []);
 
-  /** Alt+1–3 open the same triage preview as the buttons; Confirm stays API-gated by rank. */
-  useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: true });
+  /** Alt+1–3 register only when `canMutateAlertInbox`; buttons may still open read-only triage preview at read rank. */
+  useAlertCardShortcuts({ onAction: onAlertShortcutAction, mutationsEnabled: canMutateAlertInbox });
 
   async function onConfirmActionDialog(): Promise<void> {
     if (pendingAction === null || !canMutateAlertInbox) {
@@ -198,7 +198,7 @@ export default function AlertsPage() {
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
       </p>
-      <AlertsInboxRankCue />
+      {!canMutateAlertInbox ? <AlertsInboxRankCue /> : null}
 
       {failure !== null ? (
         <div className="mb-4" role="alert">
@@ -254,8 +254,7 @@ export default function AlertsPage() {
           <OperatorLoadingNotice>
             <strong>Loading alerts.</strong>
             <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
-              Fetching a page for the selected status filter ({ALERTS_PAGE_SIZE} per page). Empty results after load
-              means there are no matching alerts—not a silent failure.
+              Page size {ALERTS_PAGE_SIZE}. Empty after load means no matches for this filter—not a silent failure.
             </p>
           </OperatorLoadingNotice>
         ) : null}

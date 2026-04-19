@@ -125,17 +125,20 @@ export const ALERTS_PAGE_SHORTCUTS: PageShortcutEntry[] = [
   {
     key: "alt+1",
     label: "Acknowledge",
-    description: "Acknowledge the focused alert card (Alerts page)",
+    description:
+      "Acknowledge the focused alert card on the Alerts page when Execute+ triage shortcuts are enabled in the shell",
   },
   {
     key: "alt+2",
     label: "Resolve",
-    description: "Resolve the focused alert card (Alerts page)",
+    description:
+      "Resolve the focused alert card on the Alerts page when Execute+ triage shortcuts are enabled in the shell",
   },
   {
     key: "alt+3",
     label: "Suppress",
-    description: "Suppress the focused alert card (Alerts page)",
+    description:
+      "Suppress the focused alert card on the Alerts page when Execute+ triage shortcuts are enabled in the shell",
   },
   {
     key: "alt+j",

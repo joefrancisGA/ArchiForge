@@ -56,6 +56,8 @@ import {
   governanceWorkflowNoApprovalsOperatorHint,
   governanceWorkflowNoApprovalsReaderHint,
   governanceWorkflowPromoteButtonLabelReaderRank,
+  governanceWorkflowPromotionsActivationsSectionLeadOperator,
+  governanceWorkflowPromotionsActivationsSectionLeadReader,
   governanceWorkflowPromotionsEmptyOperatorHint,
   governanceWorkflowPromotionsEmptyReaderHint,
   governanceWorkflowQueryCardDescriptionOperator,
@@ -784,9 +786,13 @@ function GovernanceWorkflowPageInner() {
 
       <section className="mb-10">
         <h3 className="mb-4 text-lg font-semibold">Promotions &amp; activations</h3>
-        <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
-          Timeline for run <span className="font-mono">{activeRunId ?? "—"}</span>. Activate applies the promoted
-          manifest to the promotion&apos;s target environment.
+        <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+          {canMutateWorkflow
+            ? governanceWorkflowPromotionsActivationsSectionLeadOperator
+            : governanceWorkflowPromotionsActivationsSectionLeadReader}
+        </p>
+        <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
+          Run <span className="font-mono">{activeRunId ?? "—"}</span> · promotions newest first; activations follow.
         </p>
 
         {!listsLoading && activeRunId !== null && promotions.length === 0 && listFailure === null ? (

@@ -20,6 +20,8 @@ import {
 } from "@/lib/api";
 import {
   enterpriseMutationControlDisabledTitle,
+  policyPacksCompareVersionsIntroOperator,
+  policyPacksCompareVersionsIntroReader,
   policyPacksCompareVersionsReaderSubline,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
@@ -364,8 +366,7 @@ export default function PolicyPacksPage() {
           </p>
         ) : null}
         <p style={{ fontSize: 14, color: "#555", marginTop: 0 }}>
-          Pick two published content snapshots for the selected pack and diff JSON structure (added / removed / changed
-          paths).
+          {canMutatePacks ? policyPacksCompareVersionsIntroOperator : policyPacksCompareVersionsIntroReader}
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "flex-end", marginBottom: 12 }}>
           <label>

@@ -9,6 +9,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingCreateSubscriptionButtonLabelReaderRank,
+  alertRoutingToggleToDisabledReaderRank,
+  alertRoutingToggleToEnabledReaderRank,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -157,7 +159,13 @@ export default function AlertRoutingPage() {
                           "rounded border border-dashed border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/40 dark:text-neutral-400",
                       )}
                     >
-                      {item.isEnabled ? "Disable" : "Enable"}
+                      {canMutateRouting
+                        ? item.isEnabled
+                          ? "Disable"
+                          : "Enable"
+                        : item.isEnabled
+                          ? alertRoutingToggleToDisabledReaderRank
+                          : alertRoutingToggleToEnabledReaderRank}
                     </button>
                     <button type="button" onClick={() => void loadAttempts(item.routingSubscriptionId)}>
                       Show delivery attempts

@@ -31,9 +31,6 @@ public static class HostEnvironmentClassification
         if (string.Equals(trimmed, "Production", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        if (string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
+        return string.Equals(trimmed, "Staging", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -44,24 +44,24 @@ public static partial class ServiceCollectionExtensions
                 services.AddScoped<IAgentExecutionTraceRepository, CosmosAgentExecutionTraceRepository>();
         }
 
-        if (cosmosSnapshot.AuditEventsEnabled)
+        if (!cosmosSnapshot.AuditEventsEnabled)
+            return;
+
+        if (inMemory)
+            services.AddSingleton<IAuditRepository, CosmosAuditRepository>();
+        else
+            services.AddScoped<IAuditRepository, CosmosAuditRepository>();
+
+        services.TryAddSingleton<IAuditEventChangeFeedHandler, NoOpAuditEventChangeFeedHandler>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AuditChangeFeed))
         {
-            if (inMemory)
-                services.AddSingleton<IAuditRepository, CosmosAuditRepository>();
-            else
-                services.AddScoped<IAuditRepository, CosmosAuditRepository>();
-
-            services.TryAddSingleton<IAuditEventChangeFeedHandler, NoOpAuditEventChangeFeedHandler>();
-
-            if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AuditChangeFeed))
-            {
-                services.AddHostedService<AuditEventChangeFeedHostedService>();
-            }
-
-            services.AddSingleton<AuditEventChangeFeedSingleBatchProcessor>();
-            services.AddSingleton<IAuditEventChangeFeedSingleBatchRunner>(
-                static sp => sp.GetRequiredService<AuditEventChangeFeedSingleBatchProcessor>());
-            services.AddSingleton<IArchLucidJob, AuditEventChangeFeedArchLucidJob>();
+            services.AddHostedService<AuditEventChangeFeedHostedService>();
         }
+
+        services.AddSingleton<AuditEventChangeFeedSingleBatchProcessor>();
+        services.AddSingleton<IAuditEventChangeFeedSingleBatchRunner>(
+            static sp => sp.GetRequiredService<AuditEventChangeFeedSingleBatchProcessor>());
+        services.AddSingleton<IArchLucidJob, AuditEventChangeFeedArchLucidJob>();
     }
 }

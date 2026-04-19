@@ -112,23 +112,22 @@ public sealed class TrialLifecycleEmailPublishingAuditDecorator(
             };
         }
 
-        if (string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal))
+        if (!string.Equals(auditEvent.EventType, AuditEventTypes.TenantTrialConverted, StringComparison.Ordinal))
+            return null;
+
+        string? targetTier = TryReadTargetTier(auditEvent.DataJson);
+
+        return new TrialLifecycleEmailIntegrationEnvelope
         {
-            string? targetTier = TryReadTargetTier(auditEvent.DataJson);
+            SchemaVersion = 1,
+            Trigger = TrialLifecycleEmailTrigger.Converted,
+            TenantId = auditEvent.TenantId,
+            WorkspaceId = auditEvent.WorkspaceId,
+            ProjectId = auditEvent.ProjectId,
+            RunId = auditEvent.RunId,
+            TargetTier = targetTier,
+        };
 
-            return new TrialLifecycleEmailIntegrationEnvelope
-            {
-                SchemaVersion = 1,
-                Trigger = TrialLifecycleEmailTrigger.Converted,
-                TenantId = auditEvent.TenantId,
-                WorkspaceId = auditEvent.WorkspaceId,
-                ProjectId = auditEvent.ProjectId,
-                RunId = auditEvent.RunId,
-                TargetTier = targetTier,
-            };
-        }
-
-        return null;
     }
 
     private static string? TryReadTargetTier(string? dataJson)

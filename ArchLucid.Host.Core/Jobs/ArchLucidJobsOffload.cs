@@ -15,21 +15,6 @@ public static class ArchLucidJobsOffload
 
         IConfigurationSection section = configuration.GetSection($"{ArchLucidJobsOptions.SectionPath}:OffloadedToContainerJobs");
 
-        foreach (IConfigurationSection child in section.GetChildren())
-        {
-            string? value = child.Value;
-
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                continue;
-            }
-
-            if (string.Equals(value.Trim(), jobName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return section.GetChildren().Select(child => child.Value).Where(value => !string.IsNullOrWhiteSpace(value)).Any(value => string.Equals(value.Trim(), jobName, StringComparison.OrdinalIgnoreCase));
     }
 }

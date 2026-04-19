@@ -24,7 +24,7 @@ public sealed class CircuitBreakerHealthCheck(IServiceProvider serviceProvider) 
     {
         List<Dictionary<string, object>> gateRows = [];
         gateRows.AddRange(
-            GateKeys.Select(key => serviceProvider.GetKeyedService<CircuitBreakerGate>(key))
+            GateKeys.Select(serviceProvider.GetKeyedService<CircuitBreakerGate>)
                 .OfType<CircuitBreakerGate>()
                 .Select(
                     gate => new Dictionary<string, object>

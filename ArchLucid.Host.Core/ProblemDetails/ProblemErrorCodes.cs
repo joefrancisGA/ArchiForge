@@ -120,10 +120,7 @@ public static class ProblemErrorCodes
         if (problemTypeUri == ProblemTypes.LlmTokenQuotaExceeded)
             return LlmTokenQuotaExceeded;
 
-        if (problemTypeUri == ProblemTypes.TrialExpired)
-            return TrialLimitExceeded;
-
-        return Unspecified;
+        return problemTypeUri == ProblemTypes.TrialExpired ? TrialLimitExceeded : Unspecified;
     }
 
     /// <summary>Attaches <c>extensions.errorCode</c> derived from <paramref name="problemTypeUri"/>.</summary>

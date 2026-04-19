@@ -26,14 +26,14 @@ namespace ArchLucid.Api.Controllers.E2e;
 [ApiExplorerSettings(IgnoreApi = true)]
 public sealed class E2eHarnessController(
     IWebHostEnvironment environment,
-    IOptionsMonitor<E2eHarnessOptions> harnessOptions,
+    IOptionsMonitor<E2EHarnessOptions> harnessOptions,
     ITenantRepository tenantRepository,
     BillingWebhookTrialActivator billingWebhookTrialActivator) : ControllerBase
 {
     private readonly IWebHostEnvironment _environment =
         environment ?? throw new ArgumentNullException(nameof(environment));
 
-    private readonly IOptionsMonitor<E2eHarnessOptions> _harnessOptions =
+    private readonly IOptionsMonitor<E2EHarnessOptions> _harnessOptions =
         harnessOptions ?? throw new ArgumentNullException(nameof(harnessOptions));
 
     private readonly ITenantRepository _tenantRepository =
@@ -126,7 +126,7 @@ public sealed class E2eHarnessController(
             return false;
         }
 
-        E2eHarnessOptions o = _harnessOptions.CurrentValue;
+        E2EHarnessOptions o = _harnessOptions.CurrentValue;
 
         if (!_environment.IsDevelopment() && !o.Enabled)
         {

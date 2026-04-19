@@ -143,6 +143,32 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
   });
 
+  /**
+   * Rank cue is the second `role="note"` strip (LayerHeader is always first). If mutation capability flips true but the
+   * cue is not removed, Reader cognitive load regresses; if false without cue, write boundary copy disappears.
+   */
+  it("Alerts inbox: shows LayerHeader plus inbox rank cue notes when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<AlertsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /Acknowledge/ })).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByRole("note")).toHaveLength(2);
+  });
+
+  it("Alerts inbox: omits inbox rank cue note when mutation capability is true (LayerHeader note only)", async () => {
+    mutateCapability.current = true;
+    render(<AlertsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /^Acknowledge$/ })).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByRole("note")).toHaveLength(1);
+  });
+
   it("Alert rules: Create rule stays disabled when mutation capability is false", async () => {
     mutateCapability.current = false;
     render(<AlertRulesPage />);

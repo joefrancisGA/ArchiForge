@@ -8,7 +8,7 @@ public sealed class ArchLucidJobRunner(
 {
     private readonly IReadOnlyDictionary<string, IArchLucidJob> _jobsByName =
         (jobs ?? throw new ArgumentNullException(nameof(jobs)))
-        .Where(static j => j is not null)
+        .Where(static j => true)
         .ToDictionary(static j => j.Name, static j => j, StringComparer.OrdinalIgnoreCase);
 
     private readonly JobRunTelemetry _telemetry =
@@ -22,13 +22,11 @@ public sealed class ArchLucidJobRunner(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(jobName);
 
-        if (!_jobsByName.TryGetValue(jobName, out IArchLucidJob? job))
-        {
-            _logger.LogError("Unknown job name: {JobName}", jobName);
+        if (_jobsByName.TryGetValue(jobName, out IArchLucidJob? job))
+            return _telemetry.RunWithTelemetryAsync(jobName, ct => job.RunOnceAsync(ct), cancellationToken);
+        _logger.LogError("Unknown job name: {JobName}", jobName);
 
-            return Task.FromResult(ArchLucidJobExitCodes.UnknownJob);
-        }
+        return Task.FromResult(ArchLucidJobExitCodes.UnknownJob);
 
-        return _telemetry.RunWithTelemetryAsync(jobName, ct => job.RunOnceAsync(ct), cancellationToken);
     }
 }

@@ -18,6 +18,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  *
  * @see `authority-seam-regression.test.ts` (rank vs **`navLinkVisibleForCallerRank`** for **`ExecuteAuthority`** links;
  *   Enterprise monotonicity / tier gates are **nav-only** — this function must stay the **Execute+ mutation** floor only),
+ *   **`authority-execute-floor-regression.test.ts`** (minimal loop: synthetic **`ExecuteAuthority`** nav row visibility **≡** this function per rank),
  *   `use-enterprise-mutation-capability.test.tsx`, `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`,
  *   `enterprise-authority-ui-shaping.test.tsx` (pages still wire this hook to **`disabled`** controls).
  */

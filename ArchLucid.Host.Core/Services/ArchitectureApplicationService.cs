@@ -111,7 +111,6 @@ public sealed class ArchitectureApplicationService(
             ArchitectureRunStatus newStatus = await SubmitAgentResultPersistAsync(
                 runId,
                 result,
-                run,
                 uow,
                 cancellationToken);
 
@@ -219,7 +218,7 @@ public sealed class ArchitectureApplicationService(
 
         try
         {
-            await SeedFakeResultsPersistAsync(runId, fakeResults, run, architectureRequest, newStatus, uow, cancellationToken);
+            await SeedFakeResultsPersistAsync(runId, fakeResults, architectureRequest, uow, cancellationToken);
             await uow.CommitAsync(cancellationToken);
         }
         catch
@@ -243,7 +242,6 @@ public sealed class ArchitectureApplicationService(
     private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(
         string runId,
         AgentResult result,
-        ArchitectureRun run,
         IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {
@@ -279,9 +277,7 @@ public sealed class ArchitectureApplicationService(
     private async Task SeedFakeResultsPersistAsync(
         string runId,
         IReadOnlyList<AgentResult> fakeResults,
-        ArchitectureRun run,
         ArchitectureRequest request,
-        ArchitectureRunStatus newStatus,
         IArchLucidUnitOfWork uow,
         CancellationToken cancellationToken)
     {

@@ -5,6 +5,4 @@ namespace ArchLucid.Api.Tests;
 /// <see cref="GreenfieldSqlApiFactory"/> boots (same env keys + schema bootstrap <c>SqlRowLevelSecurityBypassAmbient</c>).
 /// </summary>
 [CollectionDefinition("ArchLucidEnvMutation", DisableParallelization = true)]
-public sealed class ArchLucidEnvMutationCollectionDefinition
-{
-}
+public sealed class ArchLucidEnvMutationCollectionDefinition;

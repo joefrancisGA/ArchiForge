@@ -40,6 +40,7 @@ export type NavGroupWithVisibleLinks = {
  * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (Core Pilot invariants; ordering;
  *   rank **0** vs **`ReadAuthority`**; **`/alerts`** **`essential`**; Enterprise href **monotonicity**; Advanced default **`/ask`**-only;
  *   **`/governance`** gated on extended+advanced at Execute rank; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
+ * @see `authority-execute-floor-regression.test.ts` — **Execute floor** parity (nav **`ExecuteAuthority`** row vs mutation boolean) + **`alerts-governance`** config invariants under **`filterNavLinksByAuthority`** alone (complements tier∩rank tests above).
  * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
  *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
  *   stays hidden until **Show more** even at Admin rank.

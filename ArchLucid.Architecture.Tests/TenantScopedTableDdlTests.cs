@@ -72,11 +72,11 @@ public sealed class TenantScopedTableDdlTests
             {
                 depth--;
 
-                if (depth == 0)
-                {
-                    end = i + 1;
-                    break;
-                }
+                if (depth != 0)
+                    continue;
+
+                end = i + 1;
+                break;
             }
         }
 

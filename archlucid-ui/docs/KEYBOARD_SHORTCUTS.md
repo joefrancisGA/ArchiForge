@@ -34,24 +34,24 @@ Registry: [`src/lib/shortcut-registry.ts`](../src/lib/shortcut-registry.ts) (`SH
 
 ## Page-specific: Alerts (`/alerts`)
 
-Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/%28operator%29/alerts/page.tsx).
+Focus an alert card (`role="article"`, `tabIndex={0}`, `data-alert-id`) or a control inside it. Implemented in [`useAlertCardShortcuts`](../src/hooks/useAlertCardShortcuts.ts) on [`alerts/page.tsx`](../src/app/%28operator%29/alerts/page.tsx). **Alt+1–3 register only when** the same **`useEnterpriseMutationCapability()`** gate used for triage **Confirm** is true (Execute+ rank in the shell); read-tier callers keep **Alt+J / Alt+K** only.
 
 | Combo | Action |
 |-------|--------|
-| **Alt+1** | Acknowledge focused alert |
-| **Alt+2** | Resolve focused alert |
-| **Alt+3** | Suppress focused alert |
+| **Alt+1** | Acknowledge focused alert (Execute+ shell rank) |
+| **Alt+2** | Resolve focused alert (Execute+ shell rank) |
+| **Alt+3** | Suppress focused alert (Execute+ shell rank) |
 | **Alt+J** | Focus next card (wraps from last → first) |
 | **Alt+K** | Focus previous card (stays on first) |
 
-Optional comments still use `window.prompt` today; shortcuts call the same `applyAlertAction` path as the buttons.
+At Execute+, shortcuts call the same path as the triage buttons (then **Confirm** applies the write).
 
 ## Discoverability
 
 1. **Shift+?** — Full table in the Radix/shadcn dialog ([`KeyboardShortcutProvider`](../src/components/KeyboardShortcutProvider.tsx)).
 2. **Shell nav** — [`ShellNav.tsx`](../src/components/ShellNav.tsx): extended `title` text includes `(Alt+…)`; `aria-keyshortcuts` matches [`registryKeyToAriaKeyShortcuts`](../src/lib/shortcut-registry.ts). No inline `<kbd>` in the nav (compact layout).
 3. **`<ShortcutHint>`** — [`ShortcutHint.tsx`](../src/components/ShortcutHint.tsx): visible chips next to primary links on home, runs list, compare heading (uses global `kbd` CSS).
-4. **Footer** — Shell hint: “Press Shift+? for keyboard shortcuts.” Alerts page: “Alt+J/K navigate · Alt+1 ack · Alt+2 resolve · Alt+3 suppress.”
+4. **Footer** — Shell hint: “Press Shift+? for keyboard shortcuts.” Alerts page: operator line lists Alt+1–3; read-tier line documents J/K only plus when Alt+1–3 register (`enterprise-controls-context-copy` / page).
 
 ## Technical architecture (developers)
 

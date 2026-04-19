@@ -1,3 +1,5 @@
+using ArchLucid.Persistence.BlobStore;
+
 namespace ArchLucid.Host.Core.Configuration;
 
 /// <summary>Background export jobs: in-process channel vs durable SQL + Azure Storage Queue + worker.</summary>
@@ -11,7 +13,10 @@ public sealed class BackgroundJobsOptions
     public string QueueName { get; set; } = "archlucid-export-jobs";
 
     /// <summary>Queue service URI, e.g. <c>https://{account}.queue.core.windows.net</c>. When empty, derived from <see cref="ArtifactLargePayloadOptions.AzureBlobServiceUri"/>.</summary>
-    public string? QueueServiceUri { get; set; }
+    public string? QueueServiceUri
+    {
+        get; set;
+    }
 
     public string ResultsContainerName { get; set; } = "background-job-results";
 

@@ -98,12 +98,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAdvisoryScanRunner, AdvisoryScanRunner>();
         services.AddScoped<AdvisoryDueScheduleProcessor>();
 
-        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+        if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))
+            return;
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AdvisoryScan))
         {
-            if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AdvisoryScan))
-            {
-                services.AddHostedService<AdvisoryScanHostedService>();
-            }
+            services.AddHostedService<AdvisoryScanHostedService>();
         }
     }
 

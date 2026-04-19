@@ -58,7 +58,9 @@
  * Contributor checklist: **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard*.
  *
  * **Cross-module tests:** `authority-seam-regression.test.ts` exercises `normalizeAuthMeResponse` together with
- * nav visibility and mutation rank; **`OperatorNavAuthorityProvider.test.tsx`** locks conservative **`useNavCallerAuthorityRank`**
+ * nav visibility and mutation rank; **`authority-execute-floor-regression.test.ts`** locks **`navLinkVisibleForCallerRank`**
+ * for a synthetic **`ExecuteAuthority`** link to the **same boolean** as **`enterpriseMutationCapabilityFromRank`** (prevents
+ * nav/mutation threshold drift without re-reading full cross-module suite); **`OperatorNavAuthorityProvider.test.tsx`** locks conservative **`useNavCallerAuthorityRank`**
  * during JWT **`/me`** refetch; unit coverage remains in `current-principal.test.ts`. Rank-gated Enterprise copy
  * components: **`EnterpriseControlsContextHints.authority.test.tsx`** (same rank as nav / mutation). Page-level mutation
  * affordances: **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`** (hook → **`disabled`** on representative routes).

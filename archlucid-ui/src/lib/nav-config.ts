@@ -86,7 +86,9 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   **`useNavCallerAuthorityRank`** stays Read during JWT **`/me`** refetch so stale Execute rank does not flash in nav or hooks.
  *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
  *   **`ExecuteAuthority`** numeric floor as mutation hooks (governance resolution, audit log, **Alerts inbox**, **governance
- *   dashboard** reader cue, alert tooling). **`nav-shell-visibility.test.ts`** also locks **Core Pilot** extended **Execute**
+ *   dashboard** reader cue, alert tooling). **`authority-execute-floor-regression.test.ts`** — same **boolean** for a synthetic
+ *   **`ExecuteAuthority`** row vs **`enterpriseMutationCapabilityFromRank`**; **`alerts-governance`** monotonicity Reader→Admin.
+ *   **`nav-shell-visibility.test.ts`** also locks **Core Pilot** extended **Execute**
  *   links (e.g. **`/replay`**) behind **Show more** — tier before rank. **`current-principal.test.ts`** locks **`maxAuthority`**
  *   vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
  *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Core Pilot** essentials omit **`requiredAuthority`**;
@@ -120,7 +122,8 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *
  * `requiredAuthority` drives **shell visibility** after **`nav-shell-visibility`** tier filtering — not whether HTTP writes
  * succeed. **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**). Keep policy **names** aligned
- * with C# when moving routes. **Vitest:** `nav-config.structure.test.ts` (graph invariants); **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`**
+ * with C# when moving routes. **Vitest:** `nav-config.structure.test.ts` (graph invariants); **`authority-execute-floor-regression.test.ts`**
+ * (Execute-class nav row vs mutation capability; Enterprise **`alerts-governance`** Reader vs Execute href sets); **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`**
  * (representative Enterprise pages: **`useEnterpriseMutationCapability`** → **`disabled`** on primary actions).
  *
  * Omitting `requiredAuthority` is used only for **Core Pilot essentials** (default path for any authenticated rank).

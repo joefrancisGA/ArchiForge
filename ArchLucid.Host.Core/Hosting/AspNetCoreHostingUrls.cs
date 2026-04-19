@@ -20,14 +20,6 @@ public static class AspNetCoreHostingUrls
             return true;
         }
 
-        foreach (string part in urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        {
-            if (part.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return urls.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Any(part => part.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -6,7 +6,7 @@ internal static class E2eHarnessRules
 {
     public static void Collect(IConfiguration configuration, IWebHostEnvironment environment, List<string> errors)
     {
-        E2eHarnessOptions o = configuration.GetSection(E2eHarnessOptions.SectionName).Get<E2eHarnessOptions>() ?? new E2eHarnessOptions();
+        E2EHarnessOptions o = configuration.GetSection(E2EHarnessOptions.SectionName).Get<E2EHarnessOptions>() ?? new E2EHarnessOptions();
 
         if (!o.Enabled)
         {

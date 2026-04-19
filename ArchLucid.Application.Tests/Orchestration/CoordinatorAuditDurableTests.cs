@@ -246,7 +246,6 @@ public sealed class CoordinatorAuditDurableTests
         string runId = Guid.NewGuid().ToString("N");
         string requestId = "req-commit-" + Guid.NewGuid().ToString("N");
         string manifestVersion = $"v1-{runId}";
-        Guid manifestId = Guid.NewGuid();
 
         ArchitectureRun runModel = new()
         {

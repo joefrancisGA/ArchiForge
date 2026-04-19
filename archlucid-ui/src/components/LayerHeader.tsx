@@ -37,6 +37,7 @@ export type LayerHeaderProps = {
  * @see **docs/PRODUCT_PACKAGING.md** §3 (*Contributor drift guard* — *Guidance strip* step) when adding Enterprise keys.
  * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**); **`aside`** **`aria-label`** (badge + headline).
  * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`** contract (packaging ↔ this component).
+ * @see `authority-execute-floor-regression.test.ts` — **`AUTHORITY_RANK.ExecuteAuthority`** used the same way for **nav** and **mutation** booleans; this component’s rank cue shares that numeric line (**UI only**).
  * @see `enterprise-authority-ui-shaping.test.tsx` — mutation hook → Enterprise **`disabled`** / governance submit **`readOnly`** (same story as rank cue; API still **`[Authorize]`**).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {

@@ -138,12 +138,7 @@ public sealed class ServiceBusIntegrationEventsArchLucidJob(
     {
         if (string.IsNullOrEmpty(fullyQualifiedNamespace))
         {
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                return new ServiceBusClient(connectionString);
-            }
-
-            throw new InvalidOperationException("Service Bus namespace or connection string is required.");
+            return !string.IsNullOrEmpty(connectionString) ? new ServiceBusClient(connectionString) : throw new InvalidOperationException("Service Bus namespace or connection string is required.");
         }
 
         TokenCredential credential = CreateCredential(managedIdentityClientId);

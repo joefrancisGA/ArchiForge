@@ -91,8 +91,7 @@ public sealed class AuthorityPipelineWorkProcessor(
         ContextIngestionRequest request = payload.ContextIngestionRequest;
         request.RunId = entry.RunId;
 
-        RunRecord completed =
-            await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
+        await orchestrator.CompleteQueuedAuthorityPipelineAsync(request, cancellationToken);
 
         string runIdN = LogSanitizer.Sanitize(entry.RunId.ToString("N"));
         RunRecord? authorityHeader =
@@ -140,10 +139,10 @@ public sealed class AuthorityPipelineWorkProcessor(
         // Deferred snapshot pointers and TasksGenerated transition live on dbo.Runs after CompleteQueuedAuthorityPipelineAsync;
         // dbo.Runs header is patched elsewhere when the deferred authority pipeline completes.
 
-        IReadOnlyList<AgentTask>? existingTasks =
+        IReadOnlyList<AgentTask> existingTasks =
             await taskRepository.GetByRunIdAsync(runIdN, cancellationToken);
 
-        if (existingTasks is null || existingTasks.Count == 0)
+        if (existingTasks.Count == 0)
         {
             await taskRepository.CreateManyAsync(starterTasks, cancellationToken);
         }

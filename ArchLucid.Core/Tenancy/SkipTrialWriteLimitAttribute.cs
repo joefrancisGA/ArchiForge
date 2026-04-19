@@ -5,6 +5,4 @@ namespace ArchLucid.Core.Tenancy;
 /// unblock paths remain reachable while the trial row still shows <c>Active</c>.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public sealed class SkipTrialWriteLimitAttribute : Attribute
-{
-}
+public sealed class SkipTrialWriteLimitAttribute : Attribute;
