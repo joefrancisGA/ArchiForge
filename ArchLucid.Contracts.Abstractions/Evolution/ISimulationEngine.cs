@@ -1,4 +1,6 @@
-namespace ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Evolution;
+
+namespace ArchLucid.Contracts.Abstractions.Evolution;
 
 /// <summary>
 /// Runs one or two read-only architecture analysis passes to simulate evaluating a <see cref="CandidateChangeSet"/> against a baseline run

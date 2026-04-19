@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;

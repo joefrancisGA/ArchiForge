@@ -1,4 +1,6 @@
-namespace ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning;
+
+namespace ArchLucid.Contracts.Abstractions.ProductLearning;
 
 /// <summary>
 /// Ranks improvement candidates from an aggregation snapshot using explicit scoring (no LLM).

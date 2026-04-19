@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -19,9 +20,9 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
         cancellationToken.ThrowIfCancellationRequested();
 
         if (string.IsNullOrWhiteSpace(options.RuleVersion))
-        
+
             throw new ArgumentException("RuleVersion is required.", nameof(options));
-        
+
 
         int maxSteps = options.MaxStepsPerPlan < 1 ? 1 : Math.Min(options.MaxStepsPerPlan, 20);
         DateTime createdUtc = options.CreatedUtcOverride ?? DateTime.UtcNow;
@@ -81,24 +82,24 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
     private static string ClassifyPrefix(string canonicalKey)
     {
         if (canonicalKey.StartsWith("rollup:", StringComparison.Ordinal))
-        
+
             return "rollup";
-        
+
 
         if (canonicalKey.StartsWith("trend:", StringComparison.Ordinal))
-        
+
             return "trend";
-        
+
 
         if (canonicalKey.StartsWith("comment:", StringComparison.Ordinal))
-        
+
             return "comment";
-        
+
 
         if (canonicalKey.StartsWith("tag:", StringComparison.Ordinal))
-        
+
             return "tag";
-        
+
 
         return "unknown";
     }
@@ -124,9 +125,9 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
     private static string BuildTitle(ImprovementTheme theme, string canonicalKey)
     {
         if (!string.IsNullOrWhiteSpace(theme.Name))
-        
+
             return Truncate(theme.Name.Trim(), 200);
-        
+
 
         return "Improvement plan for " + Truncate(canonicalKey, 120);
     }
@@ -232,9 +233,9 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
             .FirstOrDefault();
 
         if (first is null)
-        
+
             return "pilot-facing outputs";
-        
+
 
         return first.Trim();
     }
@@ -428,9 +429,9 @@ public sealed class ImprovementPlanningService : IImprovementPlanningService
     private static string Truncate(string value, int maxChars)
     {
         if (value.Length <= maxChars)
-        
+
             return value;
-        
+
 
         return value[..maxChars];
     }

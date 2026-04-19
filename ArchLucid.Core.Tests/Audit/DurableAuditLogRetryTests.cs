@@ -40,12 +40,7 @@ public sealed class DurableAuditLogRetryTests
             {
                 calls++;
 
-                if (calls < 2)
-                {
-                    throw new InvalidOperationException("transient");
-                }
-
-                return Task.CompletedTask;
+                return calls < 2 ? throw new InvalidOperationException("transient") : Task.CompletedTask;
             },
             NullLogger.Instance,
             "test-op",

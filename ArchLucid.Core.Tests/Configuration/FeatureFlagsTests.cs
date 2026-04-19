@@ -19,7 +19,7 @@ public sealed class FeatureFlagsTests
     public async Task FeatureManagementFeatureFlags_IsEnabledAsync_DelegatesToFeatureManager_WithSameCancellationToken()
     {
         Mock<IFeatureManager> featureManager = new();
-        CancellationToken capturedToken = default;
+        CancellationToken capturedToken = CancellationToken.None;
         featureManager
             .Setup(m => m.IsEnabledAsync("MyFeature", It.IsAny<CancellationToken>()))
             .Returns(

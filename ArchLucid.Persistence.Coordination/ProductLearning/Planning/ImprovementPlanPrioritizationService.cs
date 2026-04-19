@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -23,9 +24,9 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
         ValidateWeights(weights);
 
         if (items.Count == 0)
-        
+
             return Task.FromResult<IReadOnlyList<ImprovementPlan>>([]);
-        
+
 
         List<int> frequencies = new(items.Count);
         List<int> severities = new(items.Count);
@@ -91,16 +92,16 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
         double sum = weights.Frequency + weights.Severity + weights.TrustImpact + weights.Breadth;
 
         if (double.IsNaN(sum) || double.IsInfinity(sum) || Math.Abs(sum - 1d) > WeightSumTolerance)
-        
+
             throw new ArgumentException(
                 "Weights must sum to 1.0 (±" + WeightSumTolerance + "). Actual sum=" + sum.ToString(CultureInfo.InvariantCulture) + ".",
                 nameof(weights));
-        
+
 
         if (weights.Frequency < 0 || weights.Severity < 0 || weights.TrustImpact < 0 || weights.Breadth < 0)
-        
+
             throw new ArgumentException("Weights must be non-negative.", nameof(weights));
-        
+
     }
 
     /// <summary>Same spirit as 58R aggregate bad mass: reject &gt; follow-up &gt; revised.</summary>
@@ -113,16 +114,16 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
     private static double ComputeTrustStress(double? averageTrustScore)
     {
         if (!averageTrustScore.HasValue)
-        
+
             return 0.5;
-        
+
 
         double t = averageTrustScore.Value;
 
         if (double.IsNaN(t) || double.IsInfinity(t))
-        
+
             return 0.5;
-        
+
 
         t = Math.Clamp(t, 0d, 1d);
 
@@ -132,17 +133,17 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
     private static List<int> NormalizeToThousand(IReadOnlyList<int> values)
     {
         if (values.Count == 0)
-        
+
             return [];
-        
+
 
         int min = values.Min();
         int max = values.Max();
 
         if (min == max)
-        
+
             return Enumerable.Repeat(1000, values.Count).ToList();
-        
+
 
         List<int> result = new(values.Count);
 
@@ -158,17 +159,17 @@ public sealed class ImprovementPlanPrioritizationService : IImprovementPlanPrior
     private static List<int> NormalizeToThousandDoubles(IReadOnlyList<double> values)
     {
         if (values.Count == 0)
-        
+
             return [];
-        
+
 
         double min = values.Min();
         double max = values.Max();
 
         if (Math.Abs(max - min) < double.Epsilon)
-        
+
             return Enumerable.Repeat(1000, values.Count).ToList();
-        
+
 
         List<int> result = new(values.Count);
 

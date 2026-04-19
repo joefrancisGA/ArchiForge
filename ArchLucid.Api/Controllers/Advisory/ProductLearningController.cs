@@ -1,10 +1,11 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.ProductLearning;
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.ProductLearning;
 
@@ -46,14 +47,17 @@ public sealed class ProductLearningController(
     public async Task<IActionResult> GetSummary([FromQuery] string? since, CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
-        
+
             return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
-        
+
 
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningScope scope = ToProductLearningScope(scopeContext);
 
-        ProductLearningTriageOptions options = new() { SinceUtc = sinceUtc };
+        ProductLearningTriageOptions options = new()
+        {
+            SinceUtc = sinceUtc
+        };
 
         LearningDashboardSummary full = await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
 
@@ -85,14 +89,14 @@ public sealed class ProductLearningController(
         CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
-        
+
             return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxImprovementOpportunities(maxOpportunities, out int maxOpp, out string? maxError))
-        
+
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
-        
+
 
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningScope scope = ToProductLearningScope(scopeContext);
@@ -119,14 +123,17 @@ public sealed class ProductLearningController(
     public async Task<IActionResult> GetArtifactOutcomeTrends([FromQuery] string? since, CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
-        
+
             return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
-        
+
 
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningScope scope = ToProductLearningScope(scopeContext);
 
-        ProductLearningTriageOptions options = new() { SinceUtc = sinceUtc };
+        ProductLearningTriageOptions options = new()
+        {
+            SinceUtc = sinceUtc
+        };
 
         LearningDashboardSummary full = await dashboardService.GetDashboardSummaryAsync(scope, options, cancellationToken);
 
@@ -147,14 +154,14 @@ public sealed class ProductLearningController(
         CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
-        
+
             return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxTriageQueueItems(maxTriageItems, out int maxTriage, out string? maxError))
-        
+
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
-        
+
 
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningScope scope = ToProductLearningScope(scopeContext);
@@ -191,29 +198,29 @@ public sealed class ProductLearningController(
         CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
-        
+
             return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
-        
+
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxReportArtifacts(maxReportArtifacts, out int maxArt, out string? artError))
-        
+
             return this.BadRequestProblem(artError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxReportImprovements(maxReportImprovements, out int maxImp, out string? impError))
-        
+
             return this.BadRequestProblem(impError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxReportTriagePreview(maxReportTriage, out int maxTr, out string? trError))
-        
+
             return this.BadRequestProblem(trError!, ProblemTypes.ValidationFailed);
-        
+
 
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningScope scope = ToProductLearningScope(scopeContext);
@@ -234,9 +241,9 @@ public sealed class ProductLearningController(
             ProductLearningTriageReportBuilder.Build(full, limits, sinceUtc);
 
         if (formatNorm == "json")
-        
+
             return Ok(document);
-        
+
 
         string markdown = ProductLearningTriageReportMarkdownFormatter.Format(document);
 
@@ -262,29 +269,29 @@ public sealed class ProductLearningController(
         CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseOptionalSince(since, out DateTime? sinceUtc, out string? sinceError))
-        
+
             return this.BadRequestProblem(sinceError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
-        
+
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxReportArtifacts(maxReportArtifacts, out int maxArt, out string? artError))
-        
+
             return this.BadRequestProblem(artError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxReportImprovements(maxReportImprovements, out int maxImp, out string? impError))
-        
+
             return this.BadRequestProblem(impError!, ProblemTypes.ValidationFailed);
-        
+
 
         if (!ProductLearningQueryParser.TryParseMaxReportTriagePreview(maxReportTriage, out int maxTr, out string? trError))
-        
+
             return this.BadRequestProblem(trError!, ProblemTypes.ValidationFailed);
-        
+
 
         ScopeContext scopeContext = scopeProvider.GetCurrentScope();
         ProductLearningScope scope = ToProductLearningScope(scopeContext);
@@ -329,9 +336,9 @@ public sealed class ProductLearningController(
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)
     {
         if (scopeContext is null)
-        
+
             throw new ArgumentNullException(nameof(scopeContext));
-        
+
 
         return new ProductLearningScope
         {

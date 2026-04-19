@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Abstractions.ProductLearning;
 using ArchLucid.Contracts.ProductLearning;
 
 namespace ArchLucid.Persistence.Coordination.ProductLearning;
@@ -19,9 +20,9 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
         foreach (FeedbackAggregate aggregate in snapshot.FeedbackRollups)
         {
             if (aggregate.TotalSignalCount < options.MinSignalsPerAggregate)
-            
+
                 continue;
-            
+
 
             int badScore = ProductLearningOpportunityScoring.ComputeAggregateBadScore(aggregate);
             bool passesThreshold =
@@ -30,14 +31,14 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
                 aggregate.RevisedCount >= 2;
 
             if (!passesThreshold)
-            
+
                 continue;
-            
+
 
             if (!usedKeys.Add(aggregate.AggregateKey))
-            
+
                 continue;
-            
+
 
             string sortKey = "a:" + aggregate.AggregateKey;
             work.Add((badScore, sortKey, ProductLearningOpportunityScoring.MapAggregateToOpportunity(aggregate, badScore, priorityRank: 0)));
@@ -46,23 +47,23 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
         foreach (ArtifactOutcomeTrend trend in snapshot.ArtifactTrends)
         {
             if (ProductLearningOpportunityScoring.TotalTrendSignals(trend) < options.MinSignalsPerAggregate)
-            
+
                 continue;
-            
+
 
             int negative = ProductLearningOpportunityScoring.ComputeTrendNegativeMass(trend);
 
             if (negative < options.MinNegativeOutcomesOnArtifactTrend)
-            
+
                 continue;
-            
+
 
             string dedupeKey = "trend:" + trend.TrendKey;
 
             if (!usedKeys.Add(dedupeKey))
-            
+
                 continue;
-            
+
 
             int badScore = negative * 3 + trend.RejectionCount;
             string sortKey = "t:" + trend.TrendKey;
@@ -82,9 +83,9 @@ public sealed class ProductLearningImprovementOpportunityService : IProductLearn
         List<ImprovementOpportunity> ranked = new(ordered.Count);
 
         for (int i = 0; i < ordered.Count; i++)
-        
+
             ranked.Add(WithPriorityRank(ordered[i], i + 1));
-        
+
 
         return Task.FromResult<IReadOnlyList<ImprovementOpportunity>>(ranked);
     }

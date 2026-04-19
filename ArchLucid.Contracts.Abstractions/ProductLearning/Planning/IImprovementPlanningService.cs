@@ -1,4 +1,6 @@
-namespace ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+
+namespace ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 
 /// <summary>
 /// Builds bounded, human-reviewable <see cref="ImprovementPlan"/> rows from extracted themes (rule-based; no LLM).

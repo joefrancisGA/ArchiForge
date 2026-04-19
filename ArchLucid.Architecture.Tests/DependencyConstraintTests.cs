@@ -5,7 +5,7 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Cli;
 using ArchLucid.ContextIngestion;
-using ArchLucid.Contracts.Evolution;
+using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;

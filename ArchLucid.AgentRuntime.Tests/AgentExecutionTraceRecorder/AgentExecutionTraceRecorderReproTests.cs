@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 using Moq;
 
-namespace ArchLucid.AgentRuntime.Tests;
+namespace ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder;
 
 [Trait("Category", "Unit")]
 [Trait("Suite", "Core")]
@@ -121,7 +121,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     public async Task RecordAsync_persists_prompt_repro_fields()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
 
         AgentPromptReproMetadata meta = new("topology-system", "1.0.0", "abc123deadbeef", "pilot-a");
 
@@ -150,7 +150,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     public async Task RecordAsync_when_model_metadata_null_uses_unspecified_sentinels()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
 
         await sut.RecordAsync(
             "run-1",
@@ -185,7 +185,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
                 InputUsdPerMillionTokens = 1m,
                 OutputUsdPerMillionTokens = 2m,
             });
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, costOptions: opts);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, costOptions: opts);
 
         await sut.RecordAsync(
             "run-1",
@@ -212,7 +212,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     public async Task RecordAsync_sets_blob_keys_when_store_succeeds()
     {
         InMemoryAgentExecutionTraceRepository repo = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
 
         await sut.RecordAsync(
             "run-1",
@@ -238,7 +238,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
     {
         InMemoryAgentExecutionTraceRepository repo = new();
         Mock<IArtifactBlobStore> blobMock = new();
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
 
         await sut.RecordAsync(
             "run-1",
@@ -275,7 +275,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
                     ? Task.FromResult<string>(null!)
                     : Task.FromResult($"ok://{path}"));
 
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
 
         await sut.RecordAsync(
             "run-1",
@@ -306,7 +306,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("simulated blob failure"));
 
-        AgentExecutionTraceRecorder sut = CreateRecorder(
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(
             repo,
             blobStore: blobMock.Object,
             auditService: spyAudit);
@@ -345,7 +345,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
                     ? Task.FromException<string>(new IOException("simulated transient blob failure"))
                     : Task.FromResult($"ok://{path}"));
 
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
 
         await sut.RecordAsync(
             "run-1",
@@ -396,7 +396,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
         using BlobUploadFailureMeasurementCapture capture = BlobUploadFailureMeasurementCapture.Start();
 
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
 
         await sut.RecordAsync(
             "run-1",
@@ -433,7 +433,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
         using PromptInlineFallbackMeasurementCapture capture = PromptInlineFallbackMeasurementCapture.Start();
 
-        AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
 
         await sut.RecordAsync(
             "run-1",
@@ -467,7 +467,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
             .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new IOException("blob down"));
 
-        AgentExecutionTraceRecorder sut = CreateRecorder(
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(
             repo,
             blobStore: blobMock.Object,
             auditService: recordingAudit);
@@ -598,7 +598,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         long Value,
         IReadOnlyList<KeyValuePair<string, object?>> Tags);
 
-    private static AgentExecutionTraceRecorder CreateRecorder(
+    private static AgentRuntime.AgentExecutionTraceRecorder CreateRecorder(
         IAgentExecutionTraceRepository repo,
         IOptions<LlmCostEstimationOptions>? costOptions = null,
         IArtifactBlobStore? blobStore = null,
@@ -614,10 +614,10 @@ public sealed class AgentExecutionTraceRecorderReproTests
         services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
         services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
-        services.AddScoped<AgentExecutionTraceRecorder>();
+        services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScope scope = provider.CreateScope();
 
-        return scope.ServiceProvider.GetRequiredService<AgentExecutionTraceRecorder>();
+        return scope.ServiceProvider.GetRequiredService<AgentRuntime.AgentExecutionTraceRecorder>();
     }
 }

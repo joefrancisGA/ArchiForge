@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Evolution;
 
 using JetBrains.Annotations;

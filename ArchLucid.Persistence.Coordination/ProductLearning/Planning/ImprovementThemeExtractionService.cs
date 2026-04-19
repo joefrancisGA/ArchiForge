@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 
@@ -59,16 +60,16 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         IReadOnlyList<ProductLearningPilotSignalRecord> scopedSignals)
     {
         foreach (ProductLearningPilotSignalRecord row in scopedSignals)
-        
+
             if (row.TenantId != scope.TenantId ||
                 row.WorkspaceId != scope.WorkspaceId ||
                 row.ProjectId != scope.ProjectId)
-            
+
                 throw new ArgumentException(
                     "scopedSignals must match snapshot.Scope tenant/workspace/project for every row.",
                     nameof(scopedSignals));
-            
-        
+
+
     }
 
     private static void AddRollupThemes(
@@ -79,16 +80,16 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         foreach (FeedbackAggregate aggregate in snapshot.FeedbackRollups)
         {
             if (!PassesAggregateOutcomeGate(aggregate, options))
-            
+
                 continue;
-            
+
 
             string canonicalKey = "rollup:" + aggregate.AggregateKey;
 
             if (buckets.ContainsKey(canonicalKey))
-            
+
                 continue;
-            
+
 
             string name = BuildRollupName(aggregate);
             string description = BuildRollupDescription(aggregate);
@@ -118,16 +119,16 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         foreach (ArtifactOutcomeTrend trend in snapshot.ArtifactTrends)
         {
             if (!PassesTrendGate(trend, options))
-            
+
                 continue;
-            
+
 
             string canonicalKey = "trend:" + trend.TrendKey;
 
             if (buckets.ContainsKey(canonicalKey))
-            
+
                 continue;
-            
+
 
             int total = TotalTrendSignals(trend);
             int negative = trend.RejectionCount + trend.RevisionCount + trend.NeedsFollowUpCount;
@@ -161,16 +162,16 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         foreach (RepeatedCommentTheme theme in snapshot.RepeatedCommentThemes)
         {
             if (theme.OccurrenceCount < min)
-            
+
                 continue;
-            
+
 
             string canonicalKey = "comment:" + theme.ThemeKey;
 
             if (buckets.ContainsKey(canonicalKey))
-            
+
                 continue;
-            
+
 
             buckets[canonicalKey] = new ThemeAccumulator
             {
@@ -209,9 +210,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 string normalized = ImprovementThemeDetailJsonAnnotations.NormalizeAnnotationToken(token);
 
                 if (normalized.Length == 0)
-                
+
                     continue;
-                
+
 
                 if (!groups.TryGetValue(normalized, out List<(string, ProductLearningPilotSignalRecord)>? list))
                 {
@@ -230,16 +231,16 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
             int distinctSignals = rows.Select(static x => x.Row.SignalId).Distinct().Count();
 
             if (distinctSignals < minTag)
-            
+
                 continue;
-            
+
 
             string canonicalKey = "tag:" + pair.Key;
 
             if (buckets.ContainsKey(canonicalKey))
-            
+
                 continue;
-            
+
 
             string displayToken = rows
                 .Select(static x => x.Original)
@@ -257,9 +258,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 string facet = string.IsNullOrWhiteSpace(row.ArtifactHint) ? row.SubjectType : row.ArtifactHint.Trim();
 
                 if (!string.IsNullOrWhiteSpace(facet))
-                
+
                     facets.Add(facet);
-                
+
             }
 
             buckets[canonicalKey] = new ThemeAccumulator
@@ -330,9 +331,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         ImprovementThemeExtractionOptions options)
     {
         if (triageQueue is null || triageQueue.Count == 0)
-        
+
             return;
-        
+
 
         Dictionary<Guid, ProductLearningPilotSignalRecord> byId = orderedSignals.ToDictionary(static r => r.SignalId);
 
@@ -343,35 +344,35 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
             TriageQueueItem item = triageQueue[t];
 
             if (item.RelatedSignalId is null || item.RelatedSignalId.Value == Guid.Empty)
-            
+
                 continue;
-            
+
 
             Guid signalId = item.RelatedSignalId.Value;
 
             if (!byId.TryGetValue(signalId, out ProductLearningPilotSignalRecord? row))
-            
+
                 continue;
-            
+
 
             for (int i = 0; i < results.Count; i++)
             {
                 ImprovementThemeWithEvidence theme = results[i];
 
                 if (!SignalMatchesCanonicalKey(row, theme.CanonicalKey))
-                
+
                     continue;
-                
+
 
                 if (theme.ExampleEvidence.Count >= cap)
-                
+
                     continue;
-                
+
 
                 if (theme.ExampleEvidence.Any(e => e.SignalId == signalId))
-                
+
                     break;
-                
+
 
                 Guid evidenceId = ImprovementThemeExtractionDeterministicIds.EvidenceId(
                     theme.Theme.ThemeId,
@@ -416,9 +417,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         foreach (ProductLearningPilotSignalRecord row in orderedSignals)
         {
             if (!SignalMatchesCanonicalKey(row, canonicalKey))
-            
+
                 continue;
-            
+
 
             Guid evidenceId = ImprovementThemeExtractionDeterministicIds.EvidenceId(
                 themeId,
@@ -436,9 +437,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 });
 
             if (list.Count >= cap)
-            
+
                 break;
-            
+
         }
 
         return list;
@@ -488,9 +489,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
                 string n = ImprovementThemeDetailJsonAnnotations.NormalizeAnnotationToken(token);
 
                 if (string.Equals(n, tagKey, StringComparison.Ordinal))
-                
+
                     return true;
-                
+
             }
 
             return false;
@@ -504,9 +505,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         int minSignals = options.MinSignalsPerAggregateTheme < 1 ? 1 : options.MinSignalsPerAggregateTheme;
 
         if (aggregate.TotalSignalCount < minSignals)
-        
+
             return false;
-        
+
 
         int minBad = options.MinRejectedOrFollowUpForOutcomePattern < 0 ? 0 : options.MinRejectedOrFollowUpForOutcomePattern;
         int minRev = options.MinRevisedForRevisionPattern < 0 ? 0 : options.MinRevisedForRevisionPattern;
@@ -514,14 +515,14 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         int rejectOrFollowUp = aggregate.RejectedCount + aggregate.NeedsFollowUpCount;
 
         if (rejectOrFollowUp >= minBad)
-        
+
             return true;
-        
+
 
         if (aggregate.RevisedCount >= minRev)
-        
+
             return true;
-        
+
 
         return false;
     }
@@ -543,9 +544,9 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     private static string BuildRollupName(FeedbackAggregate aggregate)
     {
         if (!string.IsNullOrWhiteSpace(aggregate.PatternKey))
-        
+
             return "Pattern: " + Truncate(aggregate.PatternKey.Trim(), 200);
-        
+
 
         return "Workflow: " + Truncate(aggregate.SubjectTypeOrWorkflowArea, 200);
     }
@@ -563,14 +564,14 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
         List<string> list = new(2);
 
         if (!string.IsNullOrWhiteSpace(aggregate.SubjectTypeOrWorkflowArea))
-        
+
             list.Add(aggregate.SubjectTypeOrWorkflowArea.Trim());
-        
+
 
         if (!string.IsNullOrWhiteSpace(aggregate.PatternKey))
-        
+
             list.Add("pattern:" + aggregate.PatternKey.Trim());
-        
+
 
         return list.Distinct(StringComparer.Ordinal).OrderBy(static s => s, StringComparer.Ordinal).ToArray();
     }
@@ -578,22 +579,46 @@ public sealed class ImprovementThemeExtractionService : IImprovementThemeExtract
     private static string Truncate(string value, int maxChars)
     {
         if (value.Length <= maxChars)
-        
+
             return value;
-        
+
 
         return value[..maxChars];
     }
 
     private sealed class ThemeAccumulator
     {
-        public required string CanonicalKey { get; init; }
-        public required string GroupingExplanation { get; init; }
-        public required string Name { get; init; }
-        public required string Description { get; init; }
-        public required int EvidenceCount { get; init; }
-        public required IReadOnlyList<string> AffectedArtifactTypes { get; init; }
-        public required DateTime FirstSeenUtc { get; init; }
-        public required DateTime LastSeenUtc { get; init; }
+        public required string CanonicalKey
+        {
+            get; init;
+        }
+        public required string GroupingExplanation
+        {
+            get; init;
+        }
+        public required string Name
+        {
+            get; init;
+        }
+        public required string Description
+        {
+            get; init;
+        }
+        public required int EvidenceCount
+        {
+            get; init;
+        }
+        public required IReadOnlyList<string> AffectedArtifactTypes
+        {
+            get; init;
+        }
+        public required DateTime FirstSeenUtc
+        {
+            get; init;
+        }
+        public required DateTime LastSeenUtc
+        {
+            get; init;
+        }
     }
 }

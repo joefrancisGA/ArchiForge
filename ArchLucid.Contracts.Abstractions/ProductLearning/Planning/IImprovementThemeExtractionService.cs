@@ -1,4 +1,7 @@
-namespace ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Contracts.ProductLearning;
+using ArchLucid.Contracts.ProductLearning.Planning;
+
+namespace ArchLucid.Contracts.Abstractions.ProductLearning.Planning;
 
 /// <summary>
 /// Derives recurring improvement themes from 58R aggregation snapshots and scoped pilot signals (deterministic; no NLP/LLM).
