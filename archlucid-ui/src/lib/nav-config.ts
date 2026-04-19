@@ -95,7 +95,7 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses
  * **`useEnterpriseMutationCapability()`** — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`**
  * links here; keep both aligned with C# policies. **Audit CSV export** is a documented exception: gated on **`/me`** roles
- * (**Auditor**/**Admin**) on the audit page, not this nav field alone.
+ * (**Auditor** and **Admin**) on the audit page, not this nav field alone.
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *

@@ -184,4 +184,69 @@ describe("authority seam regression", () => {
 
     expect(fromAuditor).toEqual(fromRead);
   });
+
+  /**
+   * `useNavCallerAuthorityRank` can be **0** while JWT **`/me`** is unset (`OperatorNavAuthorityProvider`). That is stricter
+   * than Reader for **`ReadAuthority`**-gated links — catches `navLinkVisibleForCallerRank` accidentally treating **0** like Read.
+   */
+  it("hides ReadAuthority-gated nav from caller rank 0 while Read rank still passes", () => {
+    const readOnlyLink = {
+      href: "/_probe-read-tier-nav",
+      label: "Probe",
+      title: "",
+      tier: "extended" as const,
+      requiredAuthority: "ReadAuthority" as const,
+    };
+
+    expect(navLinkVisibleForCallerRank(readOnlyLink, 0)).toBe(false);
+    expect(navLinkVisibleForCallerRank(readOnlyLink, AUTHORITY_RANK.ReadAuthority)).toBe(true);
+  });
+
+  /**
+   * Default first-pilot Enterprise strip is inbox-only because **`/alerts`** stays **`essential`** tier — tier runs before
+   * authority in **`nav-shell-visibility.ts`** (see **`nav-shell-visibility.test.ts`**).
+   */
+  it("keeps Enterprise Alerts inbox on essential tier in nav-config", () => {
+    const alerts = enterpriseLinks?.find((l) => l.href === "/alerts");
+
+    expect(alerts?.tier).toBe("essential");
+  });
+
+  /**
+   * Sidebar / palette iterate filtered links in **`nav-config`** order; a `.sort()` or Set iteration in the filter would
+   * churn UX and complicate deep-link expectations.
+   */
+  it("preserves nav-config link order when filtering Enterprise Controls by authority", () => {
+    expect(enterpriseLinks).toBeDefined();
+
+    const filtered = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.AdminAuthority);
+    const hrefOrder = enterpriseLinks!.map((l) => l.href);
+    const hrefSet = new Set(filtered.map((l) => l.href));
+    const expectedOrder = hrefOrder.filter((href) => hrefSet.has(href));
+
+    expect(filtered.map((l) => l.href)).toEqual(expectedOrder);
+  });
+
+  /**
+   * **`listNavGroupsVisibleInOperatorShell`** walks **`NAV_GROUPS`** in file order; emitting groups out-of-order would
+   * regress sidebar / mobile drawer composition without a type error.
+   */
+  it("preserves NAV_GROUPS order in listNavGroupsVisibleInOperatorShell for default Reader shell", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+    const indexById = new Map(NAV_GROUPS.map((g, i) => [g.id, i] as const));
+    const indices = rows.map((r) => indexById.get(r.group.id));
+
+    for (const idx of indices) {
+      expect(idx).toBeDefined();
+    }
+
+    for (let i = 1; i < indices.length; i++) {
+      expect(indices[i]!).toBeGreaterThan(indices[i - 1]!);
+    }
+  });
 });

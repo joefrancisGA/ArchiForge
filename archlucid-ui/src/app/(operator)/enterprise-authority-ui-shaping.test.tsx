@@ -18,6 +18,7 @@ const apiHoisted = vi.hoisted(() => ({
   getEffectivePolicyContent: vi.fn(),
   listPolicyPackVersions: vi.fn(),
   listAlertsPaged: vi.fn(),
+  listAlertRules: vi.fn(),
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -30,6 +31,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     getEffectivePolicyContent: apiHoisted.getEffectivePolicyContent,
     listPolicyPackVersions: apiHoisted.listPolicyPackVersions,
     listAlertsPaged: apiHoisted.listAlertsPaged,
+    listAlertRules: apiHoisted.listAlertRules,
   };
 });
 
@@ -43,6 +45,7 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+import AlertRulesPage from "./alert-rules/page";
 import AlertsPage from "./alerts/page";
 import PolicyPacksPage from "./policy-packs/page";
 
@@ -78,6 +81,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
     apiHoisted.listPolicyPackVersions.mockResolvedValue([]);
     apiHoisted.listAlertsPaged.mockResolvedValue({ items: [sampleAlert], totalCount: 1 });
+    apiHoisted.listAlertRules.mockResolvedValue([]);
   });
 
   it("Policy packs: Create pack stays disabled when mutation capability is false", async () => {
@@ -119,6 +123,24 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Acknowledge" })).not.toBeDisabled();
+    });
+  });
+
+  it("Alert rules: Create rule stays disabled when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<AlertRulesPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Create rule" })).toBeDisabled();
+    });
+  });
+
+  it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
+    mutateCapability.current = true;
+    render(<AlertRulesPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Create rule" })).not.toBeDisabled();
     });
   });
 });
