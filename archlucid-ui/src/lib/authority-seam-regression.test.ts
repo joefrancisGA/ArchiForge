@@ -7,7 +7,11 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { normalizeAuthMeResponse, operatorNavOutsideProviderPrincipal, shellBootstrapReadPrincipal } from "@/lib/current-principal";
+import {
+  normalizeAuthMeResponse,
+  operatorNavOutsideProviderPrincipal,
+  shellBootstrapReadPrincipal,
+} from "@/lib/current-principal";
 import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import {
@@ -160,5 +164,24 @@ describe("authority seam regression", () => {
     const enterprise = rows.find((r) => r.group.id === "alerts-governance");
 
     expect(enterprise?.visibleLinks.map((l) => l.href)).toEqual(["/alerts"]);
+  });
+
+  /**
+   * Auditor maps to Read rank in `normalizeAuthMeResponse` but is a distinct primary role for audit UX; Enterprise nav
+   * filtering must still match literal Read rank so Execute-tier hrefs stay omitted.
+   */
+  it("filters Enterprise nav links for Auditor /me principal the same as for ReadAuthority rank", () => {
+    expect(enterpriseLinks).toBeDefined();
+
+    const auditorRank = normalizeAuthMeResponse({
+      claims: [{ type: "roles", value: "Auditor" }],
+    }).authorityRank;
+
+    expect(auditorRank).toBe(AUTHORITY_RANK.ReadAuthority);
+
+    const fromAuditor = filterNavLinksByAuthority(enterpriseLinks!, auditorRank).map((l) => l.href);
+    const fromRead = filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ReadAuthority).map((l) => l.href);
+
+    expect(fromAuditor).toEqual(fromRead);
   });
 });

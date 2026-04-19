@@ -83,16 +83,19 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   hrefs stay visible for Reader with default tier toggles. **`OperatorNavAuthorityProvider.test.tsx`** —
  *   **`useNavCallerAuthorityRank`** stays Read during JWT **`/me`** refetch so stale Execute rank does not flash in nav or hooks.
  *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
- *   **`ExecuteAuthority`** numeric floor as mutation hooks (incl. **`GovernanceResolutionRankCue`**, **`AuditLogRankCue`**,
- *   **`AlertOperatorToolingRankCue`**). **`nav-shell-visibility.test.ts`** also locks **Core Pilot** extended **Execute**
+ *   **`ExecuteAuthority`** numeric floor as mutation hooks (governance resolution, audit log, **Alerts inbox**, **governance
+ *   dashboard** reader cue, alert tooling). **`nav-shell-visibility.test.ts`** also locks **Core Pilot** extended **Execute**
  *   links (e.g. **`/replay`**) behind **Show more** — tier before rank. **`current-principal.test.ts`** locks **`maxAuthority`**
  *   vs **`requiredAuthorityFromRank`** and **`hasEnterpriseOperatorSurfaces`** vs mutation capability.
+ *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Core Pilot** essentials omit **`requiredAuthority`**;
+ *   **Advanced/Enterprise** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
  *
  * **`requiredAuthority` vs Enterprise POSTs:** this field shapes **nav / palette visibility** after tier filtering only
  * (higher **caller rank** does **not** bypass **`tier`** — e.g. Enterprise **extended** hrefs stay hidden until “Show more”;
  * **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses
  * **`useEnterpriseMutationCapability()`** — same **`AUTHORITY_RANK.ExecuteAuthority`** floor as **`ExecuteAuthority`**
- * links here; keep both aligned with C# policies.
+ * links here; keep both aligned with C# policies. **Audit CSV export** is a documented exception: gated on **`/me`** roles
+ * (**Auditor**/**Admin**) on the audit page, not this nav field alone.
  *
  * **Authority (`requiredAuthority`) — first-pass map (UI hint only; API still 401/403):**
  *

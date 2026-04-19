@@ -12,8 +12,7 @@
  * Shared one-liner under alert-tooling “Change configuration” sections — replaces repeating “Configuration surface…”
  * on every page (`alert-rules`, `alert-routing`, `alert-tuning`, `composite-alert-rules`).
  */
-export const alertToolingConfigureSectionSubline =
-  "Blocks below: operator configuration (API). Inbox-first pilots.";
+export const alertToolingConfigureSectionSubline = "Operator configuration below (API).";
 
 /** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
 export const enterpriseMutationControlDisabledTitle =
@@ -27,53 +26,41 @@ export const auditExportControlDisabledTitle =
   "CSV export requires Auditor or Admin on the API for this tenant; search above still works for your role.";
 
 /** Sidebar / mobile: reader sees fewer links in this group */
-export const enterpriseNavHintReaderRank =
-  "Read-focused nav; operator links omitted. Optional vs Core Pilot.";
+export const enterpriseNavHintReaderRank = "Read-tier nav; operator links omitted.";
 
-/** Sidebar / mobile: operator+ still reminded this layer is optional vs Core Pilot */
-export const enterpriseNavHintOperatorRank =
-  "Governance and platform depth; optional vs Core Pilot.";
+/** Sidebar / mobile: operator+ framing for Enterprise group */
+export const enterpriseNavHintOperatorRank = "Governance and platform depth beyond Core Pilot.";
 
 /**
  * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:
  * below Execute → reader framing).
  */
-export const layerHeaderEnterpriseReaderRankLine =
-  "Read-focused here; operator/admin writes. Optional vs Core Pilot.";
+export const layerHeaderEnterpriseReaderRankLine = "Read tier: inspect; writes need Execute+ (API).";
 
-export const layerHeaderEnterpriseOperatorRankLine =
-  "Operator/admin surface; optional vs Core Pilot.";
+export const layerHeaderEnterpriseOperatorRankLine = "Execute+ writes (API-enforced).";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
-export const enterpriseExecutePageHintReaderRank =
-  "Operator/admin writes; API-enforced. Optional vs Core Pilot.";
+export const enterpriseExecutePageHintReaderRank = "Writes need Execute+ in this shell (API-enforced).";
 
 /** Second line on governance resolution — readers vs operators (see `GovernanceResolutionRankCue`). */
-export const governanceResolutionRankReaderLine =
-  "Edits use policy packs or workflow (API).";
+export const governanceResolutionRankReaderLine = "Edits: policy packs or workflow (API).";
 
-export const governanceResolutionRankOperatorLine =
-  "Ordering/assignments: packs or workflow—not this page.";
+export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
 /** Governance resolution — one line under the page title (LayerHeader carries when-to-use). */
-export const governanceResolutionPageSubline =
-  "Effective JSON below; read-only on this route.";
+export const governanceResolutionPageSubline = "Read-only route.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine =
-  "Read-only queue at this rank; approvals need Execute+ on the API.";
+  "Queue is read-only here; row actions need Execute+ (API).";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
-  "One run: load ID, then submit → approve/reject → promote → activate.";
+  "One run: load ID → submit → approve/reject → promote → activate.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader =
-  "Load a run ID to inspect rows; workflow writes need operator/admin on the API.";
-
-/** Governance workflow page — shown when resolved rank is operator+ (Reader already gets `EnterpriseControlsExecutePageHint`). */
-export const enterpriseGovernanceWorkflowOperatorPlusLine =
-  "Each step is API-enforced by role.";
+  "Load a run ID to inspect workflow rows.";
 
 /**
  * Governance workflow — inline review card when rank is below Execute (defense if UI state still shows the form;
@@ -91,40 +78,33 @@ export const enterprisePolicyPacksOperatorPlusLine =
  * Stacked Execute hint + operator line were consolidated into this pair.
  */
 export const alertOperatorToolingReaderRankLine =
-  "Inspect/simulate first; writes operator/admin (API). Optional vs Core Pilot.";
+  "Inspect list and history above; configuration below needs Execute+ (API).";
 
-export const alertOperatorToolingOperatorRankLine =
-  "Operator writes API-enforced. Optional vs Core Pilot.";
+export const alertOperatorToolingOperatorRankLine = "Writes below are API-enforced.";
 
 /** Alerts inbox — lead paragraph under page title (Execute+). */
 export const alertsPageLeadOperator =
   "Filter, then triage. Shortcuts: Alt+1 ack · Alt+2 resolve · Alt+3 suppress.";
 
 /** Alerts inbox — lead paragraph under page title (read tier). */
-export const alertsPageLeadReader =
-  "Filter and refresh to inspect; triage and shortcuts off at this rank (API authoritative).";
+export const alertsPageLeadReader = "Filter and refresh the inbox.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
-export const alertsInboxRankReaderLine =
-  "Read-only triage at this rank; API enforces writes.";
+export const alertsInboxRankReaderLine = "Ack / resolve / suppress need Execute+ here (API).";
 
-export const alertsInboxRankOperatorLine =
-  "Triage writes API-enforced.";
+export const alertsInboxRankOperatorLine = "Triage writes are API-enforced.";
 
 /** Alerts triage confirmation dialog — extra copy when rank is below Execute (`alerts/page.tsx`). */
 export const alertsTriageDialogReaderNote =
   "Confirm requires operator-level access in this shell; the API enforces every write.";
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
-export const auditLogRankReaderLine =
-  "Search here; CSV needs Auditor/Admin + From/To on the API.";
+export const auditLogRankReaderLine = "CSV export: Auditor or Admin on the API (same From/To).";
 
-export const auditLogRankOperatorLine =
-  "Search and bounded export; roles enforced on the API.";
+export const auditLogRankOperatorLine = "Export is role-gated on the API.";
 
 /** Governance dashboard — operator+ when `GovernanceDashboardReaderActionCue` is hidden */
-export const governanceDashboardOperatorPlusLine =
-  "Cross-run writes API-enforced.";
+export const governanceDashboardOperatorPlusLine = "Cross-run actions are API-enforced.";
 
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
@@ -159,7 +139,7 @@ export const policyPacksPublishedVersionsEmptyOperatorLine =
 
 /** Policy packs — one line under Lifecycle heading for read tier (forms below stay soft-disabled). */
 export const policyPacksLifecycleLeadReaderLine =
-  "Create, publish, and assign below stay operator/admin surface at your rank; API still enforces writes.";
+  "Lifecycle below: Execute+ only at your rank (API-enforced).";
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
@@ -214,21 +194,12 @@ export const auditSearchNoResultsReaderLine =
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
 /** Audit log — under “Search audit events” for read tier (Execute floor; CSV export still Auditor/Admin on API). */
-export const auditSearchSectionLeadReaderLine =
-  "Search = inspect; export last, same From/To (CSV: Auditor/Admin on API).";
-
-/** Alert rules — one line under `AlertOperatorToolingRankCue` for read tier (list + refresh stay usable). */
-export const alertRulesPageIntroReaderLine =
-  "List + refresh: inspect. Create and thresholds: operator rank.";
-
-/** Alert routing — one line under `AlertOperatorToolingRankCue` for read tier (delivery attempts stay read-only). */
-export const alertRoutingPageIntroReaderLine =
-  "Subscriptions and delivery history: inspect. Toggles and new routes: operator rank.";
+export const auditSearchSectionLeadReaderLine = "Search first; export last (same From/To; Auditor/Admin on API).";
 
 /** Alert rules — under “Change configuration” for read tier. */
 export const alertRulesChangeConfigurationLeadReaderLine =
-  "Thresholds and Create below stay operator/admin at your rank; API enforces writes.";
+  "Create and thresholds below: Execute+ at your rank (API).";
 
 /** Alert routing — under “Change configuration” for read tier. */
 export const alertRoutingChangeConfigurationLeadReaderLine =
-  "New subscriptions and toggles below stay operator/admin at your rank; API enforces writes.";
+  "New routes and toggles below: Execute+ at your rank (API).";

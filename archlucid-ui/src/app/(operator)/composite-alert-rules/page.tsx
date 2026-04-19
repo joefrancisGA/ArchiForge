@@ -118,7 +118,7 @@ export default function CompositeAlertRulesPage() {
       <LayerHeader pageKey="composite-alert-rules" />
       <h2 style={{ marginTop: 0 }}>Composite alert rules</h2>
       <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Defined composites first; create with the form below.
+        Current composites first; AND/OR form below.
       </p>
       <AlertOperatorToolingRankCue />
 

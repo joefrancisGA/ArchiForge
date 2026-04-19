@@ -26,6 +26,10 @@
  * **`nav-shell-visibility.ts`** before **`filterNavLinksByAuthority`**. Drift between consumers breaks the story in
  * **docs/PRODUCT_PACKAGING.md** §3.
  *
+ * **Route-local exception (still API-authoritative):** audit **CSV export** enablement on **`/audit`** uses raw
+ * **`roleClaimValues`** (**Auditor** / **Admin**) to mirror **`RequireAuditor`** — not **`useEnterpriseMutationCapability()`**
+ * and not **`LayerHeader`** rank lines. Do not “fix” export gating by moving it to **`authorityRank`** without an explicit product decision.
+ *
  * ## Role → policy normalization (UX only; server enforces policies)
  *
  * App roles are read from Entra-style **`roles`** and **`ClaimTypes.Role`** claims (`nav-authority.ts`).

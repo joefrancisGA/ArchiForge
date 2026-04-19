@@ -7,6 +7,7 @@
 **Canonical buyer narrative:** For sponsor-facing summary and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**. This document is the operator-facing first-pilot path, not a second buyer summary.
 
 **Related docs:**
+- [docs/PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 — *Code seams* / *Contributor drift guard*: keep operator **nav**, **`LayerHeader`**, and **API** policies aligned when a route sits on the Core Pilot path vs discovery-only surfaces.
 - [docs/V1_SCOPE.md](V1_SCOPE.md) §4 — authoritative V1 boundary and extended-operation inventory.
 - [docs/operator-shell.md](operator-shell.md) — operator UI workflow and API contract expectations.
 - [docs/PILOT_GUIDE.md](PILOT_GUIDE.md) — full pilot onboarding narrative.

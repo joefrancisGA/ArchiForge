@@ -6,6 +6,8 @@ import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  alertsInboxRankOperatorLine,
+  alertsInboxRankReaderLine,
   alertOperatorToolingOperatorRankLine,
   alertOperatorToolingReaderRankLine,
   auditLogRankOperatorLine,
@@ -13,6 +15,7 @@ import {
   enterpriseExecutePageHintReaderRank,
   enterpriseNavHintOperatorRank,
   enterpriseNavHintReaderRank,
+  governanceDashboardReaderActionLine,
   governanceResolutionRankOperatorLine,
   governanceResolutionRankReaderLine,
 } from "@/lib/enterprise-controls-context-copy";
@@ -27,11 +30,13 @@ vi.mock("@/components/OperatorNavAuthorityProvider", () => ({
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import {
+  AlertsInboxRankCue,
   AlertOperatorToolingRankCue,
   AuditLogRankCue,
   EnterpriseControlsExecutePageHint,
   EnterpriseControlsNavGroupHint,
   EnterpriseExecutePlusPageCue,
+  GovernanceDashboardReaderActionCue,
   GovernanceResolutionRankCue,
 } from "./EnterpriseControlsContextHints";
 
@@ -134,6 +139,41 @@ describe("EnterpriseControlsContextHints authority shaping", () => {
       render(<AuditLogRankCue />);
 
       expect(screen.getByRole("note")).toHaveTextContent(auditLogRankOperatorLine);
+    });
+  });
+
+  /** Alerts inbox: second line under LayerHeader; must stay aligned with triage soft-disable threshold. */
+  describe("AlertsInboxRankCue", () => {
+    it("selects reader vs operator lines at the Execute boundary", () => {
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
+      const { unmount } = render(<AlertsInboxRankCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(alertsInboxRankReaderLine);
+
+      unmount();
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
+      render(<AlertsInboxRankCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(alertsInboxRankOperatorLine);
+    });
+  });
+
+  /**
+   * Governance dashboard: reader-only queue cue is rank-gated so Execute+ operators are not told their queue is read-only.
+   */
+  describe("GovernanceDashboardReaderActionCue", () => {
+    it("shows the reader queue line below Execute rank", () => {
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ReadAuthority;
+      render(<GovernanceDashboardReaderActionCue />);
+
+      expect(screen.getByRole("note")).toHaveTextContent(governanceDashboardReaderActionLine);
+    });
+
+    it("renders nothing at Execute+ (row actions available; avoid contradicting enabled controls)", () => {
+      navCallerAuthorityRank.current = AUTHORITY_RANK.ExecuteAuthority;
+      const { container } = render(<GovernanceDashboardReaderActionCue />);
+
+      expect(container.firstChild).toBeNull();
     });
   });
 });

@@ -303,7 +303,7 @@ export default function GovernanceDashboardPage() {
       <LayerHeader pageKey="governance-dashboard" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance dashboard</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        Cross-run snapshot (~30s refresh). Row → that run’s workflow.
+        Cross-run snapshot (~30s refresh). A row opens workflow for that run.
       </p>
       <GovernanceDashboardReaderActionCue />
       <EnterpriseExecutePlusPageCue message={governanceDashboardOperatorPlusLine} />

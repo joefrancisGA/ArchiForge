@@ -55,4 +55,38 @@ describe("nav-config structure", () => {
       expect(link.tier, link.href).not.toBe("essential");
     }
   });
+
+  /**
+   * Core Pilot essentials intentionally omit `requiredAuthority` so bootstrap / conservative ranks still see the
+   * default path (`nav-config` Authority block). A stray Read/Execute label on Home or Runs would regress first pilots.
+   */
+  it("keeps requiredAuthority unset on Core Pilot essential-tier links", () => {
+    const core = NAV_GROUPS.find((group) => group.id === "runs-review");
+
+    expect(core).toBeDefined();
+
+    for (const link of core!.links) {
+      if (link.tier === "essential") {
+        expect(link.requiredAuthority, link.href).toBeUndefined();
+      }
+    }
+  });
+
+  /**
+   * Same structural rule as Enterprise: Execute-class Advanced links must not sit on `essential`, or they could
+   * appear before progressive disclosure even when rank allows Execute (`nav-shell-visibility` tier order).
+   */
+  it("keeps ExecuteAuthority Advanced Analysis links off essential tier", () => {
+    const advanced = NAV_GROUPS.find((group) => group.id === "qa-advisory");
+
+    expect(advanced).toBeDefined();
+
+    const executeLinks = advanced!.links.filter((link) => link.requiredAuthority === "ExecuteAuthority");
+
+    expect(executeLinks.length).toBeGreaterThan(0);
+
+    for (const link of executeLinks) {
+      expect(link.tier, link.href).not.toBe("essential");
+    }
+  });
 });

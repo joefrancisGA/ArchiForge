@@ -64,86 +64,77 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Enterprise Controls",
     headline: "Answers: which cross-run approvals and governance signals need attention?",
     useWhen: "Cross-run snapshot; per-run actions stay on the workflow route.",
-    firstPilotNote: "Defer until a cross-run queue is part of operating rhythm.",
-    enterpriseFootnote:
-      "Cross-run evidence; operator/admin writes. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until a cross-run queue is daily work.",
+    enterpriseFootnote: "Cross-run evidence; operator/admin writes.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
     useWhen: "Inbox for triage; thresholds and delivery live under Alert tooling.",
-    firstPilotNote: "Defer rules/routing depth until the inbox is in daily use.",
-    enterpriseFootnote: "Inbox first; rules, routing, tuning are follow-on depth.",
+    firstPilotNote: "Skip deep rule work until the inbox is daily.",
+    enterpriseFootnote: "Inbox first; rules and routing are follow-on.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
     useWhen: "Search for rows; CSV reuses From/To plus Auditor or Admin on the API.",
-    firstPilotNote: "Defer export until the window and roles are settled.",
-    enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
+    firstPilotNote: "Skip export until the window and roles are settled.",
+    enterpriseFootnote: "Evidence search and bounded export.",
   },
   "governance-resolution": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which policy content is in effect for this scope after pack ordering?",
     useWhen: "Read the effective stack before changing packs or workflow elsewhere.",
-    firstPilotNote: "Defer until pack ordering is a real question.",
-    enterpriseFootnote:
-      "Effective policy here; changes live in policy packs or workflow. Not required for Core Pilot.",
+    firstPilotNote: "Skip until ordering is a real question.",
+    enterpriseFootnote: "Effective stack here; edits in policy packs or workflow.",
   },
   "governance-workflow": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: run-scoped submit, approve/reject, promote, and activate?",
     useWhen: "One run at a time; Core Pilot stays request → commit → artifacts.",
-    firstPilotNote: "Defer until promotions or segregation of duties apply.",
-    enterpriseFootnote:
-      "Approvals and activation: operator surface, API-enforced. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until promotions or segregation of duties apply.",
+    enterpriseFootnote: "Run-scoped approvals; API role gates.",
   },
   "policy-packs": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what packs exist, what is published, and what applies in this scope?",
     useWhen: "Effective inventory and JSON before lifecycle actions.",
-    firstPilotNote: "Defer until policy control is explicit.",
-    enterpriseFootnote:
-      "Read/compare first; lifecycle is API-enforced configuration. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until you own pack lifecycle.",
+    enterpriseFootnote: "Read/compare first; lifecycle writes are API configuration.",
   },
   "alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which metric thresholds should raise alerts after advisory scans?",
     useWhen: "Thresholds on scan outcomes—not inbox triage.",
-    firstPilotNote: "Skip until thresholds are part of how you operate.",
-    enterpriseFootnote:
-      "Metric threshold configuration. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until thresholds are operational.",
+    enterpriseFootnote: "Metric thresholds on scan outcomes.",
   },
   "alert-routing": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: where should fired alerts be delivered when severity thresholds are met?",
     useWhen: "Delivery targets for fired alerts—not digest mail.",
-    firstPilotNote: "Defer until real-time routing matters.",
-    enterpriseFootnote:
-      "Alert delivery configuration. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until live routing matters.",
+    enterpriseFootnote: "Delivery targets for fired alerts.",
   },
   "alert-simulation": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how would rules behave against recent runs before changing production thresholds?",
     useWhen: "Dry-run on history; live triage stays on Alerts.",
-    firstPilotNote: "Defer until you have scan-backed what-if questions.",
-    enterpriseFootnote:
-      "Simulation before production rule changes. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until you have concrete what-if questions.",
+    enterpriseFootnote: "Dry-run before changing production thresholds.",
   },
   "alert-tuning": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which threshold values balance coverage and noise for a chosen rule?",
     useWhen: "Use simulation scores when noise or coverage is measurable.",
-    firstPilotNote: "Defer until simulation shows a clear tradeoff.",
-    enterpriseFootnote:
-      "Threshold tuning configuration. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until simulation shows a tradeoff.",
+    enterpriseFootnote: "Threshold tuning from simulation evidence.",
   },
   "composite-alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how do we combine multiple scan metrics with AND/OR before firing an alert?",
     useWhen: "AND/OR and cooldown when one threshold is not enough.",
-    firstPilotNote: "Defer until composite firing logic is in scope.",
-    enterpriseFootnote:
-      "Composite rule configuration. Optional vs Core Pilot.",
+    firstPilotNote: "Skip until composite firing logic is in scope.",
+    enterpriseFootnote: "Composite AND/OR and cooldown configuration.",
   },
 };

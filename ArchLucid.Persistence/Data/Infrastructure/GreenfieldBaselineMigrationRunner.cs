@@ -51,8 +51,11 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </para>
     /// <para>
     /// If pre-flight detection still misses, replaying <c>001</c> can raise a duplicate-object error for
-    /// <c>ArchitectureRequests</c>; that case is caught and repaired with the same stamp / optional <c>017</c>–<c>050</c>
+    /// <c>ArchitectureRequests</c> (or <c>017_GovernanceWorkflow</c> for <c>GovernanceApprovalRequests</c> and related tables);
+    /// that case is caught and repaired with the same stamp / optional <c>017</c>–<c>050</c>
     /// or <c>035</c>–<c>050</c> replay (depending on <c>dbo.Runs</c>) as the tenant-exists branch.
+    /// Embedded names sort lexicographically, so <c>017_GovernanceWorkflow</c> runs before <c>017_GraphSnapshots_ParentTables</c>;
+    /// when governance tables already exist, that file is skipped during replay so the graph parent script can still run.
     /// </para>
     /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
@@ -68,7 +71,7 @@ public static partial class GreenfieldBaselineMigrationRunner
 
         Assembly assembly = Assembly.GetExecutingAssembly();
 
-        if (TenantCoreTablesFromInitialMigrationExist(connection))
+        if (TenantCoreTablesFromInitialMigrationExist(connection) || GovernanceWorkflow017TablesExist(connection))
         {
             StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
 
@@ -82,7 +85,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         {
             ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
         }
-        catch (SqlException ex) when (IsDuplicateArchitectureRequestsCreateFailure(ex))
+        catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex))
         {
             StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
 
@@ -114,18 +117,39 @@ public static partial class GreenfieldBaselineMigrationRunner
     }
 
     /// <summary>
-    /// SQL Server duplicate-object on <c>CREATE TABLE ArchitectureRequests</c> (e.g. error 2714) or equivalent message text.
+    /// SQL Server duplicate-object on <c>CREATE TABLE</c> for tables introduced in <c>001</c> or <c>017_GovernanceWorkflow</c>
+    /// (error 2714 / "already an object named …") — repaired like the tenant-present path.
     /// </summary>
-    private static bool IsDuplicateArchitectureRequestsCreateFailure(SqlException ex)
+    internal static bool IsKnownDuplicateInitialMigrationTable(SqlException ex)
     {
-        if (!ex.Message.Contains("ArchitectureRequests", StringComparison.OrdinalIgnoreCase))
+        if (ex is null)
             return false;
 
-        if (ex.Message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
+        return IsKnownDuplicateInitialMigrationTable(ex.Message, ex.Number);
+    }
+
+    /// <summary>Test seam: same predicate as <see cref="IsKnownDuplicateInitialMigrationTable(SqlException)"/> without constructing <see cref="SqlException"/>.</summary>
+    internal static bool IsKnownDuplicateInitialMigrationTable(string message, int errorNumber)
+    {
+        if (string.IsNullOrEmpty(message))
+            return false;
+
+        if (!ContainsAnyKnownBaselineDuplicateTableName(message))
+            return false;
+
+        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
             return true;
 
         // SQL Server: "There is already an object named '…' in the database."
-        return ex.Number == 2714;
+        return errorNumber == 2714;
+    }
+
+    private static bool ContainsAnyKnownBaselineDuplicateTableName(string message)
+    {
+        return message.Contains("ArchitectureRequests", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("GovernanceApprovalRequests", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("GovernancePromotionRecords", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("GovernanceEnvironmentActivations", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Runs embedded incremental migrations whose script number is in <paramref name="minInclusive"/>–<paramref name="maxInclusive"/> (inclusive).</summary>
@@ -143,6 +167,9 @@ public static partial class GreenfieldBaselineMigrationRunner
 
             int n = int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
             if (n < minInclusive || n > maxInclusive)
+                continue;
+
+            if (ShouldSkipEmbeddedMigrationResourceAlreadyApplied(connection, resourceName))
                 continue;
 
             string sql = ReadEmbeddedScript(assembly, resourceName);
@@ -177,6 +204,59 @@ public static partial class GreenfieldBaselineMigrationRunner
             return asBool;
 
         return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
+    }
+
+    /// <summary>
+    /// True when <c>017_GovernanceWorkflow.sql</c> objects already exist (unqualified <c>CREATE TABLE</c>; same drift cases as <c>001</c>).
+    /// Any of the three workflow tables blocks a full replay of that script.
+    /// </summary>
+    private static bool GovernanceWorkflow017TablesExist(SqlConnection connection)
+    {
+        const string sql = """
+            SELECT CASE
+                WHEN OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL THEN 1
+                WHEN OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL THEN 1
+                WHEN OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL THEN 1
+                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.GovernanceApprovalRequests', N'U') IS NOT NULL THEN 1
+                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.GovernancePromotionRecords', N'U') IS NOT NULL THEN 1
+                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.GovernanceEnvironmentActivations', N'U') IS NOT NULL THEN 1
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM sys.objects AS o
+                    INNER JOIN sys.schemas AS s ON o.schema_id = s.schema_id
+                    WHERE o.name IN (
+                        N'GovernanceApprovalRequests',
+                        N'GovernancePromotionRecords',
+                        N'GovernanceEnvironmentActivations')
+                      AND s.name = SCHEMA_NAME()
+                      AND o.is_ms_shipped = 0
+                ) THEN 1
+                ELSE 0
+            END;
+            """;
+
+        using SqlCommand command = new(sql, connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null || scalar is DBNull)
+            return false;
+
+        if (scalar is bool asBool)
+            return asBool;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
+    }
+
+    /// <summary>
+    /// Two <c>017_*.sql</c> files sort lexicographically: <c>017_GovernanceWorkflow</c> before <c>017_GraphSnapshots_ParentTables</c>.
+    /// The workflow script is not idempotent; skip it when its tables already exist so replay can still apply graph parents.
+    /// </summary>
+    private static bool ShouldSkipEmbeddedMigrationResourceAlreadyApplied(SqlConnection connection, string resourceName)
+    {
+        if (!resourceName.Contains("017_GovernanceWorkflow", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        return GovernanceWorkflow017TablesExist(connection);
     }
 
     /// <summary>True when <c>dbo.AuditEvents</c> exists (created in <c>035_AuditProvenanceConversationTables</c>).</summary>

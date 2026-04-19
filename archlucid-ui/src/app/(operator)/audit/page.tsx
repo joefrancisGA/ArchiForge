@@ -229,7 +229,7 @@ export default function AuditPage() {
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
       <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Search → results → export. Export reuses From/To; Auditor or Admin on the API.
+        Search, then scan results. Export last and reuses the same From/To window.
       </p>
       <AuditLogRankCue />
 

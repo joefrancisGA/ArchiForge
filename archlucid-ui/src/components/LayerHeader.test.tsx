@@ -37,17 +37,13 @@ describe("LayerHeader", () => {
   it("renders Enterprise responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
-    expect(
-      screen.getByText(/Evidence search and bounded export\. Not required for Core Pilot\./i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Evidence search and bounded export\./i)).toBeInTheDocument();
   });
 
   it("renders governance resolution Enterprise footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(
-      screen.getByText(/Effective policy here; changes live in policy packs or workflow/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Effective stack here; edits in policy packs or workflow\./i)).toBeInTheDocument();
   });
 
   it("renders Enterprise rank cue on Enterprise Controls audit (operator+ rank line)", () => {

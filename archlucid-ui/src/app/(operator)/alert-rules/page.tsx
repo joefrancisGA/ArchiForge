@@ -12,7 +12,6 @@ import {
   alertRulesChangeConfigurationLeadReaderLine,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
-  alertRulesPageIntroReaderLine,
   alertToolingConfigureSectionSubline,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -83,14 +82,9 @@ export default function AlertRulesPage() {
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Defined rules above; new rule form below.
+        Current rules first; create and thresholds in the form below.
       </p>
       <AlertOperatorToolingRankCue />
-      {!canMutateAlertRules ? (
-        <p className="mb-2 max-w-prose text-xs leading-snug text-neutral-500 dark:text-neutral-400" role="note">
-          {alertRulesPageIntroReaderLine}
-        </p>
-      ) : null}
 
       {failure !== null ? (
         <div role="alert">

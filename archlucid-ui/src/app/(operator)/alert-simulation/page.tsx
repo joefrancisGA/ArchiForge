@@ -288,7 +288,7 @@ export default function AlertSimulationPage() {
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
       <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Dry-run on recent runs before changing live rules. Triage: Alerts.
+        Dry-run against history; live triage stays on Alerts.
       </p>
       <AlertOperatorToolingRankCue />
 

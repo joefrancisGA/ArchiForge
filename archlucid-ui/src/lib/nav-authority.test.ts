@@ -18,7 +18,10 @@ describe("nav-authority", () => {
   });
 
   it("treats missing requiredAuthority as visible for any caller rank", () => {
-    expect(navLinkVisibleForCallerRank({ href: "/", label: "Home", title: "", tier: "essential" }, 1)).toBe(true);
+    const corePilotLink = { href: "/", label: "Home", title: "", tier: "essential" as const };
+
+    expect(navLinkVisibleForCallerRank(corePilotLink, 0)).toBe(true);
+    expect(navLinkVisibleForCallerRank(corePilotLink, 1)).toBe(true);
   });
 
   /** Same numeric floor as `enterpriseMutationCapabilityFromRank` and `LayerHeader` Enterprise rank cue. */
