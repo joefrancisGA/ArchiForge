@@ -2,6 +2,13 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import {
+  alertOperatorToolingOperatorRankLine,
+  alertsInboxRankOperatorLine,
+  auditLogRankOperatorLine,
+  governanceResolutionRankOperatorLine,
+} from "@/lib/enterprise-controls-context-copy";
+
+import {
   AlertOperatorToolingRankCue,
   AlertsInboxRankCue,
   AuditLogRankCue,
@@ -14,9 +21,7 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
   it("GovernanceResolutionRankCue renders operator-oriented line outside shell provider (default Admin rank)", () => {
     render(<GovernanceResolutionRankCue />);
 
-    expect(
-      screen.getByText(/Ordering and assignments live in policy packs or governance workflow—not this page/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(governanceResolutionRankOperatorLine);
   });
 
   it("GovernanceDashboardReaderActionCue renders nothing outside shell provider (default Admin rank)", () => {
@@ -34,22 +39,18 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
   it("AlertsInboxRankCue renders operator triage line outside shell provider (default Admin rank)", () => {
     render(<AlertsInboxRankCue />);
 
-    expect(
-      screen.getByText(/Operator\/admin surface for triage; writes API-enforced by role/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(alertsInboxRankOperatorLine);
   });
 
   it("AuditLogRankCue renders investigation line outside shell provider (default Admin rank)", () => {
     render(<AuditLogRankCue />);
 
-    expect(
-      screen.getByText(/Evidence surface for search and export; actions API-enforced by role/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(auditLogRankOperatorLine);
   });
 
   it("AlertOperatorToolingRankCue renders operator line outside shell provider (default Admin rank)", () => {
     render(<AlertOperatorToolingRankCue />);
 
-    expect(screen.getByText(/Operator\/admin writes; API-enforced by role/i)).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(alertOperatorToolingOperatorRankLine);
   });
 });

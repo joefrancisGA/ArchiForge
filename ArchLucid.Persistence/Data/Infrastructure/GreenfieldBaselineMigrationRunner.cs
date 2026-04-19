@@ -210,29 +210,22 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// True when <c>017_GovernanceWorkflow.sql</c> objects already exist (unqualified <c>CREATE TABLE</c>; same drift cases as <c>001</c>).
     /// Any of the three workflow tables blocks a full replay of that script.
     /// </summary>
+    /// <remarks>
+    /// CI catalogs can place objects outside <c>dbo</c> or the session default schema; probing only <c>dbo</c> + <c>SCHEMA_NAME()</c>
+    /// misses them and replays <c>017_GovernanceWorkflow</c>, producing duplicate <c>GovernanceApprovalRequests</c>.
+    /// </remarks>
     private static bool GovernanceWorkflow017TablesExist(SqlConnection connection)
     {
         const string sql = """
-            SELECT CASE
-                WHEN OBJECT_ID(N'dbo.GovernanceApprovalRequests', N'U') IS NOT NULL THEN 1
-                WHEN OBJECT_ID(N'dbo.GovernancePromotionRecords', N'U') IS NOT NULL THEN 1
-                WHEN OBJECT_ID(N'dbo.GovernanceEnvironmentActivations', N'U') IS NOT NULL THEN 1
-                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.GovernanceApprovalRequests', N'U') IS NOT NULL THEN 1
-                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.GovernancePromotionRecords', N'U') IS NOT NULL THEN 1
-                WHEN OBJECT_ID(QUOTENAME(SCHEMA_NAME()) + N'.GovernanceEnvironmentActivations', N'U') IS NOT NULL THEN 1
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM sys.objects AS o
-                    INNER JOIN sys.schemas AS s ON o.schema_id = s.schema_id
-                    WHERE o.name IN (
-                        N'GovernanceApprovalRequests',
-                        N'GovernancePromotionRecords',
-                        N'GovernanceEnvironmentActivations')
-                      AND s.name = SCHEMA_NAME()
-                      AND o.is_ms_shipped = 0
-                ) THEN 1
-                ELSE 0
-            END;
+            SELECT CASE WHEN EXISTS (
+                SELECT 1
+                FROM sys.tables AS t
+                WHERE t.name IN (
+                    N'GovernanceApprovalRequests',
+                    N'GovernancePromotionRecords',
+                    N'GovernanceEnvironmentActivations')
+                  AND t.is_ms_shipped = 0
+            ) THEN 1 ELSE 0 END;
             """;
 
         using SqlCommand command = new(sql, connection);
@@ -307,6 +300,12 @@ public static partial class GreenfieldBaselineMigrationRunner
                     WHERE o.name = N'ArchitectureRequests'
                       AND s.name = SCHEMA_NAME()
                       AND o.is_ms_shipped = 0
+                ) THEN 1
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM sys.tables AS t
+                    WHERE t.name = N'ArchitectureRequests'
+                      AND t.is_ms_shipped = 0
                 ) THEN 1
                 ELSE 0
             END;
