@@ -9,6 +9,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingChangeConfigurationLeadReaderLine,
+  alertRoutingPageIntroReaderLine,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -101,6 +102,11 @@ export default function AlertRoutingPage() {
         Subscriptions and delivery history first; add or toggle below.
       </p>
       <AlertOperatorToolingRankCue />
+      {!canMutateRouting ? (
+        <p className="mb-2 max-w-prose text-xs leading-snug text-neutral-500 dark:text-neutral-400" role="note">
+          {alertRoutingPageIntroReaderLine}
+        </p>
+      ) : null}
 
       {failure !== null ? (
         <div role="alert">

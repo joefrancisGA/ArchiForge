@@ -88,4 +88,40 @@ public static class SanitizedLoggerInformationExtensions
             durationMs,
             verificationPassed);
     }
+
+    /// <summary>
+    /// Logs the start of an agent execution batch (run id + joined dispatch keys + task count), with user-derived strings sanitized.
+    /// </summary>
+    public static void LogInformationAgentExecutionBatchStarting(
+        this ILogger logger,
+        string userRunId,
+        string userAgentTypeKeysJoined,
+        int taskCount)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+        string safeAgentTypeKeys = LogSanitizer.Sanitize(userAgentTypeKeysJoined);
+
+        // codeql[cs/log-forging]: userRunId and joined agent type keys sanitized immediately above; taskCount is a value type.
+        logger.LogInformation(
+            "Agent execution batch starting: RunId={RunId}, TaskCount={TaskCount}, AgentTypeKeys={AgentTypeKeys}",
+            safeRunId,
+            taskCount,
+            safeAgentTypeKeys);
+    }
+
+    /// <summary>Logs completion of an agent execution batch with a sanitized run id and result count.</summary>
+    public static void LogInformationAgentExecutionBatchCompleted(this ILogger logger, string userRunId, int resultCount)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+
+        string safeRunId = LogSanitizer.Sanitize(userRunId);
+
+        // codeql[cs/log-forging]: userRunId sanitized immediately above; resultCount is a value type.
+        logger.LogInformation(
+            "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
+            safeRunId,
+            resultCount);
+    }
 }

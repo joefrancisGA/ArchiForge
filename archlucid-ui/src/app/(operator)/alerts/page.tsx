@@ -31,6 +31,8 @@ import { ALERTS_EMPTY_FILTERED } from "@/lib/empty-state-presets";
 import {
   alertsFilteredEmptyDescriptionOperator,
   alertsFilteredEmptyDescriptionReader,
+  alertsPageLeadOperator,
+  alertsPageLeadReader,
   alertsTriageDialogReaderNote,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -193,7 +195,7 @@ export default function AlertsPage() {
       <LayerHeader pageKey="alerts" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">Alerts</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        Inbox: filter first; triage changes state. Shortcuts mirror Ack / Resolve / Suppress below.
+        {canMutateAlertInbox ? alertsPageLeadOperator : alertsPageLeadReader}
       </p>
       <AlertsInboxRankCue />
 

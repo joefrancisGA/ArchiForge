@@ -134,4 +134,80 @@ public sealed class SanitizedLoggerInformationExtensionsTests
         text.Should().NotContain("\t");
         text.Should().NotContain("\r");
     }
+
+    [Fact]
+    public void LogInformationAgentExecutionBatchStarting_strips_control_chars_in_user_strings()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4]!;
+                object state = invocation.Arguments[2]!;
+                object? ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        mock.Object.LogInformationAgentExecutionBatchStarting("run\nid", "a\tb,c", 3);
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("run_id");
+        text.Should().Contain("a_b");
+        text.Should().Contain("3");
+        text.Should().NotContain("\n");
+        text.Should().NotContain("\t");
+    }
+
+    [Fact]
+    public void LogInformationAgentExecutionBatchCompleted_strips_control_chars_in_run_id()
+    {
+        Mock<ILogger> mock = new();
+        mock.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+
+        string? rendered = null;
+
+        mock.Setup(m => m.Log(
+                It.IsAny<LogLevel>(),
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception?>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
+            .Callback(new InvocationAction(invocation =>
+            {
+                Delegate formatter = (Delegate)invocation.Arguments[4]!;
+                object state = invocation.Arguments[2]!;
+                object? ex = invocation.Arguments[3];
+                rendered = formatter.DynamicInvoke(state, ex) as string;
+            }));
+
+        mock.Object.LogInformationAgentExecutionBatchCompleted("x\ry", 5);
+
+        rendered.Should().NotBeNull();
+        string text = rendered!;
+
+        text.Should().Contain("x_y");
+        text.Should().Contain("5");
+        text.Should().NotContain("\r");
+    }
+
+    [Fact]
+    public void LogInformationAgentExecutionBatchStarting_throws_when_logger_null()
+    {
+        ILogger logger = null!;
+
+        Action act = () => logger.LogInformationAgentExecutionBatchStarting("r", "t", 1);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
+    }
 }

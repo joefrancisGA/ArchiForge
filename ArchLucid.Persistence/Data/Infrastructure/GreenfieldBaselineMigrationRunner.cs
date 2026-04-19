@@ -38,8 +38,9 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// Shared CI catalogs (or a prior failed run) can leave <c>dbo.SchemaVersions</c> empty while <c>001_InitialSchema</c>
     /// objects already exist. Replaying 001 would raise "already an object named …". In that case we only stamp
     /// 001–050 so DbUp continues without re-executing DDL — but only when <c>dbo.AuditEvents</c> already exists (migration
-    /// <c>035</c>). Otherwise we replay <c>035</c>–<c>050</c> first so later DbUp scripts (e.g. <c>060</c> indexes on
-    /// <c>dbo.AuditEvents</c>) do not run against a missing table.
+    /// <c>035</c>). Otherwise we replay incremental scripts through <c>050</c> first: from <c>035</c> when <c>dbo.Runs</c>
+    /// exists, or from <c>017</c> when it does not (035–050 assume <c>dbo.Runs</c> from <c>017_GraphSnapshots_ParentTables</c>)
+    /// so later DbUp scripts (e.g. <c>060</c> indexes on <c>dbo.AuditEvents</c>) do not run against a missing table.
     /// </para>
     /// <para>
     /// A catalog can also have <b>non-empty</b> <c>dbo.SchemaVersions</c> (e.g. 051+ applied) <b>without</b> a
@@ -50,8 +51,8 @@ public static partial class GreenfieldBaselineMigrationRunner
     /// </para>
     /// <para>
     /// If pre-flight detection still misses, replaying <c>001</c> can raise a duplicate-object error for
-    /// <c>ArchitectureRequests</c>; that case is caught and repaired with the same stamp / optional <c>035</c>–<c>050</c>
-    /// replay as the tenant-exists branch.
+    /// <c>ArchitectureRequests</c>; that case is caught and repaired with the same stamp / optional <c>017</c>–<c>050</c>
+    /// or <c>035</c>–<c>050</c> replay (depending on <c>dbo.Runs</c>) as the tenant-exists branch.
     /// </para>
     /// </remarks>
     public static void TryApplyBaselineAndStampThrough050(string connectionString)
@@ -93,15 +94,19 @@ public static partial class GreenfieldBaselineMigrationRunner
     }
 
     /// <summary>
-    /// Stamps 001–050 into <c>dbo.SchemaVersions</c> and replays <c>035</c>–<c>050</c> when <c>dbo.AuditEvents</c> is missing
-    /// (partial catalog repair).
+    /// Stamps 001–050 into <c>dbo.SchemaVersions</c> and replays incremental scripts when <c>dbo.AuditEvents</c> is missing
+    /// (partial catalog repair). Replays from <b>017</b> when <c>dbo.Runs</c> is absent — migrations in the 035–050 range
+    /// (e.g. <c>039_RowVersion</c>, <c>036_Rls</c>) assume <c>dbo.Runs</c> exists (created in <c>017_GraphSnapshots_ParentTables</c>).
     /// </summary>
     private static void StampThrough050OrReplay035IfAuditMissingThenStamp(SqlConnection connection, Assembly assembly)
     {
         if (!DboAuditEventsTableExists(connection))
         {
             // Partial catalog: stamp-only would record 001–050 as applied without creating 035 targets (AuditEvents, …).
-            ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 35, 50);
+            // Never start at 035 if dbo.Runs is missing — 039+ ALTER dbo.Runs and 036 binds RLS on dbo.Runs.
+            int minInclusive = DboRunsTableExists(connection) ? 35 : 17;
+
+            ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, minInclusive, 50);
         }
 
         EnsureSchemaVersionsTable(connection, null);
@@ -153,6 +158,25 @@ public static partial class GreenfieldBaselineMigrationRunner
                 batchCommand.ExecuteNonQuery();
             }
         }
+    }
+
+    /// <summary>True when <c>dbo.Runs</c> exists (created in <c>017_GraphSnapshots_ParentTables</c>).</summary>
+    private static bool DboRunsTableExists(SqlConnection connection)
+    {
+        const string sql = """
+            SELECT CASE WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN 1 ELSE 0 END;
+            """;
+
+        using SqlCommand command = new(sql, connection);
+        object? scalar = command.ExecuteScalar();
+
+        if (scalar is null || scalar is DBNull)
+            return false;
+
+        if (scalar is bool asBool)
+            return asBool;
+
+        return Convert.ToInt32(scalar, CultureInfo.InvariantCulture) != 0;
     }
 
     /// <summary>True when <c>dbo.AuditEvents</c> exists (created in <c>035_AuditProvenanceConversationTables</c>).</summary>

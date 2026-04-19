@@ -12,6 +12,7 @@ import {
   alertRulesChangeConfigurationLeadReaderLine,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
+  alertRulesPageIntroReaderLine,
   alertToolingConfigureSectionSubline,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
@@ -85,6 +86,11 @@ export default function AlertRulesPage() {
         Current rules first; new thresholds in the section below.
       </p>
       <AlertOperatorToolingRankCue />
+      {!canMutateAlertRules ? (
+        <p className="mb-2 max-w-prose text-xs leading-snug text-neutral-500 dark:text-neutral-400" role="note">
+          {alertRulesPageIntroReaderLine}
+        </p>
+      ) : null}
 
       {failure !== null ? (
         <div role="alert">

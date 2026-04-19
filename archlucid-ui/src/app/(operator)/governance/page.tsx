@@ -52,6 +52,8 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   enterpriseGovernanceWorkflowOperatorPlusLine,
   enterpriseMutationControlDisabledTitle,
+  governanceWorkflowPageLeadOperator,
+  governanceWorkflowPageLeadReader,
   governanceWorkflowActivationsEmptyOperatorHint,
   governanceWorkflowActivationsEmptyReaderHint,
   governanceWorkflowNoApprovalsOperatorHint,
@@ -400,7 +402,7 @@ function GovernanceWorkflowPageInner() {
       <LayerHeader pageKey="governance-workflow" />
       <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
-        One run: load ID below, then submit → approve/reject → promote → activate (per environment).
+        {canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
       </p>
       <EnterpriseControlsExecutePageHint />
       <EnterpriseExecutePlusPageCue message={enterpriseGovernanceWorkflowOperatorPlusLine} />

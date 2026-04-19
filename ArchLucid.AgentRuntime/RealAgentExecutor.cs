@@ -104,11 +104,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
                 ',',
                 orderedTasks.Select(AgentTypeKeys.ResolveDispatchKey));
 
-            _logger.LogInformation(
-                "Agent execution batch starting: RunId={RunId}, TaskCount={TaskCount}, AgentTypeKeys={AgentTypeKeys}",
-                LogSanitizer.Sanitize(runId),
-                orderedTasks.Length,
-                LogSanitizer.Sanitize(types));
+            _logger.LogInformationAgentExecutionBatchStarting(runId, types, orderedTasks.Length);
         }
 
         ScopeContext batchScope = _scopeContextProvider.GetCurrentScope();
@@ -129,10 +125,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
                 if (_logger.IsEnabled(LogLevel.Information))
                 {
-                    _logger.LogInformation(
-                        "Agent execution batch completed: RunId={RunId}, ResultCount={ResultCount}",
-                        LogSanitizer.Sanitize(runId),
-                        finished.Length);
+                    _logger.LogInformationAgentExecutionBatchCompleted(runId, finished.Length);
                 }
 
                 return finished;
@@ -222,12 +215,7 @@ public sealed class RealAgentExecutor : IAgentExecutor
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
-            _logger.LogDebug(
-                "Agent task finished: RunId={RunId}, TaskId={TaskId}, AgentTypeKey={AgentTypeKey}, DurationMs={DurationMs}",
-                LogSanitizer.Sanitize(runId),
-                LogSanitizer.Sanitize(task.TaskId),
-                LogSanitizer.Sanitize(dispatchKey),
-                sw.ElapsedMilliseconds);
+            _logger.LogDebugAgentTaskFinished(runId, task.TaskId, dispatchKey, sw.ElapsedMilliseconds);
         }
 
         return result;
