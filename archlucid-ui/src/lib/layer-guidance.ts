@@ -63,64 +63,64 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-dashboard": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which cross-run approvals and governance signals need attention?",
-    useWhen: "Breadth + periodic refresh; per-run workflow stays on its route.",
-    firstPilotNote: "Defer until cross-run signals matter; one run uses the workflow page.",
+    useWhen: "Cross-run snapshot; per-run actions stay on the workflow route.",
+    firstPilotNote: "Defer until a cross-run queue is part of operating rhythm.",
     enterpriseFootnote:
-      "Cross-run evidence; writes are operator/admin. Not required for Core Pilot.",
+      "Cross-run evidence; operator/admin writes. Optional vs Core Pilot.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
-    useWhen: "Inbox first; thresholds, routing, and tuning live under Alert tooling.",
-    firstPilotNote: "Defer tooling until thresholds are a pilot topic.",
+    useWhen: "Inbox for triage; thresholds and delivery live under Alert tooling.",
+    firstPilotNote: "Defer rules/routing depth until the inbox is in daily use.",
     enterpriseFootnote: "Inbox first; rules, routing, tuning are follow-on depth.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
-    useWhen: "Rows here; CSV export needs From/To plus Auditor or Admin on the API.",
-    firstPilotNote: "Defer CSV until From/To and role are settled.",
+    useWhen: "Search for rows; CSV reuses From/To plus Auditor or Admin on the API.",
+    firstPilotNote: "Defer export until the window and roles are settled.",
     enterpriseFootnote: "Evidence search and bounded export. Not required for Core Pilot.",
   },
   "governance-resolution": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which policy content is in effect for this scope after pack ordering?",
-    useWhen: "Inspect effective stack before changing packs or workflow elsewhere.",
-    firstPilotNote: "Defer until cross-pack ordering matters.",
+    useWhen: "Read the effective stack before changing packs or workflow elsewhere.",
+    firstPilotNote: "Defer until pack ordering is a real question.",
     enterpriseFootnote:
       "Effective policy here; changes live in policy packs or workflow. Not required for Core Pilot.",
   },
   "governance-workflow": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: run-scoped submit, approve/reject, promote, and activate?",
-    useWhen: "One run at a time; first pilot: request → commit → artifacts.",
-    firstPilotNote: "Defer until promotions and segregation of duties apply.",
+    useWhen: "One run at a time; Core Pilot stays request → commit → artifacts.",
+    firstPilotNote: "Defer until promotions or segregation of duties apply.",
     enterpriseFootnote:
-      "Operator/admin surface for approvals and activation. API enforces writes. Not required for Core Pilot.",
+      "Approvals and activation: operator surface, API-enforced. Optional vs Core Pilot.",
   },
   "policy-packs": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what packs exist, what is published, and what applies in this scope?",
-    useWhen: "Effective stack and published inventory before lifecycle actions.",
+    useWhen: "Effective inventory and JSON before lifecycle actions.",
     firstPilotNote: "Defer until policy control is explicit.",
     enterpriseFootnote:
-      "Read/compare first; create, publish, assign are configuration (API-enforced). Not required for Core Pilot.",
+      "Read/compare first; lifecycle is API-enforced configuration. Optional vs Core Pilot.",
   },
   "alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which metric thresholds should raise alerts after advisory scans?",
-    useWhen: "Operational thresholds on scan outcomes—not inbox triage.",
+    useWhen: "Thresholds on scan outcomes—not inbox triage.",
     firstPilotNote: "Skip until thresholds are part of how you operate.",
     enterpriseFootnote:
-      "Configuration surface for metric thresholds. Not required for Core Pilot.",
+      "Metric threshold configuration. Optional vs Core Pilot.",
   },
   "alert-routing": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: where should fired alerts be delivered when severity thresholds are met?",
-    useWhen: "Delivery for fired alerts—not digest mail.",
+    useWhen: "Delivery targets for fired alerts—not digest mail.",
     firstPilotNote: "Defer until real-time routing matters.",
     enterpriseFootnote:
-      "Configuration surface for alert delivery. Not required for Core Pilot.",
+      "Alert delivery configuration. Optional vs Core Pilot.",
   },
   "alert-simulation": {
     layerBadge: "Enterprise Controls",
@@ -128,22 +128,22 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Dry-run on history; live triage stays on Alerts.",
     firstPilotNote: "Defer until you have scan-backed what-if questions.",
     enterpriseFootnote:
-      "Read-focused simulation before production rule changes. Not required for Core Pilot.",
+      "Simulation before production rule changes. Optional vs Core Pilot.",
   },
   "alert-tuning": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which threshold values balance coverage and noise for a chosen rule?",
-    useWhen: "Apply scores from simulation when noise or coverage is measurable.",
-    firstPilotNote: "Defer until simulation shows a measurable noise/coverage tradeoff.",
+    useWhen: "Use simulation scores when noise or coverage is measurable.",
+    firstPilotNote: "Defer until simulation shows a clear tradeoff.",
     enterpriseFootnote:
-      "Configuration surface for threshold tuning. Not required for Core Pilot.",
+      "Threshold tuning configuration. Optional vs Core Pilot.",
   },
   "composite-alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how do we combine multiple scan metrics with AND/OR before firing an alert?",
-    useWhen: "AND/OR and cooldown when a single threshold is not enough.",
+    useWhen: "AND/OR and cooldown when one threshold is not enough.",
     firstPilotNote: "Defer until composite firing logic is in scope.",
     enterpriseFootnote:
-      "Configuration surface for composite alert rules. Not required for Core Pilot.",
+      "Composite rule configuration. Optional vs Core Pilot.",
   },
 };

@@ -83,7 +83,7 @@ export default function AlertRulesPage() {
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
       <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Current rules first; new thresholds in the section below.
+        Defined rules above; new rule form below.
       </p>
       <AlertOperatorToolingRankCue />
       {!canMutateAlertRules ? (

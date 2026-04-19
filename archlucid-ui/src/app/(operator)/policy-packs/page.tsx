@@ -246,7 +246,7 @@ export default function PolicyPacksPage() {
       <LayerHeader pageKey="policy-packs" />
       <h2 style={{ marginTop: 0 }}>Policy packs</h2>
       <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Inspect effective data and versions first; lifecycle forms last. Effective stack:{" "}
+        Inspect and compare below; lifecycle last. Pack ordering:{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           governance resolution
         </Link>

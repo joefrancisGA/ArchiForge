@@ -111,7 +111,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Operator\/admin surface for governance and platform work\. Not required for Core Pilot\./i),
+      screen.getByText(/Governance and platform depth; optional vs Core Pilot\./i),
     ).toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();

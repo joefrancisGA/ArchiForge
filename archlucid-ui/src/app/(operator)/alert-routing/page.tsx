@@ -99,7 +99,7 @@ export default function AlertRoutingPage() {
       <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
       <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Subscriptions and delivery history first; add or toggle below.
+        Subscriptions and delivery history above; add or toggle in the section below.
       </p>
       <AlertOperatorToolingRankCue />
       {!canMutateRouting ? (

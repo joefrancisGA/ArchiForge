@@ -21,7 +21,7 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { cn } from "@/lib/utils";
 
 const pageCueClassName =
-  "mb-3 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400";
+  "mb-2 max-w-3xl text-xs leading-snug text-neutral-600 dark:text-neutral-400";
 
 /**
  * Second line under the Enterprise Controls nav group caption (sidebar + mobile drawer).

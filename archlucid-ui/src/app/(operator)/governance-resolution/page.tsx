@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { governanceResolutionPageSubline } from "@/lib/enterprise-controls-context-copy";
 import { getGovernanceResolution } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -35,8 +36,8 @@ export default function GovernanceResolutionPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="governance-resolution" />
       <h2 style={{ marginTop: 0 }}>Governance resolution</h2>
-      <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Inspect-only: effective policy JSON for this scope.
+      <p className="mb-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
+        {governanceResolutionPageSubline}
       </p>
       <GovernanceResolutionRankCue />
       {failure !== null ? (
