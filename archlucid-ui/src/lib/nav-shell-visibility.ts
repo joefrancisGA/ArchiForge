@@ -38,6 +38,7 @@ export type NavGroupWithVisibleLinks = {
  *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
  *   stays hidden until **Show more** even at Admin rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
+ * @see `enterprise-authority-ui-shaping.test.tsx` — page-level **`useEnterpriseMutationCapability`** wiring to Enterprise controls (complements lib-only seam tests).
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,

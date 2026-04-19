@@ -108,6 +108,13 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   Do not use **`AdminAuthority`** on nav entries: Admin-only actions (e.g. policy pack create) are enforced on POST;
  *   the UI page is still reachable at Read for list/effective views.
  *
+ * ### UI shaping vs API authorization (boundary)
+ *
+ * `requiredAuthority` drives **shell visibility** after **`nav-shell-visibility`** tier filtering — not whether HTTP writes
+ * succeed. **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is authoritative (**401/403**). Keep policy **names** aligned
+ * with C# when moving routes. **Vitest:** `nav-config.structure.test.ts` (graph invariants); **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`**
+ * (representative Enterprise pages: **`useEnterpriseMutationCapability`** → **`disabled`** on primary actions).
+ *
  * Omitting `requiredAuthority` is used only for **Core Pilot essentials** (default path for any authenticated rank).
  * Every **Enterprise Controls** link in this file sets `requiredAuthority`. Composed with tiers in `@/lib/nav-shell-visibility`.
  *

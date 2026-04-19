@@ -2,8 +2,8 @@
  * In-product copy for the three **product packaging** layers (**docs/PRODUCT_PACKAGING.md**,
  * **docs/OPERATOR_DECISION_GUIDE.md**). Consumed by **`LayerHeader`** (`LayerGuidancePageKey` per route family).
  *
- * **UI shaping only:** explains layer / when-to-use; does not grant access. **`enterpriseFootnote`** on Enterprise keys
- * complements **`nav-config.ts`** captions — same packaging story, different surface.
+ * **UI shaping only:** explains layer / when-to-use; does not grant access. **`[Authorize]`** on **ArchLucid.Api** decides
+ * success on HTTP. **`enterpriseFootnote`** on Enterprise keys complements **`nav-config.ts`** captions — same packaging story, different surface.
  *
  * **Drift guard:** adding a key requires wiring **`LayerHeader`** on the page and, if the capability is listed for
  * buyers, updating **PRODUCT_PACKAGING.md** — see §3 *Contributor drift guard* (*Guidance strip* step).

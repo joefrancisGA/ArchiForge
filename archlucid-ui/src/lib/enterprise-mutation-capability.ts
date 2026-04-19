@@ -16,7 +16,8 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  * **`nav-shell-visibility.ts`** only.
  *
  * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`,
- *   `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`
+ *   `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`,
+ *   `enterprise-authority-ui-shaping.test.tsx` (pages still wire this hook to **`disabled`** controls).
  */
 export function enterpriseMutationCapabilityFromRank(rank: number): boolean {
   return rank >= AUTHORITY_RANK.ExecuteAuthority;

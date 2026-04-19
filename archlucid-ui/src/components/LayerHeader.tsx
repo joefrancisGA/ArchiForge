@@ -31,7 +31,9 @@ export type LayerHeaderProps = {
  * **`currentPrincipal`** — **`LayerHeader`** only reflects rank for Enterprise rank cue + packaging copy.
  * Not entitlements or billing — **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
+ * @see **docs/PRODUCT_PACKAGING.md** §3 (*Contributor drift guard* — *Guidance strip* step) when adding Enterprise keys.
  * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**).
+ * @see `enterprise-authority-ui-shaping.test.tsx` — mutation hook → Enterprise control **`disabled`** (separate from this component, same packaging story).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const block = LAYER_PAGE_GUIDANCE[pageKey];

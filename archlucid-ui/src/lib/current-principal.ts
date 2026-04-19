@@ -53,7 +53,8 @@
  * **Cross-module tests:** `authority-seam-regression.test.ts` exercises `normalizeAuthMeResponse` together with
  * nav visibility and mutation rank; **`OperatorNavAuthorityProvider.test.tsx`** locks conservative **`useNavCallerAuthorityRank`**
  * during JWT **`/me`** refetch; unit coverage remains in `current-principal.test.ts`. Rank-gated Enterprise copy
- * components: **`EnterpriseControlsContextHints.authority.test.tsx`** (same rank as nav / mutation).
+ * components: **`EnterpriseControlsContextHints.authority.test.tsx`** (same rank as nav / mutation). Page-level mutation
+ * affordances: **`src/app/(operator)/enterprise-authority-ui-shaping.test.tsx`** (hook → **`disabled`** on representative routes).
  */
 
 import {

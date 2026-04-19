@@ -33,6 +33,7 @@
  * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `EnterpriseControlsContextHints.authority.test.tsx` — cue components.
  * @see `current-principal.test.ts` — **`normalizeAuthMeResponse`**: **`maxAuthority`** must track **`requiredAuthorityFromRank(authorityRank)`**.
  * @see `OperatorNavAuthorityProvider.test.tsx` — rank fed into consumers of this module during JWT `/me` refetch.
+ * @see `enterprise-authority-ui-shaping.test.tsx` — **`useEnterpriseMutationCapability`** still gates **`disabled`** on representative Enterprise pages (UI only).
  */
 
 /** Same strings as server `ArchLucidPolicies` — smallest durable contract for nav links. */

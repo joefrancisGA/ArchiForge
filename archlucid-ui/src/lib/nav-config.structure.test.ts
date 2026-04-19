@@ -37,4 +37,22 @@ describe("nav-config structure", () => {
       expect(link.requiredAuthority, link.href).toBeDefined();
     }
   });
+
+  /**
+   * Tier runs before authority in the shell: Execute-class destinations must not sit on **essential** tier or they
+   * could appear for first-pilot defaults before “Show more” regardless of rank story (see `nav-shell-visibility.test.ts`).
+   */
+  it("keeps ExecuteAuthority Enterprise links off essential tier", () => {
+    const enterprise = NAV_GROUPS.find((group) => group.id === "alerts-governance");
+
+    expect(enterprise).toBeDefined();
+
+    const executeLinks = enterprise!.links.filter((link) => link.requiredAuthority === "ExecuteAuthority");
+
+    expect(executeLinks.length).toBeGreaterThan(0);
+
+    for (const link of executeLinks) {
+      expect(link.tier, link.href).not.toBe("essential");
+    }
+  });
 });
