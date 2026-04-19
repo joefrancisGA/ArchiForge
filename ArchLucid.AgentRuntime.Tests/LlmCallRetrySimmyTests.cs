@@ -14,6 +14,9 @@ namespace ArchLucid.AgentRuntime.Tests;
 [Trait("Suite", "Core")]
 public sealed class LlmCallRetrySimmyTests
 {
+    /// <summary>Outer-loop trials for 50% chaos injection (statistical coverage, not tied to retry attempt count).</summary>
+    private const int ChaosResilienceObservationIterations = 12;
+
     [Fact]
     public async Task ChaosTransient429_RetryRecoverBeforeCBTrip()
     {
@@ -142,7 +145,7 @@ public sealed class LlmCallRetrySimmyTests
 
         int successes = 0;
 
-        for (int i = 0; i < 12; i++)
+        for (int i = 0; i < ChaosResilienceObservationIterations; i++)
         {
             try
             {

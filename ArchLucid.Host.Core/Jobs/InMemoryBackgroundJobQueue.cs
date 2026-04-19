@@ -14,16 +14,9 @@ public sealed class InMemoryBackgroundJobQueue(
 {
     private sealed record WorkItem(string JobId, BackgroundJobWorkUnit WorkUnit, [UsedImplicitly] int MaxRetries);
 
-    /// <summary>Maximum number of terminal jobs (Succeeded/Failed) retained in memory before evicting the oldest.</summary>
-    private const int MaxRetainedTerminalJobs = 200;
-
-    /// <summary>
-    /// Maximum number of jobs that may wait in the channel before <see cref="EnqueueAsync"/> throws.
-    /// Prevents unbounded memory growth under sustained load; callers should back off and retry on failure.
-    /// </summary>
-    private const int MaxPendingJobs = 500;
-
-    private readonly SemaphoreSlim _pendingJobs = new(MaxPendingJobs, MaxPendingJobs);
+    private readonly SemaphoreSlim _pendingJobs = new(
+        InMemoryBackgroundJobQueueLimits.MaxPendingJobs,
+        InMemoryBackgroundJobQueueLimits.MaxPendingJobs);
     private readonly Channel<WorkItem> _queue = Channel.CreateUnbounded<WorkItem>(new UnboundedChannelOptions
     {
         SingleReader = true,
@@ -61,7 +54,7 @@ public sealed class InMemoryBackgroundJobQueue(
             _info.TryRemove(id, out _);
 
             throw new InvalidOperationException(
-                $"The background job queue is at capacity ({MaxPendingJobs} pending jobs). Try again later.");
+                $"The background job queue is at capacity ({InMemoryBackgroundJobQueueLimits.MaxPendingJobs} pending jobs). Try again later.");
         }
 
         if (_queue.Writer.TryWrite(new WorkItem(id, workUnit, safeMaxRetries)))
@@ -198,10 +191,10 @@ public sealed class InMemoryBackgroundJobQueue(
             .OrderBy(j => j.CompletedUtc)
             .ToList();
 
-        if (terminal.Count <= MaxRetainedTerminalJobs)
+        if (terminal.Count <= InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs)
             return;
 
-        foreach (BackgroundJobInfo old in terminal.Take(terminal.Count - MaxRetainedTerminalJobs))
+        foreach (BackgroundJobInfo old in terminal.Take(terminal.Count - InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs))
         {
             _info.TryRemove(old.JobId, out _);
             _files.TryRemove(old.JobId, out _);

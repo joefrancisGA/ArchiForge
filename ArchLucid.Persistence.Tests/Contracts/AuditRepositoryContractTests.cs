@@ -1,4 +1,5 @@
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;
@@ -10,6 +11,15 @@ namespace ArchLucid.Persistence.Tests.Contracts;
 /// </summary>
 public abstract class AuditRepositoryContractTests
 {
+    /// <summary>Seed enough rows that repository must clamp to <see cref="PaginationDefaults.MaxListingTake"/>.</summary>
+    private const int SeededAuditEventsAboveListingTakeCap = PaginationDefaults.MaxListingTake + 20;
+
+    /// <summary>More events than <c>maxRows: 4</c> in export max-rows contract test.</summary>
+    private const int SeededExportEventsForMaxRowsCapTest = 12;
+
+    /// <summary>More events than <c>maxRows: 25</c> in export many-rows contract test.</summary>
+    private const int SeededExportEventsForManyRowsTest = 80;
+
     protected abstract IAuditRepository CreateRepository();
 
     protected virtual void SkipIfSqlServerUnavailable()
@@ -294,7 +304,7 @@ public abstract class AuditRepositoryContractTests
     {
         SkipIfSqlServerUnavailable();
         IAuditRepository repo = CreateRepository();
-        for (int i = 0; i < 520; i++)
+        for (int i = 0; i < SeededAuditEventsAboveListingTakeCap; i++)
         {
             await repo.AppendAsync(NewEvent(eventType: "Bulk"), CancellationToken.None);
         }
@@ -303,7 +313,7 @@ public abstract class AuditRepositoryContractTests
         IReadOnlyList<AuditEvent> list =
             await repo.GetFilteredAsync(TenantId, WorkspaceId, ProjectId, filter, CancellationToken.None);
 
-        list.Count.Should().Be(500);
+        list.Count.Should().Be(PaginationDefaults.MaxListingTake);
     }
 
     [SkippableFact]
@@ -369,7 +379,7 @@ public abstract class AuditRepositoryContractTests
         Guid isolatedProjectId = Guid.NewGuid();
         DateTime t0 = DateTime.UtcNow.AddHours(-3);
 
-        for (int i = 0; i < 12; i++)
+        for (int i = 0; i < SeededExportEventsForMaxRowsCapTest; i++)
         {
             await repo.AppendAsync(
                 NewEvent(eventType: "ExportCap", occurredUtc: t0.AddMinutes(i), projectId: isolatedProjectId),
@@ -399,7 +409,7 @@ public abstract class AuditRepositoryContractTests
         Guid isolatedProjectId = Guid.NewGuid();
         DateTime t0 = DateTime.UtcNow.AddHours(-8);
 
-        for (int i = 0; i < 80; i++)
+        for (int i = 0; i < SeededExportEventsForManyRowsTest; i++)
         {
             await repo.AppendAsync(
                 NewEvent(eventType: "ExportMany", occurredUtc: t0.AddSeconds(i), projectId: isolatedProjectId),

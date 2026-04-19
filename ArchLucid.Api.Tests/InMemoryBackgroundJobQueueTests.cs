@@ -62,7 +62,7 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         await Task.Delay(100, CancellationToken.None);
 
-        for (int i = 0; i < 500; i++)
+        for (int i = 0; i < InMemoryBackgroundJobQueueLimits.MaxPendingJobs; i++)
             _ = await queue.EnqueueAsync(Work($"p{i}"));
 
         Func<Task> overflow = async () => _ = await queue.EnqueueAsync(Work("overflow"));
@@ -118,7 +118,7 @@ public sealed class InMemoryBackgroundJobQueueTests
         await queue.StartAsync(CancellationToken.None);
 
         List<string> ids = [];
-        for (int i = 0; i < 201; i++)
+        for (int i = 0; i < InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs + 1; i++)
         {
             string id = await queue.EnqueueAsync(Work($"ok{i}"));
             ids.Add(id);
@@ -126,7 +126,8 @@ public sealed class InMemoryBackgroundJobQueueTests
 
         await WaitForTerminalStateAsync(queue, ids[^1], TimeSpan.FromSeconds(120));
 
-        (await queue.GetInfoAsync(ids[0])).Should().BeNull("oldest terminal job should be evicted after 201 completions");
+        (await queue.GetInfoAsync(ids[0])).Should().BeNull(
+            $"oldest terminal job should be evicted after {InMemoryBackgroundJobQueueLimits.MaxRetainedTerminalJobs + 1} completions");
 
         await queue.StopAsync(CancellationToken.None);
     }
