@@ -71,6 +71,40 @@ public sealed class TrialEmailScanArchLucidJobTests
         code.Should().Be(ArchLucidJobExitCodes.JobFailure);
     }
 
+    [Fact]
+    public async Task RunOnceAsync_returns_success_when_logic_app_owner_skips_scan()
+    {
+        Mock<ITenantRepository> tenantRepo = new();
+        Mock<IIntegrationEventOutboxRepository> outbox = new();
+        Mock<IIntegrationEventPublisher> publisher = new();
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> integrationEventsOptions = new();
+        integrationEventsOptions.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
+        Mock<IOptionsMonitor<TrialLifecycleEmailRoutingOptions>> trialLifecycleRouting = new();
+        trialLifecycleRouting.Setup(m => m.CurrentValue).Returns(
+            new TrialLifecycleEmailRoutingOptions
+            {
+                Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp,
+            });
+
+        ServiceCollection services = [];
+        services.AddScoped<ITenantRepository>(_ => tenantRepo.Object);
+        services.AddScoped<IIntegrationEventOutboxRepository>(_ => outbox.Object);
+        services.AddScoped<IIntegrationEventPublisher>(_ => publisher.Object);
+        services.AddSingleton(integrationEventsOptions.Object);
+        services.AddSingleton(trialLifecycleRouting.Object);
+        services.AddScoped<TrialScheduledLifecycleEmailScanner>();
+        services.AddSingleton<ILogger<TrialScheduledLifecycleEmailScanner>>(
+            _ => NullLogger<TrialScheduledLifecycleEmailScanner>.Instance);
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        TrialEmailScanArchLucidJob job = new(provider, NullLogger<TrialEmailScanArchLucidJob>.Instance);
+
+        int code = await job.RunOnceAsync(CancellationToken.None);
+
+        code.Should().Be(ArchLucidJobExitCodes.Success);
+        tenantRepo.Verify(repository => repository.ListAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
     private static ServiceProvider BuildProviderWithEmptyTenantList()
     {
         Mock<ITenantRepository> tenantRepo = new();
