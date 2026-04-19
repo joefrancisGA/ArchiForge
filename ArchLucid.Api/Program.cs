@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.Auth.Services;
@@ -79,14 +79,14 @@ public partial class Program
         if (configurationErrors.Count > 0)
         {
             foreach (string error in configurationErrors)
-            {
+
                 if (app.Logger.IsEnabled(LogLevel.Error))
-                {
+
                     app.Logger.LogError(
                         "Startup configuration error: {Error}",
                         LogSanitizer.Sanitize(error));
-                }
-            }
+
+
 
             throw new InvalidOperationException(
                 "ArchLucid configuration is invalid. Fix the settings listed in the logs above, then restart.");
@@ -97,13 +97,13 @@ public partial class Program
         if (!app.Environment.IsProduction()
             && string.Equals(authBound.Mode, "JwtBearer", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(authBound.JwtSigningPublicKeyPemPath?.Trim()))
-        {
+
             if (app.Logger.IsEnabled(LogLevel.Warning))
-            {
+
                 app.Logger.LogWarning(
                     "ArchLucidAuth:JwtSigningPublicKeyPemPath is set: JWTs are validated with a local RSA public key (CI / local E2E). Use Entra authority + metadata in real environments.");
-            }
-        }
+
+
 
         StartupConfigurationDiagnostics.LogIfEnabled(
             app.Logger,
@@ -114,9 +114,9 @@ public partial class Program
         ArchLucidPersistenceStartup.RunSchemaBootstrapMigrationsAndOptionalDemoSeed(app);
 
         if (app.Logger.IsEnabled(LogLevel.Information))
-        {
+
             app.Logger.LogInformation("ArchLucid API starting request pipeline.");
-        }
+
         app.UseArchLucidPipeline();
         app.Run();
     }

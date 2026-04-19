@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Jobs;
@@ -62,20 +62,18 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
             return this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound);
 
         if (info.State != BackgroundJobState.Succeeded)
-        {
             return this.ConflictProblem(
                 $"Job '{jobId}' has not completed successfully (state: {info.State}).",
                 ProblemTypes.Conflict);
-        }
+
 
         BackgroundJobFile? file = await jobs.GetFileAsync(jobId, cancellationToken);
 
         if (file is null)
-        {
             return this.ConflictProblem(
                 $"Job '{jobId}' succeeded but no result file is available.",
                 ProblemTypes.Conflict);
-        }
+
 
         return File(file.Bytes, file.ContentType, file.FileName);
     }

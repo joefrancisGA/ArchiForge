@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Metering;
 
@@ -29,11 +29,10 @@ public sealed class MeteringAdminController(IUsageMeteringService metering) : Co
         CancellationToken cancellationToken = default)
     {
         if (periodEnd <= periodStart)
-        {
             return this.BadRequestProblem(
                 "periodEnd must be greater than periodStart.",
                 ProblemTypes.ValidationFailed);
-        }
+
 
         IReadOnlyList<TenantUsageSummary> rows =
             await _metering.GetSummaryAsync(tenantId, periodStart, periodEnd, cancellationToken);

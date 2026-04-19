@@ -223,7 +223,6 @@ public sealed class ManifestsController(
             : null;
 
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))
-
             return Ok(new ManifestSummaryJsonResponse
             {
                 ManifestVersion = manifestVersion,
@@ -275,7 +274,6 @@ public sealed class ManifestsController(
 
 
         if (!string.Equals(format, FormatMarkdown, StringComparison.OrdinalIgnoreCase))
-
             return this.BadRequestProblem(
                 $"format must be '{FormatMarkdown}' or '{FormatJson}'.",
                 ProblemTypes.ValidationFailed);

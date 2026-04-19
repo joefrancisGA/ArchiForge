@@ -64,7 +64,6 @@ public sealed class ComparisonsController(
     {
         ArchitectureRunDetail? runDetail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
         if (runDetail is null)
-        
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
         
 
@@ -85,7 +84,6 @@ public sealed class ComparisonsController(
     {
         RunExportRecord? export = await runExportRecordRepository.GetByIdAsync(exportRecordId, cancellationToken);
         if (export is null)
-        
             return this.NotFoundProblem($"Export record '{exportRecordId}' was not found.", ProblemTypes.ResourceNotFound);
         
 
@@ -106,7 +104,6 @@ public sealed class ComparisonsController(
     {
         ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         if (record is null)
-        
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
         
 
@@ -138,7 +135,6 @@ public sealed class ComparisonsController(
                 cancellationToken);
 
             if (estimate is null)
-            
                 return this.NotFoundProblem(
                     $"Comparison record '{comparisonRecordId}' was not found.",
                     ProblemTypes.ResourceNotFound);
@@ -161,12 +157,10 @@ public sealed class ComparisonsController(
     {
         ComparisonRecord? record = await comparisonRecordRepository.GetByIdAsync(comparisonRecordId, cancellationToken);
         if (record is null)
-        
             return this.NotFoundProblem($"Comparison record '{comparisonRecordId}' was not found.", ProblemTypes.ResourceNotFound);
         
 
         if (!string.IsNullOrWhiteSpace(record.SummaryMarkdown))
-        
             return Ok(new ComparisonSummaryResponse
             {
                 ComparisonRecordId = record.ComparisonRecordId,
@@ -199,7 +193,6 @@ public sealed class ComparisonsController(
     {
         ValidationResult? vr = await comparisonHistoryQueryValidator.ValidateAsync(query, cancellationToken);
         if (!vr.IsValid)
-        
             return this.BadRequestProblem(
                 string.Join(" ", vr.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);
@@ -490,7 +483,6 @@ public sealed class ComparisonsController(
         
 
         if (successes.Count == 0 && processedIds.Count > 0)
-        
             return this.UnprocessableEntityProblem(
                 "No comparison replays succeeded for the requested comparisonRecordIds. Adjust IDs or replay parameters and retry.",
                 ProblemTypes.BatchReplayAllFailed);

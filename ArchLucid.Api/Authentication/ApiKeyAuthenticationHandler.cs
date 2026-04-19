@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -39,18 +39,16 @@ public class ApiKeyAuthenticationHandler(
         if (!enabled)
         {
             if (!developmentBypassAll)
-            {
                 return Task.FromResult(
                     AuthenticateResult.Fail(
                         "API key authentication is disabled. Set Authentication:ApiKey:Enabled to true and configure keys, " +
                         "or set Authentication:ApiKey:DevelopmentBypassAll=true only in non-Production for intentional open access."));
-            }
+
 
             if (environment.IsProduction())
-            {
                 return Task.FromResult(
                     AuthenticateResult.Fail("Authentication:ApiKey:DevelopmentBypassAll is not allowed in Production."));
-            }
+
 
             ClaimsIdentity bypassIdentity = new(
                 BuildSyntheticAdminClaims(),
@@ -62,9 +60,8 @@ public class ApiKeyAuthenticationHandler(
         }
 
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
-        {
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
-        }
+
 
         string key = providedKey.ToString();
 
@@ -100,9 +97,8 @@ public class ApiKeyAuthenticationHandler(
             ];
         }
         else
-        {
             return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
-        }
+
 
         ClaimsIdentity successIdentity = new(claims, Scheme.Name);
         ClaimsPrincipal successPrincipal = new(successIdentity);
@@ -118,15 +114,14 @@ public class ApiKeyAuthenticationHandler(
     private static bool MatchesAnyCommaSeparatedKey(string provided, string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw))
-        {
             return false;
-        }
+
 
         ReadOnlySpan<char> span = raw.AsSpan();
         int start = 0;
 
         for (int i = 0; i <= span.Length; i++)
-        {
+
             if (i == span.Length || span[i] == ',')
             {
                 ReadOnlySpan<char> segment = span.Slice(start, i - start).Trim();
@@ -136,14 +131,13 @@ public class ApiKeyAuthenticationHandler(
                     string expected = segment.ToString();
 
                     if (ConstantTimeKeyEquals(provided, expected))
-                    {
                         return true;
-                    }
+
                 }
 
                 start = i + 1;
             }
-        }
+
 
         return false;
     }
@@ -154,9 +148,8 @@ public class ApiKeyAuthenticationHandler(
     private static bool ConstantTimeKeyEquals(string provided, string expected)
     {
         if (string.IsNullOrEmpty(provided) || string.IsNullOrEmpty(expected))
-        {
             return false;
-        }
+
 
         ReadOnlySpan<byte> a = SHA256.HashData(Encoding.UTF8.GetBytes(provided));
         ReadOnlySpan<byte> b = SHA256.HashData(Encoding.UTF8.GetBytes(expected));

@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Evaluation;
+﻿using ArchLucid.AgentRuntime.Evaluation;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.Authorization;
@@ -42,9 +42,8 @@ public sealed class RunAgentEvaluationController(
         CancellationToken cancellationToken)
     {
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         IReadOnlyList<AgentExecutionTrace> traces = await agentExecutionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
@@ -98,9 +97,8 @@ public sealed class RunAgentEvaluationController(
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
     {
         if (!TryParseRunId(runId, out Guid runGuid))
-        {
             return false;
-        }
+
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
@@ -110,9 +108,8 @@ public sealed class RunAgentEvaluationController(
     private static bool TryParseRunId(string runId, out Guid runGuid)
     {
         if (Guid.TryParseExact(runId, "N", out runGuid))
-        {
             return true;
-        }
+
 
         return Guid.TryParse(runId, out runGuid);
     }

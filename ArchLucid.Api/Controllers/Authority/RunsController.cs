@@ -1,4 +1,4 @@
-using ArchLucid.Api.Logging;
+﻿using ArchLucid.Api.Logging;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -60,7 +60,6 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         if (request is null)
-
             return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
 
 
@@ -72,7 +71,6 @@ public sealed partial class RunsController(
             string trimmedKey = rawKeyHeader.ToString().Trim();
 
             if (trimmedKey.Length > ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength)
-
                 return this.BadRequestProblem(
                     $"Idempotency-Key must be at most {ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength} characters after trim.",
                     ProblemTypes.ValidationFailed);
@@ -90,7 +88,6 @@ public sealed partial class RunsController(
             LogRunCreated(result.Run.RunId, request.RequestId, user, correlationId);
 
             if (!result.IdempotentReplay)
-            {
                 return CreatedAtAction(
                     nameof(RunQueryController.GetRun),
                     "RunQuery",
@@ -99,7 +96,7 @@ public sealed partial class RunsController(
                         runId = result.Run.RunId
                     },
                     response);
-            }
+
             Response.Headers.Append("Idempotency-Replayed", "true");
 
             return Ok(response);

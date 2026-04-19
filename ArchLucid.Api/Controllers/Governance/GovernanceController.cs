@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.Logging;
@@ -211,34 +211,29 @@ public sealed class GovernanceController(
         CancellationToken cancellationToken = default)
     {
         if (body is null)
-        {
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-        }
+
 
         if (body.ApprovalRequestIds is null || body.ApprovalRequestIds.Count == 0)
-        {
             return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.", ProblemTypes.ValidationFailed);
-        }
+
 
         if (body.ApprovalRequestIds.Count > 50)
-        {
             return this.BadRequestProblem("At most 50 approval request ids are allowed per request.", ProblemTypes.ValidationFailed);
-        }
+
 
         string decision = (body.Decision ?? string.Empty).Trim();
 
         if (decision.Length == 0)
-        {
             return this.BadRequestProblem("Decision is required (approve or reject).", ProblemTypes.ValidationFailed);
-        }
+
 
         bool approve = string.Equals(decision, "approve", StringComparison.OrdinalIgnoreCase);
         bool reject = string.Equals(decision, "reject", StringComparison.OrdinalIgnoreCase);
 
         if (!approve && !reject)
-        {
             return this.BadRequestProblem("Decision must be 'approve' or 'reject'.", ProblemTypes.ValidationFailed);
-        }
+
 
         string reviewedBy = string.IsNullOrWhiteSpace(body.ReviewedBy)
             ? actorContext.GetActor()
@@ -252,25 +247,25 @@ public sealed class GovernanceController(
             .ToList();
 
         foreach (string approvalRequestId in distinctIds)
-        {
+
             try
             {
                 if (approve)
-                {
+
                     _ = await workflowService.ApproveAsync(
                         approvalRequestId,
                         reviewedBy,
                         body.ReviewComment,
                         cancellationToken);
-                }
+
                 else
-                {
+
                     _ = await workflowService.RejectAsync(
                         approvalRequestId,
                         reviewedBy,
                         body.ReviewComment,
                         cancellationToken);
-                }
+
 
                 results.Add(
                     new GovernanceBatchReviewItemResult
@@ -324,7 +319,7 @@ public sealed class GovernanceController(
                         Message = ex.Message,
                     });
             }
-        }
+
 
         return Ok(new GovernanceBatchReviewResponse { Results = results });
     }
@@ -430,14 +425,12 @@ public sealed class GovernanceController(
         CancellationToken cancellationToken = default)
     {
         if (fromUtc >= toUtc)
-        {
             return this.BadRequestProblem("fromUtc must be before toUtc.", ProblemTypes.BadRequest);
-        }
+
 
         if (bucketMinutes is < 60 or > 43_200)
-        {
             return this.BadRequestProblem("bucketMinutes must be between 60 and 43200.", ProblemTypes.BadRequest);
-        }
+
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         TimeSpan bucketSize = TimeSpan.FromMinutes(bucketMinutes);
@@ -464,11 +457,10 @@ public sealed class GovernanceController(
             cancellationToken);
 
         if (result is null)
-        {
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
-        }
+
 
         return Ok(result);
     }
@@ -485,11 +477,10 @@ public sealed class GovernanceController(
             cancellationToken);
 
         if (result is null)
-        {
             return this.NotFoundProblem(
                 $"Approval request '{approvalRequestId}' was not found.",
                 ProblemTypes.ResourceNotFound);
-        }
+
 
         return Ok(result);
     }

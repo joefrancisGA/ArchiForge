@@ -1,4 +1,4 @@
-using ArchLucid.Host.Core.Configuration;
+﻿using ArchLucid.Host.Core.Configuration;
 
 using Microsoft.OpenApi;
 
@@ -14,9 +14,8 @@ internal static class OpenApiAuthDocumentMutator
         string? schemeId = SwaggerOpenApiAuth.ResolveSecuritySchemeId(configuration);
 
         if (string.IsNullOrEmpty(schemeId))
-        {
             return;
-        }
+
 
         swaggerDoc.Components ??= new OpenApiComponents();
 

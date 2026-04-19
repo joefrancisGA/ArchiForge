@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Contracts.Evolution;
 
@@ -47,42 +47,39 @@ internal static class EvolutionOutcomeParser
         schemaVersion = null;
 
         if (string.IsNullOrWhiteSpace(outcomeJson))
-        {
             return;
-        }
+
 
         try
         {
             using JsonDocument doc = JsonDocument.Parse(outcomeJson);
 
             if (!doc.RootElement.TryGetProperty("schemaVersion", out JsonElement ver))
-            {
                 return;
-            }
+
 
             string? v = ver.GetString();
 
             if (!string.Equals(v, SchemaV2, StringComparison.Ordinal))
-            {
                 return;
-            }
+
 
             schemaVersion = SchemaV2;
 
             if (doc.RootElement.TryGetProperty("explanationSummary", out JsonElement es) &&
                 es.ValueKind == JsonValueKind.String)
-            {
+
                 explanationSummary = es.GetString();
-            }
+
 
             if (!doc.RootElement.TryGetProperty("evaluation", out JsonElement ev) ||
                 ev.ValueKind is not (JsonValueKind.Object or JsonValueKind.Null))
                 return;
 
             if (ev.ValueKind == JsonValueKind.Object)
-            {
+
                 evaluation = JsonSerializer.Deserialize<EvaluationScoreResponse>(ev.GetRawText(), ParseOptions);
-            }
+
         }
         catch (JsonException)
         {

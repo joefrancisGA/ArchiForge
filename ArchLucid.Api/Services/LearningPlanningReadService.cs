@@ -1,4 +1,4 @@
-using ArchLucid.Api.Models.Learning;
+﻿using ArchLucid.Api.Models.Learning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -46,9 +46,9 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
 
         Dictionary<Guid, ProductLearningImprovementThemeRecord?> themeById = [];
         for (int i = 0; i < distinctThemeIds.Length; i++)
-        {
+
             themeById[distinctThemeIds[i]] = themeRows[i];
-        }
+
 
         List<LearningPlanListItemResponse> plans = rows
             .Select(p => MapPlanListItem(p, themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
@@ -70,9 +70,8 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             await planningRepository.GetPlanAsync(planId, scope, cancellationToken);
 
         if (plan is null)
-        {
             return null;
-        }
+
 
         ProductLearningImprovementThemeRecord? theme =
             await planningRepository.GetThemeAsync(plan.ThemeId, scope, cancellationToken);

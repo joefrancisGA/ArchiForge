@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Audit;
@@ -126,9 +126,8 @@ public sealed class AuthorityQueryController(
             await pipelineAuditTimeline.GetTimelineAsync(scope, runId, ct);
 
         if (items is null)
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         IReadOnlyList<RunPipelineTimelineItemResponse> body = items
             .Select(i => new RunPipelineTimelineItemResponse
@@ -211,19 +210,18 @@ public sealed class AuthorityQueryController(
         RunDetailDto? detail = await queryService.GetRunDetailAsync(scope, runId, ct);
 
         if (detail is null)
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         if (detail.GoldenManifest is null ||
             detail.GraphSnapshot is null ||
             detail.FindingsSnapshot is null ||
             detail.AuthorityTrace is null)
-        {
+
             return this.UnprocessableEntityProblem(
                 "Provenance requires golden manifest, graph snapshot, findings snapshot, and authority decision trace. " +
                 "Coordinator-only or in-progress runs do not satisfy this contract.");
-        }
+
 
         IReadOnlyList<SynthesizedArtifact> artifacts = detail.ArtifactBundle?.Artifacts ?? [];
         DecisionProvenanceGraph graph = provenanceBuilder.Build(

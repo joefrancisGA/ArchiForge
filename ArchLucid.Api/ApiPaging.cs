@@ -13,7 +13,6 @@ public static class ApiPaging
         error = null;
 
         if (string.IsNullOrWhiteSpace(cursor))
-        
             return true;
         
 

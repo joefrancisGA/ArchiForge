@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography;
 
 using ArchLucid.Api.Auth.Models;
@@ -109,10 +109,9 @@ public static class AuthServiceCollectionExtensions
             : Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), configuredPemPath));
 
         if (!File.Exists(resolvedPath))
-        {
             throw new InvalidOperationException(
                 $"ArchLucidAuth:JwtSigningPublicKeyPemPath points to a missing file: '{resolvedPath}'.");
-        }
+
 
         string pemText = File.ReadAllText(resolvedPath);
         RsaSecurityKey signingKey;
@@ -128,10 +127,9 @@ public static class AuthServiceCollectionExtensions
         string audience = authOptions.JwtLocalAudience?.Trim() ?? string.Empty;
 
         if (string.IsNullOrEmpty(issuer) || string.IsNullOrEmpty(audience))
-        {
             throw new InvalidOperationException(
                 "ArchLucidAuth:JwtLocalIssuer and ArchLucidAuth:JwtLocalAudience are required when JwtSigningPublicKeyPemPath is set.");
-        }
+
 
         // MapInboundClaims=false keeps short JWT claim types ("name", "roles"). NameClaimType must use the same
         // string as the token payload. Options default is ClaimTypes.Name (long URI), which never matches inbound "name".

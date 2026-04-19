@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Models.Billing;
 using ArchLucid.Api.ProblemDetails;
@@ -155,9 +155,8 @@ public sealed class BillingCheckoutController(
     private static BillingCheckoutTier ParseCheckoutTier(string? label)
     {
         if (string.IsNullOrWhiteSpace(label))
-        {
             return BillingCheckoutTier.Team;
-        }
+
 
         return label.Trim() switch
         {

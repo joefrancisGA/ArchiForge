@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Billing;
@@ -51,9 +51,9 @@ public sealed class BillingMarketplaceWebhookController(
         string rawBody;
 
         using (StreamReader reader = new(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
-        {
+
             rawBody = await reader.ReadToEndAsync(cancellationToken);
-        }
+
 
         string auth = Request.Headers.Authorization.ToString();
 
@@ -61,9 +61,9 @@ public sealed class BillingMarketplaceWebhookController(
 
         if (!string.IsNullOrWhiteSpace(auth) &&
             auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-        {
+
             bearer = auth["Bearer ".Length..].Trim();
-        }
+
 
         BillingWebhookInbound inbound = new()
         {
@@ -75,7 +75,6 @@ public sealed class BillingMarketplaceWebhookController(
             await _marketplaceBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
         if (result is { Succeeded: true, DuplicateIgnored: false, MarketplaceWebhookReceived: not null })
-        {
             await MarketplaceWebhookIntegrationEventPublisher.TryPublishAsync(
                 _integrationEventOutbox,
                 _integrationEventPublisher,
@@ -83,12 +82,11 @@ public sealed class BillingMarketplaceWebhookController(
                 _logger,
                 result.MarketplaceWebhookReceived,
                 cancellationToken);
-        }
+
 
         if (result.DuplicateIgnored || result.Succeeded)
-        {
             return Ok();
-        }
+
 
         return this.BadRequestProblem(result.ErrorDetail ?? "Marketplace webhook rejected.", ProblemTypes.BadRequest);
     }

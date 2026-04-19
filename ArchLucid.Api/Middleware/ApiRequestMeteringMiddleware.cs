@@ -1,4 +1,4 @@
-using ArchLucid.Core.Metering;
+﻿using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Options;
@@ -68,9 +68,9 @@ public sealed class ApiRequestMeteringMiddleware(
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             if (_logger.IsEnabled(LogLevel.Warning))
-            {
+
                 _logger.LogWarning(ex, "Usage metering failed for API request (tenant {TenantId}).", scope.TenantId);
-            }
+
         }
     }
 }

@@ -48,7 +48,6 @@ public sealed class LearningController(
         CancellationToken cancellationToken)
     {
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int take, out string? maxError))
-
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
 
 
@@ -67,7 +66,6 @@ public sealed class LearningController(
         CancellationToken cancellationToken)
     {
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int take, out string? maxError))
-
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
 
 
@@ -85,12 +83,10 @@ public sealed class LearningController(
     public async Task<IActionResult> GetPlanById(string id, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(id))
-
             return this.BadRequestProblem("Path parameter 'id' is required.", ProblemTypes.ValidationFailed);
 
 
         if (!Guid.TryParse(id.Trim(), out Guid planId))
-
             return this.BadRequestProblem("Path parameter 'id' must be a valid GUID.", ProblemTypes.ValidationFailed);
 
 
@@ -99,7 +95,6 @@ public sealed class LearningController(
             await learningReadService.GetPlanByIdAsync(planId, scope, cancellationToken);
 
         if (plan is null)
-
             return this.NotFoundProblem(
                 $"Improvement plan '{planId}' was not found in the current scope.",
                 ProblemTypes.LearningImprovementPlanNotFound);
@@ -118,12 +113,10 @@ public sealed class LearningController(
         CancellationToken cancellationToken)
     {
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake, out string? themeError))
-
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
 
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake, out string? planError))
-
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
 
@@ -151,17 +144,14 @@ public sealed class LearningController(
         CancellationToken cancellationToken)
     {
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake, out string? themeError))
-
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
 
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake, out string? planError))
-
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
 
         if (!LearningPlanningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
-
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
 
 
@@ -182,7 +172,6 @@ public sealed class LearningController(
 
 
         if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun, out string? runError))
-
             return this.BadRequestProblem(runError!, ProblemTypes.ValidationFailed);
 
 
@@ -201,7 +190,6 @@ public sealed class LearningController(
             await learningReadService.GetPlanningReportAsync(scope, limits, cancellationToken);
 
         if (formatNorm == "json")
-
             return Ok(document);
 
 
@@ -230,17 +218,14 @@ public sealed class LearningController(
         CancellationToken cancellationToken)
     {
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxThemes, "maxThemes", out int themeTake, out string? themeError))
-
             return this.BadRequestProblem(themeError!, ProblemTypes.ValidationFailed);
 
 
         if (!LearningPlanningQueryParser.TryParseMaxItems(maxPlans, "maxPlans", out int planTake, out string? planError))
-
             return this.BadRequestProblem(planError!, ProblemTypes.ValidationFailed);
 
 
         if (!LearningPlanningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
-
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
 
 
@@ -261,7 +246,6 @@ public sealed class LearningController(
 
 
         if (!LearningPlanningQueryParser.TryParseMaxReportRunLinksPerPlan(maxReportRunLinks, out int maxRun, out string? runError))
-
             return this.BadRequestProblem(runError!, ProblemTypes.ValidationFailed);
 
 
@@ -294,7 +278,6 @@ public sealed class LearningController(
     private static ProductLearningScope ToProductLearningScope(ScopeContext scopeContext)
     {
         if (scopeContext is null)
-
             throw new ArgumentNullException(nameof(scopeContext));
 
 

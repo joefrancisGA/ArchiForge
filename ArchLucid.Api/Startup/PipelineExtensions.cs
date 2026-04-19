@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Diagnostics;
@@ -37,13 +37,13 @@ internal static class PipelineExtensions
                         .GetRequiredService<ILogger<WebApplication>>();
 
                     if (logger.IsEnabled(LogLevel.Error))
-                    {
+
                         logger.LogError(
                             ex,
                             "Unhandled exception for {Method} {Path}",
                             LogSanitizer.Sanitize(context.Request.Method),
                             LogSanitizer.Sanitize(context.Request.Path.Value));
-                    }
+
                 }
 
                 Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
@@ -78,14 +78,14 @@ internal static class PipelineExtensions
         if (enableApiExplorer)
         {
             if (dxOptions.EnableApiExplorer && !app.Environment.IsDevelopment())
-            {
+
                 if (app.Logger.IsEnabled(LogLevel.Warning))
-                {
+
                     app.Logger.LogWarning(
                         "DeveloperExperience:EnableApiExplorer is true in a non-Development environment. " +
                         "Ensure this is intentional and restrict access at the network perimeter.");
-                }
-            }
+
+
 
             app.MapOpenApi().AllowAnonymous();
             app.UseSwagger();

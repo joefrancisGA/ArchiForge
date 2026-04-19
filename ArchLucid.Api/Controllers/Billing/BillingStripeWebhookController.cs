@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Billing;
@@ -30,9 +30,9 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
         string rawBody;
 
         using (StreamReader reader = new(Request.Body, Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
-        {
+
             rawBody = await reader.ReadToEndAsync(cancellationToken);
-        }
+
 
         string signature = Request.Headers["Stripe-Signature"].ToString();
 
@@ -46,9 +46,8 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
             await _stripeBillingProvider.HandleWebhookAsync(inbound, cancellationToken);
 
         if (result.DuplicateIgnored || result.Succeeded)
-        {
             return Ok();
-        }
+
 
         return this.BadRequestProblem(result.ErrorDetail ?? "Stripe webhook rejected.", ProblemTypes.BadRequest);
     }

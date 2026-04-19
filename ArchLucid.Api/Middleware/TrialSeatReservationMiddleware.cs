@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -15,9 +15,9 @@ public sealed class TrialSeatReservationMiddleware(RequestDelegate next)
     {
         if (path == "/" || path.StartsWithSegments("/robots.txt", StringComparison.OrdinalIgnoreCase) ||
             path.StartsWithSegments("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
-        {
+
             return true;
-        }
+
 
         return path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/version", StringComparison.OrdinalIgnoreCase) ||

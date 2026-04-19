@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Application;
@@ -46,11 +46,10 @@ public sealed class EvolutionSimulationService(
             await planningRepository.GetPlanAsync(planId, scope, cancellationToken);
 
         if (plan is null)
-        {
             throw new EvolutionResourceNotFoundException(
                 ProblemTypes.LearningImprovementPlanNotFound,
                 $"Improvement plan '{planId}' was not found in the current scope.");
-        }
+
 
         IReadOnlyList<string> runIds =
             await planningRepository.ListPlanArchitectureRunIdsAsync(planId, scope, cancellationToken);
@@ -134,24 +133,21 @@ public sealed class EvolutionSimulationService(
             await candidateRepository.GetByIdAsync(candidateChangeSetId, scope, cancellationToken);
 
         if (candidate is null)
-        {
             throw new EvolutionResourceNotFoundException(
                 ProblemTypes.EvolutionCandidateChangeSetNotFound,
                 $"Candidate change set '{candidateChangeSetId}' was not found in the current scope.");
-        }
+
 
         EvolutionPlanSnapshotDocument? snapshot =
             JsonSerializer.Deserialize<EvolutionPlanSnapshotDocument>(candidate.PlanSnapshotJson, JsonOptions);
 
         if (snapshot is null)
-        {
             throw new InvalidOperationException("Stored plan snapshot is invalid JSON.");
-        }
+
 
         if (deleteExistingRunsForCandidate)
-        {
             await simulationRunRepository.DeleteByCandidateAsync(candidateChangeSetId, cancellationToken);
-        }
+
 
         List<EvolutionSimulationRunRecord> inserted = [];
         DateTime completedUtcBase = DateTime.UtcNow;

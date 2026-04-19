@@ -1,4 +1,4 @@
-using ArchLucid.Api.Mapping;
+﻿using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
@@ -51,16 +51,14 @@ public sealed class RunQueryController(
         ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
 
         if (detail is null)
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
-        {
             return this.NotFoundProblem(
                 $"Manifest referenced by run '{runId}' could not be found.",
                 ProblemTypes.ResourceNotFound);
-        }
+
 
         RunDetailsResponse response = RunResponseMapper.ToRunDetailsResponse(
             detail.Run,
@@ -86,11 +84,10 @@ public sealed class RunQueryController(
             .GetProvenanceAsync(runId, cancellationToken);
 
         if (graph is null)
-        {
             return this.NotFoundProblem(
                 $"Run '{runId}' was not found, or its manifest reference is broken.",
                 ProblemTypes.RunNotFound);
-        }
+
 
         return Ok(graph);
     }
@@ -106,18 +103,16 @@ public sealed class RunQueryController(
         CancellationToken cancellationToken)
     {
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         IReadOnlyList<DecisionNode> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
 
         if (decisions.Count == 0)
-        {
             return this.NotFoundProblem(
                 $"No decisions found for run '{runId}'. Decisions are available after the run has been committed.",
                 ProblemTypes.ResourceNotFound);
-        }
+
 
         return Ok(new DecisionNodeResponse
         {
@@ -136,15 +131,13 @@ public sealed class RunQueryController(
         CancellationToken cancellationToken)
     {
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
         if (evidence is null)
-        {
             return this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound);
-        }
+
 
         return Ok(new AgentEvidencePackageResponse
         {
@@ -165,21 +158,18 @@ public sealed class RunQueryController(
         CancellationToken cancellationToken = default)
     {
         if (pageNumber < 1)
-        {
             return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
-        }
+
 
         if (pageSize < 1 || pageSize > PagingParameters.MaxPageSize)
-        {
             return this.BadRequestProblem(
                 $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
                 ProblemTypes.ValidationFailed);
-        }
+
 
         if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
-        {
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-        }
+
 
         PagingParameters paging = new()
         {
@@ -231,9 +221,8 @@ public sealed class RunQueryController(
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
     {
         if (!TryParseRunId(runId, out Guid runGuid))
-        {
             return false;
-        }
+
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
@@ -243,9 +232,8 @@ public sealed class RunQueryController(
     private static bool TryParseRunId(string runId, out Guid runGuid)
     {
         if (Guid.TryParseExact(runId, "N", out runGuid))
-        {
             return true;
-        }
+
 
         return Guid.TryParse(runId, out runGuid);
     }

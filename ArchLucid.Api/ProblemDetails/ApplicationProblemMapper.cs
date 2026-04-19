@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application;
@@ -258,10 +258,10 @@ public static class ApplicationProblemMapper
     private static SqlException? TryFindSqlExceptionWithNumber(Exception ex, int number)
     {
         for (Exception? e = ex; e is not null; e = e.InnerException)
-        {
+
             if (e is SqlException sql && sql.Number == number)
                 return sql;
-        }
+
 
         return null;
     }

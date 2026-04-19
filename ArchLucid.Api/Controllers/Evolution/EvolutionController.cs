@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using ArchLucid.Core.Authorization;
@@ -125,11 +125,10 @@ public sealed class EvolutionController(
                 await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
 
             if (candidate is null)
-            {
                 return this.NotFoundProblem(
                     $"Candidate change set '{candidateId}' was not found in the current scope.",
                     ProblemTypes.EvolutionCandidateChangeSetNotFound);
-            }
+
 
             EvolutionSimulateResponse body = new()
             {
@@ -162,11 +161,10 @@ public sealed class EvolutionController(
             await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
 
         if (row is null)
-        {
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
-        }
+
 
         IReadOnlyList<EvolutionSimulationRunRecord> sims =
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
@@ -193,9 +191,8 @@ public sealed class EvolutionController(
         CancellationToken cancellationToken)
     {
         if (!ProductLearningQueryParser.TryParseReportFormat(format, out string formatNorm, out string? formatError))
-        {
             return this.BadRequestProblem(formatError!, ProblemTypes.ValidationFailed);
-        }
+
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
@@ -203,11 +200,10 @@ public sealed class EvolutionController(
             await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
 
         if (row is null)
-        {
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
-        }
+
 
         IReadOnlyList<EvolutionSimulationRunRecord> sims =
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);
@@ -237,9 +233,8 @@ public sealed class EvolutionController(
     public async Task<IActionResult> ListCandidates([FromQuery] string? max, CancellationToken cancellationToken)
     {
         if (!LearningPlanningQueryParser.TryParseMaxItems(max, "max", out int take, out string? maxError))
-        {
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
-        }
+
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
 
@@ -267,11 +262,10 @@ public sealed class EvolutionController(
             await candidateRepository.GetByIdAsync(candidateId, scope, cancellationToken);
 
         if (row is null)
-        {
             return this.NotFoundProblem(
                 $"Candidate change set '{candidateId}' was not found in the current scope.",
                 ProblemTypes.EvolutionCandidateChangeSetNotFound);
-        }
+
 
         IReadOnlyList<EvolutionSimulationRunRecord> sims =
             await simulationRunRepository.ListByCandidateAsync(candidateId, cancellationToken);

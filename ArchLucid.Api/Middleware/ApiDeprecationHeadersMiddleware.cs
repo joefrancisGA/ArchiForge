@@ -14,7 +14,6 @@ public sealed class ApiDeprecationHeadersMiddleware(RequestDelegate next, IOptio
         ApiDeprecationOptions options = optionsMonitor.CurrentValue;
 
         if (!options.Enabled)
-        
             return next(context);
         
 

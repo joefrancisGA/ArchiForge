@@ -122,7 +122,6 @@ public sealed class PolicyPacksController(
             ct);
 
         if (assignment is null)
-
             return this.NotFoundProblem(
                 $"Policy pack version '{versionKey}' was not found for pack '{policyPackId}'.",
                 ProblemTypes.PolicyPackVersionNotFound);
@@ -144,7 +143,6 @@ public sealed class PolicyPacksController(
         bool ok = await policyPacksApp.TryArchiveAssignmentAsync(scope.TenantId, assignmentId, ct);
 
         if (!ok)
-
             return this.NotFoundProblem(
                 $"Assignment '{assignmentId}' was not found or is already archived for this tenant.",
                 ProblemTypes.ResourceNotFound);

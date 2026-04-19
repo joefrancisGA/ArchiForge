@@ -42,7 +42,6 @@ internal static class ProductLearningQueryParser
         error = null;
 
         if (string.IsNullOrWhiteSpace(raw))
-
             return true;
 
 
@@ -101,7 +100,6 @@ internal static class ProductLearningQueryParser
         error = null;
 
         if (string.IsNullOrWhiteSpace(since))
-
             return true;
 
 

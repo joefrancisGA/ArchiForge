@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Api.Contracts;
@@ -93,9 +93,9 @@ public sealed class AuthorityRunEventsController(
         sb.Append("data: ");
 
         foreach (string line in data.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
-        {
+
             sb.Append(line).Append('\n');
-        }
+
 
         sb.Append('\n');
         byte[] bytes = Encoding.UTF8.GetBytes(sb.ToString());

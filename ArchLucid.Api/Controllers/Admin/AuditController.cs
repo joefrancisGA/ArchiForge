@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
 
 using ArchLucid.Core.Authorization;
@@ -127,18 +127,16 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         DateTime to = NormalizeExportInstant(toUtc);
 
         if (from >= to)
-        {
             return this.BadRequestProblem(
                 "fromUtc must be strictly before toUtc.",
                 ProblemTypes.ValidationFailed);
-        }
+
 
         if ((to - from) > TimeSpan.FromDays(90))
-        {
             return this.BadRequestProblem(
                 "The requested date range must not exceed 90 days.",
                 ProblemTypes.ValidationFailed);
-        }
+
 
         int exportMaxRows = Math.Clamp(maxRows <= 0 ? 10_000 : maxRows, 1, 10_000);
 

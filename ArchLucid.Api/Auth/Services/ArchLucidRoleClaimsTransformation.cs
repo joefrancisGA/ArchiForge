@@ -37,6 +37,7 @@ public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
             return Task.FromResult(principal);
 
         ClaimsPrincipal clone = principal.Clone();
+
         if (clone.Identity is not ClaimsIdentity id)
             return Task.FromResult(principal);
 
@@ -47,23 +48,15 @@ public sealed class ArchLucidRoleClaimsTransformation : IClaimsTransformation
             roles.Add(c.Value);
 
         if (roles.Contains(ArchLucidRoles.Admin))
-        
             foreach (string p in AdminPermissions)
                 AddPermission(p);
-        
         else if (roles.Contains(ArchLucidRoles.Operator))
-        
             foreach (string p in OperatorPermissions)
                 AddPermission(p);
-        
         else if (roles.Contains(ArchLucidRoles.Reader))
-        
             AddPermission("metrics:read");
-        
         else if (roles.Contains(ArchLucidRoles.Auditor))
-        
             AddPermission("metrics:read");
-        
 
         return Task.FromResult(clone);
 

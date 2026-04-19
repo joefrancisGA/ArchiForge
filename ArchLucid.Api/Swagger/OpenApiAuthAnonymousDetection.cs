@@ -20,7 +20,6 @@ internal static class OpenApiAuthAnonymousDetection
         if (cad.EndpointMetadata.Any(static m => m is AllowAnonymousAttribute)) return true;
 
         if (cad.MethodInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null) return true;
-
         return cad.ControllerTypeInfo.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null;
     }
 }

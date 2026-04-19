@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Core.Audit;
@@ -28,14 +28,12 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     protected override bool CanWriteType(Type? type)
     {
         if (type is null)
-        {
             return false;
-        }
+
 
         if (type == typeof(string))
-        {
             return false;
-        }
+
 
         return typeof(IEnumerable<AuditEvent>).IsAssignableFrom(type);
     }
@@ -48,10 +46,9 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
         ArgumentNullException.ThrowIfNull(selectedEncoding);
 
         if (context.Object is not IEnumerable<AuditEvent> events)
-        {
             throw new InvalidOperationException(
                 $"{nameof(AuditEventCsvFormatter)} expected {nameof(IEnumerable<AuditEvent>)}.");
-        }
+
 
         if (context.HttpContext.Items.TryGetValue(CsvAttachmentFileNameItemKey, out object? nameObj)
             && nameObj is string fileName
@@ -110,9 +107,8 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     private static string FormatNullableGuid(Guid? value)
     {
         if (!value.HasValue)
-        {
             return string.Empty;
-        }
+
 
         return value.Value.ToString("D", CultureInfo.InvariantCulture);
     }
@@ -123,9 +119,8 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
     internal static string EscapeCsvField(string? value)
     {
         if (string.IsNullOrEmpty(value))
-        {
             return string.Empty;
-        }
+
 
         bool mustQuote =
             value.Contains(',')
@@ -134,9 +129,8 @@ public sealed class AuditEventCsvFormatter : TextOutputFormatter
             || value.Contains('\n');
 
         if (!mustQuote)
-        {
             return value;
-        }
+
 
         return "\"" + value.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
     }

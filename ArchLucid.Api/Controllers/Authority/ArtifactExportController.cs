@@ -60,7 +60,6 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
-        
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
@@ -86,7 +85,6 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
-        
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
@@ -94,7 +92,6 @@ public sealed class ArtifactExportController(
 
         SynthesizedArtifact? artifact = await artifactQueryService.GetArtifactByIdAsync(scope, manifestId, artifactId, ct);
         if (artifact is null)
-        
             return this.NotFoundProblem(
                 $"Artifact '{artifactId}' was not found for manifest '{manifestId}'.",
                 ProblemTypes.ResourceNotFound);
@@ -117,7 +114,6 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
-        
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
@@ -157,7 +153,6 @@ public sealed class ArtifactExportController(
     {
         ScopeContext scope = scopeProvider.GetCurrentScope();
         if (await authorityQueryService.GetManifestSummaryAsync(scope, manifestId, ct) is null)
-        
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' was not found in the current scope.",
                 ProblemTypes.ManifestNotFound);
@@ -165,7 +160,6 @@ public sealed class ArtifactExportController(
 
         IReadOnlyList<SynthesizedArtifact> artifacts = await artifactQueryService.GetArtifactsByManifestIdAsync(scope, manifestId, ct);
         if (artifacts.Count == 0)
-        
             return this.NotFoundProblem(
                 $"Manifest '{manifestId}' has no artifact bundle or the bundle contains no artifacts. " +
                 $"The list endpoint GET api/artifacts/manifests/{manifestId} returns an empty JSON array when there are no artifact rows.",

@@ -1,4 +1,4 @@
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
@@ -82,9 +82,8 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-        {
             return new DataConsistencyOrphanCounts(0, 0, 0, 0);
-        }
+
 
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
         await using DbConnection _ = connection;
@@ -105,9 +104,8 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-        {
             return new OrphanComparisonRemediationResult(dryRun, 0, []);
-        }
+
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
@@ -127,20 +125,18 @@ public sealed class AdminDiagnosticsService(
             await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
 
             while (await reader.ReadAsync(cancellationToken))
-            {
+
                 candidateIds.Add(reader.GetString(0));
-            }
+
         }
 
         if (dryRun)
-        {
             return new OrphanComparisonRemediationResult(true, candidateIds.Count, candidateIds);
-        }
+
 
         if (candidateIds.Count == 0)
-        {
             return new OrphanComparisonRemediationResult(false, 0, []);
-        }
+
 
         List<string> deletedIds = [];
 
@@ -160,9 +156,9 @@ public sealed class AdminDiagnosticsService(
                 await using DbDataReader reader = await deleteCommand.ExecuteReaderAsync(cancellationToken);
 
                 while (await reader.ReadAsync(cancellationToken))
-                {
+
                     deletedIds.Add(reader.GetString(0));
-                }
+
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -174,7 +170,6 @@ public sealed class AdminDiagnosticsService(
         }
 
         if (deletedIds.Count > 0)
-        {
             await _auditService.LogAsync(
                 new AuditEvent
                 {
@@ -188,7 +183,7 @@ public sealed class AdminDiagnosticsService(
                         }),
                 },
                 cancellationToken);
-        }
+
 
         return new OrphanComparisonRemediationResult(false, deletedIds.Count, deletedIds);
     }
@@ -200,9 +195,8 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-        {
             return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
-        }
+
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
@@ -222,20 +216,18 @@ public sealed class AdminDiagnosticsService(
             await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
 
             while (await reader.ReadAsync(cancellationToken))
-            {
+
                 candidateIds.Add(reader.GetGuid(0).ToString("D"));
-            }
+
         }
 
         if (dryRun)
-        {
             return new OrphanGoldenManifestRemediationResult(true, candidateIds.Count, candidateIds);
-        }
+
 
         if (candidateIds.Count == 0)
-        {
             return new OrphanGoldenManifestRemediationResult(false, 0, []);
-        }
+
 
         List<string> deletedIds = [];
 
@@ -272,9 +264,9 @@ public sealed class AdminDiagnosticsService(
                 await using DbDataReader reader = await deleteManifest.ExecuteReaderAsync(cancellationToken);
 
                 if (await reader.ReadAsync(cancellationToken))
-                {
+
                     deletedIds.Add(reader.GetGuid(0).ToString("D"));
-                }
+
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -286,7 +278,6 @@ public sealed class AdminDiagnosticsService(
         }
 
         if (deletedIds.Count > 0)
-        {
             await _auditService.LogAsync(
                 new AuditEvent
                 {
@@ -300,7 +291,7 @@ public sealed class AdminDiagnosticsService(
                         }),
                 },
                 cancellationToken);
-        }
+
 
         return new OrphanGoldenManifestRemediationResult(false, deletedIds.Count, deletedIds);
     }
@@ -312,9 +303,8 @@ public sealed class AdminDiagnosticsService(
         CancellationToken cancellationToken = default)
     {
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
-        {
             return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
-        }
+
 
         int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
@@ -334,20 +324,18 @@ public sealed class AdminDiagnosticsService(
             await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
 
             while (await reader.ReadAsync(cancellationToken))
-            {
+
                 candidateIds.Add(reader.GetGuid(0).ToString("D"));
-            }
+
         }
 
         if (dryRun)
-        {
             return new OrphanFindingsSnapshotRemediationResult(true, candidateIds.Count, candidateIds);
-        }
+
 
         if (candidateIds.Count == 0)
-        {
             return new OrphanFindingsSnapshotRemediationResult(false, 0, []);
-        }
+
 
         List<string> deletedIds = [];
 
@@ -372,9 +360,9 @@ public sealed class AdminDiagnosticsService(
                 await using DbDataReader reader = await deleteSnapshot.ExecuteReaderAsync(cancellationToken);
 
                 if (await reader.ReadAsync(cancellationToken))
-                {
+
                     deletedIds.Add(reader.GetGuid(0).ToString("D"));
-                }
+
             }
 
             await transaction.CommitAsync(cancellationToken);
@@ -386,7 +374,6 @@ public sealed class AdminDiagnosticsService(
         }
 
         if (deletedIds.Count > 0)
-        {
             await _auditService.LogAsync(
                 new AuditEvent
                 {
@@ -400,7 +387,7 @@ public sealed class AdminDiagnosticsService(
                         }),
                 },
                 cancellationToken);
-        }
+
 
         return new OrphanFindingsSnapshotRemediationResult(false, deletedIds.Count, deletedIds);
     }

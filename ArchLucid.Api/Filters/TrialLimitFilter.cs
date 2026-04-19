@@ -1,4 +1,4 @@
-using ArchLucid.Api.ProblemDetails;
+﻿using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
@@ -43,13 +43,11 @@ public sealed class TrialLimitAuthorizationHandler : AuthorizationHandler<TrialA
         try
         {
             if (string.Equals(httpContext.Request.Method, HttpMethods.Delete, StringComparison.OrdinalIgnoreCase))
-            {
                 await gate.GuardDeleteAsync(scope, httpContext.RequestAborted);
-            }
+
             else
-            {
                 await gate.GuardWriteAsync(scope, httpContext.RequestAborted);
-            }
+
 
             context.Succeed(requirement);
         }

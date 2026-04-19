@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -58,7 +58,6 @@ public sealed class TenantTrialController(
             return this.NotFoundProblem("Tenant not found.", ProblemTypes.ResourceNotFound);
 
         if (string.IsNullOrWhiteSpace(tenant.TrialStatus))
-        {
             return Ok(
                 new TenantTrialStatusResponse
                 {
@@ -66,19 +65,19 @@ public sealed class TenantTrialController(
                     TrialRunsUsed = tenant.TrialRunsUsed,
                     TrialSeatsUsed = tenant.TrialSeatsUsed,
                 });
-        }
+
 
         int? daysRemaining = null;
 
         if (!string.IsNullOrWhiteSpace(tenant.TrialStatus) &&
             tenant.TrialExpiresUtc is not null &&
             !string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
-        {
+
             daysRemaining = TrialLifecyclePolicy.ComputeDaysRemainingForStatusDisplay(
                 tenant,
                 DateTimeOffset.UtcNow,
                 _trialLifecycleSchedulerOptions.CurrentValue);
-        }
+
         else if (tenant.TrialExpiresUtc is { } expires)
         {
             double totalDays = (expires - DateTimeOffset.UtcNow).TotalDays;
@@ -163,9 +162,8 @@ public sealed class TenantTrialController(
     private static TenantTier? MapRequestTier(string? label)
     {
         if (string.IsNullOrWhiteSpace(label))
-        {
             return null;
-        }
+
 
         return string.Equals(label.Trim(), nameof(TenantTier.Enterprise), StringComparison.OrdinalIgnoreCase)
             ? TenantTier.Enterprise

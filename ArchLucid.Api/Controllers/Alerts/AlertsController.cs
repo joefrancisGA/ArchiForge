@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
@@ -134,19 +134,16 @@ public sealed class AlertsController(
         CancellationToken ct = default)
     {
         if (body is null)
-        {
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-        }
+
 
         if (body.AlertIds.Count == 0)
-        {
             return this.BadRequestProblem("AlertIds must contain at least one id.", ProblemTypes.ValidationFailed);
-        }
+
 
         if (body.AlertIds.Count > 100)
-        {
             return this.BadRequestProblem("At most 100 alert ids are allowed per request.", ProblemTypes.ValidationFailed);
-        }
+
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
         string userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "unknown";
@@ -164,9 +161,8 @@ public sealed class AlertsController(
         foreach (Guid alertId in body.AlertIds)
         {
             if (!seen.Add(alertId))
-            {
                 continue;
-            }
+
 
             AlertRecord? existing = await alertRepository.GetByIdAsync(alertId, ct);
 

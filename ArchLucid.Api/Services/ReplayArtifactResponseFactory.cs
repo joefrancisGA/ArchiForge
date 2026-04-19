@@ -17,7 +17,6 @@ public static class ReplayArtifactResponseFactory
             return ApiFileResults.RangeBytes(request, result.Content, "text/markdown", result.FileName);
 
         if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-
             return ApiFileResults.RangeBytes(
                 request,
                 result.Content,
@@ -40,7 +39,6 @@ public static class ReplayArtifactResponseFactory
             return ApiFileResults.RangeText(request, result.Content, "text/html", result.FileName);
 
         if (string.Equals(result.Format, "docx", StringComparison.OrdinalIgnoreCase))
-
             return ApiFileResults.RangeBytes(
                 request,
                 result.BinaryContent,

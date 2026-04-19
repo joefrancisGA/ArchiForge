@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using ArchLucid.Api.Models.Evolution;
@@ -39,9 +39,9 @@ public static class EvolutionSimulationReportMarkdownFormatter
         md.AppendLine($"- **Summary:** {EscapeInline(c.Summary)}");
 
         if (!string.IsNullOrWhiteSpace(c.CreatedByUserId))
-        {
+
             md.AppendLine($"- **Created by:** {EscapeInline(c.CreatedByUserId)}");
-        }
+
 
         md.AppendLine();
     }
@@ -72,25 +72,25 @@ public static class EvolutionSimulationReportMarkdownFormatter
         md.AppendLine($"- **Priority score:** {p.PriorityScore.ToString(CultureInfo.InvariantCulture)}");
 
         if (!string.IsNullOrWhiteSpace(p.PriorityExplanation))
-        {
+
             md.AppendLine($"- **Priority explanation (expected impact):** {EscapeInline(p.PriorityExplanation)}");
-        }
+
 
         md.AppendLine($"- **Plan status:** {EscapeInline(p.Status)}");
         md.AppendLine($"- **Action step count:** {p.ActionStepCount.ToString(CultureInfo.InvariantCulture)}");
         md.AppendLine("- **Linked baseline architecture run IDs:**");
 
         if (p.LinkedArchitectureRunIds.Count == 0)
-        {
+
             md.AppendLine("  - _(none)_");
-        }
+
         else
-        {
+
             foreach (string id in p.LinkedArchitectureRunIds)
-            {
+
                 md.AppendLine($"  - `{id}`");
-            }
-        }
+
+
 
         md.AppendLine();
     }
@@ -126,9 +126,9 @@ public static class EvolutionSimulationReportMarkdownFormatter
             md.AppendLine();
 
             foreach (string line in run.DiffSummaryLines)
-            {
+
                 md.AppendLine($"- {EscapeInline(line)}");
-            }
+
 
             md.AppendLine();
 
@@ -136,9 +136,9 @@ public static class EvolutionSimulationReportMarkdownFormatter
             md.AppendLine();
 
             if (run.EvaluationScore is null)
-            {
+
                 md.AppendLine("_No parsed evaluation score object for this row._");
-            }
+
             else
             {
                 EvaluationScoreResponse e = run.EvaluationScore;
@@ -157,9 +157,9 @@ public static class EvolutionSimulationReportMarkdownFormatter
                     md.AppendLine();
 
                     foreach (string s in e.RegressionSignals)
-                    {
+
                         md.AppendLine($"- {EscapeInline(s)}");
-                    }
+
 
                     md.AppendLine();
                 }
@@ -177,9 +177,9 @@ public static class EvolutionSimulationReportMarkdownFormatter
             md.AppendLine();
 
             if (run.ShadowOutcome is null)
-            {
+
                 md.AppendLine("_No structured shadow object._");
-            }
+
             else
             {
                 EvolutionShadowOutcomeSnapshot s = run.ShadowOutcome;

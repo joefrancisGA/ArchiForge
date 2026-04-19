@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Api.Models.Tenancy;
 using ArchLucid.Api.ProblemDetails;
@@ -45,9 +45,8 @@ public sealed class RegistrationController(
         CancellationToken cancellationToken = default)
     {
         if (body is null)
-        {
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
-        }
+
 
         string actorEmail = body.AdminEmail.Trim();
 

@@ -1,4 +1,4 @@
-using Microsoft.OpenApi;
+﻿using Microsoft.OpenApi;
 
 namespace ArchLucid.Api.OpenApi;
 
@@ -13,32 +13,30 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
     internal static void Apply(OpenApiDocument document)
     {
         if (document.Components?.Schemas is null)
-        {
             return;
-        }
+
 
         foreach (IOpenApiSchema root in document.Components.Schemas.Values)
-        {
+
             Visit(root);
-        }
+
     }
 
     private static void Visit(IOpenApiSchema? schema)
     {
         if (schema is null)
-        {
             return;
-        }
+
 
         CollapseIntegerStringUnion(schema);
 
         if (schema.Properties is not null)
-        {
+
             foreach (IOpenApiSchema propertySchema in schema.Properties.Values)
-            {
+
                 Visit(propertySchema);
-            }
-        }
+
+
 
         Visit(schema.Items);
         VisitList(schema.AllOf);
@@ -51,27 +49,24 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
     private static void VisitList(IList<IOpenApiSchema>? list)
     {
         if (list is null)
-        {
             return;
-        }
+
 
         foreach (IOpenApiSchema item in list)
-        {
+
             Visit(item);
-        }
+
     }
 
     private static void CollapseIntegerStringUnion(IOpenApiSchema schema)
     {
         if (schema is not OpenApiSchema mutable)
-        {
             return;
-        }
+
 
         if (!mutable.Type.HasValue)
-        {
             return;
-        }
+
 
         JsonSchemaType value = mutable.Type.Value;
         JsonSchemaType withoutNull = value & ~JsonSchemaType.Null;
@@ -80,21 +75,19 @@ internal static class OpenApiCodeGenFriendlySchemaMutator
         bool hasString = withoutNull.HasFlag(JsonSchemaType.String);
 
         if (!hasInteger || !hasString)
-        {
             return;
-        }
+
 
         if (!string.Equals(mutable.Format, "int32", StringComparison.OrdinalIgnoreCase))
-        {
             return;
-        }
+
 
         JsonSchemaType next = JsonSchemaType.Integer;
 
         if (value.HasFlag(JsonSchemaType.Null))
-        {
+
             next |= JsonSchemaType.Null;
-        }
+
 
         mutable.Type = next;
         mutable.Pattern = null;

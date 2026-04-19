@@ -9,12 +9,13 @@ public static class ArchLucidJobsOffload
         ArgumentNullException.ThrowIfNull(configuration);
 
         if (string.IsNullOrWhiteSpace(jobName))
-        {
             return false;
-        }
 
         IConfigurationSection section = configuration.GetSection($"{ArchLucidJobsOptions.SectionPath}:OffloadedToContainerJobs");
 
-        return section.GetChildren().Select(child => child.Value).Where(value => !string.IsNullOrWhiteSpace(value)).Any(value => string.Equals(value.Trim(), jobName, StringComparison.OrdinalIgnoreCase));
+        return section.GetChildren()
+            .Select(child => child.Value)
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Any(value => string.Equals(value!.Trim(), jobName, StringComparison.OrdinalIgnoreCase));
     }
 }

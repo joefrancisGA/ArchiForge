@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -18,9 +18,8 @@ internal static class TrialLimitProblemResponse
         httpContext.Response.ContentType = ApplicationProblemMapper.ProblemJsonMediaType;
 
         if (body.Value is Microsoft.AspNetCore.Mvc.ProblemDetails p)
-        {
             await httpContext.Response.WriteAsJsonAsync(p, cancellationToken: httpContext.RequestAborted);
-        }
+
 
         await TryLogAuditAsync(httpContext, ex, httpContext.RequestAborted);
     }

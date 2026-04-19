@@ -1,4 +1,4 @@
-using ArchLucid.Core.Authorization;
+﻿using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
@@ -32,18 +32,16 @@ public sealed class DemoController(
     public async Task<IActionResult> SeedAsync(CancellationToken cancellationToken = default)
     {
         if (!environment.IsDevelopment())
-        {
             return this.NotFoundProblem(
                 "Demo seed is available only in Development environment.",
                 ProblemTypes.ResourceNotFound);
-        }
+
 
         if (!demoOptions.Value.Enabled)
-        {
             return this.BadRequestProblem(
                 "Demo seeding is disabled. Set Demo:Enabled to true in configuration.",
                 ProblemTypes.BadRequest);
-        }
+
 
         await demoSeedService.SeedAsync(cancellationToken);
         return NoContent();

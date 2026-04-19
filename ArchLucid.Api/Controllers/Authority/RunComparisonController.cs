@@ -185,7 +185,6 @@ public sealed class RunComparisonController(
     {
         ValidationResult? validation = await runPairQueryValidator.ValidateAsync(query, cancellationToken);
         if (!validation.IsValid)
-        
             return this.BadRequestProblem(
                 string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)),
                 ProblemTypes.ValidationFailed);

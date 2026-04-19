@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -88,9 +88,8 @@ public static class EvolutionSimulationReportBuilder
     private static EvolutionSimulationPlanSnapshotPayload? TryDeserializePlanSnapshot(string json)
     {
         if (string.IsNullOrWhiteSpace(json))
-        {
             return null;
-        }
+
 
         try
         {
@@ -116,9 +115,9 @@ public static class EvolutionSimulationReportBuilder
             $"Before: baseline run `{baselineArchitectureRunId}` appears on the plan snapshot linked-run list: {(onPlan ? "yes" : "no")}.");
 
         if (planLinkedRunIds.Count > 0)
-        {
+
             lines.Add($"Before: plan snapshot links {planLinkedRunIds.Count} baseline architecture run id(s).");
-        }
+
 
         if (string.Equals(shadowKind, "none", StringComparison.Ordinal) ||
             string.Equals(shadowKind, "invalid", StringComparison.Ordinal) ||
@@ -139,11 +138,11 @@ public static class EvolutionSimulationReportBuilder
         }
 
         if (!string.IsNullOrWhiteSpace(shadow.Error))
-        {
+
             lines.Add($"After: shadow recorded error — {shadow.Error}");
-        }
+
         else
-        {
+
             lines.Add(
                 string.Format(
                     CultureInfo.InvariantCulture,
@@ -153,7 +152,7 @@ public static class EvolutionSimulationReportBuilder
                     shadow.HasManifest,
                     shadow.SummaryLength,
                     shadow.WarningCount));
-        }
+
 
         AppendEvaluationSummaryLines(lines, evaluation);
 
@@ -180,9 +179,9 @@ public static class EvolutionSimulationReportBuilder
                 FormatNullableDouble(evaluation.ConfidenceScore)));
 
         if (evaluation.RegressionSignals.Count > 0)
-        {
+
             lines.Add($"Evaluation: regression signals — {string.Join("; ", evaluation.RegressionSignals)}");
-        }
+
     }
 
     private static string FormatNullableDouble(double? value)

@@ -1,4 +1,4 @@
-using ArchLucid.AgentRuntime.Explanation;
+﻿using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Logging;
 using ArchLucid.Api.ProblemDetails;
@@ -60,7 +60,7 @@ public sealed class ExplanationController(
         DecisionProvenanceSnapshot? snapshot = await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
 
         if (snapshot is not null)
-        {
+
             try
             {
                 graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
@@ -72,7 +72,7 @@ public sealed class ExplanationController(
                     "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
                     runId.ToString("D"));
             }
-        }
+
 
         ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
         List<FindingTraceConfidenceDto> traceRows = FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
@@ -118,21 +118,19 @@ public sealed class ExplanationController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
         if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
-        {
             return this.NotFoundProblem(
                 $"Run '{runId}' has no findings snapshot in the current scope.",
                 ProblemTypes.RunNotFound);
-        }
+
 
         Finding? match = list.FirstOrDefault(f =>
             string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
 
         if (match is null)
-        {
             return this.NotFoundProblem(
                 $"Finding '{findingId}' was not found on run '{runId}'.",
                 ProblemTypes.ResourceNotFound);
-        }
+
 
         TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(match);
         ExplainabilityTrace t = match.Trace ?? new ExplainabilityTrace();
