@@ -19,7 +19,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
 
 **Nodes:** `ArchLucid.Api` → `IBillingProviderRegistry` → `StripeBillingProvider` | `AzureMarketplaceBillingProvider` | `NoopBillingProvider` → SQL `dbo.BillingSubscriptions` / `dbo.BillingWebhookEvents`.
 
-**Edges:** Checkout (admin JWT) → provider session URL; provider → HTTPS webhook → provider implementation → SQL + `ITenantRepository.MarkTrialConvertedAsync` + `TenantTrialConverted` audit.
+**Edges:** Checkout (admin JWT) → provider session URL; provider → HTTPS webhook → provider implementation → SQL + `ITenantRepository.MarkTrialConvertedAsync` + `TenantTrialConverted` audit. For **Azure Marketplace**, after a successful non-duplicate webhook, the API may publish **`com.archlucid.billing.marketplace.webhook.received.v1`** to Service Bus for downstream orchestration (ADR **0019**).
 
 ## Component breakdown
 

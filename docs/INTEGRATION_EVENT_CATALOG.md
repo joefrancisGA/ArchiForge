@@ -24,6 +24,8 @@
 | `AlertFiredV1` | `com.archlucid.alert.fired` | `AlertIntegrationEventPublishing` |
 | `AlertResolvedV1` | `com.archlucid.alert.resolved` | `AlertIntegrationEventPublishing` |
 | `AdvisoryScanCompletedV1` | `com.archlucid.advisory.scan.completed` | `AdvisoryScanRunner` |
+| `TrialLifecycleEmailV1` | `com.archlucid.notifications.trial-lifecycle-email.v1` | Trial lifecycle scanner / domain transitions |
+| `BillingMarketplaceWebhookReceivedV1` | `com.archlucid.billing.marketplace.webhook.received.v1` | `BillingMarketplaceWebhookController` after `AzureMarketplaceBillingProvider` processes a webhook |
 
 **Wildcard:** `IntegrationEventTypes.WildcardEventType` (`*`) is for the **logging** handler only, not for publishers.
 

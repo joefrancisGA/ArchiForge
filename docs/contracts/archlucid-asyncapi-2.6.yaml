@@ -1,7 +1,7 @@
 asyncapi: 2.6.0
 info:
   title: ArchLucid outbound webhooks & integration events
-  version: 1.4.0
+  version: 1.5.0
   description: |
     ArchLucid **pushes** JSON to operator-configured HTTPS URLs for alert routing and digest delivery.
     This is **not** the primary REST API (see OpenAPI `/openapi/v1.json` and `/swagger/v1/swagger.json`).
@@ -174,3 +174,19 @@ channels:
         name: AdvisoryScanCompletedV1
         payload:
           $ref: '../../schemas/integration-events/advisory-scan-completed.v1.schema.json'
+
+  integrationBillingMarketplaceWebhookReceived:
+    description: |
+      Service Bus message after an Azure Marketplace SaaS webhook is verified, deduped in SQL, and processed
+      (`com.archlucid.billing.marketplace.webhook.received.v1`). Downstream consumers include Azure Logic Apps (ADR 0019).
+    bindings:
+      serviceBus:
+        bindingVersion: 0.2.0
+        destination: archlucid-integration-events
+        destinationType: topic
+    publish:
+      operationId: publishBillingMarketplaceWebhookReceived
+      message:
+        name: BillingMarketplaceWebhookReceivedV1
+        payload:
+          $ref: '../../schemas/integration-events/billing-marketplace-webhook-received.v1.schema.json'

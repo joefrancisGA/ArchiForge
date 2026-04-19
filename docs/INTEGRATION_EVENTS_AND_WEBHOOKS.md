@@ -47,6 +47,7 @@ Events using the outbox today:
 | `com.archlucid.alert.fired` / `com.archlucid.alert.resolved` | After alert row write (standalone enqueue) |
 | `com.archlucid.advisory.scan.completed` | After scan execution completes (standalone enqueue) |
 | `com.archlucid.notifications.trial-lifecycle-email.v1` | After durable audit append (`TrialProvisioned`, `CoordinatorRunCommitCompleted`, `TenantTrialConverted`) or scheduled trial scan (standalone enqueue) |
+| `com.archlucid.billing.marketplace.webhook.received.v1` | After Marketplace JWT verification, SQL dedupe insert, and successful `AzureMarketplaceBillingProvider` dispatch (`BillingMarketplaceWebhookController` → `MarketplaceWebhookIntegrationEventPublisher`) |
 
 When `TransactionalOutboxEnabled` is **false**, the same call sites use **best-effort** `IIntegrationEventPublisher.PublishAsync` (failures are logged; domain commits are not rolled back).
 
