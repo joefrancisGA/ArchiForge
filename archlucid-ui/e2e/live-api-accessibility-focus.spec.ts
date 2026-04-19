@@ -1,9 +1,17 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { runAxe } from "./helpers/axe-helper";
 
 /** Matches `NAV_GROUPS` entry `id: "runs-review"` → `label` in `src/lib/nav-config.ts` (sidebar `<nav aria-label>`). */
 const operatorCorePilotNavLabel = "Core Pilot";
+
+/** Expands the Core Pilot collapsible when `localStorage` left it closed so `<nav aria-label>` links are in the a11y tree. */
+async function ensureCorePilotSectionExpanded(page: Page): Promise<void> {
+  const trigger = page.getByRole("button", { name: operatorCorePilotNavLabel });
+  await trigger.waitFor({ state: "visible", timeout: 60_000 });
+
+  if ((await trigger.getAttribute("aria-expanded")) === "false") await trigger.click();
+}
 
 /** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */
 test.describe("route focus and announcements", () => {
@@ -21,6 +29,8 @@ test.describe("route focus and announcements", () => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
+    await ensureCorePilotSectionExpanded(page);
+
     await page
       .getByRole("navigation", { name: operatorCorePilotNavLabel })
       .getByRole("link", { name: "Runs" })
@@ -35,6 +45,8 @@ test.describe("route focus and announcements", () => {
   test("route announcer updates after navigation", async ({ page }) => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
+
+    await ensureCorePilotSectionExpanded(page);
 
     await page
       .getByRole("navigation", { name: operatorCorePilotNavLabel })
