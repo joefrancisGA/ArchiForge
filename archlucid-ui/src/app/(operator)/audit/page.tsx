@@ -27,6 +27,8 @@ import {
   auditExportSectionSupportingLine,
   auditClearFiltersButtonLabelReaderRank,
   auditSearchEventsButtonLabelReaderRank,
+  auditSearchEventsSectionHeadingOperator,
+  auditSearchEventsSectionHeadingReader,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
   auditSearchSectionLeadReaderLine,
@@ -265,7 +267,9 @@ export default function AuditPage() {
         }}
       >
         <h3 id="audit-search-heading" style={{ marginTop: 0, marginBottom: 12, fontSize: "1rem" }}>
-          Search audit events
+          {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
+            ? auditSearchEventsSectionHeadingReader
+            : auditSearchEventsSectionHeadingOperator}
         </h3>
         {callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority ? (
           <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">{auditSearchSectionLeadReaderLine}</p>

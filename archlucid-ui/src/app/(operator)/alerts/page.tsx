@@ -34,6 +34,8 @@ import {
   alertsPageLeadOperator,
   alertsPageLeadReader,
   alertsPageShortcutsLineReader,
+  alertsInboxRefreshButtonTitleOperator,
+  alertsInboxRefreshButtonTitleReader,
   alertsPaginationNavTitleReaderRank,
   alertsTriageAcknowledgeButtonLabelReaderInbox,
   alertsTriageDialogConfirmButtonLabelReaderRank,
@@ -242,7 +244,15 @@ export default function AlertsPage() {
             </SelectContent>
           </Select>
         </div>
-        <Button type="button" variant="secondary" onClick={() => void load()} disabled={loading}>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => void load()}
+          disabled={loading}
+          title={
+            canMutateAlertInbox ? alertsInboxRefreshButtonTitleOperator : alertsInboxRefreshButtonTitleReader
+          }
+        >
           {loading ? "Loading…" : "Refresh"}
         </Button>
       </div>

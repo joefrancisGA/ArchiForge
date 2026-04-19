@@ -26,10 +26,14 @@ import {
   policyPacksCompareVersionsIntroOperator,
   policyPacksCompareVersionsIntroReader,
   policyPacksCompareVersionsReaderSubline,
+  policyPacksCurrentPacksHeadingOperator,
+  policyPacksCurrentPacksHeadingReader,
   policyPacksCreatePackButtonLabelReaderRank,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
   policyPacksLifecycleLeadReaderLine,
+  policyPacksPackContentHeadingOperator,
+  policyPacksPackContentHeadingReader,
   policyPacksPackSelectReaderTitle,
   policyPacksPageLeadOperator,
   policyPacksPageLeadReader,
@@ -286,7 +290,9 @@ export default function PolicyPacksPage() {
 
       <div className={cn("flex flex-col gap-8", !canMutatePacks && "flex-col-reverse")}>
       <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-current-heading">
-        <h3 id="policy-packs-current-heading">Current policy packs</h3>
+        <h3 id="policy-packs-current-heading">
+          {canMutatePacks ? policyPacksCurrentPacksHeadingOperator : policyPacksCurrentPacksHeadingReader}
+        </h3>
         {packs.length === 0 ? (
           <p style={{ color: "#666", maxWidth: "42rem", fontSize: 14 }}>
             {canMutatePacks ? policyPacksEmptyScopeOperatorLine : policyPacksEmptyScopeReaderLine}
@@ -322,7 +328,9 @@ export default function PolicyPacksPage() {
       </section>
 
       <section style={{ marginBottom: 32 }} aria-labelledby="policy-packs-content-heading">
-        <h3 id="policy-packs-content-heading">Pack content</h3>
+        <h3 id="policy-packs-content-heading">
+          {canMutatePacks ? policyPacksPackContentHeadingOperator : policyPacksPackContentHeadingReader}
+        </h3>
         <h4 style={{ marginTop: 8, marginBottom: 8 }}>Effective resolved packs</h4>
         <pre
           style={{

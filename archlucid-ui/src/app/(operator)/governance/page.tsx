@@ -48,7 +48,11 @@ import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   enterpriseMutationControlDisabledTitle,
   governanceWorkflowActivateButtonLabelReaderRank,
+  governanceWorkflowApprovalRequestsCardTitleOperator,
+  governanceWorkflowApprovalRequestsCardTitleReader,
   governanceWorkflowApproveButtonLabelReaderRank,
+  governanceWorkflowActivationsSubheadingOperator,
+  governanceWorkflowActivationsSubheadingReader,
   governanceWorkflowPageLeadOperator,
   governanceWorkflowPageLeadReader,
   governanceWorkflowActivationsEmptyOperatorHint,
@@ -56,6 +60,8 @@ import {
   governanceWorkflowNoApprovalsOperatorHint,
   governanceWorkflowNoApprovalsReaderHint,
   governanceWorkflowPromoteButtonLabelReaderRank,
+  governanceWorkflowPromotionsActivationsHeadingOperator,
+  governanceWorkflowPromotionsActivationsHeadingReader,
   governanceWorkflowPromotionsActivationsSectionLeadOperator,
   governanceWorkflowPromotionsActivationsSectionLeadReader,
   governanceWorkflowPromotionsEmptyOperatorHint,
@@ -68,6 +74,8 @@ import {
   governanceWorkflowRefreshRunDataButtonLabel,
   governanceWorkflowRefreshRunDataTitle,
   governanceWorkflowSubmitCardDescriptionReader,
+  governanceWorkflowSubmitCardTitleOperator,
+  governanceWorkflowSubmitCardTitleReader,
   governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -444,7 +452,9 @@ function GovernanceWorkflowPageInner() {
       <section className="mb-10">
         <Card className={cn(!canMutateWorkflow && "opacity-95")}>
           <CardHeader>
-            <CardTitle>Submit approval request</CardTitle>
+            <CardTitle>
+              {canMutateWorkflow ? governanceWorkflowSubmitCardTitleOperator : governanceWorkflowSubmitCardTitleReader}
+            </CardTitle>
             <CardDescription>
               {canMutateWorkflow ? (
                 <>
@@ -556,7 +566,11 @@ function GovernanceWorkflowPageInner() {
       <section className="mb-10">
         <Card>
           <CardHeader>
-            <CardTitle>Approval requests for a run</CardTitle>
+            <CardTitle>
+              {canMutateWorkflow
+                ? governanceWorkflowApprovalRequestsCardTitleOperator
+                : governanceWorkflowApprovalRequestsCardTitleReader}
+            </CardTitle>
             <CardDescription>
               {canMutateWorkflow
                 ? governanceWorkflowQueryCardDescriptionOperator
@@ -800,7 +814,11 @@ function GovernanceWorkflowPageInner() {
       <Separator className="mb-10" />
 
       <section className="mb-10">
-        <h3 className="mb-4 text-lg font-semibold">Promotions &amp; activations</h3>
+        <h3 className="mb-4 text-lg font-semibold">
+          {canMutateWorkflow
+            ? governanceWorkflowPromotionsActivationsHeadingOperator
+            : governanceWorkflowPromotionsActivationsHeadingReader}
+        </h3>
         <p className="mb-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           {canMutateWorkflow
             ? governanceWorkflowPromotionsActivationsSectionLeadOperator
@@ -879,7 +897,11 @@ function GovernanceWorkflowPageInner() {
           ))}
         </div>
 
-        <h4 className="mb-3 text-base font-semibold">Activations</h4>
+        <h4 className="mb-3 text-base font-semibold">
+          {canMutateWorkflow
+            ? governanceWorkflowActivationsSubheadingOperator
+            : governanceWorkflowActivationsSubheadingReader}
+        </h4>
 
         {!listsLoading && activeRunId !== null && activations.length === 0 && listFailure === null ? (
           <OperatorEmptyState title="No activations recorded yet">

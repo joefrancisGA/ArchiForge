@@ -67,10 +67,16 @@ vi.mock("next/link", () => ({
 }));
 
 import {
+  alertsInboxRefreshButtonTitleReader,
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
   compositeRulesCreateButtonLabelReaderRank,
+  governanceWorkflowApprovalRequestsCardTitleReader,
+  governanceWorkflowPromotionsActivationsHeadingReader,
+  governanceWorkflowSubmitCardTitleReader,
   policyPacksCreatePackButtonLabelReaderRank,
+  policyPacksCurrentPacksHeadingReader,
+  policyPacksPackContentHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 
 import AlertRulesPage from "./alert-rules/page";
@@ -146,6 +152,17 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
   });
 
+  it("Policy packs: inventory headings show inspect framing when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<PolicyPacksPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: policyPacksCurrentPacksHeadingReader })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("heading", { name: policyPacksPackContentHeadingReader })).toBeInTheDocument();
+  });
+
   it("Policy packs: Create pack enables after load when mutation capability is true", async () => {
     mutateCapability.current = true;
     render(<PolicyPacksPage />);
@@ -162,6 +179,8 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Acknowledge/ })).not.toBeDisabled();
     });
+
+    expect(screen.getByRole("button", { name: /^Refresh$/ })).toHaveAttribute("title", alertsInboxRefreshButtonTitleReader);
 
     screen.getByRole("button", { name: /Acknowledge/ }).click();
 
@@ -251,6 +270,12 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
       expect(submitRun).not.toBeNull();
       expect(submitRun!.readOnly).toBe(true);
     });
+
+    expect(screen.getByText(governanceWorkflowSubmitCardTitleReader)).toBeInTheDocument();
+    expect(screen.getByText(governanceWorkflowApprovalRequestsCardTitleReader)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: governanceWorkflowPromotionsActivationsHeadingReader }),
+    ).toBeInTheDocument();
 
     const submitVersion = document.getElementById("gov-submit-version") as HTMLInputElement | null;
 

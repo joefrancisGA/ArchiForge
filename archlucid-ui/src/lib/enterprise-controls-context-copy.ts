@@ -117,8 +117,33 @@ export const governanceWorkflowRefreshRunDataTitle =
 
 export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 
+/** Governance workflow — submit card title (`governance/page.tsx`). */
+export const governanceWorkflowSubmitCardTitleOperator = "Submit approval request";
+
+export const governanceWorkflowSubmitCardTitleReader = "Submit approval request (Execute+)";
+
+/** Governance workflow — load and list card title. */
+export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval requests for a run";
+
+export const governanceWorkflowApprovalRequestsCardTitleReader = "Approval requests for a run (inspect)";
+
+/** Governance workflow — promotions + activations section (`governance/page.tsx`). */
+export const governanceWorkflowPromotionsActivationsHeadingOperator = "Promotions & activations";
+
+export const governanceWorkflowPromotionsActivationsHeadingReader = "Promotions & activations (inspect)";
+
+/** Governance workflow — activations list under promotions. */
+export const governanceWorkflowActivationsSubheadingOperator = "Activations";
+
+export const governanceWorkflowActivationsSubheadingReader = "Activations (inspect)";
+
 /** Alerts triage dialog — primary control when **Confirm** is disabled at read rank (preview-only path). */
 export const alertsTriageDialogConfirmButtonLabelReaderRank = "Apply triage (Execute+)";
+
+/** Audit log — search section heading (`audit/page.tsx`); branch with **`callerAuthorityRank`**. */
+export const auditSearchEventsSectionHeadingOperator = "Search audit events";
+
+export const auditSearchEventsSectionHeadingReader = "Search audit events (inspect)";
 
 /** Audit log — search is always **GET**; label nudges read-tier callers away from export expectations. */
 export const auditSearchEventsButtonLabelReaderRank = "Search audit log";
@@ -174,6 +199,12 @@ export const alertsPageLeadOperator = "Filter, page, then triage per card.";
 
 /** Alerts inbox — lead under title (read tier); `AlertsInboxRankCue` carries write boundary. */
 export const alertsPageLeadReader = "Filter and page.";
+
+/** Alerts inbox — **Refresh** reloads the paged list (`GET`); triage remains Execute+ on the API. */
+export const alertsInboxRefreshButtonTitleOperator = "Reload alerts for the current status filter (GET).";
+
+export const alertsInboxRefreshButtonTitleReader =
+  "Reload alerts (GET). Triage writes need Execute+ on the API.";
 
 /** Alerts inbox — pagination controls when triage writes are off (`alerts/page.tsx`). */
 export const alertsPaginationNavTitleReaderRank = "Page results (read-only in this shell; API authoritative).";
@@ -249,6 +280,16 @@ export const policyPacksPageLeadOperator = "Inventory and diff first; lifecycle 
 
 /** Policy packs — lead under title (read tier). */
 export const policyPacksPageLeadReader = "Inspect first; lifecycle Execute+ (API).";
+
+/** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
+export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";
+
+export const policyPacksCurrentPacksHeadingReader = "Current policy packs (inspect)";
+
+/** Policy packs — effective / resolved JSON section heading. */
+export const policyPacksPackContentHeadingOperator = "Pack content";
+
+export const policyPacksPackContentHeadingReader = "Pack content (inspect)";
 
 /** Policy packs — reader assist next to **Refresh** (`policy-packs/page.tsx`); reload is GET-only. */
 export const policyPacksRefreshAssistReaderLine =
