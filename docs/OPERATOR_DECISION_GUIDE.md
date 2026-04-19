@@ -4,6 +4,8 @@
 
 **Status:** Practical V1 usage guidance. This document explains **when to stay on the Core Pilot path, when to expand into Advanced Analysis, and when Enterprise Controls are worth using**.
 
+**Canonical buyer narrative:** [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md). **Measurement companion:** [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md). This document is usage guidance, not a second buyer narrative and not a second ROI brief.
+
 **Related:** [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [operator-shell.md](operator-shell.md)
 
 ---
@@ -14,7 +16,7 @@ Start with **Core Pilot**.
 
 Do **not** move into Advanced Analysis or Enterprise Controls just because those features exist. Move only when a real question appears that the Core Pilot path does not answer well enough.
 
-That keeps the product easier to operate and makes pilot value easier to judge.
+That keeps the product easier to operate, keeps the first-value story clearer, and makes pilot value easier to judge.
 
 ---
 
