@@ -64,7 +64,10 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-import { governanceResolutionChangeRelatedControlsReaderSupplement } from "@/lib/enterprise-controls-context-copy";
+import {
+  governanceResolutionChangeRelatedControlsReaderSupplement,
+  policyPacksCreatePackButtonLabelReaderRank,
+} from "@/lib/enterprise-controls-context-copy";
 
 import AlertRulesPage from "./alert-rules/page";
 import AlertsPage from "./alerts/page";
@@ -133,7 +136,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<PolicyPacksPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /create pack/i })).toBeDisabled();
+      expect(screen.getByRole("button", { name: policyPacksCreatePackButtonLabelReaderRank })).toBeDisabled();
     });
   });
 

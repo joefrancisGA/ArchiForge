@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import {
@@ -231,6 +232,7 @@ export default function AuditPage() {
     <main style={{ maxWidth: 900 }}>
       <LayerHeader pageKey="audit" />
       <h2 style={{ marginTop: 0 }}>Audit log</h2>
+      <AuditLogRankCue className="mb-2" />
 
       {callerAuthorityRank >= AUTHORITY_RANK.ExecuteAuthority && !exportRoleOk ? (
         <p className="mb-2 max-w-prose text-xs text-neutral-600 dark:text-neutral-400" role="note">

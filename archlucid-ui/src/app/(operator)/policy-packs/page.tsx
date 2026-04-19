@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -20,9 +21,11 @@ import {
 } from "@/lib/api";
 import {
   enterpriseMutationControlDisabledTitle,
+  policyPacksAssignButtonLabelReaderRank,
   policyPacksCompareVersionsIntroOperator,
   policyPacksCompareVersionsIntroReader,
   policyPacksCompareVersionsReaderSubline,
+  policyPacksCreatePackButtonLabelReaderRank,
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
   policyPacksLifecycleLeadReaderLine,
@@ -31,6 +34,7 @@ import {
   policyPacksPageLeadReader,
   policyPacksPublishedVersionsEmptyOperatorLine,
   policyPacksPublishedVersionsEmptyReaderLine,
+  policyPacksPublishButtonLabelReaderRank,
   policyPacksShowDiffButtonReaderTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
@@ -254,6 +258,7 @@ export default function PolicyPacksPage() {
         </Link>
         .
       </p>
+      <EnterpriseControlsExecutePageHint className="mb-3" />
 
       <p>
         <button type="button" onClick={() => void load()} disabled={loading}>
@@ -498,7 +503,7 @@ export default function PolicyPacksPage() {
                     "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
                 )}
               >
-                Create pack
+                {canMutatePacks ? "Create pack" : policyPacksCreatePackButtonLabelReaderRank}
               </button>
             </div>
           </section>
@@ -540,7 +545,7 @@ export default function PolicyPacksPage() {
                     "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
                 )}
               >
-                Publish
+                {canMutatePacks ? "Publish" : policyPacksPublishButtonLabelReaderRank}
               </button>
             </div>
           </section>
@@ -595,7 +600,7 @@ export default function PolicyPacksPage() {
                     "rounded border border-neutral-300 bg-neutral-50 text-neutral-600 dark:border-neutral-600 dark:bg-neutral-900/50 dark:text-neutral-400",
                 )}
               >
-                Assign
+                {canMutatePacks ? "Assign" : policyPacksAssignButtonLabelReaderRank}
               </button>
             </div>
           </section>

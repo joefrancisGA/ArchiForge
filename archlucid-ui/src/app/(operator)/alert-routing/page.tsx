@@ -151,6 +151,9 @@ export default function AlertRoutingPage() {
                     </div>
                   </div>
                   <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button type="button" onClick={() => void loadAttempts(item.routingSubscriptionId)}>
+                      Show delivery attempts
+                    </button>
                     <button
                       type="button"
                       onClick={() => void onToggle(item.routingSubscriptionId)}
@@ -168,9 +171,6 @@ export default function AlertRoutingPage() {
                         : item.isEnabled
                           ? alertRoutingToggleToDisabledReaderRank
                           : alertRoutingToggleToEnabledReaderRank}
-                    </button>
-                    <button type="button" onClick={() => void loadAttempts(item.routingSubscriptionId)}>
-                      Show delivery attempts
                     </button>
                   </div>
                   {attemptsBySub[item.routingSubscriptionId]?.length ? (

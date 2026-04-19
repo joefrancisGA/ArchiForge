@@ -37,7 +37,7 @@ describe("LayerHeader", () => {
   it("renders Enterprise responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
-    expect(screen.getByText(/Evidence search and bounded export\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Search \+ bounded CSV export\./i)).toBeInTheDocument();
   });
 
   /**
@@ -55,7 +55,7 @@ describe("LayerHeader", () => {
   it("renders governance resolution Enterprise footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Effective stack here; edits in policy packs or workflow\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Stack on this page; edits on Packs or Workflow\./i)).toBeInTheDocument();
   });
 
   it("renders Enterprise rank cue on Enterprise Controls audit (operator+ rank line)", () => {
