@@ -14,6 +14,9 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
 
     private static readonly DateTime TLate = new(2026, 1, 10, 0, 0, 0, DateTimeKind.Utc);
 
+    /// <summary>Rollups above the default <c>MaxImprovementOpportunities</c> cap so ranking honors the limit.</summary>
+    private const int SeededFeedbackRollupCountAboveOpportunityCap = 5;
+
     [Fact]
     public async Task BuildRankedOpportunitiesAsync_orders_by_bad_score_desc_then_last_seen_then_sort_key()
     {
@@ -95,8 +98,8 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
 
         List<FeedbackAggregate> rollups = [];
 
-        for (int i = 0; i < 5; i++)
-        
+        for (int i = 0; i < SeededFeedbackRollupCountAboveOpportunityCap; i++)
+        {
             rollups.Add(
                 new FeedbackAggregate
                 {
@@ -112,7 +115,7 @@ public sealed class ProductLearningImprovementOpportunityServiceTests
                     FirstSignalRecordedUtc = TEarly,
                     LastSignalRecordedUtc = TEarly,
                 });
-        
+        }
 
         ProductLearningAggregationSnapshot snapshot = new()
         {

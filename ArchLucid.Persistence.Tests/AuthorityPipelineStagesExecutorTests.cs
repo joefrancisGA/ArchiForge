@@ -94,9 +94,9 @@ public sealed class AuthorityPipelineStagesExecutorTests
                 .OrderBy(a => Array.IndexOf(expectedOps, a.OperationName))
                 .ToList();
 
-            stages.Should().HaveCount(5);
+            stages.Should().HaveCount(expectedStages.Length);
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < stages.Count; i++)
             {
                 Activity child = stages[i];
                 child.ParentId.Should().Be(parent.Id);

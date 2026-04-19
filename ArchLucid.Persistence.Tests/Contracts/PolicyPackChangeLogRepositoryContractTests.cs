@@ -22,6 +22,8 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
     private static readonly Guid ProjectP = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
     private static readonly Guid TenantB = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
 
+    private const int SeededChangeLogRowsForMaxRowsContractTest = 5;
+
     private static PolicyPackChangeLogEntry CreateEntry(
         Guid policyPackId,
         Guid tenantId,
@@ -107,7 +109,7 @@ public abstract class PolicyPackChangeLogRepositoryContractTests
         Guid packId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         DateTime t0 = new(2026, 5, 1, 8, 0, 0, DateTimeKind.Utc);
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < SeededChangeLogRowsForMaxRowsContractTest; i++)
         {
             await repo.AppendAsync(
                 CreateEntry(packId, TenantA, summary: $"row-{i}", changedUtc: t0.AddMinutes(i)),

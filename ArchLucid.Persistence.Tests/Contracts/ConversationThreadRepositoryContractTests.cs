@@ -21,6 +21,8 @@ public abstract class ConversationThreadRepositoryContractTests
     /// </summary>
     protected virtual bool IncludeArchiveContractTest => true;
 
+    private const int SeededThreadsForPagedScopeContract = 3;
+
     private static readonly Guid TenantId = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
     private static readonly Guid WorkspaceId = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2");
     private static readonly Guid ProjectId = Guid.Parse("c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3");
@@ -124,10 +126,10 @@ public abstract class ConversationThreadRepositoryContractTests
         SkipIfSqlServerUnavailable();
         IConversationThreadRepository repo = CreateRepository();
 
-        for (int i = 0; i < 3; i++)
-        
+        for (int i = 0; i < SeededThreadsForPagedScopeContract; i++)
+        {
             await repo.CreateAsync(NewThread(DateTime.UtcNow.AddSeconds(-i)), CancellationToken.None);
-        
+        }
 
         (IReadOnlyList<ConversationThread> page, int total) = await repo.ListByScopePagedAsync(
             TenantId,
@@ -137,7 +139,7 @@ public abstract class ConversationThreadRepositoryContractTests
             take: 1,
             CancellationToken.None);
 
-        total.Should().BeGreaterThanOrEqualTo(3);
+        total.Should().BeGreaterThanOrEqualTo(SeededThreadsForPagedScopeContract);
         page.Should().HaveCount(1);
     }
 

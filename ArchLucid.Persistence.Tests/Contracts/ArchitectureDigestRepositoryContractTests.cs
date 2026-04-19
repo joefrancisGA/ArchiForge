@@ -18,6 +18,8 @@ public abstract class ArchitectureDigestRepositoryContractTests
     {
     }
 
+    private const int SeededDigestsForScopeTakeContract = 5;
+
     private static readonly Guid TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
     private static readonly Guid WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2");
     private static readonly Guid ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3");
@@ -124,7 +126,7 @@ public abstract class ArchitectureDigestRepositoryContractTests
         // Use a unique scope so only our data is counted.
         Guid uniqueProject = Guid.NewGuid();
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < SeededDigestsForScopeTakeContract; i++)
         {
             ArchitectureDigest d = CreateDigest();
             d.ProjectId = uniqueProject;

@@ -22,6 +22,8 @@ public abstract class ConversationMessageRepositoryContractTests
         return Task.CompletedTask;
     }
 
+    private const int SeededMessagesForThreadTakeContract = 5;
+
     private static ConversationThread NewThreadForMessages()
     {
         return new ConversationThread
@@ -81,8 +83,8 @@ public abstract class ConversationMessageRepositoryContractTests
         ConversationThread thread = NewThreadForMessages();
         await EnsureThreadExistsAsync(thread);
 
-        for (int i = 0; i < 5; i++)
-        
+        for (int i = 0; i < SeededMessagesForThreadTakeContract; i++)
+        {
             await repo.AddAsync(
                 new ConversationMessage
                 {
@@ -93,7 +95,7 @@ public abstract class ConversationMessageRepositoryContractTests
                     CreatedUtc = DateTime.UtcNow.AddSeconds(-i)
                 },
                 CancellationToken.None);
-        
+        }
 
         IReadOnlyList<ConversationMessage> window =
             await repo.GetByThreadIdAsync(thread.ThreadId, take: 2, CancellationToken.None);

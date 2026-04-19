@@ -16,6 +16,9 @@ public sealed class ArchitectureDigestBuilderTests
 {
     private readonly ArchitectureDigestBuilder _sut = new();
 
+    /// <summary>Seed more recommendations than the digest top-N so truncation is exercised.</summary>
+    private const int RecommendationSeedCountBeyondDigestTopN = 7;
+
     private static ImprovementPlan EmptyPlan() => new()
     {
         RunId = Guid.NewGuid(),
@@ -46,8 +49,8 @@ public sealed class ArchitectureDigestBuilderTests
     public void Build_SevenRecommendations_TakesTopFiveByPriority()
     {
         ImprovementPlan plan = EmptyPlan();
-        for (int i = 0; i < 7; i++)
-        
+        for (int i = 0; i < RecommendationSeedCountBeyondDigestTopN; i++)
+        {
             plan.Recommendations.Add(new ImprovementRecommendation
             {
                 Title = $"Item {i}",
@@ -58,7 +61,7 @@ public sealed class ArchitectureDigestBuilderTests
                 ExpectedImpact = "e",
                 PriorityScore = i
             });
-        
+        }
 
         ArchitectureDigest digest = _sut.Build(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), null, null, plan);
 

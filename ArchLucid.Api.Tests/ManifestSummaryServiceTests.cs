@@ -14,6 +14,9 @@ public sealed class ManifestSummaryServiceTests
 {
     private readonly ManifestSummaryService _sut = new();
 
+    /// <summary>Enough services and relationships to exceed <see cref="ManifestSummaryOptions.MaxRelationships"/> in the capped-output test.</summary>
+    private const int RelationshipStressPairCount = 5;
+
     [Fact]
     public void GenerateMarkdown_NullManifest_Throws()
     {
@@ -179,14 +182,14 @@ public sealed class ManifestSummaryServiceTests
     {
         GoldenManifest manifest = CreateMinimalManifest("Limited");
 
-        for (int i = 0; i < 5; i++)
-        
+        for (int i = 0; i < RelationshipStressPairCount; i++)
+        {
             manifest.Services.Add(new ManifestService
             {
                 ServiceId = $"svc{i}", ServiceName = $"Svc{i}",
                 ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
             });
-        
+        }
 
         manifest.Datastores.Add(new ManifestDatastore
         {
@@ -194,13 +197,13 @@ public sealed class ManifestSummaryServiceTests
             DatastoreType = DatastoreType.Sql, RuntimePlatform = RuntimePlatform.SqlServer
         });
 
-        for (int i = 0; i < 5; i++)
-        
+        for (int i = 0; i < RelationshipStressPairCount; i++)
+        {
             manifest.Relationships.Add(new ManifestRelationship
             {
                 SourceId = $"svc{i}", TargetId = "ds0", RelationshipType = RelationshipType.Calls
             });
-        
+        }
 
         ManifestSummaryOptions options = new() { MaxRelationships = 2 };
 

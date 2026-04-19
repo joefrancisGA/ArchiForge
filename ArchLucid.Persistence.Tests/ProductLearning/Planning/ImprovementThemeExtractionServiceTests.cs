@@ -17,6 +17,12 @@ public sealed class ImprovementThemeExtractionServiceTests
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         };
 
+    /// <summary>Pilot signals matching the "small" rollup <see cref="FeedbackAggregate.TotalSignalCount"/> in theme-ranking tests.</summary>
+    private const int SmallAggregatePilotSignalCount = 2;
+
+    /// <summary>Pilot signals matching the "big" rollup <see cref="FeedbackAggregate.TotalSignalCount"/> in theme-ranking tests.</summary>
+    private const int BigAggregatePilotSignalCount = 8;
+
     private static ProductLearningPilotSignalRecord Signal(
         Guid signalId,
         string disposition,
@@ -498,7 +504,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             PatternKey = "small",
             SubjectTypeOrWorkflowArea = ProductLearningSubjectTypeValues.RunOutput,
             DistinctRunCount = 1,
-            TotalSignalCount = 2,
+            TotalSignalCount = SmallAggregatePilotSignalCount,
             TrustedCount = 0,
             RejectedCount = 2,
             RevisedCount = 0,
@@ -513,7 +519,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             PatternKey = "big",
             SubjectTypeOrWorkflowArea = ProductLearningSubjectTypeValues.RunOutput,
             DistinctRunCount = 3,
-            TotalSignalCount = 8,
+            TotalSignalCount = BigAggregatePilotSignalCount,
             TrustedCount = 0,
             RejectedCount = 5,
             RevisedCount = 0,
@@ -532,7 +538,7 @@ public sealed class ImprovementThemeExtractionServiceTests
 
         List<ProductLearningPilotSignalRecord> signals = [];
 
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < SmallAggregatePilotSignalCount; i++)
         {
             signals.Add(
                 Signal(
@@ -546,7 +552,7 @@ public sealed class ImprovementThemeExtractionServiceTests
                     utc.AddMinutes(i)));
         }
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < BigAggregatePilotSignalCount; i++)
         {
             signals.Add(
                 Signal(
@@ -566,7 +572,7 @@ public sealed class ImprovementThemeExtractionServiceTests
             null,
             new ImprovementThemeExtractionOptions
             {
-                MinSignalsPerAggregateTheme = 2,
+                MinSignalsPerAggregateTheme = SmallAggregatePilotSignalCount,
                 MaxThemes = 1,
             },
             CancellationToken.None);
@@ -574,6 +580,6 @@ public sealed class ImprovementThemeExtractionServiceTests
         ImprovementThemeWithEvidence only = Assert.Single(themes);
 
         Assert.Equal("rollup:big", only.CanonicalKey);
-        Assert.Equal(8, only.Theme.EvidenceCount);
+        Assert.Equal(BigAggregatePilotSignalCount, only.Theme.EvidenceCount);
     }
 }

@@ -19,6 +19,12 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
 {
     private readonly ArchLucidApiFactory _factory = factory;
 
+    /// <summary>Records seeded so two pages of limit 2 do not overlap and ascending sort can be asserted.</summary>
+    private const int SeededComparisonRecordsForPagingOverlapTest = 6;
+
+    /// <summary>Records seeded for cursor-based paging (desc sort, limit 2 per page).</summary>
+    private const int SeededComparisonRecordsForCursorPagingTest = 5;
+
     [Fact]
     public async Task SearchComparisons_PagingDoesNotOverlap_AndSortAscWorks()
     {
@@ -27,7 +33,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
         using (IServiceScope scope = _factory.Services.CreateScope())
         {
             IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < SeededComparisonRecordsForPagingOverlapTest; i++)
             {
                 ComparisonRecord record = new()
                 {
@@ -65,10 +71,10 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
 
         // Ascending sort: first item should be the earliest CreatedUtc (minute 0)
         ComparisonHistoryResponseDto? asc = await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(
-            "/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit=6&skip=0&sortDir=asc",
+            $"/v1/architecture/comparisons?comparisonType=end-to-end-replay&limit={SeededComparisonRecordsForPagingOverlapTest}&skip=0&sortDir=asc",
             JsonOptions);
         asc.Should().NotBeNull();
-        asc.Records.Should().HaveCount(6);
+        asc.Records.Should().HaveCount(SeededComparisonRecordsForPagingOverlapTest);
         asc.Records.First().ComparisonRecordId.Should().Be(ids[0]);
     }
 
@@ -78,8 +84,8 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
         using (IServiceScope scope = _factory.Services.CreateScope())
         {
             IComparisonRecordRepository repo = scope.ServiceProvider.GetRequiredService<IComparisonRecordRepository>();
-            for (int i = 0; i < 5; i++)
-            
+            for (int i = 0; i < SeededComparisonRecordsForCursorPagingTest; i++)
+            {
                 await repo.CreateAsync(new ComparisonRecord
                 {
                     ComparisonRecordId = $"cmp_cursor_{i}_{Guid.NewGuid():N}",
@@ -91,7 +97,7 @@ public sealed class ArchitectureComparisonSearchTests(ArchLucidApiFactory factor
                     PayloadJson = "{}",
                     CreatedUtc = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc).AddMinutes(i)
                 });
-            
+            }
         }
 
         ComparisonHistoryResponseDto page1 = (await Client.GetFromJsonAsync<ComparisonHistoryResponseDto>(

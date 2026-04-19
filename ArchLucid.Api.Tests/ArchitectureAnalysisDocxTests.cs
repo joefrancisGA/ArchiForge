@@ -16,6 +16,10 @@ namespace ArchLucid.Api.Tests;
 [Trait("Category", "Slow")]
 public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
 {
+    private const int AsyncDocxJobPollMaxIterations = 25;
+
+    private static readonly TimeSpan AsyncDocxJobPollDelay = TimeSpan.FromMilliseconds(200);
+
     [Fact]
     public async Task ExportAnalysisReportDocx_ReturnsDocxFile()
     {
@@ -107,7 +111,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
 
         // Poll status briefly until succeeded.
         string state = "Pending";
-        for (int i = 0; i < 25; i++)
+        for (int i = 0; i < AsyncDocxJobPollMaxIterations; i++)
         {
             HttpResponseMessage statusResp = await Client.GetAsync($"/v1/jobs/{jobId}");
             statusResp.EnsureSuccessStatusCode();
@@ -119,7 +123,7 @@ public sealed class ArchitectureAnalysisDocxTests(ArchLucidApiFactory factory) :
                 string.Equals(state, "Failed", StringComparison.OrdinalIgnoreCase))
                 break;
 
-            await Task.Delay(200);
+            await Task.Delay(AsyncDocxJobPollDelay);
         }
 
         state.Should().Be("Succeeded");
