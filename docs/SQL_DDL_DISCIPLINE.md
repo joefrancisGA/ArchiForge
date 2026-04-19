@@ -42,6 +42,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 ## Operational considerations
 
 - **Drift detection:** Compare migration list to sections appended in **`ArchLucid.sql`** when reviewing PRs (this document’s inventory below).
+- **Azure automatic tuning:** When **`enable_sql_automatic_tuning`** is on in **`infra/terraform-sql-failover/`**, **`createIndex`** / **`dropIndex`** can change live catalogs without a repo migration. Treat portal **recommendations** and **`sys.indexes`** diffs as inputs: promote kept indexes into **`Migrations/`** + **`ArchLucid.sql`**, or set tuning options to **`Off`** / **`Default`** per server if you require strict DDL-only control.
 - **Rollback:** DbUp does not auto-generate down scripts; use **`docs/runbooks/MIGRATION_ROLLBACK.md`** and **`NEXT_REFACTORINGS.md`** item **249**.
 - **Dashboard-grade lists on hot-write tables:** Prefer **covering nonclustered indexes** (key columns for filter + sort, **`INCLUDE`** for projected columns) so list plans avoid **key lookups** into the clustered index while writers hold locks on those pages. For operator UI / picker queries that already tolerate **read-replica staleness**, **`WITH (NOLOCK)`** on the **`FROM`** clause avoids **shared-lock** waits behind concurrent inserts/updates. Do **not** apply **`NOLOCK`** to transactional reads (**`GetByIdAsync`**, commit pipelines, optimistic concurrency).
 

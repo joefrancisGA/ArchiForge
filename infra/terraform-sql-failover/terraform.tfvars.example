@@ -19,6 +19,12 @@ enable_sql_failover_group = false
 #   Workload    = "archi-forge"
 # }
 
+# Optional: server-level automatic tuning (Azure/azapi); primary server id must be real when enabled.
+# enable_sql_automatic_tuning = true
+# sql_automatic_tuning_force_last_good_plan = "On"   # default On
+# sql_automatic_tuning_create_index           = "On"   # default On — Azure may add NC indexes; promote to migrations if kept
+# sql_automatic_tuning_drop_index             = "On"   # default On — Azure may drop unused indexes; review Query Store
+
 # Optional: resource-group consumption budget filtered to Microsoft.Sql/servers + databases (Cost Management).
 # enable_sql_consumption_budget = true
 # sql_consumption_budget_resource_group_id = "/subscriptions/.../resourceGroups/rg-sql" # or omit to derive from primary_sql_server_resource_id

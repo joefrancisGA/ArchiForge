@@ -4,6 +4,9 @@
 
 enable_sql_failover_group = true
 
+# Server-level automatic tuning on primary + partner (forceLastGoodPlan / createIndex / dropIndex all On by default).
+enable_sql_automatic_tuning = true
+
 failover_group_name            = "archlucid-prod-sqlfg"
 primary_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-primary/providers/Microsoft.Sql/servers/sql-primary"
 partner_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-secondary/providers/Microsoft.Sql/servers/sql-secondary"

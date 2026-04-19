@@ -118,3 +118,42 @@ variable "sql_consumption_budget_contact_roles" {
   description = "RBAC roles to notify when sql_consumption_budget_contact_emails is empty (typical: Owner)."
   default     = ["Owner"]
 }
+
+variable "enable_sql_automatic_tuning" {
+  type        = bool
+  description = "When true, set server-level Azure SQL automatic tuning on each eligible logical server (primary always when its id is real; partner when its id is real). Uses Azure/azapi; does not require enable_sql_failover_group."
+  default     = false
+}
+
+variable "sql_automatic_tuning_force_last_good_plan" {
+  type        = string
+  description = "Automatic tuning option forceLastGoodPlan: On (recommended), Off, or Default (inherit subscription policy)."
+  default     = "On"
+
+  validation {
+    condition     = contains(["On", "Off", "Default"], var.sql_automatic_tuning_force_last_good_plan)
+    error_message = "sql_automatic_tuning_force_last_good_plan must be On, Off, or Default."
+  }
+}
+
+variable "sql_automatic_tuning_create_index" {
+  type        = string
+  description = "Automatic tuning option createIndex: On lets Azure create missing nonclustered indexes from workload signals; Off/Default if you want migrations-only indexes."
+  default     = "On"
+
+  validation {
+    condition     = contains(["On", "Off", "Default"], var.sql_automatic_tuning_create_index)
+    error_message = "sql_automatic_tuning_create_index must be On, Off, or Default."
+  }
+}
+
+variable "sql_automatic_tuning_drop_index" {
+  type        = string
+  description = "Automatic tuning option dropIndex: On lets Azure drop indexes it deems redundant; can remove rarely used indexes you ship in DDL—monitor Query Store and IaC drift."
+  default     = "On"
+
+  validation {
+    condition     = contains(["On", "Off", "Default"], var.sql_automatic_tuning_drop_index)
+    error_message = "sql_automatic_tuning_drop_index must be On, Off, or Default."
+  }
+}

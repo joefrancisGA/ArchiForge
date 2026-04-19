@@ -47,3 +47,12 @@ check "sql_consumption_budget_contact_channel" {
     error_message = "With enable_sql_consumption_budget = true, set sql_consumption_budget_contact_emails and/or a non-empty sql_consumption_budget_contact_roles list so Azure Cost Management can deliver notifications."
   }
 }
+
+check "sql_automatic_tuning_primary_not_placeholder" {
+  assert {
+    condition = !var.enable_sql_automatic_tuning || (
+      !strcontains(var.primary_sql_server_resource_id, "placeholder-primary")
+    )
+    error_message = "With enable_sql_automatic_tuning = true, set primary_sql_server_resource_id to a real Microsoft.Sql/servers ARM id (not the default placeholder)."
+  }
+}

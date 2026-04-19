@@ -49,7 +49,7 @@ flowchart LR
 | `infra/terraform-edge` | Front Door (or edge) entry, TLS termination, routing to backends. |
 | `infra/terraform-monitoring` | Log Analytics, diagnostics, Grafana/Prometheus hooks as defined in that root. |
 | `infra/terraform-entra` | Entra app registrations / service principals **as code**, where used. |
-| `infra/terraform-sql-failover` | SQL geo **failover group** (listener FQDN); optional **resource-group consumption budget** for SQL servers/databases (`enable_sql_consumption_budget`). |
+| `infra/terraform-sql-failover` | SQL geo **failover group** (listener FQDN); optional **server-level automatic tuning** (`enable_sql_automatic_tuning`, defaults **On** for force-last-good-plan / create-index / drop-index via **Azure/azapi**); optional **resource-group consumption budget** (`enable_sql_consumption_budget`). |
 | `infra/terraform-openai` | Optional **resource-group consumption budget** for **Azure OpenAI** / Cognitive Services accounts (`enable_openai_consumption_budget`). Does not create the OpenAI resource. |
 | `infra/terraform` | Optional **API Management (Consumption)** in front of a public HTTPS backend — see `infra/terraform/README.md`. |
 | `infra/terraform-logicapps` | Optional **Logic App (Standard)** host for Service Bus–driven edge orchestration (Teams / ITSM fan-out); off by default — see `infra/terraform-logicapps/README.md` and ADR **0019**. |

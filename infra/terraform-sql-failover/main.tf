@@ -4,6 +4,19 @@
 
 locals {
   enabled = var.enable_sql_failover_group
+
+  # Server-level automatic tuning (inherits to all databases unless a DB overrides).
+  sql_automatic_tuning_primary_eligible = (
+    var.enable_sql_automatic_tuning &&
+    length(trimspace(var.primary_sql_server_resource_id)) > 0 &&
+    !strcontains(var.primary_sql_server_resource_id, "placeholder-primary")
+  )
+
+  sql_automatic_tuning_partner_eligible = (
+    var.enable_sql_automatic_tuning &&
+    length(trimspace(var.partner_sql_server_resource_id)) > 0 &&
+    !strcontains(var.partner_sql_server_resource_id, "placeholder-secondary")
+  )
 }
 
 resource "azurerm_mssql_failover_group" "this" {

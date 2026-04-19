@@ -39,6 +39,22 @@ Optional root that manages **`azurerm_mssql_failover_group`** so the **read/writ
 
 **Suggested order:** provision servers + geo replication outside or alongside this repo, optionally **`terraform-private/`** for private endpoints, then apply this stack **before** cutting app traffic to the listener if you are migrating from a single-server hostname.
 
+## Optional automatic tuning (maximum Azure-managed optimization)
+
+Set **`enable_sql_automatic_tuning = true`** to apply **server-level** automatic tuning on each **eligible** logical server via **`azapi_update_resource`** (Terraform **`azurerm`** does not yet expose this on `azurerm_mssql_server` / `azurerm_mssql_database`).
+
+| Option | Default when tuning is enabled | Role |
+|--------|-------------------------------|------|
+| **`forceLastGoodPlan`** | **`On`** | Reverts parameter-sensitive plan regressions using Query Store last known good plan. |
+| **`createIndex`** | **`On`** | Creates **nonclustered** indexes Azure deems beneficial from workload telemetry. |
+| **`dropIndex`** | **`On`** | Drops indexes Azure deems **unused**; can remove rarely exercised indexes you ship in **`ArchLucid.sql`**—treat Query Store + portal “Automatic tuning recommendations” as a promotion queue into **`ArchLucid.Persistence/Migrations/`** when you want DDL parity (see **`docs/SQL_DDL_DISCIPLINE.md`**). |
+
+**Eligibility:** primary is tuned when **`primary_sql_server_resource_id`** is not the default placeholder; partner is tuned when **`partner_sql_server_resource_id`** is not its placeholder—so **single-server** environments can enable tuning without a geo partner.
+
+**Independence:** tuning does **not** require **`enable_sql_failover_group`**; you can manage only tuning in this root if you pass real server IDs.
+
+Override any option with **`sql_automatic_tuning_*`** variables (`On` / `Off` / `Default`).
+
 ## Optional consumption budget
 
 Set **`enable_sql_consumption_budget = true`** to create **`azurerm_consumption_budget_resource_group`** scoped to **`Microsoft.Sql/servers`** and **`Microsoft.Sql/servers/databases`** in the target resource group. Supply **`sql_consumption_budget_resource_group_id`**, or omit it and derive the group from **`primary_sql_server_resource_id`** (must not be the default placeholder when the budget is enabled). Notifications fire at **80% actual** and **100% forecasted** spend.
@@ -50,6 +66,8 @@ Set **`enable_sql_consumption_budget = true`** to create **`azurerm_consumption_
 | **`read_write_listener_fqdn`** | Preferred SQL host in connection strings. |
 | **`failover_group_id`** | Auditing, RBAC, or downstream automation. |
 | **`sql_consumption_budget_id`** | Present when the optional SQL consumption budget is enabled. |
+| **`sql_automatic_tuning_primary_applied`** | `true` when primary server automatic tuning was applied. |
+| **`sql_automatic_tuning_partner_applied`** | `true` when partner server automatic tuning was applied. |
 
 ## Security
 
@@ -61,4 +79,5 @@ Set **`enable_sql_consumption_budget = true`** to create **`azurerm_consumption_
 
 - **Drills:** exercise failover/failback per **`DATABASE_FAILOVER.md`**; confirm the app uses the **listener**, not a fixed server FQDN.
 - **Cost:** geo-redundant SQL and egress increase spend vs single-region; justify against tiered RPO/RTO.
-- **Provider versions:** pinned via **`versions.tf`** (`azurerm` `>= 3.100.0, < 5.0.0`); upgrade in a controlled change after `terraform validate` / plan in a sandbox subscription.
+- **Provider versions:** pinned via **`versions.tf`** (`azurerm` `>= 3.100.0, < 5.0.0`, **`azapi`** `>= 2.0.0, < 3.0.0`); upgrade in a controlled change after `terraform validate` / plan in a sandbox subscription.
+- **Automatic tuning:** after apply, confirm in Azure portal **SQL server → Intelligent performance → Automatic tuning** (or Query Store “regressed queries”) that options match Terraform; rotate **`azapi`** credentials the same as **`azurerm`** (OIDC / service principal).

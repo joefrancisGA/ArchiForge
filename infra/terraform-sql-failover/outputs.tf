@@ -32,3 +32,13 @@ output "sql_consumption_budget_id" {
   description = "Resource id of the SQL resource group consumption budget when enable_sql_consumption_budget is true; otherwise null."
   value       = try(azurerm_consumption_budget_resource_group.sql[0].id, null)
 }
+
+output "sql_automatic_tuning_primary_applied" {
+  description = "True when server-level automatic tuning was applied to the primary logical server via azapi_update_resource."
+  value       = local.sql_automatic_tuning_primary_eligible
+}
+
+output "sql_automatic_tuning_partner_applied" {
+  description = "True when server-level automatic tuning was applied to the partner logical server via azapi_update_resource."
+  value       = local.sql_automatic_tuning_partner_eligible
+}
