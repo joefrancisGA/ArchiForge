@@ -1,4 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Cosmos;
@@ -52,7 +53,11 @@ public static partial class ServiceCollectionExtensions
                 services.AddScoped<IAuditRepository, CosmosAuditRepository>();
 
             services.TryAddSingleton<IAuditEventChangeFeedHandler, NoOpAuditEventChangeFeedHandler>();
-            services.AddHostedService<AuditEventChangeFeedHostedService>();
+
+            if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AuditChangeFeed))
+            {
+                services.AddHostedService<AuditEventChangeFeedHostedService>();
+            }
         }
     }
 }

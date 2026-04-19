@@ -21,6 +21,7 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton(TimeProvider.System);
+        RegisterArchLucidJobRunners(services, configuration);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
@@ -32,9 +33,9 @@ public static partial class ServiceCollectionExtensions
         services.AddArchLucidStorage(configuration);
         RegisterTenancyMeteringAndSecrets(services, configuration);
         RegisterBilling(services, configuration);
-        RegisterAdvisoryScheduling(services, hostingRole);
-        RegisterTrialLifecycleEmailHostedServices(services, hostingRole);
-        RegisterTrialLifecycleScheduler(services, hostingRole);
+        RegisterAdvisoryScheduling(services, configuration, hostingRole);
+        RegisterTrialLifecycleEmailHostedServices(services, configuration, hostingRole);
+        RegisterTrialLifecycleScheduler(services, configuration, hostingRole);
         RegisterDigestDelivery(services, configuration);
         RegisterIntegrationEventPublishing(services, configuration);
         RegisterTrialLifecycleAuditEmailPublishing(services);
@@ -53,8 +54,8 @@ public static partial class ServiceCollectionExtensions
         RegisterGovernance(services, configuration);
         RegisterRetrievalIndexingOutbox(services, hostingRole);
         RegisterIntegrationEventOutbox(services, hostingRole);
-        RegisterIntegrationEventConsumer(services, hostingRole);
-        RegisterDataArchivalHostedService(services, hostingRole);
+        RegisterIntegrationEventConsumer(services, configuration, hostingRole);
+        RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
 

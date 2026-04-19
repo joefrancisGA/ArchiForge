@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ArchLucid.Api.Tests" />
+    <InternalsVisibleTo Include="ArchLucid.Host.Composition.Tests" />
   </ItemGroup>
 
   <ItemGroup>

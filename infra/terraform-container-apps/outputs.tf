@@ -67,3 +67,15 @@ output "secondary_ui_https_url" {
   description = "HTTPS URL for the secondary-region Operator UI."
   value       = try("https://${azurerm_container_app.ui_secondary[0].latest_revision_fqdn}", null)
 }
+
+output "scheduled_container_app_job_names" {
+  description = "Names of provisioned scheduled Container Apps Jobs (empty when container_jobs is unset)."
+  value       = local.enabled ? keys(azurerm_container_app_job.scheduled) : []
+}
+
+output "scheduled_container_app_job_principal_ids" {
+  description = "System-assigned principal IDs for scheduled jobs (map keyed by job name)."
+  value = local.enabled ? {
+    for k, j in azurerm_container_app_job.scheduled : k => j.identity[0].principal_id
+  } : {}
+}

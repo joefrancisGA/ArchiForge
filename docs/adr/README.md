@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-04-18
+**Last reviewed:** 2026-04-19
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
@@ -23,6 +23,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0015](0015-trial-tier-authentication-model.md) | Trial-tier authentication — External ID (MSA/Google) + optional local email/password |
 | [0016](0016-billing-provider-abstraction.md) | Billing provider abstraction — Stripe + Azure Marketplace + SQL idempotency |
 | [0017](0017-azure-app-configuration-deferred.md) | Azure App Configuration — **deferred** for v1 on cost grounds (companion: [`AZURE_APP_CONFIGURATION_FUTURE_ADOPTION.md`](../AZURE_APP_CONFIGURATION_FUTURE_ADOPTION.md)) |
+| [0018](0018-background-workloads-container-apps-jobs.md) | Background workloads — **Container Apps Jobs** + `ArchLucid.Jobs.Cli` (not Functions); offload manifest + first job `advisory-scan` |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 

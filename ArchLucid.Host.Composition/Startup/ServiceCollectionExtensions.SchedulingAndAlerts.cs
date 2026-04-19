@@ -12,6 +12,7 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Integration;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Services.Delivery;
 using ArchLucid.Persistence;
@@ -19,13 +20,17 @@ using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Simulation;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions
 {
-    private static void RegisterDataArchivalHostedService(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    private static void RegisterDataArchivalHostedService(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
     {
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
         {
@@ -33,7 +38,11 @@ public static partial class ServiceCollectionExtensions
         }
 
         services.AddSingleton<DataArchivalHostHealthState>();
-        services.AddHostedService<DataArchivalHostedService>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
+        {
+            services.AddHostedService<DataArchivalHostedService>();
+        }
     }
 
     private static void RegisterRetrievalIndexingOutbox(IServiceCollection services, ArchLucidHostingRole hostingRole)
@@ -58,7 +67,10 @@ public static partial class ServiceCollectionExtensions
         }
     }
 
-    private static void RegisterIntegrationEventConsumer(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    private static void RegisterIntegrationEventConsumer(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
     {
         if (hostingRole is not ArchLucidHostingRole.Worker)
         {
@@ -67,10 +79,17 @@ public static partial class ServiceCollectionExtensions
 
         services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();
-        services.AddHostedService<AzureServiceBusIntegrationEventConsumer>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.ServiceBusIntegrationEvents))
+        {
+            services.AddHostedService<AzureServiceBusIntegrationEventConsumer>();
+        }
     }
 
-    private static void RegisterAdvisoryScheduling(IServiceCollection services, ArchLucidHostingRole hostingRole)
+    private static void RegisterAdvisoryScheduling(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
     {
         services.AddScoped<IScanScheduleCalculator, SimpleScanScheduleCalculator>();
         services.AddScoped<IArchitectureDigestBuilder, ArchitectureDigestBuilder>();
@@ -79,7 +98,10 @@ public static partial class ServiceCollectionExtensions
 
         if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
         {
-            services.AddHostedService<AdvisoryScanHostedService>();
+            if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.AdvisoryScan))
+            {
+                services.AddHostedService<AdvisoryScanHostedService>();
+            }
         }
     }
 

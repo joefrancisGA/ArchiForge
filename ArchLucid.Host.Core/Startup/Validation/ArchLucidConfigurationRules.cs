@@ -64,6 +64,7 @@ public static class ArchLucidConfigurationRules
             ProductionSafetyRules.CollectSqlRowLevelSecurity(configuration, archLucidOptions, errors);
             ProductionSafetyRules.CollectTransactionalEmailAcs(configuration, errors);
             ProductionSafetyRules.CollectBillingStripeSecret(configuration, errors);
+            ContainerJobsOffloadRules.Collect(configuration, environment, hostingRole, errors);
 
             return errors;
         }

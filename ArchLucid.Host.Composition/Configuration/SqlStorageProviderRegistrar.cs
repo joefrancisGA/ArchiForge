@@ -25,6 +25,7 @@ using ArchLucid.Host.Core.Authority;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataAccess;
 using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Repositories;
 using ArchLucid.Persistence;
@@ -208,6 +209,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITrialFunnelCommitHook, SqlTrialFunnelCommitHook>();
 
         services.AddHostedService<OutboxOperationalMetricsHostedService>();
-        services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
+
+        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.OrphanProbe))
+        {
+            services.AddHostedService<DataConsistencyOrphanProbeHostedService>();
+        }
     }
 }

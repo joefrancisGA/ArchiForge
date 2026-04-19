@@ -448,3 +448,21 @@ variable "secondary_read_replica_connection_string" {
   default     = ""
   sensitive   = true
 }
+
+variable "container_jobs" {
+  type = map(object({
+    trigger_type               = string
+    cron_expression            = optional(string)
+    cpu                        = optional(number, 0.25)
+    memory                     = optional(string, "0.5Gi")
+    command                    = optional(list(string), [])
+    args                       = list(string)
+    replica_timeout_in_seconds = optional(number, 1800)
+    replica_retry_limit        = optional(number, 1)
+    parallelism                = optional(number, 1)
+    replica_completion_count   = optional(number, 1)
+    env                        = optional(map(string), {})
+  }))
+  description = "Scheduled Container Apps Jobs (Schedule trigger only). Image defaults to worker_effective_image; entrypoint runs ArchLucid.Jobs.Cli.dll."
+  default     = {}
+}

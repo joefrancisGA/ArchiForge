@@ -10,7 +10,8 @@ Paste-ready Agent prompts for common improvement tracks. Prefer these slugs when
 | Quality improvement 3 (alternate path) | [CURSOR_PROMPTS_QUALITY_IMPROVEMENT_3.md](CURSOR_PROMPTS_QUALITY_IMPROVEMENT_3.md) | Legacy pointer; prefer weighted doc set above when unsure |
 | SaaS improvements 2–6 | [CURSOR_PROMPTS_SAAS_IMPROVEMENTS_2_TO_6.md](CURSOR_PROMPTS_SAAS_IMPROVEMENTS_2_TO_6.md) | Marketability / SaaS-oriented prompts |
 | Canonical navigation (single entry) | [CURSOR_PROMPTS_CANONICAL.md](CURSOR_PROMPTS_CANONICAL.md) | If present, use as the authoritative prompt hub |
+| Background services → Azure Container Apps Jobs | [CURSOR_PROMPTS_BACKGROUND_TO_CONTAINER_JOBS.md](CURSOR_PROMPTS_BACKGROUND_TO_CONTAINER_JOBS.md) | Move 8 hosted services (advisory scan, orphan probe, archival, trial lifecycle ×2, audit retry, Cosmos change feed, Service Bus consumer) out of the API/Worker process into Container Apps Jobs (cron + KEDA). Decision rationale: cheaper than Functions Premium given private-endpoint requirement, reuses Worker image. |
 
 **Doc hygiene automation:** `python scripts/ci/check_doc_links.py` (merge-blocking in CI) and `python scripts/ci/check_doc_freshness.py` (informational; runbook **Last reviewed:** dates).
 
-**Last reviewed:** 2026-04-16
+**Last reviewed:** 2026-04-19
