@@ -30,7 +30,7 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 
 **Canonical packaging:** [../docs/PRODUCT_PACKAGING.md](../docs/PRODUCT_PACKAGING.md) §3 (*Code seams* + *Contributor drift guard*). **Stage 1 commercial framing (not entitlements):** [../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
 
-When you change who can use a route or which product layer it belongs to, update artifacts in **dependency order**:
+When you change who can use a route or which product layer it belongs to, update artifacts in **dependency order** (same pipeline as **docs/PRODUCT_PACKAGING.md** §3 *Code seams*: **API** → **nav metadata** → **shell composition** → **page guidance / mutation affordances** → **docs**):
 
 1. **C#** — `[Authorize(Policy = …)]` on the controller/action (`ArchLucidPolicies`).
 2. **`nav-config.ts`** — `tier`, `href`, `requiredAuthority` for the `NavLinkItem` (see file header **Authority** block).

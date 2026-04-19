@@ -8,8 +8,8 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  * `[Authorize(Policy = …)]` still returns **401/403**. This hook exists so buttons and shortcuts match the same story as nav.
  *
  * **Single threshold with nav:** `rank >= AUTHORITY_RANK.ExecuteAuthority` — the same numeric floor used for
- * **`requiredAuthority: "ExecuteAuthority"`** link visibility after **`filterNavLinksByAuthority`** (see **docs/PRODUCT_PACKAGING.md**
- * §3 *Read vs Execute* and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4). Matches **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
+ * **`requiredAuthority: "ExecuteAuthority"`** link visibility after **`filterNavLinksByAuthority`** (**`nav-config.ts`** rows
+ * + **`nav-authority.ts`**; see **docs/PRODUCT_PACKAGING.md** §3 *Read vs Execute* and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4). Matches **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
  * (**`normalizeAuthMeResponse`**); **`maxAuthority`** there tracks **`requiredAuthorityFromRank(authorityRank)`**
  * (**`current-principal.test.ts`**). Rank comes from **`current-principal.ts`** / **`useNavCallerAuthorityRank()`**
  * (conservative **Read** while JWT **`/me`** refetches — **`OperatorNavAuthorityProvider`**). **Not** tier disclosure — that is

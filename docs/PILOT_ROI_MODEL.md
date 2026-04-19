@@ -6,7 +6,7 @@
 
 **Narrative of record for sponsors:** **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**. This ROI model is the measurement companion; keep headline buyer claims in the brief.
 
-**Related:** [README.md](../README.md) · [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams* / *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
+**Related:** [README.md](../README.md) · [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams* / *Contributor drift guard* when a measured capability crosses UI layers or Enterprise mutation affordances — shell metrics are **shaped**, **API** responses remain **authoritative**) · [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) · [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md) · [V1_SCOPE.md](V1_SCOPE.md) · [PILOT_GUIDE.md](PILOT_GUIDE.md)
 
 ---
 

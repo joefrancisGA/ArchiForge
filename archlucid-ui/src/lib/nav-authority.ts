@@ -29,7 +29,7 @@
  * **`nav-config.ts`** owns link metadata. Contributor order: **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard*;
  * Stage 1 framing: **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
- * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read; Auditor Enterprise parity.
+ * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read; Auditor Enterprise parity; rank **`0`** vs **`ReadAuthority`**; nav ordering after **`filterNavLinksByAuthority`**; **`/alerts`** **`essential`** tier.
  * @see `nav-authority.test.ts` — `navLinkVisibleForCallerRank` Execute floor; `nav-config.structure.test.ts` — packaging invariants on **`NAV_GROUPS`**.
  * @see `EnterpriseControlsContextHints.authority.test.tsx` — rank-gated Enterprise cue components (same **`ExecuteAuthority`** threshold).
  * @see `current-principal.test.ts` — **`normalizeAuthMeResponse`**: **`maxAuthority`** must track **`requiredAuthorityFromRank(authorityRank)`**.

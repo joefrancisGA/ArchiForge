@@ -20,7 +20,8 @@ export type NavGroupWithVisibleLinks = {
  * (`filterNavLinksByAuthority` in **`nav-authority.ts`**) runs second so link visibility matches policy **names** aligned
  * with **`ArchLucid.Api`**, not a parallel matrix. **Rank never substitutes extended/advanced disclosure:** an
  * **Execute+** caller still sees only **essential**-tier Enterprise links until the user opts into extended/advanced
- * (`nav-tier.ts` gates apply before authority).
+ * (`nav-tier.ts` gates apply before authority). **Packaging map:** **docs/PRODUCT_PACKAGING.md** §3 *Code seams* table
+ * (**`NAV_GROUPS[].id`** → layer); this module owns only the **composition** step (**tier → authority →** drop empty groups).
  *
  * Pass **`useNavCallerAuthorityRank()`** (or **`CurrentPrincipal.authorityRank`**) so filtering matches
  * **`OperatorNavAuthorityProvider`**. Call sites must **omit empty groups** when iterating **`listNavGroupsVisibleInOperatorShell`**
@@ -36,7 +37,7 @@ export type NavGroupWithVisibleLinks = {
  * **Canonical docs:** [PRODUCT_PACKAGING.md](../../../docs/PRODUCT_PACKAGING.md) §3 *Code seams* + *Contributor drift guard*;
  * Stage 1 (not entitlements): [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../../../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
  *
- * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants).
+ * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants; ordering + rank-0 + **`/alerts`** tier guards).
  * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
  *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
  *   stays hidden until **Show more** even at Admin rank.
