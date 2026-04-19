@@ -9,9 +9,13 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import {
   governanceResolutionChangeRelatedControlsLead,
   governanceResolutionChangeRelatedControlsReaderSupplement,
+  governanceResolutionEffectivePolicyHeadingOperator,
+  governanceResolutionEffectivePolicyHeadingReader,
   governanceResolutionPageLeadOperator,
   governanceResolutionPageLeadReader,
   governanceResolutionRefreshButtonTitle,
+  governanceResolutionResolutionDetailsHeadingOperator,
+  governanceResolutionResolutionDetailsHeadingReader,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
 import { getGovernanceResolution } from "@/lib/api";
@@ -62,7 +66,11 @@ export default function GovernanceResolutionPage() {
       ) : null}
 
       <section style={{ marginBottom: 28 }} aria-labelledby="governance-effective-heading">
-        <h3 id="governance-effective-heading">Effective policy</h3>
+        <h3 id="governance-effective-heading">
+          {canMutateEnterprisePolicySurfaces
+            ? governanceResolutionEffectivePolicyHeadingOperator
+            : governanceResolutionEffectivePolicyHeadingReader}
+        </h3>
         <h4 style={{ marginTop: 8, marginBottom: 8, fontSize: "1rem" }}>Summary notes</h4>
         <ul style={{ fontSize: 14 }}>
           {(data?.notes ?? []).length === 0 ? (
@@ -95,7 +103,11 @@ export default function GovernanceResolutionPage() {
       </section>
 
       <section style={{ marginBottom: 28 }} aria-labelledby="governance-resolution-details-heading">
-        <h3 id="governance-resolution-details-heading">Resolution details</h3>
+        <h3 id="governance-resolution-details-heading">
+          {canMutateEnterprisePolicySurfaces
+            ? governanceResolutionResolutionDetailsHeadingOperator
+            : governanceResolutionResolutionDetailsHeadingReader}
+        </h3>
         <h4 style={{ marginTop: 0, marginBottom: 8, fontSize: "1rem" }}>Conflicts ({data?.conflicts.length ?? 0})</h4>
         {(data?.conflicts ?? []).length === 0 ? (
           <p style={{ color: "#666", fontSize: 14 }}>No conflicts detected.</p>

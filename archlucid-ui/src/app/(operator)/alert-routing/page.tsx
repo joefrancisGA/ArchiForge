@@ -19,6 +19,8 @@ import {
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
   alertToolingConfigureSectionSubline,
+  alertToolingListRefreshButtonTitleOperator,
+  alertToolingListRefreshButtonTitleReader,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
@@ -127,7 +129,15 @@ export default function AlertRoutingPage() {
           <h3 id="alert-routing-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             {canMutateRouting ? alertRoutingCurrentRoutingHeadingOperator : alertRoutingCurrentRoutingHeadingReader}
           </h3>
-          <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
+          <button
+            type="button"
+            onClick={() => void load()}
+            disabled={loading}
+            style={{ marginBottom: 8 }}
+            title={
+              canMutateRouting ? alertToolingListRefreshButtonTitleOperator : alertToolingListRefreshButtonTitleReader
+            }
+          >
             {loading ? "Loading…" : "Refresh"}
           </button>
           <div style={{ display: "grid", gap: 12 }}>

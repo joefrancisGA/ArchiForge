@@ -34,6 +34,7 @@ using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Concurrency;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Conversation;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Coordination.Compare;
 using ArchLucid.Persistence.Coordination.Evolution;
 using ArchLucid.Persistence.Coordination.ProductLearning;
@@ -185,6 +186,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPolicyPackChangeLogRepository, DapperPolicyPackChangeLogRepository>();
         services.AddScoped<IDataArchivalCoordinator, DataArchivalCoordinator>();
         services.AddScoped<ITenantRepository, DapperTenantRepository>();
+        services.AddScoped<ITenantNotificationChannelPreferencesRepository, DapperTenantNotificationChannelPreferencesRepository>();
         services.AddScoped<ITenantHardPurgeService, SqlTenantHardPurgeService>();
         services.AddScoped<IBillingLedger, SqlBillingLedger>();
         services.AddScoped<ITrialIdentityUserRepository, SqlTrialIdentityUserRepository>();

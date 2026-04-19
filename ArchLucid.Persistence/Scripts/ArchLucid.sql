@@ -3159,3 +3159,25 @@ BEGIN
     ALTER TABLE dbo.Tenants ADD TrialFirstManifestCommittedUtc DATETIMEOFFSET NULL;
 END;
 GO
+
+/* 082: Tenant customer notification channel toggles (see Migrations/082_TenantNotificationChannelPreferences.sql). */
+IF OBJECT_ID(N'dbo.TenantNotificationChannelPreferences', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantNotificationChannelPreferences
+    (
+        TenantId                                UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantNotificationChannelPreferences2 PRIMARY KEY,
+        SchemaVersion                           INT              NOT NULL
+            CONSTRAINT DF_TenantNotificationChannelPreferences_SchemaVersion2 DEFAULT 1,
+        EmailCustomerNotificationsEnabled       BIT              NOT NULL
+            CONSTRAINT DF_TenantNotificationChannelPreferences_Email2 DEFAULT 1,
+        TeamsCustomerNotificationsEnabled       BIT              NOT NULL
+            CONSTRAINT DF_TenantNotificationChannelPreferences_Teams2 DEFAULT 0,
+        OutboundWebhookCustomerNotificationsEnabled BIT          NOT NULL
+            CONSTRAINT DF_TenantNotificationChannelPreferences_Webhook2 DEFAULT 0,
+        UpdatedUtc                              DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantNotificationChannelPreferences_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT FK_TenantNotificationChannelPreferences2_Tenants FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+GO

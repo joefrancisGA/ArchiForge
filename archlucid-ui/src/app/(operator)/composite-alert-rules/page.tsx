@@ -11,6 +11,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertToolingConfigureSectionSubline,
+  alertToolingListRefreshButtonTitleOperator,
+  alertToolingListRefreshButtonTitleReader,
   compositeRulesCreateButtonLabelReaderRank,
   compositeRulesCurrentRulesHeadingOperator,
   compositeRulesCurrentRulesHeadingReader,
@@ -147,7 +149,18 @@ export default function CompositeAlertRulesPage() {
             {canMutateComposite ? compositeRulesCurrentRulesHeadingOperator : compositeRulesCurrentRulesHeadingReader}
           </h3>
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-            <Button type="button" variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => void load()}
+              disabled={loading}
+              title={
+                canMutateComposite
+                  ? alertToolingListRefreshButtonTitleOperator
+                  : alertToolingListRefreshButtonTitleReader
+              }
+            >
               {loading ? "Loading…" : "Refresh"}
             </Button>
             {!canMutateComposite ? (

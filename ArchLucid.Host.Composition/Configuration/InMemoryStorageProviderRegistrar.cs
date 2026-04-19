@@ -39,6 +39,7 @@ using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 using ArchLucid.Persistence.Coordination.Replay;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.Interfaces;
@@ -65,6 +66,7 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IGoldenManifestRepository, InMemoryGoldenManifestRepository>();
         services.AddSingleton<IArtifactBundleRepository, InMemoryArtifactBundleRepository>();
         services.AddSingleton<ITenantRepository, InMemoryTenantRepository>();
+        services.AddSingleton<ITenantNotificationChannelPreferencesRepository, InMemoryTenantNotificationChannelPreferencesRepository>();
         services.AddSingleton<ITenantHardPurgeService, NoOpTenantHardPurgeService>();
         services.AddSingleton<IBillingLedger, InMemoryBillingLedger>();
         services.AddSingleton<ITrialIdentityUserRepository, InMemoryNoTrialIdentityUserRepository>();

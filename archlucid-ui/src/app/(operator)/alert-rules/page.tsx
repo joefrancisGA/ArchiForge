@@ -17,6 +17,8 @@ import {
   alertRulesPageLeadOperator,
   alertRulesPageLeadReader,
   alertToolingConfigureSectionSubline,
+  alertToolingListRefreshButtonTitleOperator,
+  alertToolingListRefreshButtonTitleReader,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { cn } from "@/lib/utils";
@@ -108,7 +110,17 @@ export default function AlertRulesPage() {
           <h3 id="alert-rules-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             {canMutateAlertRules ? alertRulesCurrentRulesHeadingOperator : alertRulesCurrentRulesHeadingReader}
           </h3>
-          <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
+          <button
+            type="button"
+            onClick={() => void load()}
+            disabled={loading}
+            style={{ marginBottom: 8 }}
+            title={
+              canMutateAlertRules
+                ? alertToolingListRefreshButtonTitleOperator
+                : alertToolingListRefreshButtonTitleReader
+            }
+          >
             {loading ? "Loading…" : "Refresh"}
           </button>
           <div style={{ display: "grid", gap: 12 }}>

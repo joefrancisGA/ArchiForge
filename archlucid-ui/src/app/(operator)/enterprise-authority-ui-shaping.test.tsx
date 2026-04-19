@@ -67,9 +67,12 @@ vi.mock("next/link", () => ({
 }));
 
 import {
+  alertToolingListRefreshButtonTitleReader,
   alertsInboxRefreshButtonTitleReader,
   alertsTriageDialogConfirmButtonLabelReaderRank,
   governanceResolutionChangeRelatedControlsReaderSupplement,
+  governanceResolutionEffectivePolicyHeadingReader,
+  governanceResolutionResolutionDetailsHeadingReader,
   compositeRulesCreateButtonLabelReaderRank,
   governanceWorkflowApprovalRequestsCardTitleReader,
   governanceWorkflowPromotionsActivationsHeadingReader,
@@ -231,6 +234,11 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: /Create rule \(Execute\+\)/ })).toBeDisabled();
     });
+
+    expect(screen.getByRole("button", { name: /^Refresh$/ })).toHaveAttribute(
+      "title",
+      alertToolingListRefreshButtonTitleReader,
+    );
   });
 
   it("Alert rules: Create rule enables after load when mutation capability is true", async () => {
@@ -312,6 +320,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
 
     expect(screen.getByText(governanceResolutionChangeRelatedControlsReaderSupplement)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: governanceResolutionEffectivePolicyHeadingReader })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: governanceResolutionResolutionDetailsHeadingReader }),
+    ).toBeInTheDocument();
   });
 
   it("Governance resolution: Change related controls omits reader supplement when mutation capability is true", async () => {

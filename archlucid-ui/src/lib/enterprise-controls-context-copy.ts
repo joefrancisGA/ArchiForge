@@ -57,6 +57,15 @@ export const governanceResolutionPageLeadReader =
 /** Governance resolution — **Refresh** is GET-only (always enabled at any shell rank). */
 export const governanceResolutionRefreshButtonTitle = "Reload effective governance resolution (GET only).";
 
+/** Governance resolution — primary inspect sections (`governance-resolution/page.tsx`). */
+export const governanceResolutionEffectivePolicyHeadingOperator = "Effective policy";
+
+export const governanceResolutionEffectivePolicyHeadingReader = "Effective policy (inspect)";
+
+export const governanceResolutionResolutionDetailsHeadingOperator = "Resolution details";
+
+export const governanceResolutionResolutionDetailsHeadingReader = "Resolution details (inspect)";
+
 /** Governance resolution — “Change related controls” strip (LayerHeader + rank cue already frame read vs write). */
 export const governanceResolutionChangeRelatedControlsLead =
   "Refresh is GET. Scope changes: Packs or Workflow.";
@@ -171,6 +180,15 @@ export const governanceWorkflowPendingReviewReaderNote =
 export const alertOperatorToolingReaderRankLine = "Inspect above · below: Execute+ config (API).";
 
 export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.";
+
+/**
+ * Alert rules / alert routing / composite — list **Refresh** (`GET` only); configure sections remain Execute+ on the
+ * API (`alert-rules/page.tsx`, `alert-routing/page.tsx`, `composite-alert-rules/page.tsx`).
+ */
+export const alertToolingListRefreshButtonTitleOperator = "Reload the list from the API (GET).";
+
+export const alertToolingListRefreshButtonTitleReader =
+  "Reload list (GET). Creates, toggles, and edits below need Execute+ on the API.";
 
 /**
  * Alert tuning — lead under page title (`alert-tuning/page.tsx`). **POST** recommendation is **ReadAuthority** on the
