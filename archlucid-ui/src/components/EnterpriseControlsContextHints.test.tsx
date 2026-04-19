@@ -51,6 +51,7 @@ describe("EnterpriseControlsContextHints (page-level rank cues)", () => {
   it("AlertOperatorToolingRankCue renders operator line outside shell provider (default Admin rank)", () => {
     render(<AlertOperatorToolingRankCue />);
 
+    // Match `enterprise-controls-context-copy.ts` (operator line is short prose — avoid duplicate regex matchers).
     expect(screen.getByRole("note")).toHaveTextContent(alertOperatorToolingOperatorRankLine);
   });
 });
