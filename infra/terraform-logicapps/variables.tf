@@ -75,3 +75,33 @@ variable "governance_logic_app_name" {
   description = "Logic App (Standard) site name for governance approval routing."
   default     = "archlucid-logic-governance-approval"
 }
+
+variable "enable_marketplace_fulfillment_logic_app" {
+  type        = bool
+  description = "When true, deploy a Logic App (Standard) host for marketplace-fulfillment-handoff (separate plan + storage from edge and governance hosts)."
+  default     = false
+}
+
+variable "marketplace_fulfillment_storage_account_name" {
+  type        = string
+  description = "Globally unique storage account name for the Marketplace fulfillment Logic App file share (required when enable_marketplace_fulfillment_logic_app is true)."
+  default     = ""
+}
+
+variable "marketplace_fulfillment_storage_share_name" {
+  type        = string
+  description = "Azure Files share name for Marketplace fulfillment workflow runtime files."
+  default     = "marketplace-workflow-content"
+}
+
+variable "marketplace_fulfillment_app_service_plan_name" {
+  type        = string
+  description = "App Service plan name for the Marketplace fulfillment Logic App (WS1)."
+  default     = "asp-archlucid-logic-marketplace-fulfillment"
+}
+
+variable "marketplace_fulfillment_logic_app_name" {
+  type        = string
+  description = "Logic App (Standard) site name for Marketplace webhook-received fulfillment fan-out."
+  default     = "archlucid-logic-marketplace-fulfillment"
+}

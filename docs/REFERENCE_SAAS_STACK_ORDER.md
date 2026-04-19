@@ -17,7 +17,7 @@
 | 3 | `infra/terraform-sql-failover` | Azure SQL + optional **failover group** / consumption budget. |
 | 4 | `infra/terraform-storage` | Blob/queue accounts for artifacts and jobs. |
 | 5 | `infra/terraform-servicebus` | Optional durable messaging for integration consumers; optional **Logic App–scoped** topic subscriptions (governance, trial email, ChatOps, prod promotion, **Marketplace fulfillment** via `enable_logic_app_marketplace_fulfillment_subscription`) for filtered triggers. |
-| 6 | `infra/terraform-logicapps` | Optional **Logic App (Standard)** hosts for Service Bus–driven edge orchestration (ADR 0019); apply after messaging + private DNS exist. |
+| 6 | `infra/terraform-logicapps` | Optional **Logic App (Standard)** hosts for Service Bus–driven edge orchestration (ADR 0019): generic **edge**, optional **governance** and **Marketplace fulfillment** dedicated sites; apply after messaging + private DNS exist. |
 | 7 | `infra/terraform-openai` | Optional **budget** hooks for Azure OpenAI (resource creation may be out-of-band). |
 | 8 | `infra/terraform-entra` | App registrations / consent text for API + UI. |
 | 9 | `infra/terraform-container-apps` | **API + Worker + UI** workloads, managed identity wiring. |

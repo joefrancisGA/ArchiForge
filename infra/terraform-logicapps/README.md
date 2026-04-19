@@ -8,6 +8,12 @@ Set **`enable_governance_approval_logic_app = true`** to deploy a **second** Log
 
 Workflow JSON and connections are still authored in Portal or CI; placeholder notes live under [`workflows/governance-approval-routing/README.md`](workflows/governance-approval-routing/README.md).
 
+## Marketplace fulfillment host (optional)
+
+Set **`enable_marketplace_fulfillment_logic_app = true`** to deploy a dedicated Logic App (Standard) site for **`marketplace-fulfillment-handoff`** (separate WS1 plan + storage from the generic **`edge`** and **governance** hosts). Use output **`marketplace_fulfillment_logic_app_principal_id`** when wiring **`marketplace_fulfillment_logic_app_managed_identity_principal_id`** in `infra/terraform-servicebus` for the filtered **`com.archlucid.billing.marketplace.webhook.received.v1`** subscription (two-step apply: deploy this root first, then pass the principal id into Service Bus and re-apply).
+
+Workflow notes: [`workflows/marketplace-fulfillment-handoff/README.md`](workflows/marketplace-fulfillment-handoff/README.md).
+
 ## Other documented workflows (Portal / export)
 
 - [`workflows/trial-lifecycle-email/README.md`](workflows/trial-lifecycle-email/README.md) — scheduled trial email; pair with `ArchLucid:Notifications:TrialLifecycle:Owner=LogicApp` when the API scan is off.
@@ -15,7 +21,7 @@ Workflow JSON and connections are still authored in Portal or CI; placeholder no
 - [`workflows/promotion-customer-notifications/README.md`](workflows/promotion-customer-notifications/README.md) — prod-only promotion fan-out.
 - [`workflows/marketplace-fulfillment-handoff/README.md`](workflows/marketplace-fulfillment-handoff/README.md) — **`com.archlucid.billing.marketplace.webhook.received.v1`** after API success (sales / CRM / Teams).
 
-Additional Logic App Standard **hosts** for these are not yet duplicated in Terraform (mirror the governance host pattern when you want isolation per workload).
+**Dedicated Terraform hosts today:** generic **`edge`** (`enable_logic_apps`), **governance** (`enable_governance_approval_logic_app`), **Marketplace fulfillment** (`enable_marketplace_fulfillment_logic_app`). Trial lifecycle, incident ChatOps, and prod promotion customer workflows are still documented under `workflows/*` only — run them on **`edge`** or add hosts by copying the governance / Marketplace pattern in a fork.
 
 ## When to enable
 

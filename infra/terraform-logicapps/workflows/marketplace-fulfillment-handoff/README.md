@@ -4,10 +4,22 @@
 
 **Trust boundary:** ADR **0016** (billing) and ADR **0019** (Logic Apps). Logic Apps sit **downstream** of the integration event, not in front of the anonymous webhook.
 
+## Logic App host (Terraform)
+
+In **`infra/terraform-logicapps/`**, set **`enable_marketplace_fulfillment_logic_app = true`** plus a globally unique **`marketplace_fulfillment_storage_account_name`** (and optional overrides for plan / site / share names). Outputs ( **`infra/terraform-logicapps/`** ):
+
+| Output | Use |
+|--------|-----|
+| **`marketplace_fulfillment_logic_app_principal_id`** | Paste into **`marketplace_fulfillment_logic_app_managed_identity_principal_id`** in **`infra/terraform-servicebus/`**, then apply Service Bus for **Data Receiver**. |
+
+After Service Bus apply, use output **`logic_app_marketplace_fulfillment_subscription_name`** from **`infra/terraform-servicebus/`** as the Service Bus trigger subscription name.
+
+Recommended order: apply **Logic Apps** → copy principal id → enable subscription + principal id on **Service Bus** → apply Service Bus.
+
 ## Service Bus
 
 1. In **`infra/terraform-servicebus/`**, set **`enable_logic_app_marketplace_fulfillment_subscription = true`**.
-2. After the Logic App (Standard) site exists, set **`marketplace_fulfillment_logic_app_managed_identity_principal_id`** to that host’s system-assigned (or user-assigned) principal id, then re-apply Service Bus so **Azure Service Bus Data Receiver** is granted at namespace scope (same pattern as governance / trial / ChatOps).
+2. Set **`marketplace_fulfillment_logic_app_managed_identity_principal_id`** to **`marketplace_fulfillment_logic_app_principal_id`** from `terraform-logicapps` (after the Marketplace fulfillment host is deployed), then re-apply Service Bus so **Azure Service Bus Data Receiver** is granted at namespace scope.
 3. Trigger the workflow on the subscription name from Terraform output **`logic_app_marketplace_fulfillment_subscription_name`**.
 
 The **`$Default`** rule filters **`event_type = 'com.archlucid.billing.marketplace.webhook.received.v1'`** (matches `IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1`).

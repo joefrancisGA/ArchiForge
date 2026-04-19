@@ -95,6 +95,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 
 **2026-04-19 (Marketplace fulfillment — Service Bus + workflow doc parity):** **`enable_logic_app_marketplace_fulfillment_subscription`** + **`$Default`** SQL filter on **`com.archlucid.billing.marketplace.webhook.received.v1`**; output **`logic_app_marketplace_fulfillment_subscription_name`**; IAM **`marketplace_fulfillment_logic_app_managed_identity_principal_id`**; **`workflows/marketplace-fulfillment-handoff/README.md`**; **`terraform-servicebus`** README / **`terraform.tfvars.example`**; cross-links **`INTEGRATION_EVENTS_AND_WEBHOOKS`**, **`LOGIC_APPS_STANDARD`**, **`infra/terraform-logicapps/README.md`**.
 
+**2026-04-19 (Marketplace fulfillment — dedicated Logic App host):** **`enable_marketplace_fulfillment_logic_app`** + storage / WS1 / **`azurerm_logic_app_standard.marketplace_fulfillment`**; outputs **`marketplace_fulfillment_logic_app_principal_id`**, **`marketplace_fulfillment_logic_storage_account_id`**; **`checks.tf`** input guard; **`terraform-logicapps/README`**, workflow README apply order, **`LOGIC_APPS_STANDARD`**, **`REFERENCE_SAAS_STACK_ORDER`**.
+
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 
 ---
