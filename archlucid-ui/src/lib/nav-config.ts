@@ -81,7 +81,8 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   so Reader-ranked callers do not see it under Enterprise nav (deep-link still hits API policy); every **`ExecuteAuthority`**
  *   row under **`qa-advisory`** and **`alerts-governance`** stays absent from Read-tier filtered nav; Core Pilot essential
  *   hrefs stay visible for Reader with default tier toggles; **caller rank `0`** stays stricter than Read for **`ReadAuthority`** links;
- *   **`/alerts`** stays **`essential`** tier; filtered link order and **`listNavGroupsVisibleInOperatorShell`** group order stay aligned with this file. **`OperatorNavAuthorityProvider.test.tsx`** —
+ *   **`/alerts`** stays **`essential`** tier; filtered link order and **`listNavGroupsVisibleInOperatorShell`** group order stay aligned with this file;
+ *   Enterprise href sets grow **monotonically** Read→Execute→Admin under **`filterNavLinksByAuthority`** alone; default Reader shell keeps **Advanced** to **`/ask`** only (tier before authority); **`/governance`** appears only when **extended and advanced** are on for **Execute** rank (**`filterNavLinksForOperatorShell`**). **`OperatorNavAuthorityProvider.test.tsx`** —
  *   **`useNavCallerAuthorityRank`** stays Read during JWT **`/me`** refetch so stale Execute rank does not flash in nav or hooks.
  *   **`EnterpriseControlsContextHints.authority.test.tsx`** — rank-gated Enterprise sidebar/page cues share the same
  *   **`ExecuteAuthority`** numeric floor as mutation hooks (governance resolution, audit log, **Alerts inbox**, **governance

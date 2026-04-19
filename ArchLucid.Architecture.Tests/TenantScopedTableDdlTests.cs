@@ -95,7 +95,7 @@ public sealed class TenantScopedTableDdlTests
 
         foreach (string seed in seeds)
         {
-            string? dir = Path.GetFullPath(seed);
+            string dir = Path.GetFullPath(seed);
 
             for (int depth = 0; depth < 16 && !string.IsNullOrEmpty(dir); depth++)
             {

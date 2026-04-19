@@ -34,7 +34,7 @@ public sealed class BillingStripeWebhookController(StripeBillingProvider stripeB
             rawBody = await reader.ReadToEndAsync(cancellationToken);
         }
 
-        string? signature = Request.Headers["Stripe-Signature"].ToString();
+        string signature = Request.Headers["Stripe-Signature"].ToString();
 
         BillingWebhookInbound inbound = new()
         {

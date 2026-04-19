@@ -30,7 +30,7 @@ public sealed class SanitizedLoggerWarningExtensionsTests
             {
                 Delegate formatter = (Delegate)invocation.Arguments[4];
                 object state = invocation.Arguments[2];
-                object? ex = invocation.Arguments[3];
+                object ex = invocation.Arguments[3];
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));
 

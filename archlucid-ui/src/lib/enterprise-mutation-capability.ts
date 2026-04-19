@@ -16,8 +16,9 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  * (**`nav-shell-visibility.ts`**) and **not** buyer “which layer” copy (**`layer-guidance.ts`** / **`LayerHeader`** — same rank
  * threshold for Enterprise **cue** text only).
  *
- * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`,
- *   `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`,
+ * @see `authority-seam-regression.test.ts` (rank vs **`navLinkVisibleForCallerRank`** for **`ExecuteAuthority`** links;
+ *   Enterprise monotonicity / tier gates are **nav-only** — this function must stay the **Execute+ mutation** floor only),
+ *   `use-enterprise-mutation-capability.test.tsx`, `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`,
  *   `enterprise-authority-ui-shaping.test.tsx` (pages still wire this hook to **`disabled`** controls).
  */
 export function enterpriseMutationCapabilityFromRank(rank: number): boolean {

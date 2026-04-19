@@ -33,7 +33,7 @@ The shell **already** shapes nav and light copy by **principal + policy tier nam
 When you change who can use a route or which product layer it belongs to, update artifacts in **dependency order** (same pipeline as **docs/PRODUCT_PACKAGING.md** §3 *Code seams*: **API** → **nav metadata** → **shell composition** → **page guidance / mutation affordances** → **docs**):
 
 1. **C#** — `[Authorize(Policy = …)]` on the controller/action (`ArchLucidPolicies`).
-2. **`nav-config.ts`** — `tier`, `href`, `requiredAuthority` for the `NavLinkItem` (see file header **Authority** block).
+2. **`nav-config.ts`** — `tier`, `href`, `requiredAuthority` for the `NavLinkItem` (see file header **Authority** block and **Drift guard** list tying **`authority-seam-regression.test.ts`** to this file).
 3. **In-product guidance** — `layer-guidance.ts` + `LayerHeader` on the page when the route should show layer / when-to-use copy; Enterprise footnotes and rank lines pull from `enterprise-controls-context-copy.ts`. **Enterprise** `LAYER_PAGE_GUIDANCE` rows must include **`enterpriseFootnote`**; **Advanced** rows must not — **`authority-seam-regression.test.ts`** guards **`LayerHeader`**’s Enterprise detection.
 4. **Enterprise mutations** — keep `useEnterpriseMutationCapability()` in sync with Execute+ server write policies; extend **`enterprise-authority-ui-shaping.test.tsx`** when you add POST/toggle-heavy Enterprise pages that should soft-disable for read-tier callers. **audit CSV export** uses **`/me` roles** (Auditor/Admin) to match **`RequireAuditor`**, not that hook.
 5. **Docs** — `PRODUCT_PACKAGING.md` capability / nav rows if the change is buyer-visible.

@@ -27,6 +27,7 @@
  * **`current-principal.test.ts`**). **Progressive disclosure** (`nav-tier`) is **not** applied here; it runs only in
  * **`nav-shell-visibility.ts`** before **`filterNavLinksByAuthority`**. Drift between consumers breaks the story in
  * **docs/PRODUCT_PACKAGING.md** §3 (*Code seams* read-model + *Contributor drift guard*).
+ * **Stage 1 framing (not entitlements):** **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4 maps buyer “role clarity” to these modules — same read-model, no licensing.
  *
  * **Route-local exception (still API-authoritative):** audit **CSV export** enablement on **`/audit`** uses raw
  * **`roleClaimValues`** (**Auditor** / **Admin**) to mirror **`RequireAuditor`** — not **`useEnterpriseMutationCapability()`**

@@ -79,7 +79,7 @@ public sealed class InMemoryPolicyPackVersionRepository : IPolicyPackVersionRepo
             if (idx >= 0)
             {
                 PolicyPackVersion existing = _items[idx];
-                string? previous = existing.ContentJson;
+                string previous = existing.ContentJson;
                 existing.ContentJson = contentJson;
                 existing.IsPublished = true;
                 _items[idx] = existing;

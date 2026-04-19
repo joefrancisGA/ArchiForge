@@ -17,6 +17,8 @@ export type LayerHeaderProps = {
 /**
  * Compact route-level reminder of which **product packaging layer** the page belongs to and when to use it.
  * Copy lives in **`layer-guidance.ts`** (`LayerGuidancePageKey` per route family); keep keys in sync when adding pages.
+ * **`LayerGuidancePageKey`** is the UI counterpart to **docs/PRODUCT_PACKAGING.md** §3 *Code seams* (**`NAV_GROUPS[].id`**
+ * → Core / Advanced / Enterprise); a new Enterprise route should add a key here and wire **`pageKey`** on the page.
  * **Contributor step:** **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard* — **Guidance strip** (pair with **`nav-config`** / API policy when the route’s packaging story changes).
  *
  * **Doc map:** buyer layers — **docs/PRODUCT_PACKAGING.md** §1–2; operator “when to use” — **docs/OPERATOR_DECISION_GUIDE.md**;

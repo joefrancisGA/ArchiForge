@@ -55,7 +55,7 @@ public sealed class BillingMarketplaceWebhookController(
             rawBody = await reader.ReadToEndAsync(cancellationToken);
         }
 
-        string? auth = Request.Headers.Authorization.ToString();
+        string auth = Request.Headers.Authorization.ToString();
 
         string? bearer = null;
 

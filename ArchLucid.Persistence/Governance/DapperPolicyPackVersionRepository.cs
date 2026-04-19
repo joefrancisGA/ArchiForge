@@ -141,7 +141,7 @@ public sealed class DapperPolicyPackVersionRepository(
 
             if (existing is not null)
             {
-                string? previous = existing.ContentJson;
+                string previous = existing.ContentJson;
                 existing.ContentJson = contentJson;
                 existing.IsPublished = true;
 

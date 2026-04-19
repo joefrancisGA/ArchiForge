@@ -61,7 +61,7 @@ public sealed class BaselineMutationAuditServiceTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
             .Callback((IInvocation invocation) =>
             {
-                object? state = invocation.Arguments[2];
+                object state = invocation.Arguments[2];
                 Delegate? formatter = invocation.Arguments[4] as Delegate;
 
                 if (formatter is not null)
