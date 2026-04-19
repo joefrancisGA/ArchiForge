@@ -146,6 +146,24 @@ public sealed class IntegrationEventPayloadContractTests
     }
 
     [Fact]
+    public void BillingMarketplaceWebhookReceived_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            providerDedupeKey = "sub|Subscribe|ABCD1234",
+            action = "Subscribe",
+            subscriptionId = "guid-from-marketplace",
+            billingProvider = "AzureMarketplace",
+        };
+
+        AssertPayloadMatchesCommittedSchema("billing-marketplace-webhook-received.v1.schema.json", payload);
+    }
+
+    [Fact]
     public void Catalog_entries_match_schema_files_on_disk()
     {
         string integrationEventsDir = Path.Combine(AppContext.BaseDirectory, "schemas", "integration-events");
@@ -174,6 +192,7 @@ public sealed class IntegrationEventPayloadContractTests
             ["alert-resolved.v1.schema.json"] = IntegrationEventTypes.AlertResolvedV1,
             ["advisory-scan-completed.v1.schema.json"] = IntegrationEventTypes.AdvisoryScanCompletedV1,
             ["trial-lifecycle-email.v1.schema.json"] = IntegrationEventTypes.TrialLifecycleEmailV1,
+            ["billing-marketplace-webhook-received.v1.schema.json"] = IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1,
         };
 
         HashSet<string> catalogSchemaFiles = new(StringComparer.Ordinal);

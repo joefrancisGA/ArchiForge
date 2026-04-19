@@ -5,8 +5,6 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Tenancy;
 
-using ArchLucid.TestSupport;
-
 using FluentAssertions;
 
 using Microsoft.Data.SqlClient;

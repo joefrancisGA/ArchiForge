@@ -1,7 +1,5 @@
 using System.Reflection;
 
-using ArchLucid.Api;
-
 using Asp.Versioning;
 
 using FluentAssertions;

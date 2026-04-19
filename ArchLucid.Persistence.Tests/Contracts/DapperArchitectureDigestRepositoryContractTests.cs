@@ -1,4 +1,3 @@
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Persistence.Tests.Contracts;

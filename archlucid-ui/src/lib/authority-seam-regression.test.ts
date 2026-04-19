@@ -4,6 +4,7 @@
  * regression guards — not a second authZ engine; the API remains authoritative.
  *
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative `useNavCallerAuthorityRank` while JWT `/me` refetches.
+ * @see `LayerHeader.test.tsx` — Enterprise rank cue + packaging strip; `enterprise-authority-ui-shaping.test.tsx` — mutation hook → controls.
  */
 import { describe, expect, it } from "vitest";
 
@@ -13,6 +14,7 @@ import {
   shellBootstrapReadPrincipal,
 } from "@/lib/current-principal";
 import { enterpriseMutationCapabilityFromRank } from "@/lib/enterprise-mutation-capability";
+import { LAYER_PAGE_GUIDANCE, type LayerGuidanceBlock } from "@/lib/layer-guidance";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import {
   AUTHORITY_RANK,
@@ -247,6 +249,40 @@ describe("authority seam regression", () => {
 
     for (let i = 1; i < indices.length; i++) {
       expect(indices[i]!).toBeGreaterThan(indices[i - 1]!);
+    }
+  });
+
+  /**
+   * `LayerHeader` treats `enterpriseFootnote` as the Enterprise Controls signal (rank cue + footnote typography).
+   * Missing copy would regress buyer-facing packaging without a type error.
+   */
+  it("requires non-empty useWhen, firstPilotNote, and enterpriseFootnote on every Enterprise Controls guidance block", () => {
+    const enterpriseBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
+      (b) => b.layerBadge === "Enterprise Controls",
+    );
+
+    expect(enterpriseBlocks.length).toBeGreaterThan(0);
+
+    for (const block of enterpriseBlocks) {
+      expect(block.useWhen.trim().length, block.headline).toBeGreaterThan(0);
+      expect(block.firstPilotNote?.trim().length, block.headline).toBeGreaterThan(0);
+      expect(block.enterpriseFootnote?.trim().length, block.headline).toBeGreaterThan(0);
+    }
+  });
+
+  /**
+   * Advanced pages must not set `enterpriseFootnote`: `LayerHeader` uses its presence to style `useWhen` and only
+   * renders the Enterprise rank cue when the badge is Enterprise Controls — not a string match on headlines.
+   */
+  it("keeps enterpriseFootnote unset on Advanced Analysis guidance blocks", () => {
+    const advancedBlocks = (Object.values(LAYER_PAGE_GUIDANCE) as LayerGuidanceBlock[]).filter(
+      (b) => b.layerBadge === "Advanced Analysis",
+    );
+
+    expect(advancedBlocks.length).toBeGreaterThan(0);
+
+    for (const block of advancedBlocks) {
+      expect(block.enterpriseFootnote, block.headline).toBeFalsy();
     }
   });
 });

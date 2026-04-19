@@ -5,8 +5,6 @@ using ArchLucid.Core.Integration;
 
 using Azure.Messaging.ServiceBus;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Integration;
 
 /// <summary>Shared integration JSON dispatch + peek-lock settlement (consumer long-poll vs job batch drain).</summary>

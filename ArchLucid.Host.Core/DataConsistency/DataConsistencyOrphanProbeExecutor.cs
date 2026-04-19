@@ -2,10 +2,8 @@ using System.Data.Common;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Host.Core.Configuration;
-using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Data.Infrastructure;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.DataConsistency;

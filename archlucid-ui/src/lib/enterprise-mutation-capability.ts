@@ -12,8 +12,9 @@ import { AUTHORITY_RANK } from "@/lib/nav-authority";
  * + **`nav-authority.ts`**; see **docs/PRODUCT_PACKAGING.md** §3 *Read vs Execute* and **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4). Matches **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
  * (**`normalizeAuthMeResponse`**); **`maxAuthority`** there tracks **`requiredAuthorityFromRank(authorityRank)`**
  * (**`current-principal.test.ts`**). Rank comes from **`current-principal.ts`** / **`useNavCallerAuthorityRank()`**
- * (conservative **Read** while JWT **`/me`** refetches — **`OperatorNavAuthorityProvider`**). **Not** tier disclosure — that is
- * **`nav-shell-visibility.ts`** only.
+ * (conservative **Read** while JWT **`/me`** refetches — **`OperatorNavAuthorityProvider`**). **Not** progressive disclosure
+ * (**`nav-shell-visibility.ts`**) and **not** buyer “which layer” copy (**`layer-guidance.ts`** / **`LayerHeader`** — same rank
+ * threshold for Enterprise **cue** text only).
  *
  * @see `authority-seam-regression.test.ts`, `use-enterprise-mutation-capability.test.tsx`,
  *   `OperatorNavAuthorityProvider.test.tsx`, `enterprise-mutation-capability.test.ts`,

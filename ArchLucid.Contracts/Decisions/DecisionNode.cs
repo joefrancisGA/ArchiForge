@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace ArchLucid.Contracts.Decisions;
 
 /// <summary>
@@ -25,7 +23,10 @@ public sealed class DecisionNode
     /// The <see cref="DecisionOption.OptionId"/> of the selected option,
     /// or <see langword="null"/> when no option reached the confidence threshold.
     /// </summary>
-    public string? SelectedOptionId { get; set; }
+    public string? SelectedOptionId
+    {
+        get; set;
+    }
 
     /// <summary>Free-text rationale explaining why the selected option was chosen.</summary>
     public string Rationale { get; set; } = string.Empty;
@@ -34,7 +35,10 @@ public sealed class DecisionNode
     /// Aggregate confidence score for the selected option, in the range [0, 1].
     /// Computed from <see cref="DecisionOption.FinalScore"/> after evaluation weighting.
     /// </summary>
-    public double Confidence { get; set; }
+    public double Confidence
+    {
+        get; set;
+    }
 
     /// <summary>Identifiers of <see cref="AgentEvaluation"/> records that supported the selected option.</summary>
     public IReadOnlyList<string> SupportingEvaluationIds { get; set; } = [];

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Queries;

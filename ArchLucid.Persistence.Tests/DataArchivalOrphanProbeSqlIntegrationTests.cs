@@ -1,6 +1,5 @@
 using System.Globalization;
 
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Archival;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Repositories;
@@ -149,13 +148,20 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
             await setup.ExecuteAsync(
                 new CommandDefinition(
                     insertComparison,
-                    new { ComparisonRecordId = comparisonId, LeftRunId = runId },
+                    new
+                    {
+                        ComparisonRecordId = comparisonId,
+                        LeftRunId = runId
+                    },
                     cancellationToken: CancellationToken.None));
 
             await setup.ExecuteAsync(
                 new CommandDefinition(
                     "UPDATE dbo.Runs SET CreatedUtc = DATEADD(day, -400, SYSUTCDATETIME()) WHERE RunId = @RunGuid;",
-                    new { RunGuid = runGuid },
+                    new
+                    {
+                        RunGuid = runGuid
+                    },
                     cancellationToken: CancellationToken.None));
         }
 
@@ -182,7 +188,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? archivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.Runs WHERE RunId = @RunGuid;",
-                new { RunGuid = runGuid },
+                new
+                {
+                    RunGuid = runGuid
+                },
                 cancellationToken: CancellationToken.None));
 
         archivedUtc.Should().NotBeNull();
@@ -190,7 +199,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? manifestArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.GoldenManifests WHERE ManifestId = @ManifestId;",
-                new { ManifestId = manifestId },
+                new
+                {
+                    ManifestId = manifestId
+                },
                 cancellationToken: CancellationToken.None));
 
         manifestArchivedUtc.Should().NotBeNull(because: "bulk run archival cascades ArchivedUtc to dbo.GoldenManifests");
@@ -198,7 +210,10 @@ public sealed class DataArchivalOrphanProbeSqlIntegrationTests(SqlServerPersiste
         DateTime? findingsArchivedUtc = await verify.QueryFirstOrDefaultAsync<DateTime?>(
             new CommandDefinition(
                 "SELECT ArchivedUtc FROM dbo.FindingsSnapshots WHERE FindingsSnapshotId = @FindingsSnapshotId;",
-                new { FindingsSnapshotId = findingsSnapId },
+                new
+                {
+                    FindingsSnapshotId = findingsSnapId
+                },
                 cancellationToken: CancellationToken.None));
 
         findingsArchivedUtc.Should().NotBeNull(because: "bulk run archival cascades ArchivedUtc to dbo.FindingsSnapshots");

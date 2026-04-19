@@ -1,4 +1,3 @@
-using ArchLucid.Cli;
 using ArchLucid.Cli.Commands;
 
 using FluentAssertions;

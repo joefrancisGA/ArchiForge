@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Cli;
 using ArchLucid.Cli.Support;
 
 namespace ArchLucid.Cli.Commands;

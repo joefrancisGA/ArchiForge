@@ -4,7 +4,6 @@ using System.Security.Claims;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.Auth.Services;
 using ArchLucid.Persistence.Audit;
 
 using FluentAssertions;

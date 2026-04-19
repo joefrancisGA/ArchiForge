@@ -4,8 +4,6 @@ using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Policy;
-using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Startup;
 

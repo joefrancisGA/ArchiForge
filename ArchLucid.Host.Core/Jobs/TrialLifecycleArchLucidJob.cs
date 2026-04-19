@@ -1,9 +1,6 @@
 using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Tenancy;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>One poll of trial lifecycle automation (same body as one iteration of <see cref="Hosted.TrialLifecycleSchedulerHostedService"/>).</summary>

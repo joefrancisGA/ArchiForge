@@ -33,8 +33,9 @@ export type LayerHeaderProps = {
  * Not entitlements or billing — **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
  * @see **docs/PRODUCT_PACKAGING.md** §3 (*Contributor drift guard* — *Guidance strip* step) when adding Enterprise keys.
- * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**).
- * @see `enterprise-authority-ui-shaping.test.tsx` — mutation hook → Enterprise control **`disabled`** (separate from this component, same packaging story).
+ * @see `LayerHeader.test.tsx` — Enterprise footnotes + rank cue (incl. conservative caller rank **0**); **`aside`** **`aria-label`** (badge + headline).
+ * @see `authority-seam-regression.test.ts` — **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`** contract (packaging ↔ this component).
+ * @see `enterprise-authority-ui-shaping.test.tsx` — mutation hook → Enterprise **`disabled`** / governance submit **`readOnly`** (same story as rank cue; API still **`[Authorize]`**).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
   const block = LAYER_PAGE_GUIDANCE[pageKey];

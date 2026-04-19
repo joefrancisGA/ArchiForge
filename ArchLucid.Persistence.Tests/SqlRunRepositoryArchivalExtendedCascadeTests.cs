@@ -2,7 +2,6 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -152,7 +151,12 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
         await seed.ExecuteAsync(
             new CommandDefinition(
                 insertTrace,
-                new { TraceId = traceId, RunId = runIdText, TaskId = taskId },
+                new
+                {
+                    TraceId = traceId,
+                    RunId = runIdText,
+                    TaskId = taskId
+                },
                 cancellationToken: CancellationToken.None));
 
         const string insertComparison = """
@@ -166,7 +170,11 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
         await seed.ExecuteAsync(
             new CommandDefinition(
                 insertComparison,
-                new { ComparisonRecordId = comparisonRecordId, LeftRunId = runIdText },
+                new
+                {
+                    ComparisonRecordId = comparisonRecordId,
+                    LeftRunId = runIdText
+                },
                 cancellationToken: CancellationToken.None));
 
         RunArchiveByIdsResult result = await repo.ArchiveRunsByIdsAsync([runId], CancellationToken.None);
@@ -186,7 +194,10 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
             """;
 
         DateTime? traceArchived = await seed.QuerySingleOrDefaultAsync<DateTime?>(
-            new CommandDefinition(traceArchivedSql, new { TraceId = traceId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(traceArchivedSql, new
+            {
+                TraceId = traceId
+            }, cancellationToken: CancellationToken.None));
 
         bundleArchived.Should().NotBeNull("ArtifactBundles.ArchivedUtc should be set with the run archival batch.");
         traceArchived.Should().NotBeNull("AgentExecutionTraces.ArchivedUtc should be set when RunId parses as the archived run.");
@@ -240,7 +251,10 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
             WHERE {idColumn} = @Id;
             """;
 
-        return await connection.QuerySingleOrDefaultAsync<DateTime?>(new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
+        return await connection.QuerySingleOrDefaultAsync<DateTime?>(new CommandDefinition(sql, new
+        {
+            Id = id
+        }, cancellationToken: ct));
     }
 
     private static async Task<DateTime?> ReadArchivedUtcNvarcharKeyAsync(
@@ -255,6 +269,9 @@ public sealed class SqlRunRepositoryArchivalExtendedCascadeTests(SqlServerPersis
             WHERE {idColumn} = @Id;
             """;
 
-        return await connection.QuerySingleOrDefaultAsync<DateTime?>(new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
+        return await connection.QuerySingleOrDefaultAsync<DateTime?>(new CommandDefinition(sql, new
+        {
+            Id = id
+        }, cancellationToken: ct));
     }
 }

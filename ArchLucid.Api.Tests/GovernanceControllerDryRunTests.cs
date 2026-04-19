@@ -3,7 +3,6 @@ using System.Security.Claims;
 using ArchLucid.Api.Controllers.Governance;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
-using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;

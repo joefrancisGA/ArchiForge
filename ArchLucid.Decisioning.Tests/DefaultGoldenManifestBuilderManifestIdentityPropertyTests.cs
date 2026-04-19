@@ -6,7 +6,6 @@ using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-using FsCheck;
 using FsCheck.Xunit;
 
 namespace ArchLucid.Decisioning.Tests;

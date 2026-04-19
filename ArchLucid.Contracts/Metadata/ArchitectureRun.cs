@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using ArchLucid.Contracts.Common;
@@ -37,37 +36,64 @@ public sealed class ArchitectureRun
     /// UTC timestamp when the run reached a terminal state (<c>Committed</c> or <c>Failed</c>).
     /// <see langword="null"/> while the run is still in progress.
     /// </summary>
-    public DateTime? CompletedUtc { get; set; }
+    public DateTime? CompletedUtc
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Version string of the most recently committed <c>GoldenManifest</c> for this run
     /// (e.g. <c>v1</c>, <c>v2</c>). <see langword="null"/> until the run is committed.
     /// </summary>
-    public string? CurrentManifestVersion { get; set; }
+    public string? CurrentManifestVersion
+    {
+        get; set;
+    }
 
     /// <summary>Context snapshot ID created during run creation (nullable for older runs).</summary>
-    public string? ContextSnapshotId { get; set; }
+    public string? ContextSnapshotId
+    {
+        get; set;
+    }
 
     /// <summary>Graph snapshot ID created from the context snapshot (nullable for older runs).</summary>
-    public Guid? GraphSnapshotId { get; set; }
+    public Guid? GraphSnapshotId
+    {
+        get; set;
+    }
 
     /// <summary>Findings snapshot ID created from the graph snapshot (nullable for older runs).</summary>
-    public Guid? FindingsSnapshotId { get; set; }
+    public Guid? FindingsSnapshotId
+    {
+        get; set;
+    }
 
     /// <summary>Golden manifest ID created by the decision engine (nullable for older runs).</summary>
-    public Guid? GoldenManifestId { get; set; }
+    public Guid? GoldenManifestId
+    {
+        get; set;
+    }
 
     /// <summary>Decision trace ID created by the decision engine (nullable for older runs).</summary>
-    public Guid? DecisionTraceId { get; set; }
+    public Guid? DecisionTraceId
+    {
+        get; set;
+    }
 
     /// <summary>Artifact bundle ID produced after golden manifest synthesis (nullable for older runs).</summary>
-    public Guid? ArtifactBundleId { get; set; }
+    public Guid? ArtifactBundleId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// OpenTelemetry W3C trace ID persisted at run creation (<c>Activity.TraceId</c>); nullable for older runs.
     /// Distinct from the per-request trace on API responses.
     /// </summary>
-    public string? OtelTraceId { get; set; }
+    public string? OtelTraceId
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Ordered list of agent task identifiers associated with this run.

@@ -1,7 +1,5 @@
 using System.Diagnostics;
 
-using Microsoft.AspNetCore.Http;
-
 namespace ArchLucid.Host.Core.Middleware;
 
 /// <summary>

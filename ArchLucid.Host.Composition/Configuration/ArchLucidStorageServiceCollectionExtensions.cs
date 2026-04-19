@@ -1,4 +1,5 @@
 using ArchLucid.AgentRuntime;
+using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Notifications;
@@ -7,21 +8,18 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Caching;
-using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Cosmos;
-using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Persistence.Notifications;
-using ArchLucid.Persistence.Notifications.Email;
 using ArchLucid.Persistence.Governance;
 using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Notifications;
+using ArchLucid.Persistence.Notifications.Email;
 using ArchLucid.Persistence.Repositories;
-using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Tenancy;
 
 using Azure.Core;
@@ -29,7 +27,6 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 

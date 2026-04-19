@@ -2,8 +2,6 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Connections;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ProductionSafetyRules

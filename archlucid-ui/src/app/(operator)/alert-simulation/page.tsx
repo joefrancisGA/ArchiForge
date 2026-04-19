@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { compareAlertRuleCandidates, simulateAlertRule } from "@/lib/api";
@@ -286,9 +287,7 @@ export default function AlertSimulationPage() {
     <main style={{ maxWidth: 1100 }}>
       <LayerHeader pageKey="alert-simulation" />
       <h2 style={{ marginTop: 0 }}>Alert rule simulation</h2>
-      <p className="mb-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        What-if on history in the tabs below; live triage stays on Alerts.
-      </p>
+      <AlertOperatorToolingRankCue className="mb-3" />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {TABS.map((t) => (

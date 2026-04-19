@@ -91,6 +91,10 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  *   **`nav-config.structure.test.ts`** — duplicate **`href`**s; **Core Pilot** essentials omit **`requiredAuthority`**;
  *   **Advanced/Enterprise** **`ExecuteAuthority`** links must not use **`essential`** tier (progressive disclosure + rank story).
  *
+ * **`layer-guidance.ts` / `LayerHeader`:** Enterprise route families use **`LAYER_PAGE_GUIDANCE`** rows with **`enterpriseFootnote`**
+ * (see **`authority-seam-regression.test.ts`** — Enterprise vs Advanced footnote contract). That strip is **cognitive packaging only**;
+ * it does not replace **`requiredAuthority`** here or **`[Authorize]`** on the API.
+ *
  * **`requiredAuthority` vs Enterprise POSTs:** this field shapes **nav / palette visibility** after tier filtering only
  * (higher **caller rank** does **not** bypass **`tier`** — e.g. Enterprise **extended** hrefs stay hidden until “Show more”;
  * **`nav-shell-visibility.test.ts`**). In-page **POST / toggle** soft-enable on Enterprise-heavy routes uses

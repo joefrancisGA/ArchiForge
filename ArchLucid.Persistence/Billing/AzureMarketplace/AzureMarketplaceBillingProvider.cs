@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -150,7 +149,18 @@ public sealed class AzureMarketplaceBillingProvider(
 
             await _ledger.MarkWebhookProcessedAsync(dedupeKey, "Processed", cancellationToken);
 
-            return BillingWebhookHandleResult.Ok();
+            MarketplaceWebhookReceivedIntegrationPayload integrationPayload = new()
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                ProviderDedupeKey = dedupeKey,
+                Action = action,
+                SubscriptionId = subscriptionId,
+                BillingProvider = ProviderName,
+            };
+
+            return BillingWebhookHandleResult.Ok(integrationPayload);
         }
         catch (Exception)
         {

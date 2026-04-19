@@ -1,5 +1,4 @@
 using ArchLucid.Application.Analysis;
-using ArchLucid.Application.Diffs;
 
 using FluentAssertions;
 

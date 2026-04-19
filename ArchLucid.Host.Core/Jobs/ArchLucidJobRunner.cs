@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Resolves <see cref="IArchLucidJob"/> by slug and runs it with telemetry.</summary>

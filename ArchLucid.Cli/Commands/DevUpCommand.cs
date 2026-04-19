@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Cli;
-
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI dev up invokes Docker Compose from the host; environment-dependent; exercised manually.")]

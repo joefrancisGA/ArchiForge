@@ -1,7 +1,5 @@
 using System.Diagnostics;
 
-using ArchLucid.Cli;
-
 namespace ArchLucid.Cli.Commands;
 
 /// <summary>

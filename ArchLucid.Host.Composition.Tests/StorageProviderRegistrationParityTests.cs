@@ -1,6 +1,5 @@
 using ArchLucid.Host.Composition.Configuration;
 using ArchLucid.Host.Composition.Startup;
-using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Coordination.Diagnostics;

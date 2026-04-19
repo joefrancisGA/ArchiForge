@@ -1,8 +1,6 @@
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Persistence.Archival;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Jobs;

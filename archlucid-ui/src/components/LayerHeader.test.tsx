@@ -40,6 +40,18 @@ describe("LayerHeader", () => {
     expect(screen.getByText(/Evidence search and bounded export\./i)).toBeInTheDocument();
   });
 
+  /**
+   * Discoverability: `LayerHeader` puts badge + headline in `aria-label` on the `<aside>` (implicit `complementary`).
+   * Catches accidental removal of `aria-label` or headline edits that would desync strip intent from nav packaging.
+   */
+  it("exposes Enterprise audit strip accessible name from badge and headline", () => {
+    render(<LayerHeader pageKey="audit" />);
+
+    expect(
+      screen.getByRole("complementary", { name: /Enterprise Controls:.*tenant audit trail/i }),
+    ).toBeInTheDocument();
+  });
+
   it("renders governance resolution Enterprise footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 

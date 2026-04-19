@@ -6,8 +6,6 @@ using ArchLucid.Contracts.Common;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 /// <summary>

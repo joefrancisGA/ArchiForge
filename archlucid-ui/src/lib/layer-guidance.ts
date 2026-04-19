@@ -2,8 +2,16 @@
  * In-product copy for the three **product packaging** layers (**docs/PRODUCT_PACKAGING.md**,
  * **docs/OPERATOR_DECISION_GUIDE.md**). Consumed by **`LayerHeader`** (`LayerGuidancePageKey` per route family).
  *
- * **UI shaping only:** explains layer / when-to-use; does not grant access. **`[Authorize]`** on **ArchLucid.Api** decides
- * success on HTTP. **`enterpriseFootnote`** on Enterprise keys complements **`nav-config.ts`** captions — same packaging story, different surface.
+ * **UI shaping only:** explains layer / when-to-use; does not grant access. **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is
+ * **authoritative** (**401/403**). This file does not implement **nav** (**`nav-config.ts`** + **`nav-shell-visibility.ts`**) or
+ * **Execute+ mutation soft-disable** (**`enterprise-mutation-capability.ts`** / **`useEnterpriseMutationCapability()`**).
+ *
+ * **Enterprise vs Advanced rows:** blocks with **`layerBadge === "Enterprise Controls"`** must define **`enterpriseFootnote`**
+ * (plus **`useWhen`** and **`firstPilotNote`**) — **`LayerHeader`** uses **`enterpriseFootnote`** to pick Enterprise typography and
+ * the rank cue strip. **Advanced Analysis** rows must **not** set **`enterpriseFootnote`** (same component renders both badges).
+ * **`authority-seam-regression.test.ts`** locks that contract so packaging and **`LayerHeader`** logic cannot drift silently.
+ *
+ * **`enterpriseFootnote`** on Enterprise keys complements **`nav-config.ts`** group **captions** — same buyer story, different surface.
  *
  * **Drift guard:** adding a key requires wiring **`LayerHeader`** on the page and, if the capability is listed for
  * buyers, updating **PRODUCT_PACKAGING.md** — see §3 *Contributor drift guard* (*Guidance strip* step).
@@ -63,78 +71,78 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-dashboard": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which cross-run approvals and governance signals need attention?",
-    useWhen: "Cross-run snapshot; deep per-run steps stay on the workflow route.",
-    firstPilotNote: "Defer until a cross-run queue is daily work.",
+    useWhen: "Queue snapshot (~30s); a row opens workflow for that run.",
+    firstPilotNote: "Skip until a cross-run queue is daily work.",
     enterpriseFootnote: "Cross-run evidence; operator/admin writes.",
   },
   alerts: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what risk or compliance signals fired and need triage?",
-    useWhen: "Inbox for triage; thresholds and delivery live under Alert tooling.",
-    firstPilotNote: "Defer deep rule work until the inbox is in use.",
+    useWhen: "Triage here; thresholds and delivery live under Alert tooling.",
+    firstPilotNote: "Skip deep rule work until the inbox is in use.",
     enterpriseFootnote: "Inbox first; rules and routing are follow-on.",
   },
   audit: {
     layerBadge: "Enterprise Controls",
     headline: "Answers: tenant audit trail—who did what, when?",
-    useWhen: "Search rows first; CSV uses the same From/To window (Auditor or Admin on the API).",
-    firstPilotNote: "Defer export until the window and roles are clear.",
+    useWhen: "Search in-app first; CSV reuses the same From/To (Auditor/Admin API).",
+    firstPilotNote: "Skip CSV until the window and export roles are clear.",
     enterpriseFootnote: "Evidence search and bounded export.",
   },
   "governance-resolution": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which policy content is in effect for this scope after pack ordering?",
-    useWhen: "Read the effective stack before changing packs or workflow elsewhere.",
-    firstPilotNote: "Defer until ordering is a real question.",
+    useWhen: "Read the ordered stack before changing packs or workflow elsewhere.",
+    firstPilotNote: "Skip until ordering is a concrete question.",
     enterpriseFootnote: "Effective stack here; edits in policy packs or workflow.",
   },
   "governance-workflow": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: run-scoped submit, approve/reject, promote, and activate?",
     useWhen: "One run at a time; Core Pilot stays request → commit → artifacts.",
-    firstPilotNote: "Defer until promotions or segregation of duties apply.",
+    firstPilotNote: "Skip until promotions or segregation of duties apply.",
     enterpriseFootnote: "Run-scoped approvals; API role gates.",
   },
   "policy-packs": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: what packs exist, what is published, and what applies in this scope?",
-    useWhen: "Inventory and JSON before lifecycle actions.",
-    firstPilotNote: "Defer until you own pack lifecycle.",
+    useWhen: "Inventory and effective JSON before lifecycle.",
+    firstPilotNote: "Skip until you own pack lifecycle.",
     enterpriseFootnote: "Read/compare first; lifecycle writes are API configuration.",
   },
   "alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which metric thresholds should raise alerts after advisory scans?",
-    useWhen: "Thresholds on scan outcomes—not inbox triage.",
-    firstPilotNote: "Defer until thresholds are operational.",
+    useWhen: "Thresholds on scan outcomes; triage stays on Alerts.",
+    firstPilotNote: "Skip until thresholds are operational.",
     enterpriseFootnote: "Metric thresholds on scan outcomes.",
   },
   "alert-routing": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: where should fired alerts be delivered when severity thresholds are met?",
-    useWhen: "Delivery targets for fired alerts—not digest mail.",
-    firstPilotNote: "Defer until live routing matters.",
+    useWhen: "Delivery targets for fired alerts; not digest mail.",
+    firstPilotNote: "Skip until live routing matters.",
     enterpriseFootnote: "Delivery targets for fired alerts.",
   },
   "alert-simulation": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how would rules behave against recent runs before changing production thresholds?",
-    useWhen: "Dry-run on history; live triage stays on Alerts.",
-    firstPilotNote: "Defer until you have concrete what-if questions.",
+    useWhen: "Dry-run on history; live triage on Alerts.",
+    firstPilotNote: "Skip until you have a concrete what-if question.",
     enterpriseFootnote: "Dry-run before changing production thresholds.",
   },
   "alert-tuning": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: which threshold values balance coverage and noise for a chosen rule?",
-    useWhen: "Use simulation scores when noise or coverage is measurable.",
-    firstPilotNote: "Defer until simulation shows a tradeoff.",
+    useWhen: "Tune from simulation when noise or coverage is measurable.",
+    firstPilotNote: "Skip until simulation shows a tradeoff.",
     enterpriseFootnote: "Threshold tuning from simulation evidence.",
   },
   "composite-alert-rules": {
     layerBadge: "Enterprise Controls",
     headline: "Answers: how do we combine multiple scan metrics with AND/OR before firing an alert?",
-    useWhen: "AND/OR and cooldown when one threshold is not enough.",
-    firstPilotNote: "Defer until composite firing logic is in scope.",
+    useWhen: "AND/OR plus cooldown when one threshold is not enough.",
+    firstPilotNote: "Skip until composite firing logic is in scope.",
     enterpriseFootnote: "Composite AND/OR and cooldown configuration.",
   },
 };

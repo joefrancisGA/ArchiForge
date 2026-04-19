@@ -1,7 +1,5 @@
 using ArchLucid.Host.Core.Jobs;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions

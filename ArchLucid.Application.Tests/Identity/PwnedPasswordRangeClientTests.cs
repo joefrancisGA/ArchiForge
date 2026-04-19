@@ -1,5 +1,3 @@
-using System.Net.Http;
-
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Configuration;
 
@@ -68,7 +66,10 @@ public sealed class PwnedPasswordRangeClientTests
 
     private sealed class CountingHandler : HttpMessageHandler
     {
-        public int SendCount { get; private set; }
+        public int SendCount
+        {
+            get; private set;
+        }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

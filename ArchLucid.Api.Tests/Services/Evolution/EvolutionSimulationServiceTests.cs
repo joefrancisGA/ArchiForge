@@ -7,7 +7,6 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Contracts.Evolution;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
-using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Coordination.Evolution;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 

@@ -1,7 +1,5 @@
 using System.Data;
 
-using ArchLucid.Persistence;
-
 using FluentAssertions;
 
 using Moq;

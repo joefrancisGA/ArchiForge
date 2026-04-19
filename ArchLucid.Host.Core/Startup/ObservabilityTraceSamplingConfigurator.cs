@@ -2,8 +2,6 @@ using System.Globalization;
 
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.Extensions.Configuration;
-
 using OpenTelemetry.Trace;
 
 namespace ArchLucid.Host.Core.Startup;

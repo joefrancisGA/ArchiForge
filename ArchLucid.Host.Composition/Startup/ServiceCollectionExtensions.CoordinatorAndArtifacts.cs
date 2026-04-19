@@ -11,12 +11,12 @@ using ArchLucid.ArtifactSynthesis.Services;
 using ArchLucid.Coordinator.Services;
 using ArchLucid.Core.Ask;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Decisioning.Merge;
-using ArchLucid.Decisioning.Validation;
 using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Ask;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services.Ask;
@@ -24,8 +24,6 @@ using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
-
-using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Composition.Startup;
 

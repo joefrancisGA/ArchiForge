@@ -7,7 +7,6 @@ using System.Security.Cryptography;
 using System.Text.Json;
 
 using ArchLucid.Api.Models.Billing;
-using ArchLucid.Api.Tests;
 using ArchLucid.Core.Authorization;
 
 using FluentAssertions;

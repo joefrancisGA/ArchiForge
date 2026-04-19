@@ -1,5 +1,3 @@
-using ArchLucid.Cli;
-
 namespace ArchLucid.Cli.Commands;
 
 internal static class NewCommand

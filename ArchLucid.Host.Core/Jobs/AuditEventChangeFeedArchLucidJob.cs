@@ -1,6 +1,5 @@
 using ArchLucid.Persistence.Cosmos;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Jobs;

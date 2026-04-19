@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ArchLucid.Cli;
-
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI seed subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]

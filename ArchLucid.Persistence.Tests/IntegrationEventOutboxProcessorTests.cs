@@ -1,5 +1,4 @@
 using ArchLucid.Core.Integration;
-using ArchLucid.Persistence;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;

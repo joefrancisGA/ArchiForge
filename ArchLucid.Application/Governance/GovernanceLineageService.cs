@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
-using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Manifest;

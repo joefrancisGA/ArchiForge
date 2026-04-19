@@ -19,6 +19,9 @@ public static class IntegrationEventTypes
     /// <summary>Trial / lifecycle transactional email dispatch (worker consumes JSON payload).</summary>
     public const string TrialLifecycleEmailV1 = "com.archlucid.notifications.trial-lifecycle-email.v1";
 
+    /// <summary>Azure Marketplace SaaS webhook persisted and processed (downstream orchestration / Logic Apps).</summary>
+    public const string BillingMarketplaceWebhookReceivedV1 = "com.archlucid.billing.marketplace.webhook.received.v1";
+
     /// <summary>Wildcard handler: receives every event type after no specific handler matched.</summary>
     public const string WildcardEventType = "*";
 

@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchLucid.Cli;
-
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI health checks reachability via ArchLucidApiClient (excluded from coverage); smoke-tested via Program integration tests.")]
@@ -26,7 +24,12 @@ internal static class HealthCommand
 
         if (CliExecutionContext.JsonOutput)
         {
-            object payload = new { ok = true, exitCode = CliExitCode.Success, baseUrl };
+            object payload = new
+            {
+                ok = true,
+                exitCode = CliExitCode.Success,
+                baseUrl
+            };
             Console.WriteLine(JsonSerializer.Serialize(payload, JsonCamel));
         }
         else

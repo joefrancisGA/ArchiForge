@@ -85,7 +85,7 @@ public static partial class GreenfieldBaselineMigrationRunner
         {
             ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, 1, 50);
         }
-        catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex))
+        catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex) || IsKnownDuplicateBaselineConstraintName(ex))
         {
             StampThrough050OrReplay035IfAuditMissingThenStamp(connection, assembly);
 
@@ -109,7 +109,15 @@ public static partial class GreenfieldBaselineMigrationRunner
             // Never start at 035 if dbo.Runs is missing — 039+ ALTER dbo.Runs and 036 binds RLS on dbo.Runs.
             int minInclusive = DboRunsTableExists(connection) ? 35 : 17;
 
-            ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, minInclusive, 50);
+            try
+            {
+                ExecuteIncrementalMigrationScriptsInInclusiveRange(connection, assembly, minInclusive, 50);
+            }
+            catch (SqlException ex) when (IsKnownDuplicateInitialMigrationTable(ex) || IsKnownDuplicateBaselineConstraintName(ex))
+            {
+                // Objects from 017–050 (including 027 FK hardening) may already exist while SchemaVersions is empty;
+                // fall through to stamp so DbUp does not re-execute the same DDL.
+            }
         }
 
         EnsureSchemaVersionsTable(connection, null);
@@ -126,6 +134,37 @@ public static partial class GreenfieldBaselineMigrationRunner
             return false;
 
         return IsKnownDuplicateInitialMigrationTable(ex.Message, ex.Number);
+    }
+
+    /// <summary>
+    /// Drift repair: replaying <c>027_ArtifactBundleRelational.sql</c> on catalogs where the FK already exists (journal
+    /// drift, shared CI DB, or tooling that applied <c>ArchLucid.sql</c> fragments) can raise duplicate constraint name
+    /// even when historical migration <c>001–028</c> must not be edited — treat like other baseline duplicate-object cases.
+    /// </summary>
+    internal static bool IsKnownDuplicateBaselineConstraintName(SqlException ex)
+    {
+        if (ex is null)
+            return false;
+
+        return IsKnownDuplicateBaselineConstraintName(ex.Message);
+    }
+
+    /// <summary>Test seam for <see cref="IsKnownDuplicateBaselineConstraintName(SqlException)"/>.</summary>
+    internal static bool IsKnownDuplicateBaselineConstraintName(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return false;
+
+        if (!message.Contains("FK_ArtifactBundles_GoldenManifests_ManifestId", StringComparison.OrdinalIgnoreCase)
+            && !message.Contains("FK_ArtifactBundles_Runs_RunId", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (message.Contains("already an object named", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return message.Contains("Could not create constraint", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>Test seam: same predicate as <see cref="IsKnownDuplicateInitialMigrationTable(SqlException)"/> without constructing <see cref="SqlException"/>.</summary>

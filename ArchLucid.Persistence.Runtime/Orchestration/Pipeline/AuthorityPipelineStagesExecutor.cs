@@ -1,17 +1,17 @@
 using System.Diagnostics;
-using System.Linq;
 using System.Text.Json;
 
 using ArchLucid.ArtifactSynthesis.Interfaces;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ContextIngestion.Interfaces;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Models;
+using ArchLucid.Core.Transactions;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.KnowledgeGraph.Services;
@@ -19,7 +19,6 @@ using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
-using ArchLucid.Core.Transactions;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

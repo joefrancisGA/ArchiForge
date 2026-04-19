@@ -20,7 +20,9 @@
  *
  * **`OperatorNavAuthorityProvider`** exposes the same rank to **`useNavCallerAuthorityRank()`**, which feeds
  * **`filterNavLinksForOperatorShell`** / **`listNavGroupsVisibleInOperatorShell`** (`nav-shell-visibility.ts`) and
- * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). **`hasEnterpriseOperatorSurfaces`**
+ * **`useEnterpriseMutationCapability()`** (Execute+ floor in **`enterprise-mutation-capability.ts`**). **`LayerHeader`**
+ * Enterprise rank cue uses the **same numeric Execute boundary** for in-strip copy (**not** tier disclosure — that stays in
+ * **`nav-shell-visibility.ts`**). **`hasEnterpriseOperatorSurfaces`**
  * uses that **same Execute floor** as **`enterpriseMutationCapabilityFromRank(authorityRank)`** — do not diverge (guarded in
  * **`current-principal.test.ts`**). **Progressive disclosure** (`nav-tier`) is **not** applied here; it runs only in
  * **`nav-shell-visibility.ts`** before **`filterNavLinksByAuthority`**. Drift between consumers breaks the story in

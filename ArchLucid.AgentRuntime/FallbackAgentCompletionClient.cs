@@ -1,6 +1,5 @@
 using System.ClientModel;
 using System.Net;
-using System.Net.Http;
 
 using Microsoft.Extensions.Logging;
 

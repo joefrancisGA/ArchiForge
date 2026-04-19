@@ -1,8 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ContentSafetyRules

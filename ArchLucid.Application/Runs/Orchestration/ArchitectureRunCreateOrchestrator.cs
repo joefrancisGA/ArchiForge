@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
@@ -243,7 +242,11 @@ public sealed class ArchitectureRunCreateOrchestrator(
                         ProjectId = auditScope.ProjectId,
                         RunId = auditRunGuid,
                         DataJson = System.Text.Json.JsonSerializer.Serialize(
-                            new { requestId = request.RequestId, systemName = request.SystemName }),
+                            new
+                            {
+                                requestId = request.RequestId,
+                                systemName = request.SystemName
+                            }),
                     },
                     ct);
             },

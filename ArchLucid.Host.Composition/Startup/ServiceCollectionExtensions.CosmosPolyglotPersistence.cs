@@ -5,7 +5,6 @@ using ArchLucid.Persistence.Audit;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Host.Composition.Startup;

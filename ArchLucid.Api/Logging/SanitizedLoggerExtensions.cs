@@ -1,7 +1,5 @@
 using ArchLucid.Core.Diagnostics;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Api.Logging;
 
 /// <summary>

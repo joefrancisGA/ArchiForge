@@ -1,7 +1,5 @@
 using System.Diagnostics.Metrics;
-using System.IO;
 
-using ArchLucid.AgentRuntime;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Audit;
@@ -42,7 +40,10 @@ public sealed class AgentExecutionTraceRecorderReproTests
 
     private sealed class SpyAuditService : IAuditService
     {
-        public AuditEvent? LastEvent { get; private set; }
+        public AuditEvent? LastEvent
+        {
+            get; private set;
+        }
 
         public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
         {

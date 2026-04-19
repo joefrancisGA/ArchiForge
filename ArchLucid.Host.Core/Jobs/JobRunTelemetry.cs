@@ -3,8 +3,6 @@ using System.Globalization;
 
 using ArchLucid.Core.Diagnostics;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Structured start/end logging for one-shot jobs (Log Analytics / Application Insights queries).</summary>

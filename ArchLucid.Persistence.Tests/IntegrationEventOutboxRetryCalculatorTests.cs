@@ -1,5 +1,3 @@
-using global::ArchLucid.Persistence;
-
 using FluentAssertions;
 
 namespace ArchLucid.Persistence.Tests;

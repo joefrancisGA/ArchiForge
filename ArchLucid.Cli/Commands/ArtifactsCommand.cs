@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchLucid.Cli;
-
 namespace ArchLucid.Cli.Commands;
 
 [ExcludeFromCodeCoverage(Justification = "CLI artifacts subcommand orchestrates HTTP via ArchLucidApiClient (excluded from coverage).")]

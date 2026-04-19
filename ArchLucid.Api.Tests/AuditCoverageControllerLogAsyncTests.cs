@@ -2,12 +2,9 @@ using System.Security.Claims;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Explanation;
-using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Controllers.Authority;
-using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Analysis;
-using ArchLucid.Host.Core.Jobs;
 using ArchLucid.ArtifactSynthesis.Docx;
 using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
@@ -16,15 +13,13 @@ using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
-using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Provenance;
 using ArchLucid.Persistence.Queries;
-
-using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportRequest;
 
 using FluentAssertions;
 
@@ -33,6 +28,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
+
+using AppReplayExportRequest = ArchLucid.Application.Analysis.ReplayExportRequest;
 
 namespace ArchLucid.Api.Tests;
 

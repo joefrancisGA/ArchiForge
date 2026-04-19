@@ -2,7 +2,6 @@ using ArchLucid.Decisioning.Alerts.Delivery;
 
 using FluentAssertions;
 
-using FsCheck;
 using FsCheck.Xunit;
 
 namespace ArchLucid.Decisioning.Tests.Alerts.Delivery;

@@ -1,7 +1,5 @@
 using ArchLucid.Host.Core.DataConsistency;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>One-shot data consistency orphan probe (same work as one loop iteration of <see cref="Hosted.DataConsistencyOrphanProbeHostedService"/>).</summary>

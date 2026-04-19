@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -10,7 +11,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRulesChangeConfigurationLeadReaderLine,
   alertRulesCreateButtonLabelReaderRank,
-  alertRulesCurrentRulesSectionReaderSubline,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -82,9 +82,7 @@ export default function AlertRulesPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-rules" />
       <h2 style={{ marginTop: 0 }}>Alert rules</h2>
-      <p className="max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        List above; new rules and thresholds below.
-      </p>
+      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">
@@ -104,11 +102,6 @@ export default function AlertRulesPage() {
           <h3 id="alert-rules-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             Current rules
           </h3>
-          {!canMutateAlertRules ? (
-            <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
-              {alertRulesCurrentRulesSectionReaderSubline}
-            </p>
-          ) : null}
           <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
             {loading ? "Loading…" : "Refresh"}
           </button>

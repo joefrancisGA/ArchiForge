@@ -1,5 +1,3 @@
-using ArchLucid.Persistence;
-
 namespace ArchLucid.Persistence.Tests.Contracts;
 
 /// <summary>

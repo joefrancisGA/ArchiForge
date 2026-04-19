@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http;
-
 namespace ArchLucid.Host.Core.Middleware;
 
 /// <summary>

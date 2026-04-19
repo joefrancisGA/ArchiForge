@@ -1,8 +1,5 @@
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class E2eHarnessRules

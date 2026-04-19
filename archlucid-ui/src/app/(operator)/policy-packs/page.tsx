@@ -248,8 +248,8 @@ export default function PolicyPacksPage() {
         {canMutatePacks ? policyPacksPageLeadOperator : policyPacksPageLeadReader}{" "}
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           Governance resolution
-        </Link>{" "}
-        shows stack ordering for this scope.
+        </Link>
+        {" — effective stack order."}
       </p>
 
       <p>

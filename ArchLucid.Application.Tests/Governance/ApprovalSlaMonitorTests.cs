@@ -1,5 +1,3 @@
-using System.Net;
-
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
@@ -12,7 +10,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 using Moq;
-using Moq.Protected;
 
 namespace ArchLucid.Application.Tests.Governance;
 

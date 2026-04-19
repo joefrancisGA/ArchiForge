@@ -78,16 +78,14 @@ export const alertOperatorToolingReaderRankLine =
 
 export const alertOperatorToolingOperatorRankLine = "Writes below are API-enforced.";
 
-/** Alerts inbox — lead paragraph under page title (Execute+). */
-export const alertsPageLeadOperator =
-  "Filter, then triage. Shortcuts: Alt+1 ack · Alt+2 resolve · Alt+3 suppress.";
+/** Alerts inbox — lead under title (Execute+); card shortcuts repeat Alt+1–3 below. */
+export const alertsPageLeadOperator = "Filter and page, then triage on each card.";
 
-/** Alerts inbox — lead paragraph under page title (read tier). Rank cue carries triage / Confirm detail. */
-export const alertsPageLeadReader = "Filter and refresh the inbox.";
+/** Alerts inbox — lead under title (read tier); `AlertsInboxRankCue` carries write boundary. */
+export const alertsPageLeadReader = "Filter and page the inbox.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
-export const alertsInboxRankReaderLine =
-  "Triage preview is available in this shell; Confirm and API writes need Execute+.";
+export const alertsInboxRankReaderLine = "Triage preview here; Confirm and writes need Execute+ (API).";
 
 export const alertsInboxRankOperatorLine = "Triage writes are API-enforced.";
 
@@ -122,13 +120,11 @@ export const governanceWorkflowNoApprovalsReaderHint =
 export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or pick another run ID.";
 
-/** Policy packs — lead under title (Execute+); governance resolution link follows in page markup. */
-export const policyPacksPageLeadOperator =
-  "Inspect inventory, effective JSON, and compare before lifecycle.";
+/** Policy packs — lead under title (Execute+); page links Governance resolution for ordering. */
+export const policyPacksPageLeadOperator = "Inventory, effective JSON, compare, then lifecycle.";
 
 /** Policy packs — lead under title (read tier). */
-export const policyPacksPageLeadReader =
-  "Inspect inventory and JSON; lifecycle needs Execute+ (API).";
+export const policyPacksPageLeadReader = "Inspect inventory and JSON; lifecycle is Execute+ (API).";
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
@@ -199,16 +195,8 @@ export const auditSearchNoResultsReaderLine =
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
-/** Audit log — under “Search audit events” for read tier (Execute floor; CSV export still Auditor/Admin on API). */
-export const auditSearchSectionLeadReaderLine = "Search first; export last (same From/To; Auditor/Admin on API).";
-
-/** Alert rules — under “Current rules” for read tier (list is inspect; writes live in Change configuration). */
-export const alertRulesCurrentRulesSectionReaderSubline =
-  "Inspect definitions here; create and thresholds need Execute+ in the section below (API).";
-
-/** Alert routing — under “Current routing” for read tier. */
-export const alertRoutingCurrentSubscriptionsReaderSubline =
-  "Inspect subscriptions and delivery history; toggles and new routes need Execute+ below (API).";
+/** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
+export const auditSearchSectionLeadReaderLine = "Export reuses the same From/To (Auditor/Admin on API).";
 
 /** Policy packs — under “Compare versions” when rank cannot mutate (diff is still read-only inspection). */
 export const policyPacksCompareVersionsReaderSubline =

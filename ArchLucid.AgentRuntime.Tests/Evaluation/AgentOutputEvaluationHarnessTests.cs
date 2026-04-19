@@ -5,8 +5,6 @@ using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.AgentRuntime.Tests.Evaluation;
 
 public sealed class AgentOutputEvaluationHarnessTests
@@ -50,7 +48,10 @@ public sealed class AgentOutputEvaluationHarnessTests
             Findings = [],
         };
 
-        AgentOutputExpectation expected = new() { MinimumFindingCount = 1 };
+        AgentOutputExpectation expected = new()
+        {
+            MinimumFindingCount = 1
+        };
 
         AgentOutputHarnessResult result = _harness.Evaluate(AgentType.Topology, actual, expected);
 

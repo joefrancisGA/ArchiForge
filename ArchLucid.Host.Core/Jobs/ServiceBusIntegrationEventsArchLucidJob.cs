@@ -8,7 +8,6 @@ using Azure.Core;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Jobs;

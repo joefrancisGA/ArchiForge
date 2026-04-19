@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
@@ -9,7 +10,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingChangeConfigurationLeadReaderLine,
   alertRoutingCreateSubscriptionButtonLabelReaderRank,
-  alertRoutingCurrentSubscriptionsReaderSubline,
   alertRoutingSubscriptionsEmptyOperatorLine,
   alertRoutingSubscriptionsEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -98,9 +98,7 @@ export default function AlertRoutingPage() {
     <main style={{ maxWidth: 800 }}>
       <LayerHeader pageKey="alert-routing" />
       <h2 style={{ marginTop: 0 }}>Alert routing</h2>
-      <p className="mb-1 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-        Subscriptions above; add or toggle below.
-      </p>
+      <AlertOperatorToolingRankCue />
 
       {failure !== null ? (
         <div role="alert">
@@ -120,11 +118,6 @@ export default function AlertRoutingPage() {
           <h3 id="alert-routing-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             Current routing
           </h3>
-          {!canMutateRouting ? (
-            <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
-              {alertRoutingCurrentSubscriptionsReaderSubline}
-            </p>
-          ) : null}
           <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
             {loading ? "Loading…" : "Refresh"}
           </button>

@@ -1,7 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-
-using ArchLucid.Cli;
 
 namespace ArchLucid.Cli.Commands;
 

@@ -1,8 +1,5 @@
 using System.Collections.Concurrent;
 using System.Data;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;

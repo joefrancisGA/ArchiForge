@@ -27,7 +27,6 @@ using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
 
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Polly;
@@ -590,7 +589,10 @@ public static partial class ServiceCollectionExtensions
 
     private sealed class FallbackAzureOpenAiInnerClientHolder(AzureOpenAiCompletionClient client)
     {
-        public AzureOpenAiCompletionClient Client { get; } =
+        public AzureOpenAiCompletionClient Client
+        {
+            get;
+        } =
             client ?? throw new ArgumentNullException(nameof(client));
     }
 

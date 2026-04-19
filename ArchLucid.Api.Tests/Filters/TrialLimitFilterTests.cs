@@ -2,7 +2,6 @@ using System.Text.Json;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Host.Core.ProblemDetails;
 
 using FluentAssertions;
 

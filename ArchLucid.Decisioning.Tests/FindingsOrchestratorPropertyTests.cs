@@ -1,5 +1,3 @@
-using System.Linq;
-
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Services;
@@ -7,7 +5,6 @@ using ArchLucid.KnowledgeGraph.Models;
 
 using FluentAssertions;
 
-using FsCheck;
 using FsCheck.Xunit;
 
 using Microsoft.Extensions.Logging.Abstractions;

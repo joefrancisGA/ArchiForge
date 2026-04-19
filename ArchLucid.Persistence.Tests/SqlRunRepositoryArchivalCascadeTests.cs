@@ -1,5 +1,4 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
 using ArchLucid.Persistence.Tests.Support;
@@ -282,6 +281,9 @@ public sealed class SqlRunRepositoryArchivalCascadeTests(SqlServerPersistenceFix
             WHERE {idColumn} = @Id;
             """;
 
-        return await connection.QuerySingleOrDefaultAsync<DateTime?>(new CommandDefinition(sql, new { Id = id }, cancellationToken: ct));
+        return await connection.QuerySingleOrDefaultAsync<DateTime?>(new CommandDefinition(sql, new
+        {
+            Id = id
+        }, cancellationToken: ct));
     }
 }

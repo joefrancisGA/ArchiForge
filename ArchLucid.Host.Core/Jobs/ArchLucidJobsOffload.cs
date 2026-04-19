@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>Reads <see cref="ArchLucidJobsOptions"/> to decide whether in-process hosted services stay registered.</summary>

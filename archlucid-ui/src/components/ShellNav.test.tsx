@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { enterpriseNavHintOperatorRank } from "@/lib/enterprise-controls-context-copy";
+
 import { ShellNav } from "./ShellNav";
 
 vi.mock("next/navigation", () => ({
@@ -110,9 +112,7 @@ describe("ShellNav (sidebar re-export — primary navigation)", () => {
         /Operator\/admin layer—governance, audit, policy packs, and alert tooling\. Typically governance or platform operators; not required for Core Pilot\./i,
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Governance and platform depth; optional vs Core Pilot\./i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(enterpriseNavHintOperatorRank)).toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Governance workflow" })).toBeNull();
 

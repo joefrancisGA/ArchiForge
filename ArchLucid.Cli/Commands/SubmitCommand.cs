@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-using ArchLucid.Cli;
 using ArchLucid.Contracts.Agents;
 
 namespace ArchLucid.Cli.Commands;

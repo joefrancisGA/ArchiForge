@@ -20,7 +20,6 @@ using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Orchestration;
 using ArchLucid.Persistence.Simulation;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Startup;
@@ -32,12 +31,15 @@ public static partial class ServiceCollectionExtensions
         IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
+        // Shared by DataArchivalArchLucidJob (registered for every role in RegisterArchLucidJobRunners) and by
+        // DataArchivalHostedService / DataArchivalHostHealthCheck on Worker+Combined. Api does not run the in-process
+        // archival loop but still composes IArchLucidJob implementations — DI must resolve this singleton.
+        services.AddSingleton<DataArchivalHostHealthState>();
+
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
         {
             return;
         }
-
-        services.AddSingleton<DataArchivalHostHealthState>();
 
         if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
         {

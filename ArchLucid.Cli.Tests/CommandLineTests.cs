@@ -1,5 +1,3 @@
-using ArchLucid.Cli;
-
 using FluentAssertions;
 
 namespace ArchLucid.Cli.Tests;

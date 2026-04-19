@@ -37,12 +37,13 @@ export type NavGroupWithVisibleLinks = {
  * **Canonical docs:** [PRODUCT_PACKAGING.md](../../../docs/PRODUCT_PACKAGING.md) §3 *Code seams* + *Contributor drift guard*;
  * Stage 1 (not entitlements): [COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md](../../../docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md) §4.
  *
- * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (includes Core Pilot invariants; ordering + rank-0 + **`/alerts`** tier guards).
+ * @see `authority-seam-regression.test.ts` — tier + authority composition vs caller rank (Core Pilot invariants; ordering;
+ *   rank **0** vs **`ReadAuthority`**; **`/alerts`** **`essential`**; **`LAYER_PAGE_GUIDANCE`** Enterprise vs Advanced **`enterpriseFootnote`**).
  * @see `nav-shell-visibility.test.ts` — empty-group omission after tier then authority; default Reader Enterprise strip;
  *   Execute rank does not bypass extended tier without disclosure toggles; **Core Pilot** **`/replay`** (extended **Execute**)
  *   stays hidden until **Show more** even at Admin rank.
  * @see `OperatorNavAuthorityProvider.test.tsx` — conservative rank during JWT `/me` refetch (feeds this module indirectly).
- * @see `enterprise-authority-ui-shaping.test.tsx` — page-level **`useEnterpriseMutationCapability`** wiring to Enterprise controls (complements lib-only seam tests).
+ * @see `enterprise-authority-ui-shaping.test.tsx` — **`useEnterpriseMutationCapability`** → **`disabled`** / **`readOnly`** on representative Enterprise pages (incl. governance submit fields).
  */
 export function filterNavLinksForOperatorShell(
   links: ReadonlyArray<NavLinkItem>,

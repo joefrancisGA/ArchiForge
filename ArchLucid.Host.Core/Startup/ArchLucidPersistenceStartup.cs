@@ -1,12 +1,8 @@
-using System;
-
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
-
-using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Core.Startup;
 

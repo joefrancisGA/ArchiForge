@@ -1,9 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Hosted;
 
 /// <summary>Periodic scan that enqueues scheduled trial lifecycle emails (day 7, limits, expiry).</summary>

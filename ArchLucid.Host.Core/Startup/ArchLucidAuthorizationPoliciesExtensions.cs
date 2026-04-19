@@ -2,7 +2,6 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Host.Core.Startup;
 

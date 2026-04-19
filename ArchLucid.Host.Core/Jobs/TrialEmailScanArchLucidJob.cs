@@ -1,8 +1,5 @@
 using ArchLucid.Application.Notifications.Email;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>One scan for due trial lifecycle emails (same body as <see cref="Hosted.TrialLifecycleEmailScanHostedService"/> iteration).</summary>

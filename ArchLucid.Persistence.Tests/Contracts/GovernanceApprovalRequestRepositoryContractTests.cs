@@ -1,5 +1,3 @@
-using System.Linq;
-
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Persistence.Data.Repositories;
 

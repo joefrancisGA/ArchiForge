@@ -1,7 +1,6 @@
 using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Api.Middleware;

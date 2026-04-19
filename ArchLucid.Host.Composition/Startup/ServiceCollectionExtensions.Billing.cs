@@ -4,9 +4,6 @@ using ArchLucid.Persistence.Billing;
 using ArchLucid.Persistence.Billing.AzureMarketplace;
 using ArchLucid.Persistence.Billing.Stripe;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace ArchLucid.Host.Composition.Startup;
 
 public static partial class ServiceCollectionExtensions

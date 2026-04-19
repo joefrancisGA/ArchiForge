@@ -1,7 +1,6 @@
 using System.Diagnostics;
 
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Persistence;
 using ArchLucid.Persistence.Conversation;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;

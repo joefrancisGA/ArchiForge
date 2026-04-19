@@ -4,8 +4,6 @@ using ArchLucid.Application.Tenancy;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Tenancy;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;

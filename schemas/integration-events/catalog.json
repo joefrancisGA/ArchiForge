@@ -66,6 +66,15 @@
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
       "description": "Requests dispatch of a trial lifecycle transactional email (worker-side idempotency ledger)."
+    },
+    {
+      "eventType": "com.archlucid.billing.marketplace.webhook.received.v1",
+      "schemaVersion": 1,
+      "schemaFile": "billing-marketplace-webhook-received.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/billing-marketplace-webhook-received.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
+      "description": "Emitted after a Marketplace SaaS webhook is verified, deduped in SQL, and processed (Logic Apps / external fulfillment fan-out)."
     }
   ]
 }

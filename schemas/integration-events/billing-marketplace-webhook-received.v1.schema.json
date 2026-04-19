@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/billing-marketplace-webhook-received.v1.schema.json",
+  "title": "com.archlucid.billing.marketplace.webhook.received.v1",
+  "description": "Azure Marketplace SaaS webhook accepted and processed in SQL (JWT verified in provider; no raw token in payload).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "providerDedupeKey",
+    "action",
+    "subscriptionId",
+    "billingProvider"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "providerDedupeKey": { "type": "string" },
+    "action": { "type": "string" },
+    "subscriptionId": { "type": "string" },
+    "billingProvider": { "type": "string" }
+  },
+  "additionalProperties": true
+}

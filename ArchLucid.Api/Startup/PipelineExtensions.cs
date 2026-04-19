@@ -11,7 +11,6 @@ using ArchLucid.Host.Core.Middleware;
 
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
 
 using Scalar.AspNetCore;
 

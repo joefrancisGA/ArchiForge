@@ -3,7 +3,6 @@ using System.Text.Json;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Host.Core.ProblemDetails;
 
 using Microsoft.AspNetCore.Mvc;
 

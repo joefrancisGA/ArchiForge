@@ -2,7 +2,6 @@ using System.Text;
 
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Billing;
-using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Billing.Stripe;
 
 using Asp.Versioning;

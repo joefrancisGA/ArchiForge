@@ -1,7 +1,5 @@
 using ArchLucid.Core.Secrets;
 
-using Microsoft.Extensions.Configuration;
-
 namespace ArchLucid.Host.Core.Configuration.Secrets;
 
 /// <summary>Reads secrets from configuration keys / environment (local dev default).</summary>

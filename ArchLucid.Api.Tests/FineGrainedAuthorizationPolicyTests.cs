@@ -3,8 +3,6 @@ using System.Text;
 
 using FluentAssertions;
 
-using Xunit;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>Verifies <see cref="ArchLucid.Core.Authorization.ArchLucidPolicies.CanCommitRuns"/> when the

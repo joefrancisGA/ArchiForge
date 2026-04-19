@@ -1,10 +1,9 @@
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using System.Threading;
 
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Api.Authentication;
+using ArchLucid.Core.Authorization;
 
 using FluentAssertions;
 
@@ -178,8 +177,16 @@ public sealed class ApiKeyAuthenticationHandlerTests
     public async Task When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds()
     {
         IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
-        ApiKeyAuthenticationOptions first = new() { Enabled = true, AdminKey = "rotate-a" };
-        ApiKeyAuthenticationOptions second = new() { Enabled = true, AdminKey = "rotate-b" };
+        ApiKeyAuthenticationOptions first = new()
+        {
+            Enabled = true,
+            AdminKey = "rotate-a"
+        };
+        ApiKeyAuthenticationOptions second = new()
+        {
+            Enabled = true,
+            AdminKey = "rotate-b"
+        };
         int pass = 0;
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> apiKeyMonitor = new();
         apiKeyMonitor.Setup(m => m.CurrentValue).Returns(() => Interlocked.Increment(ref pass) == 1 ? first : second);

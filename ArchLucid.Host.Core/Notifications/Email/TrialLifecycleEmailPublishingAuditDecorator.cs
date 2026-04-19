@@ -8,7 +8,6 @@ using ArchLucid.Host.Core.Auth.Services;
 
 using ArchLucid.Persistence;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Notifications.Email;

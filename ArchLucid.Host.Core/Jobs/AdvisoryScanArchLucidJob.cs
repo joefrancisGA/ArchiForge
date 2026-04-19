@@ -1,8 +1,5 @@
 using ArchLucid.Host.Core.Hosted;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Jobs;
 
 /// <summary>One poll iteration of advisory schedules (same body as <see cref="AdvisoryScanHostedService"/>).</summary>

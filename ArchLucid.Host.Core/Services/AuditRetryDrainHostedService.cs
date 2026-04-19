@@ -1,9 +1,5 @@
 using ArchLucid.Core.Audit;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Services;
 
 /// <summary>

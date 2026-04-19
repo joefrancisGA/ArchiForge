@@ -1,4 +1,3 @@
-using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -196,7 +195,10 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
             """;
 
         FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectHeader, new
+            {
+                FindingsSnapshotId = findingsId
+            }, cancellationToken: CancellationToken.None));
 
         headerRow.Should().NotBeNull();
 

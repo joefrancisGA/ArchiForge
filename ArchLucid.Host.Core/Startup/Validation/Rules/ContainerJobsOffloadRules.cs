@@ -1,9 +1,6 @@
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class ContainerJobsOffloadRules
