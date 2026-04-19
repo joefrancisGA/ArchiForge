@@ -1,0 +1,42 @@
+---
+description: Prefer named bounds over raw numeric literals in product and test code; generator carve-outs
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# Named bounds — avoid unexplained magic numbers
+
+Unexplained numeric literals in **loops**, **timeouts**, **caps**, and **seed sizes** rot quickly: reviewers cannot tell whether `5` is arbitrary, matches a DB constraint, or must stay in sync with another line.
+
+## Product code (`ArchLucid.*` excluding tests)
+
+- **API limits, pagination, clamps, batch sizes, retry/backoff, queue depth** → centralize in a dedicated type or options defaults (examples already in repo: `PaginationDefaults`, `*Limits`, host `*Options` with documented defaults).
+- **Do not** scatter the same cap as literals across controllers, middleware, and jobs unless the value is truly local and obvious (e.g. `0`, `1`, enum underlying values).
+- If a literal appears **twice** for the same semantic cap, extract a **named** constant or shared type **before** merging.
+
+## Tests (`*Tests.cs`, `*ContractTests.cs`, benchmarks)
+
+- **Seed counts**, **poll iteration limits**, **delays**, **walk depth**, **chaos iteration counts** → `private const` or `private static readonly` (e.g. `TimeSpan`) with a **short XML remark** tying the number to the assertion or contract under test.
+- Prefer **`collection.Count` / `array.Length` / `expected.Length`** for loop bounds when the test already fixes the collection shape (avoids desync between `HaveCount(n)` and `for (i < n)`).
+- If the **same** seed bound appears in **multiple test projects**, add or reuse a type in **`ArchLucid.TestSupport`** (see MN-1 history in `docs/NEXT_REFACTORINGS.md`) instead of copying literals.
+
+## `for` / `foreach` shape (C#)
+
+- A `for` body that is not a **single** simple statement **must** use a **block** `{ }`. Do not insert blank lines between the `for (...)` line and a multi-line statement body without braces — that is invalid or misleading C#.
+
+## Generated code — do not “style fix” by hand
+
+- **NSwag / other `*.g.cs` output**: do not hand-edit numeric literals or null checks for house style. Fix **`nswag.json`**, Liquid templates, a post-generation step, or accept generator output. Track intentional generator work under **MN-1** in `docs/NEXT_REFACTORINGS.md`.
+
+## Moq / expression trees (existing carve-out)
+
+- In `It.Is<>` / expression-tree mocks, **`is null` / `is not null`** can trigger **CS8122**. Keep **`== null` / `!= null`** there and add a **one-line comment** pointing to the Moq limitation (see house style / `CSharp-Terse-06` docs in repo).
+
+## When a literal is fine
+
+- **Identifiers**, **math**, **array indices** with immediate local meaning, **test data** where the value is the subject of the test (e.g. asserting `MaxRelationships = 2` behavior with `2` in the assertion and options object).
+- **Protobuf / wire / packed binary** layouts where the spec is the digit itself — name the field, not every byte.
+
+## PR / review bar
+
+- If a PR introduces a **new** unexplained literal for a **cap**, **retry**, **seed volume**, or **poll loop**, request a **name** or **reference** to the owning options/limit type before approving.

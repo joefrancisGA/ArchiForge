@@ -52,4 +52,59 @@ public sealed class LlmCompletionCacheKeyTests
 
         keyA.Should().Be(keyB);
     }
+
+    [Fact]
+    public void Compute_throws_when_deployment_name_null_or_whitespace()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Action empty = () => LlmCompletionCacheKey.Compute(false, "", "s", "u", scope);
+        Action whitespace = () => LlmCompletionCacheKey.Compute(false, "   ", "s", "u", scope);
+
+        empty.Should().Throw<ArgumentException>().WithParameterName("deploymentName");
+        whitespace.Should().Throw<ArgumentException>().WithParameterName("deploymentName");
+    }
+
+    [Fact]
+    public void Compute_throws_when_system_prompt_null()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Action act = () => LlmCompletionCacheKey.Compute(false, "dep", null!, "u", scope);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("systemPrompt");
+    }
+
+    [Fact]
+    public void Compute_throws_when_user_prompt_null()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Action act = () => LlmCompletionCacheKey.Compute(false, "dep", "s", null!, scope);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("userPrompt");
+    }
+
+    [Fact]
+    public void Compute_throws_when_scope_null()
+    {
+        Action act = () => LlmCompletionCacheKey.Compute(false, "dep", "s", "u", null!);
+
+        act.Should().Throw<ArgumentNullException>().WithParameterName("scope");
+    }
 }
