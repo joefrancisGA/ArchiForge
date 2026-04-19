@@ -196,11 +196,6 @@ public static class ArchitectureRunIdempotencyArbitraries
 
     private static string EnsureNonEmpty(string? seed)
     {
-        if (string.IsNullOrWhiteSpace(seed))
-        {
-            return "Sys";
-        }
-
-        return seed.Trim();
+        return string.IsNullOrWhiteSpace(seed) ? "Sys" : seed.Trim();
     }
 }

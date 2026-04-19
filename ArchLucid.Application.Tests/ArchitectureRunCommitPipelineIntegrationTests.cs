@@ -191,7 +191,8 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
         RunRecord? authorityHeader =
             await authorityRunRepository.GetByIdAsync(authorityScope, authorityRunGuid, CancellationToken.None);
         authorityHeader.Should().NotBeNull();
-        authorityHeader.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Committed));
+        string? legacyRunStatus = authorityHeader.LegacyRunStatus;
+        legacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Committed));
         authorityHeader.CurrentManifestVersion.Should().Be(version);
         authorityHeader.CompletedUtc.Should().NotBeNull();
     }

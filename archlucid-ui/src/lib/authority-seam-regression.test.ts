@@ -188,6 +188,74 @@ describe("authority seam regression", () => {
   });
 
   /**
+   * `filterNavLinksByAuthority` is monotonic in caller rank: higher rank never loses hrefs that a lower rank already saw.
+   * Catches an accidental `>` vs `>=` flip on `requiredAuthorityRank` that would shrink the operator strip at Admin.
+   */
+  it("expands Enterprise Controls href set monotonically from Read through Execute to Admin (authority filter only)", () => {
+    expect(enterpriseLinks).toBeDefined();
+
+    const hrefsRead = new Set(
+      filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ReadAuthority).map((l) => l.href),
+    );
+    const hrefsExecute = new Set(
+      filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.ExecuteAuthority).map((l) => l.href),
+    );
+    const hrefsAdmin = new Set(
+      filterNavLinksByAuthority(enterpriseLinks!, AUTHORITY_RANK.AdminAuthority).map((l) => l.href),
+    );
+
+    for (const href of hrefsRead) {
+      expect(hrefsExecute.has(href), href).toBe(true);
+    }
+
+    for (const href of hrefsExecute) {
+      expect(hrefsAdmin.has(href), href).toBe(true);
+    }
+  });
+
+  /**
+   * Advanced Analysis keeps **Ask** on `essential` tier (`nav-tier.ts`) so the group is never empty, while deeper links
+   * stay behind extended/advanced. Regression: moving Ask off essential or mis-tiering would change first-pilot noise.
+   */
+  it("keeps Advanced Analysis to Ask-only in the default Reader shell (tier gates before authority)", () => {
+    const rows = listNavGroupsVisibleInOperatorShell(
+      NAV_GROUPS,
+      false,
+      false,
+      AUTHORITY_RANK.ReadAuthority,
+    );
+    const qa = rows.find((r) => r.group.id === "qa-advisory");
+
+    expect(qa, "Advanced Analysis group should remain visible via essential Ask").toBeDefined();
+    expect(qa!.visibleLinks.map((l) => l.href)).toEqual(["/ask"]);
+  });
+
+  /**
+   * Operator path: Execute rank alone is not enough without progressive disclosure — `/governance` is extended + Execute.
+   */
+  it("surfaces governance workflow in Enterprise strip only when extended and advanced are on for Execute rank", () => {
+    expect(enterpriseLinks).toBeDefined();
+
+    const gatedOff = filterNavLinksForOperatorShell(
+      enterpriseLinks!,
+      false,
+      false,
+      AUTHORITY_RANK.ExecuteAuthority,
+    );
+
+    expect(gatedOff.some((l) => l.href === "/governance")).toBe(false);
+
+    const gatedOn = filterNavLinksForOperatorShell(
+      enterpriseLinks!,
+      true,
+      true,
+      AUTHORITY_RANK.ExecuteAuthority,
+    );
+
+    expect(gatedOn.some((l) => l.href === "/governance")).toBe(true);
+  });
+
+  /**
    * `useNavCallerAuthorityRank` can be **0** while JWT **`/me`** is unset (`OperatorNavAuthorityProvider`). That is stricter
    * than Reader for **`ReadAuthority`**-gated links — catches `navLinkVisibleForCallerRank` accidentally treating **0** like Read.
    */
