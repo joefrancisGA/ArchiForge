@@ -1,18 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { GovernanceResolutionRankCue } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import {
   governanceResolutionChangeRelatedControlsLead,
+  governanceResolutionChangeRelatedControlsReaderSupplement,
   governanceResolutionPageSubline,
 } from "@/lib/enterprise-controls-context-copy";
+import { cn } from "@/lib/utils";
 import { getGovernanceResolution } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { EffectiveGovernanceResolutionResult } from "@/types/governance-resolution";
 
 export default function GovernanceResolutionPage() {
+  /** Same Execute floor as Policy packs / Workflow writes — shapes “Change related controls” emphasis only (GET refresh stays allowed). */
+  const canMutateEnterprisePolicySurfaces = useEnterpriseMutationCapability();
   const [data, setData] = useState<EffectiveGovernanceResolutionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
@@ -41,6 +47,7 @@ export default function GovernanceResolutionPage() {
       <p className="mb-1 max-w-prose text-xs text-neutral-500 dark:text-neutral-400">
         {governanceResolutionPageSubline}
       </p>
+      <GovernanceResolutionRankCue className="mb-3" />
       {failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
@@ -133,11 +140,22 @@ export default function GovernanceResolutionPage() {
         </div>
       </section>
 
-      <section aria-labelledby="governance-change-controls-heading">
+      <section
+        aria-labelledby="governance-change-controls-heading"
+        className={cn(
+          !canMutateEnterprisePolicySurfaces &&
+            "rounded-md border border-neutral-200/80 bg-neutral-50/60 p-3 dark:border-neutral-700/60 dark:bg-neutral-900/35",
+        )}
+      >
         <h3 id="governance-change-controls-heading">Change related controls</h3>
         <p style={{ color: "#64748b", fontSize: 13, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
           {governanceResolutionChangeRelatedControlsLead}
         </p>
+        {!canMutateEnterprisePolicySurfaces ? (
+          <p className="mb-2 max-w-prose text-xs text-neutral-500 dark:text-neutral-400" role="note">
+            {governanceResolutionChangeRelatedControlsReaderSupplement}
+          </p>
+        ) : null}
         <p style={{ marginBottom: 0 }}>
           <button type="button" onClick={() => void load()} disabled={loading}>
             {loading ? "Loading…" : "Refresh"}

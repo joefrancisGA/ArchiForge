@@ -9,6 +9,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRoutingCreateSubscriptionButtonLabelReaderRank,
+  alertRoutingCurrentRoutingHeadingOperator,
+  alertRoutingCurrentRoutingHeadingReader,
   alertRoutingToggleToDisabledReaderRank,
   alertRoutingToggleToEnabledReaderRank,
   alertRoutingSubscriptionsEmptyOperatorLine,
@@ -117,7 +119,7 @@ export default function AlertRoutingPage() {
           aria-labelledby="alert-routing-current-heading"
         >
           <h3 id="alert-routing-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
-            Current routing
+            {canMutateRouting ? alertRoutingCurrentRoutingHeadingOperator : alertRoutingCurrentRoutingHeadingReader}
           </h3>
           <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
             {loading ? "Loading…" : "Refresh"}

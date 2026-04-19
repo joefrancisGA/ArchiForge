@@ -10,6 +10,8 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertRulesCreateButtonLabelReaderRank,
+  alertRulesCurrentRulesHeadingOperator,
+  alertRulesCurrentRulesHeadingReader,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
   alertToolingConfigureSectionSubline,
@@ -99,7 +101,7 @@ export default function AlertRulesPage() {
           aria-labelledby="alert-rules-current-heading"
         >
           <h3 id="alert-rules-current-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
-            Current rules
+            {canMutateAlertRules ? alertRulesCurrentRulesHeadingOperator : alertRulesCurrentRulesHeadingReader}
           </h3>
           <button type="button" onClick={() => void load()} disabled={loading} style={{ marginBottom: 8 }}>
             {loading ? "Loading…" : "Refresh"}

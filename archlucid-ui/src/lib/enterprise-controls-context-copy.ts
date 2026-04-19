@@ -54,6 +54,13 @@ export const governanceResolutionPageSubline = "Read-only snapshot; edits live o
 export const governanceResolutionChangeRelatedControlsLead =
   "Refresh reloads this view; scope and assignments change on Policy packs or Workflow.";
 
+/**
+ * Governance resolution — extra line under **Change related controls** when **`useEnterpriseMutationCapability()`** is
+ * false (writes live elsewhere; **Refresh** stays a safe GET).
+ */
+export const governanceResolutionChangeRelatedControlsReaderSupplement =
+  "Pack and workflow writes need Execute+ on the API—this page stays evidence-only at read rank in the shell.";
+
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine = "Queue read-only; row actions need Execute+ (API).";
 
@@ -187,6 +194,14 @@ export const alertRulesDefinedListEmptyReaderLine =
   "No rules in this scope yet. Read-focused threshold review; writes are operator/admin surface (API policy).";
 
 export const alertRulesDefinedListEmptyOperatorLine = "None yet.";
+
+/** Alert rules — list block above **Change configuration** (read tier: inspect-first label). */
+export const alertRulesCurrentRulesHeadingOperator = "Current rules";
+export const alertRulesCurrentRulesHeadingReader = "Current rules (inspect)";
+
+/** Alert routing — subscriptions block above **Change configuration** (read tier: inspect-first label). */
+export const alertRoutingCurrentRoutingHeadingOperator = "Current routing";
+export const alertRoutingCurrentRoutingHeadingReader = "Current routing (inspect)";
 
 /** Alert routing — empty “Current routing” list (mirrors alert rules empty pattern). */
 export const alertRoutingSubscriptionsEmptyReaderLine =

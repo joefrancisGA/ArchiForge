@@ -129,7 +129,10 @@ export default function CompositeAlertRulesPage() {
       ) : null}
 
       <div className="flex flex-col gap-8">
-        <section className="min-w-0" aria-labelledby="composite-rules-current-heading">
+        <section
+          className={cn("min-w-0", !canMutateComposite && "opacity-95")}
+          aria-labelledby="composite-rules-current-heading"
+        >
           <h3 id="composite-rules-current-heading" style={{ fontSize: "1rem", marginTop: 8 }}>
             Current composite rules
           </h3>
