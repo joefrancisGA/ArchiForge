@@ -48,13 +48,17 @@ jobs:
           docker run -d --name archlucid-fuzz-api --network "$FUZZNET" -p 8080:8080 \
             -e ASPNETCORE_URLS=http://+:8080 \
             -e ASPNETCORE_ENVIRONMENT=Development \
+            -e ArchLucid__StorageProvider=InMemory \
+            -e ArchLucidAuth__Mode=DevelopmentBypass \
+            -e IntegrationEvents__TransactionalOutboxEnabled=false \
+            -e Demo__SeedOnStartup=false \
             archlucid-api:fuzz
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:8080/health/live; then
               break
             fi
-            if [ "$i" -eq 60 ]; then
-              echo "API did not become healthy in time"
+            if [ "$i" -eq 90 ]; then
+              echo "API did not become healthy in time (last 200 lines of container logs):"
               docker logs archlucid-fuzz-api 2>&1 | tail -n 200 || true
               exit 1
             fi
