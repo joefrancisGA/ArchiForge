@@ -45,3 +45,33 @@ variable "storage_share_name" {
   description = "Azure Files share name used by the Logic App runtime (workflow definitions are deployed separately)."
   default     = "workflow-content"
 }
+
+variable "enable_governance_approval_logic_app" {
+  type        = bool
+  description = "When true, deploy a second Logic App (Standard) host for governance-approval-routing workflows (separate plan + storage from the generic edge host)."
+  default     = false
+}
+
+variable "governance_storage_account_name" {
+  type        = string
+  description = "Globally unique storage account name for the governance Logic App file share (required when enable_governance_approval_logic_app is true)."
+  default     = ""
+}
+
+variable "governance_storage_share_name" {
+  type        = string
+  description = "Azure Files share name for governance workflow runtime files."
+  default     = "governance-workflow-content"
+}
+
+variable "governance_app_service_plan_name" {
+  type        = string
+  description = "App Service plan name for the governance Logic App (WS1)."
+  default     = "asp-archlucid-logic-governance"
+}
+
+variable "governance_logic_app_name" {
+  type        = string
+  description = "Logic App (Standard) site name for governance approval routing."
+  default     = "archlucid-logic-governance-approval"
+}

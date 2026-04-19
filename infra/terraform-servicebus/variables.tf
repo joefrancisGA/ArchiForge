@@ -85,3 +85,21 @@ variable "private_dns_zone_ids" {
   description = "Private DNS zone resource ids for privatelink.servicebus.windows.net (from terraform-private)."
   default     = []
 }
+
+variable "enable_logic_app_governance_approval_subscription" {
+  type        = bool
+  description = "When true, create a dedicated topic subscription for Logic Apps (Standard) that only receives com.archlucid.governance.approval.submitted (application property event_type)."
+  default     = false
+}
+
+variable "logic_app_governance_approval_subscription_name" {
+  type        = string
+  description = "Subscription name on the integration topic for governance approval routing (Logic App trigger)."
+  default     = "archlucid-logicapp-governance-approval"
+}
+
+variable "governance_logic_app_managed_identity_principal_id" {
+  type        = string
+  description = "Optional Entra principal id for the governance Logic App (Standard) system-assigned or user-assigned identity — Azure Service Bus Data Receiver on the namespace when non-empty and the governance subscription is enabled."
+  default     = ""
+}

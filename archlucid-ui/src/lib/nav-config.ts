@@ -69,6 +69,12 @@ function navTitleWithShortcut(baseTitle: string, registryCombo: string): string 
  * **`[Authorize(Policy = …)]`** on **ArchLucid.Api** is **authoritative** (`401`/`403`); nav omission or soft-disabled
  * controls never imply a safe POST or deep link.
  *
+ * **Four shaping surfaces (this file owns #1 metadata only):** (1) **Shell link inclusion** — `tier` + `requiredAuthority`
+ * here + composition in **`nav-shell-visibility.ts`**; (2) **mutation soft-enable** — **`useEnterpriseMutationCapability()`**
+ * (not declared in this file); (3) **`LayerHeader`** strip — **`layer-guidance.ts`**; (4) **inline rank hints** —
+ * **`EnterpriseControlsContextHints`**. Do not merge (1) with (2)–(4). Enumeration: **docs/PRODUCT_PACKAGING.md** §3
+ * *Four UI shaping surfaces*.
+ *
  * Nav groups map to product packaging layers (see docs/PRODUCT_PACKAGING.md):
  *   runs-review    → Core Pilot        (request · run · commit · review)
  *   qa-advisory    → Advanced Analysis (compare, replay, graph, provenance, advisory)

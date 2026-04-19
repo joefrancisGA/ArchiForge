@@ -25,6 +25,17 @@ Logic Apps are a **narrow, high-value** fit: cross-system orchestration, human-i
 5. **Idempotency:** `clientTrackingId = approvalRequestId`; rely on API `TryTransitionFromReviewableAsync` for safe retries.
 6. **Observability:** Application Insights; document in `docs/OBSERVABILITY.md` when the workflow is enabled.
 
+**Repo scaffolding (implemented):**
+
+| Step | Location |
+|------|----------|
+| Dedicated topic subscription + SQL filter on **`event_type`** | `infra/terraform-servicebus/` — `enable_logic_app_governance_approval_subscription`, `azurerm_servicebus_subscription_rule` **`$Default`**, optional **`governance_logic_app_managed_identity_principal_id`** → **Data Receiver** |
+| Second Logic App (Standard) host | `infra/terraform-logicapps/` — `enable_governance_approval_logic_app`, outputs `governance_logic_app_principal_id` for Service Bus IAM |
+| Workflow / callback notes | `infra/terraform-logicapps/workflows/governance-approval-routing/README.md` |
+| Observability | `docs/OBSERVABILITY.md` § *Azure Logic Apps (optional)* |
+
+**Still in Portal / export:** `workflow.json`, Teams/Outlook connectors, and adaptive-card action URLs.
+
 ---
 
 ## Prompt `logic-app-trial-lifecycle-email`
@@ -73,6 +84,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 | **Tests** | `IntegrationEventPayloadContractTests`, `MarketplaceWebhookIntegrationEventPublisherTests`. |
 | **IaC** | `infra/terraform-logicapps/` (disabled by default) + CI matrix validate + `.terraform.lock.hcl`. |
 | **Docs / ADR** | ADR **0019**, runbook, `BILLING.md` / `DEPLOYMENT_TERRAFORM.md` / `REFERENCE_SAAS_STACK_ORDER.md` updates. |
+
+**2026-04-19 (governance approval routing prompt):** Service Bus optional subscription + **`$Default`** SQL rule on **`event_type`**; governance Logic App host variables/outputs; `workflows/governance-approval-routing/README.md`; `OBSERVABILITY.md`, `LOGIC_APPS_STANDARD.md`, `INTEGRATION_EVENTS_AND_WEBHOOKS.md` updates.
 
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 

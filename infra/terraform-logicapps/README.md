@@ -2,6 +2,12 @@
 
 Optional root for **Logic App Standard** hosts that subscribe to ArchLucid **integration events** on Service Bus (see `infra/terraform-servicebus/` and `docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`).
 
+## Governance approval host (optional)
+
+Set **`enable_governance_approval_logic_app = true`** to deploy a **second** Logic App (Standard) site intended for the **`governance-approval-routing`** workflow (Teams / Outlook fan-out → callbacks to `POST /v1/governance/...` approve/reject routes). Use outputs **`governance_logic_app_principal_id`** when wiring **`governance_logic_app_managed_identity_principal_id`** in `infra/terraform-servicebus` for the filtered subscription (see that root’s README).
+
+Workflow JSON and connections are still authored in Portal or CI; placeholder notes live under [`workflows/governance-approval-routing/README.md`](workflows/governance-approval-routing/README.md).
+
 ## When to enable
 
 Set `enable_logic_apps = true` only after:

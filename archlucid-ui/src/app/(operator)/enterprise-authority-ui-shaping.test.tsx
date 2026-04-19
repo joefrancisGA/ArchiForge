@@ -5,6 +5,10 @@
  *
  * Governance workflow: submit card uses the same hook for read-only fields (`readOnly` / disabled selects) — asserted
  * via DOM attributes, not tooltip copy strings.
+ *
+ * Governance resolution: **`Change related controls`** reader supplement is driven only by **`useEnterpriseMutationCapability`**
+ * (GET **Refresh** stays enabled); rank cues on the same page use **`useNavCallerAuthorityRank`** in production — here the
+ * mocked hook isolates the write-boundary copy from **`GovernanceResolutionRankCue`**.
  */
 import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -29,6 +33,7 @@ const apiHoisted = vi.hoisted(() => ({
   listApprovalRequests: vi.fn(),
   listPromotions: vi.fn(),
   listActivations: vi.fn(),
+  getGovernanceResolution: vi.fn(),
 }));
 
 vi.mock("@/lib/api", async (importOriginal) => {
@@ -45,6 +50,7 @@ vi.mock("@/lib/api", async (importOriginal) => {
     listApprovalRequests: apiHoisted.listApprovalRequests,
     listPromotions: apiHoisted.listPromotions,
     listActivations: apiHoisted.listActivations,
+    getGovernanceResolution: apiHoisted.getGovernanceResolution,
   };
 });
 
@@ -58,10 +64,30 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+import { governanceResolutionChangeRelatedControlsReaderSupplement } from "@/lib/enterprise-controls-context-copy";
+
 import AlertRulesPage from "./alert-rules/page";
 import AlertsPage from "./alerts/page";
+import GovernanceResolutionPage from "./governance-resolution/page";
 import GovernanceWorkflowPage from "./governance/page";
 import PolicyPacksPage from "./policy-packs/page";
+
+const emptyGovernanceResolutionPayload = {
+  tenantId: "t-ui-shape",
+  workspaceId: "w-ui-shape",
+  projectId: "p-ui-shape",
+  effectiveContent: {
+    complianceRuleIds: [] as string[],
+    complianceRuleKeys: [] as string[],
+    alertRuleIds: [] as string[],
+    compositeAlertRuleIds: [] as string[],
+    advisoryDefaults: {} as Record<string, string>,
+    metadata: {} as Record<string, string>,
+  },
+  decisions: [] as { itemType: string; itemKey: string }[],
+  conflicts: [] as { itemType: string; itemKey: string }[],
+  notes: [] as string[],
+};
 
 const sampleAlert = {
   alertId: "alert-ui-shape-1",
@@ -99,6 +125,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     apiHoisted.listApprovalRequests.mockResolvedValue([]);
     apiHoisted.listPromotions.mockResolvedValue([]);
     apiHoisted.listActivations.mockResolvedValue([]);
+    apiHoisted.getGovernanceResolution.mockResolvedValue(emptyGovernanceResolutionPayload);
   });
 
   it("Policy packs: Create pack stays disabled when mutation capability is false", async () => {
@@ -217,5 +244,44 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     });
 
     expect(screen.getByRole("button", { name: /submit for approval/i })).not.toBeDisabled();
+  });
+
+  /**
+   * Rank cues (`GovernanceResolutionRankCue`) and this supplement are different seams: outside **`OperatorNavAuthorityProvider`**
+   * tests default to Admin rank, but the mutation hook mock can still be **false** — we assert the page wires **soft-disable**
+   * copy to **`useEnterpriseMutationCapability`**, not nav rank alone.
+   */
+  it("Governance resolution: Change related controls shows reader supplement when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<GovernanceResolutionPage />);
+
+    await waitFor(() => {
+      expect(apiHoisted.getGovernanceResolution).toHaveBeenCalled();
+    });
+
+    expect(screen.getByText(governanceResolutionChangeRelatedControlsReaderSupplement)).toBeInTheDocument();
+  });
+
+  it("Governance resolution: Change related controls omits reader supplement when mutation capability is true", async () => {
+    mutateCapability.current = true;
+    render(<GovernanceResolutionPage />);
+
+    await waitFor(() => {
+      expect(apiHoisted.getGovernanceResolution).toHaveBeenCalled();
+    });
+
+    expect(screen.queryByText(governanceResolutionChangeRelatedControlsReaderSupplement)).toBeNull();
+  });
+
+  /** Readers refresh effective policy via GET; **`disabled`** must stay tied to **`loading`**, not mutation rank. */
+  it("Governance resolution: Refresh stays enabled when mutation capability is false", async () => {
+    mutateCapability.current = false;
+    render(<GovernanceResolutionPage />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Refresh" })).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole("button", { name: "Refresh" })).not.toBeDisabled();
   });
 });

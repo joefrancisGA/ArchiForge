@@ -6,7 +6,7 @@
 
 **Canonical buyer narrative:** [EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md). **Measurement companion:** [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md). This document is usage guidance, not a second buyer narrative and not a second ROI brief.
 
-**Related:** [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams* / *Contributor drift guard* — **UI shaping only**; keep **`nav-config`** → **`nav-shell-visibility`** (**tier → authority**) → **`LayerHeader`** / mutation soft-disable and **API** `[Authorize]` policies aligned when a route moves between layers; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** locks tier-before-rank and Enterprise nav monotonicity; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** locks **Execute** nav visibility **≡** mutation boolean) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [operator-shell.md](operator-shell.md)
+**Related:** [CORE_PILOT.md](CORE_PILOT.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) (§3 *Code seams*, *Four UI shaping surfaces*, *Contributor drift guard* — **UI shaping only**; keep **`nav-config`** → **`nav-shell-visibility`** (**tier → authority**) → **`LayerHeader`** / inline cues / mutation soft-disable and **API** `[Authorize]` policies aligned when a route moves between layers; Vitest **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** locks tier-before-rank and Enterprise nav monotonicity; **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** locks **Execute** nav visibility **≡** mutation boolean) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [operator-shell.md](operator-shell.md)
 
 ---
 

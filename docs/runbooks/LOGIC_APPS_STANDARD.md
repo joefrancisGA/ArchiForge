@@ -1,7 +1,7 @@
 # Runbook — Azure Logic Apps (Standard) for ArchLucid
 
 **Priority:** P3 — Reference  
-**Last reviewed:** 2026-04-19
+**Last reviewed:** 2026-04-19 (governance Service Bus subscription + second host notes)
 
 ## Objective
 
@@ -9,7 +9,8 @@ Operate optional **Logic App (Standard)** hosts that consume ArchLucid **Service
 
 ## When this applies
 
-- You enabled `enable_logic_apps` in `infra/terraform-logicapps/` and deployed workflows for governance approvals, trial email fan-out, marketplace fulfillment notifications, incident ChatOps, or customer promotion notices (see `docs/CURSOR_PROMPTS_LOGIC_APPS.md`).
+- You enabled `enable_logic_apps` and/or **`enable_governance_approval_logic_app`** in `infra/terraform-logicapps/` and deployed workflows for governance approvals, trial email fan-out, marketplace fulfillment notifications, incident ChatOps, or customer promotion notices (see `docs/CURSOR_PROMPTS_LOGIC_APPS.md`).
+- **Governance approval routing:** enable **`enable_logic_app_governance_approval_subscription`** in `infra/terraform-servicebus/` so a dedicated topic subscription receives only `com.archlucid.governance.approval.submitted` (user property **`event_type`**, matching `AzureServiceBusIntegrationEventPublisher`). After deploying the governance Logic App, set **`governance_logic_app_managed_identity_principal_id`** in Service Bus Terraform to the output **`governance_logic_app_principal_id`** from `terraform-logicapps`, then re-apply Service Bus for **Data Receiver** on the namespace.
 
 ## Assumptions
 

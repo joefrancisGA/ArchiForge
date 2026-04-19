@@ -12,6 +12,8 @@ export type NavGroupWithVisibleLinks = {
  * ## Role
  *
  * Single composition point for operator shell navigation (sidebar, mobile drawer, command palette).
+ * **Out of scope:** **`useEnterpriseMutationCapability()`** and other page-level POST soft-disables — this module only
+ * applies **tier** then **`filterNavLinksByAuthority`**; see **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
  *
  * ## Composition order (do not reorder)
  *

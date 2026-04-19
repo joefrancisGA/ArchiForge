@@ -18,6 +18,11 @@ output "worker_subscription_name" {
   description = "Subscription name for IntegrationEvents:SubscriptionName on workers."
 }
 
+output "logic_app_governance_approval_subscription_name" {
+  value       = try(azurerm_servicebus_subscription.logic_app_governance_approval[0].name, null)
+  description = "Dedicated subscription for governance approval Logic Apps (null when enable_logic_app_governance_approval_subscription is false)."
+}
+
 output "primary_connection_string" {
   value       = azurerm_servicebus_namespace.integration.default_primary_connection_string
   sensitive   = true

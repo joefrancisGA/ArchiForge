@@ -19,6 +19,11 @@
  *   — **`callerRank >= AUTHORITY_RANK.ExecuteAuthority`**. **`CurrentPrincipal.hasEnterpriseOperatorSurfaces`**
  *   (**`current-principal.ts`**) must use that **same numeric floor** (see **`current-principal.test.ts`**).
  *   Shell composition is **tier → authority** in **`nav-shell-visibility.ts`**; empty groups are dropped there.
+ * - **Rank-only copy (same numeric floor, not nav visibility):** **`LayerHeader`** Enterprise rank cue and
+ *   **`EnterpriseControlsContextHints`** use **`useNavCallerAuthorityRank()`** with **`AUTHORITY_RANK.ExecuteAuthority`** for
+ *   reader vs operator lines — parallel to (2) but **do not** replace **`filterNavLinksByAuthority`** for **`ReadAuthority`**
+ *   destinations still shown in nav. A route may branch **(2)** on **`useEnterpriseMutationCapability()`** separately from
+ *   rank cues (e.g. governance resolution **Change related controls**). **docs/PRODUCT_PACKAGING.md** §3 *Four UI shaping surfaces*.
  *
  * **`ReadAuthority`** on a **`NavLinkItem`** marks read-mostly destinations; **`ExecuteAuthority`** marks Execute-class
  * primary workflows (replay, governance workflow, selected alert configuration). **`AdminAuthority`** is rare on nav;

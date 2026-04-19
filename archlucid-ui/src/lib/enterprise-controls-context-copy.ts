@@ -12,7 +12,7 @@
  * Shared one-liner under alert-tooling “Change configuration” sections — replaces repeating “Configuration surface…”
  * on every page (`alert-rules`, `alert-routing`, `alert-tuning`, `composite-alert-rules`).
  */
-export const alertToolingConfigureSectionSubline = "Inspect with Refresh above · operator config below (API).";
+export const alertToolingConfigureSectionSubline = "Above: inspect · below: operator config (Execute+, API).";
 
 /** `title` on mutation controls the UI soft-disables for Reader-tier principals (API remains authoritative). */
 export const enterpriseMutationControlDisabledTitle =
@@ -48,21 +48,21 @@ export const governanceResolutionRankReaderLine = "Edits: policy packs or workfl
 export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
 /** Governance resolution — one line under the page title (LayerHeader carries when-to-use). */
-export const governanceResolutionPageSubline = "Read-only snapshot; edits live on Policy packs or Workflow.";
+export const governanceResolutionPageSubline = "Effective stack only; edits on Policy packs or Workflow.";
 
 /** Governance resolution — “Change related controls” strip (LayerHeader + subline already frame read-only). */
 export const governanceResolutionChangeRelatedControlsLead =
-  "Refresh reloads this view; scope and assignments change on Policy packs or Workflow.";
+  "Refresh only reloads this view; scope changes on Policy packs or Workflow.";
 
 /**
  * Governance resolution — extra line under **Change related controls** when **`useEnterpriseMutationCapability()`** is
  * false (writes live elsewhere; **Refresh** stays a safe GET).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
-  "Pack and workflow writes need Execute+ on the API—this page stays evidence-only at read rank in the shell.";
+  "Writes need Execute+; this page is evidence-only at read rank in the shell.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
-export const governanceDashboardReaderActionLine = "Queue read-only; row actions need Execute+ (API).";
+export const governanceDashboardReaderActionLine = "Read-only queue; row actions need Execute+ (API).";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator = "Load a run; work sections top to bottom.";
@@ -81,7 +81,7 @@ export const governanceWorkflowPendingReviewReaderNote =
  * Alert rules / routing / simulation / tuning / composite — rank-aware cue (`AlertOperatorToolingRankCue`) for tests
  * or routes that mount a second strip below **`LayerHeader`**.
  */
-export const alertOperatorToolingReaderRankLine = "Inspect above; config below needs Execute+ (API).";
+export const alertOperatorToolingReaderRankLine = "Inspect above · config below needs Execute+ (API).";
 
 export const alertOperatorToolingOperatorRankLine = "Writes below: API-enforced.";
 
@@ -118,7 +118,7 @@ export const auditLogRankOperatorLine = "Export is role-gated on the API.";
 
 /** Extra line under the pending-approvals empty state when rank is below Execute (batch/review CTAs are disabled). */
 export const governanceDashboardPendingClearReaderSupplement =
-  "Read-focused: batch and row actions stay disabled until operator-level access applies (API authoritative).";
+  "Batch and row actions stay disabled here until operator-level access applies (API).";
 
 /** Governance workflow — “Approval requests for a run” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
@@ -165,19 +165,19 @@ export const policyPacksPageLeadReader = "Inspect above; lifecycle needs Execute
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
-  "None in scope yet. Inspect effective data when present; create and lifecycle need operator on the API.";
+  "None in scope yet. Inspect when data exists; create and lifecycle need operator on the API.";
 
 export const policyPacksEmptyScopeOperatorLine = "No packs yet.";
 
 /** Policy packs — “Published versions” empty when a pack is selected but no rows returned. */
 export const policyPacksPublishedVersionsEmptyReaderLine =
-  "No published versions in the response yet. Inspect here; publish is operator/admin on the API.";
+  "No published versions yet. Inspect here; publish needs operator on the API.";
 
 export const policyPacksPublishedVersionsEmptyOperatorLine =
   "No published versions loaded for this pack yet.";
 
 /** Policy packs — one line under Lifecycle heading for read tier (forms below stay soft-disabled). */
-export const policyPacksLifecycleLeadReaderLine = "Lifecycle below is Execute+ at your rank (API).";
+export const policyPacksLifecycleLeadReaderLine = "Lifecycle below needs Execute+ at your rank (API).";
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
@@ -185,13 +185,13 @@ export const governanceWorkflowSubmitCardDescriptionReader =
 
 /** Composite alert rules — empty “Current composite rules” list. */
 export const compositeRulesDefinedListEmptyReaderLine =
-  "No composite rules in this scope yet. Read-focused AND/OR review; writes are operator/admin surface (API policy).";
+  "No composite rules yet. Inspect definitions; writes need operator on the API.";
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
 
 /** Alert rules — empty “Defined rules” list. */
 export const alertRulesDefinedListEmptyReaderLine =
-  "No rules in this scope yet. Read-focused threshold review; writes are operator/admin surface (API policy).";
+  "No rules yet. Inspect thresholds; writes need operator on the API.";
 
 export const alertRulesDefinedListEmptyOperatorLine = "None yet.";
 
@@ -205,7 +205,7 @@ export const alertRoutingCurrentRoutingHeadingReader = "Current routing (inspect
 
 /** Alert routing — empty “Current routing” list (mirrors alert rules empty pattern). */
 export const alertRoutingSubscriptionsEmptyReaderLine =
-  "No routing subscriptions in this scope yet. Read-focused delivery history below; create, enable, and disable are operator/admin surface (API policy).";
+  "No subscriptions yet. Inspect below; create, enable, and disable need operator on the API.";
 
 export const alertRoutingSubscriptionsEmptyOperatorLine = "None yet.";
 
@@ -224,19 +224,18 @@ export const governanceWorkflowActivationsEmptyOperatorHint =
 
 /** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
 export const alertsFilteredEmptyDescriptionReader =
-  "No rows for this filter/page. Adjust or refresh; triage writes need operator access (API).";
+  "No rows for this filter. Adjust or refresh; triage writes need operator on the API.";
 
 export const alertsFilteredEmptyDescriptionOperator =
   "No rows for this filter/page. Try All, another status, or refresh — empty means no match, not a silent failure.";
 
 /** Audit log — zero rows after a successful search. */
-export const auditSearchNoResultsReaderLine =
-  "No matches. Search is open; CSV stays Auditor/Admin on the API.";
+export const auditSearchNoResultsReaderLine = "No matches. CSV stays Auditor/Admin on the API.";
 
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
-export const auditSearchSectionLeadReaderLine = "CSV uses same From/To (Auditor/Admin on API).";
+export const auditSearchSectionLeadReaderLine = "CSV: same From/To; Auditor/Admin on API.";
 
 /** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
 export const auditExportSectionSupportingLine = "Same From/To as search; Auditor or Admin on the API.";
@@ -253,11 +252,11 @@ export const policyPacksCompareVersionsIntroOperator =
 
 /** Policy packs — same block for read tier (diff only; lifecycle writes below). */
 export const policyPacksCompareVersionsIntroReader =
-  "Pick two versions above to diff JSON read-only; publish, assign, and create stay in Lifecycle below (Execute+ on the API).";
+  "Pick two versions to diff JSON read-only; publish and assign stay in Lifecycle (Execute+ on API).";
 
 /** Policy packs — under “Compare versions” when rank cannot mutate (diff is still read-only inspection). */
 export const policyPacksCompareVersionsReaderSubline =
-  "Version diff is read-only; publish, assign, and create are in Lifecycle (Execute+).";
+  "Diff is read-only; publish and assign are in Lifecycle (Execute+).";
 
 /** Policy packs — title on “Show diff” when rank cannot mutate (diff stays inspection-only; lifecycle on API). */
 export const policyPacksShowDiffButtonReaderTitle =
@@ -269,7 +268,7 @@ export const policyPacksPackSelectReaderTitle =
 
 /** Audit — Execute+ caller without Auditor/Admin claims (CSV export remains API-role-gated). */
 export const auditExportExecuteRankAuditorRoleNote =
-  "CSV export still needs Auditor or Admin on the API — Execute rank alone is not enough for bulk export.";
+  "CSV still needs Auditor or Admin on the API—Execute rank alone is not enough for export.";
 
 /** Alert rules — Create button label when mutation capability is false (same Execute+ floor as the hook). */
 export const alertRulesCreateButtonLabelReaderRank = "Create rule (Execute+)";
