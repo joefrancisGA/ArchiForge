@@ -103,7 +103,7 @@ public sealed class BillingCheckoutControllerTests : IClassFixture<JwtLocalSigni
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         dto.Should().NotBeNull();
-        dto!.CheckoutUrl.Should().NotBeNullOrWhiteSpace();
+        dto.CheckoutUrl.Should().NotBeNullOrWhiteSpace();
         dto.ProviderSessionId.Should().NotBeNullOrWhiteSpace();
     }
 

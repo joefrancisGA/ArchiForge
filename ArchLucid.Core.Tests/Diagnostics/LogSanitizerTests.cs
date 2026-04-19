@@ -30,7 +30,7 @@ public sealed class LogSanitizerTests
 
         string result = LogSanitizer.Sanitize(input);
 
-        object.ReferenceEquals(result, input).Should().BeTrue();
+        ReferenceEquals(result, input).Should().BeTrue();
     }
 
     [Fact]
@@ -65,6 +65,6 @@ public sealed class LogSanitizerTests
         string result = LogSanitizer.Sanitize(input);
 
         result.Should().Be(input);
-        object.ReferenceEquals(result, input).Should().BeTrue();
+        ReferenceEquals(result, input).Should().BeTrue();
     }
 }

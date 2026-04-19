@@ -17,7 +17,11 @@ public sealed class CircuitBreakerHealthCheckTests
     public async Task AllClosed_Returns_Healthy()
     {
         ServiceCollection services = new();
-        CircuitBreakerOptions options = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions options = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
         services.AddKeyedSingleton(
             OpenAiCircuitBreakerKeys.Completion,
             new CircuitBreakerGate(OpenAiCircuitBreakerKeys.Completion, options));
@@ -35,7 +39,7 @@ public sealed class CircuitBreakerHealthCheckTests
         object gatesObj = result.Data["gates"];
         List<Dictionary<string, object>>? gateList = gatesObj as List<Dictionary<string, object>>;
         gateList.Should().NotBeNull();
-        gateList!.Should().HaveCount(2);
+        gateList.Should().HaveCount(2);
 
         foreach (Dictionary<string, object> row in gateList)
         {
@@ -58,8 +62,16 @@ public sealed class CircuitBreakerHealthCheckTests
     public async Task OneOpen_Returns_Degraded()
     {
         ServiceCollection services = new();
-        CircuitBreakerOptions closedOpts = new() { FailureThreshold = 5, DurationOfBreakSeconds = 60 };
-        CircuitBreakerOptions openOpts = new() { FailureThreshold = 1, DurationOfBreakSeconds = 60 };
+        CircuitBreakerOptions closedOpts = new()
+        {
+            FailureThreshold = 5,
+            DurationOfBreakSeconds = 60
+        };
+        CircuitBreakerOptions openOpts = new()
+        {
+            FailureThreshold = 1,
+            DurationOfBreakSeconds = 60
+        };
         CircuitBreakerGate openGate = new(OpenAiCircuitBreakerKeys.Completion, openOpts);
         openGate.RecordFailure();
 
@@ -77,10 +89,10 @@ public sealed class CircuitBreakerHealthCheckTests
         object gatesObj = result.Data["gates"];
         List<Dictionary<string, object>>? gateList = gatesObj as List<Dictionary<string, object>>;
         gateList.Should().NotBeNull();
-        Dictionary<string, object>? completionRow = gateList!.FirstOrDefault(
+        Dictionary<string, object>? completionRow = gateList.FirstOrDefault(
             r => (string)r["name"] == OpenAiCircuitBreakerKeys.Completion);
         completionRow.Should().NotBeNull();
-        completionRow!["state"].Should().Be("Open");
+        completionRow["state"].Should().Be("Open");
         completionRow["consecutiveFailures"].Should().Be(1);
         completionRow["failureThreshold"].Should().Be(1);
         completionRow["breakDurationSeconds"].Should().Be(60);
@@ -102,6 +114,6 @@ public sealed class CircuitBreakerHealthCheckTests
         object gatesObj = result.Data["gates"];
         List<Dictionary<string, object>>? gateList = gatesObj as List<Dictionary<string, object>>;
         gateList.Should().NotBeNull();
-        gateList!.Should().BeEmpty();
+        gateList.Should().BeEmpty();
     }
 }

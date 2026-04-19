@@ -31,7 +31,7 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
             await response.Content.ReadFromJsonAsync<List<RecommendationRecordResponse>>(JsonOptions);
 
         items.Should().NotBeNull();
-        items!.Should().BeEmpty();
+        items.Should().BeEmpty();
     }
 
     [Fact]
@@ -57,6 +57,6 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
             await response.Content.ReadFromJsonAsync<List<RecommendationRecordResponse>>(JsonOptions);
 
         items.Should().NotBeNull();
-        items!.Should().BeEmpty();
+        items.Should().BeEmpty();
     }
 }

@@ -54,6 +54,6 @@ public sealed class GoldenAgentExecutionTraceTests
 
         trace.Should().NotBeNull();
 
-        return trace!;
+        return trace;
     }
 }

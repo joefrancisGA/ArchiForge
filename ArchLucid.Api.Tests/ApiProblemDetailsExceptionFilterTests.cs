@@ -192,7 +192,7 @@ public sealed class ApiProblemDetailsExceptionFilterTests
 
         mapped.Should().BeTrue();
         result.Should().NotBeNull();
-        result!.StatusCode.Should().Be(StatusCodes.Status409Conflict);
+        result.StatusCode.Should().Be(StatusCodes.Status409Conflict);
         Microsoft.AspNetCore.Mvc.ProblemDetails p =
             result.Value.Should().BeOfType<Microsoft.AspNetCore.Mvc.ProblemDetails>().Subject;
         p.Type.Should().Be(ProblemTypes.Conflict);

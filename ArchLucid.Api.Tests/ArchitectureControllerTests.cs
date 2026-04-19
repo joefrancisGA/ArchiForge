@@ -367,7 +367,7 @@ public sealed class ArchitectureControllerTests
 
                 CreateRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
                 payload.Should().NotBeNull();
-                runIds.Add(payload!.Run.RunId);
+                runIds.Add(payload.Run.RunId);
             }
 
             createdCount.Should().Be(1, "exactly one parallel request should create the run; others replay");

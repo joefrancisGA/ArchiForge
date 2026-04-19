@@ -47,18 +47,24 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { formatIsoUtcForDisplay } from "@/lib/format-iso-utc";
 import {
   enterpriseMutationControlDisabledTitle,
+  governanceWorkflowActivateButtonLabelReaderRank,
+  governanceWorkflowApproveButtonLabelReaderRank,
   governanceWorkflowPageLeadOperator,
   governanceWorkflowPageLeadReader,
   governanceWorkflowActivationsEmptyOperatorHint,
   governanceWorkflowActivationsEmptyReaderHint,
   governanceWorkflowNoApprovalsOperatorHint,
   governanceWorkflowNoApprovalsReaderHint,
+  governanceWorkflowPromoteButtonLabelReaderRank,
   governanceWorkflowPromotionsEmptyOperatorHint,
   governanceWorkflowPromotionsEmptyReaderHint,
   governanceWorkflowQueryCardDescriptionOperator,
   governanceWorkflowQueryCardDescriptionReader,
   governanceWorkflowPendingReviewReaderNote,
+  governanceWorkflowRejectButtonLabelReaderRank,
+  governanceWorkflowReviewSubmitButtonLabelReaderRank,
   governanceWorkflowSubmitCardDescriptionReader,
+  governanceWorkflowSubmitForApprovalButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { cn } from "@/lib/utils";
@@ -531,7 +537,11 @@ function GovernanceWorkflowPageInner() {
               disabled={submitBusy || !canMutateWorkflow}
               title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
             >
-              {submitBusy ? "Submitting…" : "Submit for approval"}
+              {submitBusy
+                ? "Submitting…"
+                : canMutateWorkflow
+                  ? "Submit for approval"
+                  : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
           </CardFooter>
         </Card>
@@ -680,7 +690,11 @@ function GovernanceWorkflowPageInner() {
                           disabled={reviewBusy || !canMutateWorkflow}
                           title={canMutateWorkflow ? undefined : enterpriseMutationControlDisabledTitle}
                         >
-                          {reviewBusy ? "Saving…" : "Submit"}
+                          {reviewBusy
+                            ? "Saving…"
+                            : canMutateWorkflow
+                              ? "Submit"
+                              : governanceWorkflowReviewSubmitButtonLabelReaderRank}
                         </Button>
                         <Button
                           type="button"
@@ -716,7 +730,7 @@ function GovernanceWorkflowPageInner() {
                         pendingPromoteRequestRef.current = null;
                       }}
                     >
-                      Approve
+                      {canMutateWorkflow ? "Approve" : governanceWorkflowApproveButtonLabelReaderRank}
                     </Button>
                     <Button
                       type="button"
@@ -731,7 +745,7 @@ function GovernanceWorkflowPageInner() {
                         pendingPromoteRequestRef.current = null;
                       }}
                     >
-                      Reject
+                      {canMutateWorkflow ? "Reject" : governanceWorkflowRejectButtonLabelReaderRank}
                     </Button>
                   </>
                 ) : null}
@@ -756,7 +770,7 @@ function GovernanceWorkflowPageInner() {
                       setPendingReview(null);
                     }}
                   >
-                    Promote
+                    {canMutateWorkflow ? "Promote" : governanceWorkflowPromoteButtonLabelReaderRank}
                   </Button>
                 ) : null}
               </CardFooter>
@@ -823,7 +837,11 @@ function GovernanceWorkflowPageInner() {
                           });
                         }}
                       >
-                        {activateBusyId === p.promotionRecordId ? "Activating…" : "Activate"}
+                        {activateBusyId === p.promotionRecordId
+                          ? "Activating…"
+                          : canMutateWorkflow
+                            ? "Activate"
+                            : governanceWorkflowActivateButtonLabelReaderRank}
                       </Button>
                     </span>
                   </TooltipTrigger>

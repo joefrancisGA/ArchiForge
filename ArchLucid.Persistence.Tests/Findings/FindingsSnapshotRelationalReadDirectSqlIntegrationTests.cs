@@ -379,7 +379,7 @@ public sealed class FindingsSnapshotRelationalReadDirectSqlIntegrationTests(SqlS
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow!, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow, CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();
         Finding f = loaded.Findings[0];

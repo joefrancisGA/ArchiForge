@@ -53,7 +53,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ScopeProjectId = scope.ProjectId,
             ProjectId = "p",
             ArchitectureRequestId = "req-x",
-            LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             CreatedUtc = DateTime.UtcNow,
             CurrentManifestVersion = "v-missing",
         };
@@ -105,7 +105,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             ScopeProjectId = scope.ProjectId,
             ProjectId = "p",
             ArchitectureRequestId = "req-y",
-            LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
             CreatedUtc = DateTime.UtcNow,
             CurrentManifestVersion = "v1",
         };

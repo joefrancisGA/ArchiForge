@@ -129,7 +129,7 @@ public sealed class DemoSeedService(
                 : "Demo — Contoso retail baseline manifest (trusted baseline seed).",
             CreatedUtc = DemoUtc,
             ArchitectureRequestId = demo.RequestId,
-            LegacyRunStatus = ArchitectureRunStatus.Created.ToString(),
+            LegacyRunStatus = nameof(ArchitectureRunStatus.Created),
         };
 
         await runRepository.SaveAsync(authorityRow, cancellationToken);
@@ -194,7 +194,7 @@ public sealed class DemoSeedService(
 
         if (authorityCommitted is not null)
         {
-            authorityCommitted.LegacyRunStatus = ArchitectureRunStatus.Committed.ToString();
+            authorityCommitted.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
             authorityCommitted.CurrentManifestVersion = manifestVersion;
             authorityCommitted.CompletedUtc = DemoUtc;
             await runRepository.UpdateAsync(authorityCommitted, cancellationToken);

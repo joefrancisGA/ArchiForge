@@ -21,11 +21,11 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.TryGetValues("traceparent", out IEnumerable<string>? tp).Should().BeTrue();
         tp!.Should().ContainSingle();
-        tp!.First().Should().MatchRegex("^00-[0-9a-fA-F]{32}-[0-9a-fA-F]{16}-[0-9a-fA-F]{2}$");
+        tp.First().Should().MatchRegex("^00-[0-9a-fA-F]{32}-[0-9a-fA-F]{16}-[0-9a-fA-F]{2}$");
 
         response.Headers.TryGetValues("X-Trace-Id", out IEnumerable<string>? xt).Should().BeTrue();
         xt!.Should().ContainSingle();
-        xt!.First().Should().MatchRegex("^[0-9a-fA-F]{32}$");
+        xt.First().Should().MatchRegex("^[0-9a-fA-F]{32}$");
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public sealed class CorsPolicyIntegrationTests(CorsTrustedOriginApiFactory facto
 
         bool allowsCustom =
             response.Headers.TryGetValues("Access-Control-Allow-Headers", out IEnumerable<string>? allowHeaders)
-            && HeaderNamesContainsToken(allowHeaders!, "X-Custom-Header");
+            && HeaderNamesContainsToken(allowHeaders, "X-Custom-Header");
 
         allowsCustom.Should().BeFalse(
             because: "requested header is not in the explicit Cors:AllowedHeaders allow-list");

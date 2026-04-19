@@ -66,7 +66,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
 
             CommitRunResponseDto? payload = await response.Content.ReadFromJsonAsync<CommitRunResponseDto>(JsonOptions);
             payload.Should().NotBeNull();
-            payload!.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
+            payload.Manifest.Metadata.ManifestVersion.Should().NotBeNullOrWhiteSpace();
 
             if (manifestVersion is null)
             {

@@ -11,11 +11,11 @@ namespace ArchLucid.Host.Core.DataConsistency;
 /// <summary>
 /// One-shot orphan counts + optional dry-run samples (same logic as <see cref="Hosted.DataConsistencyOrphanProbeHostedService"/> loop body).
 /// </summary>
-public sealed class DataConsistencyOrphanProbeExecutor : IDataConsistencyOrphanProbeExecutor(
+public sealed class DataConsistencyOrphanProbeExecutor(
     IOptionsMonitor<DataConsistencyProbeOptions> optionsMonitor,
     IDbConnectionFactory connectionFactory,
     IOptions<ArchLucidOptions> archLucidOptions,
-    ILogger<DataConsistencyOrphanProbeExecutor> logger)
+    ILogger<DataConsistencyOrphanProbeExecutor> logger) : IDataConsistencyOrphanProbeExecutor
 {
     private readonly IOptionsMonitor<DataConsistencyProbeOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));

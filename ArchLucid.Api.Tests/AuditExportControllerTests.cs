@@ -104,7 +104,7 @@ public sealed class AuditExportControllerTests
 
         string? disposition = response.Content.Headers.ContentDisposition?.ToString();
         disposition.Should().NotBeNullOrWhiteSpace();
-        string lower = disposition!.ToLowerInvariant();
+        string lower = disposition.ToLowerInvariant();
         lower.Should().Contain("attachment");
         lower.Should().Contain("audit-export-");
         lower.Should().Contain(".csv");

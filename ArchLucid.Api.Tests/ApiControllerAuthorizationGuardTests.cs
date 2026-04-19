@@ -26,7 +26,7 @@ public sealed class ApiControllerAuthorizationGuardTests
     [Fact]
     public void All_api_controllers_declare_authorization_or_allow_anonymous()
     {
-        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+        Assembly api = typeof(Program).Assembly;
         List<string> violations = [];
 
         foreach (Type type in api.GetTypes())

@@ -135,8 +135,8 @@ public sealed class AzureMarketplaceBillingProvider(
                 return BillingWebhookHandleResult.Ok();
             }
 
-            Guid workspaceId = ReadGuid(root, "workspaceId", ArchLucid.Core.Scoping.ScopeIds.DefaultWorkspace);
-            Guid projectId = ReadGuid(root, "projectId", ArchLucid.Core.Scoping.ScopeIds.DefaultProject);
+            Guid workspaceId = ReadGuid(root, "workspaceId", Core.Scoping.ScopeIds.DefaultWorkspace);
+            Guid projectId = ReadGuid(root, "projectId", Core.Scoping.ScopeIds.DefaultProject);
 
             await DispatchMarketplaceActionAsync(
                 action,

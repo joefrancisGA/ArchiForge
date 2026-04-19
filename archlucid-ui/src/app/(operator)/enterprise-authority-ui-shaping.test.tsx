@@ -124,10 +124,10 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<AlertsPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Acknowledge" })).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: /Acknowledge/ })).not.toBeDisabled();
     });
 
-    screen.getByRole("button", { name: "Acknowledge" }).click();
+    screen.getByRole("button", { name: /Acknowledge/ }).click();
 
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "Confirm" })).toBeDisabled();
@@ -139,7 +139,7 @@ describe("Enterprise authority UI shaping (mutation hook → controls)", () => {
     render(<AlertsPage />);
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Acknowledge" })).not.toBeDisabled();
+      expect(screen.getByRole("button", { name: /^Acknowledge$/ })).not.toBeDisabled();
     });
   });
 

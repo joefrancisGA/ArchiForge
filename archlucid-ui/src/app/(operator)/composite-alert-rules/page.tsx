@@ -10,7 +10,6 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   alertToolingConfigureSectionSubline,
-  compositeRulesChangeConfigurationLeadReaderLine,
   compositeRulesDefinedListEmptyOperatorLine,
   compositeRulesDefinedListEmptyReaderLine,
   enterpriseMutationControlDisabledTitle,
@@ -178,11 +177,6 @@ export default function CompositeAlertRulesPage() {
           <h3 id="composite-rules-change-heading" style={{ fontSize: "1rem" }}>
             {canMutateComposite ? "Change configuration" : "Change configuration (operator access)"}
           </h3>
-          {canMutateComposite ? null : (
-            <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 4, marginBottom: 8 }}>
-              {compositeRulesChangeConfigurationLeadReaderLine}
-            </p>
-          )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
             {alertToolingConfigureSectionSubline}
           </p>

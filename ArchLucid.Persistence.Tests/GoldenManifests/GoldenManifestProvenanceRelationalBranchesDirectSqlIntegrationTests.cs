@@ -104,7 +104,10 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
             """;
 
         await connection.ExecuteAsync(
-            new CommandDefinition(insertRule, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(insertRule, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         GoldenManifestStorageRow row = await QueryManifestRowAsync(connection, manifestId, CancellationToken.None);
 
@@ -303,11 +306,14 @@ public sealed class GoldenManifestProvenanceRelationalBranchesDirectSqlIntegrati
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: ct));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: ct));
 
         row.Should().NotBeNull();
 
-        return row!;
+        return row;
     }
 
 }

@@ -184,12 +184,15 @@ public sealed class GoldenManifestPhase1RelationalReadOrderedAssumptionsDirectSq
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("first-by-sort-order", "second-by-sort-order");
     }

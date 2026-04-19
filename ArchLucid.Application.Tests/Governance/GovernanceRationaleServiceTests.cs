@@ -61,7 +61,7 @@ public sealed class GovernanceRationaleServiceTests
         GovernanceRationaleResult? r = await sut.GetApprovalRequestRationaleAsync("apr-1");
 
         r.Should().NotBeNull();
-        r!.ApprovalRequestId.Should().Be("apr-1");
+        r.ApprovalRequestId.Should().Be("apr-1");
         r.Summary.Should().Contain("apr-1");
         r.Bullets.Should().Contain(b => b.Contains("dev", StringComparison.Ordinal) && b.Contains("test", StringComparison.Ordinal));
         r.Bullets.Should().Contain(b => b.Contains("Medium", StringComparison.Ordinal));

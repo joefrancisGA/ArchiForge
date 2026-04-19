@@ -20,7 +20,7 @@ public sealed class ApiControllerMutationPolicyGuardTests
     [Fact]
     public void All_mutation_actions_have_named_authorization_policy()
     {
-        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+        Assembly api = typeof(Program).Assembly;
         List<string> violations = [];
 
         foreach (Type type in api.GetTypes())
@@ -69,7 +69,7 @@ public sealed class ApiControllerMutationPolicyGuardTests
     {
         HashSet<string> known = BuildKnownPolicyNames();
 
-        Assembly api = typeof(ArchLucid.Api.Program).Assembly;
+        Assembly api = typeof(Program).Assembly;
         List<string> unknown = [];
 
         foreach (Type type in api.GetTypes())

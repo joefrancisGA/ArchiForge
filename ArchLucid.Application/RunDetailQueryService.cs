@@ -134,7 +134,7 @@ public sealed class RunDetailQueryService(
             {
                 RunId = r.RunId.ToString("N"),
                 RequestId = r.ArchitectureRequestId ?? string.Empty,
-                Status = r.LegacyRunStatus ?? ArchitectureRunStatus.Created.ToString(),
+                Status = r.LegacyRunStatus ?? nameof(ArchitectureRunStatus.Created),
                 CreatedUtc = r.CreatedUtc,
                 CompletedUtc = r.CompletedUtc,
                 CurrentManifestVersion = r.CurrentManifestVersion,

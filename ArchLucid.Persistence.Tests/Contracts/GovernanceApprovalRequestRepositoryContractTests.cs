@@ -97,7 +97,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         GovernanceApprovalRequest? loaded = await repo.GetByIdAsync(approvalId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Status.Should().Be(GovernanceApprovalStatus.Approved);
+        loaded.Status.Should().Be(GovernanceApprovalStatus.Approved);
         loaded.ReviewedBy.Should().Be("r1");
         loaded.ReviewComment.Should().Be("ok");
     }
@@ -137,7 +137,7 @@ public abstract class GovernanceApprovalRequestRepositoryContractTests
         GovernanceApprovalRequest? loaded = await repo.GetByIdAsync(approvalId, CancellationToken.None);
 
         loaded.Should().NotBeNull();
-        loaded!.Status.Should().Be(GovernanceApprovalStatus.Approved);
+        loaded.Status.Should().Be(GovernanceApprovalStatus.Approved);
     }
 
     [SkippableFact]

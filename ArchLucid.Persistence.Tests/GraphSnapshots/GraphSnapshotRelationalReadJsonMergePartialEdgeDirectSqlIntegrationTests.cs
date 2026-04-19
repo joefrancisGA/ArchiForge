@@ -136,12 +136,15 @@ public sealed class GraphSnapshotRelationalReadJsonMergePartialEdgeDirectSqlInte
             """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                GraphSnapshotId = graphId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GraphSnapshot snapshot =
-            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row!, CancellationToken.None);
+            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
 
         snapshot.Edges.Should().HaveCount(2);
         GraphEdge merged = snapshot.Edges.Single(e => e.EdgeId == "e-in-both");

@@ -170,12 +170,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("relational-assumption-wins");
     }
@@ -321,12 +324,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Warnings.Should().Equal("relational-warning-wins");
     }
@@ -479,12 +485,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().Equal("relational-provenance-finding");
         hydrated.Provenance.SourceGraphNodeIds.Should().BeEmpty();
@@ -708,12 +717,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().ContainSingle();
         ResolvedArchitectureDecision d = hydrated.Decisions[0];
@@ -886,12 +898,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().ContainSingle();
         ResolvedArchitectureDecision d = hydrated.Decisions[0];
@@ -1048,12 +1063,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
         hydrated.Provenance.SourceGraphNodeIds.Should().BeEmpty();
@@ -1224,12 +1242,15 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().BeEmpty();
         hydrated.Provenance.SourceGraphNodeIds.Should().Equal("prov-node-rel");
@@ -1280,7 +1301,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().Equal("json-assumption-a", "json-assumption-b");
     }
@@ -1334,7 +1355,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Provenance.SourceFindingIds.Should().Equal("json-prov-f1");
         hydrated.Provenance.SourceGraphNodeIds.Should().Equal("json-prov-n1");
@@ -1397,7 +1418,7 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Decisions.Should().ContainSingle();
         ResolvedArchitectureDecision d = hydrated.Decisions[0];
@@ -1526,6 +1547,9 @@ public sealed class GoldenManifestPhase1RelationalReadDirectSqlIntegrationTests(
             """;
 
         return await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
     }
 }

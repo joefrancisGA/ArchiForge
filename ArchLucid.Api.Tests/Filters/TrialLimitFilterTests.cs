@@ -25,7 +25,7 @@ public sealed class TrialLimitFilterTests
         result.StatusCode.Should().Be(402);
         Microsoft.AspNetCore.Mvc.ProblemDetails? problem = result.Value as Microsoft.AspNetCore.Mvc.ProblemDetails;
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.TrialExpired);
+        problem.Type.Should().Be(ProblemTypes.TrialExpired);
 
         string json = JsonSerializer.Serialize(problem, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         using JsonDocument doc = JsonDocument.Parse(json);

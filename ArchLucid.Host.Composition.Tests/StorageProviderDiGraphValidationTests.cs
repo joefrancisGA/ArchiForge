@@ -28,7 +28,11 @@ public sealed class StorageProviderDiGraphValidationTests
         services.AddHttpContextAccessor();
         _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
 
-        ServiceProviderOptions options = new() { ValidateOnBuild = true, ValidateScopes = true };
+        ServiceProviderOptions options = new()
+        {
+            ValidateOnBuild = true,
+            ValidateScopes = true
+        };
         Action act = () =>
         {
             ServiceProvider provider = services.BuildServiceProvider(options);
@@ -54,7 +58,7 @@ public sealed class StorageProviderDiGraphValidationTests
 
         List<ServiceDescriptor> list = services.ToList();
         list.Should().Contain(d => d.ServiceType == typeof(ISqlConnectionFactory));
-        list.Should().Contain(d => d.ServiceType == typeof(ArchLucid.Persistence.Connections.SqlConnectionFactory));
+        list.Should().Contain(d => d.ServiceType == typeof(SqlConnectionFactory));
     }
 
     private static ServiceCollection CreateCompositionServices(IConfiguration configuration)

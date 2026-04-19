@@ -116,12 +116,15 @@ public sealed class GraphSnapshotRelationalReadOrderedWarningsNoEdgesDirectSqlIn
             """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                GraphSnapshotId = graphId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GraphSnapshot snapshot =
-            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row!, CancellationToken.None);
+            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
 
         snapshot.Nodes.Should().BeEmpty();
         snapshot.Edges.Should().BeEmpty();

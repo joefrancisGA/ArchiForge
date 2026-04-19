@@ -56,7 +56,10 @@ public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectS
             """;
 
         FindingsSnapshotStorageRow? headerRow = await connection.QuerySingleOrDefaultAsync<FindingsSnapshotStorageRow>(
-            new CommandDefinition(selectHeader, new { FindingsSnapshotId = findingsId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectHeader, new
+            {
+                FindingsSnapshotId = findingsId
+            }, cancellationToken: CancellationToken.None));
 
         headerRow.Should().NotBeNull();
 
@@ -124,7 +127,7 @@ public sealed class FindingsSnapshotRelationalReadOrderedAlternativePathsDirectS
                 cancellationToken: CancellationToken.None));
 
         FindingsSnapshot loaded =
-            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow!, CancellationToken.None);
+            await FindingsSnapshotRelationalRead.LoadRelationalSnapshotAsync(connection, headerRow, CancellationToken.None);
 
         loaded.Findings.Should().ContainSingle();
         Finding f = loaded.Findings[0];

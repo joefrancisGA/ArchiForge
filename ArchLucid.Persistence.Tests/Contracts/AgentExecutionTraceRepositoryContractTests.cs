@@ -183,7 +183,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         AgentExecutionTrace? found = await repo.GetByTraceIdAsync("by-trace-id-1", CancellationToken.None);
 
         found.Should().NotBeNull();
-        found!.TraceId.Should().Be("by-trace-id-1");
+        found.TraceId.Should().Be("by-trace-id-1");
         found.RunId.Should().Be(runId);
     }
 
@@ -205,7 +205,7 @@ public abstract class AgentExecutionTraceRepositoryContractTests
         AgentExecutionTrace? t = await repo.GetByTraceIdAsync("inline-fail-trace", CancellationToken.None);
 
         t.Should().NotBeNull();
-        t!.InlineFallbackFailed.Should().BeTrue();
+        t.InlineFallbackFailed.Should().BeTrue();
     }
 
     private static AgentTask NewTask(string runId, string taskId)

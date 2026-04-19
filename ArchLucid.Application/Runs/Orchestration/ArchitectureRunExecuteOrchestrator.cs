@@ -407,13 +407,13 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             return;
         }
 
-        if (string.Equals(header.LegacyRunStatus, ArchitectureRunStatus.ReadyForCommit.ToString(), StringComparison.OrdinalIgnoreCase)
-            || string.Equals(header.LegacyRunStatus, ArchitectureRunStatus.Committed.ToString(), StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.ReadyForCommit), StringComparison.OrdinalIgnoreCase)
+            || string.Equals(header.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
         {
             return;
         }
 
-        header.LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString();
+        header.LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit);
         await _runRepository.UpdateAsync(header, cancellationToken);
     }
 

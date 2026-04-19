@@ -24,7 +24,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
             await response.Content.ReadFromJsonAsync<OrphanGoldenManifestRemediationResultDto>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.DryRun.Should().BeTrue();
+        body.DryRun.Should().BeTrue();
         body.RowCount.Should().Be(0);
         body.ManifestIds.Should().NotBeNull();
         body.ManifestIds!.Count.Should().Be(0);
@@ -41,7 +41,7 @@ public sealed class AdminDataConsistencyOrphanRemediationEndpointsIntegrationTes
             await response.Content.ReadFromJsonAsync<OrphanFindingsSnapshotRemediationResultDto>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.DryRun.Should().BeTrue();
+        body.DryRun.Should().BeTrue();
         body.RowCount.Should().Be(0);
         body.FindingsSnapshotIds.Should().NotBeNull();
         body.FindingsSnapshotIds!.Count.Should().Be(0);

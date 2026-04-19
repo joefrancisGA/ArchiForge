@@ -635,7 +635,7 @@ public sealed class ArchitectureRunCommitOrchestrator(
         if (header is null)
             return;
 
-        header.LegacyRunStatus = ArchitectureRunStatus.Committed.ToString();
+        header.LegacyRunStatus = nameof(ArchitectureRunStatus.Committed);
 
         if (!string.IsNullOrWhiteSpace(manifestVersion))
             header.CurrentManifestVersion = manifestVersion;

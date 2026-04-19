@@ -59,6 +59,8 @@ public static partial class ServiceCollectionExtensions
             }
 
             services.AddSingleton<AuditEventChangeFeedSingleBatchProcessor>();
+            services.AddSingleton<IAuditEventChangeFeedSingleBatchRunner>(
+                static sp => sp.GetRequiredService<AuditEventChangeFeedSingleBatchProcessor>());
             services.AddSingleton<IArchLucidJob, AuditEventChangeFeedArchLucidJob>();
         }
     }

@@ -16,8 +16,8 @@ public sealed class OpenApiJsonCanonicalizerTests
         left.Should().NotBeNull();
         right.Should().NotBeNull();
 
-        JsonNode canonicalLeft = OpenApiJsonCanonicalizer.Canonicalize(left!);
-        JsonNode canonicalRight = OpenApiJsonCanonicalizer.Canonicalize(right!);
+        JsonNode canonicalLeft = OpenApiJsonCanonicalizer.Canonicalize(left);
+        JsonNode canonicalRight = OpenApiJsonCanonicalizer.Canonicalize(right);
 
         JsonNode.DeepEquals(canonicalLeft, canonicalRight).Should().BeTrue();
     }
@@ -31,8 +31,8 @@ public sealed class OpenApiJsonCanonicalizerTests
         left.Should().NotBeNull();
         right.Should().NotBeNull();
 
-        JsonNode canonicalLeft = OpenApiJsonCanonicalizer.Canonicalize(left!);
-        JsonNode canonicalRight = OpenApiJsonCanonicalizer.Canonicalize(right!);
+        JsonNode canonicalLeft = OpenApiJsonCanonicalizer.Canonicalize(left);
+        JsonNode canonicalRight = OpenApiJsonCanonicalizer.Canonicalize(right);
 
         JsonNode.DeepEquals(canonicalLeft, canonicalRight).Should().BeTrue();
     }

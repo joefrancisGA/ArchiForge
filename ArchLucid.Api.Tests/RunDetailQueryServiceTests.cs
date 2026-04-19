@@ -81,7 +81,7 @@ public sealed class RunDetailQueryServiceTests
         ScopeProjectId = _scope.ProjectId,
         ProjectId = "proj",
         ArchitectureRequestId = "req-1",
-        LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
+        LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
         CreatedUtc = DateTime.UtcNow,
         CompletedUtc = DateTime.UtcNow,
         CurrentManifestVersion = manifestVersion
@@ -95,7 +95,7 @@ public sealed class RunDetailQueryServiceTests
         ScopeProjectId = _scope.ProjectId,
         ProjectId = "proj",
         ArchitectureRequestId = "req-2",
-        LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+        LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
         CreatedUtc = DateTime.UtcNow
     };
 
@@ -118,8 +118,16 @@ public sealed class RunDetailQueryServiceTests
     {
         RunRecord record = CommittedRunRecord();
         GoldenManifest manifest = Manifest(Run1N);
-        AgentTask task = new() { TaskId = "t1", RunId = Run1N };
-        AgentResult agentResult = new() { ResultId = "r1", RunId = Run1N };
+        AgentTask task = new()
+        {
+            TaskId = "t1",
+            RunId = Run1N
+        };
+        AgentResult agentResult = new()
+        {
+            ResultId = "r1",
+            RunId = Run1N
+        };
         DecisionTrace trace = RunEventTrace.From(new RunEventTracePayload { TraceId = "tr1", RunId = Run1N });
 
         _runRepo.Setup(r => r.GetByIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
@@ -227,7 +235,7 @@ public sealed class RunDetailQueryServiceTests
                     ScopeProjectId = _scope.ProjectId,
                     ProjectId = "Sys",
                     ArchitectureRequestId = "req-1",
-                    LegacyRunStatus = ArchitectureRunStatus.Committed.ToString(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.Committed),
                     CreatedUtc = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     CurrentManifestVersion = "v1"
                 },
@@ -239,7 +247,7 @@ public sealed class RunDetailQueryServiceTests
                     ScopeProjectId = _scope.ProjectId,
                     ProjectId = "Sys2",
                     ArchitectureRequestId = "req-2",
-                    LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+                    LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
                     CreatedUtc = new DateTime(2026, 1, 2, 0, 0, 0, DateTimeKind.Utc)
                 }
             ]);

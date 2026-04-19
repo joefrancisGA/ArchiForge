@@ -45,7 +45,7 @@ public sealed class ProvenanceGraphViewMapperTests
         GraphNodeVm node = vm.Nodes.Should().ContainSingle().Subject;
         node.Id.Should().Be(nodeId.ToString("D"));
         node.Label.Should().Be("Node A");
-        node.Type.Should().Be(ProvenanceNodeType.Decision.ToString());
+        node.Type.Should().Be(nameof(ProvenanceNodeType.Decision));
         node.Metadata.Should().NotBeNull();
         node.Metadata!.Should().ContainKey("k");
         node.Metadata["k"].Should().Be("v");
@@ -101,6 +101,6 @@ public sealed class ProvenanceGraphViewMapperTests
         GraphEdgeVm edge = vm.Edges.Should().ContainSingle().Subject;
         edge.Source.Should().Be(from.ToString("D"));
         edge.Target.Should().Be(to.ToString("D"));
-        edge.Type.Should().Be(ProvenanceEdgeType.SupportedBy.ToString());
+        edge.Type.Should().Be(nameof(ProvenanceEdgeType.SupportedBy));
     }
 }

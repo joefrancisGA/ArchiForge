@@ -47,17 +47,19 @@ export const governanceResolutionRankReaderLine = "Edits: policy packs or workfl
 
 export const governanceResolutionRankOperatorLine = "Ordering lives in packs or workflow—not here.";
 
-/** Governance resolution — one line under the page title (replaces a second rank cue; LayerHeader carries when-to-use). */
-export const governanceResolutionPageSubline =
-  "This route is read-only — change packs or workflow on those pages (API).";
+/** Governance resolution — one line under the page title (LayerHeader carries when-to-use). */
+export const governanceResolutionPageSubline = "Read-only snapshot; edits live on Policy packs or Workflow.";
+
+/** Governance resolution — “Change related controls” strip (LayerHeader + subline already frame read-only). */
+export const governanceResolutionChangeRelatedControlsLead =
+  "Refresh reloads this view; scope and assignments change on Policy packs or Workflow.";
 
 /** Governance dashboard: readers can consume signals; in-product actions still need execute on the API. */
 export const governanceDashboardReaderActionLine =
   "Queue is read-only here; row actions need Execute+ (API).";
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
-export const governanceWorkflowPageLeadOperator =
-  "One run: load ID, then submit → approve/reject → promote → activate.";
+export const governanceWorkflowPageLeadOperator = "Loaded run: work sections below top to bottom.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader = "Load a run ID to inspect rows.";
@@ -85,7 +87,7 @@ export const alertsPageLeadOperator = "Filter and page, then triage on each card
 export const alertsPageLeadReader = "Filter and page the inbox.";
 
 /** Alerts inbox — readers vs operators (see `AlertsInboxRankCue`). */
-export const alertsInboxRankReaderLine = "Triage preview here; Confirm and writes need Execute+ (API).";
+export const alertsInboxRankReaderLine = "Preview in shell; Confirm needs Execute+ (API).";
 
 export const alertsInboxRankOperatorLine = "Triage writes are API-enforced.";
 
@@ -96,6 +98,13 @@ export const alertsTriageDialogReaderNote =
 /** Title on triage action buttons when rank can open the dialog but cannot Confirm (`alerts/page.tsx`). */
 export const alertsTriageOpenPreviewReaderTitle =
   "Open triage preview; Confirm needs Execute+ on the API.";
+
+/** Alerts inbox — triage button visible names when Confirm/write is off at this shell rank (preview-only path). */
+export const alertsTriageAcknowledgeButtonLabelReaderInbox = "Acknowledge (preview)";
+
+export const alertsTriageResolveButtonLabelReaderInbox = "Resolve (preview)";
+
+export const alertsTriageSuppressButtonLabelReaderInbox = "Suppress (preview)";
 
 /** Audit log — readers vs operators (see `AuditLogRankCue`). */
 export const auditLogRankReaderLine = "CSV export: Auditor or Admin on the API (same From/To).";
@@ -120,11 +129,26 @@ export const governanceWorkflowNoApprovalsReaderHint =
 export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or pick another run ID.";
 
-/** Policy packs — lead under title (Execute+); page links Governance resolution for ordering. */
-export const policyPacksPageLeadOperator = "Inventory, effective JSON, compare, then lifecycle.";
+/** Governance workflow — Submit for approval when rank cannot mutate (shell soft-disable; API authoritative). */
+export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for approval (Execute+)";
+
+/** Governance workflow — inline review Submit when rank cannot mutate. */
+export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit (Execute+)";
+
+/** Governance workflow — row actions when rank cannot mutate (buttons stay disabled; label clarifies floor). */
+export const governanceWorkflowApproveButtonLabelReaderRank = "Approve (Execute+)";
+
+export const governanceWorkflowRejectButtonLabelReaderRank = "Reject (Execute+)";
+
+export const governanceWorkflowPromoteButtonLabelReaderRank = "Promote (Execute+)";
+
+export const governanceWorkflowActivateButtonLabelReaderRank = "Activate (Execute+)";
+
+/** Policy packs — lead under title (Execute+); link to Governance resolution for stack semantics. */
+export const policyPacksPageLeadOperator = "Inspect inventory and JSON before compare and lifecycle.";
 
 /** Policy packs — lead under title (read tier). */
-export const policyPacksPageLeadReader = "Inspect inventory and JSON; lifecycle is Execute+ (API).";
+export const policyPacksPageLeadReader = "Inspect above; lifecycle writes need Execute+ (API).";
 
 /** Policy packs — empty list under “Packs in scope”. */
 export const policyPacksEmptyScopeReaderLine =
@@ -145,17 +169,13 @@ export const policyPacksLifecycleLeadReaderLine =
 
 /** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
-  "Same API contract as operators; submit stays disabled at your rank in this shell until Execute-level access applies.";
+  "Submit disabled at your rank in this shell; API contract unchanged.";
 
 /** Composite alert rules — empty “Current composite rules” list. */
 export const compositeRulesDefinedListEmptyReaderLine =
   "No composite rules in this scope yet. Read-focused AND/OR review; writes are operator/admin surface (API policy).";
 
 export const compositeRulesDefinedListEmptyOperatorLine = "None yet.";
-
-/** Composite rules — under “Change configuration” for read tier. */
-export const compositeRulesChangeConfigurationLeadReaderLine =
-  "AND/OR form below stays operator/admin at your rank; API enforces writes.";
 
 /** Alert rules — empty “Defined rules” list. */
 export const alertRulesDefinedListEmptyReaderLine =
@@ -196,7 +216,17 @@ export const auditSearchNoResultsReaderLine =
 export const auditSearchNoResultsOperatorLine = "No audit events match your filters.";
 
 /** Audit log — under “Search audit events” for read tier (LayerHeader already frames export roles). */
-export const auditSearchSectionLeadReaderLine = "Export reuses the same From/To (Auditor/Admin on API).";
+export const auditSearchSectionLeadReaderLine = "CSV reuses From/To below (Auditor/Admin on API).";
+
+/** Audit log — short line above the CSV button (LayerHeader + search strip carry the rest). */
+export const auditExportSectionSupportingLine =
+  "Download uses the same From/To as search; Auditor or Admin on the API.";
+
+/** Audit CSV — button label when From/To are incomplete (export disabled before role checks). */
+export const auditExportCsvButtonLabelWindowIncomplete = "Export CSV (set From/To)";
+
+/** Audit CSV — button label when window is valid but principal lacks Auditor/Admin for bulk export (API). */
+export const auditExportCsvButtonLabelRoleRestricted = "Export CSV (Auditor/Admin)";
 
 /** Policy packs — under “Compare versions” when rank cannot mutate (diff is still read-only inspection). */
 export const policyPacksCompareVersionsReaderSubline =
@@ -205,6 +235,10 @@ export const policyPacksCompareVersionsReaderSubline =
 /** Policy packs — title on “Show diff” when rank cannot mutate (diff stays inspection-only; lifecycle on API). */
 export const policyPacksShowDiffButtonReaderTitle =
   "Read-only diff between versions; publish and assign need Execute+ in Lifecycle (API).";
+
+/** Policy packs — pack selector when lifecycle writes are soft-disabled at read rank in the shell. */
+export const policyPacksPackSelectReaderTitle =
+  "Switch pack to inspect versions and JSON; publish, assign, and create need Execute+ below (API).";
 
 /** Audit — Execute+ caller without Auditor/Admin claims (CSV export remains API-role-gated). */
 export const auditExportExecuteRankAuditorRoleNote =
@@ -223,11 +257,3 @@ export const alertsTriageDialogTitleReaderSuffix = " (read-only)";
 /** Under-card shortcut hint for read tier (Alt+1–3 register for preview only). */
 export const alertsPageShortcutsLineReader =
   "Alt+J/K navigate · Alt+1–3 triage preview (Confirm disabled at your rank)";
-
-/** Alert rules — under “Change configuration” for read tier. */
-export const alertRulesChangeConfigurationLeadReaderLine =
-  "Create and thresholds below: Execute+ at your rank (API).";
-
-/** Alert routing — under “Change configuration” for read tier. */
-export const alertRoutingChangeConfigurationLeadReaderLine =
-  "New routes and toggles below: Execute+ at your rank (API).";

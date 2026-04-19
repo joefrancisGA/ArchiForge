@@ -20,7 +20,10 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
     public void ApplyIfEnabled_when_multi_tenant_disabled_leaves_default_issuer_validation()
     {
         JwtBearerOptions options = new();
-        ArchLucidAuthOptions auth = new() { MultiTenantEntra = false };
+        ArchLucidAuthOptions auth = new()
+        {
+            MultiTenantEntra = false
+        };
 
         EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, auth);
 
@@ -31,7 +34,10 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
     public void ApplyIfEnabled_when_multi_tenant_enabled_validates_v2_issuer()
     {
         JwtBearerOptions options = new();
-        ArchLucidAuthOptions auth = new() { MultiTenantEntra = true };
+        ArchLucidAuthOptions auth = new()
+        {
+            MultiTenantEntra = true
+        };
 
         EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, auth);
 
@@ -48,7 +54,10 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
     public void ApplyIfEnabled_when_multi_tenant_enabled_rejects_non_entra_issuer()
     {
         JwtBearerOptions options = new();
-        ArchLucidAuthOptions auth = new() { MultiTenantEntra = true };
+        ArchLucidAuthOptions auth = new()
+        {
+            MultiTenantEntra = true
+        };
 
         EntraMultiTenantJwtBearerConfigurator.ApplyIfEnabled(options, auth);
 
@@ -85,7 +94,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         };
 
         JwtBearerEvents events = options.Events ?? throw new InvalidOperationException("Events not wired.");
-        await events.OnTokenValidated!(ctx);
+        await events.OnTokenValidated(ctx);
 
         ctx.Result?.Failure.Should().BeNull();
     }
@@ -114,7 +123,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         };
 
         JwtBearerEvents events = options.Events ?? throw new InvalidOperationException("Events not wired.");
-        await events.OnTokenValidated!(ctx);
+        await events.OnTokenValidated(ctx);
 
         ctx.Result?.Failure?.Message.Should().NotBeNull().And.ContainEquivalentOf("tid");
     }
@@ -145,7 +154,7 @@ public sealed class EntraMultiTenantJwtBearerConfiguratorTests
         };
 
         JwtBearerEvents events = options.Events ?? throw new InvalidOperationException("Events not wired.");
-        await events.OnTokenValidated!(ctx);
+        await events.OnTokenValidated(ctx);
 
         ctx.Result?.Failure.Should().NotBeNull();
     }

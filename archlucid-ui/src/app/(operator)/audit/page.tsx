@@ -19,7 +19,10 @@ import {
 } from "@/app/(operator)/audit/audit-ui-helpers";
 import {
   auditExportControlDisabledTitle,
+  auditExportCsvButtonLabelRoleRestricted,
+  auditExportCsvButtonLabelWindowIncomplete,
   auditExportExecuteRankAuditorRoleNote,
+  auditExportSectionSupportingLine,
   auditSearchNoResultsOperatorLine,
   auditSearchNoResultsReaderLine,
   auditSearchSectionLeadReaderLine,
@@ -444,8 +447,7 @@ export default function AuditPage() {
           {csvExportUiAllowed ? "Export" : "Export (restricted)"}
         </h3>
         <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 12 }}>
-          CSV export uses the From and To values from Search audit events above. Auditor or Admin on the API is required
-          for download.
+          {auditExportSectionSupportingLine}
         </p>
         <button
           type="button"
@@ -459,7 +461,15 @@ export default function AuditPage() {
                 : "Download CSV for the current date range"
           }
         >
-          {exporting ? "Exporting…" : "Export CSV"}
+          {exporting
+            ? "Exporting…"
+            : csvExportUiAllowed
+              ? "Export CSV"
+              : !exportDateRangeReady
+                ? auditExportCsvButtonLabelWindowIncomplete
+                : !exportRoleOk
+                  ? auditExportCsvButtonLabelRoleRestricted
+                  : "Export CSV"}
         </button>
       </section>
     </main>

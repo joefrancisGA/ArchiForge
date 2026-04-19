@@ -126,8 +126,8 @@ public sealed class CoordinatorService(
 
         header.ArchitectureRequestId = requestId;
         header.LegacyRunStatus = deferred
-            ? ArchitectureRunStatus.Created.ToString()
-            : ArchitectureRunStatus.TasksGenerated.ToString();
+            ? nameof(ArchitectureRunStatus.Created)
+            : nameof(ArchitectureRunStatus.TasksGenerated);
 
         await _runRepository.UpdateAsync(header, cancellationToken);
     }

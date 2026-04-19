@@ -28,7 +28,7 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.RunNotFound);
+        problem.Type.Should().Be(ProblemTypes.RunNotFound);
     }
 
     [Fact]
@@ -54,6 +54,6 @@ public sealed class AdvisoryControllerImprovementsIntegrationTests(ArchLucidApiF
 
         MvcProblemDetails? problem = await response.Content.ReadFromJsonAsync<MvcProblemDetails>(JsonOptions);
         problem.Should().NotBeNull();
-        problem!.Type.Should().Be(ProblemTypes.RunNotFound);
+        problem.Type.Should().Be(ProblemTypes.RunNotFound);
     }
 }

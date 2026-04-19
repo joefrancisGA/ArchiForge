@@ -185,12 +185,15 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
             """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                GraphSnapshotId = graphId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GraphSnapshot snapshot =
-            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row!, CancellationToken.None);
+            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
 
         snapshot.Nodes.Should().ContainSingle();
         snapshot.Nodes[0].NodeId.Should().Be("n-rel");
@@ -286,12 +289,15 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
             """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                GraphSnapshotId = graphId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GraphSnapshot snapshot =
-            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row!, CancellationToken.None);
+            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
 
         snapshot.Warnings.Should().Equal("relational-graph-warning");
     }
@@ -395,12 +401,15 @@ public sealed class GraphSnapshotRelationalReadDirectSqlIntegrationTests(SqlServ
             """;
 
         GraphSnapshotStorageRow? row = await connection.QuerySingleOrDefaultAsync<GraphSnapshotStorageRow>(
-            new CommandDefinition(selectRow, new { GraphSnapshotId = graphId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                GraphSnapshotId = graphId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GraphSnapshot snapshot =
-            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row!, CancellationToken.None);
+            await GraphSnapshotRelationalRead.HydrateAsync(connection, null, row, CancellationToken.None);
 
         snapshot.Edges.Should().ContainSingle();
         GraphEdge edge = snapshot.Edges[0];

@@ -204,7 +204,7 @@ public static partial class GreenfieldBaselineMigrationRunner
             if (!match.Success)
                 continue;
 
-            int n = int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             if (n < minInclusive || n > maxInclusive)
                 continue;
 
@@ -413,7 +413,7 @@ END
             if (!match.Success)
                 continue;
 
-            int n = int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            int n = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             if (n < 1 || n > 50)
                 continue;
 

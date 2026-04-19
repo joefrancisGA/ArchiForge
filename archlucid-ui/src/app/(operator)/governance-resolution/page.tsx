@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
-import { governanceResolutionPageSubline } from "@/lib/enterprise-controls-context-copy";
+import {
+  governanceResolutionChangeRelatedControlsLead,
+  governanceResolutionPageSubline,
+} from "@/lib/enterprise-controls-context-copy";
 import { getGovernanceResolution } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -133,8 +136,7 @@ export default function GovernanceResolutionPage() {
       <section aria-labelledby="governance-change-controls-heading">
         <h3 id="governance-change-controls-heading">Change related controls</h3>
         <p style={{ color: "#64748b", fontSize: 13, maxWidth: "42rem", marginTop: 0, marginBottom: 10 }}>
-          Refresh reloads the effective policy snapshot for this shell. Scope and assignments are changed in policy pack
-          pages, not here.
+          {governanceResolutionChangeRelatedControlsLead}
         </p>
         <p style={{ marginBottom: 0 }}>
           <button type="button" onClick={() => void load()} disabled={loading}>

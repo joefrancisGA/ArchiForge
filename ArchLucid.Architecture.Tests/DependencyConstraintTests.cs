@@ -10,8 +10,8 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 using ArchLucid.KnowledgeGraph;
+using ArchLucid.Persistence;
 using ArchLucid.Persistence.Coordination.Replay;
-using global::ArchLucid.Persistence;
 
 using FluentAssertions;
 
@@ -278,7 +278,7 @@ public sealed class DependencyConstraintTests
         Regex directPublish = new(@"\.PublishAsync\(", RegexOptions.Compiled);
         List<string> violations = new();
 
-        foreach (string path in Directory.EnumerateFiles(root!, "*.cs", SearchOption.AllDirectories))
+        foreach (string path in Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories))
         {
             if (IsExcludedSourceScanPath(path))
             {

@@ -24,7 +24,7 @@ public sealed class StorageProviderRegistrationParityTests
 {
     private static readonly HashSet<Type> SqlOnlyServiceTypes =
     [
-        typeof(ArchLucid.Persistence.Connections.SqlConnectionFactory),
+        typeof(Persistence.Connections.SqlConnectionFactory),
         typeof(ResilientSqlConnectionFactory),
         typeof(IRlsSessionContextApplicator),
         typeof(ISqlConnectionFactory),

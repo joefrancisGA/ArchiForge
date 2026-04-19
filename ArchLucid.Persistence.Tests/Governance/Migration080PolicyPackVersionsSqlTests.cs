@@ -17,11 +17,11 @@ public sealed class Migration080PolicyPackVersionsSqlTests
 
         resourceName.Should().NotBeNull();
 
-        using Stream? stream = asm.GetManifestResourceStream(resourceName!);
+        using Stream? stream = asm.GetManifestResourceStream(resourceName);
 
         stream.Should().NotBeNull();
 
-        using StreamReader reader = new(stream!);
+        using StreamReader reader = new(stream);
         string sql = reader.ReadToEnd();
 
         sql.Should().Contain("UQ_PolicyPackVersions_PolicyPackId_Version");

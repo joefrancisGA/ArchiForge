@@ -153,10 +153,10 @@ public sealed class AuthorityPipelineWorkProcessor(
         if (statusPatch is not null &&
             !string.Equals(
                 statusPatch.LegacyRunStatus,
-                ArchitectureRunStatus.TasksGenerated.ToString(),
+                nameof(ArchitectureRunStatus.TasksGenerated),
                 StringComparison.Ordinal))
         {
-            statusPatch.LegacyRunStatus = ArchitectureRunStatus.TasksGenerated.ToString();
+            statusPatch.LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated);
             await runRepository.UpdateAsync(statusPatch, cancellationToken);
         }
 

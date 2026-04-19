@@ -1,10 +1,10 @@
 using System.Data;
 using System.Text.Json;
 
+using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Application.Common;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -102,7 +102,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = Core.Audit.AuditEventTypes.GovernanceApprovalSubmitted,
+                EventType = AuditEventTypes.GovernanceApprovalSubmitted,
                 RunId = auditRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -202,7 +202,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = Core.Audit.AuditEventTypes.GovernanceApprovalApproved,
+                EventType = AuditEventTypes.GovernanceApprovalApproved,
                 RunId = approvedRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -298,7 +298,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = Core.Audit.AuditEventTypes.GovernanceApprovalRejected,
+                EventType = AuditEventTypes.GovernanceApprovalRejected,
                 RunId = rejectedRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -429,7 +429,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = Core.Audit.AuditEventTypes.GovernanceManifestPromoted,
+                EventType = AuditEventTypes.GovernanceManifestPromoted,
                 RunId = promotedRunId,
                 DataJson = JsonSerializer.Serialize(
                     new
@@ -545,7 +545,7 @@ public sealed class GovernanceWorkflowService(
         await auditService.LogAsync(
             new AuditEvent
             {
-                EventType = Core.Audit.AuditEventTypes.GovernanceEnvironmentActivated,
+                EventType = AuditEventTypes.GovernanceEnvironmentActivated,
                 RunId = activationRunId,
                 DataJson = JsonSerializer.Serialize(
                     new

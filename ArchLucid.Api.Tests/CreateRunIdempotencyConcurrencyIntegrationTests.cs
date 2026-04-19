@@ -140,7 +140,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
                 CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
                 dto.Should().NotBeNull();
-                dto!.Run.RunId.Should().NotBeNullOrWhiteSpace();
+                dto.Run.RunId.Should().NotBeNullOrWhiteSpace();
                 runIds.Add(dto.Run.RunId);
             }
 

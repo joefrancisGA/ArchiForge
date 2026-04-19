@@ -145,7 +145,7 @@ public abstract class PolicyPackAssignmentRepositoryContractTests
             await repo.GetByTenantAndAssignmentIdAsync(TenantA, row.AssignmentId, CancellationToken.None);
 
         found.Should().NotBeNull();
-        found!.AssignmentId.Should().Be(row.AssignmentId);
+        found.AssignmentId.Should().Be(row.AssignmentId);
         found.PolicyPackId.Should().Be(row.PolicyPackId);
     }
 

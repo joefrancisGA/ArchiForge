@@ -29,8 +29,8 @@ public sealed class SanitizedLoggerExtensionsTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
             .Callback(new InvocationAction(invocation =>
             {
-                Delegate formatter = (Delegate)invocation.Arguments[4]!;
-                object state = invocation.Arguments[2]!;
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
                 object? ex = invocation.Arguments[3];
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));
@@ -58,8 +58,8 @@ public sealed class SanitizedLoggerExtensionsTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()))
             .Callback(new InvocationAction(invocation =>
             {
-                Delegate formatter = (Delegate)invocation.Arguments[4]!;
-                object state = invocation.Arguments[2]!;
+                Delegate formatter = (Delegate)invocation.Arguments[4];
+                object state = invocation.Arguments[2];
                 object? ex = invocation.Arguments[3];
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));

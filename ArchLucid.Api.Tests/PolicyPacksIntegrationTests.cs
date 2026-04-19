@@ -131,7 +131,10 @@ public sealed class PolicyPacksIntegrationTests
 
             HttpResponseMessage assignResponse = await client.PostAsync(
                 $"/v1/policy-packs/{packId}/assign",
-                JsonContent(new { version = "1.0.0" }));
+                JsonContent(new
+                {
+                    version = "1.0.0"
+                }));
 
             assignResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             PolicyPackAssignment? assignment = await assignResponse.Content.ReadFromJsonAsync<PolicyPackAssignment>(JsonOptions);
@@ -289,11 +292,11 @@ public sealed class PolicyPacksIntegrationTests
 
                 if (versionId is null)
                 {
-                    versionId = row!.PolicyPackVersionId;
+                    versionId = row.PolicyPackVersionId;
                 }
                 else
                 {
-                    row!.PolicyPackVersionId.Should().Be(versionId.Value);
+                    row.PolicyPackVersionId.Should().Be(versionId.Value);
                 }
             }
 
@@ -301,7 +304,7 @@ public sealed class PolicyPacksIntegrationTests
             list.StatusCode.Should().Be(HttpStatusCode.OK);
             List<PolicyPackVersionResponse>? versions = await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
             versions.Should().NotBeNull();
-            versions!.Count(v => v.Version == "2.0.0").Should().Be(1);
+            versions.Count(v => v.Version == "2.0.0").Should().Be(1);
         });
     }
 
@@ -528,11 +531,17 @@ public sealed class PolicyPacksIntegrationTests
 
             (await client.PostAsync(
                     $"/v1/policy-packs/{packA!.PolicyPackId}/assign",
-                    JsonContent(new { version = "1.0.0" })))
+                    JsonContent(new
+                    {
+                        version = "1.0.0"
+                    })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
             (await client.PostAsync(
                     $"/v1/policy-packs/{packB!.PolicyPackId}/assign",
-                    JsonContent(new { version = "1.0.0" })))
+                    JsonContent(new
+                    {
+                        version = "1.0.0"
+                    })))
                 .StatusCode.Should().Be(HttpStatusCode.OK);
 
             HttpResponseMessage mergedResponse = await client.GetAsync("/v1/policy-packs/effective-content");
@@ -616,16 +625,25 @@ public sealed class PolicyPacksIntegrationTests
 
     private sealed class PolicyPackResponse
     {
-        public Guid PolicyPackId { get; init; }
+        public Guid PolicyPackId
+        {
+            get; init;
+        }
         public string Name { get; init; } = "";
     }
 
     private sealed class PolicyPackVersionResponse
     {
-        public Guid PolicyPackVersionId { get; init; }
+        public Guid PolicyPackVersionId
+        {
+            get; init;
+        }
         public string Version { get; init; } = "";
         public string ContentJson { get; init; } = "";
-        public bool IsPublished { get; init; }
+        public bool IsPublished
+        {
+            get; init;
+        }
     }
 
     private sealed class PolicyPackContentResponse

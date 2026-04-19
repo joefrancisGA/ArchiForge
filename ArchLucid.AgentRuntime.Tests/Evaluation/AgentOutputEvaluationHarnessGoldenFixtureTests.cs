@@ -82,6 +82,6 @@ public sealed class AgentOutputEvaluationHarnessGoldenFixtureTests
 
         actual.Should().NotBeNull();
 
-        return actual!;
+        return actual;
     }
 }

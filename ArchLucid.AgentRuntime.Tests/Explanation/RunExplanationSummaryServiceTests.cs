@@ -65,7 +65,10 @@ public sealed class RunExplanationSummaryServiceTests
     [Fact]
     public void DeriveRiskPosture_no_unresolved_issues_is_Low()
     {
-        GoldenManifest manifest = new() { UnresolvedIssues = new UnresolvedIssuesSection() };
+        GoldenManifest manifest = new()
+        {
+            UnresolvedIssues = new UnresolvedIssuesSection()
+        };
 
         RunExplanationSummaryService.DeriveRiskPosture(manifest).Should().Be("Low");
     }
@@ -253,7 +256,7 @@ public sealed class RunExplanationSummaryServiceTests
             CancellationToken.None);
 
         summary.Should().NotBeNull();
-        summary!.Explanation.Confidence.Should().Be(0.82m);
+        summary.Explanation.Confidence.Should().Be(0.82m);
         summary.Explanation.Structured!.Confidence.Should().Be(0.82m);
         summary.FaithfulnessSupportRatio.Should().Be(1.0);
         summary.FindingTraceConfidences.Should().NotBeNull();
@@ -401,7 +404,7 @@ public sealed class RunExplanationSummaryServiceTests
             CancellationToken.None);
 
         summary.Should().NotBeNull();
-        summary!.Explanation.Summary.Should().Be("Deterministic headline");
+        summary.Explanation.Summary.Should().Be("Deterministic headline");
         summary.Explanation.Provenance.Should().BeNull();
         summary.Explanation.Confidence.Should().BeNull();
         summary.UsedDeterministicFallback.Should().BeTrue();

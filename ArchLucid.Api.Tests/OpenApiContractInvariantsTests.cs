@@ -29,15 +29,15 @@ public sealed class OpenApiContractInvariantsTests(OpenApiContractWebAppFactory 
         JsonNode? root = JsonNode.Parse(body);
         root.Should().NotBeNull();
 
-        string? openApiVersion = root!["openapi"]?.GetValue<string>();
+        string? openApiVersion = root["openapi"]?.GetValue<string>();
         openApiVersion.Should().Be("3.1.1");
 
         string? title = root["info"]?["title"]?.GetValue<string>();
         title.Should().NotBeNullOrWhiteSpace();
-        title!.Should().StartWith("ArchLucid", because: "public API title should reflect product name");
+        title.Should().StartWith("ArchLucid", because: "public API title should reflect product name");
 
         JsonObject? paths = root["paths"]?.AsObject();
         paths.Should().NotBeNull();
-        paths!.ContainsKey("/v1/register").Should().BeTrue(because: "self-service registration remains a documented entrypoint");
+        paths.ContainsKey("/v1/register").Should().BeTrue(because: "self-service registration remains a documented entrypoint");
     }
 }

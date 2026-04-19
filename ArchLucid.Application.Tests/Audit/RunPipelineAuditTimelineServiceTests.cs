@@ -107,6 +107,6 @@ public sealed class RunPipelineAuditTimelineServiceTests
         IReadOnlyList<RunPipelineTimelineItemDto>? result = await sut.GetTimelineAsync(scope, runId, CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.Select(r => r.EventType).Should().Equal("A", "B");
+        result.Select(r => r.EventType).Should().Equal("A", "B");
     }
 }

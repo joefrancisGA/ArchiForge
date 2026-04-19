@@ -9,7 +9,6 @@ import { createAlertRule, listAlertRules } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
-  alertRulesChangeConfigurationLeadReaderLine,
   alertRulesCreateButtonLabelReaderRank,
   alertRulesDefinedListEmptyOperatorLine,
   alertRulesDefinedListEmptyReaderLine,
@@ -142,11 +141,6 @@ export default function AlertRulesPage() {
           <h3 id="alert-rules-change-heading" style={{ fontSize: "1rem", marginTop: 4, marginBottom: 8 }}>
             {canMutateAlertRules ? "Change configuration" : "Change configuration (operator access)"}
           </h3>
-          {canMutateAlertRules ? null : (
-            <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 8 }}>
-              {alertRulesChangeConfigurationLeadReaderLine}
-            </p>
-          )}
           <p style={{ color: "#64748b", fontSize: 12, maxWidth: "40rem", marginTop: 0, marginBottom: 10 }}>
             {alertToolingConfigureSectionSubline}
           </p>

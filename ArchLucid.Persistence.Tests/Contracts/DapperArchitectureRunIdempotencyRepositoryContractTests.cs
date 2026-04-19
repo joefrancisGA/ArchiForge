@@ -79,6 +79,6 @@ public sealed class DapperArchitectureRunIdempotencyRepositoryContractTests(SqlS
             CancellationToken.None);
 
         winner.Should().NotBeNull();
-        runIds.Should().Contain(winner!.RunId);
+        runIds.Should().Contain(winner.RunId);
     }
 }

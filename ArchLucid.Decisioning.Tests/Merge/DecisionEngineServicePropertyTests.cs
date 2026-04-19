@@ -39,7 +39,7 @@ public sealed class DecisionEngineServicePropertyTests
                     return false;
                 }
 
-                return first.Manifest!.RunId == second.Manifest!.RunId
+                return first.Manifest.RunId == second.Manifest.RunId
                        && first.Manifest.Metadata.ManifestVersion == second.Manifest.Metadata.ManifestVersion;
             });
     }

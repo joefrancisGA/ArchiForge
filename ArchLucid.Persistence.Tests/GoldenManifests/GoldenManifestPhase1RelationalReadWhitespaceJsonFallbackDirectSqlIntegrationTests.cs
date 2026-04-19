@@ -131,12 +131,15 @@ public sealed class GoldenManifestPhase1RelationalReadWhitespaceJsonFallbackDire
             """;
 
         GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
-            new CommandDefinition(selectRow, new { ManifestId = manifestId }, cancellationToken: CancellationToken.None));
+            new CommandDefinition(selectRow, new
+            {
+                ManifestId = manifestId
+            }, cancellationToken: CancellationToken.None));
 
         row.Should().NotBeNull();
 
         GoldenManifest hydrated =
-            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+            await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         hydrated.Assumptions.Should().BeEmpty();
         hydrated.Warnings.Should().BeEmpty();

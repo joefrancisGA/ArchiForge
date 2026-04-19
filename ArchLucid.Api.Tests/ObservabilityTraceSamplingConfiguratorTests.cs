@@ -82,11 +82,11 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
 
         property.Should().NotBeNull();
 
-        object? value = property!.GetValue(provider);
+        object? value = property.GetValue(provider);
 
         value.Should().BeAssignableTo<Sampler>();
 
-        return (Sampler)value!;
+        return (Sampler)value;
     }
 
     private static Sampler GetRootSampler(ParentBasedSampler parentBasedSampler)
@@ -97,10 +97,10 @@ public sealed class ObservabilityTraceSamplingConfiguratorTests
 
         rootField.Should().NotBeNull();
 
-        object? root = rootField!.GetValue(parentBasedSampler);
+        object? root = rootField.GetValue(parentBasedSampler);
 
         root.Should().BeAssignableTo<Sampler>();
 
-        return (Sampler)root!;
+        return (Sampler)root;
     }
 }

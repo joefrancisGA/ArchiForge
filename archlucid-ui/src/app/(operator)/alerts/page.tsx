@@ -34,9 +34,12 @@ import {
   alertsPageLeadOperator,
   alertsPageLeadReader,
   alertsPageShortcutsLineReader,
+  alertsTriageAcknowledgeButtonLabelReaderInbox,
   alertsTriageDialogReaderNote,
   alertsTriageDialogTitleReaderSuffix,
   alertsTriageOpenPreviewReaderTitle,
+  alertsTriageResolveButtonLabelReaderInbox,
+  alertsTriageSuppressButtonLabelReaderInbox,
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
@@ -297,11 +300,11 @@ export default function AlertsPage() {
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
                     Triage actions
                   </h3>
-                  <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-                    {canMutateAlertInbox
-                      ? "Use triage actions when this signal needs follow-up."
-                      : "Read-focused inbox: open triage to preview the form; Confirm stays off until Execute+ (API)."}
-                  </p>
+                  {canMutateAlertInbox ? (
+                    <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+                      Use triage actions when this signal needs follow-up.
+                    </p>
+                  ) : null}
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Button
                       type="button"
@@ -313,7 +316,7 @@ export default function AlertsPage() {
                         setActionComment("");
                       }}
                     >
-                      Acknowledge
+                      {canMutateAlertInbox ? "Acknowledge" : alertsTriageAcknowledgeButtonLabelReaderInbox}
                     </Button>
                     <Button
                       type="button"
@@ -325,7 +328,7 @@ export default function AlertsPage() {
                         setActionComment("");
                       }}
                     >
-                      Resolve
+                      {canMutateAlertInbox ? "Resolve" : alertsTriageResolveButtonLabelReaderInbox}
                     </Button>
                     <Button
                       type="button"
@@ -338,7 +341,7 @@ export default function AlertsPage() {
                         setActionComment("");
                       }}
                     >
-                      Suppress
+                      {canMutateAlertInbox ? "Suppress" : alertsTriageSuppressButtonLabelReaderInbox}
                     </Button>
                   </div>
                 </section>

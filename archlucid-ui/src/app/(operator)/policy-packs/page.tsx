@@ -24,6 +24,7 @@ import {
   policyPacksEmptyScopeOperatorLine,
   policyPacksEmptyScopeReaderLine,
   policyPacksLifecycleLeadReaderLine,
+  policyPacksPackSelectReaderTitle,
   policyPacksPageLeadOperator,
   policyPacksPageLeadReader,
   policyPacksPublishedVersionsEmptyOperatorLine,
@@ -249,7 +250,7 @@ export default function PolicyPacksPage() {
         <Link href="/governance-resolution" className="font-medium text-teal-800 underline dark:text-teal-300">
           Governance resolution
         </Link>
-        {" — effective stack order."}
+        .
       </p>
 
       <p>
@@ -292,6 +293,7 @@ export default function PolicyPacksPage() {
           <select
             value={selectedPackId}
             onChange={(e) => setSelectedPackId(e.target.value)}
+            title={canMutatePacks ? undefined : policyPacksPackSelectReaderTitle}
             style={{ display: "block", width: "100%", maxWidth: 480, padding: 8, marginTop: 4 }}
           >
             <option value="">—</option>

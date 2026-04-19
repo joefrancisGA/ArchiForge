@@ -86,7 +86,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
                 ScopeProjectId = authorityScope.ProjectId,
                 ProjectId = request.SystemName,
                 ArchitectureRequestId = requestId,
-                LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
                 CreatedUtc = createdUtc,
             },
             CancellationToken.None);
@@ -191,7 +191,7 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
         RunRecord? authorityHeader =
             await authorityRunRepository.GetByIdAsync(authorityScope, authorityRunGuid, CancellationToken.None);
         authorityHeader.Should().NotBeNull();
-        authorityHeader!.LegacyRunStatus.Should().Be(ArchitectureRunStatus.Committed.ToString());
+        authorityHeader.LegacyRunStatus.Should().Be(nameof(ArchitectureRunStatus.Committed));
         authorityHeader.CurrentManifestVersion.Should().Be(version);
         authorityHeader.CompletedUtc.Should().NotBeNull();
     }
@@ -245,14 +245,14 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
                 ScopeProjectId = authorityScope.ProjectId,
                 ProjectId = request.SystemName,
                 ArchitectureRequestId = requestId,
-                LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
                 CreatedUtc = DateTime.UtcNow,
                 FindingsSnapshotId = snapshotId,
             },
             CancellationToken.None);
 
         await findingsRepository.SaveAsync(
-            new ArchLucid.Decisioning.Models.FindingsSnapshot
+            new Decisioning.Models.FindingsSnapshot
             {
                 FindingsSnapshotId = snapshotId,
                 RunId = authorityRunGuid,
@@ -261,13 +261,13 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
                 CreatedUtc = DateTime.UtcNow,
                 Findings =
                 [
-                    new ArchLucid.Decisioning.Models.Finding
+                    new Decisioning.Models.Finding
                     {
                         FindingId = "f-critical-block",
                         FindingType = "Compliance",
                         Category = "c",
                         EngineType = "e",
-                        Severity = ArchLucid.Decisioning.Models.FindingSeverity.Critical,
+                        Severity = Decisioning.Models.FindingSeverity.Critical,
                         Title = "t",
                         Rationale = "r",
                     },
@@ -428,14 +428,14 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
                 ScopeProjectId = authorityScope.ProjectId,
                 ProjectId = request.SystemName,
                 ArchitectureRequestId = requestId,
-                LegacyRunStatus = ArchitectureRunStatus.ReadyForCommit.ToString(),
+                LegacyRunStatus = nameof(ArchitectureRunStatus.ReadyForCommit),
                 CreatedUtc = DateTime.UtcNow,
                 FindingsSnapshotId = snapshotId,
             },
             CancellationToken.None);
 
         await findingsRepository.SaveAsync(
-            new ArchLucid.Decisioning.Models.FindingsSnapshot
+            new Decisioning.Models.FindingsSnapshot
             {
                 FindingsSnapshotId = snapshotId,
                 RunId = authorityRunGuid,
@@ -444,13 +444,13 @@ public sealed class ArchitectureRunCommitPipelineIntegrationTests
                 CreatedUtc = DateTime.UtcNow,
                 Findings =
                 [
-                    new ArchLucid.Decisioning.Models.Finding
+                    new Decisioning.Models.Finding
                     {
                         FindingId = "f-warn-only",
                         FindingType = "Compliance",
                         Category = "c",
                         EngineType = "e",
-                        Severity = ArchLucid.Decisioning.Models.FindingSeverity.Warning,
+                        Severity = Decisioning.Models.FindingSeverity.Warning,
                         Title = "t",
                         Rationale = "r",
                     },

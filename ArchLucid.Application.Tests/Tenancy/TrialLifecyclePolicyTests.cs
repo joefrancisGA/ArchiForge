@@ -39,7 +39,7 @@ public sealed class TrialLifecyclePolicyTests
             DefaultOpts);
 
         adv.Should().NotBeNull();
-        adv!.FromStatus.Should().Be(TrialLifecycleStatus.Active);
+        adv.FromStatus.Should().Be(TrialLifecycleStatus.Active);
         adv.ToStatus.Should().Be(TrialLifecycleStatus.Expired);
     }
 
@@ -69,7 +69,7 @@ public sealed class TrialLifecyclePolicyTests
             DefaultOpts);
 
         adv.Should().NotBeNull();
-        adv!.ToStatus.Should().Be(TrialLifecycleStatus.ReadOnly);
+        adv.ToStatus.Should().Be(TrialLifecycleStatus.ReadOnly);
     }
 
     [Fact]
