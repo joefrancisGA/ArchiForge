@@ -1,6 +1,6 @@
 # Next refactorings
 
-**Last updated:** 14 April 2026.
+**Last updated:** 19 April 2026.
 
 **Where to start:** [START_HERE.md — What to open first](START_HERE.md#what-to-open-first-contributor-decision-tree) (Mermaid + table).
 
@@ -18,6 +18,7 @@ Use that file when you need the original write-ups for items already marked done
 |---|--------|---------------------|
 | **341** | Connection factory alignment (`ISqlConnectionFactory` vs sync `IDbConnectionFactory`) | Open — see archive §“Data vs Persistence consolidation (339–341)”. |
 | **7.5–7.8** | Rename / Terraform / repo path | Deferred with program approval — runbook: [`docs/runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md`](runbooks/TERRAFORM_STATE_MV_PHASE_7_5.md); rationale: [`RENAME_DEFERRED_RATIONALE.md`](RENAME_DEFERRED_RATIONALE.md). |
+| **MN-1** | Magic numbers / named bounds | **Session 1 (2026-04-19):** `PaginationDefaults.MaxListingTake`, `ManifestSummaryLimits.MaxRelationships`, commit-retry backoff constant, OpenAPI snapshot walk depth, replay diagnostics cap; list `take` clamps aligned with `MaxPageSize` / `MaxListingTake`. **Next:** provenance depth clamps, test directory-walk loops, optional NSwag post-process for generated client null checks. |
 
 ## Contracts note (unchanged)
 

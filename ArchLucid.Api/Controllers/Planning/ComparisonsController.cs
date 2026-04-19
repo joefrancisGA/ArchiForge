@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO.Compression;
 
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Mapping;
 using ArchLucid.Api.Models;
@@ -209,7 +210,7 @@ public sealed class ComparisonsController(
 
         string? normalizedType = string.IsNullOrWhiteSpace(query.ComparisonType) ? null : query.ComparisonType.Trim();
         List<string> normalizedTags = ComparisonHistoryQuery.NormalizeTagList(query.Tag, query.Tags);
-        int limit = query.Limit <= 0 ? 50 : query.Limit;
+        int limit = query.Limit <= 0 ? PaginationDefaults.DefaultPageSize : query.Limit;
         string sortBy = query.SortBy ?? "createdUtc";
         string sortDir = query.SortDir ?? "desc";
 

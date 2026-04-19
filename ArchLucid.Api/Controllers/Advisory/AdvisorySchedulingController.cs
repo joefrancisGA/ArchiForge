@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence;
@@ -111,7 +112,7 @@ public sealed class AdvisorySchedulingController(
         [FromQuery] int take = 30,
         CancellationToken ct = default)
     {
-        take = Math.Clamp(take, 1, 200);
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         AdvisoryScanSchedule? schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found.", ProblemTypes.ResourceNotFound);
@@ -160,7 +161,7 @@ public sealed class AdvisorySchedulingController(
         [FromQuery] int take = 20,
         CancellationToken ct = default)
     {
-        take = Math.Clamp(take, 1, 200);
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
         IReadOnlyList<ArchitectureDigest> digests = await digestRepository.ListByScopeAsync(

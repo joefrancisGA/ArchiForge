@@ -1,5 +1,6 @@
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Api.Services.Admin;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Persistence;
@@ -88,7 +89,7 @@ public sealed class AdminController(
 
     /// <summary>
     /// Lists or deletes orphan <c>ComparisonRecords</c> whose run ids are missing from <c>dbo.Runs</c>.
-    /// Use <c>dryRun=true</c> first. Capped at 500 rows per call.
+    /// Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake"/> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-comparison-records")]
     [EnableRateLimiting("expensive")]
@@ -106,7 +107,7 @@ public sealed class AdminController(
 
     /// <summary>
     /// Lists or deletes orphan <c>dbo.GoldenManifests</c> (missing <c>dbo.Runs</c>), removing <c>dbo.ArtifactBundles</c> first.
-    /// Use <c>dryRun=true</c> first. Capped at 500 rows per call.
+    /// Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake"/> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-golden-manifests")]
     [EnableRateLimiting("expensive")]
@@ -124,7 +125,7 @@ public sealed class AdminController(
 
     /// <summary>
     /// Lists or deletes orphan <c>dbo.FindingsSnapshots</c> (missing run, not referenced by a golden manifest).
-    /// Use <c>dryRun=true</c> first. Capped at 500 rows per call.
+    /// Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake"/> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-findings-snapshots")]
     [EnableRateLimiting("expensive")]

@@ -5,6 +5,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Audit;
 
@@ -21,7 +22,7 @@ namespace ArchLucid.Api.Controllers.Admin;
 /// </summary>
 /// <remarks>
 /// Events are appended by all mutating operations across the ArchLucid API (run creation, governance promotion, alert delivery, etc.).
-/// Results are ordered newest-first and capped by the <c>take</c> parameter (max 500).
+/// Results are ordered newest-first and capped by the <c>take</c> parameter (max <see cref="PaginationDefaults.MaxListingTake"/>).
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -31,14 +32,14 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider) : ControllerBase
 {
     /// <summary>Returns recent audit events for the current scope, newest first.</summary>
-    /// <param name="take">Maximum events to return (1–500, default 100).</param>
+    /// <param name="take">Maximum events to return (1–<see cref="PaginationDefaults.MaxListingTake"/>, default 100).</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of <see cref="AuditEvent"/> rows ordered by most-recent first.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAudit([FromQuery] int take = 100, CancellationToken ct = default)
     {
-        take = Math.Clamp(take, 1, 500);
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
         IReadOnlyList<AuditEvent> events = await repo.GetByScopeAsync(
@@ -66,7 +67,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         [FromQuery] int take = 100,
         CancellationToken ct = default)
     {
-        int clampedTake = Math.Clamp(take, 1, 500);
+        int clampedTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
         AuditEventFilter filter = new()

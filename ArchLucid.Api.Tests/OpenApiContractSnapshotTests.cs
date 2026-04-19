@@ -17,6 +17,9 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
     private const string OpenApiDocumentPath = "/openapi/v1.json";
     private const string SnapshotFileName = "openapi-v1.contract.snapshot.json";
 
+    /// <summary>Max parent-directory steps when locating <c>ArchLucid.Api.Tests.csproj</c> from <c>bin</c> output paths.</summary>
+    private const int MaxProjectDirectoryWalkDepth = 12;
+
     [Fact]
     public async Task OpenApi_v1_json_matches_committed_snapshot()
     {
@@ -70,7 +73,7 @@ public sealed class OpenApiContractSnapshotTests(OpenApiContractWebAppFactory fa
         string assemblyFile = typeof(OpenApiContractSnapshotTests).Assembly.Location;
         string? dir = Path.GetDirectoryName(assemblyFile);
 
-        for (int i = 0; i < 12 && dir is not null; i++)
+        for (int i = 0; i < MaxProjectDirectoryWalkDepth && dir is not null; i++)
         {
             string lucidCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");
             string legacyCsproj = Path.Combine(dir, "ArchLucid.Api.Tests.csproj");

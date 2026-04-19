@@ -83,6 +83,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
     private const int CommitRunTransientMaxAttempts = 5;
 
+    /// <summary>Linear backoff base: delay is <c>attempt * this value</c> milliseconds between retries.</summary>
+    private const int CommitRunTransientBackoffMillisecondsPerAttempt = 25;
+
     /// <inheritdoc />
     public async Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -144,7 +147,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
                         $"Commit for run '{runId}' raced with another commit. The manifest could not be loaded yet; retry the request.");
                 }
 
-                await Task.Delay(TimeSpan.FromMilliseconds(25 * attempt), cancellationToken);
+                await Task.Delay(
+                    TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt),
+                    cancellationToken);
             }
             catch (Exception ex) when (SqlTransientDetector.IsTransient(ex) && attempt < CommitRunTransientMaxAttempts)
             {
@@ -158,7 +163,9 @@ public sealed class ArchitectureRunCommitOrchestrator(
                         LogSanitizer.Sanitize(runId));
                 }
 
-                await Task.Delay(TimeSpan.FromMilliseconds(25 * attempt), cancellationToken);
+                await Task.Delay(
+                    TimeSpan.FromMilliseconds(CommitRunTransientBackoffMillisecondsPerAttempt * attempt),
+                    cancellationToken);
             }
         }
 

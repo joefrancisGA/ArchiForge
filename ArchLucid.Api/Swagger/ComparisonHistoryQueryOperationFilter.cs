@@ -1,3 +1,5 @@
+using ArchLucid.Core.Pagination;
+
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ArchLucid.Api.Swagger;
@@ -21,7 +23,7 @@ public sealed class ComparisonHistoryQueryOperationFilter : IOperationFilter
             + "**sortBy** — `createdUtc` (default), `type`, `label`, `leftRunId`, `rightRunId`. "
             + "**sortDir** — `asc` | `desc`. "
             + "**cursor** — keyset `<utcTicks>:<comparisonRecordId>` (requires **sortBy**=createdUtc). "
-            + "**skip** (>=0), **limit** (0–500; **0** = default page size 50). "
+            + $"**skip** (>=0), **limit** (0–{PaginationDefaults.MaxListingTake}; **0** = default page size {PaginationDefaults.DefaultPageSize}). "
             + "Response includes **nextCursor** when sorted by createdUtc.";
     }
 }

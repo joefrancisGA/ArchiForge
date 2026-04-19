@@ -2,6 +2,7 @@ using System.Data.Common;
 using System.Text.Json;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence;
@@ -108,7 +109,7 @@ public sealed class AdminDiagnosticsService(
             return new OrphanComparisonRemediationResult(dryRun, 0, []);
         }
 
-        int capped = Math.Clamp(maxRows, 1, 500);
+        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
         await using DbConnection _ = connection;
         await connection.OpenAsync(cancellationToken);
@@ -203,7 +204,7 @@ public sealed class AdminDiagnosticsService(
             return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
         }
 
-        int capped = Math.Clamp(maxRows, 1, 500);
+        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
         await using DbConnection _ = connection;
         await connection.OpenAsync(cancellationToken);
@@ -315,7 +316,7 @@ public sealed class AdminDiagnosticsService(
             return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
         }
 
-        int capped = Math.Clamp(maxRows, 1, 500);
+        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
         DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
         await using DbConnection _ = connection;
         await connection.OpenAsync(cancellationToken);

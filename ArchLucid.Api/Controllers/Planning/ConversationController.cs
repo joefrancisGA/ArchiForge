@@ -30,9 +30,9 @@ public sealed class ConversationController(
     : ControllerBase
 {
     /// <summary>Lists conversation threads for the current scope.</summary>
-    /// <param name="take">Number of threads to return (clamped to 1�200; defaults to 50). Used when <paramref name="page"/> is not set.</param>
+    /// <param name="take">Number of threads to return (clamped to 1..<see cref="PaginationDefaults.MaxPageSize"/>; defaults to 50). Used when <paramref name="page"/> is not set.</param>
     /// <param name="page">One-based page number. When provided, the response is a <see cref="PagedResponse{T}"/>.</param>
-    /// <param name="pageSize">Items per page (clamped 1�200; default 50). Only used when <paramref name="page"/> is set.</param>
+    /// <param name="pageSize">Items per page (clamped 1..<see cref="PaginationDefaults.MaxPageSize"/>; default 50). Only used when <paramref name="page"/> is set.</param>
     /// <param name="ct">Cancellation token.</param>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<ConversationThread>), StatusCodes.Status200OK)]
@@ -60,7 +60,7 @@ public sealed class ConversationController(
             return Ok(PagedResponseBuilder.FromDatabasePage(items, total, safePage, safePageSize));
         }
 
-        int safeTake = Math.Clamp(take, 1, 200);
+        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
 
         IReadOnlyList<ConversationThread> threads = await threadRepository.ListByScopeAsync(
             scope.TenantId,
@@ -74,7 +74,7 @@ public sealed class ConversationController(
 
     /// <summary>Returns messages for the specified conversation thread.</summary>
     /// <param name="threadId">Thread identifier.</param>
-    /// <param name="take">Number of messages to return (clamped to 1�500; defaults to 100).</param>
+    /// <param name="take">Number of messages to return (clamped to 1..<see cref="PaginationDefaults.MaxListingTake"/>; defaults to 100).</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>Message list, or 404 when the thread does not exist or belongs to another scope.</returns>
     [HttpGet("{threadId:guid}/messages")]
@@ -82,18 +82,19 @@ public sealed class ConversationController(
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessages(Guid threadId, int take = 100, CancellationToken ct = default)
     {
-        int safeTake = Math.Clamp(take, 1, 500);
+        int safeTake = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
         ScopeContext scope = scopeProvider.GetCurrentScope();
         ConversationThread? thread = await threadRepository.GetByIdAsync(threadId, ct);
+
         if (thread is null ||
             thread.TenantId != scope.TenantId ||
             thread.WorkspaceId != scope.WorkspaceId ||
             thread.ProjectId != scope.ProjectId)
-        
+
             return this.NotFoundProblem(
                 $"Conversation thread '{threadId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
-        
+
 
         IReadOnlyList<ConversationMessage> messages = await messageRepository.GetByThreadIdAsync(threadId, safeTake, ct);
         return Ok(messages);

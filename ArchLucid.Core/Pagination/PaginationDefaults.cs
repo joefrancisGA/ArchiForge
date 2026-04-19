@@ -9,6 +9,12 @@ public static class PaginationDefaults
     public const int DefaultPageSize = 50;
     public const int MaxPageSize = 200;
 
+    /// <summary>
+    /// Maximum <c>take</c> / <c>limit</c> for large unpaged list reads (audit, alerts, conversation messages,
+    /// admin diagnostics SQL previews, comparison history search limit when non-zero).
+    /// </summary>
+    public const int MaxListingTake = 500;
+
     /// <summary>Clamps page and pageSize to safe bounds.</summary>
     public static (int page, int pageSize) Normalize(int page, int pageSize)
     {

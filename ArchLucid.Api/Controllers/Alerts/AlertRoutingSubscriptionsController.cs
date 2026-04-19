@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Alerts.Delivery;
 
@@ -147,7 +148,7 @@ public sealed class AlertRoutingSubscriptionsController(
         if (!MatchesScope(subscription, scope))
             return this.NotFoundProblem($"Routing subscription '{routingSubscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<AlertDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, 200), ct);
+        IReadOnlyList<AlertDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(routingSubscriptionId, Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
         return Ok(attempts);
     }
 

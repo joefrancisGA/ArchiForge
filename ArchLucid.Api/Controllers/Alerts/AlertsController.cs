@@ -68,7 +68,7 @@ public sealed class AlertsController(
             return Ok(PagedResponseBuilder.FromDatabasePage(items, total, safePage, safePageSize));
         }
 
-        take = Math.Clamp(take, 1, 500);
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxListingTake);
 
         IReadOnlyList<AlertRecord> alerts = await alertRepository.ListByScopeAsync(
             scope.TenantId,

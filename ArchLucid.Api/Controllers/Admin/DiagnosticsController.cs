@@ -20,15 +20,18 @@ namespace ArchLucid.Api.Controllers.Admin;
 [EnableRateLimiting("fixed")]
 public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagnosticsRecorder) : ControllerBase
 {
+    private const int MaxReplayDiagnosticsEntries = 100;
+
     /// <summary>Returns the most recent in-memory replay diagnostic entries captured by <see cref="IReplayDiagnosticsRecorder"/>.</summary>
-    /// <param name="maxCount">Maximum number of entries to return (1–100; defaults to 50).</param>
+    /// <param name="maxCount">Maximum number of entries to return (1–<see cref="MaxReplayDiagnosticsEntries"/>; defaults to 50).</param>
     /// <returns>200 with a <see cref="ReplayDiagnosticsResponse"/> containing up to <paramref name="maxCount"/> entries.</returns>
     [HttpGet("comparisons/diagnostics/replay")]
     [Authorize(Policy = ArchLucidPolicies.CanViewReplayDiagnostics)]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
     public IActionResult GetReplayDiagnostics([FromQuery] int maxCount = 50)
     {
-        IReadOnlyList<ReplayDiagnosticsEntry> entries = replayDiagnosticsRecorder.GetRecent(Math.Clamp(maxCount, 1, 100));
+        IReadOnlyList<ReplayDiagnosticsEntry> entries = replayDiagnosticsRecorder.GetRecent(
+            Math.Clamp(maxCount, 1, MaxReplayDiagnosticsEntries));
         return Ok(new ReplayDiagnosticsResponse
         {
             RecentReplays = entries.Select(e => new ReplayDiagnosticsEntryDto

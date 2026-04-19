@@ -75,7 +75,7 @@ public sealed class AuthorityQueryController(
             return Ok(PagedResponseBuilder.FromDatabasePage(mapped, total, safePage, safePageSize));
         }
 
-        take = Math.Clamp(take, 1, 200);
+        take = Math.Clamp(take, 1, PaginationDefaults.MaxPageSize);
         IReadOnlyList<RunSummaryDto> results = await queryService.ListRunsByProjectAsync(scope, projectId, take, ct);
 
         return Ok(results.Select(ToRunSummaryResponse).ToList());

@@ -1,4 +1,5 @@
 using ArchLucid.Api.Models;
+using ArchLucid.Core.Pagination;
 
 using FluentValidation;
 
@@ -20,7 +21,10 @@ public sealed class ComparisonHistoryQueryValidator : AbstractValidator<Comparis
 
         RuleFor(x => x.Skip).GreaterThanOrEqualTo(0).WithMessage("skip must be >= 0.");
 
-        RuleFor(x => x.Limit).InclusiveBetween(0, 500).WithMessage("limit must be between 0 and 500 (0 = default 50).");
+        RuleFor(x => x.Limit)
+            .InclusiveBetween(0, PaginationDefaults.MaxListingTake)
+            .WithMessage(
+                $"limit must be between 0 and {PaginationDefaults.MaxListingTake} (0 = default {PaginationDefaults.DefaultPageSize}).");
 
         RuleFor(x => x.SortDir)
             .Must(d => string.IsNullOrWhiteSpace(d)

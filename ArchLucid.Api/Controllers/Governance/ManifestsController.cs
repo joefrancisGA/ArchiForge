@@ -219,7 +219,7 @@ public sealed class ManifestsController(
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
         int? clampedMaxRelationships = maxRelationships.HasValue
-            ? Math.Clamp(maxRelationships.Value, 1, 1000)
+            ? Math.Clamp(maxRelationships.Value, 1, ManifestSummaryLimits.MaxRelationships)
             : null;
 
         if (string.Equals(format, FormatJson, StringComparison.OrdinalIgnoreCase))

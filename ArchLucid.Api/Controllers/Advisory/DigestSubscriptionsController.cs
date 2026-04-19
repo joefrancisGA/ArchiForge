@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
@@ -146,7 +147,7 @@ public sealed class DigestSubscriptionsController(
         if (!MatchesScope(subscription, scope))
             return this.NotFoundProblem($"Digest subscription '{subscriptionId}' was not found in the current scope.", ProblemTypes.ResourceNotFound);
 
-        IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, 200), ct);
+        IReadOnlyList<DigestDeliveryAttempt> attempts = await attemptRepository.ListBySubscriptionAsync(subscriptionId, Math.Clamp(take, 1, PaginationDefaults.MaxPageSize), ct);
         return Ok(attempts);
     }
 

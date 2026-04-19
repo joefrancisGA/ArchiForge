@@ -1,3 +1,5 @@
+using ArchLucid.Core.Pagination;
+
 namespace ArchLucid.Api.Models;
 
 /// <summary>Query parameters for GET /v1/architecture/comparisons search.</summary>
@@ -18,7 +20,7 @@ public sealed class ComparisonHistoryQuery
     public string? Cursor { get; set; }
     public int Skip { get; set; }
 
-    /// <summary>Page size; 0 or omitted means 50 (max 500).</summary>
+    /// <summary>Page size; 0 or omitted means <see cref="PaginationDefaults.DefaultPageSize"/> (max <see cref="PaginationDefaults.MaxListingTake"/>).</summary>
     public int Limit { get; set; }
 
     /// <summary>Merges <see cref="Tag"/> and <see cref="Tags"/> into a distinct list.</summary>
