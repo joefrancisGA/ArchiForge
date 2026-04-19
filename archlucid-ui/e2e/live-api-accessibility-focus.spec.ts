@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 
 import { runAxe } from "./helpers/axe-helper";
 
+/** Matches `NAV_GROUPS` entry `id: "runs-review"` → `label` in `src/lib/nav-config.ts` (sidebar `<nav aria-label>`). */
+const operatorCorePilotNavLabel = "Core Pilot";
+
 /** Live API + SQL focus/announcer checks (merge-blocking via `ui-e2e-live`). */
 test.describe("route focus and announcements", () => {
   test("skip link moves focus to main content", async ({ page }) => {
@@ -18,7 +21,10 @@ test.describe("route focus and announcements", () => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    await page.getByRole("navigation", { name: "Runs & review" }).getByRole("link", { name: "Runs" }).click();
+    await page
+      .getByRole("navigation", { name: operatorCorePilotNavLabel })
+      .getByRole("link", { name: "Runs" })
+      .click();
 
     await page.waitForURL("**/runs**", { timeout: 60_000 });
 
@@ -30,7 +36,10 @@ test.describe("route focus and announcements", () => {
     await page.goto("/", { waitUntil: "load" });
     await page.locator("main").first().waitFor({ state: "visible", timeout: 60_000 });
 
-    await page.getByRole("navigation", { name: "Runs & review" }).getByRole("link", { name: "Runs" }).click();
+    await page
+      .getByRole("navigation", { name: operatorCorePilotNavLabel })
+      .getByRole("link", { name: "Runs" })
+      .click();
     await page.waitForURL("**/runs**", { timeout: 60_000 });
 
     await expect(page.getByTestId("route-announcer")).toContainText("Navigated to Runs", { timeout: 10_000 });
