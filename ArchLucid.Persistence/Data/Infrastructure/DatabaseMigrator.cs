@@ -12,17 +12,26 @@ namespace ArchLucid.Persistence.Data.Infrastructure;
 /// Embedded scripts are limited to resources whose name contains <c>.Migrations.</c> and end with <c>.sql</c>,
 /// so ad-hoc SQL (e.g. consolidated reference scripts) is never applied by DbUp. Ordering is lexicographic on
 /// the full resource name; use <c>NNN_Name.sql</c> filenames under <c>Migrations/</c> (see unit tests).
+/// <para>
+/// <see cref="Run"/> / <see cref="RunExcludingTrailingScripts"/> take a process-wide mutex keyed by the connection string so
+/// parallel <c>dotnet test</c> processes (e.g. Persistence + Api integration) do not run greenfield / DbUp against the same
+/// catalog concurrently — that can duplicate FK hardening from <c>025_FindingsSnapshotRelational.sql</c> and similar scripts.
+/// </para>
 /// </remarks>
 public static class DatabaseMigrator
 {
+    private static readonly TimeSpan MigrationRunMutexWait = TimeSpan.FromMinutes(10);
     /// <summary>
     /// Applies all embedded migration scripts to the SQL Server database.
     /// </summary>
     /// <exception cref="InvalidOperationException">When DbUp reports a failed upgrade (inner exception has provider details).</exception>
     public static void Run(string connectionString)
     {
-        GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
-        RunWithScriptFilter(connectionString, static _ => true);
+        using (MigrationCatalogMutexScope.Acquire(connectionString, MigrationRunMutexWait))
+        {
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
+            RunWithScriptFilter(connectionString, static _ => true);
+        }
     }
 
     /// <summary>
@@ -41,10 +50,13 @@ public static class DatabaseMigrator
                 "Must be at least 1 and less than the total migration script count.");
         }
 
-        GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
+        using (MigrationCatalogMutexScope.Acquire(connectionString, MigrationRunMutexWait))
+        {
+            GreenfieldBaselineMigrationRunner.TryApplyBaselineAndStampThrough050(connectionString);
 
-        HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip).ToHashSet(StringComparer.Ordinal);
-        RunWithScriptFilter(connectionString, allowed.Contains);
+            HashSet<string> allowed = ordered.Take(ordered.Count - trailingScriptCountToSkip).ToHashSet(StringComparer.Ordinal);
+            RunWithScriptFilter(connectionString, allowed.Contains);
+        }
     }
 
     /// <summary>Ordered embedded migration resource names (same order DbUp uses).</summary>

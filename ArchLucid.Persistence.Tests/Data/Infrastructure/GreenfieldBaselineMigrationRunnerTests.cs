@@ -47,6 +47,15 @@ public sealed class GreenfieldBaselineMigrationRunnerTests
         "There is already an object named 'FK_ArtifactBundles_GoldenManifests_ManifestId' in the database.\r\nCould not create constraint or index. See previous errors.",
         true)]
     [InlineData("Could not create constraint or index. See previous errors. FK_ArtifactBundles_Runs_RunId", true)]
+    [InlineData(
+        "There is already an object named 'FK_FindingsSnapshots_ContextSnapshots_ContextSnapshotId' in the database.",
+        true)]
+    [InlineData(
+        "Could not create constraint or index. See previous errors.\r\nThere is already an object named 'FK_FindingsSnapshots_Runs_RunId' in the database.",
+        true)]
+    [InlineData(
+        "There is already an object named 'FK_GoldenManifests_FindingsSnapshots_FindingsSnapshotId' in the database.",
+        true)]
     [InlineData("There is already an object named 'FK_Other' in the database.", false)]
     [InlineData("Could not create constraint or index.", false)]
     public void IsKnownDuplicateBaselineConstraintName_matches_artifact_bundle_duplicate_fk_messages(string message, bool expected)

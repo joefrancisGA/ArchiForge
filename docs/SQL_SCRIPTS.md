@@ -105,6 +105,7 @@ Read the file top-down; major comment banners include:
 
 - Scripts are **`EmbeddedResource`** in **ArchLucid.Persistence** (`Migrations\*.sql` plus `Migrations\Baseline\*.sql` — consolidated `Scripts\ArchLucid.sql` is never picked up by DbUp).
 - **DbUp** (`DatabaseMigrator.Run`) selects embedded names that contain **`.Migrations.`** and end with **`.sql`**, but **excludes** **`.Migrations.Baseline.`** (baseline is applied by **`GreenfieldBaselineMigrationRunner`**, not DbUp’s script provider).
+- **Parallel `dotnet test` / shared CI catalogs:** `DatabaseMigrator.Run` (and `RunExcludingTrailingScripts`) take a **process-wide mutex** keyed from the connection string so two hosts do not interleave **`GreenfieldBaselineMigrationRunner`** + DbUp on the same catalog (a common source of duplicate **`FK_FindingsSnapshots_*`** errors). **`IsKnownDuplicateBaselineConstraintName`** also recognizes those FK names for catch-and-stamp repair when journal drift still slips through.
 - Ordering is **lexicographic by embedded resource name** — keep the filename prefix pattern **`001_`**, **`002_`**, … (see `DatabaseMigrationScriptTests`).
 
 ### 4.2 Catalog (one file = one version step)
