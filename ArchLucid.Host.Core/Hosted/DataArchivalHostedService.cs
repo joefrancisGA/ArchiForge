@@ -50,7 +50,7 @@ public sealed class DataArchivalHostedService(
 
             try
             {
-                await DataArchivalHostIteration.RunOnceAsync(
+                _ = await DataArchivalHostIteration.RunOnceAsync(
                     _scopeFactory,
                     opts,
                     _logger,

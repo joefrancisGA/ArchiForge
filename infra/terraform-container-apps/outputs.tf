@@ -73,9 +73,21 @@ output "scheduled_container_app_job_names" {
   value       = local.enabled ? keys(azurerm_container_app_job.scheduled) : []
 }
 
+output "event_container_app_job_names" {
+  description = "Names of provisioned event-driven (KEDA) Container Apps Jobs."
+  value       = local.enabled ? keys(azurerm_container_app_job.event_driven) : []
+}
+
 output "scheduled_container_app_job_principal_ids" {
   description = "System-assigned principal IDs for scheduled jobs (map keyed by job name)."
   value = local.enabled ? {
     for k, j in azurerm_container_app_job.scheduled : k => j.identity[0].principal_id
+  } : {}
+}
+
+output "event_container_app_job_principal_ids" {
+  description = "System-assigned principal IDs for event-driven jobs (map keyed by job name)."
+  value = local.enabled ? {
+    for k, j in azurerm_container_app_job.event_driven : k => j.identity[0].principal_id
   } : {}
 }

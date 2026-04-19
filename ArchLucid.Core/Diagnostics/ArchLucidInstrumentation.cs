@@ -454,6 +454,19 @@ public static class ArchLucidInstrumentation
             "archlucid_data_consistency_orphans_detected_total",
             description: "Orphan coordinator rows detected (labels table, column: LeftRunId or RightRunId).");
 
+    /// <summary><c>ArchLucid.Jobs.Cli</c> / <c>IArchLucidJob</c> executions (labels: <c>job_name</c>, <c>exit_class</c>).</summary>
+    public static readonly Counter<long> ContainerJobRunsTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_container_job_runs_total",
+            description: "ArchLucid.Jobs.Cli job runs (labels: job_name, exit_class=success|failure|unknown_job|configuration_error|cancelled).");
+
+    /// <summary>Wall time for <c>IArchLucidJob.RunOnceAsync</c> (labels: <c>job_name</c>, <c>exit_code</c>).</summary>
+    public static readonly Histogram<double> ContainerJobRunDurationMilliseconds =
+        AppMeter.CreateHistogram<double>(
+            "archlucid_container_job_run_duration_ms",
+            unit: "ms",
+            description: "Duration of one-shot background jobs (labels: job_name, exit_code).");
+
     /// <summary>Audit events dropped because the in-memory retry queue was full (hot-path enqueue or requeue after drain failure).</summary>
     public static readonly Counter<long> AuditRetryEnqueueDroppedTotal =
         AppMeter.CreateCounter<long>(

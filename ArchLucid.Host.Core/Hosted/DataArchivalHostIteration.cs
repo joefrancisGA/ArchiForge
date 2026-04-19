@@ -14,7 +14,8 @@ public static class DataArchivalHostIteration
     /// When <paramref name="options"/>.<see cref="DataArchivalOptions.Enabled"/> is true, runs the coordinator once;
     /// on failure logs, records health state, and best-effort persists <see cref="AuditEventTypes.DataArchivalHostLoopFailed"/>.
     /// </summary>
-    public static async Task RunOnceAsync(
+    /// <returns><see langword="true"/> when archival was disabled or the coordinator completed; <see langword="false"/> when enabled and the coordinator failed.</returns>
+    public static async Task<bool> RunOnceAsync(
         IServiceScopeFactory scopeFactory,
         DataArchivalOptions options,
         ILogger logger,
@@ -26,7 +27,9 @@ public static class DataArchivalHostIteration
         ArgumentNullException.ThrowIfNull(logger);
 
         if (!options.Enabled)
-            return;
+        {
+            return true;
+        }
 
         using IServiceScope scope = scopeFactory.CreateScope();
         IDataArchivalCoordinator coordinator =
@@ -36,6 +39,8 @@ public static class DataArchivalHostIteration
         {
             await coordinator.RunOnceAsync(options, cancellationToken);
             healthState?.MarkLastIterationSucceeded();
+
+            return true;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -68,6 +73,8 @@ public static class DataArchivalHostIteration
             {
                 logger.LogWarning(auditEx, "Failed to persist audit event for data archival host loop failure.");
             }
+
+            return false;
         }
     }
 }

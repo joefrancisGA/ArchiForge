@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using System.Globalization;
+
+using ArchLucid.Core.Diagnostics;
 
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +27,8 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         {
             int exitCode = await execute(cancellationToken).ConfigureAwait(false);
 
+            RecordJobOutcome(jobName, exitCode, sw.Elapsed.TotalMilliseconds, cancelled: false);
+
             _logger.LogInformation(
                 "JobCompleted: JobName={JobName}, ExitCode={ExitCode}, DurationMs={DurationMs}",
                 jobName,
@@ -34,6 +39,8 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            RecordJobOutcome(jobName, ArchLucidJobExitCodes.JobFailure, sw.Elapsed.TotalMilliseconds, cancelled: true);
+
             _logger.LogWarning(
                 "JobCancelled: JobName={JobName}, DurationMs={DurationMs}",
                 jobName,
@@ -43,6 +50,8 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
         }
         catch (Exception ex)
         {
+            RecordJobOutcome(jobName, ArchLucidJobExitCodes.JobFailure, sw.Elapsed.TotalMilliseconds, cancelled: false);
+
             _logger.LogError(
                 ex,
                 "JobFailed: JobName={JobName}, DurationMs={DurationMs}",
@@ -51,5 +60,30 @@ public sealed class JobRunTelemetry(ILogger<JobRunTelemetry> logger)
 
             return ArchLucidJobExitCodes.JobFailure;
         }
+    }
+
+    private static void RecordJobOutcome(string jobName, int exitCode, double durationMs, bool cancelled)
+    {
+        string exitClass = cancelled
+            ? "cancelled"
+            : exitCode == ArchLucidJobExitCodes.Success
+                ? "success"
+                : exitCode == ArchLucidJobExitCodes.UnknownJob
+                    ? "unknown_job"
+                    : exitCode == ArchLucidJobExitCodes.ConfigurationError
+                        ? "configuration_error"
+                        : "failure";
+
+        ArchLucidInstrumentation.ContainerJobRunsTotal.Add(
+            1,
+            new KeyValuePair<string, object?>("job_name", jobName),
+            new KeyValuePair<string, object?>("exit_class", exitClass));
+
+        ArchLucidInstrumentation.ContainerJobRunDurationMilliseconds.Record(
+            durationMs,
+            new KeyValuePair<string, object?>("job_name", jobName),
+            new KeyValuePair<string, object?>(
+                "exit_code",
+                exitCode.ToString(CultureInfo.InvariantCulture)));
     }
 }

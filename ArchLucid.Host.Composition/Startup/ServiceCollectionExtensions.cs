@@ -21,7 +21,6 @@ public static partial class ServiceCollectionExtensions
         ArchLucidHostingRole hostingRole)
     {
         services.AddSingleton(TimeProvider.System);
-        RegisterArchLucidJobRunners(services, configuration);
         services.Configure<DemoOptions>(configuration.GetSection(DemoOptions.SectionName));
         RegisterAzureOpenAiCircuitBreakerOptions(services, configuration);
         services.Configure<BatchReplayOptions>(configuration.GetSection(BatchReplayOptions.SectionName));
@@ -58,6 +57,7 @@ public static partial class ServiceCollectionExtensions
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
         RegisterArchLucidHealthChecks(services, configuration, hostingRole);
         RegisterCosmosPolyglotPersistence(services, configuration);
+        RegisterArchLucidJobRunners(services, configuration);
 
         return services;
     }

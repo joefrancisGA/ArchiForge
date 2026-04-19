@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
@@ -164,88 +163,16 @@ public sealed class AzureServiceBusIntegrationEventConsumer(
         return Task.CompletedTask;
     }
 
-    private async Task OnProcessMessageAsync(ProcessMessageEventArgs args)
+    private Task OnProcessMessageAsync(ProcessMessageEventArgs args)
     {
-        string eventType = ResolveEventType(args.Message);
+        ProcessMessageEventArgsSettlement settlement = new(args);
 
-        if (string.IsNullOrWhiteSpace(eventType))
-        {
-            await args.DeadLetterMessageAsync(
-                args.Message,
-                "MissingEventType",
-                "Application property event_type and Subject were empty.");
-
-            return;
-        }
-
-        IIntegrationEventHandler? handler = ResolveHandler(eventType);
-
-        if (handler is null)
-        {
-            await args.DeadLetterMessageAsync(
-                args.Message,
-                "NoHandler",
-                $"No IIntegrationEventHandler registered for event type '{eventType}'.");
-
-            return;
-        }
-
-        try
-        {
-            await handler.HandleAsync(args.Message.Body, args.CancellationToken);
-            await args.CompleteMessageAsync(args.Message);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (FormatException)
-        {
-            await args.DeadLetterMessageAsync(args.Message, "BadPayload", "Handler rejected payload format.");
-        }
-        catch (JsonException)
-        {
-            await args.DeadLetterMessageAsync(args.Message, "BadPayload", "Invalid JSON in handler.");
-        }
-        catch (Exception ex) when (!args.CancellationToken.IsCancellationRequested)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Integration event handler failed; abandoning for redelivery. EventType={EventType}, deliveryCount={DeliveryCount}",
-                    LogSanitizer.Sanitize(eventType),
-                    args.Message.DeliveryCount);
-            }
-
-            await args.AbandonMessageAsync(args.Message);
-        }
-    }
-
-    private IIntegrationEventHandler? ResolveHandler(string eventType)
-    {
-        List<IIntegrationEventHandler> list = _handlers.ToList();
-
-        IIntegrationEventHandler? specific = list.FirstOrDefault(
-            h =>
-                h.EventType != IntegrationEventTypes.WildcardEventType
-                && IntegrationEventTypes.AreEquivalent(h.EventType, eventType));
-
-        return specific ?? list.FirstOrDefault(h => h.EventType == IntegrationEventTypes.WildcardEventType);
-    }
-
-    private static string ResolveEventType(ServiceBusReceivedMessage message)
-    {
-        if (message.ApplicationProperties.TryGetValue("event_type", out object? value)
-            && value is string s
-            && !string.IsNullOrWhiteSpace(s))
-        {
-            return s.Trim();
-        }
-
-        string? subject = message.Subject;
-
-        return string.IsNullOrWhiteSpace(subject) ? string.Empty : subject.Trim();
+        return IntegrationEventServiceBusMessageDispatch.ProcessPeekLockedMessageAsync(
+            args.Message,
+            settlement,
+            _handlers,
+            _logger,
+            args.CancellationToken);
     }
 
     private static ServiceBusClient CreateClient(

@@ -17,7 +17,7 @@ ArchLucid runs long-lived background loops in `ArchLucid.Worker` via `IHostedSer
 
 1. Introduce **`ArchLucid.Jobs.Cli`** — a one-shot host entry (`--job <slug>`) that reuses `AddArchLucidApplicationServices(..., ArchLucidHostingRole.Worker)` without calling `app.Run()`, so in-process hosted services do not start; only the selected `IArchLucidJob` runs.
 2. Publish **`ArchLucid.Jobs.Cli.dll`** into the **same** API/Worker container image (`ArchLucid.Api/Dockerfile` publishes Api + Worker + Jobs CLI to `/app`).
-3. Extend **`infra/terraform-container-apps/`** with `azurerm_container_app_job` resources driven by `var.container_jobs` (**Schedule** trigger only in this revision; Event/Manual deferred to follow-up).
+3. Extend **`infra/terraform-container-apps/`** with `azurerm_container_app_job` resources driven by `var.container_jobs` (**Schedule** via `schedule_trigger_config`; **Event** via `event_trigger_config` + KEDA `rules` metadata).
 4. Add configuration **`Jobs:OffloadedToContainerJobs`** (string array) to **suppress** matching in-process hosted services when a job is provisioned, avoiding double execution.
 5. Add **`Jobs:DeployedContainerJobNames`** (comma-separated manifest) and **`ContainerJobsOffloadRules`** so **Production Worker** fails fast if an offloaded slug is not listed in the manifest (prevents “disabled in-process, no job exists” outages).
 6. Implement the first concrete job: **`advisory-scan`** → `AdvisoryScanArchLucidJob` delegating to `AdvisoryDueScheduleProcessor` (SQL-backed schedules).
@@ -25,7 +25,7 @@ ArchLucid runs long-lived background loops in `ArchLucid.Worker` via `IHostedSer
 ## Non-decisions / deferrals
 
 - **`audit-retry-drain`**: **not** offloaded in this ADR. `IAuditRetryQueue` is implemented by **`InMemoryAuditRetryQueue`** in-process; a separate container cannot see the same memory. Offload requires a **durable queue** (SQL table, Redis, or Service Bus) first. The slug is reserved in `ArchLucidJobNames.AuditRetryDrain` with XML documentation pointing here.
-- **Event-triggered jobs** (KEDA Service Bus, Cosmos change feed) are **not** wired in Terraform in this revision; variable checks enforce **Schedule-only** until KEDA metadata is codified in Terraform.
+- **Event-triggered jobs** in Terraform require operators to supply correct KEDA **`event_scale_rules`** metadata (topic/subscription, queue name, Cosmos lease container, etc.); misconfiguration surfaces at deploy time via `terraform validate` shape checks, not at application compile time.
 - **Azure Functions** remains a non-choice for this path until Functions Consumption supports equivalent private networking at lower TCO than Container Apps Jobs.
 
 ## Consequences

@@ -25,13 +25,14 @@ public sealed class DataArchivalHostIterationTests
         DataArchivalOptions options = new() { Enabled = false };
         DataArchivalHostHealthState health = new();
 
-        await DataArchivalHostIteration.RunOnceAsync(
+        bool ok = await DataArchivalHostIteration.RunOnceAsync(
             scopeFactory.Object,
             options,
             NullLogger.Instance,
             health,
             CancellationToken.None);
 
+        ok.Should().BeTrue();
         scopeFactory.Verify(f => f.CreateScope(), Times.Never);
     }
 
@@ -69,12 +70,14 @@ public sealed class DataArchivalHostIterationTests
         DataArchivalOptions options = new() { Enabled = true };
         DataArchivalHostHealthState health = new();
 
-        await DataArchivalHostIteration.RunOnceAsync(
+        bool ok = await DataArchivalHostIteration.RunOnceAsync(
             scopeFactory.Object,
             options,
             NullLogger.Instance,
             health,
             CancellationToken.None);
+
+        ok.Should().BeFalse();
 
         audit.Verify(
             a => a.LogAsync(
@@ -106,13 +109,14 @@ public sealed class DataArchivalHostIterationTests
         DataArchivalOptions options = new() { Enabled = true };
         DataArchivalHostHealthState health = new();
 
-        await DataArchivalHostIteration.RunOnceAsync(
+        bool ok = await DataArchivalHostIteration.RunOnceAsync(
             scopeFactory.Object,
             options,
             NullLogger.Instance,
             health,
             CancellationToken.None);
 
+        ok.Should().BeTrue();
         HealthStatus status = health.Evaluate(archivalEnabled: true).Status;
         status.Should().Be(HealthStatus.Healthy);
     }

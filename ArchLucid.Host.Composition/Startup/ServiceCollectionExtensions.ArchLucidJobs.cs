@@ -14,6 +14,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ArchLucidJobsOptions>(configuration.GetSection(ArchLucidJobsOptions.SectionPath));
         services.AddSingleton<JobRunTelemetry>();
         services.AddSingleton<IArchLucidJob, AdvisoryScanArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, DataArchivalArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, TrialLifecycleArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, TrialEmailScanArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, ServiceBusIntegrationEventsArchLucidJob>();
         services.AddSingleton<ArchLucidJobRunner>();
     }
 }

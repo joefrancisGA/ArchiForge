@@ -462,7 +462,20 @@ variable "container_jobs" {
     parallelism                = optional(number, 1)
     replica_completion_count   = optional(number, 1)
     env                        = optional(map(string), {})
+    # Event trigger (KEDA rules); required when trigger_type = "Event".
+    event_polling_interval_seconds = optional(number, 30)
+    event_max_executions           = optional(number, 10)
+    event_min_executions           = optional(number, 0)
+    event_scale_rules = optional(list(object({
+      name             = string
+      custom_rule_type = string
+      metadata         = map(string)
+      auth = optional(list(object({
+        secret_name       = string
+        trigger_parameter = string
+      })), [])
+    })), [])
   }))
-  description = "Scheduled Container Apps Jobs (Schedule trigger only). Image defaults to worker_effective_image; entrypoint runs ArchLucid.Jobs.Cli.dll."
+  description = "Container Apps Jobs: Schedule (cron) or Event (KEDA scale rules). Image defaults to worker_effective_image; entrypoint runs ArchLucid.Jobs.Cli.dll."
   default     = {}
 }

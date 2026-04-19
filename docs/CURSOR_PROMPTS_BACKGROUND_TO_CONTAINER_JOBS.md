@@ -1,6 +1,6 @@
 # Cursor prompts — move background services to Azure Container Apps Jobs
 
-**Status:** **Partially executed** (2026-04-19): `ArchLucid.Jobs.Cli`, `advisory-scan` job, offload switches, Terraform `jobs.tf`, ADR 0018, runbook `docs/runbooks/CONTAINER_APPS_JOBS.md`. Remaining prompts: additional `IArchLucidJob` implementations, KEDA event jobs, observability SLO pack.
+**Status:** **Executed (wave 2, 2026-04-19):** additional `IArchLucidJob` implementations (`orphan-probe`, `data-archival`, `trial-lifecycle`, `trial-email-scan`, `audit-change-feed`, `servicebus-integration-events`), shared Service Bus dispatch, Cosmos single-batch change feed processor, Terraform **Event** trigger support in `jobs.tf`, OTel job counters/histogram, `scripts/ci/check_jobs_offload_manifest.py`. **Deferred:** `audit-retry-drain` (durable queue), dedicated Grafana SLO dashboard slice for jobs-only SLOs (use Log Analytics + OTel queries until wired).
 **Companion ADR:** [ADR 0018](adr/0018-background-workloads-container-apps-jobs.md).
 **Last reviewed:** 2026-04-19
 

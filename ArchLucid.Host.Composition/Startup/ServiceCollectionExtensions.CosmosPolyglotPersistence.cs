@@ -58,6 +58,9 @@ public static partial class ServiceCollectionExtensions
             {
                 services.AddHostedService<AuditEventChangeFeedHostedService>();
             }
+
+            services.AddSingleton<AuditEventChangeFeedSingleBatchProcessor>();
+            services.AddSingleton<IArchLucidJob, AuditEventChangeFeedArchLucidJob>();
         }
     }
 }
