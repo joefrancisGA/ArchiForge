@@ -15,6 +15,9 @@ public sealed class BillingWebhookHandleResult
     /// <summary>When set, HTTP host may publish <see cref="IntegrationEventTypes.BillingMarketplaceWebhookReceivedV1"/> after a successful 200.</summary>
     public MarketplaceWebhookReceivedIntegrationPayload? MarketplaceWebhookReceived { get; init; }
 
+    /// <summary>When true, HTTP layer should return <c>202 Accepted</c> and skip integration-event publish (deferred / no-op path).</summary>
+    public bool Returns202Accepted { get; init; }
+
     public static BillingWebhookHandleResult Ok() => new() { Succeeded = true };
 
     public static BillingWebhookHandleResult Ok(MarketplaceWebhookReceivedIntegrationPayload marketplaceWebhookReceived)
@@ -29,6 +32,9 @@ public sealed class BillingWebhookHandleResult
     }
 
     public static BillingWebhookHandleResult Duplicate() => new() { Succeeded = true, DuplicateIgnored = true };
+
+    /// <summary>Marketplace <c>ChangePlan</c> / <c>ChangeQuantity</c> received while <c>Billing:AzureMarketplace:GaEnabled</c> is false.</summary>
+    public static BillingWebhookHandleResult AcceptedDeferred() => new() { Succeeded = true, Returns202Accepted = true };
 
     public static BillingWebhookHandleResult Rejected(string detail) => new() { ErrorDetail = detail };
 }

@@ -47,4 +47,11 @@ public sealed class AzureMarketplaceBillingOptions
 
     /// <summary>When false, skips the outbound SaaS activate HTTP call (useful for integration tests).</summary>
     public bool FulfillmentApiEnabled { get; init; } = true;
+
+    /// <summary>
+    /// When false, Marketplace <c>ChangePlan</c> / <c>ChangeQuantity</c> webhooks are acknowledged with HTTP 202 and
+    /// <c>AcknowledgedNoOp</c> in <c>BillingWebhookEvents</c> without calling <c>sp_Billing_ChangePlan</c> /
+    /// <c>sp_Billing_ChangeQuantity</c>. Enable in production after plan/quantity mapping is validated.
+    /// </summary>
+    public bool GaEnabled { get; init; }
 }

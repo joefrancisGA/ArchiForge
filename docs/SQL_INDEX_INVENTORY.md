@@ -55,3 +55,11 @@ Each index adds a small overhead on INSERT/UPDATE. For high-write tables (`Audit
 | `dbo.AgentExecutionTraces` | Same | Large `TraceJson` / inline prompt columns benefit most from denser pages on Azure SQL. |
 
 **Operational:** Prefer estimating with `sp_estimate_data_compression_savings` on a restored copy; confirm SKU supports compression (not Basic DTU). Rollback script restores **NONE** if any partition was **PAGE**.
+
+## Migration 085 — PAGE compression on `dbo.Runs`
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.Runs` | `ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)` when any rowstore partition is not already PAGE | Targets authority run header + scope/list indexes (e.g. **061** covering index); expect **longer rebuild** and higher log I/O than **084** — schedule off-peak. |
+
+Rollback: **`Rollback/R085_PageCompression_Runs.sql`** restores **NONE** where partitions were **PAGE**.

@@ -46,4 +46,10 @@ public interface IBillingLedger
     Task ReinstateSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken);
 
     Task CancelSubscriptionAsync(Guid tenantId, CancellationToken cancellationToken);
+
+    /// <summary>Updates <c>Tier</c> from a Marketplace <c>ChangePlan</c> webhook (GA path only).</summary>
+    Task ChangePlanAsync(Guid tenantId, string tierCode, string? rawWebhookJson, CancellationToken cancellationToken);
+
+    /// <summary>Updates <c>SeatsPurchased</c> from a Marketplace <c>ChangeQuantity</c> webhook (GA path only).</summary>
+    Task ChangeQuantityAsync(Guid tenantId, int seatsPurchased, string? rawWebhookJson, CancellationToken cancellationToken);
 }

@@ -3102,6 +3102,51 @@ BEGIN
 END;
 GO
 
+/* 086: Marketplace ChangePlan / ChangeQuantity (see Migrations/086_Billing_MarketplaceChangePlanQuantity.sql). */
+CREATE OR ALTER PROCEDURE dbo.sp_Billing_ChangePlan
+    @TenantId uniqueidentifier,
+    @Tier nvarchar(32),
+    @RawWebhookJson nvarchar(max)
+WITH EXECUTE AS OWNER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.BillingSubscriptions
+    SET Tier = @Tier,
+        RawWebhookJson = @RawWebhookJson,
+        UpdatedUtc = SYSUTCDATETIME()
+    WHERE TenantId = @TenantId;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.sp_Billing_ChangeQuantity
+    @TenantId uniqueidentifier,
+    @SeatsPurchased int,
+    @RawWebhookJson nvarchar(max)
+WITH EXECUTE AS OWNER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE dbo.BillingSubscriptions
+    SET SeatsPurchased = @SeatsPurchased,
+        RawWebhookJson = @RawWebhookJson,
+        UpdatedUtc = SYSUTCDATETIME()
+    WHERE TenantId = @TenantId;
+END;
+GO
+
+IF DATABASE_PRINCIPAL_ID(N'ArchLucidApp') IS NOT NULL
+BEGIN
+    IF OBJECT_ID(N'dbo.sp_Billing_ChangePlan', N'P') IS NOT NULL
+        GRANT EXECUTE ON OBJECT::dbo.sp_Billing_ChangePlan TO [ArchLucidApp];
+
+    IF OBJECT_ID(N'dbo.sp_Billing_ChangeQuantity', N'P') IS NOT NULL
+        GRANT EXECUTE ON OBJECT::dbo.sp_Billing_ChangeQuantity TO [ArchLucidApp];
+END;
+GO
+
 /* 079: Trial lifecycle transition log (see Migrations/079_TenantLifecycleTransitions.sql). */
 IF OBJECT_ID(N'dbo.TenantLifecycleTransitions', N'U') IS NULL
 BEGIN
@@ -3376,5 +3421,21 @@ IF OBJECT_ID(N'dbo.AgentExecutionTraces', N'U') IS NOT NULL
           AND p.data_compression_desc <> N'PAGE')
 BEGIN
     ALTER INDEX ALL ON dbo.AgentExecutionTraces REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
+END;
+GO
+
+/* 085: PAGE rowstore compression on dbo.Runs (see Migrations/085_PageCompression_Runs.sql). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.indexes AS i
+        INNER JOIN sys.partitions AS p
+            ON p.object_id = i.object_id AND p.index_id = i.index_id
+        WHERE i.object_id = OBJECT_ID(N'dbo.Runs')
+          AND i.is_disabled = 0
+          AND i.type IN (0, 1, 2)
+          AND p.data_compression_desc <> N'PAGE')
+BEGIN
+    ALTER INDEX ALL ON dbo.Runs REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
 END;
 GO
