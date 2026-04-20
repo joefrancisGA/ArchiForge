@@ -144,5 +144,6 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArtifactGenerator, UnresolvedIssuesArtifactGenerator>();
         services.AddScoped<IArtifactSynthesisService, ArtifactSynthesisService>();
         services.AddScoped<IDocxExportService, DocxExportService>();
+        services.AddSingleton<IValueReportRenderer, DocxValueReportRenderer>();
     }
 }

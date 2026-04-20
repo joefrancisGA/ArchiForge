@@ -21,6 +21,7 @@ import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDeta
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
@@ -449,6 +450,12 @@ export default async function RunDetailPage({
           <p className="m-0 mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">Commit</p>
           <CommitRunButton runId={runId} disabled={Boolean(manifestId)} />
         </div>
+        {manifestId ? (
+          <div className="mb-4 max-w-xl">
+            <p className="m-0 mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">Sponsor collateral</p>
+            <GenerateSponsorValueReportButton />
+          </div>
+        ) : null}
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
           <Link href={`/compare?leftRunId=${encodeURIComponent(resolvedDetail.run.runId)}`}>
             Compare two runs (base = this run)

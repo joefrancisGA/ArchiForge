@@ -105,7 +105,7 @@ This is the operational-usage model.
 
 The layer model is also the most likely foundation for future commercial packaging.
 
-In V1, the layer model is still **not** the full commercial entitlement matrix (SKU ↔ every endpoint). **However**, selected **Enterprise Controls** and **Advanced Analysis** HTTP surfaces are now **hard-gated on `dbo.Tenants.Tier`** via `[RequiresCommercialTenantTier]` on governance, policy-pack, governance-resolution/preview, manifest compare/export family routes (`TenantTier.Standard` minimum), and **audit CSV export** (`TenantTier.Enterprise` minimum). Sub-tier tenants receive **HTTP 402 Payment Required** with a RFC 9457 problem body (`ProblemTypes.PackagingTierInsufficient`) — see `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`. UI shaping remains separate; deep links still hit the API gate.
+In V1, the layer model is still **not** the full commercial entitlement matrix (SKU ↔ every endpoint). **However**, selected **Enterprise Controls** and **Advanced Analysis** HTTP surfaces are now **hard-gated on `dbo.Tenants.Tier`** via `[RequiresCommercialTenantTier]` on governance, policy-pack, governance-resolution/preview, manifest compare/export family routes (`TenantTier.Standard` minimum), **tenant value report DOCX** (`POST /v1/value-report/{tenantId}/generate`, `TenantTier.Standard` minimum), and **audit CSV export** (`TenantTier.Enterprise` minimum). Sub-tier tenants receive **HTTP 402 Payment Required** with a RFC 9457 problem body (`ProblemTypes.PackagingTierInsufficient`) — see `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`. UI shaping remains separate; deep links still hit the API gate.
 
 This is the future commercialization model.
 
@@ -222,6 +222,7 @@ Available immediately but requiring extended/advanced sidebar disclosure and typ
 | Policy packs (versioned rule sets) | `POST /v1/policy-packs` | Policy packs (`/policy-packs`) | — |
 | Append-only audit log (78 typed events) | `GET /v1/audit/events` | Audit log (`/audit`) | — |
 | Audit log CSV export | `GET /v1/audit/export` | Export CSV button in audit log | — |
+| Tenant value report (sponsor DOCX) | `POST /v1/value-report/{tenantId}/generate` | Value report (`/value-report`) + run detail “Generate sponsor report” | `ValueReport:Computation` |
 | Compliance drift trend | `GET /v1/compliance/drift` | Compliance chart on governance dashboard | — |
 | Row-level security (RLS) tenant isolation | SQL `SESSION_CONTEXT` per request | — | `ArchLucid:TenantIsolation:Enabled` |
 | Alert inbox (open / acknowledged) | `GET /v1/alerts` | Alerts (`/alerts`) | — |
@@ -245,7 +246,7 @@ Essential-tier links: Alerts (inbox).
 
 Extended-tier links: Policy packs · Governance resolution · Governance dashboard.
 
-Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert simulation · Alert tuning · Governance workflow · Audit log.
+Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert simulation · Alert tuning · Governance workflow · Audit log · Value report.
 
 ---
 
@@ -255,7 +256,7 @@ Advanced-tier links: Alert rules · Alert routing · Composite rules · Alert si
 |--------------|-------------|
 | **Default** (no toggles) | Core Pilot links + Alerts inbox + Ask |
 | **Show more links** | + Graph · Compare · Replay · Advisory · Recommendation learning · Pilot feedback · Policy packs · Governance resolution · Governance dashboard |
-| **Show more + Show advanced links** | + Search · Planning · Evolution candidates · Schedules · Digests · Alert rules · Routing · Composite rules · Simulation · Tuning · Governance workflow · Audit log |
+| **Show more + Show advanced links** | + Search · Planning · Evolution candidates · Schedules · Digests · Alert rules · Routing · Composite rules · Simulation · Tuning · Governance workflow · Audit log · Value report |
 
 The operator UI also adds **lightweight in-product hints** (sidebar captions under each group, a `LayerHeader` strip on key Advanced Analysis / Enterprise routes, a post-checklist nudge on Home, and an optional post-commit strip on run detail) so operators can route by layer without re-reading this doc. See [OPERATOR_DECISION_GUIDE.md](OPERATOR_DECISION_GUIDE.md) for the full decision matrix.
 

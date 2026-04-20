@@ -12,6 +12,7 @@ using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Value;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
 using ArchLucid.ContextIngestion.Canonicalization;
@@ -22,7 +23,9 @@ using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Summaries;
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagrams;
+using ArchLucid.Host.Composition.ValueReports;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.KnowledgeGraph.Inference;
@@ -121,6 +124,10 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
+        services.Configure<ValueReportComputationOptions>(
+            configuration.GetSection(ValueReportComputationOptions.SectionPath));
+        services.AddScoped<ValueReportBuilder>();
+        services.AddSingleton<IValueReportJobQueue, InMemoryValueReportJobQueue>();
         services.AddScoped<IRunRationaleService, RunRationaleService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();

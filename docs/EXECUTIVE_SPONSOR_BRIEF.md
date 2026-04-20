@@ -70,6 +70,8 @@ A credible pilot should show improvement in a few concrete areas:
 
 For the scorecard and measurement model, see [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md).
 
+**Automated sponsor package:** operators on a Standard-tier tenant can generate a **per-tenant value report DOCX** from the operator UI (`/value-report` or “Generate sponsor report” on run detail after commit). The document summarizes committed manifests, governance and drift audit activity, ROI_MODEL-aligned hour and LLM estimates, and annualized ROI vs the model baseline — see [go-to-market/ROI_MODEL.md](go-to-market/ROI_MODEL.md).
+
 ---
 
 ## 5. What Advanced Analysis adds

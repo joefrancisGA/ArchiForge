@@ -31,7 +31,7 @@ describe("TrialWelcomeRunDeepLink", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
     window.sessionStorage.clear();
   });
 

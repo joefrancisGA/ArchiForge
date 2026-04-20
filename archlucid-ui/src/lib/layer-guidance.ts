@@ -31,7 +31,8 @@ export type LayerGuidancePageKey =
   | "alert-tuning"
   | "composite-alert-rules"
   | "alerts"
-  | "audit";
+  | "audit"
+  | "value-report";
 
 export type LayerGuidanceBlock = {
   /** Short badge, e.g. "Advanced Analysis" */
@@ -88,6 +89,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Search first; CSV reuses the same From/To window (Auditor/Admin on API).",
     firstPilotNote: "Defer export until the window and roles are settled.",
     enterpriseFootnote: "Search + bounded CSV export.",
+  },
+  "value-report": {
+    layerBadge: "Enterprise Controls",
+    headline: "Sponsor-facing value DOCX for a UTC window.",
+    useWhen: "After you have committed runs; pairs with ROI_MODEL for CFO-ready narrative.",
+    firstPilotNote: "Defer until the tenant is on Standard tier and operators need sponsor collateral.",
+    enterpriseFootnote: "Execute + Standard tier on API; LLM line is estimated per ROI_MODEL when SQL token ledger absent.",
   },
   "governance-resolution": {
     layerBadge: "Enterprise Controls",

@@ -10,6 +10,7 @@ import { getServerApiBaseUrl } from "@/lib/config";
 import { getServerUpstreamAuthHeaders } from "@/lib/legacy-arch-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { ensureAccessTokenFresh, getAccessTokenForApi } from "@/lib/oidc/session";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { getScopeHeaders } from "@/lib/scope";
 import type { GoldenManifestComparison } from "@/types/comparison";
 import type {
@@ -1336,4 +1337,64 @@ export function getArchitecturePackageDocxUrl(
     params.set("includeComparisonExplanation", "false");
   const q = params.toString();
   return `/api/proxy/v1/docx/runs/${runId}/architecture-package${q ? `?${q}` : ""}`;
+}
+
+function parseFilenameFromContentDisposition(header: string | null): string | null {
+  if (!header) return null;
+  const m = /filename\*?=(?:UTF-8''|")?([^";]+)/i.exec(header);
+
+  return m?.[1]?.replace(/"/g, "").trim() ?? null;
+}
+
+/** POST sponsor value report DOCX (`ExecuteAuthority`, Standard+ tier on API). Browser-only download. */
+export async function downloadValueReportDocx(
+  tenantId: string,
+  fromIso: string,
+  toIso: string,
+): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadValueReportDocx is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/value-report/${encodeURIComponent(tenantId)}/generate?from=${encodeURIComponent(fromIso)}&to=${encodeURIComponent(toIso)}`;
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set(
+    "Accept",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/json",
+  );
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "POST", headers: h });
+
+  if (response.status === 202) {
+    throw new Error(
+      "Large reporting window: async generation started. Open Enterprise Controls → Value report to poll the job.",
+    );
+  }
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw buildApiRequestErrorFromParts(response, errText);
+  }
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `ArchLucid-value-report-${tenantId}.docx`;
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
 }

@@ -33,6 +33,9 @@ public static class AuditEventTypes
     /// <summary>Emitted when the architecture-package DOCX export completes successfully (<c>GET .../docx/runs/{{runId}}/architecture-package</c>).</summary>
     public const string ArchitectureDocxExportGenerated = "ArchitectureDocxExportGenerated";
 
+    /// <summary>Stakeholder DOCX value report generated for the current scope (<c>POST /v1/value-report/{{tenantId}}/generate</c>).</summary>
+    public const string ValueReportGenerated = "ValueReportGenerated";
+
     /// <summary>Emitted when a replay export persists a new run export row (<c>RecordReplayExport</c> on replay POST).</summary>
     public const string ReplayExportRecorded = "ReplayExportRecorded";
 

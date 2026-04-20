@@ -23,6 +23,10 @@ vi.mock("@/components/WelcomeBanner", () => ({
   WelcomeBanner: () => <div data-testid="welcome-banner-mock">Welcome mock</div>,
 }));
 
+vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
+  TrialWelcomeRunDeepLink: () => null,
+}));
+
 vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));
