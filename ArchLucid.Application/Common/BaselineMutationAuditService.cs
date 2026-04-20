@@ -25,14 +25,14 @@ public sealed class BaselineMutationAuditService(ILogger<BaselineMutationAuditSe
         string safeDetails = TruncateDetails(details);
 
         if (logger.IsEnabled(LogLevel.Information))
-
+        {
             logger.LogInformation(
                 "BaselineMutation {EventType} Actor={Actor} EntityId={EntityId} Details={Details}",
                 LogSanitizer.Sanitize(eventType),
                 LogSanitizer.Sanitize(actor),
                 LogSanitizer.Sanitize(entityId),
-                LogSanitizer.Sanitize(safeDetails));
-
+                LogSanitizer.Sanitize(safeDetails)); // codeql[cs/log-forging]: string placeholders sanitized via LogSanitizer; details length-capped in TruncateDetails.
+        }
 
         return Task.CompletedTask;
     }

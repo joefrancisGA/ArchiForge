@@ -53,11 +53,13 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 | `001_InitialSchema.sql` – `029_...` | API + authority + decisioning deltas (see `Migrations/README.md` and **`docs/SQL_SCRIPTS.md`** §4.2). **`028_ArchivalSoftFlags.sql`**: nullable **`ArchivedUtc`** on **`Runs`**, **`ArchitectureDigests`**, **`ConversationThreads`** (skipped when table absent). **`029_PolicyPackAssignments_ArchivedUtc.sql`**: **`ArchivedUtc`** on **`PolicyPackAssignments`**. |
 | `060_QueryCoverage_Indexes.sql` | Supplemental indexes (audit event type, conversation threads, governance, recommendations, **`IX_Runs_ArchiveRetention`**, policy packs, …). |
 | `061_RunsScopeCreatedUtcCoveringIndex.sql` | Drop/recreate **`IX_Runs_Scope_CreatedUtc`** with **`INCLUDE`** list columns for **`dbo.Runs`** dashboard lists (avoids PK key lookups under concurrent writes). |
+| `084_PageCompression_AuditEvents_AgentExecutionTraces.sql` | **`ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)`** on **`dbo.AuditEvents`** and **`dbo.AgentExecutionTraces`** when any rowstore partition is not already PAGE (idempotent). Rollback: **`Rollback/R084_*.sql`**. |
 
 **Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
 ## Cost / scalability / reliability
 
 - **Cost:** Index **020** trades small storage for fewer scans on **`dbo.Runs`** list-by-project queries.
+- **Cost (rowstore compression):** Migration **084** applies **PAGE** compression on **`AuditEvents`** and **`AgentExecutionTraces`** to cut billed GB and logical reads on Azure SQL; estimate with **`sp_estimate_data_compression_savings`** before large-catalog applies; confirm SKU supports compression.
 - **Scalability:** Idempotency table is keyed by scope + 32-byte hash; volume is bounded by distinct client keys.
 - **Reliability:** Idempotency replay avoids duplicate run headers for retries; authority **`dbo.Runs`** is the durable correlation point (documented in **`API_CONTRACTS.md`**).

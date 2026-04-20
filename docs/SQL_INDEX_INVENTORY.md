@@ -46,3 +46,12 @@ The new `IX_GovernanceEnvironmentActivations_Environment_ActivatedUtc` does not 
 ### Impact on write throughput
 
 Each index adds a small overhead on INSERT/UPDATE. For high-write tables (`AuditEvents`, `Runs`), the indexes are either filtered (small) or composite with columns already in the clustered key (minimal extra leaf pages). Monitor `sys.dm_db_index_operational_stats` after deployment to verify write overhead is acceptable.
+
+## Migration 084 — PAGE rowstore compression (storage / read amplification)
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.AuditEvents` | `ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)` when any rowstore partition is not already PAGE | Cuts page count for `DataJson` + scope indexes; small extra CPU on inserts vs fewer logical reads on scans. |
+| `dbo.AgentExecutionTraces` | Same | Large `TraceJson` / inline prompt columns benefit most from denser pages on Azure SQL. |
+
+**Operational:** Prefer estimating with `sp_estimate_data_compression_savings` on a restored copy; confirm SKU supports compression (not Basic DTU). Rollback script restores **NONE** if any partition was **PAGE**.
