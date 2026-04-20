@@ -15,6 +15,7 @@ using ArchLucid.Decisioning.Advisory.Analysis;
 using ArchLucid.Decisioning.Advisory.Learning;
 using ArchLucid.Decisioning.Advisory.Services;
 using ArchLucid.Decisioning.Comparison;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Core.Ask;
@@ -24,6 +25,7 @@ using ArchLucid.Persistence.Caching;
 using ArchLucid.Persistence.Coordination.Caching;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Reads;
 
 namespace ArchLucid.Host.Composition.Startup;
 
@@ -75,6 +77,7 @@ public static partial class ServiceCollectionExtensions
             services.AddSingleton<IAgentEvaluationRepository, InMemoryAgentEvaluationRepository>();
             services.AddSingleton<IDecisionNodeRepository, InMemoryDecisionNodeRepository>();
             services.AddSingleton<ICoordinatorGoldenManifestRepository, InMemoryCoordinatorGoldenManifestRepository>();
+            services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
             services.AddSingleton<IEvidenceBundleRepository, InMemoryEvidenceBundleRepository>();
             services.AddSingleton<ICoordinatorDecisionTraceRepository, InMemoryCoordinatorDecisionTraceRepository>();
             services.AddSingleton<IAgentEvidencePackageRepository, InMemoryAgentEvidencePackageRepository>();
@@ -92,6 +95,7 @@ public static partial class ServiceCollectionExtensions
             // Data-layer contracts (CreateAsync / GetByVersionAsync / batch traces) — distinct from
             // Decisioning.Interfaces.IGoldenManifestRepository / IDecisionTraceRepository registered in AddArchLucidStorage.
             services.AddScoped<ICoordinatorGoldenManifestRepository, GoldenManifestRepository>();
+            services.AddScoped<IUnifiedGoldenManifestReader, UnifiedGoldenManifestReader>();
             services.AddScoped<IEvidenceBundleRepository, EvidenceBundleRepository>();
             services.AddScoped<ICoordinatorDecisionTraceRepository, DecisionTraceRepository>();
             services.AddScoped<IAgentEvidencePackageRepository, AgentEvidencePackageRepository>();

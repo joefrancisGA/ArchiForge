@@ -75,7 +75,7 @@ flowchart LR
 | **Mid-trial check-in** | Email | Day 7 |
 | **Approaching run limit** | In-app banner | When 8 of 10 runs consumed |
 | **Trial expiring soon** | Email + in-app | Day 12 |
-| **Trial expired** | Email with upgrade CTA + data export reminder | Day 14 |
+| **Trial expired** | Email with upgrade CTA pointing at **Stripe Checkout** for Team tier (`teamStripeCheckoutUrl` in `archlucid-ui/public/pricing.json`, populated per [STRIPE_CHECKOUT.md](STRIPE_CHECKOUT.md)) + data export reminder | Day 14 |
 | **Champion enablement** | Auto-generated pilot scorecard stub (linked to [PILOT_SUCCESS_SCORECARD.md](PILOT_SUCCESS_SCORECARD.md)) | Day 7 (if > 3 runs completed) |
 
 ---

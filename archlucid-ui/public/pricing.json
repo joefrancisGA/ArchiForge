@@ -2,6 +2,7 @@
   "schemaVersion": 1,
   "effectiveDate": "2026-04-17",
   "currency": "USD",
+  "teamStripeCheckoutUrl": null,
   "packages": [
     {
       "id": "team",

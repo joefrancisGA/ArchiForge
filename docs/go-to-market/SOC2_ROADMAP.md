@@ -8,6 +8,8 @@
 
 This document describes **controls and evidence** already reflected in the product and repo, **typical gaps** for a SOC 2 Type I / II program, and a **milestone roadmap**. It is **not** an auditor’s report.
 
+**2026-04-20 — External auditor funding:** There is **no** budget for a CPA-issued SOC 2 attestation in the current plan. The interim artifact is an **owner-led self-assessment** ([`../security/SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) plus a control/evidence matrix ([`../security/COMPLIANCE_MATRIX.md`](../security/COMPLIANCE_MATRIX.md)). A **third-party penetration test** remains a one-shot, separately funded work package (SoW: [`../security/pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)).
+
 ---
 
 ## 1. Current strengths (engineering and operations)

@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
@@ -8,6 +9,8 @@ using ArchLucid.Application.Summaries;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -26,9 +29,11 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/architecture")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
 public sealed class ManifestsController(
     IArchitectureApplicationService architectureApplicationService,
-    ICoordinatorGoldenManifestRepository manifestRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IManifestDiffService manifestDiffService,
     IManifestDiffSummaryFormatter manifestDiffSummaryFormatter,
     IManifestDiffExportService manifestDiffExportService,
@@ -214,7 +219,7 @@ public sealed class ManifestsController(
         [FromQuery] int? maxRelationships = null,
         CancellationToken cancellationToken = default)
     {
-        GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return this.NotFoundProblem($"Manifest '{manifestVersion}' was not found.", ProblemTypes.ManifestNotFound);
 
@@ -403,12 +408,12 @@ public sealed class ManifestsController(
         if (string.IsNullOrWhiteSpace(rightVersion))
             return new LoadedManifestPair { Error = this.BadRequestProblem("rightVersion is required.", ProblemTypes.ValidationFailed) };
 
-        GoldenManifest? left = await manifestRepository.GetByVersionAsync(leftVersion, cancellationToken);
+        GoldenManifest? left = await unifiedGoldenManifestReader.GetByVersionAsync(leftVersion, cancellationToken);
 
         if (left is null)
             return new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{leftVersion}' was not found.", ProblemTypes.ManifestNotFound) };
 
-        GoldenManifest? right = await manifestRepository.GetByVersionAsync(rightVersion, cancellationToken);
+        GoldenManifest? right = await unifiedGoldenManifestReader.GetByVersionAsync(rightVersion, cancellationToken);
 
         return right is null ? new LoadedManifestPair { Error = this.NotFoundProblem($"Manifest '{rightVersion}' was not found.", ProblemTypes.ManifestNotFound) } : new LoadedManifestPair { Left = left, Right = right, Diff = manifestDiffService.Compare(left, right) };
     }
@@ -421,7 +426,7 @@ public sealed class ManifestsController(
         string manifestVersion,
         CancellationToken cancellationToken)
     {
-        GoldenManifest? manifest = await manifestRepository.GetByVersionAsync(manifestVersion, cancellationToken);
+        GoldenManifest? manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersion, cancellationToken);
         if (manifest is null)
             return (null, null);
         AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(manifest.RunId, cancellationToken);

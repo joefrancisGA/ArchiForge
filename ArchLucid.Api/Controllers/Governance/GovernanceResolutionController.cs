@@ -1,9 +1,11 @@
 using System.Text.Json;
 
+using ArchLucid.Api.Attributes;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Governance.Resolution;
 
 using Asp.Versioning;
@@ -36,6 +38,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance-resolution")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
 public sealed class GovernanceResolutionController(
     IScopeContextProvider scopeProvider,
     IEffectiveGovernanceResolver resolver,

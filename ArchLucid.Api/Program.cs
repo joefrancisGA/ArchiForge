@@ -30,6 +30,11 @@ public partial class Program
             optional: true,
             reloadOnChange: true);
 
+        builder.Configuration.AddJsonFile(
+            Path.Combine(builder.Environment.ContentRootPath, "appsettings.SaaS.json"),
+            optional: true,
+            reloadOnChange: true);
+
         // Advanced.json is chained after default env vars, so it can override ARCHLUCID_* / ArchLucid__* (e.g.
         // ArchLucid:Persistence:AllowRlsBypass=false for fail-closed defaults). Re-apply environment variables so
         // deployment and CI break-glass (RLS bypass for DbUp + schema bootstrap) still wins.

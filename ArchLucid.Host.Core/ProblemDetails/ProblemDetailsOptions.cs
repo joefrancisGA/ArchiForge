@@ -60,4 +60,7 @@ public static class ProblemTypes
 
     /// <summary>Tenant self-service trial expired or trial quota (runs/seats) exhausted; mutating authority operations are blocked.</summary>
     public const string TrialExpired = "https://archlucid.dev/problem/trial-expired";
+
+    /// <summary>Caller is authenticated but the tenant commercial tier is below the capability required for this route (HTTP 402).</summary>
+    public const string PackagingTierInsufficient = Base + "#packaging-tier-insufficient";
 }

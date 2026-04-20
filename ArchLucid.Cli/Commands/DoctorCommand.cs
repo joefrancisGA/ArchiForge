@@ -20,6 +20,7 @@ internal static class DoctorCommand
 
         PrintCliBuildInfo();
         RunLocalProjectChecks(config);
+        PrintSaaSProfileHints();
 
         string baseUrl = ArchLucidApiClient.ResolveBaseUrl(config);
         string? urlError = ArchLucidApiClient.GetInvalidApiBaseUrlReason(baseUrl);
@@ -160,6 +161,31 @@ internal static class DoctorCommand
             Console.WriteLine($"Outputs dir: FAIL — cannot use '{config.Outputs.LocalCacheDir}': {ex.Message}");
         }
 
+        Console.WriteLine();
+    }
+
+    private static void PrintSaaSProfileHints()
+    {
+        Console.WriteLine("--- SaaS profile hints (operator checklist) ---");
+        Console.WriteLine(
+            "These rows are **not** fetched from the API host process; they inspect local environment variables " +
+            "the SaaS profile expects. See `ArchLucid.Api/appsettings.SaaS.json` and `docs/FIRST_30_MINUTES.md`.");
+
+        static string Cell(string value) => string.IsNullOrWhiteSpace(value) ? "MISSING" : "OK";
+
+        string apiKey = Environment.GetEnvironmentVariable("ARCHLUCID_API_KEY") ?? string.Empty;
+        string sql =
+            Environment.GetEnvironmentVariable("ConnectionStrings__ArchLucid")
+            ?? Environment.GetEnvironmentVariable("ARCHLUCID__ConnectionStrings__ArchLucid")
+            ?? string.Empty;
+
+        Console.WriteLine();
+        Console.WriteLine("| Check | Status | How to fix |");
+        Console.WriteLine("| --- | --- | --- |");
+        Console.WriteLine($"| `ARCHLUCID_API_KEY` for `/health` aggregate | {Cell(apiKey)} | Export a read-capable API key (see `docs/runbooks/API_KEY_ROTATION.md`). |");
+        Console.WriteLine($"| SQL connection string | {Cell(sql)} | Set `ConnectionStrings__ArchLucid` or `ARCHLUCID__ConnectionStrings__ArchLucid` (see `docs/FIRST_30_MINUTES.md`). |");
+        Console.WriteLine("| `Authentication:ApiKey:DevelopmentBypassAll` | MANUAL | Must be **false** in SaaS; see `ArchLucid.Host.Core/Startup/AuthSafetyGuard.cs`. |");
+        Console.WriteLine("| RLS bypass | MANUAL | `ArchLucid:Persistence:AllowRlsBypass` must stay **false** outside break-glass. |");
         Console.WriteLine();
     }
 

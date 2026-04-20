@@ -27,6 +27,8 @@ If that prints engine info (no error), you are ready. If not, start Docker Deskt
 
 > **Ports used:** `1433` (SQL), `3000` (UI), `5000` (API), `6379` (Redis), `10000-10002` (Azurite). If any of those are already bound on your machine, stop the conflicting process before continuing.
 
+**Hosted SaaS operators:** after you move past Docker-only evaluation, set `ASPNETCORE_ENVIRONMENT=SaaS` (or include the file explicitly) so `ArchLucid.Api/appsettings.SaaS.json` layers on top of the base JSON — opinionated defaults for **RLS fail-closed**, **prompt redaction**, and **no development auth bypass**. API keys stay **disabled** in the committed JSON until you set `Authentication:ApiKey:Enabled=true` **and** supply `AdminKey` / `ReadOnlyKey` via Key Vault or environment (startup validation rejects enabled keys without secrets). Terraform order: `infra/apply-saas.ps1` (plan by default) aligns with [`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md).
+
 ---
 
 ## The 10 commands

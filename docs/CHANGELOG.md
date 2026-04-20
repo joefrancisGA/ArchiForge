@@ -4,6 +4,26 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-20 — Quality prompts execution (ADR 0021 Phase 1, tier 402 gates, pilot scorecard, SaaS profile)
+
+**Architecture / ADR:** [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) moved to **Accepted**; added `IUnifiedGoldenManifestReader` + `UnifiedGoldenManifestReader`; `ManifestsController` now consumes the unified reader. Navigator + scope updates: [`DUAL_PIPELINE_NAVIGATOR.md`](DUAL_PIPELINE_NAVIGATOR.md), [`V1_SCOPE.md`](V1_SCOPE.md), new runbook [`runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md).
+
+**API / commercial:** `[RequiresCommercialTenantTier]` + `CommercialTenantTierFilter` return **402** when `dbo.Tenants.Tier` is below **Standard** (governance / policy packs / manifest advanced reads) or **Enterprise** (audit CSV export). New problem type `ProblemTypes.PackagingTierInsufficient`. **`POST /v1/pilots/scorecard`** + `PilotScorecardBuilder`.
+
+**Hosting:** `ArchLucid.Api/appsettings.SaaS.json` (optional chained in `Program.cs` — API keys **off** in-repo until Key Vault/env supplies keys); `infra/apply-saas.ps1`; docs: [`FIRST_30_MINUTES.md`](FIRST_30_MINUTES.md), [`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md), [`PRODUCT_PACKAGING.md`](PRODUCT_PACKAGING.md).
+
+**Operator UI:** Marketing pricing section supports optional `teamStripeCheckoutUrl` from `pricing.json` (see [`go-to-market/STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md)); new-run wizard shows a **3-phase macro stepper** over the existing seven steps.
+
+**CLI:** `archlucid doctor` prints a **SaaS checklist** table (`DoctorCommand`).
+
+**Security / trust (self-assessment):** [`security/SOC2_SELF_ASSESSMENT_2026.md`](security/SOC2_SELF_ASSESSMENT_2026.md), [`security/COMPLIANCE_MATRIX.md`](security/COMPLIANCE_MATRIX.md), [`security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), [`security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (placeholder); [`TRUST_CENTER.md`](go-to-market/TRUST_CENTER.md) + [`SOC2_ROADMAP.md`](go-to-market/SOC2_ROADMAP.md) cross-links.
+
+**CI / scripts:** Clearer stderr copy in [`scripts/ci/check_reference_customer_status.py`](../scripts/ci/check_reference_customer_status.py); [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) §5.4 documents **auto-flip** (no manual YAML edit). OpenAPI snapshot refreshed.
+
+**Tests:** `DualPipelineRegistrationDisciplineTests` asserts unified reader registration (scoped `IUnifiedGoldenManifestReader` resolved via `CreateScope()`).
+
+---
+
 ## 2026-04-20 — Six quality improvements (pilot CLI, first-value report, GitHub compare action, persistence proposal, pen-test folder, reference row)
 
 **CLI:** Added `archlucid pilot up` (`ArchLucid.Cli/Commands/PilotUpCommand.cs`) — Docker Compose **full-stack** + **`docker-compose.demo.yml`** (simulator, demo seed on startup) with readiness polling on `http://127.0.0.1:5000/health/ready`. Added `archlucid first-value-report <runId> [--save]` calling **`GET /v1/pilots/runs/{runId}/first-value-report`**. **`CompletionsCommand`** word lists updated.

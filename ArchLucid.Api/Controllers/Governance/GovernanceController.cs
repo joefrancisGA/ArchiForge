@@ -1,3 +1,4 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
 using ArchLucid.Api.Models;
@@ -8,6 +9,7 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;
@@ -26,8 +28,10 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
+[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
 public sealed class GovernanceController(
     IGovernanceWorkflowService workflowService,
     IGovernanceApprovalRequestRepository approvalRepo,

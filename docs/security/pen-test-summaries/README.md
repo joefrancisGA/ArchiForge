@@ -18,7 +18,9 @@
 
 | File | Status |
 | --- | --- |
-| [`2026-Q2-DRAFT.md`](2026-Q2-DRAFT.md) | Placeholder — awaiting `<<vendor>>` SoW and staging engagement |
+| [`2026-Q2-SOW.md`](2026-Q2-SOW.md) | Draft SoW — scope pre-filled; vendor + delivery `<<TBD>>` |
+| [`2026-Q2-REDACTED-SUMMARY.md`](2026-Q2-REDACTED-SUMMARY.md) | Pre-engagement placeholder — replace after assessor redacted delivery |
+| [`2026-Q2-DRAFT.md`](2026-Q2-DRAFT.md) | Legacy placeholder — superseded by SoW + redacted stub above when engaging assessors |
 
 ## Related
 

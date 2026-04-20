@@ -135,6 +135,7 @@ Use this layer when the next question is governance or trust: approvals, policy 
 | **Multi-region active/active product guarantees** | Documentation may describe **tier targets** and failover runbooks ([RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md)); V1 does not promise a fully specified multi-region SaaS topology out of the box. |
 | **Speculative ecosystem** | Marketplace plugins, third-party agent stores, and similar ecosystem features are **not** V1 commitments. |
 | **Full UI E2E against every live API configuration** | Playwright operator smoke may use **deterministic mocks**; passing it does not replace SQL-backed API validation ([RELEASE_SMOKE.md](RELEASE_SMOKE.md)). |
+| **Net-new public HTTP routes that extend only the Coordinator repository family** | After [ADR 0021](adr/0021-coordinator-pipeline-strangler-plan.md) acceptance, new externally-visible surfaces must converge on Authority semantics (or go through the unified read façade) — do not add coordinator-only endpoints without an explicit superseding ADR. |
 
 ---
 

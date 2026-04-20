@@ -99,7 +99,7 @@ This is the operational-usage model.
 
 The layer model is also the most likely foundation for future commercial packaging.
 
-But in V1, the layer model is **not yet an entitlement engine** and is **not yet a hard pricing boundary**.
+In V1, the layer model is still **not** the full commercial entitlement matrix (SKU ↔ every endpoint). **However**, selected **Enterprise Controls** and **Advanced Analysis** HTTP surfaces are now **hard-gated on `dbo.Tenants.Tier`** via `[RequiresCommercialTenantTier]` on governance, policy-pack, governance-resolution/preview, manifest compare/export family routes (`TenantTier.Standard` minimum), and **audit CSV export** (`TenantTier.Enterprise` minimum). Sub-tier tenants receive **HTTP 402 Payment Required** with a RFC 9457 problem body (`ProblemTypes.PackagingTierInsufficient`) — see `ArchLucid.Api/Filters/CommercialTenantTierFilter.cs`. UI shaping remains separate; deep links still hit the API gate.
 
 This is the future commercialization model.
 

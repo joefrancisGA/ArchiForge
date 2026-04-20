@@ -107,6 +107,17 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     </div>
                   ) : null}
                 </dl>
+                {pkg.id === "team" &&
+                typeof pricing.teamStripeCheckoutUrl === "string" &&
+                pricing.teamStripeCheckoutUrl.trim().length > 0 ? (
+                  <div className="mt-4">
+                    <Button asChild className="w-full" variant="outline">
+                      <a href={pricing.teamStripeCheckoutUrl.trim()} rel="noopener noreferrer" target="_blank">
+                        Subscribe with Stripe
+                      </a>
+                    </Button>
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>

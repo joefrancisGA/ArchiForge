@@ -32,7 +32,32 @@ const WIZARD_STEP_DEFINITIONS = [
   { label: "Pipeline", description: "Track progress" },
 ] as const;
 
+/** High-level phases shown in the stepper (maps the seven internal steps to three sponsor-friendly phases). */
+const MACRO_WIZARD_STEP_DEFINITIONS = [
+  { label: "Brief & starting point", description: "Preset, identity, goals" },
+  { label: "Constraints & advanced", description: "Limits, optional context" },
+  { label: "Review & pipeline", description: "Confirm, create, track" },
+] as const;
+
 const STEP_INDEX_MAX = WIZARD_STEP_DEFINITIONS.length - 1;
+
+function macroWizardStepIndex(stepIndex: number): number {
+  if (stepIndex <= 2) {
+    return 0;
+  }
+
+  if (stepIndex <= 4) {
+    return 1;
+  }
+
+  return 2;
+}
+
+function macroCompletedSteps(stepIndex: number): number[] {
+  const macro = macroWizardStepIndex(stepIndex);
+
+  return Array.from({ length: macro }, (_, index) => index);
+}
 
 const SAMPLE_RUN_GUID_RE =
   /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$|^[0-9a-fA-F]{32}$/;
@@ -120,8 +145,7 @@ export function NewRunWizardClient() {
     }
   }, []);
 
-  const completedSteps: number[] =
-    stepIndex === 0 ? [] : Array.from({ length: stepIndex }, (_, index) => index);
+  const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
 
   const liveMessage =
     runId === null
@@ -213,9 +237,9 @@ export function NewRunWizardClient() {
           </p>
 
           <WizardStepper
-            steps={[...WIZARD_STEP_DEFINITIONS]}
-            currentStep={stepIndex}
-            completedSteps={completedSteps}
+            steps={[...MACRO_WIZARD_STEP_DEFINITIONS]}
+            currentStep={macroWizardStepIndex(stepIndex)}
+            completedSteps={completedMacroSteps}
           />
 
           {stepIndex === 0 ? <WizardStepPreset featuredSampleRunId={featuredSampleRunId} /> : null}

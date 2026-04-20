@@ -118,6 +118,17 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
     }
 
     [Fact]
+    public void UnifiedGoldenManifestReader_resolves_from_Persistence_namespace()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        IUnifiedGoldenManifestReader instance = scope.ServiceProvider.GetRequiredService<IUnifiedGoldenManifestReader>();
+
+        instance.Should().NotBeNull();
+        (instance.GetType().Namespace ?? string.Empty).Should().StartWith("ArchLucid.Persistence",
+            because: "ADR 0021 Phase 1 keeps the read façade in the persistence layer next to the coordinator/authority repositories");
+    }
+
+    [Fact]
     public void DataLayer_namespace_does_not_redefine_unprefixed_interface_names_anymore()
     {
         // The original ADR 0010 collision risk was that

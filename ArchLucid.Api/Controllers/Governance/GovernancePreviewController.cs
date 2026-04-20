@@ -1,7 +1,9 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Application.Governance.Preview;
 using ArchLucid.Contracts.Governance.Preview;
 
@@ -21,6 +23,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/governance-preview")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
 public sealed class GovernancePreviewController(
     IGovernancePreviewService previewService,
     ILogger<GovernancePreviewController> logger) : ControllerBase

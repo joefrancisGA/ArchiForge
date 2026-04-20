@@ -32,6 +32,18 @@ CI validates **`terraform validate`** + **Trivy config** across these roots (see
 
 ---
 
+## Pilot overlay and SaaS-shaped API profile (optional)
+
+Use these when you need a **low-cost pilot** apply path or a **SaaS-default** API settings chain without changing the core Terraform order above.
+
+| Artifact | Purpose |
+|----------|---------|
+| [`infra/terraform-pilot/`](../infra/terraform-pilot/README.md) | Thin composition stub — pilot SKUs and ordering notes without duplicating modules. |
+| [`infra/apply-saas.ps1`](../infra/apply-saas.ps1) | Operator helper to align a subscription with SaaS-shaped defaults (documented in-script). |
+| [`ArchLucid.Api/appsettings.SaaS.json`](../ArchLucid.Api/appsettings.SaaS.json) | Optional settings file chained from `Program.cs` after base `appsettings*.json` — **no secrets** in repo; API keys remain **off** until you wire keys + flip `Authentication:ApiKey:Enabled`. |
+
+---
+
 ## Post-deploy verification
 
 After image rollout, run **`scripts/ci/cd-post-deploy-verify.sh`** against the public or private base URL ([DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)): `/health/live`, `/health/ready` (**Healthy**), `/openapi/v1.json` (contract sanity), `/version`.

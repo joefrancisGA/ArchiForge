@@ -172,10 +172,13 @@ def main(argv: Iterable[str] | None = None) -> int:
 
     print("::warning::no Published reference customer rows yet in {0}.".format(args.index_path))
     print(
-        "Today this is a non-blocking warning. The day a real customer reaches Status: Published, "
-        "remove `continue-on-error: true` from the matching step in .github/workflows/ci.yml — "
-        "see docs/go-to-market/PRICING_PHILOSOPHY.md \u00a7 5.4 for the discount-stack work-down "
-        "and the re-rate trigger that fires when this guard becomes blocking.",
+        "Reference-customer gate: zero rows with Status: Published. "
+        "While this is true, CI treats exit code 1 as a **non-blocking** warning "
+        "(see `.github/workflows/ci.yml` step `refcust-warn` with `continue-on-error: true`). "
+        "The **next** step `Guard — reference-customer status (auto-flip: strict once any Published row exists)` "
+        "runs the **same** script **without** `continue-on-error` **only after** the warn step exits 0 — i.e. once "
+        "at least one Published row exists — so regressions become merge-blocking **without** manually editing YAML. "
+        "See `docs/go-to-market/PRICING_PHILOSOPHY.md` § 5.4 (discount-stack work-down).",
         file=sys.stderr,
     )
     return 1

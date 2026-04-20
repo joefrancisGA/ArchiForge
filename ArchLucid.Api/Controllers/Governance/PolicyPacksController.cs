@@ -1,8 +1,10 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.Resolution;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
@@ -30,6 +32,8 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/policy-packs")]
 [EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+[ProducesResponseType(StatusCodes.Status402PaymentRequired)]
 public sealed class PolicyPacksController(
     IScopeContextProvider scopeProvider,
     IPolicyPackRepository packRepository,

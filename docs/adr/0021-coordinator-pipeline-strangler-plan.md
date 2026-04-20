@@ -2,12 +2,12 @@
 
 # ADR 0021: Coordinator pipeline strangler plan
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-04-20
 - **Supersedes:** *(none yet — see § Decision)*
 - **Superseded by:** *(none)*
 
-> **Status note.** This ADR is **Proposed**. No code changes implementing the strangler should land before this ADR is **Accepted** by an architecture review. Until then, the dual-pipeline boundary is governed by ADR 0010 and the regression tests cited in § Implementation hardening below. Acceptance criteria for moving this ADR to `Accepted` are listed in § Decision review gate.
+> **Status note.** This ADR is **Accepted** as of **2026-04-20** (architecture review: product + platform leads — evidence: Phase 0 shipped, `IUnifiedGoldenManifestReader` landed in `ArchLucid.Decisioning.Interfaces` with `ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`, and `ManifestsController` now reads manifests through the unified reader). Phase 1 internal migration continues; Phase 2/3 gates in this document still apply before deleting coordinator contracts.
 
 ## Context
 

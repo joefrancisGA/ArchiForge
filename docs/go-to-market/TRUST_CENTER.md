@@ -30,6 +30,8 @@ Formal third-party pen tests are **scheduled per customer / release train**, not
 
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
+- [2026 Q2 — draft SoW (scope locked)](../security/pen-test-summaries/2026-Q2-SOW.md)
+- [2026 Q2 — redacted summary placeholder](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (replace after assessor delivery)
 
 **Published redacted summaries (forthcoming):** the publication folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) holds discipline notes plus a **draft** placeholder (`2026-Q2-DRAFT.md`) until the first external assessor (`<<vendor>>` — fill after SoW award) delivers a redacted summary suitable for procurement.
 
@@ -44,6 +46,8 @@ Formal third-party pen tests are **scheduled per customer / release train**, not
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement **template** for customers (requires legal review before use). |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | How we classify incidents and communicate with customers. |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | SOC 2 readiness: controls in place, gaps, and milestone roadmap. |
+| [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Owner-led SOC 2 **self-assessment** (not CPA attestation). |
+| [../security/COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md) | Maps control themes to repository evidence paths. |
 | [../SECURITY.md](../SECURITY.md) | Engineering security overview (ZAP, Schemathesis, RBAC, rate limits, PII). |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) | Architecture: edge, identity, private connectivity, correlation IDs. |
 | [../API_SLOS.md](../API_SLOS.md) | Customer-visible HTTP SLOs (e.g. availability **99.5%** / 30 days) and measurement. |
@@ -61,7 +65,7 @@ Formal third-party pen tests are **scheduled per customer / release train**, not
 
 | Item | Status | Notes |
 |------|--------|--------|
-| **SOC 2** (Type I / II) | In progress | See [SOC2_ROADMAP.md](SOC2_ROADMAP.md). |
+| **SOC 2** (Type I / II) | In progress (attestation unfunded) | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
 

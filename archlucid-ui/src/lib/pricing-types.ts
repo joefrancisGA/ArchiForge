@@ -17,5 +17,7 @@ export type PricingDoc = {
   schemaVersion: number;
   effectiveDate: string;
   currency: string;
+  /** When set, Team tier card shows an external Stripe Checkout / Payment Link CTA. */
+  teamStripeCheckoutUrl?: string | null;
   packages: PricingPackage[];
 };
