@@ -19,7 +19,8 @@ public sealed class MemoryHotPathReadCache(
     public Task<T?> GetOrCreateAsync<T>(
         string key,
         Func<CancellationToken, Task<T?>> factory,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? legacyCacheKey = null)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(factory);
@@ -27,7 +28,30 @@ public sealed class MemoryHotPathReadCache(
         if (_memoryCache.TryGetValue(key, out object? boxed) && boxed is T typed)
             return Task.FromResult<T?>(typed);
 
+        if (legacyCacheKey is not null
+            && _memoryCache.TryGetValue(legacyCacheKey, out object? legacyBoxed)
+            && legacyBoxed is T legacyTyped)
+        {
+            PromoteLegacyToPrimary(key, legacyCacheKey, legacyTyped);
+
+            return Task.FromResult<T?>(legacyTyped);
+        }
+
         return MaterializeAsync(key, factory, ct);
+    }
+
+    private void PromoteLegacyToPrimary<T>(string key, string legacyCacheKey, T value)
+        where T : class
+    {
+        TimeSpan ttl = ResolveTtl();
+
+        using (ICacheEntry entry = _memoryCache.CreateEntry(key))
+        {
+            entry.AbsoluteExpirationRelativeToNow = ttl;
+            entry.Value = value;
+        }
+
+        _memoryCache.Remove(legacyCacheKey);
     }
 
     private async Task<T?> MaterializeAsync<T>(

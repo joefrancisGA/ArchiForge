@@ -88,4 +88,48 @@ public sealed class MemoryHotPathReadCacheTests
             return await Task.FromResult("v");
         }
     }
+
+    [Fact]
+    public async Task GetOrCreateAsync_promotes_legacy_key_to_primary()
+    {
+        HotPathCacheOptions options = new()
+        {
+            AbsoluteExpirationSeconds = 60
+        };
+        IOptionsMonitor<HotPathCacheOptions> monitor = new FixedOptionsMonitor<HotPathCacheOptions>(options);
+        MemoryCache backing = new(new MemoryCacheOptions());
+
+        using (ICacheEntry entry = backing.CreateEntry("old-key"))
+        {
+            entry.Value = "legacy-value";
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+        }
+
+        MemoryHotPathReadCache cache = new(backing, monitor);
+
+        string? result = await cache.GetOrCreateAsync(
+            "new-key",
+            _ => Task.FromResult<string?>("from-factory"),
+            CancellationToken.None,
+            "old-key");
+
+        result.Should().Be("legacy-value");
+        backing.TryGetValue("new-key", out object? promoted).Should().BeTrue();
+        promoted.Should().Be("legacy-value");
+        backing.TryGetValue("old-key", out _).Should().BeFalse();
+
+        int factoryCalls = 0;
+
+        string? second = await cache.GetOrCreateAsync(
+            "new-key",
+            _ =>
+            {
+                factoryCalls++;
+                return Task.FromResult<string?>("should-not-run");
+            },
+            CancellationToken.None);
+
+        second.Should().Be("legacy-value");
+        factoryCalls.Should().Be(0);
+    }
 }

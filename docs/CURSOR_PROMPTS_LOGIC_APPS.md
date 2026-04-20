@@ -99,6 +99,8 @@ What landed in this repository for the **marketplace / ADR 0016 hand-off** slice
 
 **2026-04-19 (trial / ChatOps / promotion — dedicated Logic App hosts):** **`enable_trial_lifecycle_logic_app`**, **`enable_incident_chatops_logic_app`**, **`enable_promotion_customer_notify_logic_app`** each with storage + WS1 + **`azurerm_logic_app_standard`**; matching **`*_logic_app_principal_id`** outputs for **`terraform-servicebus`** IAM vars; **`checks.tf`** guards; workflow READMEs + **`terraform-logicapps/README`**, **`terraform-servicebus/README`** IAM bullet, **`LOGIC_APPS_STANDARD`**, **`REFERENCE_SAAS_STACK_ORDER`**, ADR **0019**.
 
+**2026-04-20 (customer notification channel preferences — PUT):** **`PUT /v1/notifications/customer-channel-preferences`** (**Execute**); **`TenantNotificationChannelPreferencesUpsertRequest`**; repository **upsert** + audit **`TenantNotificationChannelPreferencesUpdated`**; integration tests (split read/write fixtures for InMemory isolation); OpenAPI + NSwag **`CustomerChannelPreferencesPUTAsync`**.
+
 **Still intentionally out of repo:** concrete `workflow.json` assets and in-app connection bundles — design in Azure Portal or your CD pipeline, then freeze per change control.
 
 ---

@@ -26,7 +26,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     {
         await _inner.SaveAsync(run, ct, connection, transaction);
 
-        await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Run(ScopeForRun(run), run.RunId), ct);
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, ScopeForRun(run), run.RunId, ct);
     }
 
     /// <inheritdoc />
@@ -37,7 +37,8 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
         return _hotPathReadCache.GetOrCreateAsync(
             HotPathCacheKeys.Run(scope, runId),
             innerCt => _inner.GetByIdAsync(scope, runId, innerCt),
-            ct);
+            ct,
+            HotPathCacheKeys.LegacyRun(scope, runId));
     }
 
     /// <inheritdoc />
@@ -72,7 +73,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     {
         await _inner.UpdateAsync(run, ct, connection, transaction);
 
-        await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Run(ScopeForRun(run), run.RunId), ct);
+        await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, ScopeForRun(run), run.RunId, ct);
     }
 
     /// <inheritdoc />
@@ -89,7 +90,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
                 ProjectId = row.ScopeProjectId
             };
 
-            await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Run(scope, row.RunId), ct);
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
         }
 
         return batch;
@@ -109,7 +110,7 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
                 ProjectId = row.ScopeProjectId,
             };
 
-            await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Run(scope, row.RunId), ct);
+            await HotPathCacheEviction.RemoveRunAsync(_hotPathReadCache, scope, row.RunId, ct);
         }
 
         return result;

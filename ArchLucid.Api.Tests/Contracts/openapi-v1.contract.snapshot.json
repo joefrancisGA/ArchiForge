@@ -9853,6 +9853,20 @@
         },
         "type": "object"
       },
+      "TenantNotificationChannelPreferencesUpsertRequest": {
+        "properties": {
+          "emailCustomerNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "outboundWebhookCustomerNotificationsEnabled": {
+            "type": "boolean"
+          },
+          "teamsCustomerNotificationsEnabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "TenantProvisionAdminRequest": {
         "properties": {
           "adminEmail": {
@@ -26775,6 +26789,153 @@
               }
             },
             "description": "Forbidden"
+          }
+        },
+        "tags": [
+          "CustomerNotificationChannelPreferences"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantNotificationChannelPreferencesUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantNotificationChannelPreferencesUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TenantNotificationChannelPreferencesUpsertRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantNotificationChannelPreferencesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantNotificationChannelPreferencesResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantNotificationChannelPreferencesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
           }
         },
         "tags": [

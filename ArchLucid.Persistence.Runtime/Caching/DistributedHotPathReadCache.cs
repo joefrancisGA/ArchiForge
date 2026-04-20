@@ -29,30 +29,28 @@ public sealed class DistributedHotPathReadCache(
     public async Task<T?> GetOrCreateAsync<T>(
         string key,
         Func<CancellationToken, Task<T?>> factory,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? legacyCacheKey = null)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(factory);
 
-        byte[]? bytes = await _distributedCache.GetAsync(key, ct);
+        T? fromPrimary = await TryDeserializeAsync<T>(key, ct);
 
-        if (bytes is { Length: > 0 })
+        if (fromPrimary is not null)
+            return fromPrimary;
 
-            try
+        if (legacyCacheKey is not null)
+        {
+            T? fromLegacy = await TryDeserializeAsync<T>(legacyCacheKey, ct);
+
+            if (fromLegacy is not null)
             {
-                T? fromRedis = JsonSerializer.Deserialize<T>(bytes, JsonEntitySerializer.EntityJsonOptions);
+                await PromoteLegacyToPrimaryAsync(key, legacyCacheKey, fromLegacy, ct);
 
-                if (fromRedis is not null)
-                    return fromRedis;
+                return fromLegacy;
             }
-            catch (JsonException ex)
-            {
-                _logger.LogWarning(
-                    ex,
-                    "HotPath distributed cache entry for key {CacheKey} is corrupt; refreshing.",
-                    LogSanitizer.Sanitize(key));
-            }
-
+        }
 
         T? created = await factory(ct);
 
@@ -68,6 +66,46 @@ public sealed class DistributedHotPathReadCache(
         await _distributedCache.SetAsync(key, payload, entryOptions, ct);
 
         return created;
+    }
+
+    private async Task<T?> TryDeserializeAsync<T>(string cacheKey, CancellationToken ct)
+        where T : class
+    {
+        byte[]? bytes = await _distributedCache.GetAsync(cacheKey, ct);
+
+        if (bytes is not { Length: > 0 })
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<T>(bytes, JsonEntitySerializer.EntityJsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "HotPath distributed cache entry for key {CacheKey} is corrupt; refreshing.",
+                LogSanitizer.Sanitize(cacheKey));
+
+            return null;
+        }
+    }
+
+    private async Task PromoteLegacyToPrimaryAsync<T>(
+        string primaryKey,
+        string legacyKey,
+        T value,
+        CancellationToken ct)
+        where T : class
+    {
+        byte[] payload = JsonSerializer.SerializeToUtf8Bytes(value, JsonEntitySerializer.EntityJsonOptions);
+        DistributedCacheEntryOptions entryOptions = new()
+        {
+            AbsoluteExpirationRelativeToNow = ResolveTtl()
+        };
+
+        await _distributedCache.SetAsync(primaryKey, payload, entryOptions, ct);
+        await _distributedCache.RemoveAsync(legacyKey, ct);
     }
 
     private TimeSpan ResolveTtl()

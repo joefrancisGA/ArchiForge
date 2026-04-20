@@ -25,6 +25,7 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0017](0017-azure-app-configuration-deferred.md) | Azure App Configuration — **deferred** for v1 on cost grounds (companion: [`AZURE_APP_CONFIGURATION_FUTURE_ADOPTION.md`](../AZURE_APP_CONFIGURATION_FUTURE_ADOPTION.md)) |
 | [0018](0018-background-workloads-container-apps-jobs.md) | Background workloads — **Container Apps Jobs** + `ArchLucid.Jobs.Cli` (not Functions); offload manifest + first job `advisory-scan` |
 | [0019](0019-logic-apps-standard-edge-orchestration.md) | Azure Logic Apps (Standard) — narrow edge orchestration + human-in-the-loop; complements ADR 0016 / 0018 |
+| [0020](0020-azure-primary-platform-permanent.md) | **Azure** as primary and permanent platform — narrative + ops alignment (not multi-cloud hedge) |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 

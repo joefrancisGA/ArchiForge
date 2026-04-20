@@ -8,6 +8,8 @@
 
 **Relationship to the sponsor brief:** [EXECUTIVE_SPONSOR_BRIEF.md](../EXECUTIVE_SPONSOR_BRIEF.md) is the **dominant outward-facing buyer narrative**. This page supports **short explanations and proof-backed pillars** for conversations and datasheets; it must **not contradict** the brief. If wording here drifts broader than the brief, **tighten here** or promote a deliberate product change into the brief first, then realign.
 
+**Platform:** First-party and reference deployments are **Azure-native**; see [ADR 0020](../adr/0020-azure-primary-platform-permanent.md).
+
 ---
 
 ## 1. Positioning statement

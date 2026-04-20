@@ -13,7 +13,7 @@
 | **`Advisory/`** | `ArchLucid.Api.Controllers.Advisory` | `AdvisoryController`, `AdvisorySchedulingController`, `LearningController`, `RecommendationLearningController`, `ProductLearningController`, `DigestSubscriptionsController` |
 | **`Evolution/`** | `ArchLucid.Api.Controllers.Evolution` | `EvolutionController` |
 | **`Planning/`** | `ArchLucid.Api.Controllers.Planning` | `GraphController`, `ProvenanceController`, `ProvenanceQueryController`, `ComparisonController`, `ComparisonsController`, `RetrievalController`, `AskController`, `ConversationController`, `ExplanationController` |
-| **`Notifications/`** | `ArchLucid.Api.Controllers.Notifications` | `CustomerNotificationChannelPreferencesController` — read-only tenant channel toggles for governance promotion Logic Apps (`GET /v1/notifications/customer-channel-preferences`; DTO `TenantNotificationChannelPreferencesResponse` in Contracts) |
+| **`Notifications/`** | `ArchLucid.Api.Controllers.Notifications` | `CustomerNotificationChannelPreferencesController` — tenant channel toggles for governance promotion Logic Apps (`GET` / `PUT /v1/notifications/customer-channel-preferences`; Contracts `TenantNotificationChannelPreferencesResponse`, `TenantNotificationChannelPreferencesUpsertRequest`) |
 
 **Bulk operator APIs (2026-04-15):**
 

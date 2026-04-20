@@ -23,6 +23,8 @@ It helps teams produce:
 
 At a practical level, ArchLucid is an AI-assisted architecture workflow system that coordinates topology, cost, and compliance analysis into outputs that architects, reviewers, and governance stakeholders can use.
 
+**Platform intent:** Production reference deployments and first-party operations are **Azure-native** (identity, data, messaging, and hosting as documented in the repository). This keeps security boundaries, networking, and IaC assumptions explicit for sponsors and platform teams—see [ADR 0020](adr/0020-azure-primary-platform-permanent.md).
+
 ---
 
 ## 2. What problem it solves

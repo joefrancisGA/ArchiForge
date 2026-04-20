@@ -171,6 +171,9 @@ public static class AuditEventTypes
     /// <summary>Hosted billing checkout session created successfully (payload may include provider session id).</summary>
     public const string BillingCheckoutCompleted = "BillingCheckoutCompleted";
 
+    /// <summary>Tenant-level customer notification channel toggles updated (<c>PUT /v1/notifications/customer-channel-preferences</c>).</summary>
+    public const string TenantNotificationChannelPreferencesUpdated = "TenantNotificationChannelPreferencesUpdated";
+
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
     /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.

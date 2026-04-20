@@ -71,3 +71,30 @@ Rollback: **`Rollback/R085_PageCompression_Runs.sql`** restores **NONE** where p
 | `dbo.DecisionTraces` | `ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)` when any rowstore partition is not already PAGE | Large trace payloads and `RunId` / `CreatedUtc` indexes benefit from denser pages; schedule off-peak like **084**/**085**. |
 
 Rollback: **`Rollback/R087_PageCompression_DecisionTraces.sql`** restores **NONE** where partitions were **PAGE**.
+
+## Migration 088 — PAGE compression on `dbo.DecisioningTraces`
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.DecisioningTraces` | `ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)` when any rowstore partition is not already PAGE | Authority-side trace with multiple `NVARCHAR(MAX)` JSON columns; pairs with **087** on **`DecisionTraces`**. |
+
+Rollback: **`Rollback/R088_PageCompression_DecisioningTraces.sql`**.
+
+## Migration 089 — PAGE compression on `dbo.UsageEvents`
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.UsageEvents` | Same **PAGE** pattern when any rowstore partition is not already PAGE | Metering append stream; **`IX_UsageEvents_TenantRecorded2`** / **`IX_UsageEvents_KindRecorded2`** included in **`ALTER INDEX ALL`**. |
+
+Rollback: **`Rollback/R089_PageCompression_UsageEvents.sql`**.
+
+## Migration 090 — PAGE compression on `dbo.AlertRecords` + `dbo.AlertDeliveryAttempts`
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.AlertRecords` | Same **PAGE** pattern when any rowstore partition is not already PAGE | Operational alert history; schedule with other compression windows. |
+| `dbo.AlertDeliveryAttempts` | Same | Delivery attempt ledger; paired in one migration like **084**. |
+
+Rollback: **`Rollback/R090_PageCompression_AlertRecords_AlertDeliveryAttempts.sql`**.
+
+**Outbox tables:** `IntegrationEventOutbox`, `RetrievalIndexingOutbox`, and `AuthorityPipelineWorkOutbox` are excluded from this PAGE series until workload-specific analysis; see **`docs/SQL_OUTBOX_TABLES_COMPRESSION.md`**.

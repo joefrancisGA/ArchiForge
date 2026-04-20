@@ -23,7 +23,7 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     {
         await _inner.CreateAsync(pack, ct, connection, transaction);
 
-        await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.PolicyPack(pack.PolicyPackId), ct);
+        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, ct);
     }
 
     /// <inheritdoc />
@@ -31,7 +31,7 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
     {
         await _inner.UpdateAsync(pack, ct);
 
-        await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.PolicyPack(pack.PolicyPackId), ct);
+        await HotPathCacheEviction.RemovePolicyPackAsync(_hotPathReadCache, pack.PolicyPackId, ct);
     }
 
     /// <inheritdoc />
@@ -39,7 +39,8 @@ public sealed class CachingPolicyPackRepository(IPolicyPackRepository inner, IHo
         _hotPathReadCache.GetOrCreateAsync(
             HotPathCacheKeys.PolicyPack(policyPackId),
             innerCt => _inner.GetByIdAsync(policyPackId, innerCt),
-            ct);
+            ct,
+            HotPathCacheKeys.LegacyPolicyPack(policyPackId));
 
     /// <inheritdoc />
     public Task<IReadOnlyList<PolicyPack>> ListByScopeAsync(

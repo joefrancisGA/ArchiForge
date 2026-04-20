@@ -57,6 +57,79 @@ public sealed class DapperTenantNotificationChannelPreferencesRepository(ISqlCon
         };
     }
 
+    /// <inheritdoc />
+    public async Task<TenantNotificationChannelPreferencesResponse?> UpsertAsync(
+        Guid tenantId,
+        bool emailCustomerNotificationsEnabled,
+        bool teamsCustomerNotificationsEnabled,
+        bool outboundWebhookCustomerNotificationsEnabled,
+        CancellationToken cancellationToken)
+    {
+        const string tenantExistsSql = """
+            SELECT COUNT(1)
+            FROM dbo.Tenants
+            WHERE Id = @TenantId;
+            """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int tenantCount = await connection.ExecuteScalarAsync<int>(
+            new CommandDefinition(
+                tenantExistsSql,
+                new { TenantId = tenantId },
+                cancellationToken: cancellationToken));
+
+        if (tenantCount == 0)
+            return null;
+
+
+        const string mergeSql = """
+            MERGE dbo.TenantNotificationChannelPreferences AS t
+            USING (
+                SELECT
+                    @TenantId AS TenantId,
+                    @Email AS EmailCustomerNotificationsEnabled,
+                    @Teams AS TeamsCustomerNotificationsEnabled,
+                    @Webhook AS OutboundWebhookCustomerNotificationsEnabled
+            ) AS s
+            ON t.TenantId = s.TenantId
+            WHEN MATCHED THEN UPDATE SET
+                EmailCustomerNotificationsEnabled = s.EmailCustomerNotificationsEnabled,
+                TeamsCustomerNotificationsEnabled = s.TeamsCustomerNotificationsEnabled,
+                OutboundWebhookCustomerNotificationsEnabled = s.OutboundWebhookCustomerNotificationsEnabled,
+                UpdatedUtc = SYSUTCDATETIME()
+            WHEN NOT MATCHED THEN INSERT (
+                TenantId,
+                SchemaVersion,
+                EmailCustomerNotificationsEnabled,
+                TeamsCustomerNotificationsEnabled,
+                OutboundWebhookCustomerNotificationsEnabled,
+                UpdatedUtc
+            )
+            VALUES (
+                s.TenantId,
+                1,
+                s.EmailCustomerNotificationsEnabled,
+                s.TeamsCustomerNotificationsEnabled,
+                s.OutboundWebhookCustomerNotificationsEnabled,
+                SYSUTCDATETIME()
+            );
+            """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                mergeSql,
+                new
+                {
+                    TenantId = tenantId,
+                    Email = emailCustomerNotificationsEnabled,
+                    Teams = teamsCustomerNotificationsEnabled,
+                    Webhook = outboundWebhookCustomerNotificationsEnabled,
+                },
+                cancellationToken: cancellationToken));
+
+        return await GetByTenantAsync(tenantId, cancellationToken);
+    }
+
     private sealed class TenantNotificationChannelPreferencesRow
     {
         public Guid TenantId

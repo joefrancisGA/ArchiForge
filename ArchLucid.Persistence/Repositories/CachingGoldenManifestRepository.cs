@@ -28,7 +28,7 @@ public sealed class CachingGoldenManifestRepository(
     {
         await _inner.SaveAsync(manifest, ct, connection, transaction);
 
-        await _hotPathReadCache.RemoveAsync(HotPathCacheKeys.Manifest(AmbientScope(manifest), manifest.ManifestId), ct);
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, AmbientScope(manifest), manifest.ManifestId, ct);
     }
 
     /// <inheritdoc />
@@ -41,7 +41,8 @@ public sealed class CachingGoldenManifestRepository(
         return _hotPathReadCache.GetOrCreateAsync(
             key,
             innerCt => _inner.GetByIdAsync(scope, manifestId, innerCt),
-            ct);
+            ct,
+            HotPathCacheKeys.LegacyManifest(scope, manifestId));
     }
 
     private static ScopeContext AmbientScope(GoldenManifest manifest) => new()

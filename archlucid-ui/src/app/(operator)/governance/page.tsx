@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { GlossaryTerm } from "@/components/GlossaryTerm";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LayerHeader } from "@/components/LayerHeader";
 import {
@@ -413,7 +414,9 @@ function GovernanceWorkflowPageInner() {
     <TooltipProvider delayDuration={300}>
     <main className="mx-auto max-w-4xl">
       <LayerHeader pageKey="governance-workflow" />
-      <h2 className="mt-0 text-2xl font-semibold tracking-tight">Governance workflow</h2>
+      <h2 className="mt-0 text-2xl font-semibold tracking-tight">
+        <GlossaryTerm termId="governance_workflow">Governance workflow</GlossaryTerm>
+      </h2>
       <p className="max-w-prose text-sm leading-snug text-neutral-600 dark:text-neutral-400">
         {canMutateWorkflow ? governanceWorkflowPageLeadOperator : governanceWorkflowPageLeadReader}
       </p>

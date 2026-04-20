@@ -56,12 +56,15 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 | `084_PageCompression_AuditEvents_AgentExecutionTraces.sql` | **`ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)`** on **`dbo.AuditEvents`** and **`dbo.AgentExecutionTraces`** when any rowstore partition is not already PAGE (idempotent). Rollback: **`Rollback/R084_*.sql`**. |
 | `085_PageCompression_Runs.sql` | Same **PAGE** rebuild for **`dbo.Runs`** (clustered + all NC indexes). Highest read/cache impact; plan apply window. Rollback: **`Rollback/R085_*.sql`**. |
 | `087_PageCompression_DecisionTraces.sql` | Same **PAGE** rebuild for **`dbo.DecisionTraces`** (clustered + all NC indexes). Append-mostly trace stream; plan apply window. Rollback: **`Rollback/R087_*.sql`**. |
+| `088_PageCompression_DecisioningTraces.sql` | Same **PAGE** rebuild for **`dbo.DecisioningTraces`** (authority decision trace + JSON). Rollback: **`Rollback/R088_*.sql`**. |
+| `089_PageCompression_UsageEvents.sql` | Same **PAGE** rebuild for **`dbo.UsageEvents`** (metering). Rollback: **`Rollback/R089_*.sql`**. |
+| `090_PageCompression_AlertRecords_AlertDeliveryAttempts.sql` | Same **PAGE** rebuild for **`dbo.AlertRecords`** and **`dbo.AlertDeliveryAttempts`**. Rollback: **`Rollback/R090_*.sql`**. |
 
 **Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
 ## Cost / scalability / reliability
 
 - **Cost:** Index **020** trades small storage for fewer scans on **`dbo.Runs`** list-by-project queries.
-- **Cost (rowstore compression):** Migration **084** applies **PAGE** compression on **`AuditEvents`** and **`AgentExecutionTraces`** to cut billed GB and logical reads on Azure SQL; estimate with **`sp_estimate_data_compression_savings`** before large-catalog applies; confirm SKU supports compression.
+- **Cost (rowstore compression):** Migrations **084**–**090** extend **PAGE** compression across audit, traces, runs, decision traces, metering (**`UsageEvents`**), and alert history; estimate with **`sp_estimate_data_compression_savings`** before large-catalog applies; confirm SKU supports compression. **Outbox** tables (**`IntegrationEventOutbox`**, **`RetrievalIndexingOutbox`**, **`AuthorityPipelineWorkOutbox`**) are intentionally excluded until workload-specific analysis — see **`docs/SQL_OUTBOX_TABLES_COMPRESSION.md`**.
 - **Scalability:** Idempotency table is keyed by scope + 32-byte hash; volume is bounded by distinct client keys.
 - **Reliability:** Idempotency replay avoids duplicate run headers for retries; authority **`dbo.Runs`** is the durable correlation point (documented in **`API_CONTRACTS.md`**).

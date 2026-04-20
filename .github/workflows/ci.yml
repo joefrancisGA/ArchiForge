@@ -70,6 +70,9 @@ jobs:
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
 
+      - name: AuditEvents read path — no NOLOCK hint
+        run: python scripts/ci/assert_no_audit_events_nolock.py
+
   terraform-assert-no-archiforge-in-tf:
     name: "Terraform: no legacy archiforge token in .tf"
     needs:

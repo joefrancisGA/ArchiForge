@@ -23,7 +23,7 @@ public sealed class HotPathCacheKeysTests
 
         key.Should().Contain("11111111111111111111111111111111");
         key.Should().Contain("44444444444444444444444444444444");
-        key.Should().StartWith("af:hot:hm:");
+        key.Should().StartWith("al:hot:hm:");
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public sealed class HotPathCacheKeysTests
 
         string key = HotPathCacheKeys.Run(scope, runId);
 
-        key.Should().StartWith("af:hot:run:");
+        key.Should().StartWith("al:hot:run:");
         key.Should().Contain("cccccccccccccccccccccccccccccccc");
     }
 
@@ -49,6 +49,6 @@ public sealed class HotPathCacheKeysTests
     {
         Guid id = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
-        HotPathCacheKeys.PolicyPack(id).Should().Be("af:hot:pp:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        HotPathCacheKeys.PolicyPack(id).Should().Be("al:hot:pp:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     }
 }

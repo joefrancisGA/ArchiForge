@@ -3455,3 +3455,77 @@ BEGIN
     ALTER INDEX ALL ON dbo.DecisionTraces REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
 END;
 GO
+
+/* 088: PAGE rowstore compression on dbo.DecisioningTraces (see Migrations/088_PageCompression_DecisioningTraces.sql). */
+IF OBJECT_ID(N'dbo.DecisioningTraces', N'U') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.indexes AS i
+        INNER JOIN sys.partitions AS p
+            ON p.object_id = i.object_id AND p.index_id = i.index_id
+        WHERE i.object_id = OBJECT_ID(N'dbo.DecisioningTraces')
+          AND i.is_disabled = 0
+          AND i.type IN (0, 1, 2)
+          AND p.data_compression_desc <> N'PAGE')
+BEGIN
+    ALTER INDEX ALL ON dbo.DecisioningTraces REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
+END;
+GO
+
+/* 089: PAGE rowstore compression on dbo.UsageEvents (see Migrations/089_PageCompression_UsageEvents.sql). */
+IF OBJECT_ID(N'dbo.UsageEvents', N'U') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.indexes AS i
+        INNER JOIN sys.partitions AS p
+            ON p.object_id = i.object_id AND p.index_id = i.index_id
+        WHERE i.object_id = OBJECT_ID(N'dbo.UsageEvents')
+          AND i.is_disabled = 0
+          AND i.type IN (0, 1, 2)
+          AND p.data_compression_desc <> N'PAGE')
+BEGIN
+    ALTER INDEX ALL ON dbo.UsageEvents REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
+END;
+GO
+
+/* 090: PAGE rowstore compression on dbo.AlertRecords + dbo.AlertDeliveryAttempts (see Migrations/090_PageCompression_AlertRecords_AlertDeliveryAttempts.sql). */
+IF OBJECT_ID(N'dbo.AlertRecords', N'U') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.indexes AS i
+        INNER JOIN sys.partitions AS p
+            ON p.object_id = i.object_id AND p.index_id = i.index_id
+        WHERE i.object_id = OBJECT_ID(N'dbo.AlertRecords')
+          AND i.is_disabled = 0
+          AND i.type IN (0, 1, 2)
+          AND p.data_compression_desc <> N'PAGE')
+BEGIN
+    ALTER INDEX ALL ON dbo.AlertRecords REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
+END;
+GO
+
+IF OBJECT_ID(N'dbo.AlertDeliveryAttempts', N'U') IS NOT NULL
+   AND EXISTS (
+        SELECT 1
+        FROM sys.indexes AS i
+        INNER JOIN sys.partitions AS p
+            ON p.object_id = i.object_id AND p.index_id = i.index_id
+        WHERE i.object_id = OBJECT_ID(N'dbo.AlertDeliveryAttempts')
+          AND i.is_disabled = 0
+          AND i.type IN (0, 1, 2)
+          AND p.data_compression_desc <> N'PAGE')
+BEGIN
+    ALTER INDEX ALL ON dbo.AlertDeliveryAttempts REBUILD WITH (DATA_COMPRESSION = PAGE, SORT_IN_TEMPDB = ON);
+END;
+GO
+
+/* 091: READ_COMMITTED_SNAPSHOT (see Migrations/091_ReadCommittedSnapshotIsolation.sql). */
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.databases
+    WHERE database_id = DB_ID()
+      AND is_read_committed_snapshot_on = 1)
+BEGIN
+    ALTER DATABASE CURRENT SET READ_COMMITTED_SNAPSHOT ON;
+END;
+GO

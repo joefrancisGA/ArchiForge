@@ -210,7 +210,8 @@ public sealed class CachingRunExplanationSummaryServiceTests
         public Task<T?> GetOrCreateAsync<T>(
             string key,
             Func<CancellationToken, Task<T?>> factory,
-            CancellationToken ct)
+            CancellationToken ct,
+            string? legacyCacheKey = null)
             where T : class
         {
             ArgumentNullException.ThrowIfNull(factory);
@@ -218,6 +219,15 @@ public sealed class CachingRunExplanationSummaryServiceTests
             if (_store.TryGetValue(key, out object? boxed) && boxed is T typed)
             {
                 return Task.FromResult<T?>(typed);
+            }
+
+            if (legacyCacheKey is not null
+                && _store.TryGetValue(legacyCacheKey, out object? leg) && leg is T legTyped)
+            {
+                _store[key] = legTyped;
+                _store.Remove(legacyCacheKey);
+
+                return Task.FromResult<T?>(legTyped);
             }
 
             return MaterializeAsync(key, factory, ct);

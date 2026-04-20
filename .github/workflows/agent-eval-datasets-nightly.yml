@@ -1,0 +1,30 @@
+# Nightly: offline agent eval dataset + prompt-injection fixture validation (same gates as CI Tier 1 subset).
+# Extends Tier 1 with a scheduled signal; does not invoke live LLMs (see scripts/ci/eval_agent_quality.py header).
+
+name: Agent eval datasets nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 4 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  eval-datasets:
+    if: github.event.repository.fork == false
+    name: "eval_agent_quality (manifest + prompt-injection)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Validate eval manifest
+        run: python3 scripts/ci/eval_agent_quality.py --manifest-only
+
+      - name: Prompt-injection regression fixtures
+        run: python3 scripts/ci/eval_agent_quality.py --prompt-injection-only
