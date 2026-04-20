@@ -31,6 +31,8 @@ Formal third-party pen tests are **scheduled per customer / release train**, not
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
 
+**Published redacted summaries (forthcoming):** the publication folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) holds discipline notes plus a **draft** placeholder (`2026-Q2-DRAFT.md`) until the first external assessor (`<<vendor>>` — fill after SoW award) delivers a redacted summary suitable for procurement.
+
 ---
 
 ## Trust documents

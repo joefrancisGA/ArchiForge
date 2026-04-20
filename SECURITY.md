@@ -49,3 +49,5 @@ Security patches are applied to the **latest release branch / current default br
 ## PGP / encrypted email
 
 **PGP encryption for vulnerability reports is not currently supported.** This section will be updated when a key is provisioned.
+
+**TODO (product / security ops):** Generate a vendor PGP key pair for `security@archlucid.dev`, publish the public key in this section and in the Trust Center, and document key rotation in [`docs/security/pen-test-summaries/README.md`](docs/security/pen-test-summaries/README.md) once the first external pen-test summary ships.

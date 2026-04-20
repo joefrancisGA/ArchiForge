@@ -1,0 +1,38 @@
+name: 'ArchLucid manifest delta'
+description: 'Fetch structured golden-manifest delta (GET /v1/compare) and append a Markdown summary to the job summary.'
+inputs:
+  api-base-url:
+    description: 'ArchLucid API base URL (no trailing slash), e.g. https://api.example.com'
+    required: true
+  api-token:
+    description: 'API key with ReadAuthority (X-Api-Key)'
+    required: true
+  base-run-id:
+    description: 'Baseline run GUID (base manifest)'
+    required: true
+  target-run-id:
+    description: 'Candidate run GUID (target manifest)'
+    required: true
+  operator-compare-url-template:
+    description: 'Optional URL template for the operator compare page; use {baseRunId} and {targetRunId} placeholders.'
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Fetch manifest delta
+      shell: bash
+      env:
+        ARCHLUCID_API_BASE: ${{ inputs.api-base-url }}
+        ARCHLUCID_API_TOKEN: ${{ inputs.api-token }}
+        ARCHLUCID_BASE_RUN_ID: ${{ inputs.base-run-id }}
+        ARCHLUCID_TARGET_RUN_ID: ${{ inputs.target-run-id }}
+        ARCHLUCID_COMPARE_URL_TEMPLATE: ${{ inputs.operator-compare-url-template }}
+      run: |
+        set -euo pipefail
+        node "${GITHUB_ACTION_PATH}/fetch-manifest-delta.mjs" >> "${GITHUB_STEP_SUMMARY}"

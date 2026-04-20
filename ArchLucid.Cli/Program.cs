@@ -47,6 +47,28 @@ namespace ArchLucid.Cli
 
                         return CliExitCode.UsageError;
 
+                    case "pilot":
+                        if (normalized.Length > 1 && normalized[1] == "up")
+                            return await PilotUpCommand.RunAsync();
+
+
+                        Console.WriteLine("Expected: archlucid pilot up");
+
+                        return CliExitCode.UsageError;
+
+                    case "first-value-report":
+                        if (normalized.Length > 1)
+                        {
+                            bool saveReport = normalized.Skip(2).Contains("--save", StringComparer.Ordinal);
+
+                            return await FirstValueReportCommand.RunAsync(normalized[1], saveReport);
+                        }
+
+
+                        Console.WriteLine("Usage: archlucid first-value-report <runId> [--save]");
+
+                        return CliExitCode.UsageError;
+
                     case "run":
                         bool quick = normalized.Length > 1 && normalized[1] == "--quick";
 
@@ -151,7 +173,7 @@ namespace ArchLucid.Cli
         private static void WriteNoCommandMessage()
         {
             const string Plain =
-                "Please provide a command. Available commands: new, dev up, run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
+                "Please provide a command. Available commands: new, dev up, pilot up, run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
 
             if (CliExecutionContext.JsonOutput)
 

@@ -40,7 +40,7 @@ The CLI talks to the ArchLucid API over HTTP. Resolution order:
 
 A trailing slash is trimmed (e.g. `http://localhost:5128/` → `http://localhost:5128`).
 
-The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`, `artifacts`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
+The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`, `artifacts`, `first-value-report`, `health`, `doctor` / `check`, and **`support-bundle`**. Use `health` for a quick ping (`GET /health`); use **`doctor`** (alias **`check`**) for liveness + readiness JSON and local project checks (`GET /health/live`, `GET /health/ready`).
 
 ---
 
@@ -50,6 +50,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 |--------|-------------|
 | `new <projectName>` | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. |
 | `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root). |
+| `pilot up` | Start the **full-stack + demo** Docker Compose profile (`docker-compose.yml` + `docker-compose.demo.yml`): API on **5000**, operator UI on **3000**, SQL, Azurite, Redis; waits for **`/health/ready`**. Same effective stack as `scripts/demo-start.ps1` / `demo-start.sh` — simulator agents, demo seed on API startup. Requires Docker only. |
 | `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
@@ -59,6 +60,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `commit <runId>` | Merge results and produce a versioned manifest. |
 | `artifacts <runId>` | Fetch and display the committed manifest. |
 | `artifacts <runId> --save` | Same, and save manifest to `outputs/manifest-{version}.json` (requires project dir). |
+| `first-value-report <runId> [--save]` | Downloads sponsor Markdown from **`GET /v1/pilots/runs/{runId}/first-value-report`** (`text/markdown`). Prints to stdout, or writes `first-value-{runId}.md` in the current directory with **`--save`**. Uses **`ARCHLUCID_API_URL`** / **`ARCHLUCID_API_KEY`** like other CLI commands. |
 | `health` | Check API connectivity (`GET /health`). Exit **0** if OK; **3** if unreachable; **2** if the API base URL is invalid. With global `--json`, prints one JSON object per line (stderr on failure, stdout on success). |
 | `doctor` / `check` | Readiness diagnostics: CLI build info, local `archlucid.json` (brief, writable outputs dir), API `GET /version` (build identity), then API `/health/live`, `/health/ready`, and `/health`. Exit 1 if readiness or combined `/health` is not 2xx. |
 | `support-bundle` | Writes a **pilot/support** folder (and optional `--zip`): **`README.txt`** (triage order), **`manifest.json`** (format **1.1**, `triageReadOrder`), **`build.json`**, **`health.json`**, **`api-contract.json`** (bounded **`GET /openapi/v1.json`**), **`config-summary.json`**, **`environment.json`**, **`workspace.json`**, **`references.json`**, **`logs.json`**. No connection strings or API key **values**. Default folder `support-bundle-<utc-timestamp>Z`. Flags: `--output <dir>`, `--zip`. |

@@ -4,6 +4,20 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-20 — Six quality improvements (pilot CLI, first-value report, GitHub compare action, persistence proposal, pen-test folder, reference row)
+
+**CLI:** Added `archlucid pilot up` (`ArchLucid.Cli/Commands/PilotUpCommand.cs`) — Docker Compose **full-stack** + **`docker-compose.demo.yml`** (simulator, demo seed on startup) with readiness polling on `http://127.0.0.1:5000/health/ready`. Added `archlucid first-value-report <runId> [--save]` calling **`GET /v1/pilots/runs/{runId}/first-value-report`**. **`CompletionsCommand`** word lists updated.
+
+**API:** New **`PilotsController`** + **`FirstValueReportBuilder`** (Markdown sponsor summary). DI registration in **`ServiceCollectionExtensions.ApplicationPipeline.cs`**. OpenAPI snapshot refreshed (`ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json`).
+
+**Docs / GTM:** Second reference-customer row (`DESIGN_PARTNER_NEXT`) + case study placeholder; reference README notes **CI auto-flip** for Published rows. **`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`**, **`docs/PROJECT_CONSOLIDATION_PROPOSAL_PERSISTENCE.md`**, **`docs/security/pen-test-summaries/*`**, **`docs/API_CONTRACTS.md`** (Pilots section), **`docs/go-to-market/TRUST_CENTER.md`**, **`SECURITY.md`** (PGP TODO). **`README.md`**, **`docs/CLI_USAGE.md`**, **`docs/FIRST_30_MINUTES.md`**.
+
+**Integrations:** Composite GitHub Action under **`integrations/github-action-manifest-delta/`** plus **`.github/workflows/example-manifest-delta.yml`** (`workflow_dispatch`).
+
+**Tests:** `ArchLucid.Application.Tests/Pilots/FirstValueReportBuilderTests.cs`, `ArchLucid.Cli.Tests/PilotUpCommandTests.cs`.
+
+---
+
 ## 2026-04-20 — Doc scope header enforcement (Quality Assessment Improvement 2d)
 
 **Docs / CI:** Prepended a machine-generated `> **Scope:** ...` line to **300** active Markdown files under `docs/` (excluding `docs/archive/`), using the first ATX heading in each file when available. Added [`scripts/ci/backfill_doc_scope_headers.py`](../scripts/ci/backfill_doc_scope_headers.py) (idempotent one-shot back-fill). [`scripts/ci/check_doc_scope_header.py`](../scripts/ci/check_doc_scope_header.py) is now **merge-blocking** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (runs after `check_doc_links.py`). Added [`scripts/ci/test_backfill_doc_scope_headers.py`](../scripts/ci/test_backfill_doc_scope_headers.py) and extended the existing Doc scope header unit-test step to run it.

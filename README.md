@@ -17,6 +17,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 | You are a... | Start here |
 |---|---|
 | **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** |
+| **Evaluator — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)) |
 | **Operator running a real pilot** (curl, CLI, release smoke) | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) |
 | **Developer** about to commit code | [docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md) |
 | **SRE / Platform** owner | [docs/onboarding/day-one-sre.md](docs/onboarding/day-one-sre.md) |

@@ -24,6 +24,8 @@ public sealed class CompletionsCommandTests
             string text = outWriter.ToString();
             text.Should().Contain("complete -F _archlucid_completion archlucid");
             text.Should().Contain("new");
+            text.Should().Contain("pilot");
+            text.Should().Contain("first-value-report");
             text.Should().Contain("completions");
         }
         finally

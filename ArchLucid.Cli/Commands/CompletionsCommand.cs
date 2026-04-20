@@ -12,6 +12,7 @@ public static class CompletionsCommand
     [
         "new",
         "dev",
+        "pilot",
         "run",
         "status",
         "trace",
@@ -19,6 +20,7 @@ public static class CompletionsCommand
         "commit",
         "seed",
         "artifacts",
+        "first-value-report",
         "comparisons",
         "health",
         "doctor",

@@ -1,6 +1,6 @@
-# ArchLucid Independent Quality Assessment — Weighted 64.60%
+> **Scope:** Independent, weighted quality assessment (2026-04-20) — commercial, enterprise, and engineering scores with weighted percent, blockers, and improvement prompts; not derived from prior assessment files.
 
-> **Scope:** Independent, weighted assessment performed 2026-04-20 from a fresh read of the repository (README, V1 scope, V1 readiness, packaging, ROI, sponsor brief, infra, security, observability, audit matrix, go-to-market, accessibility). Not derived from prior assessment files.
+# ArchLucid Independent Quality Assessment — Weighted 64.60%
 
 **Audience:** Founder / product owner, engineering lead, GTM lead.
 

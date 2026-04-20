@@ -11,6 +11,7 @@ using ArchLucid.Application.Evolution;
 using ArchLucid.Application.Explanation;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Summaries;
 using ArchLucid.ContextIngestion.Canonicalization;
@@ -118,6 +119,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunCommitOrchestrator, ArchitectureRunCommitOrchestrator>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<IRunRationaleService, RunRationaleService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();
         services.AddScoped<IReplayRunService, ReplayRunService>();

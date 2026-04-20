@@ -1,0 +1,34 @@
+# Example: ArchLucid structured manifest delta in GitHub Actions (manual dispatch only).
+# Copy into your own workflow and wire secrets; do not put API keys in repo YAML.
+name: example-manifest-delta
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'ArchLucid API base URL (no trailing slash)'
+        required: true
+        type: string
+      base_run_id:
+        description: 'Baseline committed run id (GUID)'
+        required: true
+        type: string
+      target_run_id:
+        description: 'Candidate committed run id (GUID)'
+        required: true
+        type: string
+
+jobs:
+  manifest-delta:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: ArchLucid manifest delta (job summary)
+        uses: ./integrations/github-action-manifest-delta
+        with:
+          api-base-url: ${{ inputs.api_base_url }}
+          api-token: ${{ secrets.ARCHLUCID_READONLY_API_KEY }}
+          base-run-id: ${{ inputs.base_run_id }}
+          target-run-id: ${{ inputs.target_run_id }}
+          operator-compare-url-template: 'https://operator.example.com/compare?left={baseRunId}&right={targetRunId}'

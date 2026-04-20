@@ -58,6 +58,8 @@ cd ArchLucid
 ./scripts/demo-start.sh
 ```
 
+**Optional (same stack, from a .NET SDK checkout):** if you already cloned the repo and have the **.NET 10 SDK** installed, you can run **`dotnet run --project ArchLucid.Cli -- pilot up`** from the repo root instead of the scripts above. It runs the same **`docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build`** command and polls **`http://127.0.0.1:5000/health/ready`** for up to **120 seconds**.
+
 > *What to expect:* Docker pulls/builds five containers (SQL Server, Azurite, Redis, API, UI) and waits up to **120 seconds** for `GET http://localhost:5000/health/ready` to return **200**. On success the script prints `API is ready.` and tries to open the operator UI at `http://localhost:3000/runs/new` in your default browser. **Simulator agents** are enabled — no Azure OpenAI key required.
 
 ![Demo stack starting — placeholder](placeholder-02-demo-up.png)

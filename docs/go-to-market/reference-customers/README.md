@@ -30,6 +30,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 | Customer | Tier | Pilot start | Case-study link | Reference-call cadence | Status |
 |----------|------|-------------|-----------------|------------------------|--------|
 | EXAMPLE_DESIGN_PARTNER | Professional (design-partner −50%) | TBD | [EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md](EXAMPLE_DESIGN_PARTNER_CASE_STUDY.md) | TBD (target: quarterly) | Placeholder — replace before publishing |
+| DESIGN_PARTNER_NEXT | `<<TIER>>` (fill before Drafting) | TBD | [DESIGN_PARTNER_NEXT_CASE_STUDY.md](DESIGN_PARTNER_NEXT_CASE_STUDY.md) | TBD | Customer review — replace `<<CUSTOMER_NAME>>` and placeholders before publication |
 
 > **CI guard contract:** the script reads only this table. The exact column order and the literal `Status` header text matter. Do not split the table across multiple sub-tables; add new rows to the bottom.
 
@@ -41,7 +42,7 @@ A row that fails to move from `Customer review` to `Published` within 60 days sh
 2. **Find/replace** every `<<CUSTOMER_NAME>>`, `<<TIER>>`, `<<DESIGN_PARTNER_TERM_START>>` and any other `<<...>>` placeholder with the real value. The existing pattern is intentional — it lets a sales engineer one-shot the substitution from a single deal-close email.
 3. **Add a row** to the table above, with `Status: Drafting`.
 4. **Move through the lifecycle** (Drafting → Customer review → Published) as approvals come in. Each transition gets a one-line entry in [`docs/CHANGELOG.md`](../../CHANGELOG.md) so finance/sales can re-rate the discount stack on a known cadence.
-5. **When the first row reaches `Published`,** flip the CI guard from `continue-on-error: true` to a hard gate by removing that line from `.github/workflows/ci.yml` (the guard text is unchanged). This is the moment that authorizes a pricing-review trigger per [`PRICING_PHILOSOPHY.md` § 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan).
+5. **When the first row reaches `Published`,** CI **auto-flips** to a merge-blocking re-check of the same script (see `.github/workflows/ci.yml` — *Guard — reference-customer status (auto-flip: strict once any Published row exists)*). You do **not** need to edit `continue-on-error` by hand. This is the moment that authorizes a pricing-review trigger per [`PRICING_PHILOSOPHY.md` § 5.3](../PRICING_PHILOSOPHY.md#53-re-rate-plan).
 
 ---
 

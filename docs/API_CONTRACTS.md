@@ -50,6 +50,16 @@ All routes require **ReadAuthority** and use versioned paths under **`/v1/explai
 
 Schema and posture rules: **`docs/EXPLANATION_SCHEMA.md`**. Operator UI: run detail **Explanation** section calls **`getRunExplanationSummary`** (`archlucid-ui`).
 
+## Pilots (`/v1/pilots`)
+
+Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and live under **`/v1/pilots`**.
+
+| Method | Path | Response | Notes |
+|--------|------|----------|-------|
+| `GET` | **`/v1/pilots/runs/{runId}/first-value-report`** | **`text/markdown`** | One-page Markdown summary (run metadata, findings counts, decision trace excerpt, baseline placeholders). **404** when the run id is unknown. |
+
+CLI: `archlucid first-value-report <runId> [--save]` (see **`docs/CLI_USAGE.md`**).
+
 ## List pagination (runs and alerts)
 
 Several list endpoints support **two response shapes** so existing clients keep working:
