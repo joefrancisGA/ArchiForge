@@ -1,3 +1,5 @@
+> **Scope:** Operations — LLM token quota and metrics - full detail, tables, and links in the sections below.
+
 # Operations — LLM token quota and metrics
 
 **Last reviewed:** 2026-04-04

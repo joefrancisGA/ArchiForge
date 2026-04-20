@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — Quality Assessment 2026-04-20 (Improvements 4–6) - full detail, tables, and links in the sections below.
+
 # Cursor prompts — Quality Assessment 2026-04-20 (Improvements 4–6)
 
 These are paste-ready Agent prompts for **improvements 4, 5, and 6** identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3. Improvements 1 and 2 live in **[`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md)**.

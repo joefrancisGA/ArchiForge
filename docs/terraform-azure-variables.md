@@ -1,3 +1,5 @@
+> **Scope:** Terraform / Azure variables (reference sketch) - full detail, tables, and links in the sections below.
+
 # Terraform / Azure variables (reference sketch)
 
 **Purpose:** Map ArchLucid dependencies to IaC variables so environments stay reproducible. This is a **checklist**, not a full module.

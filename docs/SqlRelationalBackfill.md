@@ -1,3 +1,5 @@
+> **Scope:** SQL relational backfill and cutover (JSON → child tables) - full detail, tables, and links in the sections below.
+
 # SQL relational backfill and cutover (JSON → child tables)
 
 ## Objective

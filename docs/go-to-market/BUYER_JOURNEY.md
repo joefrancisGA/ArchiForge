@@ -1,3 +1,5 @@
+> **Scope:** Buyer journey (outside-in) - full detail, tables, and links in the sections below.
+
 # Buyer journey (outside-in)
 
 ## Objective

@@ -1,3 +1,5 @@
+> **Scope:** Azure Marketplace — SaaS offer (fulfillment v2) checklist - full detail, tables, and links in the sections below.
+
 # Azure Marketplace — SaaS offer (fulfillment v2) checklist
 
 ## Objective

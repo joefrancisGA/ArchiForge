@@ -1,3 +1,5 @@
+> **Scope:** Runbooks index - full detail, tables, and links in the sections below.
+
 # Runbooks index
 
 **Last reviewed:** 2026-04-20

@@ -1,3 +1,5 @@
+> **Scope:** OpenAPI contract drift (CI and local workflow) - full detail, tables, and links in the sections below.
+
 # OpenAPI contract drift (CI and local workflow)
 
 ## 1. Objective

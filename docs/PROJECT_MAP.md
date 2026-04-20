@@ -1,3 +1,5 @@
+> **Scope:** Solution project map (bounded contexts) - full detail, tables, and links in the sections below.
+
 # Solution project map (bounded contexts)
 
 ## Objective

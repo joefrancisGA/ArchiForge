@@ -1,3 +1,5 @@
+> **Scope:** PII classification and retention — Ask / conversation data - full detail, tables, and links in the sections below.
+
 # PII classification and retention — Ask / conversation data
 
 ## 1. Objective

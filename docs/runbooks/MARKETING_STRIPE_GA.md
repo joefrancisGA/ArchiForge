@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Public marketing site + Stripe billing GA - full detail, tables, and links in the sections below.
+
 # Runbook — Public marketing site + Stripe billing GA
 
 This runbook tracks **Marketability Improvement 2** (public marketing go-live and Stripe self-serve paid conversion). It assumes Azure-first deployment and private storage boundaries (no SMB 445 exposure).

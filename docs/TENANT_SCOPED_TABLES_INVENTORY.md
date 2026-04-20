@@ -1,3 +1,5 @@
+> **Scope:** Tenant-scoped tables inventory - full detail, tables, and links in the sections below.
+
 # Tenant-scoped tables inventory
 
 ## Objective

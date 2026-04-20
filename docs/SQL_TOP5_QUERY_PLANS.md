@@ -1,3 +1,5 @@
+> **Scope:** Top five frequent SQL queries — execution plan reference - full detail, tables, and links in the sections below.
+
 # Top five frequent SQL queries — execution plan reference
 
 ## Objective

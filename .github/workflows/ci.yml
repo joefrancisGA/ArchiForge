@@ -61,16 +61,16 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_doc_links.py
 
-      - name: Doc scope header (warn-only)
-        # Surfaces docs missing a leading `> **Scope:**` blockquote (see scripts/ci/check_doc_scope_header.py).
-        # README.md uses `<!-- **Scope:** ... -->` instead. Flip to blocking after back-fill.
-        continue-on-error: true
+      - name: Doc scope header
+        # Merge-blocking: every active ``docs/**/*.md`` (except ``docs/archive/``) must open with
+        # ``> **Scope:**`` on the first non-empty line. README.md uses ``<!-- **Scope:** ... -->``.
+        # See ``scripts/ci/check_doc_scope_header.py`` and ``scripts/ci/backfill_doc_scope_headers.py``.
         run: python scripts/ci/check_doc_scope_header.py
 
       - name: Doc scope header check unit tests
         run: |
           cd scripts/ci
-          python -m unittest test_check_doc_scope_header
+          python -m unittest test_check_doc_scope_header test_backfill_doc_scope_headers
 
       - name: Runbook freshness (informational)
         run: python scripts/ci/check_doc_freshness.py

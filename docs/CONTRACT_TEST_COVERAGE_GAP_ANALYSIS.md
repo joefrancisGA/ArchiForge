@@ -1,3 +1,5 @@
+> **Scope:** Contract test coverage — gap analysis - full detail, tables, and links in the sections below.
+
 # Contract test coverage — gap analysis
 
 ## Objective

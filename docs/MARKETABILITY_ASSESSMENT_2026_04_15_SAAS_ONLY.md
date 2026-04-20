@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Marketability Assessment — SaaS-Only Posture (2026-04-15, post-Imp 1–6) - full detail, tables, and links in the sections below.
+
 # ArchLucid Marketability Assessment — SaaS-Only Posture (2026-04-15, post-Imp 1–6)
 
 **Assumption:** ArchLucid is **SaaS-only** — no self-hosted or on-premises deployment path. Buyers evaluate you as a **vendor-operated service**, not software they run in their own cloud or data center.

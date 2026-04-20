@@ -1,3 +1,5 @@
+> **Scope:** ADR 0011: ArchLucid:StorageProvider — InMemory vs Sql - full detail, tables, and links in the sections below.
+
 # ADR 0011: `ArchLucid:StorageProvider` — InMemory vs Sql
 
 - **Status:** Accepted

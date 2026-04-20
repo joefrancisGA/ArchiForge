@@ -1,3 +1,5 @@
+> **Scope:** ADR 0017 — Azure App Configuration: deferred for v1 on cost grounds - full detail, tables, and links in the sections below.
+
 # ADR 0017 — Azure App Configuration: deferred for v1 on cost grounds
 
 **Status:** Accepted (deferred adoption)

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — SOC 2 readiness roadmap - full detail, tables, and links in the sections below.
+
 # ArchLucid — SOC 2 readiness roadmap
 
 **Audience:** Customers, prospects, and internal GRC stakeholders.

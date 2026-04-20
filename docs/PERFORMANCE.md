@@ -1,3 +1,5 @@
+> **Scope:** Performance — caching and hot paths (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Performance — caching and hot paths (ArchLucid)
 
 **Audience:** Operators and developers tuning latency, cache behavior, and LLM cost for the API and worker.

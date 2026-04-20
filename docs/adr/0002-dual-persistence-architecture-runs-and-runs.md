@@ -1,3 +1,5 @@
+> **Scope:** ADR 0002: Dual persistence (ArchitectureRuns vs dbo.Runs) - full detail, tables, and links in the sections below.
+
 # ADR 0002: Dual persistence (ArchitectureRuns vs dbo.Runs)
 
 - **Status:** Superseded — see **ADR 0012** (completed 2026-04-12): legacy **`dbo.ArchitectureRuns`** and **`IArchitectureRunRepository`** removed; **`dbo.Runs`** is the sole run header table.

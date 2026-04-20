@@ -1,3 +1,5 @@
+> **Scope:** Structured explanation schema - full detail, tables, and links in the sections below.
+
 # Structured explanation schema
 
 ## Overview

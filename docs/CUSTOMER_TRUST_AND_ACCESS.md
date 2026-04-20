@@ -1,3 +1,5 @@
+> **Scope:** Customer trust and access - full detail, tables, and links in the sections below.
+
 # Customer trust and access
 
 This document explains how ArchLucid balances **ease of use** (simple URLs, standard Microsoft sign-in, clear operator flows) with **data safety** (private connectivity, edge protection, identity-backed access). It ties together optional Terraform roots under **`infra/`** and API configuration.

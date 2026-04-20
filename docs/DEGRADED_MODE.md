@@ -1,3 +1,5 @@
+> **Scope:** Degraded mode — LLM and agent availability - full detail, tables, and links in the sections below.
+
 # Degraded mode — LLM and agent availability
 
 **Product:** ArchLucid  

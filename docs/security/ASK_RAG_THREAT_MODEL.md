@@ -1,3 +1,5 @@
+> **Scope:** Threat model sketch — Ask and RAG - full detail, tables, and links in the sections below.
+
 # Threat model sketch — Ask and RAG
 
 ## 1. Objective

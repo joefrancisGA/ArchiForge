@@ -1,3 +1,5 @@
+> **Scope:** Trial lifecycle runbook (expiry → read-only → export-only → purge) - full detail, tables, and links in the sections below.
+
 # Trial lifecycle runbook (expiry → read-only → export-only → purge)
 
 **Last reviewed:** 2026-04-17

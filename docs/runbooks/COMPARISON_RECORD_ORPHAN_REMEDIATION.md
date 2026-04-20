@@ -1,3 +1,5 @@
+> **Scope:** Runbook: Comparison record orphans (missing authority run) - full detail, tables, and links in the sections below.
+
 # Runbook: Comparison record orphans (missing authority run)
 
 **Last reviewed:** 2026-04-16

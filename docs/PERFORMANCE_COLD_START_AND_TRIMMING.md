@@ -1,3 +1,5 @@
+> **Scope:** Cold start, profiling, and trimming (API) - full detail, tables, and links in the sections below.
+
 # Cold start, profiling, and trimming (API)
 
 **Objective:** Reduce first-request latency and deployment size where safe.

@@ -1,3 +1,5 @@
+> **Scope:** Typed findings in ArchLucid.Decisioning - full detail, tables, and links in the sections below.
+
 ## Typed findings in ArchLucid.Decisioning
 
 ArchLucid.Decisioning uses a **Finding envelope** with **category-specific typed payloads**. This preserves a stable persisted shape while allowing engines and the decision engine to evolve with strongly typed data.

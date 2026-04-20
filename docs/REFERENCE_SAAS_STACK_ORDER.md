@@ -1,3 +1,5 @@
+> **Scope:** Reference Azure SaaS stack order (Terraform) - full detail, tables, and links in the sections below.
+
 # Reference Azure SaaS stack order (Terraform)
 
 **Objective:** Give platform engineers a **default apply order** for ArchLucid Terraform roots under `infra/`, aligned with private networking and least-privilege identity.

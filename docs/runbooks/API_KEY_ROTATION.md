@@ -1,3 +1,5 @@
+> **Scope:** Runbook: API key rotation (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Runbook: API key rotation (ArchLucid)
 
 **Last reviewed:** 2026-04-16

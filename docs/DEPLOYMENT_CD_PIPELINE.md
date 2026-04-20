@@ -1,3 +1,5 @@
+> **Scope:** CD pipeline (manual workflow_dispatch) - full detail, tables, and links in the sections below.
+
 # CD pipeline (manual `workflow_dispatch`)
 
 This document describes the multi-job **CD** workflow (`.github/workflows/cd.yml`). It complements [DEPLOYMENT.md](./DEPLOYMENT.md) and [DEPLOYMENT_TERRAFORM.md](./DEPLOYMENT_TERRAFORM.md).

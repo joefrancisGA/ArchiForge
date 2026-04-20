@@ -1,3 +1,5 @@
+> **Scope:** ADR 0003: SQL RLS and SESSION_CONTEXT - full detail, tables, and links in the sections below.
+
 # ADR 0003: SQL RLS and SESSION_CONTEXT
 
 - **Status:** Accepted

@@ -1,3 +1,5 @@
+> **Scope:** Day one — SRE / Platform (week one) - full detail, tables, and links in the sections below.
+
 # Day one — SRE / Platform (week one)
 
 **Goal:** Know how the **ArchLucid** service **starts**, **fails**, and **deploys** in your environment. **Not** full Terraform depth for every optional root.

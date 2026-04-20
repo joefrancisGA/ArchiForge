@@ -1,3 +1,5 @@
+> **Scope:** Agent execution trace forensics (full prompt storage) - full detail, tables, and links in the sections below.
+
 # Agent execution trace forensics (full prompt storage)
 
 ## Objective

@@ -1,3 +1,5 @@
+> **Scope:** Knowledge graph (typed architecture graph) - full detail, tables, and links in the sections below.
+
 # Knowledge graph (typed architecture graph)
 
 `ArchLucid.KnowledgeGraph` turns each persisted **`ContextSnapshot`** into a **`GraphSnapshot`**: typed **nodes**, typed **edges**, and optional **warnings**. Downstream **`ArchLucid.Decisioning`** finding engines and **`DefaultGoldenManifestBuilder`** consume this graph.

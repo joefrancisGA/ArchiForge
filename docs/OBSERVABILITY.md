@@ -1,3 +1,5 @@
+> **Scope:** Observability — metrics and tracing (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Observability — metrics and tracing (ArchLucid)
 
 **Audience:** SRE, platform engineers, and developers wiring Prometheus/Grafana, Application Insights, or OTLP exporters.

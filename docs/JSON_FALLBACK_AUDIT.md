@@ -1,3 +1,5 @@
+> **Scope:** JSON fallback removal — relational-first reads (post-53R) - full detail, tables, and links in the sections below.
+
 # JSON fallback removal — relational-first reads (post-53R)
 
 ## Objective

@@ -1,3 +1,5 @@
+> **Scope:** Live E2E — JwtBearer with a local RSA public key (CI / lab) - full detail, tables, and links in the sections below.
+
 # Live E2E — JwtBearer with a local RSA public key (CI / lab)
 
 ## Objective

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Subprocessors - full detail, tables, and links in the sections below.
+
 # ArchLucid — Subprocessors
 
 **Audience:** Customers and prospects who need a **subprocessor list** for security questionnaires and DPAs.

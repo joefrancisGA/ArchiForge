@@ -1,3 +1,5 @@
+> **Scope:** Day one — Developer (week one) - full detail, tables, and links in the sections below.
+
 # Day one — Developer (week one)
 
 **Goal:** Ship a small, safe change or run the **ArchLucid** stack locally with confidence. **Not** full domain mastery. (Repo and projects: `ArchLucid.*`.)

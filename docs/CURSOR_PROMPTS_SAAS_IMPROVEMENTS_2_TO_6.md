@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — SaaS-only improvements 2–6 - full detail, tables, and links in the sections below.
+
 # Cursor prompts — SaaS-only improvements 2–6
 
 Executable prompts for the remaining five SaaS-only marketability improvements identified in `docs/MARKETABILITY_ASSESSMENT_2026_04_15_SAAS_ONLY.md`. **Improvement 1 (Trust Center spine)** is complete.

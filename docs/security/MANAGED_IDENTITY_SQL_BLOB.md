@@ -1,3 +1,5 @@
+> **Scope:** Managed identity for Azure SQL and Blob (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Managed identity for Azure SQL and Blob (ArchLucid)
 
 ## 1. Objective

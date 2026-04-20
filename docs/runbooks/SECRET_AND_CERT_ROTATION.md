@@ -1,3 +1,5 @@
+> **Scope:** Runbook: secret and certificate rotation - full detail, tables, and links in the sections below.
+
 # Runbook: secret and certificate rotation
 
 **Last reviewed:** 2026-04-16

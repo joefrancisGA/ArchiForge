@@ -1,3 +1,5 @@
+> **Scope:** Bounded context map (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Bounded context map (ArchLucid)
 
 ## Objective

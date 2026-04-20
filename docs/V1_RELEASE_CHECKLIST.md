@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid V1 — release checklist - full detail, tables, and links in the sections below.
+
 # ArchLucid V1 — release checklist
 
 **Audience:** release owner, SRE, and pilot program leads cutting a **V1** build or environment.

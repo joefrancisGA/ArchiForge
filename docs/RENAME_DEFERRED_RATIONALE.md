@@ -1,3 +1,5 @@
+> **Scope:** ArchForge → ArchLucid — deferred rationale (historical) - full detail, tables, and links in the sections below.
+
 # ArchForge → ArchLucid — deferred rationale (historical)
 
 **Status (2026-04-19):** The **rename initiative is closed.** This file is retained as a short historical note. Current state: GitHub **`joefrancisGA/ArchLucid`**, greenfield Terraform uses **`archlucid`** naming, **7.8** (local folder path) **waived** by owner.

@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Incident ChatOps (Logic Apps + Service Bus) - full detail, tables, and links in the sections below.
+
 # Runbook — Incident ChatOps (Logic Apps + Service Bus)
 
 **Priority:** P3 — Reference  

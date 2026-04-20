@@ -1,3 +1,5 @@
+> **Scope:** Resilience configuration (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Resilience configuration (ArchLucid)
 
 Operators can tune retry and circuit-breaker behavior without recompiling. This document lists configuration paths, defaults, the Azure OpenAI circuit breaker state machine, emitted OpenTelemetry metrics, and example Prometheus queries.

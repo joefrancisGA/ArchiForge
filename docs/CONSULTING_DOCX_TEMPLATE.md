@@ -1,3 +1,5 @@
+> **Scope:** Consulting DOCX template configuration - full detail, tables, and links in the sections below.
+
 # Consulting DOCX template configuration
 
 ## Objective

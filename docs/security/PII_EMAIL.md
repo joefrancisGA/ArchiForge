@@ -1,3 +1,5 @@
+> **Scope:** PII boundary for transactional email - full detail, tables, and links in the sections below.
+
 # PII boundary for transactional email
 
 ## Objective

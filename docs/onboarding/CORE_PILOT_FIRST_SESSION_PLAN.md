@@ -1,3 +1,5 @@
+> **Scope:** Core Pilot — first session plan (analysis) - full detail, tables, and links in the sections below.
+
 # Core Pilot — first session plan (analysis)
 
 **Objective.** Reduce time-to-value on the default **Core Pilot** path: architecture request → run → committed manifest → reviewable artifacts and aggregate explanation.

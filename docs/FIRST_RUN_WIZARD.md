@@ -1,3 +1,5 @@
+> **Scope:** First-run wizard (operator UI) - full detail, tables, and links in the sections below.
+
 # First-run wizard (operator UI)
 
 **Audience:** New operators, pilot users, and first-time evaluators using **ArchLucid** through the web shell (`archlucid-ui`).

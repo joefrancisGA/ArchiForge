@@ -1,3 +1,5 @@
+> **Scope:** Customer-managed keys — Azure Storage and SQL TDE - full detail, tables, and links in the sections below.
+
 # Customer-managed keys — Azure Storage and SQL TDE
 
 **Last reviewed:** 2026-04-16

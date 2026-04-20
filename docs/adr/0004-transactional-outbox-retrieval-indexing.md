@@ -1,3 +1,5 @@
+> **Scope:** ADR 0004: Transactional outbox for retrieval indexing - full detail, tables, and links in the sections below.
+
 # ADR 0004: Transactional outbox for retrieval indexing
 
 - **Status:** Accepted

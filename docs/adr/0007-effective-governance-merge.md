@@ -1,3 +1,5 @@
+> **Scope:** ADR 0007: Effective governance merge - full detail, tables, and links in the sections below.
+
 # ADR 0007: Effective governance merge
 
 - **Status:** Accepted (v1)

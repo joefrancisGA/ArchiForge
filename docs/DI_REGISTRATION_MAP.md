@@ -1,3 +1,5 @@
+> **Scope:** DI registration map (Host.Composition) - full detail, tables, and links in the sections below.
+
 # DI registration map (Host.Composition)
 
 **Purpose:** One-page map from extension methods and partial `ServiceCollectionExtensions` files to the capabilities they register, including configuration gates and key sections.

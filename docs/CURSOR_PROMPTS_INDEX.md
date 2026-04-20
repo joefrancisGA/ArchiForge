@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts index - full detail, tables, and links in the sections below.
+
 # Cursor prompts index
 
 Paste-ready Agent prompts for common improvement tracks. Prefer these slugs when bookmarking or cross-linking from checklists.

@@ -1,3 +1,5 @@
+> **Scope:** Per-tenant cost model (sketch) - full detail, tables, and links in the sections below.
+
 # Per-tenant cost model (sketch)
 
 ## Objective

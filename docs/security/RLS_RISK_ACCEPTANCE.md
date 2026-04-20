@@ -1,3 +1,5 @@
+> **Scope:** Row-level security (RLS) — residual risk acceptance (template) - full detail, tables, and links in the sections below.
+
 # Row-level security (RLS) — residual risk acceptance (template)
 
 ## 1. Objective

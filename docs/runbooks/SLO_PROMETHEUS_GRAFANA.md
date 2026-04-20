@@ -1,3 +1,5 @@
+> **Scope:** SLO, Prometheus burn-rate alerts, and Grafana - full detail, tables, and links in the sections below.
+
 # SLO, Prometheus burn-rate alerts, and Grafana
 
 **Last reviewed:** 2026-04-16

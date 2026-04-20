@@ -1,3 +1,5 @@
+> **Scope:** Containerization - full detail, tables, and links in the sections below.
+
 # Containerization
 
 ## Objective

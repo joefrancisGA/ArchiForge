@@ -1,3 +1,5 @@
+> **Scope:** Code coverage (CI and local) - full detail, tables, and links in the sections below.
+
 # Code coverage (CI and local)
 
 ## Objective

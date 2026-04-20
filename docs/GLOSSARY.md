@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid glossary - full detail, tables, and links in the sections below.
+
 # ArchLucid glossary
 
 **Last reviewed:** 2026-04-05

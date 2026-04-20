@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Subscription order form (template) - full detail, tables, and links in the sections below.
+
 # ArchLucid — Subscription order form (template)
 
 **Important — not legal advice:** This is a **working template** to reduce friction for SMB-midmarket deals (< $50K ARR). It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before use.

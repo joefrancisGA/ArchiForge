@@ -1,3 +1,5 @@
+> **Scope:** CodeQL triage (ArchLucid) - full detail, tables, and links in the sections below.
+
 # CodeQL triage (ArchLucid)
 
 Short guide for **security-and-quality** (or **javascript-typescript-security-and-quality**) workflows. Use this when alerts look like noise after mitigations are in place.

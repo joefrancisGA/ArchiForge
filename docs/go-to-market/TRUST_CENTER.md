@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Trust Center - full detail, tables, and links in the sections below.
+
 # ArchLucid Trust Center
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.

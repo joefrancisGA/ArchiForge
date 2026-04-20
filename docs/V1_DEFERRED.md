@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid V1 — deferred and exploratory (doc inventory) - full detail, tables, and links in the sections below.
+
 # ArchLucid V1 — deferred and exploratory (doc inventory)
 
 **Audience:** product, pilots, and engineering leads who read scattered docs and need one **intentional** story: what is **shipped for V1** vs what is **explicitly not promised yet**.

@@ -1,3 +1,5 @@
+> **Scope:** Runbook: Advisory scan failures and schedule advance - full detail, tables, and links in the sections below.
+
 # Runbook: Advisory scan failures and schedule advance
 
 **Last reviewed:** 2026-04-16

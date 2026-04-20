@@ -1,3 +1,5 @@
+> **Scope:** Runbook: Provenance indexing — failure modes and retries (v1) - full detail, tables, and links in the sections below.
+
 # Runbook: Provenance indexing — failure modes and retries (v1)
 
 **Last reviewed:** 2026-04-16

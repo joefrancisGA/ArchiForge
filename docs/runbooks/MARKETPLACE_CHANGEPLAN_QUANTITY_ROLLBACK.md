@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Roll back Marketplace ChangePlan / ChangeQuantity to AcknowledgedNoOp - full detail, tables, and links in the sections below.
+
 # Runbook — Roll back Marketplace `ChangePlan` / `ChangeQuantity` to `AcknowledgedNoOp`
 
 **Audience:** SRE / on-call billing engineer.

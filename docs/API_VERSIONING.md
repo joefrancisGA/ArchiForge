@@ -1,3 +1,5 @@
+> **Scope:** API versioning (ArchLucid) - full detail, tables, and links in the sections below.
+
 # API versioning (ArchLucid)
 
 ## Objective

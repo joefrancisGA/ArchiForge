@@ -1,3 +1,5 @@
+> **Scope:** CI migration and demo seeding regression loop - full detail, tables, and links in the sections below.
+
 # CI migration and demo seeding regression loop
 
 This document describes the minimum checks that must pass whenever a SQL migration,

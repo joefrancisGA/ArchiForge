@@ -1,3 +1,5 @@
+> **Scope:** Week-one onboarding (role-scoped) - full detail, tables, and links in the sections below.
+
 # Week-one onboarding (role-scoped)
 
 → **New here?** Start at **[../START_HERE.md](../START_HERE.md)** for the full orientation, then return here for your role’s checklist.

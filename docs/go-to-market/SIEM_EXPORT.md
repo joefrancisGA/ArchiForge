@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Audit log export for SIEM integration - full detail, tables, and links in the sections below.
+
 # ArchLucid — Audit log export for SIEM integration
 
 **Audience:** Security engineers and SOC teams evaluating ArchLucid's audit data for SIEM ingestion.

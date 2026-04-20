@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid pilot success scorecard - full detail, tables, and links in the sections below.
+
 # ArchLucid pilot success scorecard
 
 **Audience:** Pilot champions, architecture team leads, and sales engineers who need to measure whether a pilot succeeded — and present the results to leadership for a purchase decision.

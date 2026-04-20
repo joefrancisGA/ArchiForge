@@ -1,3 +1,5 @@
+> **Scope:** Live E2E — auth assumptions (DevelopmentBypass vs ApiKey / JWT) - full detail, tables, and links in the sections below.
+
 # Live E2E — auth assumptions (DevelopmentBypass vs ApiKey / JWT)
 
 ## 1. Objective

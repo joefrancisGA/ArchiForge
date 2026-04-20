@@ -1,3 +1,5 @@
+> **Scope:** Demo quickstart (Corrected 50R — Contoso Retail Modernization) - full detail, tables, and links in the sections below.
+
 # Demo quickstart (Corrected 50R — Contoso Retail Modernization)
 
 **Buyer / evaluator (Docker only):** see **[go-to-market/DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md)** — `docker-compose.demo.yml` + `scripts/demo-start.*`.

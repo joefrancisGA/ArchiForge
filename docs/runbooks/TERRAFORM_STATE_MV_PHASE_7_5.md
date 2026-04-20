@@ -1,3 +1,5 @@
+> **Scope:** Superseded: Terraform state mv (Phase 7.5) - full detail, tables, and links in the sections below.
+
 # Superseded: Terraform `state mv` (Phase 7.5)
 
 This runbook was written for **brownfield** Terraform state that still referenced historical `archiforge` resource **addresses**.

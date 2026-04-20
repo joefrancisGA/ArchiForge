@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Product-market fit validation tracker - full detail, tables, and links in the sections below.
+
 # ArchLucid — Product-market fit validation tracker
 
 **Audience:** Product, sales, and leadership teams validating PMF hypotheses with pilot evidence.

@@ -1,3 +1,5 @@
+> **Scope:** Mutation testing (Stryker.NET) — scaffolding - full detail, tables, and links in the sections below.
+
 # Mutation testing (Stryker.NET) — scaffolding
 
 ## Why

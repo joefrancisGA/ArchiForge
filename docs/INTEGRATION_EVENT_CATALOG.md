@@ -1,3 +1,5 @@
+> **Scope:** Integration event catalog (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Integration event catalog (ArchLucid)
 
 **Audience:** platform engineers wiring **Azure Service Bus** consumers, SIEM pipelines, or partner automation.

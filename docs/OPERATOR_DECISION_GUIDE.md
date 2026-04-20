@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Operator Decision Guide - full detail, tables, and links in the sections below.
+
 # ArchLucid Operator Decision Guide
 
 **Audience:** pilot operators, architecture reviewers, governance operators, and customer teams who need to know which ArchLucid layer to use next without relying on founder-level interpretation.

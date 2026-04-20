@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — CI/CD integration guide - full detail, tables, and links in the sections below.
+
 # ArchLucid — CI/CD integration guide
 
 **Audience:** DevOps engineers and platform teams who want to integrate architecture review into their PR or build pipelines.

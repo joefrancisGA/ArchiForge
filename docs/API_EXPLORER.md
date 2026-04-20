@@ -1,3 +1,5 @@
+> **Scope:** API explorer (Scalar + OpenAPI) - full detail, tables, and links in the sections below.
+
 # API explorer (Scalar + OpenAPI)
 
 ## 1. Objective

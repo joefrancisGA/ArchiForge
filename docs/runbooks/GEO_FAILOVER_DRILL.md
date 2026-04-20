@@ -1,3 +1,5 @@
+> **Scope:** Geo-failover drill (Azure SQL) — executable runbook - full detail, tables, and links in the sections below.
+
 # Geo-failover drill (Azure SQL) — executable runbook
 
 **Last reviewed:** 2026-04-16

@@ -1,3 +1,5 @@
+> **Scope:** Key Vault references for secrets (Azure) - full detail, tables, and links in the sections below.
+
 # Key Vault references for secrets (Azure)
 
 Production and shared environments should **not** store SQL connection strings, OpenAI API keys, or long-lived API keys in `appsettings.*.json` committed to git.

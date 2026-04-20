@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Trial and signup experience design - full detail, tables, and links in the sections below.
+
 # ArchLucid — Trial and signup experience design
 
 **Audience:** Product and engineering teams planning the self-serve trial path.

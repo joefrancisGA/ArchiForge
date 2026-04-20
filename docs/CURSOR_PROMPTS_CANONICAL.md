@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — canonical index (weighted improvements) - full detail, tables, and links in the sections below.
+
 # Cursor prompts — canonical index (weighted improvements)
 
 Use this file as a **stable entry point** for paste-ready improvement prompts. Detailed assessment: **[QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md](QUALITY_ASSESSMENT_2026_04_14_WEIGHTED.md)** § *Six Best Improvements*.

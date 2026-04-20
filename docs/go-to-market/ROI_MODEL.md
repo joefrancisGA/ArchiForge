@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid ROI model - full detail, tables, and links in the sections below.
+
 # ArchLucid ROI model
 
 **Audience:** Pilot champions, enterprise architects, and engineering leaders who need to justify an ArchLucid purchase to their CFO or procurement team.

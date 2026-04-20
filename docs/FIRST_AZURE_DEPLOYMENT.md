@@ -1,3 +1,5 @@
+> **Scope:** First Azure deployment (ArchLucid) - full detail, tables, and links in the sections below.
+
 # First Azure deployment (ArchLucid)
 
 **Audience:** Platform engineers provisioning ArchLucid in Azure for the **first time** (no prior Terraform state or ArchLucid resources in the subscription).

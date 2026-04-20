@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Renewal and expansion playbook - full detail, tables, and links in the sections below.
+
 # ArchLucid — Renewal and expansion playbook
 
 **Audience:** Customer success, account management, and sales leadership.

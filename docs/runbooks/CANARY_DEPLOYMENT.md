@@ -1,3 +1,5 @@
+> **Scope:** Canary and blue-green — Azure Container Apps - full detail, tables, and links in the sections below.
+
 # Canary and blue-green — Azure Container Apps
 
 **Last reviewed:** 2026-04-16

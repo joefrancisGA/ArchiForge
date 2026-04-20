@@ -1,3 +1,5 @@
+> **Scope:** Data consistency enforcement (orphan probes) - full detail, tables, and links in the sections below.
+
 # Data consistency enforcement (orphan probes)
 
 ## Objective

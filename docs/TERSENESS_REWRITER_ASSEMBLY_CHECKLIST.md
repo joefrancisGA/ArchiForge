@@ -1,3 +1,5 @@
+> **Scope:** RemoveEmbeddedStatementBraces assembly sweep - full detail, tables, and links in the sections below.
+
 # `RemoveEmbeddedStatementBraces` assembly sweep
 
 Tracks [`scripts/RemoveEmbeddedStatementBraces`](../scripts/RemoveEmbeddedStatementBraces/RemoveEmbeddedStatementBraces.csproj) runs (brace unwrap + **Terse-01** same-line guards where eligible). The tool also **refuses** to unwrap a braced `then` when the `if` has an `else` and the inner statement is a nested `if` (dangling-else safety).

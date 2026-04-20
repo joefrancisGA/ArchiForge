@@ -1,3 +1,5 @@
+> **Scope:** Local release candidate packaging (Change Set 56R) - full detail, tables, and links in the sections below.
+
 # Local release candidate packaging (Change Set 56R)
 
 Practical steps to produce a **Release**-configuration build, run a **lightweight readiness gate**, and **publish** the **ArchLucid** API for handoff to a design partner or pilot (framework-dependent deployment; no Docker requirement in this doc). **Pilot narrative:** [PILOT_GUIDE.md](PILOT_GUIDE.md).

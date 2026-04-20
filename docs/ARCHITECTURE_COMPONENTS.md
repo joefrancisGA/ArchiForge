@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid architecture (Components) - full detail, tables, and links in the sections below.
+
 ## ArchLucid architecture (Components)
 
 **Product name:** **ArchLucid**. Solution/projects use **`ArchLucid.*`**; configuration may still show legacy **`ArchLucid:*`** / **`ArchLucidAuth`** keys until Phase 7 (`docs/ARCHLUCID_RENAME_CHECKLIST.md`).

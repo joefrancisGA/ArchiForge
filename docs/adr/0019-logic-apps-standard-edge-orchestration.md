@@ -1,3 +1,5 @@
+> **Scope:** ADR 0019 — Azure Logic Apps (Standard) for edge orchestration - full detail, tables, and links in the sections below.
+
 # ADR 0019 — Azure Logic Apps (Standard) for edge orchestration
 
 ## Status

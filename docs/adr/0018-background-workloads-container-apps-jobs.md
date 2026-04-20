@@ -1,3 +1,5 @@
+> **Scope:** ADR 0018 — Background workloads: Azure Container Apps Jobs (not Functions) - full detail, tables, and links in the sections below.
+
 # ADR 0018 — Background workloads: Azure Container Apps Jobs (not Functions)
 
 **Status:** Accepted (2026-04-19)

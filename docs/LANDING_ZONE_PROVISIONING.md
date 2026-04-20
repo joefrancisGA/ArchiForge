@@ -1,3 +1,5 @@
+> **Scope:** Azure landing zone provisioning (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Azure landing zone provisioning (ArchLucid)
 
 ## Objective

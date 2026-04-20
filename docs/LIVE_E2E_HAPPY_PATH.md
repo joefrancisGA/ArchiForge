@@ -1,3 +1,5 @@
+> **Scope:** Live E2E — operator shell vs real API + SQL (Playwright) - full detail, tables, and links in the sections below.
+
 # Live E2E — operator shell vs real API + SQL (Playwright)
 
 **Purpose:** Document every **`live-api-*.spec.ts`** file run in CI against a **real** `ArchLucid.Api` and **SQL Server**. Mock journeys use **`playwright.mock.config.ts`** (`npm run test:e2e`).

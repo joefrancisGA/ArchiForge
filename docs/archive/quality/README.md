@@ -30,5 +30,5 @@ When a file moves here:
 
 ## Companion CI guards
 
-- **Doc scope header (shipped 2026-04-20):** `scripts/ci/check_doc_scope_header.py` runs in `.github/workflows/ci.yml` after `check_doc_links.py` with `continue-on-error: true` until active docs under `docs/` (excluding `docs/archive/`) all open with `> **Scope:**`. See the script docstring for the exact rule and README HTML exception.
+- **Doc scope header (shipped 2026-04-20):** `scripts/ci/check_doc_scope_header.py` runs in `.github/workflows/ci.yml` after `check_doc_links.py` as a **merge-blocking** step. Active docs under `docs/` (excluding `docs/archive/`) must open with `> **Scope:**` (see `scripts/ci/backfill_doc_scope_headers.py` for the mechanical prepend). README HTML exception is documented in the checker script.
 - **Stale assessment index (planned):** a non-blocking job named `docs-stale-assessment-warn` may later warn when more than one file from the same assessment family lives at the top level of `docs/`. Until that ships, demotion remains a manual hygiene step at the end of each release.

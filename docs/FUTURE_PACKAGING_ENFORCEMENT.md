@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Future Packaging Enforcement Map - full detail, tables, and links in the sections below.
+
 # ArchLucid Future Packaging Enforcement Map
 
 **Audience:** product, sales, architecture, and go-to-market stakeholders who need a practical view of how ArchLucid’s current layer model could evolve into stronger commercial packaging over time.

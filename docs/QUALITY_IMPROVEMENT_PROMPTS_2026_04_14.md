@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts for top-6 quality improvements (2026-04-14 assessment) - full detail, tables, and links in the sections below.
+
 # Cursor prompts for top-6 quality improvements (2026-04-14 assessment)
 
 Five standalone prompts (improvements #1–#4 and #6 from the archived assessment [`docs/archive/QUALITY_ASSESSMENT_2026_04_14.md`](archive/QUALITY_ASSESSMENT_2026_04_14.md) (stub: [`docs/QUALITY_ASSESSMENT_2026_04_14.md`](QUALITY_ASSESSMENT_2026_04_14.md)); improvement #5 — Terraform `state mv` + `NEXT_REFACTORINGS.md` triage — is excluded by request). Each prompt is self-contained and ready to paste into a Cursor Agent session.

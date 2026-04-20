@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Service level objectives (buyer summary) - full detail, tables, and links in the sections below.
+
 # ArchLucid — Service level objectives (buyer summary)
 
 **Audience:** Procurement, security reviewers, and technical evaluators assessing ArchLucid's reliability commitments.

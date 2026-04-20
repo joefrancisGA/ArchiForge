@@ -1,3 +1,5 @@
+> **Scope:** Database migration rollback scripts - full detail, tables, and links in the sections below.
+
 # Database migration rollback scripts
 
 Forward schema changes ship via DbUp under `ArchLucid.Persistence/Migrations/`. **DbUp does not run rollback scripts.**

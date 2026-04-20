@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Operational transparency plan - full detail, tables, and links in the sections below.
+
 # ArchLucid — Operational transparency plan
 
 **Audience:** Product and engineering teams planning the public status page; buyers who ask "how will we know if the service is down?"

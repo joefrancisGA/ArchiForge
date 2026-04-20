@@ -1,3 +1,5 @@
+> **Scope:** ADR 0021: Coordinator pipeline strangler plan - full detail, tables, and links in the sections below.
+
 # ADR 0021: Coordinator pipeline strangler plan
 
 - **Status:** Proposed

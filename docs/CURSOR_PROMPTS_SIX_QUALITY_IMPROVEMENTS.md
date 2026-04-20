@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — six quality improvements (weighted assessment) - full detail, tables, and links in the sections below.
+
 # Cursor prompts — six quality improvements (weighted assessment)
 
 **Purpose:** Six **paste-ready** prompts for Cursor Agent (or Plan) sessions. They map to the highest-impact follow-ups from the weighted quality review (correctness, performance, explainability, auditability, evolvability, testability, security).

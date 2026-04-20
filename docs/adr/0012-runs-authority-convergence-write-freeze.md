@@ -1,3 +1,5 @@
+> **Scope:** ADR 0012: Runs / authority convergence — legacy ArchitectureRuns removal - full detail, tables, and links in the sections below.
+
 # ADR 0012: Runs / authority convergence — legacy `ArchitectureRuns` removal
 
 - **Status:** Completed (2026-04-12)

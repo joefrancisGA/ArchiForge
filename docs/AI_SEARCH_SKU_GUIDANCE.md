@@ -1,3 +1,5 @@
+> **Scope:** Azure AI Search — SKU notes for ArchLucid retrieval - full detail, tables, and links in the sections below.
+
 # Azure AI Search — SKU notes for ArchLucid retrieval
 
 **Objective:** Pick a search tier that matches environment (dev vs prod), network boundaries, and cost.

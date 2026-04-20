@@ -1,3 +1,5 @@
+> **Scope:** Test structure (Change Set 54R) - full detail, tables, and links in the sections below.
+
 # Test structure (Change Set 54R)
 
 Operator cheat sheet for **ArchLucid** .NET tests: **what each tier means** and **how to run it**. CI job names and full narrative: **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)**. SQL variables and LocalDB: **[BUILD.md](BUILD.md)**.

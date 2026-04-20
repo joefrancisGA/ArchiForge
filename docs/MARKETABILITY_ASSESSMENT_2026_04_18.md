@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Marketability Quality Assessment — 2026-04-18 (post-trial enforcement, pricing.json, marketing pages, CMK/TDE) - full detail, tables, and links in the sections below.
+
 # ArchLucid Marketability Quality Assessment — 2026-04-18 (post-trial enforcement, pricing.json, marketing pages, CMK/TDE)
 
 > **Scope discipline.** This document assesses **marketability only** — i.e. whether the solution can attract buyers, win competitive evaluations, retain customers, and grow revenue in the enterprise architecture tooling market. It deliberately does **not** rescore technical quality, security posture, or operability except where they directly bear on a buyer's decision. Per the user's request, **no other solution-quality dimensions are assessed here.**

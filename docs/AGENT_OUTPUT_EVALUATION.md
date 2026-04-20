@@ -1,3 +1,5 @@
+> **Scope:** Agent output structural evaluation - full detail, tables, and links in the sections below.
+
 # Agent output structural evaluation
 
 ## 1. Objective

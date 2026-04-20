@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Weighted Quality Assessment — 2026-04-14 - full detail, tables, and links in the sections below.
+
 # ArchLucid Weighted Quality Assessment — 2026-04-14
 
 **Methodology:** Each quality dimension is scored 1–100 based on evidence from the repository (code, tests, docs, CI/CD, Terraform, UI). Dimensions are ordered by **weighted improvement priority** (weight x gap-from-100), so the areas that matter most and have the most room to grow appear first.

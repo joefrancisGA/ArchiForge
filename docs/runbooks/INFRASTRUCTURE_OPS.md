@@ -1,3 +1,5 @@
+> **Scope:** Infrastructure operations (Terraform roots) - full detail, tables, and links in the sections below.
+
 # Infrastructure operations (Terraform roots)
 
 **Last reviewed:** 2026-04-16

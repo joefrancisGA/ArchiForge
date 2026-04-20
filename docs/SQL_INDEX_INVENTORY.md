@@ -1,3 +1,5 @@
+> **Scope:** SQL Index Inventory - full detail, tables, and links in the sections below.
+
 # SQL Index Inventory
 
 This document lists every nonclustered index added by migrations 059–060 and the query pattern each one covers. The master DDL at `ArchLucid.Persistence/Scripts/ArchLucid.sql` contains the canonical `IF NOT EXISTS` versions; the individual migration files are incremental and applied by DbUp.

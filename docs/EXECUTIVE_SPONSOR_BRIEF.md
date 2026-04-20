@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Executive Sponsor Brief - full detail, tables, and links in the sections below.
+
 # ArchLucid Executive Sponsor Brief
 
 **Audience:** CIOs, CTOs, chief architects, architecture review sponsors, governance leaders, and pilot sponsors who need a concise explanation of what ArchLucid does and why a pilot matters.

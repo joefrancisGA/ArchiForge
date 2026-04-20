@@ -1,3 +1,5 @@
+> **Scope:** Capacity and cost playbook - full detail, tables, and links in the sections below.
+
 # Capacity and cost playbook
 
 ## 1. Objective

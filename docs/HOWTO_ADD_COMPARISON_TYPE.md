@@ -1,3 +1,5 @@
+> **Scope:** How to add a new comparison type - full detail, tables, and links in the sections below.
+
 # How to add a new comparison type
 
 This guide walks you through adding a new comparison type end-to-end: contracts, persistence, replay, and tests.

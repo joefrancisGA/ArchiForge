@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — reference-customers index - full detail, tables, and links in the sections below.
+
 # ArchLucid — reference-customers index
 
 **Audience:** Marketing, sales, customer success, and product leadership.

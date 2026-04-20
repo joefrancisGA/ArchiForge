@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid demo quickstart (buyer-facing) - full detail, tables, and links in the sections below.
+
 # ArchLucid demo quickstart (buyer-facing)
 
 **Audience:** Evaluators and champions who want to see the product in minutes without installing the .NET SDK, SQL Server, or Node.js locally.

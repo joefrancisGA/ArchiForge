@@ -1,3 +1,5 @@
+> **Scope:** Troubleshooting for pilots and operators (56R) - full detail, tables, and links in the sections below.
+
 # Troubleshooting for pilots and operators (56R)
 
 **Goal:** Faster triage without reading the whole codebase.

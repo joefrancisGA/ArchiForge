@@ -1,3 +1,5 @@
+> **Scope:** Step-by-Step Implementation Plan: CLI–API Architecture - full detail, tables, and links in the sections below.
+
 # Step-by-Step Implementation Plan: CLI–API Architecture
 
 Repository-specific plan for **ArchLucid**: CLI calling the ArchLucid API. Includes order of work, files to create or modify, and tests to add.

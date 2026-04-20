@@ -1,3 +1,5 @@
+> **Scope:** Configuration bridge — removed (Phase 7) - full detail, tables, and links in the sections below.
+
 # Configuration bridge — removed (Phase 7)
 
 ## Status

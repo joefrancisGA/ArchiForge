@@ -1,3 +1,5 @@
+> **Scope:** Next refactorings - full detail, tables, and links in the sections below.
+
 # Next refactorings
 
 **Last updated:** 19 April 2026.

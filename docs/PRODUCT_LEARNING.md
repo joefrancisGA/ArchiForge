@@ -1,3 +1,5 @@
+> **Scope:** Product learning (pilot feedback) — operator & product owner guide (58R) - full detail, tables, and links in the sections below.
+
 # Product learning (pilot feedback) — operator & product owner guide (58R)
 
 **Audience:** Operators and product / architecture owners reviewing how ArchLucid outputs are received in a pilot.

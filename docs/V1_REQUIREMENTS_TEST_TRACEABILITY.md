@@ -1,3 +1,5 @@
+> **Scope:** V1 requirements ↔ tests / scripts traceability - full detail, tables, and links in the sections below.
+
 # V1 requirements ↔ tests / scripts traceability
 
 **Audience:** Engineers and operators who need a **lightweight** map from **[`V1_SCOPE.md`](V1_SCOPE.md)** to **evidence in this repo** (docs, automated tests, scripts).

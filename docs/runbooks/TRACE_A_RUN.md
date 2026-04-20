@@ -1,3 +1,5 @@
+> **Scope:** Trace a run — audit, logs, and distributed traces - full detail, tables, and links in the sections below.
+
 # Trace a run — audit, logs, and distributed traces
 
 **Last reviewed:** 2026-04-16

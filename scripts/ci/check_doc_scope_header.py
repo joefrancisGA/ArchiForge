@@ -30,8 +30,9 @@ a leading ``>`` blockquote would push the product title below a quote box.
 Exit codes
 ~~~~~~~~~~
 * ``0`` — every scanned file satisfies the rule.
-* ``1`` — one or more files are missing a valid scope header (use in CI with
-  ``continue-on-error: true`` until back-fill is complete).
+* ``1`` — one or more files are missing a valid scope header (CI treats this as
+  a merge-blocking failure once the docs tree is back-filled; use
+  ``scripts/ci/backfill_doc_scope_headers.py`` for the mechanical prepend).
 
 Run::
 

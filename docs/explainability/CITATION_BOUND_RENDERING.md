@@ -1,3 +1,5 @@
+> **Scope:** Citation-bound aggregate explanations - full detail, tables, and links in the sections below.
+
 # Citation-bound aggregate explanations
 
 ## Objective

@@ -1,3 +1,5 @@
+> **Scope:** ADR 0009: Digest delivery failure semantics - full detail, tables, and links in the sections below.
+
 # ADR 0009: Digest delivery failure semantics
 
 - **Status:** Accepted (v1)

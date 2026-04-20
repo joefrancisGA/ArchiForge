@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Backup, disaster recovery, and data lifecycle - full detail, tables, and links in the sections below.
+
 # ArchLucid — Backup, disaster recovery, and data lifecycle
 
 **Audience:** Security reviewers and procurement teams evaluating ArchLucid's data protection and recovery posture.

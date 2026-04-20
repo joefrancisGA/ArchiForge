@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Independent Quality Assessment — Weighted 80.72% - full detail, tables, and links in the sections below.
+
 # ArchLucid Independent Quality Assessment — Weighted 80.72%
 
 **Author:** Independent assessor (no prior assessment reviewed)

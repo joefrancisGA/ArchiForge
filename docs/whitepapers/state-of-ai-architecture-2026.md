@@ -1,3 +1,5 @@
+> **Scope:** State of AI-Assisted Architecture Design (2026) - full detail, tables, and links in the sections below.
+
 # State of AI-Assisted Architecture Design (2026)
 
 **Status:** Draft for publication (Marketability Improvement 6).  

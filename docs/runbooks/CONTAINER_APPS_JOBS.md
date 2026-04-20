@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Azure Container Apps Jobs (ArchLucid.Jobs.Cli) - full detail, tables, and links in the sections below.
+
 # Runbook — Azure Container Apps Jobs (`ArchLucid.Jobs.Cli`)
 
 **Last reviewed:** 2026-04-19  

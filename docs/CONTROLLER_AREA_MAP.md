@@ -1,3 +1,5 @@
+> **Scope:** API controller area map - full detail, tables, and links in the sections below.
+
 # API controller area map
 
 **Search / links:** some docs use **[API_CONTROLLER_MAP.md](API_CONTROLLER_MAP.md)** — that file is an **alias** to this page.

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid V1 — scope contract - full detail, tables, and links in the sections below.
+
 # ArchLucid V1 — scope contract
 
 **Audience:** product, engineering, pilots, and operators who need a single, decisive boundary for what "V1" means in **this repository**.

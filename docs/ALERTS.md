@@ -1,3 +1,5 @@
+> **Scope:** Alerts, advisory scans, and related HTTP surface - full detail, tables, and links in the sections below.
+
 # Alerts, advisory scans, and related HTTP surface
 
 This note ties together **operator-facing HTTP routes** and where behavior is implemented. For C# XML comment conventions and the incremental doc **piece tracker**, see [METHOD_DOCUMENTATION.md](METHOD_DOCUMENTATION.md). For policy-pack effects on alerts/compliance, see [API_CONTRACTS.md](API_CONTRACTS.md).

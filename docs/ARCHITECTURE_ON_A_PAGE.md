@@ -1,3 +1,5 @@
+> **Scope:** Architecture on a page (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Architecture on a page (ArchLucid)
 
 ## 1. Objective

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — system STRIDE threat model (summary) - full detail, tables, and links in the sections below.
+
 # ArchLucid — system STRIDE threat model (summary)
 
 ## 1. Objective

@@ -1,3 +1,5 @@
+> **Scope:** Start here (redirect) - full detail, tables, and links in the sections below.
+
 # Start here (redirect)
 
 Contributor onboarding was **consolidated 2026-04-17** so this repo has **one canonical Day-1 path per persona** instead of overlapping “start here” documents.

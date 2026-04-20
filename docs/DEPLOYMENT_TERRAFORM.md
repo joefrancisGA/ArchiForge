@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid deployment — Terraform map (Azure) - full detail, tables, and links in the sections below.
+
 # ArchLucid deployment — Terraform map (Azure)
 
 ## Objective

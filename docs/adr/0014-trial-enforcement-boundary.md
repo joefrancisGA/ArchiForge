@@ -1,3 +1,5 @@
+> **Scope:** ADR 0014 — Trial enforcement boundary (server-side, UoW run counter, idempotent seats) - full detail, tables, and links in the sections below.
+
 # ADR 0014 — Trial enforcement boundary (server-side, UoW run counter, idempotent seats)
 
 **Status:** Accepted  

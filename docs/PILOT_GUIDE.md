@@ -1,3 +1,5 @@
+> **Scope:** Pilot guide (redirect) - full detail, tables, and links in the sections below.
+
 # Pilot guide (redirect)
 
 **Operator / pilot** material is merged into the command-first quickstart. **V1 boundary** (scope, gates) stays in **[V1_SCOPE.md](V1_SCOPE.md)**.

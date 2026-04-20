@@ -1,3 +1,5 @@
+> **Scope:** SQL DDL discipline (single source of truth) - full detail, tables, and links in the sections below.
+
 # SQL DDL discipline (single source of truth)
 
 ## Objective

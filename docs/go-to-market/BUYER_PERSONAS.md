@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid buyer personas - full detail, tables, and links in the sections below.
+
 # ArchLucid buyer personas
 
 **Audience:** Product, sales, and marketing teams who need a shared understanding of who buys ArchLucid, why, and how they evaluate it.

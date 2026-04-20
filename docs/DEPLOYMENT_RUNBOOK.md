@@ -1,3 +1,5 @@
+> **Scope:** Deployment runbook — failed deploys and rollback (practical) - full detail, tables, and links in the sections below.
+
 # Deployment runbook — failed deploys and rollback (practical)
 
 **Audience:** operators on call. **Scope:** Azure Container Apps + GitHub CD (see [DEPLOYMENT_CD_PIPELINE.md](DEPLOYMENT_CD_PIPELINE.md)). For schema and data rollback posture, use [runbooks/MIGRATION_ROLLBACK.md](runbooks/MIGRATION_ROLLBACK.md).

@@ -1,3 +1,5 @@
+> **Scope:** Multi-tenant row-level security (SQL) — design sketch - full detail, tables, and links in the sections below.
+
 # Multi-tenant row-level security (SQL) — design sketch
 
 ## 1. Objective

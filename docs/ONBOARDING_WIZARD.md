@@ -1,3 +1,5 @@
+> **Scope:** Onboarding wizards (operator UI) - full detail, tables, and links in the sections below.
+
 # Onboarding wizards (operator UI)
 
 ArchLucid ships **two** complementary surfaces:

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid system map - full detail, tables, and links in the sections below.
+
 # ArchLucid system map
 
 High-level flows for navigation and onboarding. For component detail see [ARCHITECTURE_COMPONENTS.md](./ARCHITECTURE_COMPONENTS.md) and [ARCHITECTURE_FLOWS.md](./ARCHITECTURE_FLOWS.md).

@@ -1,3 +1,5 @@
+> **Scope:** Agent prompt regression guard - full detail, tables, and links in the sections below.
+
 # Agent prompt regression guard
 
 ## Objective

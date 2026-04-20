@@ -1,3 +1,5 @@
+> **Scope:** <<CUSTOMER_NAME>> — ArchLucid design-partner case study - full detail, tables, and links in the sections below.
+
 # `<<CUSTOMER_NAME>>` — ArchLucid design-partner case study
 
 > **STATUS: PLACEHOLDER.** Every `<<...>>` token must be replaced with real, customer-approved content **before** moving the corresponding row in [`README.md`](README.md) past `Drafting`. Do not commit a populated version of this file under any tier other than `Drafting` until the customer has signed a reference agreement.

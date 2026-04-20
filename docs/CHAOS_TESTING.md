@@ -1,3 +1,5 @@
+> **Scope:** Chaos-style resilience tests - full detail, tables, and links in the sections below.
+
 # Chaos-style resilience tests
 
 **Objective**: Catch regressions in retry and circuit-breaker wiring before production incidents.

@@ -1,3 +1,5 @@
+> **Scope:** Redis and multi-region patterns - full detail, tables, and links in the sections below.
+
 # Redis and multi-region patterns
 
 ## Redis (shared cache / hot path)

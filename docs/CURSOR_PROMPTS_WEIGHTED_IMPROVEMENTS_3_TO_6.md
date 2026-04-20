@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — Weighted quality assessment Improvements 3–6 - full detail, tables, and links in the sections below.
+
 # Cursor prompts — Weighted quality assessment Improvements 3–6
 
 **Last developed:** 2026-04-17.

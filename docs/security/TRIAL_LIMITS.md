@@ -1,3 +1,5 @@
+> **Scope:** Trial limits (runs, seats, expiry) - full detail, tables, and links in the sections below.
+
 # Trial limits (runs, seats, expiry)
 
 ## Objective

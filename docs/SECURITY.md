@@ -1,3 +1,5 @@
+> **Scope:** Security overview (ArchLucid) - full detail, tables, and links in the sections below.
+
 # Security overview (ArchLucid)
 
 This document points to security-relevant behavior and gates. It is not a full threat model; see ADRs and runbooks for depth.

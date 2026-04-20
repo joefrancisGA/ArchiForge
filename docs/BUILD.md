@@ -1,3 +1,5 @@
+> **Scope:** Build & project hygiene - full detail, tables, and links in the sections below.
+
 # Build & project hygiene
 
 > **Product naming:** Documentation refers to the product as **ArchLucid**. Phase 7 retired legacy `ArchLucid*` configuration and CLI naming; see `docs/ARCHLUCID_RENAME_CHECKLIST.md` for deferred items (Terraform state, repo path, etc.).

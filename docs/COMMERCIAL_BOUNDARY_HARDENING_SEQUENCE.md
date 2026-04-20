@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Commercial Boundary Hardening Sequence - full detail, tables, and links in the sections below.
+
 # ArchLucid Commercial Boundary Hardening Sequence
 
 **Audience:** product, sales, architecture, and go-to-market stakeholders who need a practical sequence for turning ArchLucid’s current layer model into stronger commercial boundaries over time.

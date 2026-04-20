@@ -1,3 +1,5 @@
+> **Scope:** Operator quickstart — ArchLucid (commands only) (56R) - full detail, tables, and links in the sections below.
+
 # Operator quickstart — ArchLucid (commands only) (56R)
 
 Copy-paste from the **repository root** unless noted. **Windows:** use `.cmd`; **PowerShell:** use `.ps1` where listed.

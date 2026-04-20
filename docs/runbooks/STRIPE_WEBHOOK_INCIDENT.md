@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Stripe webhook incident - full detail, tables, and links in the sections below.
+
 # Runbook — Stripe webhook incident
 
 > **Scope:** Triage and recovery for failures of the Stripe webhook endpoint (planned: `POST /v1/billing/webhooks/stripe`). Sibling to `docs/runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`.

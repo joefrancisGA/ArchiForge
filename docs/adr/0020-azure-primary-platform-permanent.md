@@ -1,3 +1,5 @@
+> **Scope:** ADR 0020: Azure as the primary and permanent platform - full detail, tables, and links in the sections below.
+
 # ADR 0020: Azure as the primary and permanent platform
 
 **Status:** Accepted  

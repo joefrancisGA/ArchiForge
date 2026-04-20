@@ -1,3 +1,5 @@
+> **Scope:** Runbook: data_archival readiness check - full detail, tables, and links in the sections below.
+
 # Runbook: `data_archival` readiness check
 
 **Last reviewed:** 2026-04-16

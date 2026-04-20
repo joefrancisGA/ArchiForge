@@ -1,3 +1,5 @@
+> **Scope:** ADR 0016 — Billing provider abstraction (Stripe + Azure Marketplace) - full detail, tables, and links in the sections below.
+
 # ADR 0016 — Billing provider abstraction (Stripe + Azure Marketplace)
 
 ## Status

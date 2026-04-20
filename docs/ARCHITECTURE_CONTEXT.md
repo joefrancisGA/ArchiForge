@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid architecture (Context) - full detail, tables, and links in the sections below.
+
 ## ArchLucid architecture (Context)
 
 **Product name:** **ArchLucid**. Legacy identifiers may still read **ArchLucid** in code and configuration (incremental rename; see `docs/ARCHLUCID_RENAME_CHECKLIST.md`). Project and namespace names below use **`ArchLucid.*`** until Phase 5–6 of that checklist.

@@ -1,3 +1,5 @@
+> **Scope:** How to add a finding engine plugin (ArchLucid) - full detail, tables, and links in the sections below.
+
 # How to add a finding engine plugin (ArchLucid)
 
 ## Objective

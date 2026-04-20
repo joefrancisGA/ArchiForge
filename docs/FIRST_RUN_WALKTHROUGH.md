@@ -1,3 +1,5 @@
+> **Scope:** First-run walkthrough (operator UI) - full detail, tables, and links in the sections below.
+
 # First-run walkthrough (operator UI)
 
 ## Objective

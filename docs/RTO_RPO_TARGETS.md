@@ -1,3 +1,5 @@
+> **Scope:** RTO / RPO targets by environment tier - full detail, tables, and links in the sections below.
+
 # RTO / RPO targets by environment tier
 
 **Last reviewed:** 2026-04-04

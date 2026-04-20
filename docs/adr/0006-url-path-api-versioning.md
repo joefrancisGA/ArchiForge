@@ -1,3 +1,5 @@
+> **Scope:** ADR 0006: URL-path API versioning (/v1) - full detail, tables, and links in the sections below.
+
 # ADR 0006: URL-path API versioning (`/v1`)
 
 - **Status:** Accepted

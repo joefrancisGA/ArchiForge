@@ -1,3 +1,5 @@
+> **Scope:** Background job correlation (Activity + Serilog) - full detail, tables, and links in the sections below.
+
 # Background job correlation (Activity + Serilog)
 
 ## 1. Objective

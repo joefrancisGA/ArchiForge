@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Azure Logic Apps (Standard) for ArchLucid - full detail, tables, and links in the sections below.
+
 # Runbook — Azure Logic Apps (Standard) for ArchLucid
 
 **Priority:** P3 — Reference  

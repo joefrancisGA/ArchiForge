@@ -1,3 +1,5 @@
+> **Scope:** Billing — provider abstraction (Stripe + Azure Marketplace) - full detail, tables, and links in the sections below.
+
 # Billing — provider abstraction (Stripe + Azure Marketplace)
 
 ## Objective

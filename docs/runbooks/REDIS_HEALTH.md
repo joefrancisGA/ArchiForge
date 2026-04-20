@@ -1,3 +1,5 @@
+> **Scope:** Redis health (development and cache-oriented deployments) - full detail, tables, and links in the sections below.
+
 # Redis health (development and cache-oriented deployments)
 
 **Last reviewed:** 2026-04-16

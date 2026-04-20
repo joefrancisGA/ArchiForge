@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid architecture (Containers) - full detail, tables, and links in the sections below.
+
 ## ArchLucid architecture (Containers)
 
 **Product name:** **ArchLucid**. **`ArchLucid.*`** below refers to deployable projects and libraries until the bulk rename phases in `docs/ARCHLUCID_RENAME_CHECKLIST.md`.

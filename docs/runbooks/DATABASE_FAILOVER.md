@@ -1,3 +1,5 @@
+> **Scope:** Runbook: Azure SQL — failover, connectivity, RPO/RTO - full detail, tables, and links in the sections below.
+
 # Runbook: Azure SQL — failover, connectivity, RPO/RTO
 
 **Last reviewed:** 2026-04-16

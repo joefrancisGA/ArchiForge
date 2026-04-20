@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — Quality Assessment 2026-04-20 (Top two improvements) - full detail, tables, and links in the sections below.
+
 # Cursor prompts — Quality Assessment 2026-04-20 (Top two improvements)
 
 These are paste-ready Agent prompts for the **two highest-leverage** improvements identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3.

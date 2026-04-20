@@ -1,3 +1,5 @@
+> **Scope:** Dual pipeline navigator (Coordinator vs Authority) - full detail, tables, and links in the sections below.
+
 # Dual pipeline navigator (Coordinator vs Authority)
 
 **Objective**: Cut ramp-up time for the two execution paths that both converge on a **golden manifest**, without reading every ADR first. This page is the map; ADRs remain the receipts.

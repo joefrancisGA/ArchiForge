@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — follow-ups to the six quality improvements - full detail, tables, and links in the sections below.
+
 # Cursor prompts — follow-ups to the six quality improvements
 
 **Purpose:** Paste-ready **second-wave** prompts that assume the primary work from [`CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md`](CURSOR_PROMPTS_SIX_QUALITY_IMPROVEMENTS.md) is either **done** or **stable**, and you want to deepen correctness, operability, or governance without re-running the whole original brief.

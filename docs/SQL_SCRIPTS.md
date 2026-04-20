@@ -1,3 +1,5 @@
+> **Scope:** SQL scripts — reference & operations - full detail, tables, and links in the sections below.
+
 # SQL scripts — reference & operations
 
 This document is the **canonical guide** to every SQL artifact in ArchLucid: what each file does, how it is executed, how the pieces relate, and how to change schema safely.

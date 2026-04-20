@@ -1,3 +1,5 @@
+> **Scope:** Golden change path (redirect) - full detail, tables, and links in the sections below.
+
 # Golden change path (redirect)
 
 Use the **developer Day-1 doc** for clone → build → test → small PR flow, and **[BUILD.md](BUILD.md)** for solution layout and formatting.

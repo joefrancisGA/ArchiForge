@@ -1,3 +1,5 @@
+> **Scope:** Competitor contrast (honest positioning) - full detail, tables, and links in the sections below.
+
 # Competitor contrast (honest positioning)
 
 **Audience:** Sales engineers, architects pitching sponsors. **Not** a feature matrix for RFP checkbox wars.

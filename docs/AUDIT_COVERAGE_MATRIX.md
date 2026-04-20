@@ -1,3 +1,5 @@
+> **Scope:** Audit coverage matrix - full detail, tables, and links in the sections below.
+
 # Audit coverage matrix
 
 This document maps **state-changing** workflows to the audit signals they emit. ArchLucid has two parallel **channels** that share one **string catalog** in `ArchLucid.Core.Audit.AuditEventTypes`:

@@ -1,3 +1,5 @@
+> **Scope:** Release smoke path (Change Set 56R) - full detail, tables, and links in the sections below.
+
 # Release smoke path (Change Set 56R)
 
 One **deterministic** end-to-end check for **pilot / commercial confidence** on **ArchLucid** (not full coverage). Implemented as **`release-smoke.ps1`** / **`release-smoke.cmd`** at the repo root.

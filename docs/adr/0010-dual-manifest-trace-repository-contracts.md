@@ -1,3 +1,5 @@
+> **Scope:** ADR 0010: Dual manifest and decision-trace repository contracts - full detail, tables, and links in the sections below.
+
 # ADR 0010: Dual manifest and decision-trace repository contracts
 
 - **Status:** Accepted

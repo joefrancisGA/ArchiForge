@@ -1,3 +1,5 @@
+> **Scope:** Operations — Admin diagnostics API - full detail, tables, and links in the sections below.
+
 # Operations — Admin diagnostics API
 
 **Last reviewed:** 2026-04-04

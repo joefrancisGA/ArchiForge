@@ -1,3 +1,5 @@
+> **Scope:** Day one — Security / GRC (week one) - full detail, tables, and links in the sections below.
+
 # Day one — Security / GRC (week one)
 
 **Goal:** Map **trust boundaries**, **identity**, and **data-plane exposure** for **ArchLucid** in **your** Azure landing zone. **Not** a full pen test or every ADR.

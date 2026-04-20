@@ -1,3 +1,5 @@
+> **Scope:** Scaling path (capacity, tenancy, and regions) - full detail, tables, and links in the sections below.
+
 # Scaling path (capacity, tenancy, and regions)
 
 ## 1. Objective

@@ -1,3 +1,5 @@
+> **Scope:** Trial funnel observability runbook - full detail, tables, and links in the sections below.
+
 # Trial funnel observability runbook
 
 **Objective:** Operate self-service trial as a **measurable product funnel** (signup → verify → first committed manifest → usage → billing → conversion), with **Prometheus metrics** as the quantitative source of truth and **durable audit types** as the forensic complement.

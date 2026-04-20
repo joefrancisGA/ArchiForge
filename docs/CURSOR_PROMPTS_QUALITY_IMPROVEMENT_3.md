@@ -1,3 +1,5 @@
+> **Scope:** Cursor prompts — Quality improvement 3 (load / k6 / CI performance gate) - full detail, tables, and links in the sections below.
+
 # Cursor prompts — Quality improvement 3 (load / k6 / CI performance gate)
 
 > **Not the weighted-assessment “Improvement 3”:** for rename / single solution / archived quality reports, use **[CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md](CURSOR_PROMPTS_WEIGHTED_IMPROVEMENT_3.md)**.

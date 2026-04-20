@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Solution Quality Assessment — 75.37% Weighted (2026-04-20) - full detail, tables, and links in the sections below.
+
 # ArchLucid Solution Quality Assessment — 75.37% Weighted (2026-04-20)
 
 > **Independent assessment.** This document was scored from the codebase as it exists today, without reference to prior `QUALITY_ASSESSMENT_*` or `MARKETABILITY_ASSESSMENT_*` files in `docs/`. Where my conclusions overlap with earlier assessments, that is convergent evidence — not citation.

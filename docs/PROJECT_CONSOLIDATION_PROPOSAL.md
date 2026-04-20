@@ -1,3 +1,5 @@
+> **Scope:** Project and documentation consolidation (proposal) - full detail, tables, and links in the sections below.
+
 # Project and documentation consolidation (proposal)
 
 **Status:** Proposal (2026-04-20)  

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Customer onboarding playbook - full detail, tables, and links in the sections below.
+
 # ArchLucid — Customer onboarding playbook
 
 **Audience:** Customer success, sales engineering, and account management teams onboarding new SaaS customers.

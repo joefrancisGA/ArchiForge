@@ -1,3 +1,5 @@
+> **Scope:** V1 release-candidate (RC) drill - full detail, tables, and links in the sections below.
+
 # V1 release-candidate (RC) drill
 
 **Audience:** Release owners, SRE, and pilot leads validating a **candidate build** or **fresh environment** before sign-off.

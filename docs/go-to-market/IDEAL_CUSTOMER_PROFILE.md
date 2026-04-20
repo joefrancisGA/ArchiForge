@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Ideal Customer Profile (ICP) - full detail, tables, and links in the sections below.
+
 # ArchLucid — Ideal Customer Profile (ICP)
 
 **Audience:** Sales, marketing, and product teams who need to qualify leads quickly and focus on high-probability opportunities.

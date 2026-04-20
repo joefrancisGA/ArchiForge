@@ -1,3 +1,5 @@
+> **Scope:** Penetration test — redacted summary (customer template) - full detail, tables, and links in the sections below.
+
 # Penetration test — redacted summary (customer template)
 
 **Purpose:** Publishable **one-to-two page** summary after an internal full report exists. Remove internal hostnames, account emails, and stack traces.

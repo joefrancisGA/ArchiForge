@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Solution Correctness Quality Assessment — 2026-04-15 - full detail, tables, and links in the sections below.
+
 # ArchLucid Solution Correctness Quality Assessment — 2026-04-15
 
 **Assessor:** Automated deep-dive analysis of repository code, tests, CI/CD, docs, and infrastructure.

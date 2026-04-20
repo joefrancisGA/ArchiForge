@@ -1,3 +1,5 @@
+> **Scope:** Self-serve trial — end-to-end live acceptance - full detail, tables, and links in the sections below.
+
 # Self-serve trial — end-to-end live acceptance
 
 **Audience:** engineers running the merge-blocking Playwright suite locally, cleaning up after manual runs, or replaying billing harness calls.

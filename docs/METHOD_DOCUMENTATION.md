@@ -1,3 +1,5 @@
+> **Scope:** Method and API documentation (XML comments) - full detail, tables, and links in the sections below.
+
 # Method and API documentation (XML comments)
 
 We document public and internal decisioning APIs with **C# XML documentation comments** (`///`) so IntelliSense, DocFX, and future reference docs stay accurate.

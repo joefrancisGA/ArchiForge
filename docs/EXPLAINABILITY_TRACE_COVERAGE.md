@@ -1,3 +1,5 @@
+> **Scope:** Explainability trace coverage - full detail, tables, and links in the sections below.
+
 # Explainability trace coverage
 
 ## Objective

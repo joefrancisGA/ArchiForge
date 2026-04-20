@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Tenant isolation (buyer overview) - full detail, tables, and links in the sections below.
+
 # ArchLucid — Tenant isolation (buyer overview)
 
 **Audience:** Security reviewers who need a **short** explanation before diving into engineering docs.

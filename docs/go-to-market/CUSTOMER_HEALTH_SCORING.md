@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Customer health scoring framework - full detail, tables, and links in the sections below.
+
 # ArchLucid — Customer health scoring framework
 
 **Audience:** Customer success team and product leadership.

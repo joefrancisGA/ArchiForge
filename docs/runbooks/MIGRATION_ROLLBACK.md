@@ -1,3 +1,5 @@
+> **Scope:** SQL migration rollback (DbUp / ArchLucid.Persistence) - full detail, tables, and links in the sections below.
+
 # SQL migration rollback (DbUp / ArchLucid.Persistence)
 
 **Last reviewed:** 2026-04-16

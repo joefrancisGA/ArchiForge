@@ -1,3 +1,5 @@
+> **Scope:** Architecture Decision Records (ADR) - full detail, tables, and links in the sections below.
+
 # Architecture Decision Records (ADR)
 
 **Last reviewed:** 2026-04-19

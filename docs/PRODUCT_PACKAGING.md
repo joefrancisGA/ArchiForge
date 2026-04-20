@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Product Packaging Reference - full detail, tables, and links in the sections below.
+
 # ArchLucid — Product Packaging Reference
 
 **Audience:** buyers, pilot operators, sales engineers, and product team members who need a single, authoritative description of what is in each product layer.

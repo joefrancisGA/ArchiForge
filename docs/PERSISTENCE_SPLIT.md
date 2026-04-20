@@ -1,3 +1,5 @@
+> **Scope:** Persistence Project Split - full detail, tables, and links in the sections below.
+
 # Persistence Project Split
 
 **Date:** 7 April 2026

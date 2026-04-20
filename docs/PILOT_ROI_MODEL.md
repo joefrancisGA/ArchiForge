@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Pilot ROI Model - full detail, tables, and links in the sections below.
+
 # ArchLucid Pilot ROI Model
 
 **Audience:** executive sponsors, chief architects, architecture review leads, pilot operators, and sales engineers who need a credible way to judge whether an ArchLucid pilot created business value.

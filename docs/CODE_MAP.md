@@ -1,3 +1,5 @@
+> **Scope:** Code map (where to open first) - full detail, tables, and links in the sections below.
+
 # Code map (where to open first)
 
 ## 1. Objective

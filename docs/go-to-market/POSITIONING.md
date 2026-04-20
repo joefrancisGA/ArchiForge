@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid positioning - full detail, tables, and links in the sections below.
+
 # ArchLucid positioning
 
 **Audience:** Anyone who needs to explain what ArchLucid is and why it matters — in a sentence, a paragraph, or a two-minute conversation.

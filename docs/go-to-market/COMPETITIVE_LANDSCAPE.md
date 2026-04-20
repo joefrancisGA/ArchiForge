@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid competitive landscape - full detail, tables, and links in the sections below.
+
 # ArchLucid competitive landscape
 
 **Audience:** Product leadership, sales, and marketing teams who need to position ArchLucid against alternatives during evaluations and deal cycles.

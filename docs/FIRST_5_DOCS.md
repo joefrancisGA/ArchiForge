@@ -1,3 +1,5 @@
+> **Scope:** Your first five documents - full detail, tables, and links in the sections below.
+
 # Your first five documents
 
 Read these in order when you are new to the ArchLucid codebase. They balance **system map**, **contracts**, **security**, and **how we test**.

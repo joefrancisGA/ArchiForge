@@ -1,3 +1,5 @@
+> **Scope:** Alert delivery failures - full detail, tables, and links in the sections below.
+
 # Alert delivery failures
 
 **Last reviewed:** 2026-04-16

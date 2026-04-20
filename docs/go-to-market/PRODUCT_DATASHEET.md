@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Product Datasheet - full detail, tables, and links in the sections below.
+
 # ArchLucid — Product Datasheet
 
 <!-- Layout: designed for PDF export at US Letter or A4. Keep under 2 pages rendered. -->

@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Pricing philosophy and packaging - full detail, tables, and links in the sections below.
+
 # ArchLucid — Pricing philosophy and packaging
 
 **Audience:** Product leadership, sales, and finance — internal alignment before external pricing publication.

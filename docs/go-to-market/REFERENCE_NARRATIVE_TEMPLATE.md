@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Customer reference narrative template - full detail, tables, and links in the sections below.
+
 # ArchLucid — Customer reference narrative template
 
 **Audience:** Marketing, sales, and customer success teams creating case studies.

@@ -1,3 +1,5 @@
+> **Scope:** Golden path (redirect) - full detail, tables, and links in the sections below.
+
 # Golden path (redirect)
 
 Environment sequencing for **zero → local → Azure** now lives in the **canonical persona docs** (2026-04-17 consolidation).

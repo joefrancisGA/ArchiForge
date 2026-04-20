@@ -1,3 +1,5 @@
+> **Scope:** Trial-tier authentication (External ID + local identity) - full detail, tables, and links in the sections below.
+
 # Trial-tier authentication (External ID + local identity)
 
 **Last reviewed:** 2026-04-17

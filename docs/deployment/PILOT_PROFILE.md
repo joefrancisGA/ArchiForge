@@ -1,3 +1,5 @@
+> **Scope:** Pilot Terraform profile (cost-aware) - full detail, tables, and links in the sections below.
+
 # Pilot Terraform profile (cost-aware)
 
 ## Objective

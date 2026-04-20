@@ -1,3 +1,5 @@
+> **Scope:** ADR 0001: Hosting roles (Api, Worker, Combined) - full detail, tables, and links in the sections below.
+
 # ADR 0001: Hosting roles (Api, Worker, Combined)
 
 - **Status:** Accepted

@@ -1,3 +1,5 @@
+> **Scope:** Live E2E — auth parity (DevelopmentBypass vs ApiKey vs JWT) - full detail, tables, and links in the sections below.
+
 # Live E2E — auth parity (DevelopmentBypass vs ApiKey vs JWT)
 
 ## 1. Objective

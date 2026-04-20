@@ -1,3 +1,5 @@
+> **Scope:** Quality assessment (redirect) - full detail, tables, and links in the sections below.
+
 # Quality assessment (redirect)
 
 > **Scope:** This file path is preserved so existing bookmarks and external links keep resolving. The active assessment moves on a regular cadence — always look here for the canonical pointer.

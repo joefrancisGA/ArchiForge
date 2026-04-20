@@ -1,3 +1,5 @@
+> **Scope:** ADR 0005: LLM completion pipeline (cache, circuit breaker, quota, metrics) - full detail, tables, and links in the sections below.
+
 # ADR 0005: LLM completion pipeline (cache, circuit breaker, quota, metrics)
 
 - **Status:** Accepted

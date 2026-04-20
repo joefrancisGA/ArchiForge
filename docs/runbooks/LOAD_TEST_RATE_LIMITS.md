@@ -1,3 +1,5 @@
+> **Scope:** Load test — expensive rate-limit boundary - full detail, tables, and links in the sections below.
+
 # Load test — expensive rate-limit boundary
 
 **Last reviewed:** 2026-04-16

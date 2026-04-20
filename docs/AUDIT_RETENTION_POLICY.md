@@ -1,3 +1,5 @@
+> **Scope:** Audit retention policy - full detail, tables, and links in the sections below.
+
 # Audit retention policy
 
 ## Purpose

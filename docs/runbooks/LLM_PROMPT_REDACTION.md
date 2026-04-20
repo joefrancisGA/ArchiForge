@@ -1,3 +1,5 @@
+> **Scope:** LLM prompt deny-list redaction (P2) - full detail, tables, and links in the sections below.
+
 # LLM prompt deny-list redaction (P2)
 
 **Last reviewed:** 2026-04-20

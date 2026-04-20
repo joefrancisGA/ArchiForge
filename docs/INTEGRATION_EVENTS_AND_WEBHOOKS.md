@@ -1,3 +1,5 @@
+> **Scope:** Integration events and webhook interoperability - full detail, tables, and links in the sections below.
+
 # Integration events and webhook interoperability
 
 ## CloudEvents on HTTP webhooks

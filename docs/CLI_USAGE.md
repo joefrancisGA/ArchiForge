@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid CLI Reference - full detail, tables, and links in the sections below.
+
 # ArchLucid CLI Reference
 
 Reference for the ArchLucid CLI: commands, configuration, and API URL behavior.

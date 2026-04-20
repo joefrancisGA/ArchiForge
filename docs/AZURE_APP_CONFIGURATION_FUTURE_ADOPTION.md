@@ -1,3 +1,5 @@
+> **Scope:** Azure App Configuration — future adoption plan - full detail, tables, and links in the sections below.
+
 # Azure App Configuration — future adoption plan
 
 **Companion to:** [ADR 0017](adr/0017-azure-app-configuration-deferred.md)

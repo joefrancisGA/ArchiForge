@@ -1,3 +1,5 @@
+> **Scope:** When ArchLucid is *not* a fit (blunt filter) - full detail, tables, and links in the sections below.
+
 # When ArchLucid is *not* a fit (blunt filter)
 
 **Purpose:** Save buyers and our team time. Disqualify early; do **not** promise roadmap to close bad-fit deals.

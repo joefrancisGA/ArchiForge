@@ -1,3 +1,5 @@
+> **Scope:** Typed findings schema (envelope + payloads) - full detail, tables, and links in the sections below.
+
 # Typed findings schema (envelope + payloads)
 
 ## Schema versions

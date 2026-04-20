@@ -1,3 +1,5 @@
+> **Scope:** ArchiForge → ArchLucid Rename Checklist - full detail, tables, and links in the sections below.
+
 # ArchiForge → ArchLucid Rename Checklist
 
 **Status — initiative closed (2026-04-19); workspace-root residue cleaned in Phase 8 (2026-04-20):** Product, code, CI, Terraform (greenfield), GitHub repo (`joefrancisGA/ArchLucid`), and docs align with **ArchLucid**. **Phase 7.8** (local workspace folder path) is **waived** — keeping `c:\ArchiForge\ArchiForge` (or any existing path) is acceptable; it does not affect builds or remotes. **Phase 8** physically deleted the empty legacy `ArchiForge.*` workspace-root directories (build-artifact-only, never tracked by git) and added a blocking CI guard against reintroduction.

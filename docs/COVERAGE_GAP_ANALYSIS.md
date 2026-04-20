@@ -1,3 +1,5 @@
+> **Scope:** Coverage gap analysis (merged Cobertura) - full detail, tables, and links in the sections below.
+
 # Coverage gap analysis (merged Cobertura)
 
 **Generated:** from `coverage-gap-1a\merged\Cobertura.xml` (full `ArchLucid.sln` test run + ReportGenerator merge).

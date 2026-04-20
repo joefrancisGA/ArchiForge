@@ -1,3 +1,5 @@
+> **Scope:** Tier-1 support runbook (10-minute first response) - full detail, tables, and links in the sections below.
+
 # Tier-1 support runbook (10-minute first response)
 
 ## Objective

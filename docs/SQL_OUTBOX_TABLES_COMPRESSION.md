@@ -1,3 +1,5 @@
+> **Scope:** Outbox tables: rowstore compression and alternatives - full detail, tables, and links in the sections below.
+
 # Outbox tables: rowstore compression and alternatives
 
 ## Objective

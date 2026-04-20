@@ -1,6 +1,12 @@
+> **Scope:** ArchLucid changelog - full detail, tables, and links in the sections below.
+
 # ArchLucid changelog
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
+
+## 2026-04-20 — Doc scope header enforcement (Quality Assessment Improvement 2d)
+
+**Docs / CI:** Prepended a machine-generated `> **Scope:** ...` line to **300** active Markdown files under `docs/` (excluding `docs/archive/`), using the first ATX heading in each file when available. Added [`scripts/ci/backfill_doc_scope_headers.py`](../scripts/ci/backfill_doc_scope_headers.py) (idempotent one-shot back-fill). [`scripts/ci/check_doc_scope_header.py`](../scripts/ci/check_doc_scope_header.py) is now **merge-blocking** in [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (runs after `check_doc_links.py`). Added [`scripts/ci/test_backfill_doc_scope_headers.py`](../scripts/ci/test_backfill_doc_scope_headers.py) and extended the existing Doc scope header unit-test step to run it.
 
 > **Design-session logs:** The full incremental prompt records live in
 > `docs/archive/CHANGE_SET_55R_SUMMARY.md` through `CHANGE_SET_59R.md`.

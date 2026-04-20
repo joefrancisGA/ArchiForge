@@ -1,3 +1,5 @@
+> **Scope:** Agent execution failures - full detail, tables, and links in the sections below.
+
 # Agent execution failures
 
 **Last reviewed:** 2026-04-16

@@ -1,3 +1,5 @@
+> **Scope:** Contributor onboarding (redirect) - full detail, tables, and links in the sections below.
+
 # Contributor onboarding (redirect)
 
 Week-one contributor onboarding is **canonical** in the developer Day-1 document (checklist + escalation).

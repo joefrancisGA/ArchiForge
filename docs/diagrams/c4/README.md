@@ -1,3 +1,5 @@
+> **Scope:** C4 diagrams (PNG for exec / security) - full detail, tables, and links in the sections below.
+
 # C4 diagrams (PNG for exec / security)
 
 **Purpose:** **Static PNGs** for audiences who will not open Mermaid in markdown. **Source files** (`.mmd`) are the canonical definitions; regenerate PNGs when the architecture changes.

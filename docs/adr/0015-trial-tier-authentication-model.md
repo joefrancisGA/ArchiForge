@@ -1,3 +1,5 @@
+> **Scope:** ADR 0015 — Trial-tier authentication model (External ID + local identity) - full detail, tables, and links in the sections below.
+
 # ADR 0015 — Trial-tier authentication model (External ID + local identity)
 
 **Status:** Accepted  

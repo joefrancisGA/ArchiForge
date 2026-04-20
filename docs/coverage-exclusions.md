@@ -1,3 +1,5 @@
+> **Scope:** Code Coverage Exclusions - full detail, tables, and links in the sections below.
+
 # Code Coverage Exclusions
 
 This document describes the classes and methods excluded from code coverage via `[ExcludeFromCodeCoverage]` and the justification for each exclusion.

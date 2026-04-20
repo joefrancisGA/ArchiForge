@@ -1,3 +1,5 @@
+> **Scope:** Quality assessment — April 2026 (archived) - full detail, tables, and links in the sections below.
+
 # Quality assessment — April 2026 (archived)
 
 This file path is kept so bookmarks and external links keep working.

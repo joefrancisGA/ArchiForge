@@ -1,3 +1,5 @@
+> **Scope:** Runbook: debugging replay & drift issues - full detail, tables, and links in the sections below.
+
 ## Runbook: debugging replay & drift issues
 
 Audience: internal engineers who need to understand or debug comparison replay / drift verification.

@@ -1,3 +1,5 @@
+> **Scope:** JSON naming for public HTTP contracts - full detail, tables, and links in the sections below.
+
 # JSON naming for public HTTP contracts
 
 ## API controllers

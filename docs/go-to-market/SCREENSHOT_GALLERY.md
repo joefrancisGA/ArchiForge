@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid screenshot gallery — capture brief - full detail, tables, and links in the sections below.
+
 # ArchLucid screenshot gallery — capture brief
 
 **Audience:** Anyone producing screenshots for the marketing site, sales decks, product documentation, or demo recordings.

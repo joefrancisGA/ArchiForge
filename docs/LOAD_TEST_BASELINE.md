@@ -1,3 +1,5 @@
+> **Scope:** Load test baseline (API hot paths) - full detail, tables, and links in the sections below.
+
 # Load test baseline (API hot paths)
 
 ## Objective

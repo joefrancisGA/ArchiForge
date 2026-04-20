@@ -1,3 +1,5 @@
+> **Scope:** Runbook — Enable GitHub Copilot code review (one-time setup) - full detail, tables, and links in the sections below.
+
 # Runbook — Enable GitHub Copilot code review (one-time setup)
 
 **Priority:** P3 — Reference (one-time setup, not an incident response)

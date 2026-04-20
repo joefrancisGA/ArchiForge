@@ -1,3 +1,5 @@
+> **Scope:** Integration event schema registry - full detail, tables, and links in the sections below.
+
 # Integration event schema registry
 
 ## Objective

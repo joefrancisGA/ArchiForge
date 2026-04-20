@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid — Integration catalog - full detail, tables, and links in the sections below.
+
 # ArchLucid — Integration catalog
 
 **Audience:** Technical evaluators and integration engineers assessing how ArchLucid connects to their ecosystem.

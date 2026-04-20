@@ -1,3 +1,5 @@
+> **Scope:** API error contract (RFC 9457 Problem Details) - full detail, tables, and links in the sections below.
+
 # API error contract (RFC 9457 Problem Details)
 
 ## Objective

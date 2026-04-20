@@ -1,3 +1,5 @@
+> **Scope:** Comparison replay in ArchLucid - full detail, tables, and links in the sections below.
+
 ## Comparison replay in ArchLucid
 
 Comparison replay lets you take a **previously persisted comparison record** and:

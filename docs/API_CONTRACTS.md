@@ -1,3 +1,5 @@
+> **Scope:** API contracts (notable behaviors) - full detail, tables, and links in the sections below.
+
 # API contracts (notable behaviors)
 
 **Error bodies (RFC 9457 Problem Details, obsoletes RFC 7807):** See **[API_ERROR_CONTRACT.md](API_ERROR_CONTRACT.md)** for Problem+JSON shape, stable **`type`** URIs, and correlation behavior.

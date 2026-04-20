@@ -1,3 +1,5 @@
+> **Scope:** Transactional email (trial lifecycle) - full detail, tables, and links in the sections below.
+
 # Transactional email (trial lifecycle)
 
 ## Objective

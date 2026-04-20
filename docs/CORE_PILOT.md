@@ -1,3 +1,5 @@
+> **Scope:** ArchLucid Core Pilot path - full detail, tables, and links in the sections below.
+
 # ArchLucid Core Pilot path
 
 **Audience:** Operators and design partners completing their first pilot.

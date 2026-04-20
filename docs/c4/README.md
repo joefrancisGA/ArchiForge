@@ -1,3 +1,5 @@
+> **Scope:** C4 workspace (Structurizr DSL) - full detail, tables, and links in the sections below.
+
 # C4 workspace (Structurizr DSL)
 
 ## Objective

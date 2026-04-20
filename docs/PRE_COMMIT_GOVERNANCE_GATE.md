@@ -1,3 +1,5 @@
+> **Scope:** Pre-commit governance gate (optional) - full detail, tables, and links in the sections below.
+
 # Pre-commit governance gate (optional)
 
 ## Objective
