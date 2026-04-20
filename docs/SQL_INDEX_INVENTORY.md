@@ -110,3 +110,14 @@ Rollback: **`Rollback/R090_PageCompression_AlertRecords_AlertDeliveryAttempts.sq
 | `dbo.AlertDeliveryAttempts` | `FK_…_AlertRecords_AlertId`, `FK_…_AlertRoutingSubscriptions_RoutingSubscriptionId` | Orphan attempts **deleted** before add. |
 
 Rollback: **`Rollback/R092_FK_Outbox_Alerts_Batch1.sql`** drops the constraints (does not restore deleted rows or nulled columns).
+
+## Migration 093 — Foreign keys (audit + recommendations + conversation messages, batch 2)
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.AuditEvents` | `FK_AuditEvents_Runs_RunId`, `FK_AuditEvents_GoldenManifests_ManifestId` | Invalid **`RunId`** / **`ManifestId`** nulled before add. |
+| `dbo.RecommendationRecords` | `FK_RecommendationRecords_Runs_RunId`, `FK_RecommendationRecords_Runs_ComparedToRunId` | **`RunId`** FK added only when every row references **`Runs`**; invalid **`ComparedToRunId`** nulled first. |
+| `dbo.ConversationMessages` | `FK_ConversationMessages_ConversationThreads_ThreadId` | Orphan messages (missing thread) **deleted** before add. |
+| `dbo.AuditEvents.ArtifactId` | *(none)* | No single-column parent key for line-level artifact IDs (**`ArtifactBundleArtifacts`** uniqueness is composite). |
+
+Rollback: **`Rollback/R093_FK_Audit_Recommendations_ConversationMessages_Batch2.sql`** drops the constraints (does not restore deleted messages or nulled audit columns).

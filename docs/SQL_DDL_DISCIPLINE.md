@@ -61,6 +61,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 | `090_PageCompression_AlertRecords_AlertDeliveryAttempts.sql` | Same **PAGE** rebuild for **`dbo.AlertRecords`** and **`dbo.AlertDeliveryAttempts`**. Rollback: **`Rollback/R090_*.sql`**. |
 | `091_ReadCommittedSnapshotIsolation.sql` | **`ALTER DATABASE … SET READ_COMMITTED_SNAPSHOT ON`** when off (idempotent). Rollback: **`Rollback/R091_*.sql`**. |
 | `092_FK_Outbox_Alerts_Batch1.sql` | **Foreign keys:** outbox **`RunId`** → **`dbo.Runs`**; **`AlertRecords`** → **`AlertRules`**, **`Runs`**, **`RecommendationRecords`**; **`AlertDeliveryAttempts`** → **`AlertRecords`**, **`AlertRoutingSubscriptions`**. Nullable cleanup + orphan attempt delete; some FKs skipped if orphans remain. Rollback: **`Rollback/R092_*.sql`**. |
+| `093_FK_Audit_Recommendations_ConversationMessages_Batch2.sql` | **Foreign keys:** **`AuditEvents`** → **`Runs`**, **`GoldenManifests`**; **`RecommendationRecords`** → **`Runs`** (**`RunId`** conditional, **`ComparedToRunId`** after null cleanup); **`ConversationMessages`** → **`ConversationThreads`** (orphan messages deleted). Rollback: **`Rollback/R093_*.sql`**. |
 
 **Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
