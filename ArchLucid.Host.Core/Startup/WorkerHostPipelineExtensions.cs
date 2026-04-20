@@ -35,12 +35,10 @@ public static class WorkerHostPipelineExtensions
                         .GetRequiredService<ILogger<WebApplication>>();
 
                     if (logger.IsEnabled(LogLevel.Error))
-
-                        logger.LogError(
+                        logger.LogErrorUnhandledWorkerHttpRequest(
                             ex,
-                            "Unhandled exception for {Method} {Path}",
-                            LogSanitizer.Sanitize(context.Request.Method),
-                            LogSanitizer.Sanitize(context.Request.Path.ToString()));
+                            context.Request.Method,
+                            context.Request.Path.ToString());
 
                 }
 
