@@ -11,7 +11,7 @@ namespace ArchLucid.Api.Tests;
 /// Boots <see cref="Program"/> with <c>ArchLucid:StorageProvider=Sql</c> against an **empty** SQL catalog (no DbUp journal).
 /// Host startup must run DbUp then <c>ISchemaBootstrapper</c> — same path as greenfield deployments and CI <c>api-greenfield-boot</c>.
 /// </summary>
-public sealed class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
+public class GreenfieldSqlApiFactory : WebApplicationFactory<Program>
 {
     private const string ArchLucidPersistenceAllowRlsBypassEnvKey = "ArchLucid__Persistence__AllowRlsBypass";
 

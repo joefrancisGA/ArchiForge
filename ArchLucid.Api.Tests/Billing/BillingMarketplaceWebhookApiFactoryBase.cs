@@ -8,7 +8,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Api.Tests.Billing;
 
-internal abstract class BillingMarketplaceWebhookApiFactoryBase : ArchLucidApiFactory
+/// <summary>Extends <see cref="GreenfieldSqlApiFactory"/> with Azure Marketplace billing settings and a stub JWT verifier.</summary>
+internal abstract class BillingMarketplaceWebhookApiFactoryBase : GreenfieldSqlApiFactory
 {
     protected abstract bool GaEnabled { get; }
 
@@ -20,7 +21,6 @@ internal abstract class BillingMarketplaceWebhookApiFactoryBase : ArchLucidApiFa
             (_, cfg) => cfg.AddInMemoryCollection(
                 new Dictionary<string, string?>
                 {
-                    ["ArchLucid:StorageProvider"] = "Sql",
                     ["Billing:Provider"] = "AzureMarketplace",
                     ["Billing:AzureMarketplace:FulfillmentApiEnabled"] = "false",
                     ["Billing:AzureMarketplace:GaEnabled"] = GaEnabled ? "true" : "false",
