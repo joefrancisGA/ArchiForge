@@ -31,7 +31,7 @@ resource "azurerm_cdn_frontdoor_origin" "marketing_ui" {
   host_name                      = trimspace(var.marketing_backend_hostname)
   http_port                      = 80
   https_port                     = 443
-  origin_host_header = trimspace(var.marketing_origin_host_header) != "" ? trimspace(var.marketing_origin_host_header) : trimspace(var.marketing_backend_hostname)
+  origin_host_header             = trimspace(var.marketing_origin_host_header) != "" ? trimspace(var.marketing_origin_host_header) : trimspace(var.marketing_backend_hostname)
   priority                       = 1
   weight                         = 1000
   certificate_name_check_enabled = true
