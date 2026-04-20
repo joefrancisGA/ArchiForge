@@ -63,3 +63,11 @@ Each index adds a small overhead on INSERT/UPDATE. For high-write tables (`Audit
 | `dbo.Runs` | `ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)` when any rowstore partition is not already PAGE | Targets authority run header + scope/list indexes (e.g. **061** covering index); expect **longer rebuild** and higher log I/O than **084** — schedule off-peak. |
 
 Rollback: **`Rollback/R085_PageCompression_Runs.sql`** restores **NONE** where partitions were **PAGE**.
+
+## Migration 087 — PAGE compression on `dbo.DecisionTraces`
+
+| Object | Change | Notes |
+|--------|--------|-------|
+| `dbo.DecisionTraces` | `ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)` when any rowstore partition is not already PAGE | Large trace payloads and `RunId` / `CreatedUtc` indexes benefit from denser pages; schedule off-peak like **084**/**085**. |
+
+Rollback: **`Rollback/R087_PageCompression_DecisionTraces.sql`** restores **NONE** where partitions were **PAGE**.

@@ -55,6 +55,7 @@ Keep **SQL Server** schema discoverable and provisionable from one consolidated 
 | `061_RunsScopeCreatedUtcCoveringIndex.sql` | Drop/recreate **`IX_Runs_Scope_CreatedUtc`** with **`INCLUDE`** list columns for **`dbo.Runs`** dashboard lists (avoids PK key lookups under concurrent writes). |
 | `084_PageCompression_AuditEvents_AgentExecutionTraces.sql` | **`ALTER INDEX ALL … REBUILD WITH (DATA_COMPRESSION = PAGE)`** on **`dbo.AuditEvents`** and **`dbo.AgentExecutionTraces`** when any rowstore partition is not already PAGE (idempotent). Rollback: **`Rollback/R084_*.sql`**. |
 | `085_PageCompression_Runs.sql` | Same **PAGE** rebuild for **`dbo.Runs`** (clustered + all NC indexes). Highest read/cache impact; plan apply window. Rollback: **`Rollback/R085_*.sql`**. |
+| `087_PageCompression_DecisionTraces.sql` | Same **PAGE** rebuild for **`dbo.DecisionTraces`** (clustered + all NC indexes). Append-mostly trace stream; plan apply window. Rollback: **`Rollback/R087_*.sql`**. |
 
 **Consolidated script parity:** **`ArchLucid.sql`** includes later migration semantics in trailing sections so bootstrap matches migrated databases.
 
