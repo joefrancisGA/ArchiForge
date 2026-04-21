@@ -16,7 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { companySizeOptions, signupFormSchema, type SignupFormValues } from "@/lib/signup-schema";
+import {
+  BASELINE_REVIEW_CYCLE_HOURS_MAX,
+  companySizeOptions,
+  signupFormSchema,
+  type SignupFormValues,
+} from "@/lib/signup-schema";
 import { showError, showSuccess } from "@/lib/toast";
 
 type TenantProvisioningResult = {
@@ -30,6 +35,7 @@ type TenantProvisioningResult = {
 export function SignupForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [baselineExpanded, setBaselineExpanded] = useState(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -37,6 +43,8 @@ export function SignupForm() {
       adminDisplayName: "",
       organizationName: "",
       companySize: undefined,
+      baselineReviewCycleHours: undefined,
+      baselineReviewCycleSource: undefined,
     },
     mode: "onBlur",
   });
@@ -48,14 +56,24 @@ export function SignupForm() {
     setSubmitting(true);
 
     try {
+      const payload: Record<string, unknown> = {
+        organizationName: values.organizationName,
+        adminEmail: values.adminEmail,
+        adminDisplayName: values.adminDisplayName,
+      };
+
+      if (values.baselineReviewCycleHours !== undefined) {
+        payload.baselineReviewCycleHours = values.baselineReviewCycleHours;
+      }
+
+      if (values.baselineReviewCycleSource !== undefined) {
+        payload.baselineReviewCycleSource = values.baselineReviewCycleSource;
+      }
+
       const res = await fetch("/api/proxy/v1/register", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          organizationName: values.organizationName,
-          adminEmail: values.adminEmail,
-          adminDisplayName: values.adminDisplayName,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const text = await res.text();
@@ -169,6 +187,62 @@ export function SignupForm() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="rounded-md border border-neutral-200 p-3 dark:border-neutral-700">
+          <button
+            type="button"
+            onClick={() => setBaselineExpanded((prev) => !prev)}
+            aria-expanded={baselineExpanded}
+            aria-controls="signup-baseline-fields"
+            data-testid="signup-baseline-disclosure"
+            className="text-left text-sm font-medium text-teal-800 hover:underline dark:text-teal-300"
+          >
+            {baselineExpanded ? "▾" : "▸"} Add a baseline review-cycle estimate (optional)
+          </button>
+          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            If your team has a rough median (in hours) for an architecture review today, we will compare it to your
+            measured time on the operator dashboard once your first run commits. Skip this if you do not know — we will
+            use a conservative model default and label it accordingly.
+          </p>
+          {baselineExpanded ? (
+            <div id="signup-baseline-fields" className="mt-3 space-y-3">
+              <div>
+                <Label htmlFor="signup-baseline-hours">Baseline review cycle (hours)</Label>
+                <Input
+                  id="signup-baseline-hours"
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  max={BASELINE_REVIEW_CYCLE_HOURS_MAX}
+                  step="any"
+                  data-testid="signup-baseline-hours"
+                  {...register("baselineReviewCycleHours")}
+                  className="mt-1"
+                />
+                {formState.errors.baselineReviewCycleHours ? (
+                  <p className="mt-1 text-sm text-red-600" role="alert">
+                    {formState.errors.baselineReviewCycleHours.message}
+                  </p>
+                ) : null}
+              </div>
+              <div>
+                <Label htmlFor="signup-baseline-source">Source note (optional)</Label>
+                <Input
+                  id="signup-baseline-source"
+                  data-testid="signup-baseline-source"
+                  placeholder="e.g. team estimate; last 5 reviews"
+                  {...register("baselineReviewCycleSource")}
+                  className="mt-1"
+                />
+                {formState.errors.baselineReviewCycleSource ? (
+                  <p className="mt-1 text-sm text-red-600" role="alert">
+                    {formState.errors.baselineReviewCycleSource.message}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-3 pt-2">

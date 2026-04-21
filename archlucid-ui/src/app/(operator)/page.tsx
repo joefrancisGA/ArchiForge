@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
+import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
 import { OperatorHomeGate } from "@/components/OperatorHomeGate";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -28,6 +29,8 @@ export default function HomePage() {
       </p>
 
       <WelcomeBanner />
+
+      <BeforeAfterDeltaPanel />
 
       <OperatorFirstRunWorkflowPanel />
 

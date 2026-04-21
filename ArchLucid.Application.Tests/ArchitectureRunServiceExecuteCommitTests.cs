@@ -1040,7 +1040,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 Mock.Of<IUsageMeteringService>(),
                 new NoOpDistributedCreateRunIdempotencyLock(),
-                Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+                Options.Create(new ArchitectureRunCreateOptions()),
                 TimeProvider.System,
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
@@ -1150,7 +1150,7 @@ public sealed class ArchitectureRunServiceExecuteCommitTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 Mock.Of<IUsageMeteringService>(),
                 new NoOpDistributedCreateRunIdempotencyLock(),
-                Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+                Options.Create(new ArchitectureRunCreateOptions()),
                 TimeProvider.System,
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(

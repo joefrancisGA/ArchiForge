@@ -15,6 +15,8 @@ If you get stuck, jump to the **[Troubleshooting](#troubleshooting)** section at
 
 > **Skip ahead with one command (.NET 10 SDK required):** if you have the .NET 10 SDK installed locally — or you opened the repo in the bundled **`.devcontainer/`** — run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root. It does **steps 2 → 8 below** in a single command (Docker stack up, demo seed, sample architecture request, poll until commit, save the sponsor first-value Markdown, print the operator-UI run URL). Use **`--no-open`** when running headless (e.g., in the devcontainer). See [`docs/CLI_USAGE.md#archlucid-try`](CLI_USAGE.md#archlucid-try). Manual walkthrough below stays the source of truth — useful when something fails partway through.
 
+> **Validating the public trial funnel against staging?** Use **`dotnet run --project ArchLucid.Cli -- trial smoke --org "Smoke-$(date +%s)" --email trial-smoke@example.invalid --baseline-hours 16`** (PowerShell: replace `$(date +%s)` with `(Get-Date -UFormat %s)`). It is a pure-HTTP loop — no Docker, no SQL on your laptop — that calls **`POST /v1/register` → `GET /v1/tenant/trial-status` → `GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. See [`docs/CLI_USAGE.md#archlucid-trial-smoke`](CLI_USAGE.md#archlucid-trial-smoke) and [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
+
 ---
 
 ## Prerequisites (one check)

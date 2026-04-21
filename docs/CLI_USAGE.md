@@ -52,6 +52,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root). |
 | `pilot up` | Start the **full-stack + demo** Docker Compose profile (`docker-compose.yml` + `docker-compose.demo.yml`): API on **5000**, operator UI on **3000**, SQL, Azurite, Redis; waits for **`/health/ready`**. Same effective stack as `scripts/demo-start.ps1` / `demo-start.sh` — simulator agents, demo seed on API startup. Requires Docker only. |
 | `try [--no-open] [--api-base-url <url>] [--ui-base-url <url>] [--readiness-deadline <secs>] [--commit-deadline <secs>]` | One-shot first-value loop. Composes **`pilot up`** → **`POST /v1/demo/seed`** → submits a sample architecture request → polls **`GET /v1/architecture/run/{runId}`** until `ReadyForCommit` (falls back to seeding fake results once the deadline elapses) → **`commit`** → **`GET /v1/pilots/runs/{runId}/first-value-report`** (Markdown saved to cwd) → opens the saved Markdown and **`{uiBaseUrl}/runs/{runId}`** in the OS default handlers. **`--no-open`** disables the OS opens (use it inside containers / SSH / CI). See **[archlucid try](#archlucid-try)** below. |
+| `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | Pure-HTTP smoke loop for the **public trial signup funnel** against any local or staging API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → **`GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. **No Docker, no SQL on your laptop.** Honours the same global **`--json`** flag for machine-readable output. See **[archlucid trial smoke](#archlucid-trial-smoke)** and the funnel runbook **[`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md)**. |
 | `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
@@ -112,6 +113,67 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 ### Devcontainer
 
 The repo ships a `.devcontainer/` (compose-based, .NET 10 SDK + Node 22, host docker socket bind-mounted as Docker-outside-of-Docker) that runs **`dotnet run --project ArchLucid.Cli -- try --no-open`** on `postCreateCommand`. Open the repo in VS Code Dev Containers (or GitHub Codespaces) and the first boot brings up the demo stack and lands you on a committed run.
+
+---
+
+## archlucid trial smoke
+
+`archlucid trial smoke` is the **funnel-validation** complement to `archlucid try`. Where `try` proves the operator-shell first-value loop works on a laptop, `trial smoke` proves the **public trial signup funnel** is healthy against a target API base URL — including a remote staging environment in **Stripe TEST mode** — without standing up Docker or SQL on the developer machine.
+
+### What it does, in order
+
+1. **`POST /v1/register`** — creates a fresh tenant from the supplied `--org` / `--email` (anonymous endpoint, rate-limited by the `registration` policy on the API). Forwards `--baseline-hours` / `--baseline-source` when supplied so the same baseline-capture path the marketing form uses gets exercised. Expects **201 Created** with a `tenantId` body.
+2. **`GET /v1/tenant/trial-status`** — using the registration scope headers (`X-Tenant-Id`, `X-Workspace-Id`, `X-Project-Id`) returned by step 1. Expects **200 OK**, with `trialWelcomeRunId` populated by the bootstrap path.
+3. **`GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** — confirms the seeded sample run is queryable for time-to-committed-manifest and findings counts. Skipped automatically when the trial-status response has no welcome run, or explicitly with **`--skip-pilot-run-deltas`**.
+
+Each step prints **`PASS` / `FAIL`** with the underlying HTTP detail. Failures include a forensic hint pointing at the audit-event type to grep for in `dbo.AuditEvents` (for example `TrialSignupAttempted` / `TrialSignupFailed` for step 1).
+
+### Flags
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| `--org <name>` | — (required) | Organization name for the smoke tenant. Use a timestamped value so reruns do not collide on the org slug. |
+| `--email <email>` | — (required) | Administrator email for the smoke tenant. Use an `*.invalid` domain for staging to avoid sending real verification mail. |
+| `--display-name <name>` | `Trial Smoke User` | Display name on the admin role assignment. |
+| `--baseline-hours <n>` | (none) | When supplied, exercises the optional baseline review-cycle capture path on `POST /v1/register`. |
+| `--baseline-source <text>` | (none) | Free-text provenance note for `--baseline-hours`. Requires `--baseline-hours`. |
+| `--api-base-url <url>` | resolved from `archlucid.json` / `ARCHLUCID_API_URL` | Override the API base URL for this single invocation. |
+| `--skip-pilot-run-deltas` | (off) | Stop after step 2. Useful when the staging tenant has not committed a run yet. |
+
+### Exit codes
+
+- **0** Success — every step returned the expected status.
+- **1** Usage error — missing `--org` / `--email`, invalid `--baseline-hours`, or unknown flag.
+- **4** Operation failed — at least one step did not return the expected status (see PASS/FAIL output for the failing step).
+
+### Local quick-start (Stripe TEST mode against staging)
+
+```bash
+export ARCHLUCID_API_URL=https://staging.archlucid.com
+dotnet run --project ArchLucid.Cli -- trial smoke \
+  --org "TrialSmoke-$(date +%s)" \
+  --email "trial-smoke@example.invalid" \
+  --baseline-hours 16 \
+  --baseline-source "team estimate"
+```
+
+PowerShell (Windows):
+
+```powershell
+$env:ARCHLUCID_API_URL = "https://staging.archlucid.com"
+dotnet run --project ArchLucid.Cli -- trial smoke `
+  --org "TrialSmoke-$([int][double]::Parse((Get-Date -UFormat %s)))" `
+  --email "trial-smoke@example.invalid" `
+  --baseline-hours 16
+```
+
+For machine-readable output (CI smoke gates) place the global `--json` flag **before** the subcommand:
+
+```bash
+dotnet run --project ArchLucid.Cli -- --json trial smoke --org Acme --email ops@example.invalid
+```
+
+The companion **end-to-end runbook** for the funnel — the full happy path, audit chain, owner-only blockers, and Playwright mock spec — lives at [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
 
 ---
 

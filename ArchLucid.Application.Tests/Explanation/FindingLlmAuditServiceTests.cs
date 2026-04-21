@@ -23,7 +23,7 @@ public sealed class FindingLlmAuditServiceTests
         Finding finding = new()
         {
             FindingId = "f1",
-            EngineType = AgentType.Topology.ToString(),
+            EngineType = nameof(AgentType.Topology),
             Trace = new ExplainabilityTrace { SourceAgentExecutionTraceId = "abc123" },
         };
 
@@ -60,7 +60,7 @@ public sealed class FindingLlmAuditServiceTests
             await sut.BuildAsync(RunGuid, "f1", CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.TraceId.Should().Be("abc123");
+        result.TraceId.Should().Be("abc123");
         result.UserPromptRedacted.Should().Be("user@test.com");
         traces.Verify(t => t.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -71,7 +71,7 @@ public sealed class FindingLlmAuditServiceTests
         Finding finding = new()
         {
             FindingId = "f1",
-            EngineType = AgentType.Cost.ToString(),
+            EngineType = nameof(AgentType.Cost),
             Trace = new ExplainabilityTrace(),
         };
 
@@ -117,6 +117,6 @@ public sealed class FindingLlmAuditServiceTests
             await sut.BuildAsync(RunGuid, "f1", CancellationToken.None);
 
         result.Should().NotBeNull();
-        result!.TraceId.Should().Be("m1");
+        result.TraceId.Should().Be("m1");
     }
 }

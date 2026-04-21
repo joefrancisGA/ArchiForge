@@ -248,7 +248,7 @@ public sealed class ArchitectureRunServiceCreateRunIdempotencyTests
                 ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
                 Mock.Of<IUsageMeteringService>(),
                 new NoOpDistributedCreateRunIdempotencyLock(),
-                Microsoft.Extensions.Options.Options.Create(new ArchitectureRunCreateOptions()),
+                Options.Create(new ArchitectureRunCreateOptions()),
                 TimeProvider.System,
                 NullLogger<ArchitectureRunCreateOrchestrator>.Instance),
             new ArchitectureRunExecuteOrchestrator(
