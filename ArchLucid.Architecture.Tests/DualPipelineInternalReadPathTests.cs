@@ -34,26 +34,11 @@ public sealed class DualPipelineInternalReadPathTests
             if (type.Namespace is null || !type.Namespace.StartsWith("ArchLucid.Application", StringComparison.Ordinal))
                 continue;
 
-            if (type.IsAbstract && type.IsSealed)
+            if (type is { IsAbstract: true, IsSealed: true })
                 continue;
 
 
-            foreach (ConstructorInfo ctor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public))
-            {
-                foreach (ParameterInfo parameter in ctor.GetParameters())
-                {
-                    if (parameter.ParameterType != coordinatorRepo)
-                        continue;
-
-                    string fullName = type.FullName ?? type.Name;
-
-                    if (CoordinatorManifestCtorAllowList.Contains(fullName))
-                        continue;
-
-
-                    violations.Add($"{fullName} ctor parameter {parameter.Name}");
-                }
-            }
+            violations.AddRange(from ctor in type.GetConstructors(BindingFlags.Instance | BindingFlags.Public) from parameter in ctor.GetParameters() where parameter.ParameterType == coordinatorRepo let fullName = type.FullName ?? type.Name where !CoordinatorManifestCtorAllowList.Contains(fullName) select $"{fullName} ctor parameter {parameter.Name}");
         }
 
         violations.Should().BeEmpty(

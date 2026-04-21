@@ -1,7 +1,7 @@
 using System.Text.Json;
 
-using ArchLucid.Api.Models.Auth;
 using ArchLucid.Api.Auth.Services;
+using ArchLucid.Api.Models.Auth;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Identity;
 using ArchLucid.Core.Audit;
@@ -139,10 +139,7 @@ public sealed class TrialLocalIdentityAuthController(
 
         bool ok = await _identity.VerifyEmailAsync(body.Email, body.Token, cancellationToken);
 
-        if (!ok)
-            return this.BadRequestProblem("Invalid or expired verification token.", ProblemTypes.ValidationFailed);
-
-        return NoContent();
+        return !ok ? this.BadRequestProblem("Invalid or expired verification token.", ProblemTypes.ValidationFailed) : NoContent();
     }
 
     /// <summary>Issues a JWT suitable for <c>ArchLucidAuth:JwtSigningPublicKeyPemPath</c> validation (Reader role by default).</summary>

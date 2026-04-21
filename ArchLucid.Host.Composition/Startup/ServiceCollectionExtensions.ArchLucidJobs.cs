@@ -15,6 +15,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IArchLucidJob, DataArchivalArchLucidJob>();
         services.AddSingleton<IArchLucidJob, TrialLifecycleArchLucidJob>();
         services.AddSingleton<IArchLucidJob, TrialEmailScanArchLucidJob>();
+        services.AddSingleton<IArchLucidJob, ExecDigestWeeklyArchLucidJob>();
         services.AddSingleton<IArchLucidJob, ServiceBusIntegrationEventsArchLucidJob>();
         services.AddSingleton<ArchLucidJobRunner>();
     }

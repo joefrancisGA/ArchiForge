@@ -96,16 +96,12 @@ public sealed class DemoCommitPagePreviewController(
         Response.Headers["Cache-Control"] = PreviewCacheControl;
         Response.Headers["ETag"] = etag;
 
-        if (Request.Headers.TryGetValue("If-None-Match", out Microsoft.Extensions.Primitives.StringValues inm))
-        {
-            foreach (string? candidate in inm)
-            {
-                if (candidate is null)
-                    continue;
+        if (!Request.Headers.TryGetValue("If-None-Match", out Microsoft.Extensions.Primitives.StringValues inm))
+            return File(body, "application/json");
 
-                if (string.Equals(candidate.Trim(), etag, StringComparison.Ordinal))
-                    return StatusCode(StatusCodes.Status304NotModified);
-            }
+        if (inm.OfType<string>().Any(candidate => string.Equals(candidate.Trim(), etag, StringComparison.Ordinal)))
+        {
+            return StatusCode(StatusCodes.Status304NotModified);
         }
 
         return File(body, "application/json");

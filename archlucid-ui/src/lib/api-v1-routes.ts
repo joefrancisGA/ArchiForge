@@ -13,6 +13,7 @@ export const ApiV1Routes = {
   alertTuning: "v1/alert-tuning",
   alertRoutingSubscriptions: "v1/alert-routing-subscriptions",
   digestSubscriptions: "v1/digest-subscriptions",
+  tenantExecDigestPreferences: "v1/tenant/exec-digest-preferences",
   /** Pilot / product feedback rollups (58R). */
   productLearning: "v1/product-learning",
   /** 59R improvement themes and plans (read-only planning bridge). */

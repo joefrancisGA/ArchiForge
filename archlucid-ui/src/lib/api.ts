@@ -49,6 +49,10 @@ import type {
   ArchitectureDigest,
 } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt, DigestSubscription } from "@/types/digest-subscriptions";
+import type {
+  ExecDigestPreferencesResponse,
+  ExecDigestPreferencesUpsertRequest,
+} from "@/types/exec-digest-preferences";
 import type { AlertRecord, AlertRule } from "@/types/alerts";
 import type { AlertRoutingDeliveryAttempt, AlertRoutingSubscription } from "@/types/alert-routing";
 import type { CompositeAlertRule } from "@/types/composite-alert-rules";
@@ -788,6 +792,18 @@ export async function listArchitectureDigests(take = 20): Promise<ArchitectureDi
 /** Lists all digest delivery subscriptions (email, webhook, etc.). */
 export async function listDigestSubscriptions(): Promise<DigestSubscription[]> {
   return apiGet<DigestSubscription[]>(`/${ApiV1Routes.digestSubscriptions}`);
+}
+
+/** Loads weekly executive digest email preferences for the current tenant. */
+export async function getExecDigestPreferences(): Promise<ExecDigestPreferencesResponse> {
+  return apiGet<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`);
+}
+
+/** Saves weekly executive digest email preferences (Execute+). */
+export async function saveExecDigestPreferences(
+  body: ExecDigestPreferencesUpsertRequest,
+): Promise<ExecDigestPreferencesResponse> {
+  return apiPostJson<ExecDigestPreferencesResponse>(`/${ApiV1Routes.tenantExecDigestPreferences}`, body);
 }
 
 /** Creates a new digest delivery subscription. */

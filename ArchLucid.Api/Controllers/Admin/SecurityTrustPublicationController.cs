@@ -32,9 +32,6 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
         [FromBody] SecurityAssessmentPublicationRequest body,
         CancellationToken cancellationToken)
     {
-        if (body is null)
-            return this.BadRequestProblem("Body is required.", ProblemTypes.RequestBodyRequired);
-
         if (string.IsNullOrWhiteSpace(body.AssessmentCode))
             return this.BadRequestProblem("AssessmentCode is required.", ProblemTypes.ValidationFailed);
 

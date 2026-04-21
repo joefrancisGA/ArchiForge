@@ -285,6 +285,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
         string[] tenantTables =
         [
             "dbo.UsageEvents",
+            "dbo.TenantExecDigestPreferences",
             "dbo.SentEmails",
             "dbo.BillingSubscriptions",
             "dbo.TenantTrialSeatOccupants",

@@ -19,7 +19,7 @@ public static class AzureDevOpsPullRequestWireFormat
     };
 
     /// <summary>Serializes the POST <c>…/pullrequests/{id}/threads</c> body (single text comment, active thread).</summary>
-    public static string SerializeThreadCreate(string markdown)
+    public static string SerializeThreadCreate(string? markdown)
     {
         ThreadCreateDto body = new()
         {
@@ -39,7 +39,7 @@ public static class AzureDevOpsPullRequestWireFormat
     }
 
     /// <summary>Serializes the POST <c>…/pullrequests/{id}/statuses</c> body.</summary>
-    public static string SerializeStatusCreate(string description, string? targetUrl)
+    public static string SerializeStatusCreate(string? description, string? targetUrl)
     {
         string desc = description ?? string.Empty;
 
@@ -61,16 +61,25 @@ public static class AzureDevOpsPullRequestWireFormat
     {
         public ThreadCommentDto[] Comments { get; set; } = [];
 
-        public int Status { get; set; }
+        public int Status
+        {
+            get; set;
+        }
     }
 
     private sealed class ThreadCommentDto
     {
-        public int ParentCommentId { get; set; }
+        public int ParentCommentId
+        {
+            get; set;
+        }
 
         public string Content { get; set; } = string.Empty;
 
-        public int CommentType { get; set; }
+        public int CommentType
+        {
+            get; set;
+        }
     }
 
     private sealed class StatusCreateDto
@@ -82,7 +91,10 @@ public static class AzureDevOpsPullRequestWireFormat
         public StatusContextDto Context { get; set; } = new();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? TargetUrl { get; set; }
+        public string? TargetUrl
+        {
+            get; set;
+        }
     }
 
     private sealed class StatusContextDto

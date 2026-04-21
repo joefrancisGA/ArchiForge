@@ -54,11 +54,7 @@ public sealed class CustomerNotificationChannelPreferencesController(
         TenantNotificationChannelPreferencesResponse? row =
             await _preferencesRepository.GetByTenantAsync(scope.TenantId, cancellationToken);
 
-        if (row is null)
-            return Ok(TenantNotificationChannelPreferencesResponse.Unconfigured(scope.TenantId));
-
-
-        return Ok(row);
+        return Ok(row ?? TenantNotificationChannelPreferencesResponse.Unconfigured(scope.TenantId));
     }
 
     /// <summary>Replaces channel toggles for the caller’s tenant (Execute+).</summary>

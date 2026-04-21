@@ -3264,6 +3264,33 @@ BEGIN
 END;
 GO
 
+/* 103: Weekly executive digest email preferences (see Migrations/103_TenantExecDigestPreferences.sql). */
+IF OBJECT_ID(N'dbo.TenantExecDigestPreferences', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.TenantExecDigestPreferences
+    (
+        TenantId                    UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_TenantExecDigestPreferences2 PRIMARY KEY,
+        SchemaVersion               INT              NOT NULL
+            CONSTRAINT DF_TenantExecDigestPreferences_SchemaVersion2 DEFAULT 1,
+        EmailEnabled                BIT              NOT NULL
+            CONSTRAINT DF_TenantExecDigestPreferences_EmailEnabled2 DEFAULT 0,
+        RecipientEmails             NVARCHAR(2000) NULL,
+        IanaTimeZoneId              NVARCHAR(128)  NOT NULL
+            CONSTRAINT DF_TenantExecDigestPreferences_Tz2 DEFAULT N'UTC',
+        DayOfWeek                   TINYINT          NOT NULL
+            CONSTRAINT DF_TenantExecDigestPreferences_Dow2 DEFAULT 1,
+        HourOfDay                   TINYINT          NOT NULL
+            CONSTRAINT DF_TenantExecDigestPreferences_Hour2 DEFAULT 8,
+        UpdatedUtc                  DATETIME2(7)     NOT NULL
+            CONSTRAINT DF_TenantExecDigestPreferences_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
+        CONSTRAINT CK_TenantExecDigestPreferences_Dow2 CHECK (DayOfWeek BETWEEN 0 AND 6),
+        CONSTRAINT CK_TenantExecDigestPreferences_Hour2 CHECK (HourOfDay BETWEEN 0 AND 23),
+        CONSTRAINT FK_TenantExecDigestPreferences_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
+    );
+END;
+GO
+
 /* 083: Tenant health scores + product feedback (see Migrations/083_TenantHealthScores_ProductFeedback.sql). */
 IF OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NULL
 BEGIN

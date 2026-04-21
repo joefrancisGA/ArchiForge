@@ -13,6 +13,8 @@ public static class ArchLucidJobNames
 
     public const string TrialEmailScan = "trial-email-scan";
 
+    public const string ExecDigestWeekly = "exec-digest-weekly";
+
     public const string AuditChangeFeed = "audit-change-feed";
 
     public const string ServiceBusIntegrationEvents = "servicebus-integration-events";

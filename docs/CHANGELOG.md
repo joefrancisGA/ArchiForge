@@ -4,6 +4,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Weekly executive digest email (Prompt 10)
+
+**Sponsor loop automation:** Per-tenant **`dbo.TenantExecDigestPreferences`** (migration **103**) stores schedule (**IANA timezone**, **day-of-week**, **hour**), **recipient mailboxes**, and an **email enabled** flag. **`IExecDigestComposer`** / **`ExecDigestComposer`** assemble a UTC-window digest from existing services (**compliance drift** daily buckets, **committed manifests** in-window with **pilot delta** significance proxy, optional **findings delta** line) with graceful omission when data is missing. **`ExecDigestWeeklyDeliveryScanner`** + **`ExecDigestWeeklyHostedService`** (hourly leader-elected poll) and CLI job **`exec-digest-weekly`** send through **`IExecDigestEmailDispatcher`** using embedded Razor **`ExecDigest`** + **`SentEmails`** idempotency **`exec-digest:{tenant}:{iso-week}`**. **API:** **`GET/POST /v1/tenant/exec-digest-preferences`** (Read / Execute) and anonymous **`GET /v1/notifications/exec-digest/unsubscribe?token=…`** (**`IDataProtection`**, disables email). **UI:** **`/settings/exec-digest`**. Static mirrors: **`templates/email/exec-digest.html`** / **`.txt`**. Tests: composer unit test, unsubscribe token round-trip, **`ExecDigestWeeklyArchLucidJob`** smoke.
+
+---
+
 ## 2026-04-21 — Product boundary: no customer-shipped production containers
 
 **SaaS posture:** ArchLucid is **vendor-operated SaaS**. **Shipping production Docker images, Helm charts, or customer-operable container bundles** as a standard customer deliverable is **explicitly out of scope** (2026-04-21). **Customer-facing deliverables** are the **CLI**, **API client libraries**, **OpenAPI / REST documentation**, and other **product docs**; local **`docker compose`** / **`archlucid pilot up`** paths stay as **optional evaluation and engineering** workflows in the repository, not a committed BYOC program. **`docs/PENDING_QUESTIONS.md`** (Resolved), **`docs/CONTAINERIZATION.md`** (product boundary), **`docs/go-to-market/PRODUCT_DATASHEET.md`**, **`docs/go-to-market/BUYER_PERSONAS.md`**, and **`docs/adr/0020-azure-primary-platform-permanent.md`** (consequences / portability wording) updated for alignment.

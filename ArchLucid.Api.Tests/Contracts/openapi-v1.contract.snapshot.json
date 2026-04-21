@@ -4611,6 +4611,83 @@
         ],
         "type": "object"
       },
+      "ExecDigestPreferencesResponse": {
+        "properties": {
+          "dayOfWeek": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "emailEnabled": {
+            "type": "boolean"
+          },
+          "hourOfDay": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "ianaTimeZoneId": {
+            "type": "string"
+          },
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "recipientEmails": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "schemaVersion": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "tenantId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "updatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ExecDigestPreferencesUpsertRequest": {
+        "properties": {
+          "dayOfWeek": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "emailEnabled": {
+            "type": "boolean"
+          },
+          "hourOfDay": {
+            "format": "int32",
+            "type": [
+              "null",
+              "integer"
+            ]
+          },
+          "ianaTimeZoneId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recipientEmails": {
+            "items": {
+              "type": "string"
+            },
+            "type": [
+              "null",
+              "array"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "ExecuteRunResponse": {
         "properties": {
           "results": {
@@ -28556,6 +28633,47 @@
         ]
       }
     },
+    "/v1/notifications/exec-digest/unsubscribe": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "ExecDigestUnsubscribe"
+        ]
+      }
+    },
     "/v1/pilots/runs/{runId}/first-value-report": {
       "get": {
         "parameters": [
@@ -30747,6 +30865,142 @@
         ]
       }
     },
+    "/v1/tenant/exec-digest-preferences": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestPreferencesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestPreferencesResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestPreferencesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "TenantExecDigestPreferences"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExecDigestPreferencesUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExecDigestPreferencesUpsertRequest"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ExecDigestPreferencesUpsertRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestPreferencesResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestPreferencesResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExecDigestPreferencesResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "TenantExecDigestPreferences"
+        ]
+      }
+    },
     "/v1/tenant/trial-status": {
       "get": {
         "responses": {
@@ -31177,6 +31431,9 @@
       "name": "Evolution"
     },
     {
+      "name": "ExecDigestUnsubscribe"
+    },
+    {
       "name": "Explanation"
     },
     {
@@ -31253,6 +31510,9 @@
     },
     {
       "name": "TenantCustomerSuccess"
+    },
+    {
+      "name": "TenantExecDigestPreferences"
     },
     {
       "name": "TenantTrial"

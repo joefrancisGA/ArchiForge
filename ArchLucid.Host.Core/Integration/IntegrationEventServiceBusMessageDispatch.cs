@@ -113,9 +113,6 @@ internal static class IntegrationEventServiceBusMessageDispatch
                     && IntegrationEventTypes.AreEquivalent(h.EventType, eventType)),
         ];
 
-        if (specifics.Count > 0)
-            return specifics;
-
-        return [.. list.Where(h => h.EventType == IntegrationEventTypes.WildcardEventType)];
+        return specifics.Count > 0 ? specifics : [.. list.Where(h => h.EventType == IntegrationEventTypes.WildcardEventType)];
     }
 }

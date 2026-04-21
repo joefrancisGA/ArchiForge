@@ -249,7 +249,6 @@ public sealed class RunQueryController(
         if (!TryParseRunId(runId, out Guid runGuid))
             return false;
 
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
@@ -257,10 +256,6 @@ public sealed class RunQueryController(
 
     private static bool TryParseRunId(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
-
-
-        return Guid.TryParse(runId, out runGuid);
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

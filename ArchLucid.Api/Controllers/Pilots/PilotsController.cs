@@ -61,11 +61,7 @@ public sealed class PilotsController(
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
         string? markdown = await firstValueReportBuilder.BuildMarkdownAsync(runId, baseForLinks, cancellationToken);
 
-        if (markdown is null)
-            return this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound);
-
-
-        return Content(markdown, "text/markdown; charset=utf-8");
+        return markdown is null ? this.NotFoundProblem($"First-value report is not available for run '{runId}'.", ProblemTypes.RunNotFound) : Content(markdown, "text/markdown; charset=utf-8");
     }
 
     /// <summary>
@@ -101,11 +97,7 @@ public sealed class PilotsController(
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
         byte[]? pdf = await firstValueReportPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
 
-        if (pdf is null)
-            return this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.", ProblemTypes.RunNotFound);
-
-
-        return File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
+        return pdf is null ? this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.", ProblemTypes.RunNotFound) : File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
     }
 
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>
@@ -151,10 +143,6 @@ public sealed class PilotsController(
         string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
         byte[]? pdf = await sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
 
-        if (pdf is null)
-            return this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound);
-
-
-        return File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
+        return pdf is null ? this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound) : File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
     }
 }

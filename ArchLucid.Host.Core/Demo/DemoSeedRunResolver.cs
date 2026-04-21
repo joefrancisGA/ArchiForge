@@ -41,7 +41,7 @@ public sealed class DemoSeedRunResolver(IRunRepository runRepository, ILogger<De
             await _runRepository.ListRecentInScopeAsync(scope, RecentRunScanLimit, cancellationToken);
 
         RunRecord? resolved = recent
-            .Where(r => IsCommittedDemoRun(r))
+            .Where(IsCommittedDemoRun)
             .OrderByDescending(r => r.CreatedUtc)
             .FirstOrDefault();
 

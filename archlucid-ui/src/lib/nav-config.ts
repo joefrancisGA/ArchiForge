@@ -321,6 +321,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         tier: "advanced",
         requiredAuthority: "ExecuteAuthority",
       },
+      {
+        href: "/settings/exec-digest",
+        label: "Exec digest",
+        title: "Exec digest — weekly sponsor email schedule",
+        icon: Mail,
+        tier: "extended",
+        requiredAuthority: "ReadAuthority",
+      },
     ],
   },
   {

@@ -1,13 +1,13 @@
 using ArchLucid.Api.Attributes;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Http;
-using ArchLucid.Api.Models;
 using ArchLucid.Api.Logging;
+using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Data.Repositories;
@@ -218,7 +218,7 @@ public sealed class GovernanceController(
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
 
-        if (body.ApprovalRequestIds is null || body.ApprovalRequestIds.Count == 0)
+        if (body.ApprovalRequestIds.Count == 0)
             return this.BadRequestProblem("ApprovalRequestIds must contain at least one id.", ProblemTypes.ValidationFailed);
 
 

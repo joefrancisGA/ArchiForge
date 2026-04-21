@@ -19,9 +19,6 @@ internal static class TrialExternalIdJwtBearerSupport
         if (prior is null)
             return;
 
-        options.TokenValidationParameters.IssuerValidator = (issuer, securityToken, validationParameters) =>
-        {
-            return ExternalIdIssuerPatterns.IsConsumerIdentityIssuer(issuer) ? issuer! : prior(issuer, securityToken, validationParameters);
-        };
+        options.TokenValidationParameters.IssuerValidator = (issuer, securityToken, validationParameters) => ExternalIdIssuerPatterns.IsConsumerIdentityIssuer(issuer) ? issuer! : prior(issuer, securityToken, validationParameters);
     }
 }
