@@ -2,7 +2,7 @@
 
 # Architecture Decision Records (ADR)
 
-**Last reviewed:** 2026-04-19
+**Last reviewed:** 2026-04-21
 
 Short, durable decisions for ArchLucid. Each file is **immutable** once accepted; supersede with a new ADR rather than rewriting history.
 
@@ -28,7 +28,8 @@ Short, durable decisions for ArchLucid. Each file is **immutable** once accepted
 | [0018](0018-background-workloads-container-apps-jobs.md) | Background workloads — **Container Apps Jobs** + `ArchLucid.Jobs.Cli` (not Functions); offload manifest + first job `advisory-scan` |
 | [0019](0019-logic-apps-standard-edge-orchestration.md) | Azure Logic Apps (Standard) — narrow edge orchestration + human-in-the-loop; complements ADR 0016 / 0018 |
 | [0020](0020-azure-primary-platform-permanent.md) | **Azure** as primary and permanent platform — narrative + ops alignment (not multi-cloud hedge) |
-| [0021](0021-coordinator-pipeline-strangler-plan.md) | Coordinator pipeline strangler plan — phased retirement of the Coordinator interface family in favour of the Authority family (**Status: Proposed** — implementation gated on architecture-review acceptance; supersedes target = ADR 0010) |
+| [0021](0021-coordinator-pipeline-strangler-plan.md) | Coordinator pipeline strangler plan — phased retirement of the Coordinator interface family (**Status: Accepted**); Phase 3 code deletion merge-blocked until exit gates in ADR 0021 § Phase 3 |
+| [0022](0022-coordinator-phase3-deferred.md) | Phase 3 coordinator retirement **blocked** (2026-04-21) — failed gates: (iv) parity TBD; Phase 2 `AuditEventTypes.Run` catalog not found — see ADR |
 
 **When to add an ADR:** Cross-cutting choice affecting security, data, or ops; multiple valid alternatives; cost of reversal is high.
 

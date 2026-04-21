@@ -27,6 +27,12 @@
 |--------------------|------------------|-----------------|----------------------|------------------|-----------------|---------------------|-------|
 | *(TBD)* | *(TBD)* | *(TBD)* | | | | | |
 
+## Phase 3 gate status (2026-04-21)
+
+**ADR 0021 Phase 3 is merge-blocked:** the template above still contains only `*(TBD)*` placeholders — there is **no** 14-day contiguous window with **Coordinator-pipeline writes = 0**. Until Platform fills daily rows here, gate **(iv)** fails and coordinator code **must not** be deleted. See [ADR 0022 — blocked record](../adr/0022-coordinator-phase3-deferred.md) and [`artifacts/phase3/gate-verification.md`](../../artifacts/phase3/gate-verification.md).
+
+**Closing report:** *Not available — reopen this subsection after 14 contiguous zero-write days are recorded and ADR 0022 is superseded by a “Phase 3 shipped” ADR.*
+
 ## Related
 
 - [ADR 0021 — Coordinator pipeline strangler plan](../adr/0021-coordinator-pipeline-strangler-plan.md)
