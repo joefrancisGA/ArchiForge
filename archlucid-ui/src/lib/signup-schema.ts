@@ -8,36 +8,6 @@ export const BASELINE_REVIEW_CYCLE_SOURCE_MAX = 256;
 export const baselineSignupChoiceValues = ["model_default", "custom"] as const;
 export type BaselineSignupChoice = (typeof baselineSignupChoiceValues)[number];
 
-const baselineReviewCycleHoursSchema = z.preprocess(
-  (raw) => {
-    if (raw === undefined || raw === null) return undefined;
-    if (typeof raw === "string") {
-      const trimmed = raw.trim();
-      if (trimmed.length === 0) return undefined;
-      const n = Number(trimmed);
-      return Number.isFinite(n) ? n : trimmed;
-    }
-    return raw;
-  },
-  z
-    .number({ invalid_type_error: "Enter a numeric value (hours)." })
-    .positive("Enter a number greater than 0.")
-    .max(BASELINE_REVIEW_CYCLE_HOURS_MAX, `Enter a number at most ${BASELINE_REVIEW_CYCLE_HOURS_MAX}.`)
-    .optional(),
-);
-
-const baselineReviewCycleSourceSchema = z.preprocess(
-  (raw) => {
-    if (typeof raw !== "string") return raw;
-    const trimmed = raw.trim();
-    return trimmed.length === 0 ? undefined : trimmed;
-  },
-  z
-    .string()
-    .max(BASELINE_REVIEW_CYCLE_SOURCE_MAX, `At most ${BASELINE_REVIEW_CYCLE_SOURCE_MAX} characters.`)
-    .optional(),
-);
-
 export const signupFormSchema = z
   .object({
     adminEmail: z.string().trim().email("Enter a valid email."),
@@ -53,25 +23,64 @@ export const signupFormSchema = z
       .max(200, "Organization name must be at most 200 characters."),
     companySize: z.enum(companySizeOptions).optional(),
     baselineChoice: z.enum(baselineSignupChoiceValues),
-    baselineReviewCycleHours: baselineReviewCycleHoursSchema,
-    baselineReviewCycleSource: baselineReviewCycleSourceSchema,
+    // String form values keep `z.infer` stable for `zodResolver` + react-hook-form (avoid `z.preprocess` → `unknown`).
+    baselineReviewCycleHours: z.string().optional(),
+    baselineReviewCycleSource: z.string().optional(),
   })
   .superRefine((v, ctx) => {
     if (v.baselineChoice !== "custom") return;
 
-    if (v.baselineReviewCycleHours === undefined) {
+    const hoursRaw = v.baselineReviewCycleHours?.trim() ?? "";
+
+    if (hoursRaw.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Enter your team's median review-cycle hours, or switch back to the model default.",
         path: ["baselineReviewCycleHours"],
       });
+
+      return;
     }
 
-    if (v.baselineReviewCycleSource !== undefined && v.baselineReviewCycleHours === undefined) {
+    const parsed = Number(hoursRaw);
+
+    if (!Number.isFinite(parsed)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Enter the baseline hours when you provide a source note.",
+        message: "Enter a numeric value (hours).",
         path: ["baselineReviewCycleHours"],
+      });
+
+      return;
+    }
+
+    if (parsed <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Enter a number greater than 0.",
+        path: ["baselineReviewCycleHours"],
+      });
+
+      return;
+    }
+
+    if (parsed > BASELINE_REVIEW_CYCLE_HOURS_MAX) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Enter a number at most ${BASELINE_REVIEW_CYCLE_HOURS_MAX}.`,
+        path: ["baselineReviewCycleHours"],
+      });
+
+      return;
+    }
+
+    const sourceTrimmed = v.baselineReviewCycleSource?.trim() ?? "";
+
+    if (sourceTrimmed.length > BASELINE_REVIEW_CYCLE_SOURCE_MAX) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `At most ${BASELINE_REVIEW_CYCLE_SOURCE_MAX} characters.`,
+        path: ["baselineReviewCycleSource"],
       });
     }
   });

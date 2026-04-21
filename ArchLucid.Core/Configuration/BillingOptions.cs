@@ -79,6 +79,15 @@ public sealed class AzureMarketplaceBillingOptions
     public bool FulfillmentApiEnabled { get; init; } = true;
 
     /// <summary>
+    /// Partner Center **offer** / product identifier for the transactable SaaS listing (not the Azure subscription id).
+    /// Required in Production when <see cref="GaEnabled"/> is true so operators cannot enable GA mutations without a bound offer.
+    /// </summary>
+    public string? MarketplaceOfferId
+    {
+        get; init;
+    }
+
+    /// <summary>
     /// When false, Marketplace <c>ChangePlan</c> / <c>ChangeQuantity</c> webhooks are acknowledged with HTTP 202 and
     /// <c>AcknowledgedNoOp</c> in <c>BillingWebhookEvents</c> without calling <c>sp_Billing_ChangePlan</c> /
     /// <c>sp_Billing_ChangeQuantity</c>. Enable in production after plan/quantity mapping is validated.

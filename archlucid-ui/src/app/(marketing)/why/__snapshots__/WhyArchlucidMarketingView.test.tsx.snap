@@ -1,0 +1,462 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + proof pack download) 1`] = `
+<main
+  class="mx-auto max-w-5xl px-4 py-10"
+>
+  <h1
+    class="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-50"
+  >
+    Why ArchLucid
+  </h1>
+  <p
+    class="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+  >
+    ArchLucid is an AI Architecture Intelligence platform: specialized agents analyze architecture requests, produce explainable findings, and feed governance workflows with a durable audit trail — grounded in what ships today in V1. This page compares us to common EAM incumbents using the same sourcing rules as
+     
+    <span
+      class="whitespace-nowrap"
+    >
+      docs/go-to-market/COMPETITIVE_LANDSCAPE.md
+    </span>
+    .
+  </p>
+  <section
+    class="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40"
+  >
+    <h2
+      class="text-base font-semibold text-neutral-900 dark:text-neutral-50"
+    >
+      Side-by-side proof pack
+    </h2>
+    <p
+      class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300"
+    >
+      Download a single PDF that bundles the same deterministic demo preview as 
+      <code>
+        /demo/preview
+      </code>
+       (manifest excerpt, explanation, citations, timeline) plus a sourced incumbent scaffold. Requires demo mode on the API host (otherwise the link returns 404 by design).
+    </p>
+    <p
+      class="mt-3"
+    >
+      <a
+        class="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-medium text-white hover:bg-sky-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
+        data-testid="why-proof-pack-download"
+        download="why-archlucid-pack.pdf"
+        href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
+      >
+        Download the side-by-side proof pack (PDF)
+      </a>
+    </p>
+  </section>
+  <section
+    aria-labelledby="why-demo-heading"
+    class="mt-10"
+  >
+    <h2
+      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      id="why-demo-heading"
+    >
+      See a real commit-shaped page
+    </h2>
+    <p
+      class="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-600 dark:text-neutral-400"
+    >
+      Anonymous read-only preview of the latest committed demo-seed run (cached JSON + marketing UI). Same shape as the operator commit experience — no sign-in. Described in docs/DEMO_PREVIEW.md and docs/adr/0027-demo-preview-cached-anonymous-commit-page.md.
+    </p>
+    <p
+      class="mt-4 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-3 py-8 text-center text-sm text-neutral-600 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400"
+      data-testid="why-demo-embed-placeholder"
+    >
+      Demo embed omitted (test build). In production this area shows an iframe of
+       
+      <a
+        class="text-sky-700 underline underline-offset-2 dark:text-sky-400"
+        href="/demo/preview"
+      >
+        /demo/preview
+      </a>
+      .
+    </p>
+    <p
+      class="mt-3 text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      <a
+        class="text-sky-700 underline underline-offset-2 hover:text-sky-600 dark:text-sky-400"
+        href="/demo/preview"
+      >
+        Open /demo/preview
+      </a>
+      .
+    </p>
+  </section>
+  <section
+    aria-labelledby="why-compare-heading"
+    class="mt-12"
+  >
+    <h2
+      class="text-xl font-semibold text-neutral-900 dark:text-neutral-50"
+      id="why-compare-heading"
+    >
+      ArchLucid vs. EAM incumbents (summary)
+    </h2>
+    <p
+      class="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      Competitor columns paraphrase the matrix in 
+      docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1
+      . The ArchLucid column cites repository evidence only — no roadmap claims.
+    </p>
+    <div
+      class="mt-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+    >
+      <table
+        class="w-full min-w-[640px] border-collapse text-left text-sm"
+      >
+        <caption
+          class="border-b border-neutral-200 bg-neutral-100 px-3 py-2 text-left text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+        >
+          Capability comparison — LeanIX, Ardoq, MEGA HOPEX vs. ArchLucid (V1)
+        </caption>
+        <thead>
+          <tr
+            class="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/80"
+          >
+            <th
+              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Dimension
+            </th>
+            <th
+              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              LeanIX (SAP)
+            </th>
+            <th
+              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              Ardoq
+            </th>
+            <th
+              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              MEGA HOPEX
+            </th>
+            <th
+              class="px-3 py-2 font-semibold text-neutral-900 dark:text-neutral-100"
+              scope="col"
+            >
+              ArchLucid (V1)
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              AI capability
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Basic: AI-assisted survey analysis, application rationalization suggestions
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Basic: change impact simulation
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Minimal: rule-based analysis
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <p
+                class="m-0 leading-relaxed"
+              >
+                Multi-agent pipeline (Topology, Cost, Compliance, Critic) with explainable findings; simulator mode for CI.
+              </p>
+              <p
+                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
+              >
+                <span
+                  class="font-medium text-neutral-600 dark:text-neutral-400"
+                >
+                  Proof: 
+                </span>
+                <cite
+                  class="not-italic"
+                >
+                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Multi-agent AI pipeline); docs/V1_SCOPE.md §2 Core Pilot
+                </cite>
+              </p>
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Governance depth
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Moderate: lifecycle management, technology risk, survey workflows
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Moderate: change scenarios, impact analysis
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Strong: TOGAF / ArchiMate workflow, compliance matrices
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <p
+                class="m-0 leading-relaxed"
+              >
+                Approval workflows, promotions, pre-commit governance gate, segregation of duties, policy packs (V1).
+              </p>
+              <p
+                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
+              >
+                <span
+                  class="font-medium text-neutral-600 dark:text-neutral-400"
+                >
+                  Proof: 
+                </span>
+                <cite
+                  class="not-italic"
+                >
+                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Governance workflow); docs/V1_SCOPE.md §2 Enterprise Controls
+                </cite>
+              </p>
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Audit trail
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Basic: change history on entities
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Basic: change log
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Moderate: workflow audit
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <p
+                class="m-0 leading-relaxed"
+              >
+                Typed audit event catalog, append-only SQL audit trail, searchable export (V1).
+              </p>
+              <p
+                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
+              >
+                <span
+                  class="font-medium text-neutral-600 dark:text-neutral-400"
+                >
+                  Proof: 
+                </span>
+                <cite
+                  class="not-italic"
+                >
+                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Durable audit); docs/AUDIT_COVERAGE_MATRIX.md
+                </cite>
+              </p>
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Explainability
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              None (recommendations are opaque)
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              None
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              None
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <p
+                class="m-0 leading-relaxed"
+              >
+                Structured ExplainabilityTrace per finding; aggregate run explanation and citations (V1).
+              </p>
+              <p
+                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
+              >
+                <span
+                  class="font-medium text-neutral-600 dark:text-neutral-400"
+                >
+                  Proof: 
+                </span>
+                <cite
+                  class="not-italic"
+                >
+                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Explainability trace); docs/V1_SCOPE.md
+                </cite>
+              </p>
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Deployment
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              SaaS-only
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              SaaS-only
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              SaaS or on-prem
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <p
+                class="m-0 leading-relaxed"
+              >
+                Azure-native vendor-operated SaaS reference stack; containerized local evaluation (V1).
+              </p>
+              <p
+                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
+              >
+                <span
+                  class="font-medium text-neutral-600 dark:text-neutral-400"
+                >
+                  Proof: 
+                </span>
+                <cite
+                  class="not-italic"
+                >
+                  docs/adr/0020-azure-primary-platform-permanent.md; docs/V1_SCOPE.md §2.4 Deployability
+                </cite>
+              </p>
+            </td>
+          </tr>
+          <tr
+            class="border-b border-neutral-100 odd:bg-white even:bg-neutral-50/80 dark:border-neutral-800 dark:odd:bg-neutral-950 dark:even:bg-neutral-900/40"
+          >
+            <th
+              class="px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
+              scope="row"
+            >
+              Architecture outputs
+            </th>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Inventory-centric modeling and surveys
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              Graph and scenario visualization
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-700 dark:text-neutral-300"
+            >
+              ArchiMate / compliance matrices
+            </td>
+            <td
+              class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
+            >
+              <p
+                class="m-0 leading-relaxed"
+              >
+                Versioned golden manifest, replay/compare/drift, exports (Markdown/DOCX/ZIP) from committed runs (V1).
+              </p>
+              <p
+                class="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500"
+              >
+                <span
+                  class="font-medium text-neutral-600 dark:text-neutral-400"
+                >
+                  Proof: 
+                </span>
+                <cite
+                  class="not-italic"
+                >
+                  docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 (Comparison and drift; Export and reporting); docs/V1_SCOPE.md
+                </cite>
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section
+    class="mt-10 border-t border-neutral-200 pt-8 dark:border-neutral-800"
+  >
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      For the executive sponsor narrative, see docs/EXECUTIVE_SPONSOR_BRIEF.md. For positioning phrasing, see docs/go-to-market/POSITIONING.md.
+    </p>
+  </section>
+</main>
+`;

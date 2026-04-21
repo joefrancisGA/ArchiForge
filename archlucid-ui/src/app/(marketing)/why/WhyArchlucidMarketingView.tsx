@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-import type { WhyArchlucidComparisonRow } from "@/marketing/why-archlucid-comparison";
+import {
+  WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
+  type WhyArchlucidComparisonRow,
+} from "@/marketing/why-archlucid-comparison";
 
 export type WhyArchlucidMarketingViewProps = {
   rows: readonly WhyArchlucidComparisonRow[];
@@ -26,6 +29,25 @@ export function WhyArchlucidMarketingView({ rows, showDemoEmbed = true }: WhyArc
         ships today in V1. This page compares us to common EAM incumbents using the same sourcing rules as{" "}
         <span className="whitespace-nowrap">docs/go-to-market/COMPETITIVE_LANDSCAPE.md</span>.
       </p>
+
+      <section className="mt-8 rounded-lg border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-900/40">
+        <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-50">Side-by-side proof pack</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
+          Download a single PDF that bundles the same deterministic demo preview as <code>/demo/preview</code> (manifest
+          excerpt, explanation, citations, timeline) plus a sourced incumbent scaffold. Requires demo mode on the API
+          host (otherwise the link returns 404 by design).
+        </p>
+        <p className="mt-3">
+          <a
+            data-testid="why-proof-pack-download"
+            className="inline-flex items-center rounded-md bg-sky-700 px-3 py-2 text-sm font-medium text-white hover:bg-sky-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
+            href="/api/proxy/v1/marketing/why-archlucid-pack.pdf"
+            download="why-archlucid-pack.pdf"
+          >
+            Download the side-by-side proof pack (PDF)
+          </a>
+        </p>
+      </section>
 
       <section className="mt-10" aria-labelledby="why-demo-heading">
         <h2 id="why-demo-heading" className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">
@@ -70,7 +92,7 @@ export function WhyArchlucidMarketingView({ rows, showDemoEmbed = true }: WhyArc
           ArchLucid vs. EAM incumbents (summary)
         </h2>
         <p className="mt-2 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
-          Competitor columns paraphrase the matrix in docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1. The ArchLucid column
+          Competitor columns paraphrase the matrix in {WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION}. The ArchLucid column
           cites repository evidence only — no roadmap claims.
         </p>
 

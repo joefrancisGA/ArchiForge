@@ -41,7 +41,7 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandler(
             return MarketplaceWebhookMutationOutcome.DeferredGaDisabled;
         }
 
-        int seats = MarketplaceWebhookPayloadParser.ReadQuantity(root, 1);
+        int seats = MarketplaceWebhookPayloadParser.ReadQuantity(root);
 
         await _ledger.ChangeQuantityAsync(tenantId, seats, rawBody, cancellationToken);
 

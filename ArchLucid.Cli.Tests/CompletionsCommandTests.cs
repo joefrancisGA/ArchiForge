@@ -29,6 +29,7 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("sponsor-one-pager");
             text.Should().Contain("completions");
             text.Should().Contain("roi-bulletin");
+            text.Should().Contain("marketplace");
             text.Should().Contain("trial");
         }
         finally

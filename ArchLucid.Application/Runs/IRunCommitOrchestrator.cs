@@ -8,5 +8,5 @@ namespace ArchLucid.Application.Runs;
 public interface IRunCommitOrchestrator
 {
     /// <summary>Merges persisted agent outputs into a golden manifest and completes the commit phase.</summary>
-    Task<ArchLucid.Application.CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default);
+    Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default);
 }

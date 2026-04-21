@@ -44,7 +44,7 @@ Provide a **single** `IBillingProvider` surface for trial conversion checkout an
 
 - **Stripe:** `Stripe-Signature` + `Billing:Stripe:WebhookSigningSecret`.
 - **Marketplace:** `Authorization: Bearer` JWT validated via OIDC metadata (`Billing:AzureMarketplace:OpenIdMetadataAddress`, `ValidAudiences`).
-- **Production safety:** `Billing:Provider=Stripe` requires `Billing:Stripe:SecretKey` (see `ProductionSafetyRules.CollectBillingStripeSecret`).
+- **Production safety:** `Billing:Provider=Stripe` requires `Billing:Stripe:SecretKey` (see `ProductionSafetyRules.CollectBillingStripeSecret`). **`BillingProductionSafetyRules`** (same startup gate) additionally: **`sk_live_` requires** `Billing:Stripe:WebhookSigningSecret`; **`Billing:Provider=AzureMarketplace`** requires a non-loopback `Billing:AzureMarketplace:LandingPageUrl`; **`Billing:AzureMarketplace:GaEnabled=true`** requires **`Billing:AzureMarketplace:MarketplaceOfferId`** (Partner Center offer id).
 
 ## Operational considerations
 

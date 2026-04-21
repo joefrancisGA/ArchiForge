@@ -48,7 +48,7 @@ This document zooms into the most important components inside each container/lib
 
 #### Production configuration safety
 
-- **`ArchLucidConfigurationRules.CollectProductionSafetyErrors`**: when **`IWebHostEnvironment.IsProduction()`**, fails startup if **`Cors:AllowedOrigins`** is empty or contains a **`*`** wildcard, or if **`WebhookDelivery:UseHttpClient`** is true without **`WebhookDelivery:HmacSha256SharedSecret`**.
+- **`ArchLucidConfigurationRules.CollectErrors`**: when **`IWebHostEnvironment.IsProduction()`**, fails startup if **`Cors:AllowedOrigins`** is empty or contains a **`*`** wildcard, if **`WebhookDelivery:UseHttpClient`** is true without **`WebhookDelivery:HmacSha256SharedSecret`**, or if **`BillingProductionSafetyRules`** detect unsafe billing/Marketplace configuration (e.g. **`sk_live_`** without Stripe webhook secret, loopback Marketplace landing URL, **`GaEnabled=true`** without **`MarketplaceOfferId`**).
 
 #### `ArchitectureController`
 

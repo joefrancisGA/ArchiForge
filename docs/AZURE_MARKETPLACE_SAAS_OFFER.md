@@ -9,7 +9,7 @@ Stand up a **transactable** SaaS offer that lands buyers in ArchLucid while usin
 ## Step-by-step (operator)
 
 1. **Partner Center** → Commercial Marketplace → New offer → **Software as a Service**.
-2. **Plan IDs** align with ArchLucid commercial tiers (`Team`, `Pro`, `Enterprise`) or map in your landing page.
+2. **Plan IDs** align with ArchLucid commercial tiers (`Team`, `Professional`, `Enterprise`) or map in your landing page (names must match [PRICING_PHILOSOPHY.md](go-to-market/PRICING_PHILOSOPHY.md) §3 — do not publish the middle tier as **Pro** alone; use **Professional**).
 3. **Technical configuration**
    - **Landing page URL:** the URL returned from `Billing:AzureMarketplace:LandingPageUrl` (must accept `tenantId`, `workspaceId`, `projectId`, `tier`, `session` query parameters from ArchLucid checkout).
    - **Webhook URL:** `https://<api-host>/v1/billing/webhooks/marketplace`
@@ -20,6 +20,7 @@ Stand up a **transactable** SaaS offer that lands buyers in ArchLucid while usin
    - `Billing:AzureMarketplace:ValidAudiences` includes `https://marketplaceapi.microsoft.com`
    - `Billing:AzureMarketplace:FulfillmentApiEnabled=true` in production (set `false` only in isolated tests without network).
    - `Billing:AzureMarketplace:GaEnabled` — **default `true` since 2026-04-20** (Quality Assessment Improvement 4 Marketplace flip). `ChangePlan` / `ChangeQuantity` webhooks call `sp_Billing_ChangePlan` / `sp_Billing_ChangeQuantity` and return **HTTP 200** with the row mutated. Set to `false` only as a documented rollback (no redeploy needed via App Configuration override) — see [`runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md`](runbooks/MARKETPLACE_CHANGEPLAN_QUANTITY_ROLLBACK.md). When `false`, the same two webhooks return **HTTP 202** with `AcknowledgedNoOp` and do **not** mutate `dbo.BillingSubscriptions`. The `false` branch is preserved precisely so operators can roll back without code changes.
+   - `Billing:AzureMarketplace:MarketplaceOfferId` — Partner Center **offer / product** id for the transactable listing. **Production** requires this when `GaEnabled=true` (startup guard in `BillingProductionSafetyRules`).
 5. **Managed identity**
    - Grant the API’s user-assigned or system MI permission to call Marketplace fulfillment APIs per Microsoft guidance.
 

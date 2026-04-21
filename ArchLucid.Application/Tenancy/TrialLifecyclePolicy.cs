@@ -17,14 +17,11 @@ public static class TrialLifecyclePolicy
         if (tenant.TrialExpiresUtc is null || string.IsNullOrWhiteSpace(tenant.TrialStatus))
             return null;
 
-
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Converted, StringComparison.Ordinal))
             return null;
 
-
         if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.Deleted, StringComparison.Ordinal))
             return null;
-
 
         DateTimeOffset anchor = tenant.TrialExpiresUtc.Value;
         DateTimeOffset readOnlyNotBefore = anchor.AddDays(options.ReadOnlyAfterExpireDays);
@@ -35,7 +32,6 @@ public static class TrialLifecyclePolicy
         {
             if (utcNow < anchor)
                 return null;
-
 
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.Active,
@@ -48,7 +44,6 @@ public static class TrialLifecyclePolicy
             if (utcNow < readOnlyNotBefore)
                 return null;
 
-
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.Expired,
                 TrialLifecycleStatus.ReadOnly,
@@ -60,26 +55,22 @@ public static class TrialLifecyclePolicy
             if (utcNow < exportOnlyNotBefore)
                 return null;
 
-
             return new TrialLifecycleAdvancement(
                 TrialLifecycleStatus.ReadOnly,
                 TrialLifecycleStatus.ExportOnly,
                 "trial_export_only_phase");
         }
 
-        if (string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal))
-        {
-            if (utcNow < purgeNotBefore)
-                return null;
+        if (!string.Equals(tenant.TrialStatus, TrialLifecycleStatus.ExportOnly, StringComparison.Ordinal))
+            return null;
 
+        if (utcNow < purgeNotBefore)
+            return null;
 
-            return new TrialLifecycleAdvancement(
-                TrialLifecycleStatus.ExportOnly,
-                TrialLifecycleStatus.Deleted,
-                "trial_dpa_hard_purge");
-        }
-
-        return null;
+        return new TrialLifecycleAdvancement(
+            TrialLifecycleStatus.ExportOnly,
+            TrialLifecycleStatus.Deleted,
+            "trial_dpa_hard_purge");
     }
 
     /// <summary>Whole days until the next lifecycle boundary for <c>GET /v1/tenant/trial-status</c>.</summary>

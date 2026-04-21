@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Identity;
 /// <see cref="ArchLucid.Core.Identity.TrialIdentityUserRecord.EmailVerifiedUtc"/> must be set before trial provisioning runs.
 /// </remarks>
 public sealed class TrialBootstrapEmailVerificationPolicy(
-    IOptions<TrialAuthOptions> trialOptions,
+    IOptions<TrialAuthOptions>? trialOptions,
     ITrialIdentityUserRepository identityUsers) : ITrialBootstrapEmailVerificationPolicy
 {
     private readonly TrialAuthOptions _trial =

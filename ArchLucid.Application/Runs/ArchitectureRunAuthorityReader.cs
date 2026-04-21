@@ -31,30 +31,20 @@ public static class ArchitectureRunAuthorityReader
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return null;
 
-
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
         RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
 
         if (record is null)
             return null;
 
-
-        IReadOnlyList<AgentTask>? tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
-
-        IReadOnlyList<string> taskIds = tasks is null
-            ? []
-            : tasks.Select(t => t.TaskId).ToList();
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(runId, cancellationToken);
+        IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
 
         return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
     }
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
-
-
-        return Guid.TryParse(runId, out runGuid);
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

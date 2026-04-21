@@ -21,14 +21,11 @@ public static class TenantSlugNormalizer
                 lastWasHyphen = false;
             }
             else if (char.IsWhiteSpace(c) || c is '-' or '_' or '.')
-
                 if (sb.Length > 0 && !lastWasHyphen)
                 {
                     sb.Append('-');
                     lastWasHyphen = true;
                 }
-
-
 
         while (sb.Length > 0 && sb[0] == '-')
             sb.Remove(0, 1);
@@ -41,9 +38,6 @@ public static class TenantSlugNormalizer
         if (slug.Length > 100)
             slug = slug[..100].TrimEnd('-');
 
-        if (string.IsNullOrEmpty(slug))
-            throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.");
-
-        return slug;
+        return string.IsNullOrEmpty(slug) ? throw new InvalidOperationException("Tenant name must contain at least one letter or digit for slug generation.") : slug;
     }
 }

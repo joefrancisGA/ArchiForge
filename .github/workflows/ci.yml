@@ -111,6 +111,9 @@ jobs:
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
 
+      - name: Marketplace pricing tier alignment vs PRICING_PHILOSOPHY
+        run: python scripts/ci/assert_marketplace_pricing_alignment.py
+
       - name: Guard — no legacy ArchiForge.* workspace directories
         run: python scripts/ci/check_no_legacy_archiforge_dirs.py
 

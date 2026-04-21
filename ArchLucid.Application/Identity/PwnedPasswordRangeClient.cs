@@ -12,7 +12,7 @@ namespace ArchLucid.Application.Identity;
 public sealed class PwnedPasswordRangeClient(
     HttpClient httpClient,
     IMemoryCache cache,
-    IOptions<TrialAuthOptions> trialOptions)
+    IOptions<TrialAuthOptions>? trialOptions)
 {
     /// <summary>How long downloaded HIBP range lines stay in <see cref="IMemoryCache"/> (per SHA-1 prefix).</summary>
     public static readonly TimeSpan RangeResponseCacheDuration = TimeSpan.FromHours(24);

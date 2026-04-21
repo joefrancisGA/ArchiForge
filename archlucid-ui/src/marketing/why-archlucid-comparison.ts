@@ -3,12 +3,17 @@
  * docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1. ArchLucid cells summarize
  * docs/go-to-market/COMPETITIVE_LANDSCAPE.md §3 with repo-path citations only.
  */
+/** Single anchor for every LeanIX / Ardoq / MEGA HOPEX cell (PDF + page + tests stay aligned). */
+export const WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION = "docs/go-to-market/COMPETITIVE_LANDSCAPE.md §2.1";
+
 export type WhyArchlucidComparisonRow = {
   dimension: string;
   leanix: string;
   ardoq: string;
   megaHopex: string;
   archlucid: string;
+  /** Footnote for incumbent columns — must equal `WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION` (Vitest-enforced). */
+  competitorLandscapeCitation: string;
   /** Must reference a repository evidence path (see why-archlucid-comparison.test.ts). */
   archlucidCitation: string;
 };
@@ -16,6 +21,7 @@ export type WhyArchlucidComparisonRow = {
 export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[] = [
   {
     dimension: "AI capability",
+    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
     leanix: "Basic: AI-assisted survey analysis, application rationalization suggestions",
     ardoq: "Basic: change impact simulation",
     megaHopex: "Minimal: rule-based analysis",
@@ -26,6 +32,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[]
   },
   {
     dimension: "Governance depth",
+    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
     leanix: "Moderate: lifecycle management, technology risk, survey workflows",
     ardoq: "Moderate: change scenarios, impact analysis",
     megaHopex: "Strong: TOGAF / ArchiMate workflow, compliance matrices",
@@ -36,6 +43,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[]
   },
   {
     dimension: "Audit trail",
+    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
     leanix: "Basic: change history on entities",
     ardoq: "Basic: change log",
     megaHopex: "Moderate: workflow audit",
@@ -45,6 +53,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[]
   },
   {
     dimension: "Explainability",
+    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
     leanix: "None (recommendations are opaque)",
     ardoq: "None",
     megaHopex: "None",
@@ -54,6 +63,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[]
   },
   {
     dimension: "Deployment",
+    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
     leanix: "SaaS-only",
     ardoq: "SaaS-only",
     megaHopex: "SaaS or on-prem",
@@ -62,6 +72,7 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchlucidComparisonRow[]
   },
   {
     dimension: "Architecture outputs",
+    competitorLandscapeCitation: WHY_ARCHLUCID_COMPETITOR_LANDSCAPE_CITATION,
     leanix: "Inventory-centric modeling and surveys",
     ardoq: "Graph and scenario visualization",
     megaHopex: "ArchiMate / compliance matrices",

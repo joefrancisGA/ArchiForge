@@ -20,6 +20,7 @@ public static class ManifestDiffBadgeClassifier
     public static ManifestDiffBadgeState Classify(ManifestDiffResult diff) =>
         Classify(diff, isFirstCommitOnProject: false);
 
+    /// <param name="diff"></param>
     /// <param name="isFirstCommitOnProject">When true, returns <see cref="ManifestDiffBadgeState.Unchanged"/> regardless of diff lists.</param>
     public static ManifestDiffBadgeState Classify(ManifestDiffResult diff, bool isFirstCommitOnProject)
     {
@@ -31,10 +32,7 @@ public static class ManifestDiffBadgeClassifier
         if (IsBreaking(diff))
             return ManifestDiffBadgeState.Breaking;
 
-        if (!HasAnyStructuralChange(diff))
-            return ManifestDiffBadgeState.Unchanged;
-
-        return ManifestDiffBadgeState.Changed;
+        return !HasAnyStructuralChange(diff) ? ManifestDiffBadgeState.Unchanged : ManifestDiffBadgeState.Changed;
     }
 
     /// <summary>Lowercase label stored in SQL and Confluence macros.</summary>

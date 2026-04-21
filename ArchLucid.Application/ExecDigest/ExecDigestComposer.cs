@@ -109,7 +109,7 @@ public sealed class ExecDigestComposer(
                 bucket,
                 cancellationToken);
 
-            if (points is null || points.Count == 0)
+            if (points.Count == 0)
                 return null;
 
 
@@ -182,7 +182,7 @@ public sealed class ExecDigestComposer(
                     continue;
 
 
-                DateTime? committedUtc = detail.Manifest?.Metadata?.CreatedUtc;
+                DateTime? committedUtc = detail.Manifest?.Metadata.CreatedUtc;
 
                 if (committedUtc is null)
                     continue;
@@ -274,10 +274,7 @@ public sealed class ExecDigestComposer(
 
     private static string NormalizeBaseUrl(string operatorBaseUrl)
     {
-        if (string.IsNullOrWhiteSpace(operatorBaseUrl))
-            return "http://localhost:3000";
-
-        return operatorBaseUrl.Trim().TrimEnd('/');
+        return string.IsNullOrWhiteSpace(operatorBaseUrl) ? "http://localhost:3000" : operatorBaseUrl.Trim().TrimEnd('/');
     }
 
     private static string FormatWeekLabel(DateTime startUtc, DateTime endUtc)

@@ -32,9 +32,6 @@ internal static class ManifestVersionIncrementRules
         ArgumentNullException.ThrowIfNull(run);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        if (string.IsNullOrWhiteSpace(run.CurrentManifestVersion))
-            return $"v1-{runId}";
-
-        return IncrementManifestVersion(run.CurrentManifestVersion);
+        return string.IsNullOrWhiteSpace(run.CurrentManifestVersion) ? $"v1-{runId}" : IncrementManifestVersion(run.CurrentManifestVersion);
     }
 }

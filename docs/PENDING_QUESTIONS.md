@@ -65,7 +65,11 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 8. **Marketplace publication go-live decision** — sign off on Azure Marketplace SaaS plan SKUs (aligned to PRICING_PHILOSOPHY tiers), legal entity, lead-form webhook URL. Prompt 3 pre-builds the alignment guard and the publication checklist diff; cannot create a real listing.
 
+    - **Needed from owner:** (a) **Partner Center publisher / seller** identity (legal entity name on the commercial marketplace listing); (b) **Microsoft Partner ID / publisher id** and the transactable **offer id** to load into `Billing:AzureMarketplace:MarketplaceOfferId` for production (CI alignment: `python scripts/ci/assert_marketplace_pricing_alignment.py`); (c) **Tax profile + payout bank account** completion in Partner Center; (d) **Landing page URL** (must match `Billing:AzureMarketplace:LandingPageUrl` — public HTTPS, not localhost); (e) confirmation the **webhook** `https://<api-host>/v1/billing/webhooks/marketplace` is registered and JWT validation metadata (`OpenIdMetadataAddress`, `ValidAudiences`) matches the app registration Microsoft will call; (f) explicit **go-live date** and who records it in `CHANGELOG.md`.
+
 9. **Stripe production go-live policy decisions** — chargeback / refund / dunning text for the order-form template; legal entity name on customer statements; live API key + webhook secret. Prompt 3 lands the production-safety guards but no live keys.
+
+    - **Needed from owner:** (a) **Statement descriptor** / customer-facing legal name as it should appear on card statements; (b) **Chargeback, refund, and dunning** policy text for [`ORDER_FORM_TEMPLATE.md`](go-to-market/ORDER_FORM_TEMPLATE.md) and Trust Center; (c) **`sk_live_` + `whsec_` live signing secret** injected only via Key Vault / deployment secret store (never committed) and webhook endpoint URL `https://<prod-api-host>/v1/billing/webhooks/stripe` registered in Stripe **live** Dashboard; (d) who **owns** rotation and incident response if webhook delivery fails after deploy.
 
 10. **PGP key for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard in Prompt 4 turns green automatically the moment the file appears.
 
@@ -102,6 +106,8 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 22. **Marketplace + Stripe live go-live calendar** — Partner Center seller verification, tax profile, payout account, **and** Stripe live API key + webhook secret. Decide whether Marketplace and Stripe live flip on the same day or staged. (Improvement 3 / Prompt 3, supersedes nothing — re-emphasises items 8 and 9.)
 
+    - **Needed from owner:** (a) **Single cutover vs staged** — same maintenance window for Marketplace “Go live” + Stripe live keys, or Stripe first / Marketplace first (with rollback owners named per path); (b) **calendar dates** and **communication** to early customers if checkout is briefly unavailable; (c) confirmation **staging** remains on Stripe **TEST** + non-production webhook secrets until (a) is executed (see [`STRIPE_CHECKOUT.md`](go-to-market/STRIPE_CHECKOUT.md) § Staging); (d) who runs `archlucid marketplace preflight` + Partner Center certification checklist the day before either flip.
+
 23. **Microsoft Teams connector scope** — notification-only first, or two-way (approve a governance request from Teams)? Two-way requires a registered Teams app manifest in M365 admin. (Improvement 6 / Prompt 6.)
 
 24. **ADR 0021 strangler completion target date** — Prompt 7 lands the regression CI guard and the `migrate / keep / delete` inventory but stops at naming the **completion** date. Owner names the date; ADR 0028 is drafted from that date. (Improvement 7 / Prompt 7.)
@@ -117,6 +123,8 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 28. **Customer-supplied baseline soft-required at signup** — flip `baselineReviewCycleHours` from optional to soft-required (skippable but defaulted to model). Owner approves the UX change and the privacy-notice update.
 
     - **Needed from owner:** (a) sign-off on the shipped copy in [`docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md`](go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md) (or delegate edits to legal/comms); (b) confirm the **GitHub main link** from the signup form to that note is the correct public surface vs hosting the same text on `archlucid.com`; (c) whether marketing wants **any** additional in-form disclaimer beyond the inline note + tooltip.
+
+31. **Public `/why` comparison delivery** — Should the competitive differentiation ship as **PDF download only** (current `GET /v1/marketing/why-archlucid-pack.pdf` path), **inline page section only**, or **both** with synchronized copy?
 
 ---
 

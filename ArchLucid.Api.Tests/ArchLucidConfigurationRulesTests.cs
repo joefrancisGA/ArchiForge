@@ -1735,4 +1735,79 @@ public sealed class ArchLucidConfigurationRulesTests
 
         errors.Should().NotContain(e => e.Contains("Billing:Stripe:SecretKey", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndStripeLiveKeyWithoutWebhookSigningSecret_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.Stripe,
+            ["Billing:Stripe:SecretKey"] = "sk_live_unit_test_placeholder_not_a_real_key",
+            ["Billing:Stripe:WebhookSigningSecret"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("sk_live_", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndAzureMarketplaceGaWithoutOfferId_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "https://app.example.com/marketplace/landing",
+            ["Billing:AzureMarketplace:GaEnabled"] = "true",
+            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("MarketplaceOfferId", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenProductionApiAndAzureMarketplaceLocalhostLanding_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "JwtBearer",
+            ["ArchLucidAuth:Authority"] = "https://login.example.com",
+            ["Cors:AllowedOrigins:0"] = "https://ops.example.com",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+            ["Billing:Provider"] = BillingProviderNames.AzureMarketplace,
+            ["Billing:AzureMarketplace:LandingPageUrl"] = "http://127.0.0.1:3000/marketplace/landing",
+            ["Billing:AzureMarketplace:GaEnabled"] = "false",
+            ["Billing:AzureMarketplace:MarketplaceOfferId"] = "ignored-when-ga-off",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Production);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("loopback", StringComparison.OrdinalIgnoreCase)
+                                      || e.Contains("localhost", StringComparison.OrdinalIgnoreCase));
+    }
 }

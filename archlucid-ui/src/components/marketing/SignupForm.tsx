@@ -45,8 +45,8 @@ export function SignupForm() {
       organizationName: "",
       companySize: undefined,
       baselineChoice: "model_default",
-      baselineReviewCycleHours: undefined,
-      baselineReviewCycleSource: undefined,
+      baselineReviewCycleHours: "",
+      baselineReviewCycleSource: "",
     },
     mode: "onBlur",
   });
@@ -59,8 +59,8 @@ export function SignupForm() {
     setValue("baselineChoice", next, { shouldValidate: true });
 
     if (next === "model_default") {
-      setValue("baselineReviewCycleHours", undefined, { shouldValidate: true });
-      setValue("baselineReviewCycleSource", undefined, { shouldValidate: true });
+      setValue("baselineReviewCycleHours", "", { shouldValidate: true });
+      setValue("baselineReviewCycleSource", "", { shouldValidate: true });
     }
   }
 
@@ -75,13 +75,17 @@ export function SignupForm() {
       };
 
       if (values.baselineChoice === "custom") {
-        if (values.baselineReviewCycleHours !== undefined) {
-          payload.baselineReviewCycleHours = values.baselineReviewCycleHours;
+        const hoursTrim = values.baselineReviewCycleHours?.trim() ?? "";
+
+        if (hoursTrim.length > 0) {
+          const hoursParsed = Number(hoursTrim);
+
+          if (Number.isFinite(hoursParsed)) payload.baselineReviewCycleHours = hoursParsed;
         }
 
-        if (values.baselineReviewCycleSource !== undefined) {
-          payload.baselineReviewCycleSource = values.baselineReviewCycleSource;
-        }
+        const sourceTrim = values.baselineReviewCycleSource?.trim() ?? "";
+
+        if (sourceTrim.length > 0) payload.baselineReviewCycleSource = sourceTrim;
       }
 
       const res = await fetch("/api/proxy/v1/register", {

@@ -28,6 +28,7 @@ public static class CompletionsCommand
         "reference-evidence",
         "comparisons",
         "health",
+        "marketplace",
         "doctor",
         "check",
         "support-bundle",

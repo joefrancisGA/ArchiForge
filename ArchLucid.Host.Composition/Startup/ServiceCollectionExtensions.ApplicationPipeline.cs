@@ -136,6 +136,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IReferenceEvidenceAdminExportService, ReferenceEvidenceAdminExportService>();
         services.AddScoped<FirstValueReportBuilder>();
         services.AddScoped<FirstValueReportPdfBuilder>();
+        services.AddScoped<WhyArchLucidPackPdfBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
         services.AddScoped<SponsorOnePagerPdfBuilder>();
         services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();

@@ -42,7 +42,8 @@ public static class ContosoRetailDemoIdentifiers
     /// </summary>
     public static bool IsDemoRunId(string? runId)
     {
-        if (string.IsNullOrWhiteSpace(runId)) return false;
+        if (string.IsNullOrWhiteSpace(runId))
+            return false;
 
         return string.Equals(runId, RunBaseline, StringComparison.OrdinalIgnoreCase)
             || string.Equals(runId, RunHardened, StringComparison.OrdinalIgnoreCase);
@@ -56,9 +57,8 @@ public static class ContosoRetailDemoIdentifiers
     /// </summary>
     public static bool IsDemoRequestId(string? requestId)
     {
-        if (string.IsNullOrWhiteSpace(requestId)) return false;
-        if (string.Equals(requestId, RequestContoso, StringComparison.OrdinalIgnoreCase)) return true;
-
-        return requestId.StartsWith(MultiTenantRequestPrefix, StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(requestId))
+            return false;
+        return string.Equals(requestId, RequestContoso, StringComparison.OrdinalIgnoreCase) || requestId.StartsWith(MultiTenantRequestPrefix, StringComparison.OrdinalIgnoreCase);
     }
 }

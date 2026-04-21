@@ -91,35 +91,32 @@ public sealed class PreCommitGovernanceGate(
         if (blockingIds.Count == 0)
             return PreCommitGateResult.Allowed();
 
-
         string packLabel = enforcing.PolicyPackId.ToString("N");
         string severityLabel = effectiveSeverityEnum.ToString();
 
-        if (IsWarnOnlySeverity(severityLabel))
-        {
-            string warningMessage =
-                $"{blockingIds.Count} {severityLabel}+ finding(s) detected per policy pack (pack {packLabel}) — warn only.";
-
+        if (!IsWarnOnlySeverity(severityLabel))
             return new PreCommitGateResult
             {
-                Blocked = false,
-                WarnOnly = true,
-                Reason = warningMessage,
+                Blocked = true,
+                Reason =
+                    $"{blockingIds.Count} {severityLabel}+ finding(s) block commit per policy pack assignment (pack {packLabel}).",
                 BlockingFindingIds = blockingIds,
                 PolicyPackId = packLabel,
                 MinimumBlockingSeverity = (int)effectiveSeverityEnum,
-                Warnings = [warningMessage],
             };
-        }
+
+        string warningMessage =
+            $"{blockingIds.Count} {severityLabel}+ finding(s) detected per policy pack (pack {packLabel}) — warn only.";
 
         return new PreCommitGateResult
         {
-            Blocked = true,
-            Reason =
-                $"{blockingIds.Count} {severityLabel}+ finding(s) block commit per policy pack assignment (pack {packLabel}).",
+            Blocked = false,
+            WarnOnly = true,
+            Reason = warningMessage,
             BlockingFindingIds = blockingIds,
             PolicyPackId = packLabel,
             MinimumBlockingSeverity = (int)effectiveSeverityEnum,
+            Warnings = [warningMessage],
         };
     }
 
@@ -127,7 +124,6 @@ public sealed class PreCommitGovernanceGate(
     {
         if (assignment.BlockCommitMinimumSeverity.HasValue)
             return assignment.BlockCommitMinimumSeverity.Value;
-
 
         // Legacy behavior: BlockCommitOnCritical=true → block on Critical (3) only
         return (int)FindingSeverity.Critical;

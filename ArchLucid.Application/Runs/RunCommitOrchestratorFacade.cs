@@ -9,6 +9,6 @@ public sealed class RunCommitOrchestratorFacade(IArchitectureRunCommitOrchestrat
         inner ?? throw new ArgumentNullException(nameof(inner));
 
     /// <inheritdoc />
-    public Task<ArchLucid.Application.CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default) =>
+    public Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default) =>
         _inner.CommitRunAsync(runId, cancellationToken);
 }

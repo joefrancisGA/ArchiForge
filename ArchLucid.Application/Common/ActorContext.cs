@@ -21,14 +21,9 @@ public sealed class ActorContext(IHttpContextAccessor httpContextAccessor) : IAc
         if (!string.IsNullOrWhiteSpace(name))
             return name.Trim();
 
-
         // JwtBearer with MapInboundClaims=false (local PEM CI tokens) emits short claim type "name", not ClaimTypes.Name.
         string? jwtName = user?.FindFirst("name")?.Value;
 
-        if (!string.IsNullOrWhiteSpace(jwtName))
-            return jwtName.Trim();
-
-
-        return FallbackActor;
+        return !string.IsNullOrWhiteSpace(jwtName) ? jwtName.Trim() : FallbackActor;
     }
 }

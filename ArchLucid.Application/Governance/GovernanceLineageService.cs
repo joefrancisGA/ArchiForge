@@ -70,50 +70,62 @@ public sealed class GovernanceLineageService(
         List<GovernanceLineageFindingSummary> topFindings = [];
         string? riskPosture = null;
 
-        if (Guid.TryParseExact(approval.RunId, "N", out Guid authorityRunId))
-        {
-            ScopeContext scope = _scopeProvider.GetCurrentScope();
-            RunDetailDto? authorityDetail = await _authorityQuery
+        if (!Guid.TryParseExact(approval.RunId, "N", out Guid authorityRunId))
+            return new GovernanceLineageResult
+            {
+                ApprovalRequest = approval,
+                Run = runSummary,
+                Manifest = manifestSummary,
+                TopFindings = topFindings,
+                RiskPosture = riskPosture,
+                Promotions = promotions.ToList(),
+            };
+
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+        RunDetailDto? authorityDetail = await _authorityQuery
                 .GetRunDetailAsync(scope, authorityRunId, cancellationToken)
-                ;
+            ;
 
-            if (authorityDetail?.GoldenManifest is not null)
+        if (authorityDetail?.GoldenManifest is not null)
+        {
+            GoldenManifest gm = authorityDetail.GoldenManifest;
+            manifestSummary = new GovernanceLineageManifestSummary
             {
-                GoldenManifest gm = authorityDetail.GoldenManifest;
-                manifestSummary = new GovernanceLineageManifestSummary
-                {
-                    ManifestVersion = gm.Metadata.Version,
-                    DecisionCount = gm.Decisions.Count,
-                    UnresolvedIssueCount = gm.UnresolvedIssues.Items.Count,
-                    ComplianceGapCount = gm.Compliance.Gaps.Count,
-                };
+                ManifestVersion = gm.Metadata.Version,
+                DecisionCount = gm.Decisions.Count,
+                UnresolvedIssueCount = gm.UnresolvedIssues.Items.Count,
+                ComplianceGapCount = gm.Compliance.Gaps.Count,
+            };
 
-                riskPosture = AuthorityManifestRiskPosture.Derive(gm);
-            }
-
-            if (authorityDetail?.FindingsSnapshot?.Findings is { Count: > 0 } findings)
-            {
-                IEnumerable<Finding> ordered = findings
-                    .OrderByDescending(f => (int)f.Severity)
-                    .ThenBy(f => f.Title, StringComparer.OrdinalIgnoreCase);
-
-                foreach (Finding f in ordered.Take(10))
-                {
-                    TraceCompletenessScore score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f);
-
-                    topFindings.Add(
-                        new GovernanceLineageFindingSummary
-                        {
-                            FindingId = f.FindingId,
-                            Title = f.Title,
-                            EngineType = f.EngineType,
-                            Severity = f.Severity.ToString(),
-                            TraceCompletenessRatio = score.CompletenessRatio,
-                            SourceAgentExecutionTraceId = f.Trace.SourceAgentExecutionTraceId,
-                        });
-                }
-            }
+            riskPosture = AuthorityManifestRiskPosture.Derive(gm);
         }
+
+        if (authorityDetail?.FindingsSnapshot?.Findings is not { Count: > 0 } findings)
+            return new GovernanceLineageResult
+            {
+                ApprovalRequest = approval,
+                Run = runSummary,
+                Manifest = manifestSummary,
+                TopFindings = topFindings,
+                RiskPosture = riskPosture,
+                Promotions = promotions.ToList(),
+            };
+
+        IEnumerable<Finding> ordered = findings
+            .OrderByDescending(f => (int)f.Severity)
+            .ThenBy(f => f.Title, StringComparer.OrdinalIgnoreCase);
+
+        topFindings.AddRange(from f in ordered.Take(10)
+                             let score = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(f)
+                             select new GovernanceLineageFindingSummary
+                             {
+                                 FindingId = f.FindingId,
+                                 Title = f.Title,
+                                 EngineType = f.EngineType,
+                                 Severity = f.Severity.ToString(),
+                                 TraceCompletenessRatio = score.CompletenessRatio,
+                                 SourceAgentExecutionTraceId = f.Trace.SourceAgentExecutionTraceId,
+                             });
 
         return new GovernanceLineageResult
         {

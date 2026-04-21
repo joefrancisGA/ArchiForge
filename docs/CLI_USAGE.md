@@ -54,6 +54,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `try [--no-open] [--api-base-url <url>] [--ui-base-url <url>] [--readiness-deadline <secs>] [--commit-deadline <secs>]` | One-shot first-value loop. Composes **`pilot up`** → **`POST /v1/demo/seed`** → submits a sample architecture request → polls **`GET /v1/architecture/run/{runId}`** until `ReadyForCommit` (falls back to seeding fake results once the deadline elapses) → **`commit`** → **`GET /v1/pilots/runs/{runId}/first-value-report`** (Markdown saved to cwd) → opens the saved Markdown and **`{uiBaseUrl}/runs/{runId}`** in the OS default handlers. **`--no-open`** disables the OS opens (use it inside containers / SSH / CI). See **[archlucid try](#archlucid-try)** below. |
 | `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | Pure-HTTP smoke loop for the **public trial signup funnel** against any local or staging API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → **`GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. **No Docker, no SQL on your laptop.** Honours the same global **`--json`** flag for machine-readable output. See **[archlucid trial smoke](#archlucid-trial-smoke)** and the funnel runbook **[`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md)**. |
 | `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>]` | **AdminAuthority** draft of the **quarterly aggregate ROI bulletin** (mean / p50 / p90 of tenant-supplied baseline hours only). Calls **`GET /v1/admin/roi-bulletin-preview`**; exits **`UsageError`** when the tenant count is below **`--min-tenants`** (default **5**). Requires **`ARCHLUCID_API_KEY`** with admin scope. See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [`docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md). |
+| `marketplace preflight [--repo <dir>]` | **Repo-local** Azure Marketplace publication checks (doc markers, tier naming vs [`PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md), `appsettings` keys). Prints **PASS/FAIL** per check; exits **`OperationFailed`** if any automated check fails. Does **not** call Partner Center or hold secrets — see **[archlucid marketplace preflight](#archlucid-marketplace-preflight)** and [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](go-to-market/MARKETPLACE_PUBLICATION.md). |
 | `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
@@ -201,6 +202,30 @@ export ARCHLUCID_API_URL=https://staging.archlucid.com
 export ARCHLUCID_API_KEY='<admin key>'
 dotnet run --project ArchLucid.Cli -- roi-bulletin --quarter Q1-2026 --min-tenants 5 --out ./roi-bulletin-Q1-2026-draft.md
 ```
+
+---
+
+## archlucid marketplace preflight
+
+`archlucid marketplace preflight` runs **deterministic repository checks** aligned with the automated parts of [`docs/go-to-market/MARKETPLACE_PUBLICATION.md`](go-to-market/MARKETPLACE_PUBLICATION.md): pricing tier naming consistency, presence of billing webhook routes in [`docs/BILLING.md`](BILLING.md), and that `ArchLucid.Api/appsettings.json` includes `Billing:AzureMarketplace:MarketplaceOfferId`. It does **not** validate Partner Center seller verification, tax, payout, or TLS — those remain owner checklist items.
+
+### Usage
+
+```bash
+dotnet run --project ArchLucid.Cli -- marketplace preflight
+```
+
+From outside the repo tree, pass the repository root:
+
+```bash
+dotnet run --project ArchLucid.Cli -- marketplace preflight --repo C:\ArchiForge\ArchiForge
+```
+
+### Exit codes
+
+- **0** — Every automated check **PASS**.
+- **1** — Invalid invocation (`--repo` without value, unknown flags).
+- **4** — At least one check **FAIL** (`CliExitCode.OperationFailed`).
 
 ---
 
