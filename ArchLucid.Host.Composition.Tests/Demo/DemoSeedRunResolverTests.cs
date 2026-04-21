@@ -38,7 +38,7 @@ public sealed class DemoSeedRunResolverTests
         RunRecord? resolved = await sut.ResolveLatestCommittedDemoRunAsync();
 
         resolved.Should().NotBeNull();
-        resolved!.RunId.Should().Be(baseline.RunId);
+        resolved.RunId.Should().Be(baseline.RunId);
 
         runRepo.Verify(
             r => r.ListRecentInScopeAsync(It.IsAny<ScopeContext>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
@@ -91,7 +91,7 @@ public sealed class DemoSeedRunResolverTests
         RunRecord? resolved = await sut.ResolveLatestCommittedDemoRunAsync();
 
         resolved.Should().NotBeNull();
-        resolved!.RunId.Should().Be(newest.RunId);
+        resolved.RunId.Should().Be(newest.RunId);
     }
 
     [Fact]

@@ -86,7 +86,7 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
             await putRes.Content.ReadFromJsonAsync<TenantNotificationChannelPreferencesResponse>(JsonOptions);
 
         putParsed.Should().NotBeNull();
-        putParsed!.IsConfigured.Should().BeTrue();
+        putParsed.IsConfigured.Should().BeTrue();
         putParsed.EmailCustomerNotificationsEnabled.Should().BeFalse();
         putParsed.TeamsCustomerNotificationsEnabled.Should().BeTrue();
         putParsed.OutboundWebhookCustomerNotificationsEnabled.Should().BeTrue();
@@ -98,7 +98,7 @@ public sealed class CustomerNotificationChannelPreferencesWriteIntegrationTests 
             await getRes.Content.ReadFromJsonAsync<TenantNotificationChannelPreferencesResponse>(JsonOptions);
 
         getParsed.Should().NotBeNull();
-        getParsed!.IsConfigured.Should().BeTrue();
+        getParsed.IsConfigured.Should().BeTrue();
         getParsed.EmailCustomerNotificationsEnabled.Should().BeFalse();
         getParsed.TeamsCustomerNotificationsEnabled.Should().BeTrue();
         getParsed.OutboundWebhookCustomerNotificationsEnabled.Should().BeTrue();

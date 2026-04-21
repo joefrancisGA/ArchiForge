@@ -4,10 +4,9 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Merge;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-using ArchLucid.Decisioning.Merge;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;

@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 
 namespace ArchLucid.Application.Pilots;
 
@@ -21,8 +20,10 @@ internal static class MarkdownPdfRenderer
     /// <summary>Renders <paramref name="markdown"/> into the supplied QuestPDF <paramref name="column"/>.</summary>
     public static void Render(ColumnDescriptor column, string markdown)
     {
-        if (column is null) throw new ArgumentNullException(nameof(column));
-        if (markdown is null) throw new ArgumentNullException(nameof(markdown));
+        if (column is null)
+            throw new ArgumentNullException(nameof(column));
+        if (markdown is null)
+            throw new ArgumentNullException(nameof(markdown));
 
         IReadOnlyList<string> lines = NormalizeLines(markdown);
         int index = 0;
@@ -150,8 +151,10 @@ internal static class MarkdownPdfRenderer
 
     private static bool IsTableHeader(string line, IReadOnlyList<string> lines, int index)
     {
-        if (!IsTableRow(line)) return false;
-        if (index + 1 >= lines.Count) return false;
+        if (!IsTableRow(line))
+            return false;
+        if (index + 1 >= lines.Count)
+            return false;
 
         return IsTableSeparator(lines[index + 1]);
     }
@@ -167,7 +170,8 @@ internal static class MarkdownPdfRenderer
     {
         string t = line.Trim();
 
-        if (!t.StartsWith('|')) return false;
+        if (!t.StartsWith('|'))
+            return false;
         IEnumerable<string> cells = SplitRow(t).Select(c => c.Trim());
 
         return cells.All(c => c.Length > 0 && c.Replace(":", string.Empty, StringComparison.Ordinal).All(ch => ch == '-'));
@@ -177,8 +181,10 @@ internal static class MarkdownPdfRenderer
     {
         string t = line.Trim();
 
-        if (t.StartsWith('|')) t = t[1..];
-        if (t.EndsWith('|')) t = t[..^1];
+        if (t.StartsWith('|'))
+            t = t[1..];
+        if (t.EndsWith('|'))
+            t = t[..^1];
 
         return t.Split('|').Select(c => c.Trim()).ToList();
     }
@@ -194,7 +200,8 @@ internal static class MarkdownPdfRenderer
         {
             List<string> cells = SplitRow(lines[i]);
 
-            while (cells.Count < columnsCount) cells.Add(string.Empty);
+            while (cells.Count < columnsCount)
+                cells.Add(string.Empty);
             rows.Add(cells);
             i++;
         }
@@ -203,7 +210,8 @@ internal static class MarkdownPdfRenderer
         {
             table.ColumnsDefinition(cols =>
             {
-                for (int c = 0; c < columnsCount; c++) cols.RelativeColumn();
+                for (int c = 0; c < columnsCount; c++)
+                    cols.RelativeColumn();
             });
 
             foreach (string header in headers)

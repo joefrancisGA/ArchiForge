@@ -28,7 +28,7 @@ public sealed class WhyArchLucidSnapshotEndpointTests(ArchLucidApiFactory factor
             await response.Content.ReadFromJsonAsync<WhyArchLucidSnapshotResponse>(JsonOptions);
 
         snapshot.Should().NotBeNull();
-        snapshot!.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
+        snapshot.DemoRunId.Should().Be(ContosoRetailDemoIdentifiers.RunBaseline);
         snapshot.GeneratedUtc.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromMinutes(2));
         snapshot.RunsCreatedTotal.Should().BeGreaterThanOrEqualTo(0);
         snapshot.AuditRowCount.Should().BeGreaterThanOrEqualTo(0);

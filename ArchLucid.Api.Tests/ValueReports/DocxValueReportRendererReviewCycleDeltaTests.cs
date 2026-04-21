@@ -123,7 +123,7 @@ public sealed class DocxValueReportRendererReviewCycleDeltaTests
         ZipArchiveEntry? entry = zip.GetEntry("word/document.xml");
         entry.Should().NotBeNull();
 
-        using StreamReader reader = new(entry!.Open(), Encoding.UTF8);
+        using StreamReader reader = new(entry.Open(), Encoding.UTF8);
 
         return await reader.ReadToEndAsync();
     }

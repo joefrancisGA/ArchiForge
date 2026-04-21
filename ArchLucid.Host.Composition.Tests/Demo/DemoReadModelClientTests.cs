@@ -1,6 +1,5 @@
 using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
@@ -62,7 +61,7 @@ public sealed class DemoReadModelClientTests
         DemoExplainResponse? response = await sut.GetLatestCommittedDemoExplainAsync();
 
         response.Should().NotBeNull();
-        response!.RunId.Should().Be(baseline.RunId.ToString("N"));
+        response.RunId.Should().Be(baseline.RunId.ToString("N"));
         response.ManifestVersion.Should().Be(ContosoRetailDemoIdentifiers.ManifestBaseline);
         response.IsDemoData.Should().BeTrue();
         response.RunExplanation.Should().BeSameAs(summary);
@@ -143,7 +142,7 @@ public sealed class DemoReadModelClientTests
         DemoExplainResponse? response = await sut.GetLatestCommittedDemoExplainAsync();
 
         response.Should().NotBeNull();
-        response!.ProvenanceGraph.Should().NotBeNull();
+        response.ProvenanceGraph.Should().NotBeNull();
         response.ProvenanceGraph.IsEmpty.Should().BeTrue();
     }
 

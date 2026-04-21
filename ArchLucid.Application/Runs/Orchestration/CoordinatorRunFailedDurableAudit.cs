@@ -27,19 +27,23 @@ internal static class CoordinatorRunFailedDurableAudit
             ScopeContext scope = scopeProvider.GetCurrentScope();
             Guid? runGuid = Guid.TryParse(correlationRunId, out Guid g) ? g : null;
 
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.CoordinatorRunFailed,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = runGuid,
-                    DataJson = JsonSerializer.Serialize(new { runId = correlationRunId, reason }),
-                },
-                cancellationToken);
+            AuditEvent legacyFailed = new()
+            {
+                EventType = AuditEventTypes.CoordinatorRunFailed,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                DataJson = JsonSerializer.Serialize(new { runId = correlationRunId, reason }),
+            };
+
+            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
+                auditService,
+                legacyFailed,
+                AuditEventTypes.Run.Failed,
+                cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

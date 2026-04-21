@@ -1,10 +1,7 @@
 using ArchLucid.Application;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Tenancy;
-using ArchLucid.Host.Core.Hosting;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Hosted;

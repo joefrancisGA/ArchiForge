@@ -6,7 +6,6 @@ using ArchLucid.Host.Core.Demo;
 
 using FluentAssertions;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -87,7 +86,7 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
 
         DemoExplainResponse? payload = await response.Content.ReadFromJsonAsync<DemoExplainResponse>();
         payload.Should().NotBeNull();
-        payload!.RunId.Should().Be(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"));
+        payload.RunId.Should().Be(ContosoRetailDemoIdentifiers.AuthorityRunBaselineId.ToString("N"));
         payload.IsDemoData.Should().BeTrue();
         payload.RunExplanation.Should().NotBeNull();
         payload.ProvenanceGraph.Should().NotBeNull();
@@ -110,7 +109,10 @@ public sealed class DemoExplainEndpointTests : IClassFixture<ArchLucidApiFactory
                 DemoStatusMessage = "demo tenant — replace before publishing",
                 RunExplanation = new()
                 {
-                    Explanation = new() { Summary = "Stub" },
+                    Explanation = new()
+                    {
+                        Summary = "Stub"
+                    },
                     ThemeSummaries = ["Theme"],
                     OverallAssessment = "Healthy",
                     RiskPosture = "Moderate",

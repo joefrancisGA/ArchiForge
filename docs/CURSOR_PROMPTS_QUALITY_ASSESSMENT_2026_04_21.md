@@ -135,6 +135,10 @@ twin), façade interface contract test, parity probe unit test (no SQL -- mock I
 Update docs/CHANGELOG.md and the cursor-prompts execution log.
 ```
 
+### Execution log — Prompt 2 (ADR 0021 Phase 2 / 3 prep, 2026-04-21)
+
+Shipped: **`AuditEventTypes.Run.*`** canonical strings + **dual-write** from coordinator create/execute/commit + failed durable audit; **`CoordinatorRunCatalogDurableDualWrite`**; **`IRunCommitOrchestrator`** / **`RunCommitOrchestratorFacade`** + DI; **`scripts/ci/coordinator_parity_probe.py`**, **`scripts/ci/test_coordinator_parity_probe.py`**, **`.github/workflows/coordinator-parity-daily.yml`**; runbook marker block; **`AUDIT_COVERAGE_MATRIX`** count **101**; **`DualPipelineRegistrationDisciplineTests`** façade resolution test; Core/Application tests. **OWNER gate:** three ADR 0021 / Phase 3 policy questions appended to **`docs/PENDING_QUESTIONS.md`** (legacy constant sunset date, whether nightly probe may commit to `docs/` on `main`, ADR 0022 supersede timing).
+
 ---
 
 ## Prompt 3 — Live Stripe + Azure Marketplace SaaS

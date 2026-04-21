@@ -1,5 +1,3 @@
-using ArchLucid.Api;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;

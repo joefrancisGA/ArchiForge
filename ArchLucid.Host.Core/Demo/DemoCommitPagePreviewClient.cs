@@ -6,8 +6,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Queries;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Demo;
 
 /// <summary>Default <see cref="IDemoCommitPagePreviewClient"/>.</summary>

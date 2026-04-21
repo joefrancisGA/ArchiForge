@@ -4,8 +4,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Provenance;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Demo;
 
 /// <summary>

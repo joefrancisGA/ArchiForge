@@ -24,7 +24,7 @@ public sealed class TryCommandTests
 
         error.Should().BeNull();
         opts.Should().NotBeNull();
-        opts!.ApiBaseUrl.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
+        opts.ApiBaseUrl.Should().Be(TryCommandOptions.DefaultApiBaseUrl);
         opts.UiBaseUrl.Should().Be(TryCommandOptions.DefaultUiBaseUrl);
         opts.OpenArtifacts.Should().BeTrue();
         opts.ReadinessDeadline.Should().Be(TryCommandOptions.DefaultReadinessDeadline);

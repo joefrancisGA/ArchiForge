@@ -50,7 +50,7 @@ public sealed class CustomerNotificationChannelPreferencesIntegrationTests : ICl
             await res.Content.ReadFromJsonAsync<TenantNotificationChannelPreferencesResponse>(JsonOptions);
 
         body.Should().NotBeNull();
-        body!.IsConfigured.Should().BeFalse();
+        body.IsConfigured.Should().BeFalse();
         body.EmailCustomerNotificationsEnabled.Should().BeTrue();
         body.TeamsCustomerNotificationsEnabled.Should().BeFalse();
         body.OutboundWebhookCustomerNotificationsEnabled.Should().BeFalse();

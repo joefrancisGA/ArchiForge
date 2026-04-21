@@ -1,5 +1,3 @@
-using ArchLucid.Api;
-
 using FluentAssertions;
 
 namespace ArchLucid.Api.Tests;
@@ -54,6 +52,6 @@ public sealed class ApiPagingTests
         error.Should().BeNull();
         id.Should().Be(idPart);
         createdUtc.Should().NotBeNull();
-        DateTime.SpecifyKind(createdUtc!.Value, DateTimeKind.Utc).Should().Be(expected.UtcDateTime);
+        DateTime.SpecifyKind(createdUtc.Value, DateTimeKind.Utc).Should().Be(expected.UtcDateTime);
     }
 }

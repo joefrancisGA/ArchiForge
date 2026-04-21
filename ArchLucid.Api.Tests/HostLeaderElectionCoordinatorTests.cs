@@ -1,4 +1,3 @@
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 

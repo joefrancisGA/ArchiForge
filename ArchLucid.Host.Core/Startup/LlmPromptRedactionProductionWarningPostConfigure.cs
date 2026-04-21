@@ -1,9 +1,6 @@
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Startup;

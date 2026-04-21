@@ -79,7 +79,7 @@ public sealed class FindingEvidenceChainServiceTests
         FindingEvidenceChainResponse? chain = await sut.BuildAsync(runGuid.ToString("N"), "hit-id");
 
         chain.Should().NotBeNull();
-        chain!.RunId.Should().Be(runGuid.ToString("N"));
+        chain.RunId.Should().Be(runGuid.ToString("N"));
         chain.FindingId.Should().Be("hit-id");
         chain.ManifestVersion.Should().Be("v7");
         chain.FindingsSnapshotId.Should().Be(dto.Run.FindingsSnapshotId);

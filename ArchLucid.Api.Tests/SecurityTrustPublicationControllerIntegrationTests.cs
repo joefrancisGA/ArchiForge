@@ -41,7 +41,7 @@ public sealed class SecurityTrustPublicationControllerIntegrationTests(ArchLucid
         doc.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
         doc.RootElement.GetArrayLength().Should().BeGreaterThan(0);
 
-        JsonElement first = doc.RootElement[0]!;
+        JsonElement first = doc.RootElement[0];
         first.GetProperty("eventType").GetString().Should().Be("SecurityAssessmentPublished");
         first.GetProperty("dataJson").GetString().Should().Contain("2026-Q2");
     }

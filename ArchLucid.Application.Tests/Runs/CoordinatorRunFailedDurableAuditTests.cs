@@ -50,6 +50,15 @@ public sealed class CoordinatorRunFailedDurableAuditTests
                     && e.DataJson.Contains("unit-test reason", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.Run.Failed
+                    && e.ActorUserId == "actor-1"
+                    && e.TenantId == tenant),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

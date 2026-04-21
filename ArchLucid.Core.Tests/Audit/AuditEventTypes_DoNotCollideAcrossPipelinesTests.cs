@@ -96,6 +96,7 @@ public sealed class AuditEventTypes_DoNotCollideAcrossPipelinesTests
     {
         List<string> allValues = GetTopLevelStringConstantValues().Select(pair => pair.Value)
             .Concat(GetNestedStringConstantValues(typeof(AuditEventTypes.Baseline)))
+            .Concat(GetNestedStringConstantValues(typeof(AuditEventTypes.Run)))
             .ToList();
 
         IEnumerable<IGrouping<string, string>> duplicates = allValues

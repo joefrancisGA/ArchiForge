@@ -282,6 +282,9 @@ jobs:
           fi
           echo "Audit Core constants: $CONST_COUNT (matrix marker OK)."
 
+      - name: coordinator parity probe (Python unit tests)
+        run: python3 scripts/ci/test_coordinator_parity_probe.py
+
       - name: Guard — migration rollback scripts (latest ten)
         run: python3 scripts/ci/assert_rollback_scripts_exist.py
 

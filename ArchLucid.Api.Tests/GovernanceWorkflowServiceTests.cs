@@ -11,7 +11,6 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence;
-using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;

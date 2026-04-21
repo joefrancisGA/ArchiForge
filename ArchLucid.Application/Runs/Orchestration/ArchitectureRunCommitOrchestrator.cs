@@ -376,24 +376,28 @@ public sealed class ArchitectureRunCommitOrchestrator(
 
         try
         {
-            await _auditService.LogAsync(
-                new AuditEvent
+            AuditEvent legacyCommitCompleted = new()
+            {
+                EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = commitScope.TenantId,
+                WorkspaceId = commitScope.WorkspaceId,
+                ProjectId = commitScope.ProjectId,
+                RunId = commitRunGuid,
+                DataJson = JsonSerializer.Serialize(new
                 {
-                    EventType = AuditEventTypes.CoordinatorRunCommitCompleted,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = commitScope.TenantId,
-                    WorkspaceId = commitScope.WorkspaceId,
-                    ProjectId = commitScope.ProjectId,
-                    RunId = commitRunGuid,
-                    DataJson = JsonSerializer.Serialize(new
-                    {
-                        runId,
-                        manifestVersion = merge.Manifest.Metadata.ManifestVersion,
-                        systemName = merge.Manifest.SystemName,
-                    }),
-                },
-                cancellationToken);
+                    runId,
+                    manifestVersion = merge.Manifest.Metadata.ManifestVersion,
+                    systemName = merge.Manifest.SystemName,
+                }),
+            };
+
+            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
+                _auditService,
+                legacyCommitCompleted,
+                AuditEventTypes.Run.CommitCompleted,
+                cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

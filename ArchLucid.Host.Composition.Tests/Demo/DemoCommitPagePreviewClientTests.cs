@@ -2,7 +2,6 @@ using ArchLucid.AgentRuntime.Explanation;
 using ArchLucid.Application.Audit;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.ArtifactSynthesis.Packaging;
-using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Demo;
@@ -40,7 +39,10 @@ public sealed class DemoCommitPagePreviewClientTests
         Mock<IDemoSeedRunResolver> seedResolver = new();
         seedResolver.Setup(s => s.ResolveLatestCommittedDemoRunAsync(It.IsAny<CancellationToken>())).ReturnsAsync(run);
 
-        RunDetailDto detail = new() { Run = run };
+        RunDetailDto detail = new()
+        {
+            Run = run
+        };
 
         ManifestSummaryDto manifestDto = new()
         {
@@ -117,7 +119,7 @@ public sealed class DemoCommitPagePreviewClientTests
         DemoCommitPagePreviewResponse? response = await sut.GetLatestCommittedDemoCommitPageAsync();
 
         response.Should().NotBeNull();
-        response!.Run.RunId.Should().Be(run.RunId.ToString("N"));
+        response.Run.RunId.Should().Be(run.RunId.ToString("N"));
         response.Manifest.DecisionCount.Should().Be(2);
         response.AuthorityChain.ContextSnapshotId.Should().NotBeNull();
         response.Artifacts.Should().HaveCount(1);

@@ -1,8 +1,7 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
-using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
@@ -80,7 +79,7 @@ public sealed class FirstValueReportBuilderTests
         string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
 
         md.Should().NotBeNull();
-        md!.Should().Contain("Computed deltas (from this run)");
+        md.Should().Contain("Computed deltas (from this run)");
         md.Should().Contain("Review-cycle delta (before vs measured)");
         md.Should().Contain("v2");
         md.Should().Contain("SysA");
@@ -123,7 +122,7 @@ public sealed class FirstValueReportBuilderTests
         md.Should().NotBeNull();
         // Banner must appear in the document preface AND immediately under the computed-deltas heading,
         // so a sponsor cannot crop the page and quote a single number out of context.
-        int firstBanner = md!.IndexOf("demo tenant — replace before publishing", StringComparison.Ordinal);
+        int firstBanner = md.IndexOf("demo tenant — replace before publishing", StringComparison.Ordinal);
         int secondBanner = md.IndexOf("demo tenant — replace before publishing", firstBanner + 1, StringComparison.Ordinal);
         firstBanner.Should().BeGreaterThan(0);
         secondBanner.Should().BeGreaterThan(firstBanner);

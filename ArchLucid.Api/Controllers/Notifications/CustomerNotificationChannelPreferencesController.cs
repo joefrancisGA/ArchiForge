@@ -5,7 +5,6 @@ using ArchLucid.Contracts.Notifications;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Data.Repositories;
 
 using Asp.Versioning;

@@ -42,8 +42,8 @@ flowchart LR
 |-----------|-------------------|
 | `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` | **Retained** — no deletion |
 | Coordinator concretes (`InMemoryCoordinator*`, split implementations on `GoldenManifestRepository` / `DecisionTraceRepository` if any) | **Retained** |
-| `AuditEventTypes.CoordinatorRun*` constants | **Retained** (Sunset **2026-07-20** per API deprecation policy) |
-| `IRunCommitOrchestrator` façade | **Not introduced** — blocked until gates green |
+| `AuditEventTypes.CoordinatorRun*` constants | **Retained** (Sunset **2026-07-20** per API deprecation policy); dual-written with **`AuditEventTypes.Run.*`** (Phase 2 catalog shipped **2026-04-21**) |
+| `IRunCommitOrchestrator` façade | **Introduced** (**2026-04-21**) — `RunCommitOrchestratorFacade` delegates to `ArchitectureRunCommitOrchestrator`; Phase 3 deletion PRs still **blocked** until exit gates **(i)–(iv)** |
 
 ## Data flow
 
@@ -63,7 +63,7 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 | **(ii)** | Not recorded here | Run `dotnet test --filter "Suite=Core\|Suite=Integration"` and attach log under `artifacts/phase3/` when unblocking |
 | **(iii)** | Not verified here | Confirm latest `main` CI green for `live-api-*.spec.ts` within 7 days |
 | **(iv)** | **FAIL** | `COORDINATOR_TO_AUTHORITY_PARITY.md` template rows are still `*(TBD)*` — **no 14-day zero-write window** |
-| **Phase 2 catalog** | **FAIL** | No `AuditEventTypes.Run` nested class in `AuditEventTypes.cs` — Phase 2 exit criteria for unified catalog **not** met |
+| **Phase 2 catalog** | **Partial (2026-04-21)** | `AuditEventTypes.Run` nested class + dual-write landed; dashboards/exports migration + Sunset log-warning cadence still per ADR 0021 § Phase 2 exit gate |
 
 - **Artifacts:** [`artifacts/phase3/gate-verification.md`](../../artifacts/phase3/gate-verification.md)
 

@@ -56,7 +56,7 @@ public sealed class DocxValueReportRendererTests
         ZipArchiveEntry? entry = zip.GetEntry("word/document.xml");
         entry.Should().NotBeNull();
 
-        using StreamReader reader = new(entry!.Open(), Encoding.UTF8);
+        using StreamReader reader = new(entry.Open(), Encoding.UTF8);
         string xml = await reader.ReadToEndAsync();
 
         xml.Should().Contain("ArchLucid — tenant value report");

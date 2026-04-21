@@ -4,7 +4,6 @@ using System.Text.Json;
 
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Tenancy;
 
 using Azure.Core;
 using Azure.Identity;

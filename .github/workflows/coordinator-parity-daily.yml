@@ -1,0 +1,44 @@
+# Nightly append of coordinator/authority audit count row into docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md (ADR 0021 gate iv helper).
+# Requires a default branch write token when appending; use workflow_dispatch to test without push.
+name: "Runbooks: coordinator parity probe (daily)"
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: coordinator-parity-daily
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run probe (dry append — removes need for SQL on first nights)
+        env:
+          ARCHLUCID_COORDINATOR_PARITY_ODBC: ${{ secrets.ARCHLUCID_COORDINATOR_PARITY_ODBC }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/coordinator_parity_probe.py --runbook docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+
+      - name: Commit runbook if changed
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md; then
+            echo "No runbook changes."
+            exit 0
+          fi
+          git add docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md
+          git commit -m "chore(runbooks): coordinator parity probe row [skip ci]"
+          git push

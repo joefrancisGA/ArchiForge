@@ -141,19 +141,23 @@ public sealed class ArchitectureRunExecuteOrchestrator(
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
             Guid? runGuid = Guid.TryParse(runId, out Guid ridStart) ? ridStart : null;
 
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.CoordinatorRunExecuteStarted,
-                    ActorUserId = actor,
-                    ActorUserName = actor,
-                    TenantId = scope.TenantId,
-                    WorkspaceId = scope.WorkspaceId,
-                    ProjectId = scope.ProjectId,
-                    RunId = runGuid,
-                    DataJson = JsonSerializer.Serialize(new { runId }),
-                },
-                cancellationToken);
+            AuditEvent legacyExecuteStarted = new()
+            {
+                EventType = AuditEventTypes.CoordinatorRunExecuteStarted,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                RunId = runGuid,
+                DataJson = JsonSerializer.Serialize(new { runId }),
+            };
+
+            await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
+                _auditService,
+                legacyExecuteStarted,
+                AuditEventTypes.Run.ExecuteStarted,
+                cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -230,19 +234,23 @@ public sealed class ArchitectureRunExecuteOrchestrator(
                 ScopeContext scopeSucceeded = _scopeContextProvider.GetCurrentScope();
                 Guid? runGuidSucceeded = Guid.TryParse(runId, out Guid ridSucceeded) ? ridSucceeded : null;
 
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.CoordinatorRunExecuteSucceeded,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = scopeSucceeded.TenantId,
-                        WorkspaceId = scopeSucceeded.WorkspaceId,
-                        ProjectId = scopeSucceeded.ProjectId,
-                        RunId = runGuidSucceeded,
-                        DataJson = JsonSerializer.Serialize(new { runId, resultCount = results.Count }),
-                    },
-                    cancellationToken);
+                AuditEvent legacyExecuteSucceeded = new()
+                {
+                    EventType = AuditEventTypes.CoordinatorRunExecuteSucceeded,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scopeSucceeded.TenantId,
+                    WorkspaceId = scopeSucceeded.WorkspaceId,
+                    ProjectId = scopeSucceeded.ProjectId,
+                    RunId = runGuidSucceeded,
+                    DataJson = JsonSerializer.Serialize(new { runId, resultCount = results.Count }),
+                };
+
+                await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
+                    _auditService,
+                    legacyExecuteSucceeded,
+                    AuditEventTypes.Run.ExecuteSucceeded,
+                    cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

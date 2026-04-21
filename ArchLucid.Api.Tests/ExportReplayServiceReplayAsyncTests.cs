@@ -2,7 +2,6 @@ using System.Text.Json;
 
 using ArchLucid.Application.Analysis;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

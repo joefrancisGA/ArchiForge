@@ -7,9 +7,6 @@ using ArchLucid.Contracts.ValueReports;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Composition.ValueReports;
 
 /// <summary>
@@ -28,7 +25,8 @@ public sealed class InMemoryValueReportJobQueue(
 
     public Guid Enqueue(ValueReportJobRequest request)
     {
-        if (request is null) throw new ArgumentNullException(nameof(request));
+        if (request is null)
+            throw new ArgumentNullException(nameof(request));
 
         Guid jobId = Guid.NewGuid();
         JobEntry entry = new(request, JobPhase.Pending, null, null, null);

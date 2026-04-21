@@ -294,7 +294,7 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
 
         row.Should().NotBeNull();
 
-        GoldenManifest hydrated = await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row!, CancellationToken.None);
+        GoldenManifest hydrated = await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, CancellationToken.None);
 
         switch (branch)
         {
@@ -335,20 +335,20 @@ public sealed class GoldenManifestPhase1RelationalReadBranchMatrixDirectSqlInteg
                 hydrated.Decisions.Should().ContainSingle(d => d.DecisionId == "d-json");
                 return;
             case 12:
-            {
-                ResolvedArchitectureDecision d = hydrated.Decisions.Should().ContainSingle(x => x.DecisionId == "d1").Subject;
-                d.SupportingFindingIds.Should().Equal("fid");
-                d.RelatedNodeIds.Should().BeEmpty();
-                return;
-            }
+                {
+                    ResolvedArchitectureDecision d = hydrated.Decisions.Should().ContainSingle(x => x.DecisionId == "d1").Subject;
+                    d.SupportingFindingIds.Should().Equal("fid");
+                    d.RelatedNodeIds.Should().BeEmpty();
+                    return;
+                }
 
             case 13:
-            {
-                ResolvedArchitectureDecision d = hydrated.Decisions.Should().ContainSingle(x => x.DecisionId == "d2").Subject;
-                d.RelatedNodeIds.Should().Equal("nid");
-                d.SupportingFindingIds.Should().BeEmpty();
-                return;
-            }
+                {
+                    ResolvedArchitectureDecision d = hydrated.Decisions.Should().ContainSingle(x => x.DecisionId == "d2").Subject;
+                    d.RelatedNodeIds.Should().Equal("nid");
+                    d.SupportingFindingIds.Should().BeEmpty();
+                    return;
+                }
             case 14:
                 hydrated.Provenance.AppliedRuleIds.Should().Equal("rule-a");
                 return;

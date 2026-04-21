@@ -45,7 +45,7 @@ public sealed class RegistrationControllerBaselineCaptureTests : IClassFixture<G
         statusDoc.RootElement.GetProperty("baselineReviewCycleSource").GetString().Should().Be("team estimate");
         string? captured = statusDoc.RootElement.GetProperty("baselineReviewCycleCapturedUtc").GetString();
         captured.Should().NotBeNullOrWhiteSpace();
-        DateTimeOffset.Parse(captured!, CultureInfo.InvariantCulture).Should().NotBe(default);
+        DateTimeOffset.Parse(captured, CultureInfo.InvariantCulture).Should().NotBe(default);
     }
 
     [Fact]

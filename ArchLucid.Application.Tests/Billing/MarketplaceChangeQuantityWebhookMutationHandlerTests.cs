@@ -7,7 +7,6 @@ using ArchLucid.Core.Configuration;
 using FluentAssertions;
 
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 
 using Moq;
 

@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
@@ -66,7 +65,13 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Governance = new ManifestGovernance(),
         };
 
-        ArchitectureRunDetail detail = new() { Run = run, Manifest = manifest, Results = [], DecisionTraces = [] };
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = manifest,
+            Results = [],
+            DecisionTraces = []
+        };
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync("r-pdf-1", It.IsAny<CancellationToken>()))
@@ -74,7 +79,12 @@ public sealed class SponsorOnePagerPdfBuilderTests
 
         Mock<IRunRepository> runs = new();
         Mock<IScopeContextProvider> scope = new();
-        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
         runs.Setup(r => r.ListRecentInScopeAsync(sc, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -110,7 +120,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-1", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
-        pdf!.Length.Should().BeGreaterThan(32);
+        pdf.Length.Should().BeGreaterThan(32);
         ReadOnlySpan<byte> head = pdf.AsSpan(0, 4);
         head[0].Should().Be((byte)'%');
         head[1].Should().Be((byte)'P');
@@ -142,7 +152,13 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Governance = new ManifestGovernance(),
         };
 
-        ArchitectureRunDetail detail = new() { Run = run, Manifest = manifest, Results = [], DecisionTraces = [] };
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = manifest,
+            Results = [],
+            DecisionTraces = []
+        };
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync("r-pdf-demo", It.IsAny<CancellationToken>()))
@@ -150,7 +166,12 @@ public sealed class SponsorOnePagerPdfBuilderTests
 
         Mock<IRunRepository> runs = new();
         Mock<IScopeContextProvider> scope = new();
-        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext sc = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
         runs.Setup(r => r.ListRecentInScopeAsync(sc, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
@@ -176,7 +197,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
         // The QuestPDF encoder may compress streams; for a robust check we just assert the magic bytes exist.
         // The demo banner content itself is exercised by FirstValueReportBuilderTests + PilotRunDeltaComputerTests
         // (the unit test reads the source markdown). Here we lock the rendering pipeline succeeds end-to-end.
-        ReadOnlySpan<byte> head = pdf!.AsSpan(0, 4);
+        ReadOnlySpan<byte> head = pdf.AsSpan(0, 4);
         head[0].Should().Be((byte)'%');
         head[1].Should().Be((byte)'P');
     }

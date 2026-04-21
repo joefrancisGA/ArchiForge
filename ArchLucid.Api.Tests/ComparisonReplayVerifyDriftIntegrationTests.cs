@@ -4,8 +4,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-using ArchLucid.Persistence.Data.Repositories;
-
 using FluentAssertions;
 
 using Microsoft.Extensions.DependencyInjection;

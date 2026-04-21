@@ -1,13 +1,12 @@
 using System.Net;
 using System.Security.Cryptography;
+
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Host.Core.Demo;
 
 using FluentAssertions;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -89,7 +88,7 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
         etag.Should().NotBeNullOrWhiteSpace();
 
         using HttpRequestMessage cond = new(HttpMethod.Get, "/v1/demo/preview");
-        cond.Headers.TryAddWithoutValidation("If-None-Match", etag!);
+        cond.Headers.TryAddWithoutValidation("If-None-Match", etag);
 
         HttpResponseMessage third = await client.SendAsync(cond);
         third.StatusCode.Should().Be(HttpStatusCode.NotModified);

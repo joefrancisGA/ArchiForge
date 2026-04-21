@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

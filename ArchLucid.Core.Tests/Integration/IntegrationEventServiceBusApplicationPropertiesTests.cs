@@ -28,7 +28,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
                 utf8);
 
         props.Should().NotBeNull();
-        props![IntegrationEventServiceBusApplicationProperties.PromotionEnvironmentPropertyName].Should().Be("prod");
+        props[IntegrationEventServiceBusApplicationProperties.PromotionEnvironmentPropertyName].Should().Be("prod");
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
                 utf8);
 
         props.Should().NotBeNull();
-        props![IntegrationEventServiceBusApplicationProperties.SeverityPropertyName].Should().Be("high");
+        props[IntegrationEventServiceBusApplicationProperties.SeverityPropertyName].Should().Be("high");
         props[IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("rule:1:run:a");
     }
 
@@ -81,6 +81,6 @@ public sealed class IntegrationEventServiceBusApplicationPropertiesTests
                 utf8);
 
         props.Should().NotBeNull();
-        props![IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("k");
+        props[IntegrationEventServiceBusApplicationProperties.DeduplicationKeyPropertyName].Should().Be("k");
     }
 }

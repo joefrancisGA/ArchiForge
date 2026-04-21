@@ -1,7 +1,6 @@
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Filters;
-using ArchLucid.Api.Tests.TestDtos;
 
 using FluentAssertions;
 

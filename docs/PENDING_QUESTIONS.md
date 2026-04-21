@@ -77,7 +77,10 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 15. **Golden-cohort LLM budget approval** — Prompt 6 stands up a nightly golden-cohort drift detector. Owner approves a dedicated Azure OpenAI deployment + estimated monthly token budget for the nightly run.
 
-16. **ADR 0021 Phase 3 sunset clock confirmation** — Prompt 2 unblocks Phase 3 by adding `AuditEventTypes.Run` and the parity probe. Owner confirms the legacy `CoordinatorRun*` constants can be sunset on the existing **2026-07-20** clock, and whether the parity probe is allowed to write to `docs/` from CI (or must open a PR).
+16. **ADR 0021 Phase 3 — owner policy (Prompt 2 landed code + stopped at gate)** — Phase 2 catalog (`AuditEventTypes.Run.*` + dual-write), `IRunCommitOrchestrator` façade, and parity probe tooling shipped **2026-04-21**; Phase 3 **deletion** PRs remain blocked until ADR 0021 exit gates **(i)–(iv)**. Owner must decide:
+    - **Legacy `CoordinatorRun*` sunset:** Confirm the fixed calendar date **2026-07-20** (already published in API deprecation headers) is still the authoritative cut-over for **removing** legacy wire values after dashboards/exports migrate, or pick a different date with platform sign-off.
+    - **Parity probe write path:** Nightly **`.github/workflows/coordinator-parity-daily.yml`** can `git push` marker upserts into `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` on `main` when `contents: write` is permitted. Confirm **auto-commit to docs on default branch** is acceptable, or require a **bot PR** / **manual paste** instead (branch protection may block pushes — confirm token policy).
+    - **ADR 0022 lifecycle:** After **14 contiguous** green daily rows in the automated table, should **ADR 0022** flip to **Superseded** immediately, or stay until an actual Phase 3 **deletion** ADR ships?
 
 ---
 

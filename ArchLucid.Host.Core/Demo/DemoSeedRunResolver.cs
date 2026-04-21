@@ -3,8 +3,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
-using Microsoft.Extensions.Logging;
-
 namespace ArchLucid.Host.Core.Demo;
 
 /// <summary>

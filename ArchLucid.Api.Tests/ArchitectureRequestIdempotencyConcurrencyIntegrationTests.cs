@@ -55,7 +55,7 @@ public sealed class ArchitectureRequestIdempotencyConcurrencyIntegrationTests
                 CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(
                     ArchitectureRequestConcurrencyTestSupport.JsonOptions);
                 dto.Should().NotBeNull();
-                runIds.Add(dto!.Run.RunId);
+                runIds.Add(dto.Run.RunId);
             }
 
             runIds.Should().HaveCount(1);

@@ -27,6 +27,15 @@
 |--------------------|------------------|-----------------|----------------------|------------------|-----------------|---------------------|-------|
 | *(TBD)* | *(TBD)* | *(TBD)* | | | | | |
 
+### Automated probe (nightly — `scripts/ci/coordinator_parity_probe.py`)
+
+Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator** (`CoordinatorRun*`) / **canonical** (`Run.*`) / **authority** (`RunStarted`, `RunCompleted`). Latency columns remain manual until wired. The workflow `.github/workflows/coordinator-parity-daily.yml` upserts this block (markers must stay stable).
+
+<!-- coordinator-parity-probe:table -->
+| Window start (UTC) | Window end (UTC) | Tenant sample | Coordinator p95 ms | Authority p95 ms | Audit rows/hr | Replay parity OK? | Notes |
+|--------------------|------------------|-----------------|----------------------|------------------|-----------------|---------------------|-------|
+<!-- /coordinator-parity-probe:table -->
+
 ## Phase 3 gate status (2026-04-21)
 
 **ADR 0021 Phase 3 is merge-blocked:** the template above still contains only `*(TBD)*` placeholders — there is **no** 14-day contiguous window with **Coordinator-pipeline writes = 0**. Until Platform fills daily rows here, gate **(iv)** fails and coordinator code **must not** be deleted. See [ADR 0022 — blocked record](../adr/0022-coordinator-phase3-deferred.md) and [`artifacts/phase3/gate-verification.md`](../../artifacts/phase3/gate-verification.md).

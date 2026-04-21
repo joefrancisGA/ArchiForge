@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -19,7 +18,12 @@ public sealed class UnifiedGoldenManifestReaderTests
     public async Task ReadByRunIdAsync_WhenRunMissing_ReturnsNullWithoutCoordinatorCall()
     {
         Guid runId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
 
         Mock<IRunRepository> runs = new();
         runs.Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
@@ -40,7 +44,12 @@ public sealed class UnifiedGoldenManifestReaderTests
     public async Task ReadByRunIdAsync_WhenNoCurrentVersion_UsesV1RunKeyConvention()
     {
         Guid runId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
 
         RunRecord run = new()
         {
@@ -75,14 +84,19 @@ public sealed class UnifiedGoldenManifestReaderTests
         GoldenManifest? manifest = await sut.ReadByRunIdAsync(scope, runId);
 
         manifest.Should().NotBeNull();
-        manifest!.RunId.Should().Be(runId.ToString("D"));
+        manifest.RunId.Should().Be(runId.ToString("D"));
     }
 
     [Fact]
     public async Task ReadByRunIdAsync_WhenManifestRunIdMismatch_ReturnsNull()
     {
         Guid runId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
-        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
 
         RunRecord run = new()
         {

@@ -9,7 +9,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:96 -->
+<!-- audit-core-const-count:101 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -88,11 +88,11 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | OpenAI circuit breaker | `CircuitBreakerAuditBridge` (wired from `CircuitBreakerGate`) | `CircuitBreakerStateTransition`, `CircuitBreakerRejection`, `CircuitBreakerProbeOutcome` | Tenant/Workspace/Project from ambient scope | `{ gate, fromState, toState, probeOutcome? }` |
 | Security assessment published (trust center / procurement) | `SecurityTrustPublicationController` | `SecurityAssessmentPublished` | Tenant/Workspace/Project from ambient scope | `{ assessmentCode, summaryReference, assessorDisplayName? }` |
 | Agent result JSON failed schema validation (enforced parse) | `TopologyAgentHandler`, `ComplianceAgentHandler`, `CriticAgentHandler` → `AgentResultSchemaViolationAudit` | `AuditEventTypes.AgentResultSchemaViolation` | RunId / task context when parseable | schema errors, truncated JSON, agent type |
-| Coordinator run created (dual-write) | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.CoordinatorRunCreated` | RunId | `{ requestId, systemName }` |
-| Coordinator run execution started (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteStarted` | RunId | `{ runId }` |
-| Coordinator run execution succeeded (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteSucceeded` | RunId | `{ runId, resultCount }` |
-| Coordinator run commit completed (dual-write) | `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.CoordinatorRunCommitCompleted` | RunId | `{ runId, manifestVersion, systemName }` |
-| Coordinator run failed (dual-write) | `ArchitectureRunCreateOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.CoordinatorRunFailed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
+| Coordinator run created (dual-write) | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.CoordinatorRunCreated` **then** `AuditEventTypes.Run.Created` (ADR 0021 Phase 2) | RunId | `{ requestId, systemName }` |
+| Coordinator run execution started (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteStarted` **then** `AuditEventTypes.Run.ExecuteStarted` | RunId | `{ runId }` |
+| Coordinator run execution succeeded (dual-write) | `ArchitectureRunExecuteOrchestrator` | `AuditEventTypes.CoordinatorRunExecuteSucceeded` **then** `AuditEventTypes.Run.ExecuteSucceeded` | RunId | `{ runId, resultCount }` |
+| Coordinator run commit completed (dual-write) | `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.CoordinatorRunCommitCompleted` **then** `AuditEventTypes.Run.CommitCompleted` | RunId | `{ runId, manifestVersion, systemName }` |
+| Coordinator run failed (dual-write) | `ArchitectureRunCreateOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator`, `CoordinatorRunFailedDurableAudit` | `AuditEventTypes.CoordinatorRunFailed` **then** `AuditEventTypes.Run.Failed` | RunId when parseable | `{ runId, reason }` (after baseline `Architecture.RunFailed`) |
 | Agent trace blob persistence failed or timed out | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceBlobPersistenceFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, failedBlobTypes? }` — emitted when inline blob writes after trace insert exhaust retries, time out, or throw unexpectedly; execute outcome elsewhere is unchanged. |
 | Agent trace mandatory inline fallback failed or forensic verification failed | `AgentExecutionTraceRecorder` | `AuditEventTypes.AgentTraceInlineFallbackFailed` | RunId / task context when parseable | `{ traceId, runId, agentType, reason, exceptionDetail? }` — SQL inline patch threw, trace row missing on read, or blob+inline still missing non-empty prompt/response after patch; **`dbo.AgentExecutionTraces.InlineFallbackFailed`** set; execute outcome elsewhere is unchanged. |
 | Orphan comparison-record remediation (execute) | `AdminDiagnosticsService` | `ComparisonRecordOrphansRemediated` | — | `{ dryRun: false, deletedCount, comparisonRecordIds[] }` — `POST .../admin/diagnostics/data-consistency/orphan-comparison-records?dryRun=false`; dry-run calls emit no audit row. |
@@ -113,8 +113,8 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 | Operation | Orchestrator / service | Event type constant | Notes |
 |-----------|------------------------|---------------------|-------|
-| Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. **Dual-write:** also emits durable `CoordinatorRunCreated` via `IAuditService`. |
-| Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` (`Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, …) | Same logging channel. **Dual-write:** also emits durable `CoordinatorRunExecuteStarted`, `CoordinatorRunExecuteSucceeded`, `CoordinatorRunCommitCompleted` via `IAuditService`. |
+| Architecture run create / fail | `ArchitectureRunCreateOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` | Entity id in `RecordAsync` is run id or request id; details string only. **Dual-write:** also emits durable `CoordinatorRunCreated` + `AuditEventTypes.Run.Created` via `IAuditService`. |
+| Architecture run execute / commit | `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` | `AuditEventTypes.Baseline.Architecture.*` (`Architecture.RunStarted`, `Architecture.RunCompleted`, `Architecture.RunFailed`, …) | Same logging channel. **Dual-write:** also emits durable legacy + `AuditEventTypes.Run.*` canonical coordinator-stage rows via `IAuditService` (see durable table). |
 | Governance workflow | `GovernanceWorkflowService` | `AuditEventTypes.Baseline.Governance.*` (mirrors `GovernanceAuditEventTypes`) | **Dual-write:** same service also calls `IAuditService` with top-level Core governance event types (see durable table above). |
 
 **Implication:** operators searching **Audit log** in the UI see `IAuditService` rows, including governance transitions from `GovernanceWorkflowService`. Baseline mutation logs remain for grep-friendly structured logging.
@@ -134,7 +134,7 @@ No open gaps are tracked here for the areas previously listed. Notes:
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 95 (see CI marker above; includes nested `Baseline`) |
+| **Core `AuditEventTypes` `public const string` rows** | 101 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -166,6 +166,11 @@ No open gaps are tracked here for the areas previously listed. Notes:
 | `CoordinatorRunExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` | `ArchitectureRunExecuteOrchestrator` (dual-write with baseline) |
 | `CoordinatorRunCommitCompleted` | `CoordinatorRunCommitCompleted` | `ArchitectureRunCommitOrchestrator` (dual-write with baseline) |
 | `CoordinatorRunFailed` | `CoordinatorRunFailed` | `ArchitectureRunCreateOrchestrator`, `ArchitectureRunExecuteOrchestrator`, `ArchitectureRunCommitOrchestrator` (dual-write with baseline `RunFailed`) |
+| `Run.Created` | `Run.Created` | `ArchitectureRunCreateOrchestrator` (canonical row after `CoordinatorRunCreated`) |
+| `Run.ExecuteStarted` | `Run.ExecuteStarted` | `ArchitectureRunExecuteOrchestrator` (canonical row after `CoordinatorRunExecuteStarted`) |
+| `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `ArchitectureRunExecuteOrchestrator` (canonical row after `CoordinatorRunExecuteSucceeded`) |
+| `Run.CommitCompleted` | `Run.CommitCompleted` | `ArchitectureRunCommitOrchestrator` (canonical row after `CoordinatorRunCommitCompleted`) |
+| `Run.Failed` | `Run.Failed` | `CoordinatorRunFailedDurableAudit` (canonical row after `CoordinatorRunFailed`) |
 | `RecommendationGenerated` | `RecommendationGenerated` | `AdvisoryController` |
 | `RecommendationAccepted` | `RecommendationAccepted` | `AdvisoryController` |
 | `RecommendationRejected` | `RecommendationRejected` | `AdvisoryController` |
@@ -233,6 +238,20 @@ No open gaps are tracked here for the areas previously listed. Notes:
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
+
+---
+
+## Appendix — `AuditEventTypes.Run` registry (Phase 2 canonical coordinator durable rows)
+
+| Constant | Value | Emitted immediately after (same payload) |
+|----------|-------|-------------------------------------------|
+| `Run.Created` | `Run.Created` | `CoordinatorRunCreated` |
+| `Run.ExecuteStarted` | `Run.ExecuteStarted` | `CoordinatorRunExecuteStarted` |
+| `Run.ExecuteSucceeded` | `Run.ExecuteSucceeded` | `CoordinatorRunExecuteSucceeded` |
+| `Run.CommitCompleted` | `Run.CommitCompleted` | `CoordinatorRunCommitCompleted` |
+| `Run.Failed` | `Run.Failed` | `CoordinatorRunFailed` |
+
+When adding a `Run` constant, add a row here and bump `audit-core-const-count`.
 
 ---
 

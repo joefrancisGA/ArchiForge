@@ -1,4 +1,3 @@
-using ArchLucid.Application;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Application.Value;
 using ArchLucid.Contracts.Architecture;
@@ -63,7 +62,7 @@ public sealed class FirstValueReportPdfBuilderTests
         byte[]? pdf = await sut.BuildPdfAsync("r-pdf-md-1", "http://localhost:5000");
 
         pdf.Should().NotBeNull();
-        pdf!.Length.Should().BeGreaterThan(64);
+        pdf.Length.Should().BeGreaterThan(64);
         ReadOnlySpan<byte> head = pdf.AsSpan(0, 4);
         head[0].Should().Be((byte)'%');
         head[1].Should().Be((byte)'P');

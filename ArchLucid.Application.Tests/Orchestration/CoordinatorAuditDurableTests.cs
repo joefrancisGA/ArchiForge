@@ -116,6 +116,16 @@ public sealed class CoordinatorAuditDurableTests
                     e.ProjectId == TestScope.ProjectId),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+
+        auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.Run.Created &&
+                    e.TenantId == TestScope.TenantId &&
+                    e.WorkspaceId == TestScope.WorkspaceId &&
+                    e.ProjectId == TestScope.ProjectId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -235,7 +245,19 @@ public sealed class CoordinatorAuditDurableTests
 
         auditService.Verify(
             a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.ExecuteStarted),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        auditService.Verify(
+            a => a.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.CoordinatorRunExecuteSucceeded),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.Run.ExecuteSucceeded),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -397,6 +419,14 @@ public sealed class CoordinatorAuditDurableTests
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.CoordinatorRunCommitCompleted &&
+                    e.TenantId == TestScope.TenantId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        auditService.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e =>
+                    e.EventType == AuditEventTypes.Run.CommitCompleted &&
                     e.TenantId == TestScope.TenantId),
                 It.IsAny<CancellationToken>()),
             Times.Once);

@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 
 using ArchLucid.Api.Models;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

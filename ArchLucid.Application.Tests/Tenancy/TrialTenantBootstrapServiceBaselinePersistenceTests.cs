@@ -31,7 +31,7 @@ public sealed class TrialTenantBootstrapServiceBaselinePersistenceTests
         TenantRecord? row = await repo.GetByIdAsync(tenantId, CancellationToken.None);
 
         row.Should().NotBeNull();
-        row!.BaselineReviewCycleHours.Should().Be(24m);
+        row.BaselineReviewCycleHours.Should().Be(24m);
         row.BaselineReviewCycleSource.Should().Be("ops estimate");
         row.BaselineReviewCycleCapturedUtc.Should().Be(cap);
     }

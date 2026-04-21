@@ -235,24 +235,28 @@ public sealed class ArchitectureRunCreateOrchestrator(
         await DurableAuditLogRetry.TryLogAsync(
             async ct =>
             {
-                await _auditService.LogAsync(
-                    new AuditEvent
-                    {
-                        EventType = AuditEventTypes.CoordinatorRunCreated,
-                        ActorUserId = actor,
-                        ActorUserName = actor,
-                        TenantId = auditScope.TenantId,
-                        WorkspaceId = auditScope.WorkspaceId,
-                        ProjectId = auditScope.ProjectId,
-                        RunId = auditRunGuid,
-                        DataJson = System.Text.Json.JsonSerializer.Serialize(
-                            new
-                            {
-                                requestId = request.RequestId,
-                                systemName = request.SystemName
-                            }),
-                    },
-                    ct);
+                AuditEvent legacyCreated = new()
+                {
+                    EventType = AuditEventTypes.CoordinatorRunCreated,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = auditScope.TenantId,
+                    WorkspaceId = auditScope.WorkspaceId,
+                    ProjectId = auditScope.ProjectId,
+                    RunId = auditRunGuid,
+                    DataJson = System.Text.Json.JsonSerializer.Serialize(
+                        new
+                        {
+                            requestId = request.RequestId,
+                            systemName = request.SystemName
+                        }),
+                };
+
+                await CoordinatorRunCatalogDurableDualWrite.LogTwiceAsync(
+                    _auditService,
+                    legacyCreated,
+                    AuditEventTypes.Run.Created,
+                    ct).ConfigureAwait(false);
             },
             _logger,
             $"CoordinatorRunCreated:{sanitizedRunIdForLabel}",

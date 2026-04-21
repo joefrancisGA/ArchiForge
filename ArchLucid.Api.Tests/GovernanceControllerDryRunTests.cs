@@ -7,7 +7,6 @@ using ArchLucid.Application.Common;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

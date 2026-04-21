@@ -3,7 +3,6 @@ using ArchLucid.Core.Scoping;
 using Dapper;
 
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Host.Core.Startup;
 

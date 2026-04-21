@@ -1,7 +1,7 @@
 using System.Reflection;
 
+using ArchLucid.Application.Runs;
 using ArchLucid.Decisioning.Interfaces;
-using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 
@@ -115,6 +115,15 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
         coordinatorConcrete.Should().NotBe(authorityConcrete,
             because: "ADR 0010 requires the two trace repository families to be implemented by distinct concrete types so a single misregistration cannot collapse both pipelines onto one persistence path");
+    }
+
+    [Fact]
+    public void IRunCommitOrchestrator_resolves_to_RunCommitOrchestratorFacade()
+    {
+        using IServiceScope scope = factory.Services.CreateScope();
+        IRunCommitOrchestrator facade = scope.ServiceProvider.GetRequiredService<IRunCommitOrchestrator>();
+
+        facade.Should().BeOfType<RunCommitOrchestratorFacade>();
     }
 
     [Fact]
@@ -238,7 +247,8 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
         foreach (ConstructorInfo ctor in candidate.GetConstructors(allInstanceMembers))
         {
             ParameterInfo? offending = ctor.GetParameters().FirstOrDefault(p => p.ParameterType == target);
-            if (offending is null) continue;
+            if (offending is null)
+                continue;
 
             memberDescription = $"ctor parameter '{offending.Name}'";
             return true;
@@ -246,7 +256,8 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
         foreach (FieldInfo field in candidate.GetFields(allInstanceMembers))
         {
-            if (field.FieldType != target) continue;
+            if (field.FieldType != target)
+                continue;
 
             memberDescription = $"field '{field.Name}'";
             return true;
@@ -254,7 +265,8 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
         foreach (PropertyInfo property in candidate.GetProperties(allInstanceMembers))
         {
-            if (property.PropertyType != target) continue;
+            if (property.PropertyType != target)
+                continue;
 
             memberDescription = $"property '{property.Name}'";
             return true;
@@ -285,7 +297,8 @@ public sealed class DualPipelineRegistrationDisciplineTests(OpenApiContractWebAp
 
     private static void AssertNamespaceStartsWith(Type type, string expectedPrefix)
     {
-        if (type is null) throw new ArgumentNullException(nameof(type));
+        if (type is null)
+            throw new ArgumentNullException(nameof(type));
 
         (type.Namespace ?? string.Empty)
             .StartsWith(expectedPrefix, StringComparison.Ordinal)

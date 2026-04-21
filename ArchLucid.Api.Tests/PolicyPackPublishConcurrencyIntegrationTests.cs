@@ -83,11 +83,11 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
 
                     if (versionId is null)
                     {
-                        versionId = row!.PolicyPackVersionId;
+                        versionId = row.PolicyPackVersionId;
                     }
                     else
                     {
-                        row!.PolicyPackVersionId.Should().Be(versionId.Value);
+                        row.PolicyPackVersionId.Should().Be(versionId.Value);
                     }
                 }
 
@@ -96,7 +96,7 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
                 List<PolicyPackVersionResponse>? versions =
                     await list.Content.ReadFromJsonAsync<List<PolicyPackVersionResponse>>(JsonOptions);
                 versions.Should().NotBeNull();
-                versions!.Count(static v => v.Version == "2.1.0-conc").Should().Be(1);
+                versions.Count(static v => v.Version == "2.1.0-conc").Should().Be(1);
             }
             finally
             {

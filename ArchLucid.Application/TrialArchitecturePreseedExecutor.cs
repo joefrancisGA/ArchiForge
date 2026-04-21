@@ -1,4 +1,3 @@
-using ArchLucid.Application.Common;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;

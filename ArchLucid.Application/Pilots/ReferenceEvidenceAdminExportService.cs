@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 
 using ArchLucid.Application.Bootstrap;
-using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;

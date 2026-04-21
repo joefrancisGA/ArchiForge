@@ -13,8 +13,8 @@ public sealed class PilotUpCommandTests
         string? dir = PilotUpCommand.FindDockerComposeDirectory();
 
         dir.Should().NotBeNull();
-        File.Exists(Path.Combine(dir!, "docker-compose.yml")).Should().BeTrue();
-        File.Exists(Path.Combine(dir!, "docker-compose.demo.yml")).Should().BeTrue();
+        File.Exists(Path.Combine(dir, "docker-compose.yml")).Should().BeTrue();
+        File.Exists(Path.Combine(dir, "docker-compose.demo.yml")).Should().BeTrue();
     }
 
     [Fact]

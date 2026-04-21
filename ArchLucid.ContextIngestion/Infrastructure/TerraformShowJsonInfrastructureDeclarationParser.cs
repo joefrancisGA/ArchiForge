@@ -109,14 +109,14 @@ public sealed class TerraformShowJsonInfrastructureDeclarationParser(
         {
             string? p = prov.GetString();
             if (!string.IsNullOrWhiteSpace(p))
-                properties["providerName"] = p!;
+                properties["providerName"] = p;
         }
 
         if (res.TryGetProperty("mode", out JsonElement mode) && mode.ValueKind == JsonValueKind.String)
         {
             string? m = mode.GetString();
             if (!string.IsNullOrWhiteSpace(m))
-                properties["mode"] = m!;
+                properties["mode"] = m;
         }
 
         if (res.TryGetProperty("values", out JsonElement values) && values.ValueKind == JsonValueKind.Object)
