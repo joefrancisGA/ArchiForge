@@ -485,6 +485,40 @@ export async function getRunExplanationSummary(runId: string): Promise<RunExplan
   return apiGet<RunExplanationSummary>(`/v1/explain/runs/${encodeURIComponent(runId)}/aggregate`);
 }
 
+/**
+ * Fetches the sponsor first-value report (Markdown body) for a run.
+ * Returns `null` when the API responds 404 (run not found / not committed yet).
+ */
+export async function getFirstValueReportMarkdown(runId: string): Promise<string | null> {
+  await ensureOidcBearerReady();
+  const { url, headers } = resolveRequest(`/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`);
+  const h = withCorrelationHeaders(headers);
+  h.set("Accept", "text/markdown");
+  const response = await fetch(url, { cache: "no-store", headers: h });
+  const text = await response.text();
+
+  if (response.status === 404) return null;
+
+  if (!response.ok) throw buildApiRequestErrorFromParts(response, text);
+
+  return text;
+}
+
+/** Server-rendered telemetry snapshot for the operator-shell `/why-archlucid` proof page. */
+export type WhyArchLucidSnapshot = {
+  generatedUtc: string;
+  demoRunId: string;
+  runsCreatedTotal: number;
+  findingsProducedBySeverity: Record<string, number>;
+  auditRowCount: number;
+  auditRowCountTruncated: boolean;
+};
+
+/** GETs the `/v1/pilots/why-archlucid-snapshot` JSON snapshot used by the proof page. */
+export async function getWhyArchLucidSnapshot(): Promise<WhyArchLucidSnapshot> {
+  return apiGet<WhyArchLucidSnapshot>("/v1/pilots/why-archlucid-snapshot");
+}
+
 /** Persisted explainability trace + narrative for a single finding (no LLM). */
 export async function getFindingExplainability(runId: string, findingId: string): Promise<FindingExplainability> {
   const encodedFinding = encodeURIComponent(findingId);
@@ -1344,6 +1378,51 @@ function parseFilenameFromContentDisposition(header: string | null): string | nu
   const m = /filename\*?=(?:UTF-8''|")?([^";]+)/i.exec(header);
 
   return m?.[1]?.replace(/"/g, "").trim() ?? null;
+}
+
+/**
+ * POST `/v1/pilots/runs/{runId}/first-value-report.pdf` and trigger a browser download of the resulting PDF
+ * (sponsor-shareable projection of the canonical first-value-report Markdown). Mirrors the auth surface of
+ * the Markdown sibling (`ReadAuthority`, no Standard-tier gate) so the post-commit CTA stays one-click.
+ * Throws {@link ApiRequestError}-shaped error on non-2xx responses.
+ */
+export async function downloadFirstValueReportPdf(runId: string): Promise<void> {
+  if (!isBrowser()) {
+    throw new Error("downloadFirstValueReportPdf is only supported in the browser.");
+  }
+
+  await ensureOidcBearerReady();
+  const path = `/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report.pdf`;
+  const url = `/api/proxy${path}`;
+  const headers = new Headers();
+  headers.set("Accept", "application/pdf, application/json");
+  const bearer = getBearerToken();
+  if (bearer) headers.set("Authorization", `Bearer ${bearer}`);
+  const init = mergeRegistrationScopeForProxy({
+    method: "POST",
+    headers,
+    credentials: "same-origin",
+    cache: "no-store",
+  });
+  const h = new Headers(init.headers);
+  h.set(CORRELATION_ID_HEADER, generateCorrelationId());
+  const response = await fetch(url, { ...init, method: "POST", headers: h });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw buildApiRequestErrorFromParts(response, errText);
+  }
+
+  const fileName =
+    parseFilenameFromContentDisposition(response.headers.get("Content-Disposition")) ??
+    `ArchLucid-first-value-report-${runId}.pdf`;
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(objectUrl);
 }
 
 /** POST sponsor value report DOCX (`ExecuteAuthority`, Standard+ tier on API). Browser-only download. */

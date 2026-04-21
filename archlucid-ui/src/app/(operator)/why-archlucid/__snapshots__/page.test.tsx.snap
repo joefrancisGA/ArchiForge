@@ -1,0 +1,421 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout snapshot for the demo tenant 1`] = `
+<main
+  aria-busy="false"
+  class="mx-auto max-w-4xl space-y-8 p-4"
+  data-testid="why-archlucid-page"
+>
+  <header
+    class="space-y-2"
+  >
+    <h1
+      class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+    >
+      Why ArchLucid
+    </h1>
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      A live look behind the curtain. Every section on this page is rendered from the API of the running ArchLucid host against the seeded Contoso Retail Modernization demo tenant — no slides, no static screenshots. Counters accumulate from the moment the API process starts and reset on restart.
+    </p>
+  </header>
+  <section
+    aria-labelledby="why-archlucid-counters-heading"
+    class="space-y-3"
+    data-testid="why-archlucid-counters"
+  >
+    <h2
+      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      id="why-archlucid-counters-heading"
+    >
+      Process counters
+    </h2>
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      Cumulative 
+      <code>
+        ArchLucidInstrumentation
+      </code>
+       counters since the API host started, plus the in-scope audit row count for the demo tenant.
+    </p>
+    <div
+      class="grid grid-cols-1 gap-4 sm:grid-cols-3"
+    >
+      <div
+        class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="text-xs uppercase tracking-wide text-neutral-500"
+        >
+          Runs created
+        </p>
+        <p
+          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+        >
+          7
+        </p>
+        <p
+          class="mt-1 text-xs text-neutral-500"
+        >
+          <code>
+            archlucid_runs_created_total
+          </code>
+        </p>
+      </div>
+      <div
+        class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="text-xs uppercase tracking-wide text-neutral-500"
+        >
+          Audit rows (demo scope)
+        </p>
+        <p
+          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+        >
+          12
+        </p>
+        <p
+          class="mt-1 text-xs text-neutral-500"
+        >
+          <code>
+            IAuditRepository.GetByScopeAsync
+          </code>
+        </p>
+      </div>
+      <div
+        class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <p
+          class="text-xs uppercase tracking-wide text-neutral-500"
+        >
+          Findings (all severities)
+        </p>
+        <p
+          class="mt-1 text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+        >
+          6
+        </p>
+        <p
+          class="mt-1 text-xs text-neutral-500"
+        >
+          <code>
+            sum of archlucid_findings_produced_total
+          </code>
+        </p>
+      </div>
+      <div
+        class="sm:col-span-3"
+      >
+        <h3
+          class="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          By severity
+        </h3>
+        <ul
+          class="grid grid-cols-2 gap-2 sm:grid-cols-4"
+        >
+          <li
+            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+          >
+            <span
+              class="font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              Critical
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              — 
+              1
+            </span>
+          </li>
+          <li
+            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+          >
+            <span
+              class="font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              High
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              — 
+              2
+            </span>
+          </li>
+          <li
+            class="rounded border border-neutral-200 bg-neutral-50 px-2 py-1 text-xs dark:border-neutral-800 dark:bg-neutral-900"
+          >
+            <span
+              class="font-medium text-neutral-700 dark:text-neutral-300"
+            >
+              Medium
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              — 
+              3
+            </span>
+          </li>
+        </ul>
+      </div>
+      <p
+        class="sm:col-span-3 text-xs text-neutral-500"
+      >
+        Snapshot generated 
+        2026-04-20T12:00:00.000Z
+         · demo run 
+        <code>
+          6e8c4a102b1f4c9a9d3e10b2a4f0c501
+        </code>
+      </p>
+    </div>
+  </section>
+  <section
+    aria-labelledby="why-archlucid-report-heading"
+    class="space-y-3"
+    data-testid="why-archlucid-first-value-report"
+  >
+    <h2
+      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      id="why-archlucid-report-heading"
+    >
+      Sponsor first-value report
+    </h2>
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      Markdown generated by 
+      <code>
+        FirstValueReportBuilder
+      </code>
+       from the committed Contoso Retail demo run.
+    </p>
+    <pre
+      class="max-h-[480px] overflow-auto rounded border border-neutral-200 bg-neutral-50 p-3 text-xs leading-relaxed text-neutral-800 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-200 whitespace-pre-wrap"
+      data-testid="why-archlucid-first-value-report-body"
+    >
+      # ArchLucid — first value report (pilot)
+
+Demo body.
+    </pre>
+  </section>
+  <section
+    aria-labelledby="why-archlucid-explanation-heading"
+    class="space-y-3"
+    data-testid="why-archlucid-run-explanation"
+  >
+    <h2
+      class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+      id="why-archlucid-explanation-heading"
+    >
+      Run explanation and citations
+    </h2>
+    <p
+      class="text-sm text-neutral-600 dark:text-neutral-400"
+    >
+      Aggregate executive explanation persisted on the run, with citations back to the manifest, findings, decision traces, and evidence bundles that the explainability trace was built from.
+    </p>
+    <div
+      class="space-y-4"
+    >
+      <dl
+        class="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4"
+      >
+        <div
+          class="rounded border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950"
+        >
+          <p
+            class="text-xs uppercase tracking-wide text-neutral-500"
+          >
+            Findings
+          </p>
+          <p
+            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          >
+            6
+          </p>
+        </div>
+        <div
+          class="rounded border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950"
+        >
+          <p
+            class="text-xs uppercase tracking-wide text-neutral-500"
+          >
+            Decisions
+          </p>
+          <p
+            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          >
+            4
+          </p>
+        </div>
+        <div
+          class="rounded border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950"
+        >
+          <p
+            class="text-xs uppercase tracking-wide text-neutral-500"
+          >
+            Unresolved
+          </p>
+          <p
+            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          >
+            1
+          </p>
+        </div>
+        <div
+          class="rounded border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950"
+        >
+          <p
+            class="text-xs uppercase tracking-wide text-neutral-500"
+          >
+            Compliance gaps
+          </p>
+          <p
+            class="text-lg font-semibold tabular-nums text-neutral-900 dark:text-neutral-100"
+          >
+            0
+          </p>
+        </div>
+      </dl>
+      <div
+        class="rounded border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      >
+        <h3
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          Overall assessment
+        </h3>
+        <p
+          class="mt-1 text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          Healthy baseline with two open mediums.
+        </p>
+        <p
+          class="mt-1 text-xs text-neutral-500"
+        >
+          Risk posture: 
+          <code>
+            Moderate
+          </code>
+        </p>
+      </div>
+      <div>
+        <h3
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          Themes
+        </h3>
+        <ul
+          class="mt-1 list-disc pl-5 text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          <li>
+            Theme A
+          </li>
+          <li>
+            Theme B
+          </li>
+        </ul>
+      </div>
+      <div
+        data-testid="why-archlucid-citations"
+      >
+        <h3
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
+        >
+          Citations (
+          2
+          )
+        </h3>
+        <ul
+          class="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300"
+        >
+          <li
+            class="font-mono text-xs"
+          >
+            <span
+              class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Manifest
+            </span>
+             
+            <span>
+              contoso-baseline-v1
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              (
+              m-1
+              )
+            </span>
+          </li>
+          <li
+            class="font-mono text-xs"
+          >
+            <span
+              class="rounded bg-neutral-100 px-1 py-0.5 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+            >
+              Finding
+            </span>
+             
+            <span>
+              Public storage
+            </span>
+             
+            <span
+              class="text-neutral-500"
+            >
+              (
+              f-1
+              )
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <footer
+    class="border-t border-neutral-200 pt-3 text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400"
+  >
+    Sources: 
+    <code>
+      GET /v1/pilots/why-archlucid-snapshot
+    </code>
+    ,
+     
+    <code>
+      GET /v1/pilots/runs/
+      6e8c4a102b1f4c9a9d3e10b2a4f0c501
+      /first-value-report
+    </code>
+    ,
+     
+    <code>
+      GET /v1/explain/runs/
+      6e8c4a102b1f4c9a9d3e10b2a4f0c501
+      /aggregate
+    </code>
+    . See repo
+     
+    <code>
+      docs/SPONSOR_ONE_PAGER.md
+    </code>
+     and 
+    <code>
+      docs/go-to-market/POSITIONING.md
+    </code>
+     for narrative context.
+  </footer>
+</main>
+`;

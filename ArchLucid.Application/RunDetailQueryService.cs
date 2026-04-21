@@ -6,6 +6,7 @@ using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
@@ -24,7 +25,7 @@ public sealed class RunDetailQueryService(
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository taskRepository,
     IAgentResultRepository resultRepository,
-    ICoordinatorGoldenManifestRepository manifestRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
     ILogger<RunDetailQueryService> logger)
     : IRunDetailQueryService
@@ -70,18 +71,10 @@ public sealed class RunDetailQueryService(
         IReadOnlyList<AgentResult> results =
             await resultRepository.GetByRunIdAsync(runId, cancellationToken) ?? [];
 
-        Contracts.Manifest.GoldenManifest? manifest = null;
+        Contracts.Manifest.GoldenManifest? manifest =
+            await unifiedGoldenManifestReader.ReadByRunIdAsync(scope, runGuid, cancellationToken);
+
         List<DecisionTrace> decisionTraces = [];
-
-        // Legacy row may omit CurrentManifestVersion after commit (ADR-0012); first-commit convention matches commit orchestrator.
-        string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
-            ? $"v1-{runId}"
-            : run.CurrentManifestVersion;
-
-        manifest = await manifestRepository.GetByVersionAsync(manifestVersionKey, cancellationToken);
-
-        if (manifest is not null && !string.Equals(manifest.RunId, runId, StringComparison.Ordinal))
-            manifest = null;
 
         if (manifest is null)
         {

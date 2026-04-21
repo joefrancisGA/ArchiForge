@@ -1,0 +1,30 @@
+# ArchLucid devcontainer compose file.
+#
+# Why a compose file (rather than just an `image` field in devcontainer.json)?
+#   - We need the host Docker socket bind-mounted so the `archlucid try` postCreateCommand
+#     can `docker compose up` the demo stack as *sibling* containers on the host engine.
+#   - This pattern is "Docker-outside-of-Docker" (DooD); it avoids nested-Docker complexity
+#     and lets the demo containers (5000/3000/1433) be reachable from the host browser.
+#
+# The `dev` service is the long-running shell environment; demo containers are started
+# separately by `archlucid try` -> `pilot up` -> `docker compose -f ../docker-compose.yml ...`.
+services:
+  dev:
+    # .NET 10 SDK on Bookworm. The Node 22 SDK is layered in via the devcontainer
+    # `node` feature in devcontainer.json (keeps this compose file portable).
+    image: mcr.microsoft.com/devcontainers/dotnet:10.0-bookworm
+    # Repo is mounted at the conventional /workspaces/<repo> path so VS Code Dev Containers
+    # extension treats it as the workspace root.
+    volumes:
+      - ..:/workspaces/ArchLucid:cached
+      # Docker-outside-of-Docker: archlucid CLI inside this container talks to the host
+      # docker daemon. Demo containers are siblings, not nested.
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /workspaces/ArchLucid
+    # Long-lived idle process so the dev container stays up while the user attaches a shell.
+    command: sleep infinity
+    environment:
+      - DOTNET_NOLOGO=1
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      # Make the CLI talk to the demo overlay's API port (5000), not the dotnet-run default (5128).
+      - ARCHLUCID_API_URL=http://localhost:5000

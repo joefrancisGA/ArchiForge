@@ -3,9 +3,11 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Explanation;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Decisions;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
@@ -36,6 +38,7 @@ public sealed class RunQueryController(
     IDecisionNodeRepository decisionNodeRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IFindingEvidenceChainService findingEvidenceChainService,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     /// <summary>
@@ -216,6 +219,29 @@ public sealed class RunQueryController(
             .ToList();
 
         return Ok(response);
+    }
+
+    /// <summary>
+    /// Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).
+    /// </summary>
+    [HttpGet("run/{runId}/findings/{findingId}/evidence-chain")]
+    [ProducesResponseType(typeof(FindingEvidenceChainResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingEvidenceChain(
+        [FromRoute] string runId,
+        [FromRoute] string findingId,
+        CancellationToken cancellationToken)
+    {
+        FindingEvidenceChainResponse? chain =
+            await findingEvidenceChainService.BuildAsync(runId, findingId, cancellationToken);
+
+        if (chain is null)
+            return this.NotFoundProblem(
+                $"Evidence chain is not available for run '{runId}' and finding '{findingId}'.",
+                ProblemTypes.ResourceNotFound);
+
+
+        return Ok(chain);
     }
 
     private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)

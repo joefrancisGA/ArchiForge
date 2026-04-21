@@ -9,7 +9,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
 
@@ -25,7 +25,7 @@ namespace ArchLucid.Api.Tests;
 public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
 {
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository = new();
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader = new();
     private readonly Mock<IAgentEvidencePackageRepository> _evidenceRepository = new();
     private readonly Mock<IAgentExecutionTraceRepository> _traceRepository = new();
     private readonly Mock<IAgentResultRepository> _resultRepository = new();
@@ -44,7 +44,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
             .ReturnsAsync([]);
         _sut = new ArchitectureAnalysisService(
             _runDetailQueryService.Object,
-            _manifestRepository.Object,
+            _unifiedGoldenManifestReader.Object,
             _evidenceRepository.Object,
             _traceRepository.Object,
             _resultRepository.Object,
@@ -96,7 +96,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
         _runDetailQueryService.Verify(
             s => s.GetRunDetailAsync("run-1", It.IsAny<CancellationToken>()),
             Times.Never);
-        _manifestRepository.Verify(
+        _unifiedGoldenManifestReader.Verify(
             m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -139,7 +139,7 @@ public sealed class ArchitectureAnalysisServiceCanonicalPreloadTests
         ArchitectureAnalysisReport report = await _sut.BuildAsync(request);
 
         report.Manifest.Should().BeSameAs(manifest);
-        _manifestRepository.Verify(
+        _unifiedGoldenManifestReader.Verify(
             m => m.GetByVersionAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }

@@ -80,6 +80,17 @@ public static class DevelopmentDefaultScopeTenantBootstrap
                 });
         }
 
+        int verifyTenant = connection.QuerySingle<int>(
+            "SELECT COUNT(1) FROM dbo.Tenants WHERE Id = @TenantId;",
+            new
+            {
+                TenantId = ScopeIds.DefaultTenant,
+            });
+
+        if (verifyTenant != 1)
+            throw new InvalidOperationException(
+                "Development default tenant bootstrap failed: dbo.Tenants row for ScopeIds.DefaultTenant is missing after upsert.");
+
         if (logger.IsEnabled(LogLevel.Debug))
             logger.LogDebug("Development default scope tenant/workspace ensured.");
     }

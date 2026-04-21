@@ -96,7 +96,7 @@ def _main() -> int:
         action="append",
         default=[],
         metavar="LABEL",
-        help="Run only this matrix label (repeatable). Default: all five targets.",
+        help="Run only this matrix label (repeatable). Default: all matrix targets (see STRYKER_TARGETS).",
     )
     parser.add_argument(
         "--merge-existing",
@@ -135,7 +135,7 @@ def _main() -> int:
 
     if only_set and not args.merge_existing:
         print(
-            "Use --merge-existing when passing --only (CI baselines must list all five matrix labels).",
+            "Use --merge-existing when passing --only (CI baselines must list every STRYKER_TARGETS label).",
             file=sys.stderr,
         )
         return 2

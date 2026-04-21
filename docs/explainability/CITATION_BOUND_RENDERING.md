@@ -40,3 +40,4 @@ Citation `Id` values are **scoped** to the same tenant/workspace as the run deta
 
 - Watch **`archlucid_explanation_citations_emitted_total`** after UI changes.
 - If citations are empty on older APIs, the UI hides the block.
+- **Per-finding evidence pointers (ADR 0021 read path):** `GET /v1/architecture/run/{runId}/findings/{findingId}/evidence-chain` returns **`FindingEvidenceChainResponse`** — snapshot ids, manifest id/version, related graph node ids, and **distinct** `AgentExecutionTrace` ids for the run. Use it when a UI chip or narrative needs a stable, read-only join surface without duplicating authority hydration logic client-side.

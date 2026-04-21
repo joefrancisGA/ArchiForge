@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
@@ -40,7 +41,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IScopeContextProvider> scopeProvider = new();
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -61,7 +62,8 @@ public sealed class RunDetailQueryServiceApplicationTests
         runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
         taskRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         resultRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        manifestRepo.Setup(r => r.GetByVersionAsync("v-missing", It.IsAny<CancellationToken>()))
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 
         RunDetailQueryService sut = new(
@@ -69,7 +71,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             scopeProvider.Object,
             taskRepo.Object,
             resultRepo.Object,
-            manifestRepo.Object,
+            unifiedReader.Object,
             traceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
@@ -92,7 +94,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IScopeContextProvider> scopeProvider = new();
         Mock<IAgentTaskRepository> taskRepo = new();
         Mock<IAgentResultRepository> resultRepo = new();
-        Mock<ICoordinatorGoldenManifestRepository> manifestRepo = new();
+        Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -124,7 +126,9 @@ public sealed class RunDetailQueryServiceApplicationTests
         runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);
         taskRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
         resultRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
-        manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
+        unifiedReader
+            .Setup(r => r.ReadByRunIdAsync(scope, runGuid, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(manifest);
         traceRepo.Setup(r => r.GetByRunIdAsync(runN, It.IsAny<CancellationToken>())).ReturnsAsync([]);
 
         RunDetailQueryService sut = new(
@@ -132,7 +136,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             scopeProvider.Object,
             taskRepo.Object,
             resultRepo.Object,
-            manifestRepo.Object,
+            unifiedReader.Object,
             traceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 

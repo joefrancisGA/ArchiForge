@@ -21,6 +21,7 @@ import { RunDetailSectionNav, type RunDetailSection } from "@/components/RunDeta
 import { RunProgressTracker } from "@/components/RunProgressTracker";
 import { RunAgentForensicsSection } from "@/components/RunAgentForensicsSection";
 import { CommitRunButton } from "@/components/CommitRunButton";
+import { EmailRunToSponsorBanner } from "@/components/EmailRunToSponsorBanner";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { PostCommitAdvancedAnalysisHint } from "@/components/PostCommitAdvancedAnalysisHint";
 import { OperatorSectionRetryButton } from "@/components/OperatorSectionRetryButton";
@@ -208,6 +209,8 @@ export default async function RunDetailPage({
       {showProgressTracker ? (
         <RunProgressTracker runId={runId} initialSummary={progressInitialSummary} />
       ) : null}
+
+      {manifestId ? <EmailRunToSponsorBanner runId={runId} /> : null}
 
       <RunDetailSectionNav sections={runDetailNavSections} />
 

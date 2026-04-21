@@ -16,7 +16,7 @@ At the product level, ArchLucid is an AI-assisted architecture workflow system: 
 
 | You are a... | Start here |
 |---|---|
-| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** |
+| **First-time evaluator / operator** (Docker only, no .NET / Node / cloud keys) | **[docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)** — or, if you have the .NET 10 SDK locally, run **`dotnet run --project ArchLucid.Cli -- try`** for a single-command first-value loop (pilot up → seed → sample run → committed manifest → first-value Markdown report → operator UI opens). Same demo stack; zero questions. Even faster: open the repo in the **`.devcontainer/`** (.NET 10 + Node 22, runs `archlucid try` on first boot — see [docs/CLI_USAGE.md#archlucid-try](docs/CLI_USAGE.md#archlucid-try)). |
 | **Evaluator — one-line stack from a .NET SDK checkout** (same Docker demo as `scripts/demo-start.ps1`) | From repo root: `dotnet run --project ArchLucid.Cli -- pilot up` — then open **http://localhost:3000/runs/new** (see [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)) |
 | **Operator running a real pilot** (curl, CLI, release smoke) | [docs/OPERATOR_QUICKSTART.md](docs/OPERATOR_QUICKSTART.md) |
 | **Developer** about to commit code | [docs/onboarding/day-one-developer.md](docs/onboarding/day-one-developer.md) |

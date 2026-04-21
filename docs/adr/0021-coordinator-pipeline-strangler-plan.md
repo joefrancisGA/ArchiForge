@@ -20,7 +20,7 @@ Both pipelines were declared deliberately distinct in **[ADR 0010 — Dual manif
 
 Two independent forces are now creating pressure to revisit ADR 0010:
 
-- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
+- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
 - **Cognitive load + onboarding cost.** Day-1 developer onboarding (`docs/onboarding/day-one-developer.md`) currently sends a new contributor through both interface families even when the day-1 task only touches one. The dual-pipeline model is a real source of "I changed the wrong repository" defects in PR review history.
 
 ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The project's ADR governance (`docs/adr/README.md`) requires accepted ADRs to be **superseded** by a new ADR rather than rewritten or deleted.
@@ -61,6 +61,18 @@ This ADR moves from `Proposed` → `Accepted` only when **all** of the following
 **Mechanism.** Introduce `IUnifiedGoldenManifestReader` in `ArchLucid.Decisioning.Interfaces` (read-only — `Task<GoldenManifest?> ReadByRunIdAsync(...)` and `IAsyncEnumerable<GoldenManifestSummary> ListByScopeAsync(...)`). Implement it as a thin façade that delegates to whichever of the two existing repositories actually persisted the row, keyed by a discriminator already present on `dbo.Runs` after ADR 0012. **No deletion of either existing interface; no on-the-wire change.**
 
 **Exit gate.** All internal read call sites that today depend on either `ICoordinatorGoldenManifestRepository.ReadAsync*` or `IGoldenManifestRepository.GetByIdAsync` are migrated to `IUnifiedGoldenManifestReader`. Coverage report shows `IUnifiedGoldenManifestReader` is the only manifest-read dependency in `ArchLucid.Application` and `ArchLucid.Decisioning.Advisory`. Two-week soak in production with audit-row parity ≥ 99.95% (counted in `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`).
+
+#### Phase 1 internal read-path inventory (incremental, 2026-04-21)
+
+The following **Application** services were migrated off **constructor injection** of `ICoordinatorGoldenManifestRepository` for manifest **reads**, in favour of `IUnifiedGoldenManifestReader` (or upstream authority read models that already hydrate the manifest):
+
+| Area | Read path |
+|------|-----------|
+| Run detail | `RunDetailQueryService` → `ReadByRunIdAsync` |
+| Analysis / governance | `ArchitectureAnalysisService`, `GovernancePreviewService` → unified reader `GetByVersionAsync` / run-scoped reads as implemented |
+| Host application façade | `ArchitectureApplicationService` (`ArchLucid.Host.Core`) → unified reader for versioned reads |
+
+**Write paths** (intentionally unchanged on this date) still use `ICoordinatorGoldenManifestRepository` where coordinator semantics persist the manifest: `ArchitectureRunCommitOrchestrator`, `ReplayRunService`, `DemoSeedService`. `ArchLucid.Architecture.Tests/DualPipelineInternalReadPathTests` asserts no additional Application types take the coordinator manifest repository in their public constructors.
 
 ### Phase 2 — Audit constant unification
 

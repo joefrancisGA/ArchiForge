@@ -32,6 +32,7 @@ public sealed class PolicyPackPublishConcurrencyIntegrationTests
     {
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
         await act(client);
     }
 

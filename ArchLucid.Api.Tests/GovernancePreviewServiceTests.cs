@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Interfaces;
 
 using FluentAssertions;
 
@@ -23,7 +23,7 @@ public sealed class GovernancePreviewServiceTests
 {
     private readonly Mock<IGovernanceEnvironmentActivationRepository> _activationRepo = new();
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService = new();
-    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepo = new();
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader = new();
     private readonly GovernancePreviewService _sut;
 
     public GovernancePreviewServiceTests()
@@ -31,7 +31,7 @@ public sealed class GovernancePreviewServiceTests
         _sut = new GovernancePreviewService(
             _activationRepo.Object,
             _runDetailQueryService.Object,
-            _manifestRepo.Object);
+            _unifiedManifestReader.Object);
     }
 
     private static GoldenManifest Manifest(string runId, string version, Action<ManifestGovernance>? tweak = null)
@@ -60,7 +60,7 @@ public sealed class GovernancePreviewServiceTests
 
     /// <summary>
     /// Returns a run detail whose manifest is null (pre-commit), so the service falls back to
-    /// <see cref="ICoordinatorGoldenManifestRepository.GetByVersionAsync"/> for the candidate manifest lookup.
+    /// <see cref="IUnifiedGoldenManifestReader.GetByVersionAsync"/> for the candidate manifest lookup.
     /// </summary>
     private static ArchitectureRunDetail RunDetail(string runId) => new()
     {
@@ -73,7 +73,7 @@ public sealed class GovernancePreviewServiceTests
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-a", It.IsAny<CancellationToken>()))
             .ReturnsAsync(RunDetail("run-a"));
-        _manifestRepo.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-a", "v1", g => g.RequiredControls.Add("PEP")));
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GovernanceEnvironmentActivation>());
@@ -97,7 +97,7 @@ public sealed class GovernancePreviewServiceTests
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-b", It.IsAny<CancellationToken>()))
             .ReturnsAsync(RunDetail("run-b"));
-        _manifestRepo.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-b", "v2", g =>
             {
                 g.RequiredControls.Add("MI");
@@ -115,7 +115,7 @@ public sealed class GovernancePreviewServiceTests
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<GovernanceEnvironmentActivation> { currentActivation });
 
-        _manifestRepo.Setup(m => m.GetByVersionAsync("v-old", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v-old", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-old", "v-old", g =>
             {
                 g.RequiredControls.Add("PEP");
@@ -157,9 +157,9 @@ public sealed class GovernancePreviewServiceTests
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("test", It.IsAny<CancellationToken>()))
             .ReturnsAsync([tgtAct]);
 
-        _manifestRepo.Setup(m => m.GetByVersionAsync("m1", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("r1", "m1", g => g.CostClassification = "Low"));
-        _manifestRepo.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("m2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("r2", "m2", g => g.CostClassification = "High"));
 
         GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
@@ -202,8 +202,8 @@ public sealed class GovernancePreviewServiceTests
 
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>())).ReturnsAsync([act1]);
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("prod", It.IsAny<CancellationToken>())).ReturnsAsync([act2]);
-        _manifestRepo.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r1", "v1"));
-        _manifestRepo.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r2", "v2"));
+        _unifiedManifestReader.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r1", "v1"));
+        _unifiedManifestReader.Setup(goldenManifestRepository => goldenManifestRepository.GetByVersionAsync("v2", It.IsAny<CancellationToken>())).ReturnsAsync(Manifest("r2", "v2"));
 
         GovernanceEnvironmentComparisonResult result = await _sut.CompareEnvironmentsAsync(new GovernanceEnvironmentComparisonRequest
         {
@@ -219,7 +219,7 @@ public sealed class GovernancePreviewServiceTests
     {
         _runDetailQueryService.Setup(s => s.GetRunDetailAsync("run-x", It.IsAny<CancellationToken>()))
             .ReturnsAsync(RunDetail("run-x"));
-        _manifestRepo.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader.Setup(m => m.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(Manifest("run-x", "v1"));
         _activationRepo.Setup(a => a.GetByEnvironmentAsync("dev", It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);

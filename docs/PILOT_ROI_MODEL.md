@@ -78,14 +78,32 @@ Use the Core Pilot path as the default evaluation lane:
 
 These are the most useful V1 measures.
 
-| Metric | Why it matters | How to judge |
-|--------|----------------|--------------|
-| **Time to committed manifest** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable |
-| **Time to reviewable artifact package** | Measures how quickly stakeholders can review something concrete | Faster package preparation with less manual assembly |
-| **Manual preparation effort reduced** | Measures architect/admin time saved | Fewer hand-built documents, fewer manual stitching steps |
-| **Decision traceability completeness** | Measures whether decisions and evidence are easier to explain | More complete, easier-to-follow review narrative |
-| **Change visibility between runs** | Measures whether review of revisions is clearer | Stakeholders can see what changed and why more quickly |
-| **Governance evidence readiness** | Measures whether approvals/reviews have better support material | Less reconstruction during review or approval prep |
+| Metric | Why it matters | How to judge | Computed by ArchLucid? |
+|--------|----------------|--------------|------------------------|
+| **Time to committed manifest** | Measures speed from request to durable architecture output | Faster than current-state workflow, or meaningfully more predictable | **Yes — `RunRecord.CreatedUtc` → `GoldenManifest.CommittedUtc`** rendered in the *Computed deltas* section of the first-value report (Markdown + PDF). |
+| **Findings (total + by severity)** | Measures how much risk the agents surface that a human would otherwise miss | Severity mix should be defensible to a reviewer | **Yes — aggregated from `ArchitectureRunDetail.Results[*].Findings`.** |
+| **LLM calls for the run** | Measures cost-shape and behavioural footprint of one run | Should fit the cost envelope agreed during pilot kickoff | **Yes — counted from per-run `AgentExecutionTrace` rows (sibling of the `archlucid_llm_calls_per_run` histogram).** |
+| **Audit rows for the run** | Measures how thoroughly the run is observable / forensically reviewable | Higher is generally better, with caveats below | **Yes — `IAuditRepository.GetFilteredAsync(RunId)` (capped to 500 rows; if the cap is hit the value is shown as a lower bound).** |
+| **Top-severity finding evidence chain** | Lets a reviewer trace one finding back to the manifest version, snapshot ids, and graph nodes used to produce it | A sponsor can hand a reviewer the chain ids and they resolve | **Yes — pulled from `IFindingEvidenceChainService` for the highest-severity finding on the run.** |
+| **Time to reviewable artifact package** | Measures how quickly stakeholders can review something concrete | Faster package preparation with less manual assembly | No — operator-filled (qualitative). |
+| **Manual preparation effort reduced** | Measures architect/admin time saved | Fewer hand-built documents, fewer manual stitching steps | No — operator-filled (qualitative). |
+| **Decision traceability completeness** | Measures whether decisions and evidence are easier to explain | More complete, easier-to-follow review narrative | No — operator-filled (qualitative). |
+| **Change visibility between runs** | Measures whether review of revisions is clearer | Stakeholders can see what changed and why more quickly | No — operator-filled (qualitative). |
+| **Governance evidence readiness** | Measures whether approvals/reviews have better support material | Less reconstruction during review or approval prep | No — operator-filled (qualitative). |
+
+### 4.1.1 How to read the demo numbers
+
+The first-value report (`GET /v1/pilots/runs/{runId}/first-value-report` and the `…/first-value-report.pdf` companion) and the sponsor one-pager PDF compute the five "Computed by ArchLucid" rows above straight from persisted run state. When the report is generated **for one of the canonical Contoso Retail demo runs** (or any run whose `RequestId` carries the `req-contoso-demo-` prefix that `ContosoRetailDemoIds.ForTenant(...)` mints for non-default tenants), every report renders the banner:
+
+> _demo tenant — replace before publishing._
+
+Treat that banner as a **non-negotiable redaction marker**:
+
+- **Do not screenshot** the computed-deltas table from a demo run for an external deck without removing the numbers or replacing them with figures from a live tenant.
+- **Do not quote** "ArchLucid produced N findings in T minutes for our pilot" using a demo number — the seed is deterministic and was tuned for clarity, not to represent any specific customer's environment.
+- **Do** use the demo numbers to walk a sponsor through *what the report will look like* once they run it against their own tenant — this is the entire point of having the seed render the same shape as a live pilot.
+
+If you need to verify the matcher logic, the unit tests in `ArchLucid.Application.Tests/Pilots/PilotRunDeltaComputerTests.cs` and `ArchLucid.Application.Tests/Bootstrap/ContosoRetailDemoIdentifiersMatcherTests.cs` lock in both the canonical-RunId match and the multi-tenant `req-contoso-demo-*` prefix match.
 
 ### 4.2 Secondary pilot metrics
 

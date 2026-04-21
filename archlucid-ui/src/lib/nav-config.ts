@@ -21,6 +21,7 @@ import {
   Search,
   Shield,
   Sparkles,
+  Stars,
   Tags,
   Wrench,
 } from "lucide-react";
@@ -219,6 +220,16 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         icon: Play,
         tier: "extended",
         requiredAuthority: "ExecuteAuthority",
+      },
+      {
+        href: "/why-archlucid",
+        label: "Why ArchLucid",
+        // Core Pilot proof page — read-only telemetry projection over the seeded Contoso Retail demo run.
+        // Intentionally has no `requiredAuthority` so any signed-in pilot can show it to a sponsor; the API
+        // endpoints it calls still enforce `[Authorize(Policy = ReadAuthority)]`.
+        title: "Why ArchLucid — live demo telemetry, sponsor first-value report, and run explanation citations",
+        icon: Stars,
+        tier: "extended",
       },
     ],
   },

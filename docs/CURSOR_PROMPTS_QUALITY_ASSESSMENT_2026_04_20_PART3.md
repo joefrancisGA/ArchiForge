@@ -2,7 +2,7 @@
 
 # Cursor prompts — Quality Assessment 2026-04-20 (Improvement 3)
 
-This is the paste-ready Agent prompt for **Improvement 3** identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3:
+This is the paste-ready Agent prompt for **Improvement 3** identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3:
 
 > **"Collapse dual pipelines + delete legacy `ArchiForge.*` folders** in one explicit refactor, with audit-event-type migration and a deprecation note in `CHANGELOG.md`."
 
@@ -110,7 +110,7 @@ Splitting the work this way is consistent with the **Critique-Mode** rule ("be o
 >    - Keep the existing tables and onboarding walkthrough as-is.
 >
 > 9. **Phase C draft — Write a new ADR proposing the actual collapse.** Add **`docs/adr/0023-coordinator-pipeline-strangler-plan.md`** with `Status: Proposed` (not Accepted — Phase C is for a separate PR after architecture review). Use the project's standard ADR sections (Status, Date, Context, Decision, Consequences, Links). The draft must contain at minimum:
->    - **Context** — references ADR 0010 and ADR 0012; restates the cognitive-load argument from `docs/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md` § 2.6 / § 2.18; cites the audit-event-type duality and the two-tables/two-interfaces residue.
+>    - **Context** — references ADR 0010 and ADR 0012; restates the cognitive-load argument from `docs/archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md` § 2.6 / § 2.18; cites the audit-event-type duality and the two-tables/two-interfaces residue.
 >    - **Decision (proposed)** — collapse the Coordinator pipeline into a thin adapter over the Authority pipeline; rename `CoordinatorRun*` audit constants to authority equivalents with a one-release alias period; deprecate (not delete) the Data-layer manifest/trace interfaces; provide a single `IRunOrchestrator` seam at `ArchLucid.Application`.
 >    - **Migration plan (mandatory subsection)** — at least the following work-units: (a) inventory of every `CoordinatorRun*` constant + proposed authority counterpart (a table — partially populated by the data the prompt-author reads from `AuditEventTypes.cs`); (b) inventory of every Grafana / Managed Grafana dashboard panel that joins on a `CoordinatorRun*` event type; (c) audit of every metric in `docs/OBSERVABILITY.md` whose label set assumes the two-pipeline model; (d) one-release alias window with `[Obsolete("Use AuditEventTypes.RunStarted; coordinator family will be removed in vX.Y", error: false)]` on the old constants; (e) a `BREAKING_CHANGES.md` entry.
 >    - **Consequences** — split into Positive / Negative / Operational (the project's standard pattern). Be specific about dashboard rebuild cost and the one-release alias window.

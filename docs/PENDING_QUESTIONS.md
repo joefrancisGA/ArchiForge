@@ -56,5 +56,5 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 | Doc | Use |
 |-----|-----|
-| [`docs/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md`](QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md) | Original assessment + §8 prompts |
+| [`docs/archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md) | Original assessment + §8 prompts |
 | [`docs/go-to-market/PRICING_PHILOSOPHY.md`](go-to-market/PRICING_PHILOSOPHY.md) § 5.4 | Reference-customer CI guard and discount re-rate |

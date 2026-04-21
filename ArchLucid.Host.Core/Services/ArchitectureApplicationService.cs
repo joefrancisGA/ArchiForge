@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -25,7 +26,7 @@ namespace ArchLucid.Host.Core.Services;
 public sealed class ArchitectureApplicationService(
     IRunDetailQueryService runDetailQueryService,
     IAgentResultRepository resultRepository,
-    ICoordinatorGoldenManifestRepository manifestRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IArchitectureRequestRepository requestRepository,
     IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IEvidenceBuilder evidenceBuilder,
@@ -148,7 +149,7 @@ public sealed class ArchitectureApplicationService(
 
     public async Task<GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
     {
-        return await manifestRepository.GetByVersionAsync(version, cancellationToken);
+        return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
     }
 
     public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, CancellationToken cancellationToken = default)

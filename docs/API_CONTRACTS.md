@@ -57,8 +57,9 @@ Sponsor- and pilot-facing read models. All routes require **ReadAuthority** and 
 | Method | Path | Response | Notes |
 |--------|------|----------|-------|
 | `GET` | **`/v1/pilots/runs/{runId}/first-value-report`** | **`text/markdown`** | One-page Markdown summary (run metadata, findings counts, decision trace excerpt, baseline placeholders). **404** when the run id is unknown. |
+| `POST` | **`/v1/pilots/runs/{runId}/first-value-report.pdf`** | **`application/pdf`** | One-shot **sponsor-shareable PDF projection** of the same first-value-report Markdown body — same auth (`ReadAuthority`), same content (single source of truth), no Standard-tier gate. Backs the post-commit "Email this run to your sponsor" CTA on the operator-shell `/runs/[runId]` page. **404** when the run id is unknown. |
 
-CLI: `archlucid first-value-report <runId> [--save]` (see **`docs/CLI_USAGE.md`**).
+CLI: `archlucid first-value-report <runId> [--save]` (see **`docs/CLI_USAGE.md`**). UI banner is `EmailRunToSponsorBanner` in `archlucid-ui/src/components/`; the operator-shell page renders it whenever the run has a golden manifest.
 
 ## List pagination (runs and alerts)
 

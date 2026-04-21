@@ -3,6 +3,7 @@ using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
@@ -25,21 +26,110 @@ public sealed class FirstValueReportBuilderTests
         query.Setup(q => q.GetRunDetailAsync("abc", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureRunDetail?)null);
 
-        FirstValueReportBuilder sut = new(query.Object, NullLogger<FirstValueReportBuilder>.Instance);
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        FirstValueReportBuilder sut = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
 
         string? md = await sut.BuildMarkdownAsync("abc", "http://localhost:5000");
 
         md.Should().BeNull();
+        deltas.Verify(d => d.ComputeAsync(It.IsAny<ArchitectureRunDetail>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task BuildMarkdownAsync_WhenCommitted_IncludesManifestVersionAndFindingCounts()
+    public async Task BuildMarkdownAsync_WhenCommitted_RendersComputedDeltasAndManifest()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 7,
+            LlmCallCount = 4,
+            TopFindingId = "top-finding-id",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = "r1",
+                FindingId = "top-finding-id",
+                ManifestVersion = "v2",
+                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md!.Should().Contain("Computed deltas (from this run)");
+        md.Should().Contain("v2");
+        md.Should().Contain("SysA");
+        md.Should().Contain("| Warning | 2 |");
+        md.Should().Contain("| Error | 1 |");
+        md.Should().Contain("LLM calls for this run");
+        md.Should().Contain("| Audit rows for this run | 7 |");
+        md.Should().Contain("Top-severity finding — evidence chain excerpt");
+        md.Should().Contain("`top-finding-id`");
+        md.Should().Contain("11111111-1111-1111-1111-111111111111");
+        md.Should().Contain("docs/EXECUTIVE_SPONSOR_BRIEF.md");
+    }
+
+    [Fact]
+    public async Task BuildMarkdownAsync_WhenDemoTenant_RendersBannerAtTopAndOnDeltaSection()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [],
+            AuditRowCount = 0,
+            LlmCallCount = 0,
+            IsDemoTenant = true,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = new(query.Object, deltas.Object, NullLogger<FirstValueReportBuilder>.Instance);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        // Banner must appear in the document preface AND immediately under the computed-deltas heading,
+        // so a sponsor cannot crop the page and quote a single number out of context.
+        int firstBanner = md!.IndexOf("demo tenant — replace before publishing", StringComparison.Ordinal);
+        int secondBanner = md.IndexOf("demo tenant — replace before publishing", firstBanner + 1, StringComparison.Ordinal);
+        firstBanner.Should().BeGreaterThan(0);
+        secondBanner.Should().BeGreaterThan(firstBanner);
+    }
+
+    private static ArchitectureRunDetail BuildCommittedDetail()
     {
         GoldenManifest manifest = new()
         {
             RunId = "r1",
             SystemName = "SysA",
-            Metadata = new ManifestMetadata { ManifestVersion = "v2", CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc) },
+            Metadata = new ManifestMetadata { ManifestVersion = "v2", CreatedUtc = new DateTime(2026, 4, 1, 0, 10, 0, DateTimeKind.Utc) },
             Governance = new ManifestGovernance(),
         };
 
@@ -62,31 +152,16 @@ public sealed class FirstValueReportBuilderTests
             [
                 new ArchitectureFinding { Severity = "Warning", Message = "m1" },
                 new ArchitectureFinding { Severity = "warning", Message = "m2" },
-                new ArchitectureFinding { Severity = "Error", Message = "m3" }
-            ]
+                new ArchitectureFinding { Severity = "Error", Message = "m3" },
+            ],
         };
 
-        ArchitectureRunDetail detail = new()
+        return new ArchitectureRunDetail
         {
             Run = run,
             Results = [result],
             Manifest = manifest,
             DecisionTraces = [],
         };
-
-        Mock<IRunDetailQueryService> query = new();
-        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(detail);
-
-        FirstValueReportBuilder sut = new(query.Object, NullLogger<FirstValueReportBuilder>.Instance);
-
-        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
-
-        md.Should().NotBeNull();
-        md!.Should().Contain("v2");
-        md.Should().Contain("SysA");
-        md.Should().Contain("Warning");
-        md.Should().Contain("| Error | 1 |");
-        md.Should().Contain("docs/EXECUTIVE_SPONSOR_BRIEF.md");
     }
 }

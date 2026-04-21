@@ -1,20 +1,53 @@
 {
-  "name": "ArchLucid (.NET + Node)",
-  "image": "mcr.microsoft.com/devcontainers/dotnet:10.0-bookworm",
+  "name": "ArchLucid (.NET 10 + Node 22, archlucid try)",
+  "dockerComposeFile": "docker-compose.devcontainer.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspaces/ArchLucid",
+
+  // Node 22 layered on top of the .NET 10 base image.
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "22"
+    },
+    // Docker CLI inside the container so the bind-mounted host socket can be used by
+    // `archlucid try` to bring up the demo stack as sibling containers.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "moby": true
     }
   },
-  "postCreateCommand": "dotnet restore ArchLucid.sln",
+
+  // First boot: restore the solution so IntelliSense lights up, then run the one-shot
+  // adoption-friction command (`archlucid try`) which:
+  //   1. brings up the pilot Docker stack on the host (DooD)
+  //   2. waits for /health/ready
+  //   3. ensures the Contoso demo seed
+  //   4. submits a sample architecture run, polls until commit
+  //   5. saves the first-value Markdown report and prints the operator UI URL
+  // We pass --no-open because there is no host browser available from inside the container;
+  // the URL is printed for the user to open from the host.
+  "postCreateCommand": "dotnet restore ArchLucid.sln && dotnet run --project ArchLucid.Cli -- try --no-open",
+
   "customizations": {
     "vscode": {
-      "extensions": ["ms-dotnettools.csdevkit", "dbaeumer.vscode-eslint", "esbenp.prettier-vscode"]
+      "extensions": [
+        "ms-dotnettools.csdevkit",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker"
+      ]
     }
   },
-  "forwardPorts": [5128, 3000],
+
+  // Forwarded so the host browser can hit the demo stack started by archlucid try.
+  "forwardPorts": [3000, 5000, 5128, 1433],
   "portsAttributes": {
-    "5128": { "label": "ArchLucid API (host-run)" },
-    "3000": { "label": "Operator UI (host-run)" }
-  }
+    "3000": { "label": "Operator UI" },
+    "5000": { "label": "ArchLucid API (demo stack)" },
+    "5128": { "label": "ArchLucid API (dotnet run dev)" },
+    "1433": { "label": "SQL Server" }
+  },
+
+  // Use root for simplicity; matches how PilotUpCommand expects to talk to docker.sock.
+  "remoteUser": "root"
 }

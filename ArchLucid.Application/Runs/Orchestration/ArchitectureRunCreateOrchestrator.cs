@@ -62,7 +62,11 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly ILogger<ArchitectureRunCreateOrchestrator> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private const int DistributedCreateRunLockTimeoutMs = 30_000;
+    /// <summary>
+    /// <c>sp_getapplock</c> wait budget while another request holds the same idempotency key.
+    /// The lock spans coordinator + persistence; parallel bursts must not time out waiting for the first winner.
+    /// </summary>
+    private const int DistributedCreateRunLockTimeoutMs = 120_000;
 
     private static readonly RunCreateIdempotencyGateCache IdempotencyGates = new();
 

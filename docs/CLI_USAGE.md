@@ -51,6 +51,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `new <projectName>` | Create a new project: `archlucid.json`, `inputs/brief.md`, `outputs/`, `plugins/plugin-lock.json`, optional Terraform stubs, `docs/README.md`. |
 | `dev up` | Start SQL Server, Azurite, and Redis via Docker Compose (requires `docker-compose.yml` in repo root). |
 | `pilot up` | Start the **full-stack + demo** Docker Compose profile (`docker-compose.yml` + `docker-compose.demo.yml`): API on **5000**, operator UI on **3000**, SQL, Azurite, Redis; waits for **`/health/ready`**. Same effective stack as `scripts/demo-start.ps1` / `demo-start.sh` — simulator agents, demo seed on API startup. Requires Docker only. |
+| `try [--no-open] [--api-base-url <url>] [--ui-base-url <url>] [--readiness-deadline <secs>] [--commit-deadline <secs>]` | One-shot first-value loop. Composes **`pilot up`** → **`POST /v1/demo/seed`** → submits a sample architecture request → polls **`GET /v1/architecture/run/{runId}`** until `ReadyForCommit` (falls back to seeding fake results once the deadline elapses) → **`commit`** → **`GET /v1/pilots/runs/{runId}/first-value-report`** (Markdown saved to cwd) → opens the saved Markdown and **`{uiBaseUrl}/runs/{runId}`** in the OS default handlers. **`--no-open`** disables the OS opens (use it inside containers / SSH / CI). See **[archlucid try](#archlucid-try)** below. |
 | `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
@@ -72,6 +73,43 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `comparisons diagnostics` | Show recent replay activity (requires replay diagnostics permission). |
 | `comparisons tag <comparisonRecordId>` | Update label and tags on a comparison record. |
 | `completions bash` \| `zsh` \| `powershell` | Print a shell completion script to stdout (source from your profile). |
+
+---
+
+## archlucid try
+
+`archlucid try` is the **adoption-friction reducer**: a single command that takes a brand-new evaluator from "I cloned the repo" to "I have a committed manifest and a sponsor-grade Markdown report on my disk" — without making them stitch together `pilot up`, `run`, `seed`, `commit`, and `first-value-report`.
+
+### What it does, in order
+
+1. **Pilot stack up.** Reuses `archlucid pilot up` (Docker Compose `docker-compose.yml` + `docker-compose.demo.yml`, full-stack profile) and waits for `GET http://127.0.0.1:5000/health/ready` for up to `--readiness-deadline` seconds (default **120**).
+2. **Demo seed (best-effort).** `POST /v1/demo/seed` — gated to Development + `ExecuteAuthority`. Tolerates 400 / 403 / 404 because the demo overlay also runs the seed at API startup; this call exists for a re-runnable, idempotent guarantee.
+3. **Sample architecture request.** Submits a deterministic Azure-retail brief to `POST /v1/architecture/request` (`SystemName=ArchLucidTryDemo`).
+4. **Execute + poll.** `POST /v1/architecture/run/{runId}/execute` (best-effort kick), then polls `GET /v1/architecture/run/{runId}` every **2 s** until status is `ReadyForCommit` (or higher). If the simulator does not progress within `--commit-deadline` seconds (default **180**), falls back to `POST /v1/architecture/run/{runId}/seed` (Development-only fake results) so the loop can still complete.
+5. **Commit.** `POST /v1/architecture/run/{runId}/commit` — produces a versioned golden manifest.
+6. **First-value report.** `GET /v1/pilots/runs/{runId}/first-value-report` (Markdown), saved to **`first-value-{runId}.md`** in the current directory.
+7. **Open artifacts.** Opens the saved Markdown in the OS default handler and the operator UI at **`{uiBaseUrl}/runs/{runId}`** (default `http://localhost:3000`). Suppress with **`--no-open`** in headless / containerized contexts.
+
+### Flags
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| `--api-base-url <url>` | `http://localhost:5000` | API base URL for steps 2 → 6. Demo overlay binds the API on 5000, **not** the dotnet-run default 5128. |
+| `--ui-base-url <url>` | `http://localhost:3000` | Operator-UI base URL printed and opened in step 7. |
+| `--no-open` | (open) | Skip the OS `open` calls in step 7 (recommended inside containers, SSH sessions, the bundled `.devcontainer/`, and CI). |
+| `--readiness-deadline <secs>` | `120` | Pilot-stack readiness probe deadline (passed to `pilot up`). |
+| `--commit-deadline <secs>` | `180` | Maximum seconds to wait for the sample run to reach `ReadyForCommit` before falling back to `seed`. |
+
+### Exit codes
+
+- **0** Success — manifest committed, report saved.
+- **1** Usage error — unknown flag, missing value, or `docker-compose.yml` not found from the current directory upward.
+- **3** API unavailable — `/health/ready` did not respond within `--readiness-deadline`.
+- **4** Operation failed — sample-run create failed, commit failed, or the seed-fake-results fallback failed.
+
+### Devcontainer
+
+The repo ships a `.devcontainer/` (compose-based, .NET 10 SDK + Node 22, host docker socket bind-mounted as Docker-outside-of-Docker) that runs **`dotnet run --project ArchLucid.Cli -- try --no-open`** on `postCreateCommand`. Open the repo in VS Code Dev Containers (or GitHub Codespaces) and the first boot brings up the demo stack and lands you on a committed run.
 
 ---
 

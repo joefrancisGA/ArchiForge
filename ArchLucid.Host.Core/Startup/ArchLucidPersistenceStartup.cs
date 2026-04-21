@@ -37,9 +37,6 @@ public static class ArchLucidPersistenceStartup
                 DatabaseMigrator.Run(connectionString);
 
                 app.Logger.LogInformation("Startup: DbUp migrations completed successfully.");
-
-                if (app.Environment.IsDevelopment())
-                    DevelopmentDefaultScopeTenantBootstrap.TryEnsure(connectionString, app.Logger);
             }
         }
 
@@ -53,10 +50,17 @@ public static class ArchLucidPersistenceStartup
                 ISchemaBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ISchemaBootstrapper>();
                 using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
                 using (SqlRowLevelSecurityBypassAmbient.Enter())
-
+                {
                     bootstrapper.EnsureSchemaAsync(cts.Token).GetAwaiter().GetResult();
 
-                app.Logger.LogInformation("Startup: schema bootstrap completed.");
+                    app.Logger.LogInformation("Startup: schema bootstrap completed.");
+
+                    string? catalogConnectionString =
+                        ArchLucidConfigurationBridge.ResolveSqlConnectionString(app.Configuration);
+
+                    if (app.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(catalogConnectionString))
+                        DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
+                }
             }
 
 

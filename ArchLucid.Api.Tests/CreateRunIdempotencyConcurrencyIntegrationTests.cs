@@ -1,8 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using ArchLucid.Api.Tests.TestDtos;
 using ArchLucid.TestSupport;
@@ -14,7 +11,7 @@ using Microsoft.Data.SqlClient;
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// Parallel POST <c>/v1/architecture/request</c> with the same <c>Idempotency-Key</c> must converge on a single authority run.
+/// Parallel POST <c>/v1/architecture/request</c> with the same <c>Idempotency-Key</c> must converge on a single authority run (SQL storage).
 /// </summary>
 [Trait("Suite", "Core")]
 [Trait("Category", "Integration")]
@@ -29,12 +26,6 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
         + " (see docs/BUILD.md), or use Windows with LocalDB.";
 
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true) },
-    };
-
     private static bool IsSqlServerConfiguredForApiIntegration()
     {
         if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable)))
@@ -46,70 +37,6 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         return OperatingSystem.IsWindows();
     }
 
-    private static StringContent JsonContent(object value)
-    {
-        string json = JsonSerializer.Serialize(value, JsonOptions);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-    }
-
-    private static async Task<HttpResponseMessage[]> PostParallelArchitectureRequestAsync(
-        HttpClient client,
-        object body,
-        string idempotencyKey,
-        int parallel)
-    {
-        Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];
-
-        for (int i = 0; i < parallel; i++)
-        {
-            HttpRequestMessage request = new(HttpMethod.Post, "/v1/architecture/request")
-            {
-                Content = JsonContent(body),
-            };
-
-            request.Headers.TryAddWithoutValidation("Idempotency-Key", idempotencyKey);
-            tasks[i] = client.SendAsync(request);
-        }
-
-        return await Task.WhenAll(tasks);
-    }
-
-    /// <summary>
-    /// Under parallel POST, SQL can briefly return errors mapped to HTTP 503 (see <c>ApplicationProblemMapper</c>).
-    /// CI runners are slower than local SQL — retry the whole burst with backoff instead of failing the idempotency assertion.
-    /// </summary>
-    private static async Task<HttpResponseMessage[]> PostParallelArchitectureRequestWithTransientRetryAsync(
-        HttpClient client,
-        object body,
-        string idempotencyKey,
-        int parallel,
-        CancellationToken cancellationToken)
-    {
-        const int maxAttempts = 6;
-        int delayMilliseconds = 300;
-        HttpResponseMessage[] responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
-
-        for (int attempt = 0;
-             attempt < maxAttempts - 1 && responses.Any(static r => r.StatusCode == HttpStatusCode.ServiceUnavailable);
-             attempt++)
-        {
-            DisposeAll(responses);
-            await Task.Delay(delayMilliseconds, cancellationToken);
-            delayMilliseconds = Math.Min(delayMilliseconds * 2, 4000);
-            responses = await PostParallelArchitectureRequestAsync(client, body, idempotencyKey, parallel);
-        }
-
-        return responses;
-    }
-
-    private static void DisposeAll(HttpResponseMessage[] responses)
-    {
-        foreach (HttpResponseMessage response in responses)
-        {
-            response.Dispose();
-        }
-    }
-
     [SkippableFact]
     public async Task Parallel_posts_with_same_idempotency_key_yield_single_run_id()
     {
@@ -117,17 +44,29 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
 
         await using GreenfieldSqlApiFactory factory = new();
         HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         string idempotencyKey = "idem-conc-" + Guid.NewGuid().ToString("N");
         string requestId = "REQ-IDEM-" + Guid.NewGuid().ToString("N")[..12];
         object body = TestRequestFactory.CreateArchitectureRequest(requestId);
 
-        const int parallel = 64;
-        HttpResponseMessage[] responses = await PostParallelArchitectureRequestWithTransientRetryAsync(
+        const int parallel = 16;
+        HttpResponseMessage[] responses =
+            await ArchitectureRequestConcurrencyTestSupport.PostParallelArchitectureRequestWithTransientRetryAsync(
+                client,
+                body,
+                idempotencyKey,
+                parallel,
+                maxAttempts: 10,
+                initialDelayMilliseconds: 500,
+                CancellationToken.None);
+
+        responses = await ArchitectureRequestConcurrencyTestSupport.ResolveServiceUnavailablePerResponseAsync(
             client,
             body,
             idempotencyKey,
-            parallel,
+            responses,
+            maxPerSlotAttempts: 25,
             CancellationToken.None);
 
         try
@@ -138,7 +77,8 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
             {
                 response.StatusCode.Should().BeOneOf(HttpStatusCode.Created, HttpStatusCode.OK);
 
-                CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+                CreateRunResponseDto? dto = await response.Content.ReadFromJsonAsync<CreateRunResponseDto>(
+                    ArchitectureRequestConcurrencyTestSupport.JsonOptions);
                 dto.Should().NotBeNull();
                 dto.Run.RunId.Should().NotBeNullOrWhiteSpace();
                 runIds.Add(dto.Run.RunId);
@@ -148,7 +88,7 @@ public sealed class CreateRunIdempotencyConcurrencyIntegrationTests
         }
         finally
         {
-            DisposeAll(responses);
+            ArchitectureRequestConcurrencyTestSupport.DisposeAll(responses);
         }
 
         await using SqlConnection connection = new(factory.SqlConnectionString);

@@ -1,7 +1,10 @@
+using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Models.Pilots;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Pilots;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Tenancy;
 
 using Asp.Versioning;
 
@@ -23,8 +26,25 @@ namespace ArchLucid.Api.Controllers.Pilots;
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed class PilotsController(
     FirstValueReportBuilder firstValueReportBuilder,
-    PilotScorecardBuilder pilotScorecardBuilder) : ControllerBase
+    FirstValueReportPdfBuilder firstValueReportPdfBuilder,
+    PilotScorecardBuilder pilotScorecardBuilder,
+    SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
+    IWhyArchLucidSnapshotService whyArchLucidSnapshotService) : ControllerBase
 {
+    /// <summary>
+    /// Read-only telemetry snapshot for the operator-shell <c>/why-archlucid</c> proof page (cumulative since
+    /// API host start) plus the canonical Contoso Retail demo run id used by the page's other read endpoints.
+    /// </summary>
+    [HttpGet("why-archlucid-snapshot")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(WhyArchLucidSnapshotResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<WhyArchLucidSnapshotResponse>> GetWhyArchLucidSnapshot(CancellationToken cancellationToken)
+    {
+        WhyArchLucidSnapshotResponse snapshot = await whyArchLucidSnapshotService.BuildAsync(cancellationToken);
+
+        return Ok(snapshot);
+    }
+
     /// <summary>
     /// Markdown summary suitable for a sponsor after a first committed run (read-only).
     /// </summary>
@@ -42,6 +62,27 @@ public sealed class PilotsController(
 
 
         return Content(markdown, "text/markdown; charset=utf-8");
+    }
+
+    /// <summary>
+    /// PDF projection of the first-value-report Markdown — a one-shot sponsor email attachment for a committed run.
+    /// Mirrors the auth surface of <see cref="GetFirstValueReport"/> (ReadAuthority) so the operator-shell post-commit
+    /// CTA does not introduce a new commercial gate at the click site.
+    /// </summary>
+    [HttpPost("runs/{runId}/first-value-report.pdf")]
+    [Produces("application/pdf")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> PostFirstValueReportPdf(string runId, CancellationToken cancellationToken)
+    {
+        string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
+        byte[]? pdf = await firstValueReportPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
+
+        if (pdf is null)
+            return this.NotFoundProblem($"First-value report PDF is not available for run '{runId}'.", ProblemTypes.RunNotFound);
+
+
+        return File(pdf, "application/pdf", $"first-value-report-{runId}.pdf");
     }
 
     /// <summary>JSON pilot scorecard for the current tenant scope (UTC window).</summary>
@@ -71,5 +112,26 @@ public sealed class PilotsController(
         };
 
         return Ok(response);
+    }
+
+    /// <summary>
+    /// One-page sponsor PDF for a run (Standard tier) — headline timing plus 30-day pilot scorecard mix.
+    /// </summary>
+    [HttpPost("runs/{runId}/sponsor-one-pager")]
+    [RequiresCommercialTenantTier(TenantTier.Standard)]
+    [Produces("application/pdf")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status402PaymentRequired)]
+    public async Task<IActionResult> PostSponsorOnePager(string runId, CancellationToken cancellationToken)
+    {
+        string baseForLinks = $"{Request.Scheme}://{Request.Host.Value}";
+        byte[]? pdf = await sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseForLinks, cancellationToken);
+
+        if (pdf is null)
+            return this.NotFoundProblem($"Sponsor one-pager is not available for run '{runId}'.", ProblemTypes.RunNotFound);
+
+
+        return File(pdf, "application/pdf", $"sponsor-one-pager-{runId}.pdf");
     }
 }

@@ -27,4 +27,38 @@ public static class ContosoRetailDemoIdentifiers
     public const string ActivationDev = "act-demo-dev-001";
     public const string ActivationTest = "act-demo-test-001";
     public const string ExportRecord = "export-demo-baseline-001";
+
+    /// <summary>
+    /// Prefix used by <see cref="ContosoRetailDemoIds.ForTenant"/> when the seed runs in a non-default tenant
+    /// (e.g. a brand-new self-service tenant in the same SQL catalog). The canonical single-catalog request id
+    /// is exposed as <see cref="RequestContoso"/>; multi-tenant request ids carry the tenant suffix.
+    /// </summary>
+    public const string MultiTenantRequestPrefix = "req-contoso-demo-";
+
+    /// <summary>
+    /// <see langword="true"/> when <paramref name="runId"/> matches one of the canonical Contoso Retail demo run
+    /// identifiers (baseline or hardened). Used by sponsor-facing reports to flag computed lines as "demo tenant
+    /// — replace before publishing" so the numbers cannot be quoted out of context.
+    /// </summary>
+    public static bool IsDemoRunId(string? runId)
+    {
+        if (string.IsNullOrWhiteSpace(runId)) return false;
+
+        return string.Equals(runId, RunBaseline, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(runId, RunHardened, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// <see langword="true"/> when <paramref name="requestId"/> matches the canonical demo request id or the
+    /// per-tenant multi-catalog prefix produced by <see cref="ContosoRetailDemoIds.ForTenant"/>. Complements
+    /// <see cref="IsDemoRunId"/> so a tenant-scoped demo seed (which derives a fresh GUID-based RunId) is still
+    /// recognized as a demo dataset by the sponsor reports.
+    /// </summary>
+    public static bool IsDemoRequestId(string? requestId)
+    {
+        if (string.IsNullOrWhiteSpace(requestId)) return false;
+        if (string.Equals(requestId, RequestContoso, StringComparison.OrdinalIgnoreCase)) return true;
+
+        return requestId.StartsWith(MultiTenantRequestPrefix, StringComparison.OrdinalIgnoreCase);
+    }
 }

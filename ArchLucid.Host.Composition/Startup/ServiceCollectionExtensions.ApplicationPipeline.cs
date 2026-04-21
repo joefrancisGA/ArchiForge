@@ -24,6 +24,7 @@ using ArchLucid.ContextIngestion.Summaries;
 using ArchLucid.Contracts.Abstractions.Evolution;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Host.Composition.ValueReports;
 using ArchLucid.Host.Core.Configuration;
@@ -33,6 +34,8 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Services;
 using ArchLucid.Persistence.Data.Repositories;
+
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using ContextConnector = ArchLucid.ContextIngestion.Interfaces.IContextConnector;
 using ContextIngestionService = ArchLucid.ContextIngestion.Interfaces.IContextIngestionService;
@@ -122,8 +125,14 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunCommitOrchestrator, ArchitectureRunCommitOrchestrator>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();
+        services.AddScoped<IFindingEvidenceChainService, FindingEvidenceChainService>();
+        services.AddScoped<IPilotRunDeltaComputer, PilotRunDeltaComputer>();
         services.AddScoped<FirstValueReportBuilder>();
+        services.AddScoped<FirstValueReportPdfBuilder>();
         services.AddScoped<PilotScorecardBuilder>();
+        services.AddScoped<SponsorOnePagerPdfBuilder>();
+        services.TryAddSingleton<IInstrumentationCounterSnapshotProvider, MeterListenerCounterSnapshotProvider>();
+        services.AddScoped<IWhyArchLucidSnapshotService, WhyArchLucidSnapshotService>();
         services.Configure<ValueReportComputationOptions>(
             configuration.GetSection(ValueReportComputationOptions.SectionPath));
         services.AddScoped<ValueReportBuilder>();

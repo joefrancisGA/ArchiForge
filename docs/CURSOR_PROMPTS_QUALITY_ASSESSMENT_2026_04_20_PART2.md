@@ -2,7 +2,7 @@
 
 # Cursor prompts — Quality Assessment 2026-04-20 (Improvements 4–6)
 
-These are paste-ready Agent prompts for **improvements 4, 5, and 6** identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3. Improvements 1 and 2 live in **[`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md)**.
+These are paste-ready Agent prompts for **improvements 4, 5, and 6** identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3. Improvements 1 and 2 live in **[`CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md`](CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20.md)**.
 
 Each prompt is **self-contained**, names the canonical files / seams a contributor must touch, lists existing CI gates that must stay green, and ends with explicit acceptance criteria. They follow the workspace conventions in `.cursor/rules/` (early-return, `is null`, primary constructors, single-line guards, LINQ pipelines, single class per file), the **Do-The-Work-Yourself** rule (no subagents), the **Markdown-Generosity** rule (each prompt produces a user-facing Markdown artifact alongside the code), the **Security-Default-Rule-Port-445-Alignment** rule (no public SMB), and the SQL convention "All SQL DDL should be in a single file for each database" (consolidated in **`ArchLucid.Persistence/Scripts/ArchLucid.sql`**).
 

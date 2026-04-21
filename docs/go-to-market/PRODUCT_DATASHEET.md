@@ -108,8 +108,9 @@ Describe the system you want to build. ArchLucid's multi-agent pipeline analyzes
 1. **Quickest evaluation (Docker only):** Run `.\scripts\demo-start.ps1` (Windows) or `./scripts/demo-start.sh` (macOS/Linux), or `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` — see [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) for a five-minute walkthrough.
 2. **Full-stack without demo overlay:** `docker compose --profile full-stack up -d --build` — same stack without automatic Contoso demo seed (see [CONTAINERIZATION.md](../CONTAINERIZATION.md)).
 3. **First run:** Open `http://localhost:3000/runs/new` — seven-step guided wizard
-4. **Pilot:** Follow the [Pilot Guide](../PILOT_GUIDE.md) for production-style deployment
-5. **Learn more:** [docs/go-to-market/POSITIONING.md](POSITIONING.md) | [docs/go-to-market/COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md)
+4. **See it live, not on a slide:** open `http://localhost:3000/why-archlucid` — the in-product proof page renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations against the seeded Contoso Retail demo tenant.
+5. **Pilot:** Follow the [Pilot Guide](../PILOT_GUIDE.md) for production-style deployment
+6. **Learn more:** [docs/go-to-market/POSITIONING.md](POSITIONING.md) | [docs/go-to-market/COMPETITIVE_LANDSCAPE.md](COMPETITIVE_LANDSCAPE.md)
 
 ---
 

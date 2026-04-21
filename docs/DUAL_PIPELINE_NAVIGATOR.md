@@ -74,7 +74,7 @@ These concepts appear in **both** worlds or form the **bridge** between operator
 
 ## Component breakdown
 
-- **Coordinator path**: `RunsController` (`v1/architecture`) → `ArchitectureRunService` / `RunDetailQueryService` → `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository`.
+- **Coordinator path**: `RunsController` (`v1/architecture`) → `ArchitectureRunService` / `RunDetailQueryService` → manifest **reads** via `IUnifiedGoldenManifestReader` (ADR 0021 Phase 1); coordinator **writes** and traces still use `ICoordinatorGoldenManifestRepository` / `ICoordinatorDecisionTraceRepository` where orchestration persists those artifacts.
 - **Authority path**: Ingestion connectors → `ContextSnapshot` → `GraphSnapshot` → `FindingsSnapshot` → `RuleBasedDecisionEngine` → `IDecisionTraceRepository` (rule audit) and `IGoldenManifestRepository`.
 - **Naming**: Prefer **`RunEventTrace`** vs **`RuleAuditTrace`** in code and code review; the abstract **`DecisionTrace`** base is only the shared JSON/polymorphic carrier. Payload DTOs remain `RunEventTracePayload` / `RuleAuditTracePayload`.
 

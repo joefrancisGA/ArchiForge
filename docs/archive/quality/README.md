@@ -26,7 +26,11 @@ When a file moves here:
 
 | Date archived | File | Reason |
 |---|---|---|
-| *(none yet — this folder was created 2026-04-20 as part of the cognitive-load improvement)* | — | — |
+| 2026-04-21 | `QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md` | Superseded snapshots + link hygiene (Improvement 10); canonical narrative stays in active `docs/` entry points. |
+| 2026-04-21 | `QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md` | Same. |
+| 2026-04-21 | `QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_64_60.md` | Same. |
+| 2026-04-21 | `QUALITY_ASSESSMENT_2026_04_20_INDEPENDENT_69_33.md` | Same. |
+| 2026-04-21 | `QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md` | Same (decision log retained; inbound links rewritten). |
 
 ## Companion CI guards
 

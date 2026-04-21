@@ -2,6 +2,7 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Preview;
 using ArchLucid.Contracts.Manifest;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Governance.Preview;
@@ -14,7 +15,7 @@ namespace ArchLucid.Application.Governance.Preview;
 public sealed class GovernancePreviewService(
     IGovernanceEnvironmentActivationRepository activationRepository,
     IRunDetailQueryService runDetailQueryService,
-    ICoordinatorGoldenManifestRepository manifestRepository)
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader)
     : IGovernancePreviewService
 {
     private const string DiffOnlyNote =
@@ -42,7 +43,7 @@ public sealed class GovernancePreviewService(
         GoldenManifest? candidateManifest = runDetail.Manifest is not null
                                             && string.Equals(runDetail.Run.CurrentManifestVersion, request.ManifestVersion, StringComparison.Ordinal)
                 ? runDetail.Manifest
-                : await manifestRepository.GetByVersionAsync(request.ManifestVersion, cancellationToken);
+                : await unifiedGoldenManifestReader.GetByVersionAsync(request.ManifestVersion, cancellationToken);
 
         if (candidateManifest is null)
             throw new InvalidOperationException(
@@ -60,7 +61,7 @@ public sealed class GovernancePreviewService(
 
         GoldenManifest? currentManifest = null;
         if (active is not null)
-            currentManifest = await manifestRepository.GetByVersionAsync(active.ManifestVersion, cancellationToken);
+            currentManifest = await unifiedGoldenManifestReader.GetByVersionAsync(active.ManifestVersion, cancellationToken);
 
         List<string> notes = [DiffOnlyNote];
 
@@ -125,10 +126,10 @@ public sealed class GovernancePreviewService(
             notes.Add($"No active governance activation exists for target environment '{target}'.");
 
         GoldenManifest? sourceManifest = sourceActive is not null
-            ? await manifestRepository.GetByVersionAsync(sourceActive.ManifestVersion, cancellationToken)
+            ? await unifiedGoldenManifestReader.GetByVersionAsync(sourceActive.ManifestVersion, cancellationToken)
             : null;
         GoldenManifest? targetManifest = targetActive is not null
-            ? await manifestRepository.GetByVersionAsync(targetActive.ManifestVersion, cancellationToken)
+            ? await unifiedGoldenManifestReader.GetByVersionAsync(targetActive.ManifestVersion, cancellationToken)
             : null;
 
         if (sourceActive is not null && sourceManifest is null)

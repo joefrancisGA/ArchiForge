@@ -26,6 +26,7 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("new");
             text.Should().Contain("pilot");
             text.Should().Contain("first-value-report");
+            text.Should().Contain("sponsor-one-pager");
             text.Should().Contain("completions");
         }
         finally

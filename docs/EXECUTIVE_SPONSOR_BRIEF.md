@@ -10,6 +10,8 @@
 
 **Related:** [README.md](../README.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [CORE_PILOT.md](CORE_PILOT.md) · [go-to-market/POSITIONING.md](go-to-market/POSITIONING.md) (short positioning; must stay consistent with this brief)
 
+**One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. Contract details: [API_CONTRACTS.md §Pilots](API_CONTRACTS.md#pilots-v1pilots).
+
 ---
 
 ## 1. What ArchLucid is

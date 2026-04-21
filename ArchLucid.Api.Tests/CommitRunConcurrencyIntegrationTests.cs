@@ -36,6 +36,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
     {
         await using ArchLucidApiFactory factory = new();
         HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
 
         HttpResponseMessage createResponse = await client.PostAsync(
             "/v1/architecture/request",

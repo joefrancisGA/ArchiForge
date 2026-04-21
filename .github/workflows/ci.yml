@@ -112,7 +112,7 @@ jobs:
         #   - From that day on, this step re-runs the same check WITHOUT continue-on-error,
         #     so any regression (downgrade or removal of the only Published row) fails CI.
         #   - While zero Published rows exist, this step is skipped and the warn step is the only signal.
-        # See docs/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md (Improvement 1, ref-customer guard).
+        # See docs/archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md (Improvement 1, ref-customer guard).
         if: steps.refcust-warn.outcome == 'success'
         run: python scripts/ci/check_reference_customer_status.py docs/go-to-market/reference-customers/README.md
 
@@ -270,7 +270,7 @@ jobs:
         # Non-blocking: surfaces duplicate ###_ prefixes (DbUp orders lexically; ties are silent).
         # Flip to blocking after the historical 035_/096_ duplicates are renumbered (gated on
         # confirming no production catalog has applied them — see
-        # docs/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md, question 5.1).
+        # docs/archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md, question 5.1).
         continue-on-error: true
         run: python3 scripts/ci/check_migration_numbering.py
 

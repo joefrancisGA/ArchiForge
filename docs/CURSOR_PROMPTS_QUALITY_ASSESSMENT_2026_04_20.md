@@ -2,7 +2,7 @@
 
 # Cursor prompts — Quality Assessment 2026-04-20 (Top two improvements)
 
-These are paste-ready Agent prompts for the **two highest-leverage** improvements identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3.
+These are paste-ready Agent prompts for the **two highest-leverage** improvements identified in **[`QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md`](archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)** § 3.
 
 Each prompt is **self-contained**, names the canonical files/seams a contributor should touch, lists the existing Vitest / xUnit guards that must stay green, and ends with explicit acceptance criteria. They follow the workspace conventions in `.cursor/rules/` (early-return, `is null`, primary constructors, single-line guards, LINQ pipelines), the **Do-The-Work-Yourself** rule (no subagents), and the **Markdown-Generosity** rule (each prompt produces one user-facing Markdown artifact in addition to the code).
 

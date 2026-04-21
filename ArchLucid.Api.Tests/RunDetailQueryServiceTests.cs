@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -37,7 +37,7 @@ public sealed class RunDetailQueryServiceTests
     private readonly Mock<IScopeContextProvider> _scopeProvider;
     private readonly Mock<IAgentTaskRepository> _taskRepo;
     private readonly Mock<IAgentResultRepository> _resultRepo;
-    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepo;
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader;
     private readonly Mock<ICoordinatorDecisionTraceRepository> _traceRepo;
     private readonly RunDetailQueryService _sut;
 
@@ -47,7 +47,7 @@ public sealed class RunDetailQueryServiceTests
         _scopeProvider = new Mock<IScopeContextProvider>();
         _taskRepo = new Mock<IAgentTaskRepository>();
         _resultRepo = new Mock<IAgentResultRepository>();
-        _manifestRepo = new Mock<ICoordinatorGoldenManifestRepository>();
+        _unifiedManifestReader = new Mock<IUnifiedGoldenManifestReader>();
         _traceRepo = new Mock<ICoordinatorDecisionTraceRepository>();
 
         _scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
@@ -57,7 +57,7 @@ public sealed class RunDetailQueryServiceTests
             _scopeProvider.Object,
             _taskRepo.Object,
             _resultRepo.Object,
-            _manifestRepo.Object,
+            _unifiedManifestReader.Object,
             _traceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
@@ -136,7 +136,8 @@ public sealed class RunDetailQueryServiceTests
             .ReturnsAsync([task]);
         _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([agentResult]);
-        _manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader
+            .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(manifest);
         _traceRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([trace]);
@@ -165,7 +166,8 @@ public sealed class RunDetailQueryServiceTests
         _resultRepo.Setup(r => r.GetByRunIdAsync(Run2N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
-        _manifestRepo.Setup(r => r.GetByVersionAsync($"v1-{Run2N}", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader
+            .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid2, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 
         ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(Run2N);
@@ -175,7 +177,7 @@ public sealed class RunDetailQueryServiceTests
         result.DecisionTraces.Should().BeEmpty();
         result.IsCommitted.Should().BeFalse();
 
-        _manifestRepo.Verify(r => r.GetByVersionAsync($"v1-{Run2N}", It.IsAny<CancellationToken>()), Times.Once);
+        _unifiedManifestReader.Verify(r => r.ReadByRunIdAsync(_scope, _runGuid2, It.IsAny<CancellationToken>()), Times.Once);
         _traceRepo.Verify(r => r.GetByRunIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -190,7 +192,8 @@ public sealed class RunDetailQueryServiceTests
             .ReturnsAsync([]);
         _resultRepo.Setup(r => r.GetByRunIdAsync(Run1N, It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
-        _manifestRepo.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>()))
+        _unifiedManifestReader
+            .Setup(r => r.ReadByRunIdAsync(_scope, _runGuid1, It.IsAny<CancellationToken>()))
             .ReturnsAsync((GoldenManifest?)null);
 
         ArchitectureRunDetail? result = await _sut.GetRunDetailAsync(Run1N);

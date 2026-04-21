@@ -56,6 +56,9 @@ namespace ArchLucid.Cli
 
                         return CliExitCode.UsageError;
 
+                    case "try":
+                        return await TryCommand.RunAsync(normalized.Skip(1).ToArray());
+
                     case "first-value-report":
                         if (normalized.Length > 1)
                         {
@@ -66,6 +69,19 @@ namespace ArchLucid.Cli
 
 
                         Console.WriteLine("Usage: archlucid first-value-report <runId> [--save]");
+
+                        return CliExitCode.UsageError;
+
+                    case "sponsor-one-pager":
+                        if (normalized.Length > 1)
+                        {
+                            bool savePdf = normalized.Skip(2).Contains("--save", StringComparer.Ordinal);
+
+                            return await SponsorOnePagerCommand.RunAsync(normalized[1], savePdf);
+                        }
+
+
+                        Console.WriteLine("Usage: archlucid sponsor-one-pager <runId> [--save]");
 
                         return CliExitCode.UsageError;
 
@@ -173,7 +189,7 @@ namespace ArchLucid.Cli
         private static void WriteNoCommandMessage()
         {
             const string Plain =
-                "Please provide a command. Available commands: new, dev up, pilot up, run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
+                "Please provide a command. Available commands: new, dev up, pilot up, try [--api-base-url <url>] [--ui-base-url <url>] [--no-open] [--readiness-deadline <secs>] [--commit-deadline <secs>], run [--quick], status <runId>, trace <runId>, submit <runId> <result.json>, commit <runId>, seed <runId>, artifacts <runId>, first-value-report <runId> [--save], sponsor-one-pager <runId> [--save], comparisons list [filters], comparisons replay <comparisonRecordId> [--format <f>] [--mode <m>] [--profile <p>] [--persist], health, doctor (or check), support-bundle [--output <dir>] [--zip], completions bash|zsh|powershell";
 
             if (CliExecutionContext.JsonOutput)
 

@@ -4,9 +4,9 @@
 
 > **Scope:** This file path is preserved so existing bookmarks and external links keep resolving. The active assessment moves on a regular cadence — always look here for the canonical pointer.
 
-**Canonical current weighted assessment:** [QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md](QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md).
+**Canonical current weighted assessment:** [QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md](archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_75_37.md).
 
-**Improvement-decision log (which prompts are unblocked, which need product input):** [QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md](QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md).
+**Improvement-decision log (which prompts are unblocked, which need product input):** [QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md](archive/quality/QUALITY_IMPROVEMENT_DECISIONS_2026_04_20.md).
 
 **Historical content** (April 2026 snapshot, not maintained against the current tree): [archive/QUALITY_ASSESSMENT.md](archive/QUALITY_ASSESSMENT.md). Older dated assessments live alongside the active set today; archival of stale weighted assessments is governed by [archive/quality/README.md](archive/quality/README.md).
 

@@ -2,12 +2,15 @@ using ArchLucid.TestSupport;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
-/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server database per instance, runs DbUp migrations, and wires <c>ConnectionStrings:ArchLucid</c> with the same <c>ArchLucid:StorageProvider</c> as local Development (Sql + Dapper repositories).
+/// <see cref="WebApplicationFactory{TEntryPoint}"/> for the real API: provisions a dedicated SQL Server catalog per instance,
+/// wires <c>ConnectionStrings:ArchLucid</c>, and defaults <c>ArchLucid:StorageProvider=InMemory</c> so authority runs stay fast
+/// while SQL-backed probes can still open <see cref="SqlConnectionString"/> against the same catalog when needed.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -26,7 +29,14 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
     public ArchLucidApiFactory()
     {
         string databaseName = "ArchLucidTest_" + Guid.NewGuid().ToString("N");
-        SqlConnectionString = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+        string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
+        SqlConnectionStringBuilder builder = new(raw)
+        {
+            MaxPoolSize = 200,
+            ConnectTimeout = 120,
+        };
+
+        SqlConnectionString = builder.ConnectionString;
         SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
     }
 
@@ -48,15 +58,15 @@ public class ArchLucidApiFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Development");
 
         builder.UseSetting("ConnectionStrings:ArchLucid", SqlConnectionString);
+        builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
 
         builder.ConfigureAppConfiguration((_, config) =>
         {
             // Last-in wins over appsettings / user secrets: keep integration tests off real OpenAI and
             // avoid circuit-breaker 503s; relax rate limits so parallel runs do not exhaust shared windows.
-            // Storage stays Sql (appsettings.json) so dbo.Tenants / governance tier filters and Dapper repositories
-            // match the ephemeral SQL catalog created for this factory.
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
+                ["ArchLucid:StorageProvider"] = "InMemory",
                 ["ConnectionStrings:ArchLucid"] = SqlConnectionString,
                 ["AgentExecution:Mode"] = "Simulator",
                 ["AzureOpenAI:Endpoint"] = "",

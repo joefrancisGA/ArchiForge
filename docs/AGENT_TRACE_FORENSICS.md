@@ -83,6 +83,10 @@ WHERE InlineFallbackFailed = 1;
 
 Correlate with blob-storage availability metrics in dashboards.
 
+## Run-scoped trace index (API)
+
+For investigations that start from a **finding** rather than a single trace row, **`GET /v1/architecture/run/{runId}/findings/{findingId}/evidence-chain`** lists **distinct** `AgentExecutionTrace.TraceId` values for the run together with snapshot and manifest pointers (`FindingEvidenceChainResponse`). It does **not** return prompt bodies — pair with the trace row / blob workflow in this document when content is required.
+
 ### Design rationale
 
 **Awaited** persistence (with timeout) ensures the run does not move on while operators still see **null** blob keys for content that was intended to be retained. The retry loop adds transient-fault tolerance without introducing a dependency on Polly in the recorder. The `BlobUploadFailed` flag and **`AgentTraceBlobPersistenceFailed`** audit give a queryable signal to re-upload or investigate without scanning logs alone.

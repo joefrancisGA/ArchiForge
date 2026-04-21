@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Data;
 
+using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 
 namespace ArchLucid.Persistence.Tenancy;
@@ -21,6 +22,9 @@ public sealed class InMemoryTenantRepository : ITenantRepository
     private readonly object _trialGate = new();
 
     private readonly ConcurrentDictionary<Guid, byte> _trialFirstManifestCommitted = new();
+
+    /// <summary>Seeds <see cref="ScopeIds.DefaultTenant"/> so DevelopmentBypass + commercial-tier filters resolve a Standard tenant without SQL.</summary>
+    public InMemoryTenantRepository() => TrySeedDefaultDevelopmentTenant();
 
     public Task<TenantRecord?> GetByIdAsync(Guid tenantId, CancellationToken ct)
     {
@@ -59,6 +63,41 @@ public sealed class InMemoryTenantRepository : ITenantRepository
         IReadOnlyList<TenantRecord> list = _byId.Values.OrderByDescending(static r => r.CreatedUtc).ToList();
 
         return Task.FromResult(list);
+    }
+
+    private void TrySeedDefaultDevelopmentTenant()
+    {
+        if (_byId.ContainsKey(ScopeIds.DefaultTenant))
+            return;
+
+        const string slug = "archlucid-dev-default-scope";
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+
+        TenantRecord record = new()
+        {
+            Id = ScopeIds.DefaultTenant,
+            Name = "Development default tenant",
+            Slug = slug,
+            Tier = TenantTier.Standard,
+            EntraTenantId = null,
+            CreatedUtc = now,
+            SuspendedUtc = null,
+            TrialStartUtc = null,
+            TrialExpiresUtc = null,
+            TrialRunsLimit = null,
+            TrialRunsUsed = 0,
+            TrialSeatsLimit = null,
+            TrialSeatsUsed = 1,
+            TrialStatus = null,
+            TrialSampleRunId = null,
+            TrialArchitecturePreseedEnqueuedUtc = null,
+            TrialWelcomeRunId = null,
+        };
+
+        if (!_byId.TryAdd(ScopeIds.DefaultTenant, record))
+            return;
+
+        _ = _slugToId.TryAdd(slug, ScopeIds.DefaultTenant);
     }
 
     public Task InsertTenantAsync(

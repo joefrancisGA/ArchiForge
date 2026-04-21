@@ -6,7 +6,7 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Requests;
-using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -27,7 +27,7 @@ public sealed class ArchitectureApplicationServiceTests
 {
     private readonly Mock<IRunDetailQueryService> _runDetailQueryService;
     private readonly Mock<IAgentResultRepository> _resultRepository;
-    private readonly Mock<ICoordinatorGoldenManifestRepository> _manifestRepository;
+    private readonly Mock<IUnifiedGoldenManifestReader> _unifiedGoldenManifestReader;
     private readonly Mock<IArchitectureRequestRepository> _requestRepository;
     private readonly Mock<IAgentEvidencePackageRepository> _agentEvidencePackageRepository;
     private readonly Mock<IEvidenceBuilder> _evidenceBuilder;
@@ -37,7 +37,7 @@ public sealed class ArchitectureApplicationServiceTests
     {
         _runDetailQueryService = new Mock<IRunDetailQueryService>();
         _resultRepository = new Mock<IAgentResultRepository>();
-        _manifestRepository = new Mock<ICoordinatorGoldenManifestRepository>();
+        _unifiedGoldenManifestReader = new Mock<IUnifiedGoldenManifestReader>();
         _requestRepository = new Mock<IArchitectureRequestRepository>();
         _agentEvidencePackageRepository = new Mock<IAgentEvidencePackageRepository>();
         _evidenceBuilder = new Mock<IEvidenceBuilder>();
@@ -67,7 +67,7 @@ public sealed class ArchitectureApplicationServiceTests
         _sut = new ArchitectureApplicationService(
             _runDetailQueryService.Object,
             _resultRepository.Object,
-            _manifestRepository.Object,
+            _unifiedGoldenManifestReader.Object,
             _requestRepository.Object,
             _agentEvidencePackageRepository.Object,
             _evidenceBuilder.Object,
@@ -449,7 +449,7 @@ public sealed class ArchitectureApplicationServiceTests
             SystemName = "TestSystem",
             Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
-        _manifestRepository.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
+        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", It.IsAny<CancellationToken>())).ReturnsAsync(manifest);
 
         GoldenManifest? result = await _sut.GetManifestAsync("v1");
 
@@ -460,7 +460,7 @@ public sealed class ArchitectureApplicationServiceTests
     [Fact]
     public async Task GetManifestAsync_WhenVersionNotFound_ReturnsNull()
     {
-        _manifestRepository.Setup(r => r.GetByVersionAsync("nonexistent", It.IsAny<CancellationToken>())).ReturnsAsync((GoldenManifest?)null);
+        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("nonexistent", It.IsAny<CancellationToken>())).ReturnsAsync((GoldenManifest?)null);
 
         GoldenManifest? result = await _sut.GetManifestAsync("nonexistent");
 
@@ -475,11 +475,11 @@ public sealed class ArchitectureApplicationServiceTests
         {
             Metadata = new ManifestMetadata { ManifestVersion = "v1" }
         };
-        _manifestRepository.Setup(r => r.GetByVersionAsync("v1", cts.Token)).ReturnsAsync(manifest);
+        _unifiedGoldenManifestReader.Setup(r => r.GetByVersionAsync("v1", cts.Token)).ReturnsAsync(manifest);
 
         await _sut.GetManifestAsync("v1", cts.Token);
 
-        _manifestRepository.Verify(r => r.GetByVersionAsync("v1", cts.Token), Times.Once);
+        _unifiedGoldenManifestReader.Verify(r => r.GetByVersionAsync("v1", cts.Token), Times.Once);
     }
 
     #endregion

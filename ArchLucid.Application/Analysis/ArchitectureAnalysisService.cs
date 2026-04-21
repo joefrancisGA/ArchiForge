@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
@@ -16,7 +17,7 @@ namespace ArchLucid.Application.Analysis;
 /// </summary>
 public sealed class ArchitectureAnalysisService(
     IRunDetailQueryService runDetailQueryService,
-    ICoordinatorGoldenManifestRepository manifestRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     IAgentEvidencePackageRepository evidenceRepository,
     IAgentExecutionTraceRepository traceRepository,
     IAgentResultRepository resultRepository,
@@ -96,7 +97,7 @@ public sealed class ArchitectureAnalysisService(
 
             if (report.Manifest is null)
             {
-                report.Manifest = await manifestRepository.GetByVersionAsync(manifestVersionKey, cancellationToken);
+                report.Manifest = await unifiedGoldenManifestReader.GetByVersionAsync(manifestVersionKey, cancellationToken);
 
                 if (report.Manifest is not null &&
                     !string.Equals(report.Manifest.RunId, run.RunId, StringComparison.Ordinal))
@@ -160,7 +161,7 @@ public sealed class ArchitectureAnalysisService(
 
             else
             {
-                GoldenManifest? compareManifest = await manifestRepository.GetByVersionAsync(
+                GoldenManifest? compareManifest = await unifiedGoldenManifestReader.GetByVersionAsync(
                     request.CompareManifestVersion,
                     cancellationToken);
 

@@ -2,8 +2,8 @@
 """
 Plan which Stryker.NET configs to run on a pull request by diffing base...head.
 
-Maps changed paths to the six scheduled targets (Persistence, Application, AgentRuntime,
-Coordinator, Decisioning, PersistenceCoordination). Emits GitHub Actions outputs:
+Maps changed paths to the seven scheduled targets (Persistence, Application, AgentRuntime,
+Coordinator, Decisioning, PersistenceCoordination, Api). Emits GitHub Actions outputs:
   run=true|false
   matrix_include=JSON array of {"label","config"} for strategy.matrix.include
 
@@ -26,6 +26,7 @@ FULL_MATRIX: list[tuple[str, str]] = [
     ("Coordinator", "stryker-config.coordinator.json"),
     ("Decisioning", "stryker-config.decisioning.json"),
     ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
+    ("Api", "stryker-config.api.json"),
 ]
 
 # Paths that should run the full matrix (config / CI / tool pins).
@@ -126,6 +127,12 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
 
     if p.startswith("ArchLucid.Decisioning/"):
         return [("Decisioning", "stryker-config.decisioning.json")]
+
+    if p.startswith("ArchLucid.Api.Tests/"):
+        return [("Api", "stryker-config.api.json")]
+
+    if p.startswith("ArchLucid.Api/"):
+        return [("Api", "stryker-config.api.json")]
 
     return []
 
