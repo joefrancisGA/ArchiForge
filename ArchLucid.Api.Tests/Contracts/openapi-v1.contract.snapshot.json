@@ -7566,6 +7566,85 @@
         },
         "type": "object"
       },
+      "PilotRunDeltaSeverityCountResponse": {
+        "properties": {
+          "count": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "severity": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PilotRunDeltasResponse": {
+        "properties": {
+          "auditRowCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "auditRowCountTruncated": {
+            "type": "boolean"
+          },
+          "findingsBySeverity": {
+            "items": {
+              "$ref": "#/components/schemas/PilotRunDeltaSeverityCountResponse"
+            },
+            "type": "array"
+          },
+          "isDemoTenant": {
+            "type": "boolean"
+          },
+          "llmCallCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "manifestCommittedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "runCreatedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "timeToCommittedManifestTotalSeconds": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?(?:[eE][\u002B-]?\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "topFindingEvidenceChain": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/FindingEvidenceChainResponse"
+              }
+            ]
+          },
+          "topFindingId": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "topFindingSeverity": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "PilotScorecardPostRequest": {
         "properties": {
           "periodEnd": {
@@ -11926,6 +12005,54 @@
         },
         "tags": [
           "TenantsAdmin"
+        ]
+      }
+    },
+    "/v1/admin/tenants/{tenantId}/reference-evidence": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenantId",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeDemo",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileResult"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "ReferenceEvidenceAdmin"
         ]
       }
     },
@@ -28547,6 +28674,65 @@
         ]
       }
     },
+    "/v1/pilots/runs/{runId}/pilot-run-deltas": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "runId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PilotRunDeltasResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "Pilots"
+        ]
+      }
+    },
     "/v1/pilots/runs/{runId}/sponsor-one-pager": {
       "post": {
         "parameters": [
@@ -31037,6 +31223,9 @@
     },
     {
       "name": "RecommendationLearning"
+    },
+    {
+      "name": "ReferenceEvidenceAdmin"
     },
     {
       "name": "Registration"

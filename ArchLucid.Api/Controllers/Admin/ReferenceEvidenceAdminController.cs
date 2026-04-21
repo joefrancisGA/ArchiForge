@@ -1,4 +1,5 @@
 using ArchLucid.Application.Pilots;
+using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;
@@ -26,7 +27,7 @@ public sealed class ReferenceEvidenceAdminController(IReferenceEvidenceAdminExpo
     [HttpGet]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetReferenceEvidenceZipAsync(
         Guid tenantId,
         [FromQuery] bool includeDemo = false,
@@ -36,7 +37,11 @@ public sealed class ReferenceEvidenceAdminController(IReferenceEvidenceAdminExpo
         byte[]? zip = await _exportService.BuildZipAsync(tenantId, includeDemo, baseForLinks, cancellationToken);
 
         if (zip is null || zip.Length == 0)
-            return NotFound();
+        {
+            return this.NotFoundProblem(
+                "No reference evidence ZIP could be built for this tenant (no qualifying committed run, or export produced no content).",
+                ProblemTypes.ResourceNotFound);
+        }
 
         return File(zip, "application/zip", $"reference-evidence-{tenantId:D}.zip");
     }
