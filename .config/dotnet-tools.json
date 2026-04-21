@@ -4,11 +4,15 @@
   "tools": {
     "dotnet-stryker": {
       "version": "4.5.1",
-      "commands": ["dotnet-stryker"]
+      "commands": [
+        "dotnet-stryker"
+      ]
     },
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.4.3",
-      "commands": ["reportgenerator"]
+      "version": "5.5.6",
+      "commands": [
+        "reportgenerator"
+      ]
     }
   }
 }
