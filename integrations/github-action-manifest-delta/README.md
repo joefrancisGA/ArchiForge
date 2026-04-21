@@ -15,3 +15,7 @@ Composite action that calls **`GET /v1/compare`** with two committed run ids and
 ## Usage
 
 See **`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`** in this repository and **`.github/workflows/example-manifest-delta.yml`** at the repo root.
+
+## Related
+
+For an inline **sticky pull-request comment** (instead of a job-summary entry), use the sibling action **[`integrations/github-action-manifest-delta-pr-comment/`](../github-action-manifest-delta-pr-comment/)**, which reuses this script's `fetch-manifest-delta.mjs` for the Markdown body.

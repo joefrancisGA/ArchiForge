@@ -38,5 +38,6 @@ If your hosted operator UI supports a compare route, pass **`operator-compare-ur
 
 ## Related
 
+- [`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md`](GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md) — sibling action that posts the same Markdown delta as a **sticky pull-request comment** instead of a job-summary entry.
 - [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) — versioning and correlation.
 - [`docs/operator-shell.md`](../operator-shell.md) — operator compare workflow.

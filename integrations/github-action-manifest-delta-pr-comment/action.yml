@@ -1,0 +1,92 @@
+name: 'ArchLucid manifest delta — PR comment'
+description: >
+  Fetch the structured golden-manifest delta (GET /v1/compare) and post or
+  idempotently update a single sticky Markdown comment on the pull request.
+  Re-runs of the workflow rewrite the same comment instead of spamming.
+
+inputs:
+  api-base-url:
+    description: 'ArchLucid API base URL (no trailing slash), e.g. https://api.example.com'
+    required: true
+  api-token:
+    description: 'API key with ReadAuthority (X-Api-Key); reuse the ARCHLUCID_READONLY_API_KEY secret.'
+    required: true
+  base-run-id:
+    description: 'Baseline committed run id (GUID).'
+    required: true
+  target-run-id:
+    description: 'Candidate committed run id (GUID).'
+    required: true
+  pr-number:
+    description: >
+      Pull-request number to comment on. For pull_request workflows pass
+      `${{ github.event.pull_request.number }}`. Required because workflow_dispatch
+      runs do not have a PR context.
+    required: true
+  repository:
+    description: 'owner/repo slug; defaults to the repository the workflow is running in.'
+    required: false
+    default: '${{ github.repository }}'
+  github-token:
+    description: >
+      Token used by `gh api` to read existing comments and create / update the
+      sticky comment. The default `secrets.GITHUB_TOKEN` works as long as the
+      job has `permissions: pull-requests: write`.
+    required: true
+  marker:
+    description: >
+      HTML-comment marker used to identify the sticky comment. Override only if
+      the same PR receives multiple ArchLucid delta comments (e.g. one per
+      tenant); each invocation needs its own unique marker.
+    required: false
+    default: '<!-- archlucid:manifest-delta -->'
+  operator-compare-url-template:
+    description: >
+      Optional URL template for an operator-shell compare deep link. Use the
+      literal placeholders `{baseRunId}` and `{targetRunId}`.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    # Reuses the existing fetch script (single source of truth for the Markdown
+    # shape) and writes the rendered delta to a temp file. We do NOT pipe to
+    # GITHUB_STEP_SUMMARY here because the PR comment IS the surface; the
+    # sibling action `github-action-manifest-delta` is the right choice when
+    # the job-summary is what you want.
+    - name: Fetch manifest delta (Markdown)
+      shell: bash
+      env:
+        ARCHLUCID_API_BASE: ${{ inputs.api-base-url }}
+        ARCHLUCID_API_TOKEN: ${{ inputs.api-token }}
+        ARCHLUCID_BASE_RUN_ID: ${{ inputs.base-run-id }}
+        ARCHLUCID_TARGET_RUN_ID: ${{ inputs.target-run-id }}
+        ARCHLUCID_COMPARE_URL_TEMPLATE: ${{ inputs.operator-compare-url-template }}
+      run: |
+        set -euo pipefail
+        DELTA_PATH="${RUNNER_TEMP}/archlucid-manifest-delta.md"
+        node "${GITHUB_ACTION_PATH}/../github-action-manifest-delta/fetch-manifest-delta.mjs" > "${DELTA_PATH}"
+        echo "ARCHLUCID_DELTA_BODY_PATH=${DELTA_PATH}" >> "${GITHUB_ENV}"
+
+    - name: Upsert sticky PR comment
+      shell: bash
+      env:
+        # gh reads its credentials from GH_TOKEN; we deliberately mirror it to
+        # GITHUB_TOKEN so consumers can supply either name without surprises.
+        GH_TOKEN: ${{ inputs.github-token }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        GITHUB_PR_NUMBER: ${{ inputs.pr-number }}
+        ARCHLUCID_STICKY_MARKER: ${{ inputs.marker }}
+      run: |
+        set -euo pipefail
+        # Split owner/repo locally so the Node script never has to parse it.
+        export GITHUB_REPO_OWNER="${INPUT_REPOSITORY%%/*}"
+        export GITHUB_REPO_NAME="${INPUT_REPOSITORY#*/}"
+        node "${GITHUB_ACTION_PATH}/post-pr-comment.mjs"

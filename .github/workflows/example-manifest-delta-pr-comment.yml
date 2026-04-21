@@ -1,0 +1,55 @@
+# Example: ArchLucid structured manifest delta as a sticky pull-request comment.
+# Copy into your own workflow and wire secrets; do not put API keys in repo YAML.
+#
+# Two trigger surfaces are supported:
+#   * `pull_request` — the comment is upserted on every push to the PR branch.
+#   * `workflow_dispatch` — manual trigger that takes the PR number as an input,
+#     useful for back-filling a stale comment without pushing a new commit.
+name: example-manifest-delta-pr-comment
+
+on:
+  pull_request:
+    # Re-running on `synchronize` is what makes the comment "live" — every PR
+    # push refreshes the delta against the same base/target ids.
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull-request number to comment on'
+        required: true
+        type: string
+      api_base_url:
+        description: 'ArchLucid API base URL (no trailing slash)'
+        required: true
+        type: string
+      base_run_id:
+        description: 'Baseline committed run id (GUID)'
+        required: true
+        type: string
+      target_run_id:
+        description: 'Candidate committed run id (GUID)'
+        required: true
+        type: string
+
+# `pull-requests: write` is required so the default GITHUB_TOKEN can create /
+# update the sticky comment via `gh api`.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  manifest-delta-pr-comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: ArchLucid manifest delta (sticky PR comment)
+        uses: ./integrations/github-action-manifest-delta-pr-comment
+        with:
+          api-base-url: ${{ inputs.api_base_url || vars.ARCHLUCID_API_BASE }}
+          api-token: ${{ secrets.ARCHLUCID_READONLY_API_KEY }}
+          base-run-id: ${{ inputs.base_run_id || vars.ARCHLUCID_BASE_RUN_ID }}
+          target-run-id: ${{ inputs.target_run_id || vars.ARCHLUCID_TARGET_RUN_ID }}
+          pr-number: ${{ inputs.pr_number || github.event.pull_request.number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          operator-compare-url-template: 'https://operator.example.com/compare?left={baseRunId}&right={targetRunId}'
