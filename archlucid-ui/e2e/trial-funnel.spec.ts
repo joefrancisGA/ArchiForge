@@ -7,7 +7,7 @@ import { backendApiPath } from "./helpers/route-match";
  *
  * Covers the deterministic happy path described in `docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`:
  *
- *  1. Marketing `/signup` form (with the optional baseline review-cycle disclosure expanded).
+ *  1. Marketing `/signup` form (custom baseline path: tenant-supplied hours).
  *  2. `POST /api/proxy/v1/register` → 201 with stub tenant identifiers.
  *  3. Redirect to `/signup/verify?email=...` (verification UI rendered).
  *  4. Operator dashboard `/` shows `BeforeAfterDeltaPanel` with the captured baseline (16 h)
@@ -122,10 +122,7 @@ test.describe("trial funnel — mocked end-to-end", () => {
     await page.getByLabel(/Full name/i).fill("Ops User");
     await page.getByLabel(/Organization name/i).fill("Contoso Trial Org");
 
-    const disclosure = page.getByTestId("signup-baseline-disclosure");
-    await expect(disclosure).toHaveAttribute("aria-expanded", "false");
-    await disclosure.click();
-    await expect(disclosure).toHaveAttribute("aria-expanded", "true");
+    await page.getByTestId("signup-baseline-choice-custom").click();
 
     await page.getByTestId("signup-baseline-hours").fill("16");
     await page.getByTestId("signup-baseline-source").fill("team estimate");

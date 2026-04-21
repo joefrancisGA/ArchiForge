@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
     <ProjectReference Include="..\ArchLucid.Application\ArchLucid.Application.csproj" />
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
     <ProjectReference Include="..\ArchLucid.ArtifactSynthesis\ArchLucid.ArtifactSynthesis.csproj" />
     <ProjectReference Include="..\ArchLucid.AgentSimulator\ArchLucid.AgentSimulator.csproj" />
     <ProjectReference Include="..\ArchLucid.Contracts\ArchLucid.Contracts.csproj" />

@@ -112,7 +112,11 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 27. **Aggregate ROI bulletin publication cadence** — Improvement 5's "publish a sanitized aggregate ROI bulletin quarterly" needs an owner approval before the first bulletin can ship: which percentile bands (p50 / p90), what minimum tenant N before publication, who signs off on each issue.
 
+    - **Needed from owner:** (a) confirm **minimum N = 5** is acceptable vs a higher bar for the first external issue; (b) name the **signatory role** (e.g. CRO vs GC vs joint) and the **repository of record** for approvals (ticket link vs Docusign); (c) whether **p90** stays in v1 bulletins or is deferred to v1.1; (d) the **first publication window** (calendar quarter) once engineering drafts exist from `archlucid roi-bulletin`.
+
 28. **Customer-supplied baseline soft-required at signup** — flip `baselineReviewCycleHours` from optional to soft-required (skippable but defaulted to model). Owner approves the UX change and the privacy-notice update.
+
+    - **Needed from owner:** (a) sign-off on the shipped copy in [`docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md`](go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md) (or delegate edits to legal/comms); (b) confirm the **GitHub main link** from the signup form to that note is the correct public surface vs hosting the same text on `archlucid.com`; (c) whether marketing wants **any** additional in-form disclaimer beyond the inline note + tooltip.
 
 ---
 

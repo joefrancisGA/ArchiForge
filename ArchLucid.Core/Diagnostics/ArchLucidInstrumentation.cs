@@ -338,6 +338,14 @@ public static class ArchLucidInstrumentation
             "archlucid_trial_signup_failures_total",
             description: "Self-service trial funnel: failed signup or bootstrap attempts (labels: stage, reason).");
 
+    /// <summary>
+    /// Successful <c>POST /v1/register</c> where the prospect did not supply <c>baselineReviewCycleHours</c> (soft-default / model path).
+    /// </summary>
+    public static readonly Counter<long> TrialSignupBaselineSkippedTotal =
+        AppMeter.CreateCounter<long>(
+            "archlucid_trial_signup_baseline_skipped_total",
+            description: "Self-service trial signup completed without tenant-supplied baseline review-cycle hours.");
+
     /// <summary>Seconds from trial anchor to first golden manifest commit (self-service trials).</summary>
     public static readonly Histogram<double> TrialFirstRunSeconds =
         AppMeter.CreateHistogram<double>(
@@ -633,6 +641,9 @@ public static class ArchLucidInstrumentation
 
         TrialSignupFailuresTotal.Add(1, tags);
     }
+
+    /// <summary>Increments <see cref="TrialSignupBaselineSkippedTotal"/> (model-default baseline path at signup).</summary>
+    public static void RecordTrialSignupBaselineSkipped() => TrialSignupBaselineSkippedTotal.Add(1);
 
     /// <summary>Records <see cref="TrialFirstRunSeconds"/> when positive and finite.</summary>
     public static void RecordTrialFirstRunLatencySeconds(double seconds)

@@ -38,6 +38,10 @@ flowchart LR
 | Sample run | Engineering | Auto-execute a sample run using the agent simulator so results appear without LLM cost |
 | Guided tour | Product | In-app tooltips or checklist highlighting: findings, manifest, governance, comparison |
 
+### 2.1 Baseline review-cycle (soft-required UX)
+
+The signup form defaults to **“Use model default (modeled estimate)”** so prospects are nudged toward a consistent “before” anchor without blocking signup. Prospects may switch to **custom hours**; how that field is used in deltas and **what is never published per-tenant** is documented in [`TRIAL_BASELINE_PRIVACY_NOTE.md`](TRIAL_BASELINE_PRIVACY_NOTE.md). When prospects stay on the model default path, the API increments `archlucid_trial_signup_baseline_skipped_total` (see [`docs/runbooks/TRIAL_FUNNEL.md`](../runbooks/TRIAL_FUNNEL.md)).
+
 ---
 
 ## 3. Trial parameters

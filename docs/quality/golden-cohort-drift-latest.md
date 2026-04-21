@@ -1,3 +1,5 @@
+> **Scope:** Latest golden-cohort drift summary for engineers and CI owners — intent is a single landing place for the most recent nightly cohort run vs baseline; not a full manifest diff or substitute for workflow run logs.
+
 # Golden cohort drift report
 
 This file is the **latest** drift summary for the fixed golden cohort (`tests/golden-cohort/cohort.json`).

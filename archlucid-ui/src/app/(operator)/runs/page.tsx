@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { RunsListClient } from "@/app/(operator)/runs/RunsListClient";
+import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPanel";
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
@@ -59,6 +60,12 @@ export default async function RunsPage({
     }
   }
 
+  const firstCommittedRunId: string | null =
+    runs.find(
+      (r) =>
+        (typeof r.goldenManifestId === "string" && r.goldenManifestId.length > 0) || r.hasGoldenManifest === true,
+    )?.runId ?? null;
+
   return (
     <main aria-labelledby="runs-page-heading">
       <h2 id="runs-page-heading">
@@ -90,6 +97,10 @@ export default async function RunsPage({
           Compare two runs
         </Link>
       </p>
+
+      {loadFailure === null && malformedMessage === null && firstCommittedRunId !== null ? (
+        <RunsIndexBeforeAfterPanel committedRunId={firstCommittedRunId} />
+      ) : null}
 
       {loadFailure && (
         <>

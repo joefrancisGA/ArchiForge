@@ -53,6 +53,7 @@ The API must be running for `run`, `status`, `trace`, `submit`, `commit`, `seed`
 | `pilot up` | Start the **full-stack + demo** Docker Compose profile (`docker-compose.yml` + `docker-compose.demo.yml`): API on **5000**, operator UI on **3000**, SQL, Azurite, Redis; waits for **`/health/ready`**. Same effective stack as `scripts/demo-start.ps1` / `demo-start.sh` — simulator agents, demo seed on API startup. Requires Docker only. |
 | `try [--no-open] [--api-base-url <url>] [--ui-base-url <url>] [--readiness-deadline <secs>] [--commit-deadline <secs>]` | One-shot first-value loop. Composes **`pilot up`** → **`POST /v1/demo/seed`** → submits a sample architecture request → polls **`GET /v1/architecture/run/{runId}`** until `ReadyForCommit` (falls back to seeding fake results once the deadline elapses) → **`commit`** → **`GET /v1/pilots/runs/{runId}/first-value-report`** (Markdown saved to cwd) → opens the saved Markdown and **`{uiBaseUrl}/runs/{runId}`** in the OS default handlers. **`--no-open`** disables the OS opens (use it inside containers / SSH / CI). See **[archlucid try](#archlucid-try)** below. |
 | `trial smoke --org <name> --email <email> [--display-name <name>] [--baseline-hours <n>] [--baseline-source <text>] [--api-base-url <url>] [--skip-pilot-run-deltas]` | Pure-HTTP smoke loop for the **public trial signup funnel** against any local or staging API. Calls **`POST /v1/register`** → **`GET /v1/tenant/trial-status`** → **`GET /v1/pilots/runs/{trialWelcomeRunId}/pilot-run-deltas`** and prints **PASS / FAIL** per step with an audit-event hint on failure. **No Docker, no SQL on your laptop.** Honours the same global **`--json`** flag for machine-readable output. See **[archlucid trial smoke](#archlucid-trial-smoke)** and the funnel runbook **[`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md)**. |
+| `roi-bulletin --quarter <Q-YYYY> [--min-tenants <n>] [--out <file.md>]` | **AdminAuthority** draft of the **quarterly aggregate ROI bulletin** (mean / p50 / p90 of tenant-supplied baseline hours only). Calls **`GET /v1/admin/roi-bulletin-preview`**; exits **`UsageError`** when the tenant count is below **`--min-tenants`** (default **5**). Requires **`ARCHLUCID_API_KEY`** with admin scope. See **[archlucid roi-bulletin](#archlucid-roi-bulletin)** and [`docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md). |
 | `run` | Submit an architecture request. Reads `archlucid.json` and `inputs/brief.md` from current directory. |
 | `run --quick` | Same as `run`, then seeds fake results and commits in one step (development only). |
 | `status <runId>` | Show run status, tasks, and submitted results. |
@@ -174,6 +175,32 @@ dotnet run --project ArchLucid.Cli -- --json trial smoke --org Acme --email ops@
 ```
 
 The companion **end-to-end runbook** for the funnel — the full happy path, audit chain, owner-only blockers, and Playwright mock spec — lives at [`docs/runbooks/TRIAL_FUNNEL_END_TO_END.md`](runbooks/TRIAL_FUNNEL_END_TO_END.md).
+
+---
+
+## archlucid roi-bulletin
+
+`archlucid roi-bulletin` downloads an **internal Markdown draft** of the quarterly **aggregate** bulletin described in [`docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md`](go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md). It never emits per-tenant rows — only **N**, **mean**, **median (p50)**, and **p90** for tenants that supplied `BaselineReviewCycleHours` during the calendar quarter window.
+
+### Prerequisites
+
+- **`ARCHLUCID_API_KEY`** set to a key with **AdminAuthority** (same pattern as `archlucid reference-evidence --tenant`).
+- API reachable at `ARCHLUCID_API_URL` / `archlucid.json` `apiUrl`.
+
+### Exit codes
+
+- **0** — Preview succeeded; Markdown printed to stdout or written to **`--out`**.
+- **1** — Usage error (missing `--quarter`, invalid `--min-tenants`, unknown flag) **or** API returned **400** because the sample size is below **`--min-tenants`** (by design — do not lower the gate in scripts without owner approval).
+- **3** — API unreachable (`health` probe failed upstream of the GET).
+- **4** — Authenticated call failed for other reasons (401/403/5xx).
+
+### Example
+
+```bash
+export ARCHLUCID_API_URL=https://staging.archlucid.com
+export ARCHLUCID_API_KEY='<admin key>'
+dotnet run --project ArchLucid.Cli -- roi-bulletin --quarter Q1-2026 --min-tenants 5 --out ./roi-bulletin-Q1-2026-draft.md
+```
 
 ---
 

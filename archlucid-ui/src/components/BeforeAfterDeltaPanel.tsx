@@ -172,7 +172,9 @@ export function BeforeAfterDeltaPanel({ runId }: BeforeAfterDeltaPanelProps) {
         Review-cycle delta (before vs measured)
       </h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-        Same shape as the downloadable value-report PDF — see <code>ValueReportReviewCycleSectionFormatter</code>.
+        Baseline from <code>GET /v1/tenant/trial-status</code>; measured hours from the pilot-run-deltas JSON for this
+        run (API: <code>PilotRunDeltaComputer</code> and <code>PilotRunDeltasResponseMapper</code>). Same narrative shape
+        as <code>ValueReportReviewCycleSectionFormatter</code> in the value-report PDF.
       </p>
 
       <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">

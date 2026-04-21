@@ -53,7 +53,7 @@ describe("SignupForm", () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(url).toBe("/api/proxy/v1/register");
     expect(init.method).toBe("POST");
-    const body = JSON.parse(String(init.body)) as Record<string, string>;
+    const body = JSON.parse(String(init.body)) as Record<string, unknown>;
     expect(body.adminEmail).toBe("ops@example.com");
     expect(body.organizationName).toBe("Contoso Trial Org");
 
@@ -67,7 +67,7 @@ describe("SignupForm", () => {
     vi.unstubAllGlobals();
   });
 
-  it("forwards optional baseline review-cycle fields when the disclosure is opened", async () => {
+  it("forwards baseline hours when custom path is selected", async () => {
     const fetchMock = vi.fn(async () => {
       return new Response(
         JSON.stringify({
@@ -88,10 +88,7 @@ describe("SignupForm", () => {
     fireEvent.change(screen.getByLabelText(/Full name/i), { target: { value: "Ops User" } });
     fireEvent.change(screen.getByLabelText(/Organization name/i), { target: { value: "Contoso Trial Org" } });
 
-    const disclosure = screen.getByTestId("signup-baseline-disclosure");
-    expect(disclosure).toHaveAttribute("aria-expanded", "false");
-    fireEvent.click(disclosure);
-    expect(disclosure).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(screen.getByTestId("signup-baseline-choice-custom"));
 
     fireEvent.change(screen.getByTestId("signup-baseline-hours"), { target: { value: "16" } });
     fireEvent.change(screen.getByTestId("signup-baseline-source"), { target: { value: "team estimate" } });

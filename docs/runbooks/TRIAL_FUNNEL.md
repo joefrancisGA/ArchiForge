@@ -41,7 +41,8 @@ flowchart LR
 5. **Run budget consumption** — histogram `archlucid_trial_runs_used_ratio` at first qualifying commit (`TrialRunsUsed` / limit).
 6. **Conversion** — `archlucid_trial_conversion_total` by `from_state`, `to_tier`.
 7. **Expirations** — `archlucid_trial_expirations_total` by `reason` (worker lifecycle automation).
-8. **Billing** — `archlucid_billing_checkouts_total` by `provider`, `tier`, `outcome`.
+8. **Baseline skipped at signup** — `rate(archlucid_trial_signup_baseline_skipped_total[5m])` — increments when `POST /v1/register` completes **without** tenant-supplied `baselineReviewCycleHours` (model-default path); spikes after a UX change may be expected; sustained drops may indicate more prospects overriding with custom hours.
+9. **Billing** — `archlucid_billing_checkouts_total` by `provider`, `tier`, `outcome`.
 
 ---
 
@@ -68,7 +69,7 @@ flowchart LR
 
 | Layer | What it proves |
 |-------|------------------|
-| **`ArchLucid.Api.Tests` / `PrometheusTrialFunnelMetricsSmokeTests`** | After recording, every `archlucid_trial_*` / `archlucid_billing_checkouts_total` name appears on `GET /metrics`. |
+| **`ArchLucid.Api.Tests` / `PrometheusTrialFunnelMetricsSmokeTests`** | After recording, every `archlucid_trial_*` / `archlucid_trial_signup_baseline_skipped_total` / `archlucid_billing_checkouts_total` name appears on `GET /metrics`. |
 | **`archlucid-ui/e2e/live-api-trial-signup.spec.ts`** | Live API path drives signup, duplicate failure, coordinator commit, Noop checkout, and convert; then asserts Prometheus text includes the **API-emitted** funnel metrics (see spec for the **expiration** exception). |
 | **`ArchLucid.Core.Tests` / `TrialFunnelInstrumentationTests`** | MeterListener coverage for each instrument. |
 

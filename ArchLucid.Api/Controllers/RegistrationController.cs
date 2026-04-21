@@ -159,6 +159,8 @@ public sealed class RegistrationController(
                     },
                     cancellationToken);
             }
+            else
+                ArchLucidInstrumentation.RecordTrialSignupBaselineSkipped();
 
             return StatusCode(StatusCodes.Status201Created, result);
         }

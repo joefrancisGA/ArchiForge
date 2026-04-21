@@ -14,6 +14,8 @@ public static class CompletionsCommand
         "dev",
         "pilot",
         "try",
+        "trial",
+        "roi-bulletin",
         "run",
         "status",
         "trace",
