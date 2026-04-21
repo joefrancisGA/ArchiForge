@@ -1,10 +1,9 @@
-using ArchLucid.Application;
 using ArchLucid.Application.ExecDigest;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Pilots;
-using ArchLucid.Persistence.Queries;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Queries;
 
 using FluentAssertions;
 
