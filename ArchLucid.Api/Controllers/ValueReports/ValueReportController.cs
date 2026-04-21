@@ -140,26 +140,7 @@ public sealed class ValueReportController(
         }
 
         if (r.ErrorMessage is not null)
-        {
-            Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
-            {
-                Type = ProblemTypes.InternalError,
-                Title = "Value report generation failed",
-                Status = StatusCodes.Status500InternalServerError,
-                Detail = r.ErrorMessage,
-                Instance = Request.Path.Value,
-            };
-
-            ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
-            ProblemSupportHints.AttachForProblemType(problem);
-            ProblemCorrelation.Attach(problem, HttpContext);
-
-            return new ObjectResult(problem)
-            {
-                StatusCode = problem.Status,
-                ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType },
-            };
-        }
+            return this.InternalServerErrorProblem(r.ErrorMessage, ProblemTypes.InternalError);
 
         Response.Headers.Append("Retry-After", "2");
 

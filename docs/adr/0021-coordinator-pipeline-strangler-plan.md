@@ -8,6 +8,21 @@
 - **Superseded by:** *(none)*
 
 > **Status note.** This ADR is **Accepted** as of **2026-04-20** (architecture review: product + platform leads — evidence: Phase 0 shipped, `IUnifiedGoldenManifestReader` landed in `ArchLucid.Decisioning.Interfaces` with `ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`, and `ManifestsController` now reads manifests through the unified reader). Phase 1 internal migration continues; Phase 2/3 gates in this document still apply before deleting coordinator contracts.
+>
+> **2026-04-21 update — Phase 1 read-side retirement gate landed.** Every internal read of `GoldenManifest` now goes through `IUnifiedGoldenManifestReader`. The new
+> `DualPipelineRegistrationDisciplineTests.Production_types_outside_allow_list_do_not_reference_ICoordinatorGoldenManifestRepository`
+> assertion sweeps every loaded `ArchLucid.*` production assembly (constructors, fields, properties) and fails the build when any type outside an explicit
+> allow-list type-references the coordinator manifest repository. The allow-list contains four entries: the unified reader (`ArchLucid.Persistence.Reads.UnifiedGoldenManifestReader`)
+> and the three documented write-path orchestrators that Phase 3 will retire (`ArchitectureRunCommitOrchestrator`, `ReplayRunService`, `DemoSeedService`). When Phase 3
+> ships, the allow-list shrinks to the single reader entry by deletion. Parity evidence is captured per the cadence in [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md).
+>
+> **2026-04-21 update — Phase 2 deprecation signal kicked off.** The mutating coordinator routes on `RunsController`
+> (`POST /v1/architecture/request`, `…/run/{id}/execute`, `…/replay`, `…/determinism-check`, `…/commit`, `…/result`, `…/seed-fake-results`)
+> now carry the standards-track deprecation triplet on every response — `Deprecation: true` (RFC 9745), `Sunset: Mon, 20 Jul 2026 00:00:00 GMT`
+> (RFC 8594, one full quarter of migration window), and a `Link` header pointing back at this ADR (RFC 8288). The route-scoped signal is
+> emitted by `CoordinatorPipelineDeprecationFilter` mounted via `[CoordinatorPipelineDeprecated]` so non-coordinator routes
+> (`RunQueryController`, `ManifestsController`) stay clean. This satisfies the published [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) deprecation policy
+> and starts the Phase 3 sunset clock.
 
 ## Context
 
@@ -72,7 +87,7 @@ The following **Application** services were migrated off **constructor injection
 | Analysis / governance | `ArchitectureAnalysisService`, `GovernancePreviewService` → unified reader `GetByVersionAsync` / run-scoped reads as implemented |
 | Host application façade | `ArchitectureApplicationService` (`ArchLucid.Host.Core`) → unified reader for versioned reads |
 
-**Write paths** (intentionally unchanged on this date) still use `ICoordinatorGoldenManifestRepository` where coordinator semantics persist the manifest: `ArchitectureRunCommitOrchestrator`, `ReplayRunService`, `DemoSeedService`. `ArchLucid.Architecture.Tests/DualPipelineInternalReadPathTests` asserts no additional Application types take the coordinator manifest repository in their public constructors.
+**Write paths** (intentionally unchanged on this date) still use `ICoordinatorGoldenManifestRepository` where coordinator semantics persist the manifest: `ArchitectureRunCommitOrchestrator`, `ReplayRunService`, `DemoSeedService`. `ArchLucid.Architecture.Tests/DualPipelineInternalReadPathTests` asserts no additional Application types take the coordinator manifest repository in their public constructors. The wider sweep — every loaded `ArchLucid.*` production assembly, including `ArchLucid.Host.Core` and `ArchLucid.Api` — is enforced by `ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.Production_types_outside_allow_list_do_not_reference_ICoordinatorGoldenManifestRepository` (added 2026-04-21). New consumers must justify their addition to the allow-list (and amend this ADR) before merging.
 
 ### Phase 2 — Audit constant unification
 
@@ -113,5 +128,6 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 - [`docs/DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) (decision tree + "Why we have not collapsed these" pointing back here).
 - [`docs/AUDIT_COVERAGE_MATRIX.md`](../AUDIT_COVERAGE_MATRIX.md) (audit-event catalog the regression tests assert against).
 - [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) (deprecation policy used by Phase 2's `Sunset` header).
-- [`docs/CHANGELOG.md`](../CHANGELOG.md) 2026-04-20 entry (records Phase 0 shipment).
+- [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) (parity report — latency, audit volume, replay parity per cadence).
+- [`docs/CHANGELOG.md`](../CHANGELOG.md) 2026-04-20 entry (records Phase 0 shipment); 2026-04-21 entry (records Phase 1 retirement gate + Phase 2 deprecation signal).
 - [`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md`](../CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_20_PART3.md) (rationale for the phased approach this ADR formalizes).

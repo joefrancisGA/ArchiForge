@@ -150,6 +150,35 @@ public static class ProblemDetailsExtensions
     }
 
     /// <summary>
+    /// Returns 500 Internal Server Error with a Problem Details body. Use only for genuine server-side faults
+    /// where the caller cannot recover by changing the request — transient downstream failures should prefer
+    /// <see cref="ServiceUnavailableProblem(ControllerBase, string, string?, string?)"/> so clients retry.
+    /// </summary>
+    public static IActionResult InternalServerErrorProblem(
+        this ControllerBase controller,
+        string detail,
+        string? type = null,
+        string? instance = null)
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = type ?? ProblemTypes.InternalError,
+            Title = "Internal Server Error",
+            Status = StatusCodes.Status500InternalServerError,
+            Detail = detail,
+            Instance = instance ?? controller.Request.Path
+        };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status,
+            ContentTypes = { ProblemJsonMediaType }
+        };
+    }
+
+    /// <summary>
     /// Returns 503 Service Unavailable with a Problem Details body (e.g. database timeout, transient downstream failure).
     /// </summary>
     public static IActionResult ServiceUnavailableProblem(
