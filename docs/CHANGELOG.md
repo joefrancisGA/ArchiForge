@@ -4,6 +4,18 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-21 — Product boundary: no customer-shipped production containers
+
+**SaaS posture:** ArchLucid is **vendor-operated SaaS**. **Shipping production Docker images, Helm charts, or customer-operable container bundles** as a standard customer deliverable is **explicitly out of scope** (2026-04-21). **Customer-facing deliverables** are the **CLI**, **API client libraries**, **OpenAPI / REST documentation**, and other **product docs**; local **`docker compose`** / **`archlucid pilot up`** paths stay as **optional evaluation and engineering** workflows in the repository, not a committed BYOC program. **`docs/PENDING_QUESTIONS.md`** (Resolved), **`docs/CONTAINERIZATION.md`** (product boundary), **`docs/go-to-market/PRODUCT_DATASHEET.md`**, **`docs/go-to-market/BUYER_PERSONAS.md`**, and **`docs/adr/0020-azure-primary-platform-permanent.md`** (consequences / portability wording) updated for alignment.
+
+---
+
+## 2026-04-21 — Workflow integration scope: ServiceNow + Confluence deferred
+
+**Product direction:** First-party **ServiceNow** and **Confluence** integrations (Cursor Prompt 5) are **explicitly out of scope for now** — ServiceNow targets **operational ITSM** while ArchLucid focuses **upstream** architecture activities; **Confluence** is deferred in favor of a **Microsoft-first** posture (Entra, Azure DevOps, Teams, Logic Apps). **`docs/PENDING_QUESTIONS.md`** (Resolved row + still-open items **4** / **11**) and **`docs/CURSOR_PROMPTS_QUALITY_ASSESSMENT_2026_04_21.md`** (Prompt 5 marked **DEFERRED** + stop line in the historical paste block) updated accordingly.
+
+---
+
 ## 2026-04-21 — ADR 0021 Phase 2 audit catalog + commit façade + parity probe (Prompt 2 / dual pipeline)
 
 **Strangler prep (no coordinator interface deletion):** Added **`AuditEventTypes.Run.*`** canonical durable strings (`Run.Created`, `Run.ExecuteStarted`, `Run.ExecuteSucceeded`, `Run.CommitCompleted`, `Run.Failed`) and **`CoordinatorRunCatalogDurableDualWrite`** so coordinator create/execute/commit paths and **`CoordinatorRunFailedDurableAudit`** **dual-append** legacy `CoordinatorRun*` plus canonical rows (ADR 0021 Phase 2 dual-write window). **`TrialLifecycleEmailPublishingAuditDecorator`** treats **`Run.CommitCompleted`** like **`CoordinatorRunCommitCompleted`**. New write façade **`IRunCommitOrchestrator`** + **`RunCommitOrchestratorFacade`** (delegates to **`IArchitectureRunCommitOrchestrator`** today), registered scoped in **`ServiceCollectionExtensions.ApplicationPipeline`**. Tooling: **`scripts/ci/coordinator_parity_probe.py`** + **`test_coordinator_parity_probe.py`**, workflow **`.github/workflows/coordinator-parity-daily.yml`** (optional repo secret **`ARCHLUCID_COORDINATOR_PARITY_ODBC`** for live `dbo.AuditEvents` counts). Runbook **`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`** gains HTML-marker block for nightly upserts. Tests: **`AuditEventTypes_RunCatalogMirrorTests`**, collision matrix includes **`Run`**, **`RunCommitOrchestratorFacadeTests`**, extended coordinator durable audit tests, **`IRunCommitOrchestrator`** resolution in **`DualPipelineRegistrationDisciplineTests`**. Docs: **`docs/AUDIT_COVERAGE_MATRIX.md`** (const count **101**), **`docs/ARCHITECTURE_COMPONENTS.md`**, ADR **0022** table refresh. Owner gates recorded in **`docs/PENDING_QUESTIONS.md`**.

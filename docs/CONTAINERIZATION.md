@@ -4,7 +4,13 @@
 
 ## Objective
 
-Provide production-ready Docker images for the **ArchLucid** API and Operator UI that are identical across local integration testing and cloud deployment.
+Provide production-ready Docker images for the **ArchLucid** API and Operator UI that are identical across local integration testing and **vendor-operated** cloud deployment (build once, run in CI and in the service operator’s registry).
+
+## Customer product boundary (SaaS)
+
+ArchLucid is a **vendor-operated SaaS** product. **Customer-facing deliverables** are the **CLI**, **published API client libraries**, **OpenAPI contracts**, and **documentation** — not a program to **ship production container images or Helm charts to customers** as the licensed product (see **`docs/PENDING_QUESTIONS.md`** Resolved, 2026-04-21).
+
+Images and **`docker compose`** definitions in this repository exist for **engineering**, **CI/CD**, **security scanning**, and **optional local evaluation** (including seller-led demos). They are **development and operations artifacts**, not a committed “customer installs our stack from a container tarball” distribution model unless product strategy reopens that path in a future ADR.
 
 ## Assumptions
 

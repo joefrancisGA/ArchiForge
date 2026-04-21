@@ -2,7 +2,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-21 (extended with items 5–16 from the 2026-04-21 independent assessment)
+**Last updated:** 2026-04-21 (items 5–16 from independent assessment; **2026-04-21** ServiceNow/Confluence + **customer-shipped containers** scope in Resolved)
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
 
@@ -23,6 +23,8 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Domain | **archlucid.com** — registration fee paid; confirm WHOIS when registrar completes. |
 | Reference customer (GTM) | **Ship self-serve trial first** — first **paying** tenant becomes the first publishable reference (`TRIAL_FIRST_REFERENCE_CASE_STUDY.md`). |
 | SOC 2 Type I/II | **Deferred** — interim posture is self-assessment + Trust Center honesty; revisit when ARR justifies CPA attestation. |
+| ServiceNow + Confluence as **first-party** workflow integrations | **Out of scope for now (2026-04-21)** — **ServiceNow** is operational ITSM / CMDB-centric; ArchLucid is intentionally **upstream** (design-time architecture, governance, manifests). **Confluence** is deferred because the integration posture is **Microsoft-first** (Entra, Azure DevOps, Teams, Logic Apps per [`docs/adr/0019-logic-apps-standard-edge-orchestration.md`](adr/0019-logic-apps-standard-edge-orchestration.md); GitHub + ADO manifest-delta already shipped). Revisit only if product strategy changes. |
+| **Customer-shipped Docker / container production bundles** | **Out of scope (2026-04-21)** — ArchLucid is a **vendor-operated SaaS** product. We do **not** treat shipping **production** Docker images, Helm charts, or customer-operable full-stack compose bundles as a standard customer deliverable. **Customer-facing artifacts** are the **CLI**, **published API client libraries** (for example `ArchLucid.Api.Client`), **OpenAPI / REST contracts**, and **documentation**. **`docker compose` / `archlucid pilot up`** remain **optional local evaluation and engineering** paths in the repo, not a committed “bring your own container” product track unless a future ADR reopens it. |
 
 ---
 
@@ -34,7 +36,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 3. **PGP for `security@archlucid.dev`** — [`SECURITY.md`](../SECURITY.md) still has a TODO: generate key pair, publish public key, link from Trust Center.
 
-4. **Second first-party workflow integration** — GitHub manifest-delta action is shipped ([`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md)). Next anchor (Confluence, ServiceNow, Azure DevOps) is a **product** call when a pipeline deal requires it.
+4. **Next Microsoft-aligned workflow integration** — GitHub manifest-delta and Azure DevOps pipeline tasks are shipped ([`GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md), [`AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md`](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md)). **ServiceNow and Confluence are explicitly out of scope for now** (see Resolved table). Next anchor is a **product** call among remaining Microsoft surfaces (e.g. Teams / Logic Apps fan-out per ADR 0019), not Atlassian/ITSM.
 
 ---
 
@@ -67,7 +69,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 10. **PGP key for `security@archlucid.dev`** — owner generates the key pair (or designates a custodian) and drops the public key into `archlucid-ui/public/.well-known/pgp-key.txt`. The CI guard in Prompt 4 turns green automatically the moment the file appears.
 
-11. **Workflow-integration sequencing** — Prompt 5 builds **ServiceNow CR + Confluence page publishing**. Owner confirms (a) ServiceNow OAuth client registration vs basic-auth tradeoff, (b) Confluence space key and parent page id (per-tenant config or platform-wide default), (c) whether Jira issue creation should bump above either (suggest no — pick two and ship them).
+11. **Workflow-integration sequencing (rescoped)** — **Prompt 5 (ServiceNow + Confluence) is deferred** — see Resolved table. When picking the next integration, sequence **Microsoft-native** options (Teams notifications, Logic Apps standard workflows, deeper ADO/GitHub) rather than Confluence/ServiceNow unless strategy changes.
 
 12. **WCAG 2.2 AA conformance publication channel** — Trust Center page only, or also a public `/accessibility` page on the marketing site? Whether to create an `accessibility@archlucid.dev` alias or reuse `security@`.
 

@@ -214,9 +214,9 @@
 
 | Objection | Response |
 |-----------|----------|
-| "Do you have SOC 2?" | ArchLucid is self-hosted in your Azure subscription — your existing SOC 2 controls apply to the deployment. The product includes RBAC, SQL RLS for tenant isolation, audit trail with append-only enforcement, and private endpoint support. We can provide a security architecture document and STRIDE threat model for your review team. |
+| "Do you have SOC 2?" | ArchLucid is **vendor-operated SaaS** on Azure. We publish a Trust Center, DPA-aligned subprocessors, and an interim SOC 2 posture (self-assessment today; external Type I/II when funded — see **`docs/PENDING_QUESTIONS.md`**). The product includes RBAC, SQL RLS for tenant isolation, append-only audit enforcement, and private endpoint patterns in our hosted stack. We provide security architecture and STRIDE threat-model documentation for your review team. |
 | "We use Okta, not Entra" | V1 supports Entra ID JWT and API key authentication. Generic OIDC support (for Okta, Auth0, Ping) is on the near-term roadmap. In the interim, API key authentication provides a functional integration path. |
-| "How do we know you will be around in 2 years?" | ArchLucid is self-hosted — your data stays in your Azure subscription. The codebase is structured for long-term maintainability (14 ADRs, 193+ docs, 815 test files, CI/CD pipeline). If you need additional assurance, we can discuss source escrow arrangements. |
+| "How do we know you will be around in 2 years?" | ArchLucid is **operated as SaaS**; tenant data is processed in **contracted Azure regions** with clear data-processing terms. The codebase and documentation are structured for long-term maintainability (ADRs, Trust Center, CI). If procurement needs stronger assurance, we can discuss **source escrow** and roadmap commitments. |
 | "Can this satisfy our compliance framework?" | ArchLucid's findings can be mapped to compliance controls. Policy packs are configurable to match your specific regulatory requirements. The governance workflow provides the approval chain evidence that auditors expect. We are working on pre-built control mappings for SOC 2 and ISO 27001. |
 
 ### Demo priorities (what to show first)

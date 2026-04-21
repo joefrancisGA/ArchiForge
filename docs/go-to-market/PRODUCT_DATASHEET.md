@@ -65,9 +65,11 @@ Describe the system you want to build. ArchLucid's multi-agent pipeline analyzes
 
 | Option | Best for |
 |--------|---------|
-| **Azure Container Apps** | Production — Terraform modules provided for API, worker, SQL, blob, and identity |
-| **Docker Compose** | Development and evaluation — full-stack profile with SQL, Redis, Azurite |
-| **Self-hosted containers** | Any Docker or Kubernetes environment with SQL Server access |
+| **Vendor-hosted SaaS (Azure)** | Production for customers — service operated by ArchLucid on Azure (Entra, private endpoints, RLS-isolated tenancy); customers integrate via **web**, **CLI**, and **API clients** |
+| **Azure Container Apps** | How **we** run the service — Terraform modules for API, worker, SQL, blob, and identity in **our** subscriptions |
+| **Docker Compose** | **Optional** local development and evaluation on a prospect’s or engineer’s machine — full-stack profile with SQL, Redis, Azurite (**not** a standard customer deliverable) |
+
+**Not offered as a V1 customer deliverable:** shipping **production** Docker images, customer-managed Kubernetes/Helm bundles, or “install ArchLucid from containers in your data center” packages. See **`docs/PENDING_QUESTIONS.md`** (Resolved, 2026-04-21) and **`docs/CONTAINERIZATION.md`**.
 
 ---
 
@@ -105,7 +107,7 @@ Describe the system you want to build. ArchLucid's multi-agent pipeline analyzes
 
 ## Get started
 
-1. **Quickest evaluation (Docker only):** Run `.\scripts\demo-start.ps1` (Windows) or `./scripts/demo-start.sh` (macOS/Linux), or `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` — see [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) for a five-minute walkthrough.
+1. **Quickest local evaluation (Docker on your machine):** Run `.\scripts\demo-start.ps1` (Windows) or `./scripts/demo-start.sh` (macOS/Linux), or `docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile full-stack up -d --build` — see [DEMO_QUICKSTART.md](DEMO_QUICKSTART.md) for a five-minute walkthrough. This path is an **optional engineering / seller-led demo** artifact, not something ArchLucid **ships to customers** as the product.
 2. **Full-stack without demo overlay:** `docker compose --profile full-stack up -d --build` — same stack without automatic Contoso demo seed (see [CONTAINERIZATION.md](../CONTAINERIZATION.md)).
 3. **First run:** Open `http://localhost:3000/runs/new` — seven-step guided wizard
 4. **See it live, not on a slide:** open `http://localhost:3000/why-archlucid` — the in-product proof page renders live `ArchLucidInstrumentation` counters, the sponsor first-value report, and the run explanation + citations against the seeded Contoso Retail demo tenant.

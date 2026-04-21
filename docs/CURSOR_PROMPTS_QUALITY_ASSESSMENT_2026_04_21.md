@@ -266,15 +266,19 @@ Update docs/CHANGELOG.md and the cursor-prompts execution log.
 
 ---
 
-## Prompt 5 — Two enterprise workflow integrations (ServiceNow CR + Confluence page)
+## Prompt 5 — Two enterprise workflow integrations (ServiceNow CR + Confluence page) — **DEFERRED**
 
-**Title:** Ship ServiceNow change-request creation and Confluence page publishing on commit
+**Status (2026-04-21):** **Do not execute this prompt.** ServiceNow and Confluence first-party integrations are **out of scope for now**: ServiceNow is **operational ITSM**; ArchLucid is aimed at **upstream** architecture and design-time workflows. Confluence is **not** aligned with the current **Microsoft-first** integration direction (Entra, Azure DevOps, Teams, Logic Apps — see [`docs/adr/0019-logic-apps-standard-edge-orchestration.md`](adr/0019-logic-apps-standard-edge-orchestration.md); GitHub + ADO manifest-delta already shipped). Recorded in [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) Resolved + items **4** / **11**.
 
-**Why:** Workflow Embeddedness, Stickiness, Adoption Friction. Architecture work needs to enter the existing CR/ticket flow without operator copy-paste.
+**Title (historical):** Ship ServiceNow change-request creation and Confluence page publishing on commit
 
-**Prompt to paste into Cursor:**
+**Why (historical):** Workflow Embeddedness, Stickiness, Adoption Friction. Superseded by the product scope call above.
+
+**Prompt to paste into Cursor — NOT ACTIVE (retained for recovery / re-scope only):**
 
 ```text
+STOP — PROMPT DEFERRED (2026-04-21). Do not implement ServiceNow or Confluence integrations until product rescopes. See docs/PENDING_QUESTIONS.md.
+
 You are extending ArchLucid's first-party workflow integration catalog. Read these first:
 - docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md
 - docs/contracts/archlucid-asyncapi-2.6.yaml
@@ -337,13 +341,15 @@ config fail-closed; transient-HTTP retry; integration-event handler subscribes t
 correct topic. Update docs/CHANGELOG.md and the cursor-prompts execution log.
 ```
 
+**Prompt 5 execution (2026-04-21):** **Not run.** Product scope: ServiceNow + Confluence first-party integrations **deferred**; see section header above, `docs/PENDING_QUESTIONS.md` (Resolved + items **4** / **11**), and `docs/CHANGELOG.md` (2026-04-21 scope entry).
+
 ---
 
 ## Prompt 6 — WCAG 2.2 AA + axe-core CI gate + continuously-running golden LLM cohort
 
 **Title:** Enforce accessibility in CI and stand up the LLM golden-cohort drift detector
 
-**Why:** Accessibility (38 -> bring to 70+), Usability, Correctness. Two thin investments with big credibility return.
+**Why:** Accessibility (38 -> bring to 70+), Usability, Correctness. Two thin investments with big credibility return. **Part B (golden cohort)** needs an **OWNER** Azure OpenAI budget / deployment decision — see [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) item **15**.
 
 **Prompt to paste into Cursor:**
 
@@ -411,7 +417,7 @@ tests with synthetic fixtures (no live LLM in unit-test path).
 Update docs/CHANGELOG.md and the cursor-prompts execution log.
 ```
 
----
+**Prompt 6 execution (2026-04-21):** **Not run** as a single paste block. **Partial baseline already in repo:** `archlucid-ui/e2e/helpers/axe-helper.ts` and **merge-blocking** axe checks on a **subset** of live-API Playwright flows (`live-api-accessibility.spec.ts`, `live-api-accessibility-focus.spec.ts`, plus axe assertions in e.g. alert rules / search-ask). **Still missing vs this prompt:** WCAG 2.2 AA tag configuration + `axe-exceptions.json` + schema validation; conformance doc `docs/accessibility/WCAG_22_AA_CONFORMANCE.md`; `?` shortcut overlay; Trust Center accessibility paragraph; `ArchLucid.AgentRuntime.Tests/GoldenCohort/`; `scripts/ci/run_golden_cohort.py`; `.github/workflows/golden-cohort-nightly.yml`; `docs/runbooks/GOLDEN_COHORT_DRIFT.md`.
 
 ---
 
@@ -425,13 +431,13 @@ Ranked by remaining weighted headroom from the 2026-04-21 assessment, after subt
 
 **Title:** Ship a two-minute differentiation video and a "before/after" screenshot pair
 
-**Why:** Differentiability is real on paper (multi-agent + provenance + governance) but takes too long to demo cold. A 30-second screenshot pair and a 2-minute video shrink the "what is this?" moment.
+**Why:** Differentiability is real on paper (multi-agent + provenance + governance) but takes too long to demo cold. A 30-second screenshot pair and a 2-minute video shrink the "what is this?" moment. **Demo baseline:** seeded Contoso authority run id is **`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId`** (see `ArchLucid.Api.Tests/DemoExplainEndpointTests.cs`).
 
-**Prompt:**
+**Prompt to paste into Cursor:**
 
 ```text
 You are producing differentiation collateral grounded in shipped V1 capabilities. Read first:
-- docs/go-to-market/POSITIONING.md (§ 2 Pillar 2 -- Auditable decision trail; Live deep link section)
+- docs/go-to-market/POSITIONING.md (Section 2 — Pillar 2, auditable decision trail; live deep link section)
 - docs/go-to-market/SCREENSHOT_GALLERY.md
 - archlucid-ui/src/app/(operator)/demo/explain/page.tsx
 - ArchLucid.Api/Controllers/Demo/DemoExplainController.cs
@@ -474,6 +480,8 @@ Goal: two artifacts -- a deterministic recording script and a screenshot-pair ge
 Tests: CLI argument parsing; refusal when /v1/demo/explain returns 404; output-file
 existence + PNG magic bytes. Update docs/CHANGELOG.md and the cursor-prompts execution log.
 ```
+
+**Prompt 7 execution (2026-04-21):** **Not run.** **Already in repo (grounding):** [`docs/go-to-market/POSITIONING.md`](go-to-market/POSITIONING.md), [`docs/go-to-market/SCREENSHOT_GALLERY.md`](go-to-market/SCREENSHOT_GALLERY.md), `archlucid-ui/src/app/(operator)/demo/explain/page.tsx`, `ArchLucid.Api/Controllers/Demo/DemoExplainController.cs`, `ArchLucid.Host.Core/Demo/DemoReadModelClient.cs`, [`docs/EXECUTIVE_SPONSOR_BRIEF.md`](EXECUTIVE_SPONSOR_BRIEF.md), `ArchLucid.Api.Tests/DemoExplainEndpointTests.cs` (GET `/v1/demo/explain`). **Still missing vs this prompt:** `docs/go-to-market/recordings/DEMO_EXPLAIN_2_MINUTE_SCRIPT.md`; `ArchLucid.Cli/Commands/ScreenshotPairCommand.cs` + `archlucid-ui/scripts/screenshot-pair.mjs`; "Hero pair" section in `SCREENSHOT_GALLERY.md`; CLI/unit tests described in the paste block.
 
 ---
 
@@ -548,9 +556,9 @@ Update docs/CHANGELOG.md and the cursor-prompts execution log.
 
 **Title:** Add a cmd-K command palette and task-mode templates on the operator home page
 
-**Why:** Usability headroom is large because three layers + tier × authority composition hides power-user flows. A palette + task templates collapse the cognitive cost without changing the disclosure model.
+**Why:** Usability headroom is large because three layers + tier × authority composition hides power-user flows. A palette + task templates collapse the cognitive cost without changing the disclosure model. **Baseline (2026-04-21):** `CommandPalette.tsx` already wires **⌘K / Ctrl+K** to **`listNavGroupsVisibleInOperatorShell`** + `NAV_GROUPS` (same seam as sidebar); the paste block below still lists gaps (tests, recently-used, task grid).
 
-**Prompt:**
+**Prompt to paste into Cursor:**
 
 ```text
 You are extending archlucid-ui to make every action discoverable in one keystroke and
@@ -595,9 +603,11 @@ to add task-mode home templates. Read first:
      palette, navigates to one Core Pilot row and one Enterprise row (Reader principal
      should not see the Enterprise row).
 
-Update docs/operator-shell.md, docs/PRODUCT_PACKAGING.md § 3 (cross-surface lock),
+Update docs/operator-shell.md, docs/PRODUCT_PACKAGING.md Section 3 (cross-surface lock),
 docs/CHANGELOG.md and the cursor-prompts execution log.
 ```
+
+**Prompt 9 execution (2026-04-21):** **Partially landed, not closed as a single paste block.** **In repo:** `archlucid-ui/src/components/CommandPalette.tsx` (⌘K/Ctrl+K, `cmdk`, nav rows from `listNavGroupsVisibleInOperatorShell(NAV_GROUPS, …)` — same tier ∩ authority composition as shell), shortcut registry group, run-UUID quick open; `AppShellClient.tsx` mounts the palette; `docs/operator-shell.md` documents the palette seam. **Still missing vs this prompt:** dedicated Vitest **`CommandPalette.test.tsx`** and **`command-palette-seam.test.ts`**; Playwright **`operator-command-palette.spec.ts`**; **“Recently used”** (localStorage, top 5); explicit **axe** pass scoped to palette interactions; **“Start a task”** home grid (`/runs/new?template=compliance`, compare, replay preselect, sponsor report) with **`useEnterpriseMutationCapability`** soft-disable + **FirstValueReportBuilder**-aligned tooltips/time hints; **`docs/PRODUCT_PACKAGING.md`** Section 3 cross-surface lock paragraph if not already tightened for palette + home.
 
 ---
 
