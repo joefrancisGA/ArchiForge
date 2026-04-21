@@ -1,0 +1,29 @@
+# Example: ArchLucid manifest delta in the Azure Pipelines run summary (job log page).
+# Sibling: `integrations/azure-devops-task-manifest-delta-pr-comment/example.azure-pipelines.yml` for sticky PR comments.
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: archlucid-readonly-api-key
+  - name: ARCHLUCID_API_BASE
+    value: 'https://api.example.com'
+  - name: ARCHLUCID_BASE_RUN_ID
+    value: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+  - name: ARCHLUCID_TARGET_RUN_ID
+    value: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+
+jobs:
+  - job: manifest_delta_summary
+    displayName: ArchLucid manifest delta (job summary)
+    steps:
+      - checkout: self
+
+      - template: integrations/azure-devops-task-manifest-delta/task.yml
+        parameters:
+          api-base-url: $(ARCHLUCID_API_BASE)
+          api-token: $(ARCHLUCID_READONLY_API_KEY)
+          base-run-id: $(ARCHLUCID_BASE_RUN_ID)
+          target-run-id: $(ARCHLUCID_TARGET_RUN_ID)
+          operator-compare-url-template: 'https://operator.example.com/compare?left={baseRunId}&right={targetRunId}'

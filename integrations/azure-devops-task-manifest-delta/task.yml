@@ -1,0 +1,32 @@
+# Template: ArchLucid manifest delta → Azure Pipelines run summary (##vso[task.uploadsummary]).
+# Input names mirror integrations/github-action-manifest-delta/action.yml.
+parameters:
+  - name: api-base-url
+    type: string
+  - name: api-token
+    type: string
+  - name: base-run-id
+    type: string
+  - name: target-run-id
+    type: string
+  - name: operator-compare-url-template
+    type: string
+    default: ''
+
+steps:
+  - task: NodeTool@0
+    displayName: Use Node.js 22
+    inputs:
+      versionSpec: '22.x'
+
+  - bash: |
+      set -euo pipefail
+      ROOT="$(Build.SourcesDirectory)"
+      node "${ROOT}/integrations/azure-devops-task-manifest-delta/job-summary.mjs"
+    displayName: ArchLucid manifest delta (job summary)
+    env:
+      ARCHLUCID_API_BASE: ${{ parameters.api-base-url }}
+      ARCHLUCID_API_TOKEN: ${{ parameters.api-token }}
+      ARCHLUCID_BASE_RUN_ID: ${{ parameters.base-run-id }}
+      ARCHLUCID_TARGET_RUN_ID: ${{ parameters.target-run-id }}
+      ARCHLUCID_COMPARE_URL_TEMPLATE: ${{ parameters.operator-compare-url-template }}

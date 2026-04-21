@@ -1,0 +1,1 @@
+{"state":"succeeded","description":"Operator compare ready.","context":{"name":"archlucid-manifest","genre":"archlucid"},"targetUrl":"https://operator.example/compare?left=a&right=b"}

@@ -27,6 +27,22 @@ const res = await fetch(url, {
 
 if (!res.ok) {
   const text = await res.text();
+  const warnOnly = process.env.ARCHLUCID_COMPARE_WARN_ONLY === "1";
+  if (warnOnly && res.status === 404) {
+    console.warn(
+      `WARNING: target run not yet committed (or scope mismatch): HTTP ${res.status}. ${text.slice(0, 500)}`,
+    );
+    process.stdout.write(
+      [
+        "## ArchLucid manifest delta",
+        "",
+        "> **WARNING:** `GET /v1/compare` returned 404 — the baseline/target runs may not be committed yet, or the API key cannot see them. Re-run after both runs exist.",
+        "",
+      ].join("\n"),
+    );
+    process.exit(0);
+  }
+
   console.error(`ArchLucid compare failed: HTTP ${res.status} ${text}`);
   process.exit(1);
 }

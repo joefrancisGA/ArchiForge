@@ -18,6 +18,7 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 | Penetration testing | **Owner-conducted** security assessment (OWASP ASVS–style) until budget for **external** assessor; see [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md). |
 | Cross-tenant pattern library | **Approved** (opt-in, k-anonymity, DPA carve-out) — requires ADR before implementation lands. |
 | Azure subscriptions | **Staging:** existing subscription. **Production:** **second subscription** dedicated to prod (create empty; wire Terraform/CD after staging is green). |
+| Production Azure subscription ID | **`aab65184-5005-4b0d-a884-9e28328630b1`** — recorded in [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) as the single source of truth. Operator action: set GitHub Environment secret `AZURE_SUBSCRIPTION_ID` on the **`production`** environment to this value (and confirm sibling `AZURE_TENANT_ID` / `AZURE_CLIENT_ID` are populated for OIDC). Default region: **`centralus`**. |
 | DNS / TLS | Owner **approves** DNS and TLS cutover for production hostnames. |
 | Domain | **archlucid.com** — registration fee paid; confirm WHOIS when registrar completes. |
 | Reference customer (GTM) | **Ship self-serve trial first** — first **paying** tenant becomes the first publishable reference (`TRIAL_FIRST_REFERENCE_CASE_STUDY.md`). |
@@ -27,15 +28,13 @@ Single place to track **decisions only a human owner** can make. When you ask wh
 
 ## Still open (needs your input later)
 
-1. **Production Azure subscription ID** — After you create the dedicated prod subscription, record its ID (and default region) where Terraform / CD docs expect it (for example [`docs/REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md) run notes). *Staging may keep the existing subscription you already named in planning sessions.*
+1. **Design-partner row (`DESIGN_PARTNER_NEXT`)** — When a **named** design partner (not PLG) is authorized, replace `<<CUSTOMER_NAME>>` in [`DESIGN_PARTNER_NEXT_CASE_STUDY.md`](go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md) and move the table row through **Drafting → Customer review → Published** per [`reference-customers/README.md`](go-to-market/reference-customers/README.md).
 
-2. **Design-partner row (`DESIGN_PARTNER_NEXT`)** — When a **named** design partner (not PLG) is authorized, replace `<<CUSTOMER_NAME>>` in [`DESIGN_PARTNER_NEXT_CASE_STUDY.md`](go-to-market/reference-customers/DESIGN_PARTNER_NEXT_CASE_STUDY.md) and move the table row through **Drafting → Customer review → Published** per [`reference-customers/README.md`](go-to-market/reference-customers/README.md).
+2. **External pen-test vendor** — When funded, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery.
 
-3. **External pen-test vendor** — When funded, award SoW, fill `<<vendor>>` / `<<TBD>>` in [`docs/security/pen-test-summaries/2026-Q2-SOW.md`](security/pen-test-summaries/2026-Q2-SOW.md), and replace placeholders in [`2026-Q2-REDACTED-SUMMARY.md`](security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) after delivery.
+3. **PGP for `security@archlucid.dev`** — [`SECURITY.md`](../SECURITY.md) still has a TODO: generate key pair, publish public key, link from Trust Center.
 
-4. **PGP for `security@archlucid.dev`** — [`SECURITY.md`](../SECURITY.md) still has a TODO: generate key pair, publish public key, link from Trust Center.
-
-5. **Second first-party workflow integration** — GitHub manifest-delta action is shipped ([`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md)). Next anchor (Confluence, ServiceNow, Azure DevOps) is a **product** call when a pipeline deal requires it.
+4. **Second first-party workflow integration** — GitHub manifest-delta action is shipped ([`docs/integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md)). Next anchor (Confluence, ServiceNow, Azure DevOps) is a **product** call when a pipeline deal requires it.
 
 ---
 

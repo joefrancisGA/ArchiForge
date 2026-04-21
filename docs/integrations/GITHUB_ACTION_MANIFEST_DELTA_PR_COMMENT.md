@@ -1,5 +1,7 @@
 > **Scope:** GitHub Action — sticky PR comment for the ArchLucid manifest delta - full detail, contract, and links in the sections below.
 
+> **Picking a vendor:** [GitHub job summary](GITHUB_ACTION_MANIFEST_DELTA.md) · [GitHub PR comment](GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps job summary](AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md) · [Azure DevOps PR comment](AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps server-side](AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md)
+
 # GitHub Action — manifest delta PR comment (sticky)
 
 **Audience:** Platform engineers wiring ArchLucid into GitHub pull-request review who want the delta inline on the PR (not just on the Actions job-summary page).

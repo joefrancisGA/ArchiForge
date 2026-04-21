@@ -5,5 +5,7 @@
   "Coordinator": { "mutationScore": 70.0 },
   "Decisioning": { "mutationScore": 70.0 },
   "PersistenceCoordination": { "mutationScore": 70.0 },
-  "Api": { "mutationScore": 55.0 }
+  "Api": { "mutationScore": 55.0 },
+  "DecisioningMerge": { "mutationScore": 55.0 },
+  "ApplicationGovernance": { "mutationScore": 55.0 }
 }

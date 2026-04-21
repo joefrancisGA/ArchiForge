@@ -31,9 +31,9 @@ internal static class IntegrationEventServiceBusMessageDispatch
             return;
         }
 
-        IIntegrationEventHandler? handler = ResolveHandler(handlers, eventType);
+        IReadOnlyList<IIntegrationEventHandler> resolved = ResolveHandlers(handlers, eventType);
 
-        if (handler is null)
+        if (resolved.Count == 0)
         {
             await settlement.DeadLetterAsync(
                     message,
@@ -47,7 +47,9 @@ internal static class IntegrationEventServiceBusMessageDispatch
 
         try
         {
-            await handler.HandleAsync(message.Body, cancellationToken).ConfigureAwait(false);
+            foreach (IIntegrationEventHandler handler in resolved)
+                await handler.HandleAsync(message.Body, cancellationToken).ConfigureAwait(false);
+
             await settlement.CompleteAsync(message, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -93,15 +95,27 @@ internal static class IntegrationEventServiceBusMessageDispatch
         return string.IsNullOrWhiteSpace(subject) ? string.Empty : subject.Trim();
     }
 
-    internal static IIntegrationEventHandler? ResolveHandler(IEnumerable<IIntegrationEventHandler> handlers, string eventType)
+    /// <summary>
+    /// Returns every non-wildcard handler whose <see cref="IIntegrationEventHandler.EventType"/> matches
+    /// <paramref name="eventType"/>; if none, returns all wildcard handlers (typically logging).
+    /// </summary>
+    internal static IReadOnlyList<IIntegrationEventHandler> ResolveHandlers(
+        IEnumerable<IIntegrationEventHandler> handlers,
+        string eventType)
     {
         List<IIntegrationEventHandler> list = handlers.ToList();
 
-        IIntegrationEventHandler? specific = list.FirstOrDefault(
-            h =>
-                h.EventType != IntegrationEventTypes.WildcardEventType
-                && IntegrationEventTypes.AreEquivalent(h.EventType, eventType));
+        List<IIntegrationEventHandler> specifics =
+        [
+            .. list.Where(
+                h =>
+                    h.EventType != IntegrationEventTypes.WildcardEventType
+                    && IntegrationEventTypes.AreEquivalent(h.EventType, eventType)),
+        ];
 
-        return specific ?? list.FirstOrDefault(h => h.EventType == IntegrationEventTypes.WildcardEventType);
+        if (specifics.Count > 0)
+            return specifics;
+
+        return [.. list.Where(h => h.EventType == IntegrationEventTypes.WildcardEventType)];
     }
 }

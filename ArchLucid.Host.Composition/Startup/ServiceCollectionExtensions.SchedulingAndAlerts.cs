@@ -11,7 +11,9 @@ using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Contracts.Abstractions.Integrations;
 using ArchLucid.Host.Core.Integration;
+using ArchLucid.Integrations.AzureDevOps;
 using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Host.Core.Services.Delivery;
@@ -77,6 +79,9 @@ public static partial class ServiceCollectionExtensions
             return;
 
 
+        services.Configure<AzureDevOpsIntegrationOptions>(configuration.GetSection(AzureDevOpsIntegrationOptions.SectionName));
+        services.AddHttpClient<IAzureDevOpsPullRequestDecorator, AzureDevOpsPullRequestDecorator>();
+        services.AddSingleton<IIntegrationEventHandler, AuthorityRunCompletedAzureDevOpsIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, TrialLifecycleEmailIntegrationEventHandler>();
         services.AddSingleton<IIntegrationEventHandler, LoggingIntegrationEventHandler>();
 

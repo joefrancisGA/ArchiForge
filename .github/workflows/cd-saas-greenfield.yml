@@ -68,7 +68,7 @@ jobs:
       - name: Validate every infra stack (no apply)
         run: |
           set -eux
-          for d in infra/terraform infra/terraform-storage infra/terraform-keyvault \
+          for d in infra/terraform-pilot infra/terraform infra/terraform-storage infra/terraform-keyvault \
                    infra/terraform-monitoring infra/terraform-container-apps \
                    infra/terraform-sql-failover infra/terraform-otel-collector; do
             (cd "$d" && terraform init -backend=false && terraform validate)

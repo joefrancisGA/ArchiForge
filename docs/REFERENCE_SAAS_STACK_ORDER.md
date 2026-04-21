@@ -4,13 +4,31 @@
 
 **Objective:** Give platform engineers a **default apply order** for ArchLucid Terraform roots under `infra/`, aligned with private networking and least-privilege identity.
 
-**Last reviewed:** 2026-04-19
+**Last reviewed:** 2026-04-21
 
 **Note:** Greenfield IaC uses **`archlucid`** resource labels and example names; CI rejects the substring `archiforge` in any `infra/**/*.tf` file. First deploy: [FIRST_AZURE_DEPLOYMENT.md](FIRST_AZURE_DEPLOYMENT.md). Brownfield **state mv** (legacy state only): [archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md](archive/TERRAFORM_STATE_MV_PHASE_7_5_2026_04.md).
 
+**Default primary region (2026-04-21):** **`centralus`** for new production Terraform applies (`infra/terraform-container-apps` and related roots) unless data-residency or latency requirements dictate otherwise. Document exceptions in the environment README.
+
+**Subscription mapping:** see [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) for the canonical `staging` / `production` / greenfield-CI subscription IDs and the GitHub Environment secret each one maps to. Do **not** hard-code subscription IDs in `infra/**/*.tf` or example tfvars — `azure/login@v2` exports `ARM_SUBSCRIPTION_ID` for every Terraform step in the CD pipeline.
+
 ---
 
-## Recommended apply sequence
+## Default path: `infra/terraform-pilot` (canonical profile)
+
+Use **[`infra/terraform-pilot/`](../infra/terraform-pilot/README.md)** as the **single default Terraform entry** in this repository:
+
+- **Opinionated FinOps knobs** (`pilot_monthly_budget_usd`, `app_insights_sampling_percent`, …) live in that root’s variables.
+- **`nested_infrastructure_roots`** (Terraform **output**) lists the **same nested order** as the advanced table below — use `terraform output` from `terraform-pilot` when you need machine-readable sequencing without reading docs.
+- This root **does not create Azure resources**; it collapses operational guidance into one `terraform plan`/`apply` for profile validation and outputs.
+
+**Script default:** [`infra/apply-saas.ps1`](../infra/apply-saas.ps1) runs **only** `terraform-pilot` unless you pass **`-MultiRoot`** (opt-in multi-root path).
+
+---
+
+## Advanced (opt-in): multi-root separate state
+
+Apply each directory below **in order** with **its own backend key** when you need **separate state files** per stack (blast-radius isolation, team ownership). This is the **legacy** operator workflow — still fully supported.
 
 | Order | Root | Purpose |
 |------:|------|---------|
@@ -28,18 +46,14 @@
 | 12 | `infra/terraform-monitoring` | Log Analytics, Grafana/Prometheus, alert rules, dashboards. |
 | 13 | `infra/terraform-orchestrator` | Optional orchestration / automation root (if used in your fork). |
 
-CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`).
+CI validates **`terraform validate`** + **Trivy config** across these roots (see `.github/workflows/ci.yml`) **and** `infra/terraform-pilot`.
 
 ---
 
-## Pilot overlay and SaaS-shaped API profile (optional)
-
-Use these when you need a **low-cost pilot** apply path or a **SaaS-default** API settings chain without changing the core Terraform order above.
+## SaaS-shaped API profile (optional)
 
 | Artifact | Purpose |
 |----------|---------|
-| [`infra/terraform-pilot/`](../infra/terraform-pilot/README.md) | Thin composition stub — pilot SKUs and ordering notes without duplicating modules. |
-| [`infra/apply-saas.ps1`](../infra/apply-saas.ps1) | Operator helper to align a subscription with SaaS-shaped defaults (documented in-script). |
 | [`ArchLucid.Api/appsettings.SaaS.json`](../ArchLucid.Api/appsettings.SaaS.json) | Optional settings file chained from `Program.cs` after base `appsettings*.json` — **no secrets** in repo; API keys remain **off** until you wire keys + flip `Authentication:ApiKey:Enabled`. |
 
 ---
@@ -50,8 +64,13 @@ After image rollout, run **`scripts/ci/cd-post-deploy-verify.sh`** against the p
 
 ---
 
+## Buyer CI integrations (GitHub + Azure DevOps)
+
+Manifest delta surfaces (`GET /v1/compare`) ship as **GitHub composite actions** and **Azure Pipelines templates** in-repo — see the navigator in **[`integrations/GITHUB_ACTION_MANIFEST_DELTA.md`](integrations/GITHUB_ACTION_MANIFEST_DELTA.md)** (links to GitHub + Azure DevOps + optional server-side Worker path).
+
 ## Related
 
 - [DEPLOYMENT_TERRAFORM.md](DEPLOYMENT_TERRAFORM.md) — full root map and constraints.
 - [RTO_RPO_TARGETS.md](RTO_RPO_TARGETS.md) — recovery targets by tier.
 - [CUSTOMER_TRUST_AND_ACCESS.md](CUSTOMER_TRUST_AND_ACCESS.md) — private data plane narrative.
+- [AZURE_SUBSCRIPTIONS.md](AZURE_SUBSCRIPTIONS.md) — canonical subscription IDs, regions, and CD secret mapping.

@@ -1,0 +1,52 @@
+# Example: ArchLucid structured manifest delta as a sticky Azure DevOps PR comment + PR status.
+# Copy into your own azure-pipelines.yml and wire secrets via variable groups; do not put API keys in repo YAML.
+#
+# ADO equivalents of GitHub triggers:
+#   * `pr:` — runs on pull requests (like `pull_request: types: [opened, synchronize, reopened]`).
+#   * Manual queue-time variables — like `workflow_dispatch` inputs (override `ARCHLUCID_*` when queuing).
+#
+# Persist credentials so `System.AccessToken` is available for Mode A (Bearer) to Azure DevOps Git REST.
+# Required build service permission: **Contribute to pull requests** on the repo.
+trigger: none
+
+pr:
+  branches:
+    include:
+      - '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: archlucid-readonly-api-key
+  - name: ARCHLUCID_API_BASE
+    value: 'https://api.example.com'
+  - name: ARCHLUCID_BASE_RUN_ID
+    value: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+  - name: ARCHLUCID_TARGET_RUN_ID
+    value: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+  # Organization and project URL segments (see https://dev.azure.com/{organization}/{project}/...).
+  - name: ADO_ORGANIZATION
+    value: 'your-organization'
+  - name: ADO_PROJECT
+    value: 'your-project'
+
+jobs:
+  - job: manifest_delta_pr_comment
+    displayName: ArchLucid manifest delta (sticky PR comment)
+    steps:
+      - checkout: self
+        persistCredentials: true
+
+      - template: integrations/azure-devops-task-manifest-delta-pr-comment/task.yml
+        parameters:
+          api-base-url: $(ARCHLUCID_API_BASE)
+          api-token: $(ARCHLUCID_READONLY_API_KEY)
+          base-run-id: $(ARCHLUCID_BASE_RUN_ID)
+          target-run-id: $(ARCHLUCID_TARGET_RUN_ID)
+          pr-id: $(System.PullRequest.PullRequestId)
+          repository-id: $(Build.Repository.ID)
+          organization: $(ADO_ORGANIZATION)
+          project: $(ADO_PROJECT)
+          azure-devops-pat: ''
+          operator-compare-url-template: 'https://operator.example.com/compare?left={baseRunId}&right={targetRunId}'

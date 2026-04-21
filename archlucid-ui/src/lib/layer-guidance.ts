@@ -32,7 +32,8 @@ export type LayerGuidancePageKey =
   | "composite-alert-rules"
   | "alerts"
   | "audit"
-  | "value-report";
+  | "value-report"
+  | "security-trust";
 
 export type LayerGuidanceBlock = {
   /** Short badge, e.g. "Advanced Analysis" */
@@ -89,6 +90,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen: "Search first; CSV reuses the same From/To window (Auditor/Admin on API).",
     firstPilotNote: "Defer export until the window and roles are settled.",
     enterpriseFootnote: "Search + bounded CSV export.",
+  },
+  "security-trust": {
+    layerBadge: "Enterprise Controls",
+    headline: "Procurement-facing security posture and published assessments.",
+    useWhen: "Use when buyers need CAIQ/SIG pointers, pen-test publication status, and trust-center cross-links.",
+    firstPilotNote: "Assessment badge lights when an admin records a SecurityAssessmentPublished audit via API.",
+    enterpriseFootnote: "Read-oriented; publication is Admin API + audit trail.",
   },
   "value-report": {
     layerBadge: "Enterprise Controls",

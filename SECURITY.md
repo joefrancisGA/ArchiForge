@@ -38,7 +38,7 @@ We will send an **initial acknowledgment within 48 hours** and aim to provide a 
 - **Independent test:** Penetration test **SoW** and **redacted summary** templates live under [docs/security/PEN_TEST_SOW_TEMPLATE.md](docs/security/PEN_TEST_SOW_TEMPLATE.md) and [docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md](docs/security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md) for customer-facing engagements.
 - **Transport:** **HTTPS** for production-style deployments; **HSTS** enabled in production hosting paths.
 - **HTTP security headers:** Baseline headers include **Content-Security-Policy** (`default-src 'none'` for API JSON responses), **X-Frame-Options: DENY**, and **X-Content-Type-Options: nosniff** (see `ArchLucid.Host.Core` middleware).
-- **Secrets:** Prefer **Azure Key Vault**; CI runs **gitleaks**; production startup validation rejects **placeholder API keys**.
+- **Secrets:** Prefer **Azure Key Vault**; CI runs **gitleaks**; optional **server pre-receive** hook documented in [docs/security/GITLEAKS_PRE_RECEIVE.md](docs/security/GITLEAKS_PRE_RECEIVE.md); production startup validation rejects **placeholder API keys**.
 - **Dependencies & artifacts:** **Trivy** (including container and IaC scans where configured), **CodeQL**, **NuGet** vulnerability audit in CI, and **CycloneDX** SBOM generation for supply-chain visibility.
 - **Network:** **Private endpoints** for SQL and Blob-style storage; **SMB (port 445) is not exposed publicly** — align deployments with private connectivity and controlled boundaries.
 
@@ -50,4 +50,6 @@ Security patches are applied to the **latest release branch / current default br
 
 **PGP encryption for vulnerability reports is not currently supported.** This section will be updated when a key is provisioned.
 
-**TODO (product / security ops):** Generate a vendor PGP key pair for `security@archlucid.dev`, publish the public key in this section and in the Trust Center, and document key rotation in [`docs/security/pen-test-summaries/README.md`](docs/security/pen-test-summaries/README.md) once the first external pen-test summary ships.
+**Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.com/.well-known/security.txt` when the marketing site is live.
+
+**TODO (product / security ops):** Generate a vendor PGP key pair for `security@archlucid.dev`, publish the public key at **`/.well-known/pgp-key.txt`**, link from this section and from the Trust Center, and document key rotation in [`docs/security/pen-test-summaries/README.md`](docs/security/pen-test-summaries/README.md) once the first external pen-test summary ships.

@@ -20,6 +20,7 @@ import {
   Scale,
   Search,
   Shield,
+  ShieldCheck,
   Sparkles,
   Stars,
   Tags,
@@ -420,6 +421,14 @@ export const NAV_GROUPS: NavGroupConfig[] = [
         title: "Audit log — search and export scoped audit events",
         icon: FileSearch,
         tier: "advanced",
+        requiredAuthority: "ReadAuthority",
+      },
+      {
+        href: "/security-trust",
+        label: "Security & trust",
+        title: "Security & trust — published assessments, CAIQ/SIG, trust-center links",
+        icon: ShieldCheck,
+        tier: "extended",
         requiredAuthority: "ReadAuthority",
       },
       {

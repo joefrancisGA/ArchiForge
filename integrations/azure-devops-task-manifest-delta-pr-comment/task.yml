@@ -1,0 +1,64 @@
+# Template: ArchLucid manifest delta — sticky Azure DevOps PR thread + PR status (REST 7.1).
+# Input names mirror integrations/github-action-manifest-delta-pr-comment/action.yml (ADO-specific ids).
+parameters:
+  - name: api-base-url
+    type: string
+  - name: api-token
+    type: string
+  - name: base-run-id
+    type: string
+  - name: target-run-id
+    type: string
+  - name: pr-id
+    type: string
+  - name: repository-id
+    type: string
+  - name: organization
+    type: string
+  - name: project
+    type: string
+  - name: azure-devops-pat
+    type: string
+    default: ''
+  - name: marker
+    type: string
+    default: '<!-- archlucid:manifest-delta -->'
+  - name: operator-compare-url-template
+    type: string
+    default: ''
+
+steps:
+  - task: NodeTool@0
+    displayName: Use Node.js 22
+    inputs:
+      versionSpec: '22.x'
+
+  - bash: |
+      set -euo pipefail
+      ROOT="$(Build.SourcesDirectory)"
+      node "${ROOT}/integrations/github-action-manifest-delta/fetch-manifest-delta.mjs" > "$(Agent.Temp)/archlucid-manifest-delta.md"
+    displayName: Fetch manifest delta (Markdown)
+    env:
+      ARCHLUCID_API_BASE: ${{ parameters.api-base-url }}
+      ARCHLUCID_API_TOKEN: ${{ parameters.api-token }}
+      ARCHLUCID_BASE_RUN_ID: ${{ parameters.base-run-id }}
+      ARCHLUCID_TARGET_RUN_ID: ${{ parameters.target-run-id }}
+      ARCHLUCID_COMPARE_URL_TEMPLATE: ${{ parameters.operator-compare-url-template }}
+
+  - bash: |
+      set -euo pipefail
+      ROOT="$(Build.SourcesDirectory)"
+      export ARCHLUCID_DELTA_BODY_PATH="$(Agent.Temp)/archlucid-manifest-delta.md"
+      node "${ROOT}/integrations/azure-devops-task-manifest-delta-pr-comment/post-pr-thread.mjs"
+    displayName: Upsert sticky PR thread + PR status
+    env:
+      ARCHLUCID_STICKY_MARKER: ${{ parameters.marker }}
+      ARCHLUCID_ADO_ORGANIZATION: ${{ parameters.organization }}
+      ARCHLUCID_ADO_PROJECT: ${{ parameters.project }}
+      ARCHLUCID_ADO_REPOSITORY_ID: ${{ parameters.repository-id }}
+      ARCHLUCID_ADO_PULL_REQUEST_ID: ${{ parameters.pr-id }}
+      ARCHLUCID_BASE_RUN_ID: ${{ parameters.base-run-id }}
+      ARCHLUCID_TARGET_RUN_ID: ${{ parameters.target-run-id }}
+      ARCHLUCID_COMPARE_URL_TEMPLATE: ${{ parameters.operator-compare-url-template }}
+      ARCHLUCID_AZURE_DEVOPS_PAT: ${{ parameters.azure-devops-pat }}
+      SYSTEM_ACCESSTOKEN: $(System.AccessToken)

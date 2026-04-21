@@ -1,4 +1,6 @@
 # Weekly ZAP baseline (same strict mode as PR CI): WARN and FAIL both fail the step — second line of defense for config drift.
+# **Staging:** run `pwsh ./scripts/ci/run_zap_strict.ps1` locally against the disposable API, or point ZAP at staging by
+# swapping `-t` to your HTTPS base (ensure `/openapi/v1.json` and health endpoints match the contract under test).
 # See docs/security/ZAP_BASELINE_RULES.md and infra/zap/README.md.
 name: "Security: ZAP baseline (scheduled, strict visibility)"
 

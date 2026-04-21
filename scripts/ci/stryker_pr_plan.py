@@ -27,6 +27,8 @@ FULL_MATRIX: list[tuple[str, str]] = [
     ("Decisioning", "stryker-config.decisioning.json"),
     ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
     ("Api", "stryker-config.api.json"),
+    ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
+    ("ApplicationGovernance", "stryker-config.application-governance.json"),
 ]
 
 # Paths that should run the full matrix (config / CI / tool pins).
@@ -105,7 +107,13 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
         return [("Persistence", "stryker-config.persistence.json")]
 
     if p.startswith("ArchLucid.Application.Tests/"):
-        return [("Application", "stryker-config.application.json")]
+        return [
+            ("Application", "stryker-config.application.json"),
+            ("ApplicationGovernance", "stryker-config.application-governance.json"),
+        ]
+
+    if p.startswith("ArchLucid.Application/Governance/"):
+        return [("ApplicationGovernance", "stryker-config.application-governance.json")]
 
     if p.startswith("ArchLucid.Application/"):
         return [("Application", "stryker-config.application.json")]
@@ -123,7 +131,13 @@ def _targets_for_path(path: str) -> list[tuple[str, str]]:
         return [("Coordinator", "stryker-config.coordinator.json")]
 
     if p.startswith("ArchLucid.Decisioning.Tests/"):
-        return [("Decisioning", "stryker-config.decisioning.json")]
+        return [
+            ("Decisioning", "stryker-config.decisioning.json"),
+            ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
+        ]
+
+    if p.startswith("ArchLucid.Decisioning/Merge/"):
+        return [("DecisioningMerge", "stryker-config.decisioning-merge.json")]
 
     if p.startswith("ArchLucid.Decisioning/"):
         return [("Decisioning", "stryker-config.decisioning.json")]
@@ -184,6 +198,12 @@ def _self_test() -> None:
     ]
     assert plan_matrix(["ArchLucid.Persistence.Coordination/x.cs"]) == [
         ("PersistenceCoordination", "stryker-config.persistence-coordination.json"),
+    ]
+    assert plan_matrix(["ArchLucid.Decisioning/Merge/x.cs"]) == [
+        ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
+    ]
+    assert plan_matrix(["ArchLucid.Application/Governance/x.cs"]) == [
+        ("ApplicationGovernance", "stryker-config.application-governance.json"),
     ]
 
 

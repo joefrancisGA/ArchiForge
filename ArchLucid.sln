@@ -128,6 +128,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Jobs.Cli", "ArchL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Jobs.Cli.Tests", "ArchLucid.Jobs.Cli.Tests\ArchLucid.Jobs.Cli.Tests.csproj", "{12C38FCF-E2BD-42C8-9A34-90D82B57C436}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.AzureDevOps", "ArchLucid.Integrations.AzureDevOps\ArchLucid.Integrations.AzureDevOps.csproj", "{04E30344-82A3-442C-8F3B-262B7FD294A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchLucid.Integrations.AzureDevOps.Tests", "ArchLucid.Integrations.AzureDevOps.Tests\ArchLucid.Integrations.AzureDevOps.Tests.csproj", "{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -702,6 +706,30 @@ Global
 		{12C38FCF-E2BD-42C8-9A34-90D82B57C436}.Release|x64.Build.0 = Release|Any CPU
 		{12C38FCF-E2BD-42C8-9A34-90D82B57C436}.Release|x86.ActiveCfg = Release|Any CPU
 		{12C38FCF-E2BD-42C8-9A34-90D82B57C436}.Release|x86.Build.0 = Release|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Debug|x64.Build.0 = Debug|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Release|x64.ActiveCfg = Release|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Release|x64.Build.0 = Release|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{04E30344-82A3-442C-8F3B-262B7FD294A5}.Release|x86.Build.0 = Release|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Debug|x64.Build.0 = Debug|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Debug|x86.Build.0 = Debug|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Release|x64.ActiveCfg = Release|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Release|x64.Build.0 = Release|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Release|x86.ActiveCfg = Release|Any CPU
+		{C6DFD848-1702-4CF2-9CE5-F9BE83101DFC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

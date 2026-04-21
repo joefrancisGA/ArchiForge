@@ -1,0 +1,5 @@
+# Copy to terraform.tfvars (gitignored) for non-default pilot posture.
+# deployment_profile         = "production"
+# multi_root_apply_opt_in    = true
+# pilot_monthly_budget_usd     = 800
+# app_insights_sampling_percent = 40

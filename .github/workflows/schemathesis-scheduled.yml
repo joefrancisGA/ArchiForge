@@ -1,4 +1,7 @@
 # Weekly property-based API fuzzing from the OpenAPI document (Microsoft OpenAPI /v1).
+# **Staging:** for a full suite against a long-lived staging URL, run the same `schemathesis/schemathesis:stable`
+# invocation with `--url` pointed at staging (after mutual TLS / IP allowlisting as required) and capture JUnit
+# to your artifact store; keep CI weekly on the disposable Docker API for determinism.
 # Runs the API in Development (anonymous OpenAPI + health), same pattern as zap-baseline-strict-scheduled.yml.
 # Schemathesis: https://github.com/schemathesis/schemathesis — official Docker image only (no pip).
 #

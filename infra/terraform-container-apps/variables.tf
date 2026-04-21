@@ -18,8 +18,8 @@ variable "resource_group_name" {
 
 variable "location" {
   type        = string
-  description = "Azure region (required when create_resource_group = true)."
-  default     = ""
+  description = "Azure region (required when create_resource_group = true). Default centralus matches docs/REFERENCE_SAAS_STACK_ORDER.md primary region."
+  default     = "centralus"
 }
 
 variable "tags" {

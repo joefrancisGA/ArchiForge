@@ -1,0 +1,13 @@
+{
+  "stryker-config": {
+    "project": "ArchLucid.Application/ArchLucid.Application.csproj",
+    "test-projects": ["ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj"],
+    "mutate": ["**/Governance/**/*.cs"],
+    "reporters": ["progress", "html", "json"],
+    "thresholds": {
+      "high": 80,
+      "low": 55,
+      "break": 55
+    }
+  }
+}

@@ -38,6 +38,9 @@ STRYKER_TARGETS: list[tuple[str, str]] = [
     # by re-running this script after a coverage uplift PR. See
     # docs/MUTATION_TESTING_STRYKER.md "API target (advisory)".
     ("Api", "stryker-config.api.json"),
+    # Scoped namespaces (Quality Assessment seven-improvements 2026-04-21): ratchet via CI after first green run.
+    ("DecisioningMerge", "stryker-config.decisioning-merge.json"),
+    ("ApplicationGovernance", "stryker-config.application-governance.json"),
 ]
 
 

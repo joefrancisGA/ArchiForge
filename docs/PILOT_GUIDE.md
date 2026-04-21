@@ -31,3 +31,11 @@ curl -sS -X POST "https://localhost:5001/v1/register" ^
 
 The operator shell will gain a signup form for these fields in a follow-up UI PR; this API contract ships first.
 
+## Pull-request decoration in your CI
+
+ArchLucid surfaces **`GET /v1/compare`** Markdown in CI/CD for both GitHub Actions and Azure DevOps Pipelines — pick the entry point that matches your vendor:
+
+- **Navigator:** [GitHub job summary](integrations/GITHUB_ACTION_MANIFEST_DELTA.md) · [GitHub PR comment](integrations/GITHUB_ACTION_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps job summary](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA.md) · [Azure DevOps PR comment](integrations/AZURE_DEVOPS_PIPELINE_TASK_MANIFEST_DELTA_PR_COMMENT.md) · [Azure DevOps server-side (Worker)](integrations/AZURE_DEVOPS_PR_DECORATION_SERVER_SIDE.md)
+
+The server-side path is optional and posts to a **single configured PR** from Worker settings; the pipeline templates are the usual choice for ADO-shop pilots who want YAML snippets.
+

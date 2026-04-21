@@ -18,6 +18,7 @@ ArchLucid is built so that **security, privacy, and operational transparency** a
 - **Secrets:** **Azure Key Vault** references for application configuration in hosted deployments (see [../CONFIGURATION_KEY_VAULT.md](../CONFIGURATION_KEY_VAULT.md)).
 - **Auditability:** Durable **append-only** audit trail in SQL (`dbo.AuditEvents`) with a **typed event catalog** and correlation identifiers; see [../AUDIT_COVERAGE_MATRIX.md](../AUDIT_COVERAGE_MATRIX.md) and [../SECURITY.md](../SECURITY.md) (PII / exports).
 - **Testing in CI:** **OWASP ZAP** baseline on the API image, **Schemathesis** contract checks, and documented rate limiting / RBAC — see [../SECURITY.md](../SECURITY.md).
+- **SOC 2 self-assessment:** The in-repo [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) is maintained under **internal CISO ownership** (interim posture until a CPA attestation is funded — see compliance table below).
 - **LLM outbound hygiene:** Optional deny-list **prompt redaction** before Azure OpenAI and aligned redaction for trace persistence (`LlmPromptRedaction`); see [../runbooks/LLM_PROMPT_REDACTION.md](../runbooks/LLM_PROMPT_REDACTION.md).
 
 For a **STRIDE-oriented** view of the whole product boundary, see [../security/SYSTEM_THREAT_MODEL.md](../security/SYSTEM_THREAT_MODEL.md).
@@ -32,10 +33,15 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
-- [2026 Q2 — draft SoW (scope locked)](../security/pen-test-summaries/2026-Q2-SOW.md)
-- [2026 Q2 — redacted summary placeholder](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (replace after assessor delivery)
+- [2026 Q2 — **awarded** SoW (Aeronova Red Team LLC)](../security/pen-test-summaries/2026-Q2-SOW.md)
+- [2026 Q2 — redacted summary placeholder](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (replace narrative tables after assessor delivery)
 
-**Published redacted summaries (forthcoming):** the publication folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) holds discipline notes plus a **draft** placeholder (`2026-Q2-DRAFT.md`) until the first external assessor (`<<vendor>>` — fill after SoW award) delivers a redacted summary suitable for procurement.
+**Questionnaires (pre-filled):**
+
+- [CAIQ Lite pre-fill (2026)](../security/CAIQ_LITE_2026.md) — map to CSA CAIQ v4 spreadsheet for STAR submissions
+- [SIG Core pre-fill (2026)](../security/SIG_CORE_2026.md) — map to Shared Assessments SIG Core workbook
+
+**Published redacted summaries:** the publication folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) holds discipline notes. After Aeronova delivers the customer-shareable excerpt, replace the placeholder sections in `2026-Q2-REDACTED-SUMMARY.md` and record `POST /v1/admin/security-trust/publications` so the operator **Security & trust** page (`/security-trust`) shows the **SecurityAssessmentPublished** badge.
 
 ---
 
@@ -48,7 +54,9 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 | [DPA_TEMPLATE.md](DPA_TEMPLATE.md) | Data Processing Agreement **template** for customers (requires legal review before use). |
 | [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) | How we classify incidents and communicate with customers. |
 | [SOC2_ROADMAP.md](SOC2_ROADMAP.md) | SOC 2 readiness: controls in place, gaps, and milestone roadmap. |
-| [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Owner-led SOC 2 **self-assessment** (not CPA attestation). |
+| [../security/SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) | Owner-led SOC 2 **self-assessment** (not CPA attestation); includes **Type I scoping** and gap register. |
+| [../security/CAIQ_LITE_2026.md](../security/CAIQ_LITE_2026.md) | CAIQ Lite–style pre-fill (align to CSA CAIQ v4 download). |
+| [../security/SIG_CORE_2026.md](../security/SIG_CORE_2026.md) | SIG Core–style pre-fill (align to Shared Assessments workbook). |
 | [../security/COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md) | Maps control themes to repository evidence paths. |
 | [../SECURITY.md](../SECURITY.md) | Engineering security overview (ZAP, Schemathesis, RBAC, rate limits, PII). |
 | [../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) | Architecture: edge, identity, private connectivity, correlation IDs. |
@@ -67,7 +75,7 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 | Item | Status | Notes |
 |------|--------|--------|
-| **SOC 2** (Type I / II) | **Deferred** (CPA attestation unfunded — revisit when ARR justifies) | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). |
+| **SOC 2** (Type I / II) | **Type I readiness funded** (Q2–Q3 2026 scoping; **no** CPA opinion yet) | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). External readiness consultant + CPA firm selection tracked under G-001 in the self-assessment. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
 

@@ -45,6 +45,7 @@ flowchart LR
 
 | Root | Role |
 |------|------|
+| `infra/terraform-pilot` | **Default operator profile:** FinOps / sampling variables + **`nested_infrastructure_roots`** output (no Azure resources in this root). Entry point for the collapsed footprint; multi-root applies are **opt-in** ([`REFERENCE_SAAS_STACK_ORDER.md`](REFERENCE_SAAS_STACK_ORDER.md)). |
 | `infra/terraform-container-apps` | Primary **workload** pattern: Container Apps, identity, env wiring (parameters vary by fork/branch). |
 | `infra/terraform-storage` | Storage accounts, blobs, queues used by artifacts and durable jobs. |
 | `infra/terraform-private` | Networking baseline: VNet segments, private endpoints, alignment with SQL/storage. |
@@ -72,7 +73,7 @@ flowchart LR
 - **RTO / RPO by tier:** Default recovery targets (development best-effort; production e.g. relational RPO under five minutes via SQL geo-replication) are documented in **`docs/RTO_RPO_TARGETS.md`**. Implement with auto-failover groups, listeners, and drills per **`docs/runbooks/DATABASE_FAILOVER.md`**.
 - **FinOps tags:** In `infra/terraform-container-apps`, set optional **`finops_environment`** and **`finops_cost_center`**; they merge with **`tags`** and a fixed **`Application = ArchLucid`** label on created resources for Azure Cost Management filters.
 - **Consumption budgets:** Enable **`enable_container_apps_consumption_budget`** in `infra/terraform-container-apps`, **`enable_sql_consumption_budget`** in `infra/terraform-sql-failover`, and/or **`enable_openai_consumption_budget`** in `infra/terraform-openai` to emit **`azurerm_consumption_budget_resource_group`** resources with Cost Management notifications (amounts and `*_time_period_start` are variables per root).
-- **Plan/apply:** Run `terraform init` / `plan` / `apply` per root; compose order is usually **network → data → compute → edge → monitoring**.
+- **Plan/apply:** Default **`infra/terraform-pilot`** for profile validation and outputs; run `terraform init` / `plan` / `apply` per nested root only on the **opt-in multi-root** path. Compose order is usually **network → data → compute → edge → monitoring**.
 - **Drift:** Reconcile manual portal changes back into Terraform or expect the next apply to revert them.
 - **Contracts:** HTTP surface is versioned under `/v1/...`; OpenAPI snapshot tests live in `ArchLucid.Api.Tests`; optional AsyncAPI for outbound webhooks is under `docs/contracts/`.
 - **Image scanning:** CI runs **Trivy** on container images and Terraform directories — extend with registry gates and Defender for Containers per org policy.
