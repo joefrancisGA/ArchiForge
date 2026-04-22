@@ -116,15 +116,15 @@ public sealed class TenantHardPurgeServiceSqlIntegrationTests
     }
 
     /// <summary>
-    /// Sets <c>SESSION_CONTEXT(N'af_rls_bypass') = 1</c> so writes pass the BLOCK predicates on scope-keyed tables
-    /// covered by the tenant RLS rollout (DbUp 036; see <c>docs/security/MULTI_TENANT_RLS.md</c>).
+    /// Sets <c>SESSION_CONTEXT(N'al_rls_bypass') = 1</c> so writes pass the BLOCK predicates on scope-keyed tables
+    /// covered by the tenant RLS rollout (DbUp 036 + 108; see <c>docs/security/MULTI_TENANT_RLS.md</c>).
     /// Mirrors <c>SqlTenantHardPurgeService.ApplyBypassSessionAsync</c>.
     /// </summary>
     private static async Task EnableRlsBypassAsync(SqlConnection connection)
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-        cmd.Parameters.AddWithValue("@k", "af_rls_bypass");
+        cmd.Parameters.AddWithValue("@k", "al_rls_bypass");
         cmd.Parameters.AddWithValue("@v", 1);
         cmd.Parameters.AddWithValue("@read_only", 0);
         await cmd.ExecuteNonQueryAsync();

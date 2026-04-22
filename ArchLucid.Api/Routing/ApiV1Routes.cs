@@ -17,5 +17,7 @@ public static class ApiV1Routes
 
     public const string TeamsIncomingWebhookConnections = "v1/integrations/teams/connections";
 
+    public const string TeamsNotificationTriggerCatalog = "v1/integrations/teams/triggers";
+
     public const string Evolution = "v1/evolution";
 }

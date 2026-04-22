@@ -1,3 +1,5 @@
+> **Scope:** Internal GTM authoring scaffold — shows the structure a real customer evidence pack must follow, populated with placeholder cells from the demo tenant. **Not** a publishable customer artefact; every cell in a real pack must trace to a customer-approved source per `REFERENCE_PUBLICATION_RUNBOOK.md`.
+
 # Reference evidence pack — demo tenant scaffold (internal only)
 
 **Status:** Scaffold — **not** a customer evidence pack. Every numeric and narrative cell in a real pack must come from **customer-approved** sources; see [`REFERENCE_PUBLICATION_RUNBOOK.md`](REFERENCE_PUBLICATION_RUNBOOK.md).

@@ -1,3 +1,5 @@
+> **Scope:** Architecture team — captures the original scaffold for completing the coordinator → authority strangler. **Superseded by ADR 0029**; preserved for audit history. Not a current execution plan — read ADR 0029 for the live plan.
+>
 > **Status:** Superseded by [ADR 0029](0029-coordinator-strangler-acceleration-2026-05-15.md) (2026-04-21)
 > **Supersedes / relates:** [0021-coordinator-pipeline-strangler-plan.md](0021-coordinator-pipeline-strangler-plan.md)
 

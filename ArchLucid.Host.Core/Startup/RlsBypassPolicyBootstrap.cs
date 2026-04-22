@@ -35,6 +35,6 @@ public static class RlsBypassPolicyBootstrap
 
         logger.LogWarning(
             "SQL RLS break-glass is enabled (ARCHLUCID_ALLOW_RLS_BYPASS=true and ArchLucid:Persistence:AllowRlsBypass=true). "
-            + "SqlRowLevelSecurityBypassAmbient.Enter may set af_rls_bypass=1 when session context is applied.");
+            + "SqlRowLevelSecurityBypassAmbient.Enter may set al_rls_bypass=1 when session context is applied.");
     }
 }

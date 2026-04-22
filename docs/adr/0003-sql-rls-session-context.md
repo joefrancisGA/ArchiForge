@@ -20,4 +20,4 @@ Deploy RLS policies with **`SqlServer:RowLevelSecurity:ApplySessionContext=true`
 
 ## Links
 
-- `docs/security/MULTI_TENANT_RLS.md` (if present) or migration `036_RlsArchiforgeTenantScope.sql`
+- `docs/security/MULTI_TENANT_RLS.md` (if present) or migration `036_RlsArchiforgeTenantScope.sql` (the policy / predicate / SESSION_CONTEXT key names defined in 036 were renamed atomically by `108_RlsRenameToArchLucid.sql` (2026-04-21) to `rls.ArchLucidTenantScope` / `rls.archlucid_*_predicate` / `al_*` — see MULTI_TENANT_RLS § 10).

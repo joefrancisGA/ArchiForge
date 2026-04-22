@@ -19,7 +19,7 @@ namespace ArchLucid.Persistence.Tests;
 [Trait("Category", "SqlServerContainer")]
 public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServerPersistenceFixture fixture)
 {
-    private static string TenantScopePolicyQualifiedName => "rls." + "Archi" + "forgeTenantScope";
+    private static string TenantScopePolicyQualifiedName => "rls.ArchLucidTenantScope";
     private static readonly Guid TenantA = Guid.Parse("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1");
     private static readonly Guid TenantB = Guid.Parse("c2c2c2c2-c2c2-c2c2-c2c2-c2c2c2c2c2c2");
     private static readonly Guid WorkspaceW = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1");
@@ -131,12 +131,12 @@ public sealed class CrossTenantSessionContextSqlConnectionIsolationTests(SqlServ
     private static async Task SetBypassAsync(SqlConnection connection)
     {
         await ClearSessionContextKeysAsync(connection);
-        await SetIntContextAsync(connection, "af_rls_bypass", 1);
+        await SetIntContextAsync(connection, "al_rls_bypass", 1);
     }
 
     private static async Task ClearSessionContextKeysAsync(SqlConnection connection)
     {
-        string[] keys = ["af_rls_bypass", "af_tenant_id", "af_workspace_id", "af_project_id"];
+        string[] keys = ["al_rls_bypass", "al_tenant_id", "al_workspace_id", "al_project_id"];
 
         foreach (string key in keys)
         {

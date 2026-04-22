@@ -99,7 +99,7 @@ public static class DevelopmentDefaultScopeTenantBootstrap
     {
         using SqlCommand command = connection.CreateCommand();
         command.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-        command.Parameters.AddWithValue("@k", "af_rls_bypass");
+        command.Parameters.AddWithValue("@k", "al_rls_bypass");
         command.Parameters.AddWithValue("@v", 1);
         command.Parameters.AddWithValue("@read_only", 0);
         _ = command.ExecuteNonQuery();

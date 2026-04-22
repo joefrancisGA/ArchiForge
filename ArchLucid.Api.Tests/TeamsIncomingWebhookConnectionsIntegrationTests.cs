@@ -99,11 +99,19 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
             await get0.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
         parsed0.Should().NotBeNull();
         parsed0!.IsConfigured.Should().BeFalse();
+        parsed0.EnabledTriggers.Should().Contain("com.archlucid.authority.run.completed");
+        parsed0.EnabledTriggers.Should().Contain("com.archlucid.seat.reservation.released");
+        parsed0.EnabledTriggers.Should().HaveCount(6, "fresh tenants default to the v1 all-on catalog");
 
         TeamsIncomingWebhookConnectionUpsertRequest putBody = new()
         {
             KeyVaultSecretName = "kv-teams-webhook-ref",
             Label = "demo tenant — replace before publishing",
+            EnabledTriggers =
+            [
+                "com.archlucid.authority.run.completed",
+                "com.archlucid.alert.fired",
+            ],
         };
 
         HttpResponseMessage post = await client.PostAsJsonAsync(
@@ -115,6 +123,11 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         postParsed.Should().NotBeNull();
         postParsed!.IsConfigured.Should().BeTrue();
         postParsed.KeyVaultSecretName.Should().Be("kv-teams-webhook-ref");
+        postParsed.EnabledTriggers.Should().BeEquivalentTo(new[]
+        {
+            "com.archlucid.authority.run.completed",
+            "com.archlucid.alert.fired",
+        });
 
         HttpResponseMessage get1 = await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
         get1.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -122,6 +135,58 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests : IClassFixt
         HttpResponseMessage del = await client.SendAsync(
             new HttpRequestMessage(HttpMethod.Delete, new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative)));
         del.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task Post_connections_with_unknown_trigger_returns_bad_request()
+    {
+        string token = MintJwt(
+            _factory.PrivatePemForTests,
+            issuer: "https://test.archlucid.local",
+            audience: "api://archlucid-jwt-local-test",
+            name: "OperatorUser",
+            roles: [ArchLucidRoles.Operator]);
+
+        HttpClient client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        TeamsIncomingWebhookConnectionUpsertRequest body = new()
+        {
+            KeyVaultSecretName = "kv-teams-webhook-ref",
+            EnabledTriggers = ["com.archlucid.authority.run.completed", "com.archlucid.does.not.exist"],
+        };
+
+        HttpResponseMessage res = await client.PostAsJsonAsync(
+            new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
+            body);
+
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        string text = await res.Content.ReadAsStringAsync();
+        text.Should().Contain("com.archlucid.does.not.exist");
+    }
+
+    [Fact]
+    public async Task Get_triggers_catalog_returns_v1_default_set()
+    {
+        string token = MintJwt(
+            _factory.PrivatePemForTests,
+            issuer: "https://test.archlucid.local",
+            audience: "api://archlucid-jwt-local-test",
+            name: "ReaderUser",
+            roles: [ArchLucidRoles.Reader]);
+
+        HttpClient client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage res = await client.GetAsync(
+            new Uri($"/{ApiV1Routes.TeamsNotificationTriggerCatalog}", UriKind.Relative));
+
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        string[]? triggers = await res.Content.ReadFromJsonAsync<string[]>(JsonOptions);
+        triggers.Should().NotBeNull();
+        triggers!.Should().Contain("com.archlucid.compliance.drift.escalated");
+        triggers!.Should().Contain("com.archlucid.advisory.scan.completed");
+        triggers!.Should().Contain("com.archlucid.seat.reservation.released");
     }
 
     private static string MintJwt(

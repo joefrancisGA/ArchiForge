@@ -16,6 +16,12 @@ public static class IntegrationEventTypes
 
     public const string AdvisoryScanCompletedV1 = "com.archlucid.advisory.scan.completed";
 
+    /// <summary>Compliance drift breached its threshold and escalated (Teams notification trigger added 2026-04-21 per PENDING_QUESTIONS.md item 32).</summary>
+    public const string ComplianceDriftEscalatedV1 = "com.archlucid.compliance.drift.escalated";
+
+    /// <summary>A trial seat reservation expired or was released, freeing capacity (Teams notification trigger added 2026-04-21 per PENDING_QUESTIONS.md item 32).</summary>
+    public const string SeatReservationReleasedV1 = "com.archlucid.seat.reservation.released";
+
     /// <summary>Trial / lifecycle transactional email dispatch (worker consumes JSON payload).</summary>
     public const string TrialLifecycleEmailV1 = "com.archlucid.notifications.trial-lifecycle-email.v1";
 

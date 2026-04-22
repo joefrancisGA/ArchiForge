@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 
 using ArchLucid.Contracts.Integrations;
+using ArchLucid.Core.Notifications.Teams;
 
 namespace ArchLucid.Persistence.Data.Repositories;
 
@@ -20,14 +21,18 @@ public sealed class InMemoryTenantTeamsIncomingWebhookConnectionRepository : ITe
         Guid tenantId,
         string keyVaultSecretName,
         string? label,
+        IReadOnlyList<string>? enabledTriggers,
         CancellationToken cancellationToken)
     {
+        IReadOnlyList<string> nextTriggers = ResolveNextTriggers(tenantId, enabledTriggers);
+
         TeamsIncomingWebhookConnectionResponse row = new()
         {
             TenantId = tenantId,
             IsConfigured = true,
             Label = label,
             KeyVaultSecretName = keyVaultSecretName,
+            EnabledTriggers = nextTriggers,
             UpdatedUtc = DateTimeOffset.UtcNow,
         };
 
@@ -38,4 +43,18 @@ public sealed class InMemoryTenantTeamsIncomingWebhookConnectionRepository : ITe
 
     public Task<bool> DeleteAsync(Guid tenantId, CancellationToken cancellationToken) =>
         Task.FromResult(_store.TryRemove(tenantId, out _));
+
+    // null = "no change" semantic, matching the Dapper repository's MERGE COALESCE behaviour:
+    // brand-new rows fall back to the catalog default; existing rows keep what was already stored.
+    private IReadOnlyList<string> ResolveNextTriggers(Guid tenantId, IReadOnlyList<string>? enabledTriggers)
+    {
+        if (enabledTriggers is not null)
+            return TeamsNotificationTriggerCatalog
+                .ParseOrDefault(TeamsNotificationTriggerCatalog.Serialize(enabledTriggers));
+
+        if (_store.TryGetValue(tenantId, out TeamsIncomingWebhookConnectionResponse? existing))
+            return existing.EnabledTriggers;
+
+        return TeamsNotificationTriggerCatalog.All;
+    }
 }

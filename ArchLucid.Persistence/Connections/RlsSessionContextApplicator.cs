@@ -32,16 +32,16 @@ public sealed class RlsSessionContextApplicator(
 
         if (SqlRowLevelSecurityBypassAmbient.IsActive)
         {
-            await SetIntContextAsync(connection, "af_rls_bypass", 1, ct);
+            await SetIntContextAsync(connection, "al_rls_bypass", 1, ct);
             return;
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        await SetIntContextAsync(connection, "af_rls_bypass", 0, ct);
-        await SetGuidContextAsync(connection, "af_tenant_id", scope.TenantId, ct);
-        await SetGuidContextAsync(connection, "af_workspace_id", scope.WorkspaceId, ct);
-        await SetGuidContextAsync(connection, "af_project_id", scope.ProjectId, ct);
+        await SetIntContextAsync(connection, "al_rls_bypass", 0, ct);
+        await SetGuidContextAsync(connection, "al_tenant_id", scope.TenantId, ct);
+        await SetGuidContextAsync(connection, "al_workspace_id", scope.WorkspaceId, ct);
+        await SetGuidContextAsync(connection, "al_project_id", scope.ProjectId, ct);
     }
 
     private static async Task SetIntContextAsync(SqlConnection connection, string key, int value, CancellationToken ct)

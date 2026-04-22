@@ -878,6 +878,11 @@ export async function deleteTeamsIncomingWebhookConnection(): Promise<void> {
   return apiDelete(`/${ApiV1Routes.teamsIncomingWebhookConnections}`);
 }
 
+/** Loads the canonical v1 Teams notification trigger catalog (canonical event-type strings). */
+export async function getTeamsNotificationTriggerCatalog(): Promise<string[]> {
+  return apiGet<string[]>(`/${ApiV1Routes.teamsNotificationTriggerCatalog}`);
+}
+
 /** Creates a new digest delivery subscription. */
 export async function createDigestSubscription(body: {
   name: string;

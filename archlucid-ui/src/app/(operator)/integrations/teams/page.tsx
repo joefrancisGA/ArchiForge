@@ -12,6 +12,7 @@ import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation
 import {
   deleteTeamsIncomingWebhookConnection,
   getTeamsIncomingWebhookConnection,
+  getTeamsNotificationTriggerCatalog,
   upsertTeamsIncomingWebhookConnection,
 } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -21,6 +22,46 @@ import type {
   TeamsIncomingWebhookConnectionUpsertRequest,
 } from "@/types/teams-incoming-webhook-connection";
 
+// Friendly label and explanatory copy per canonical trigger event type. The keys must mirror
+// `ArchLucid.Core.Notifications.Teams.TeamsNotificationTriggerCatalog.All` (server-side source of truth).
+const TRIGGER_DESCRIPTIONS: Record<string, { label: string; helpText: string }> = {
+  "com.archlucid.authority.run.completed": {
+    label: "Run committed",
+    helpText: "An architecture run produced a committed manifest (operator UI: run page).",
+  },
+  "com.archlucid.governance.approval.submitted": {
+    label: "Governance approval requested",
+    helpText: "A governance approval request was raised and awaits review (operator UI: approvals).",
+  },
+  "com.archlucid.alert.fired": {
+    label: "Alert fired",
+    helpText: "An alert rule matched and an alert record was opened (operator UI: alerts).",
+  },
+  "com.archlucid.compliance.drift.escalated": {
+    label: "Compliance drift escalated",
+    helpText: "A compliance drift breached its threshold and was escalated (operator UI: compliance).",
+  },
+  "com.archlucid.advisory.scan.completed": {
+    label: "Advisory scan completed",
+    helpText: "An advisory finding scan committed a fresh result (operator UI: advisory findings).",
+  },
+  "com.archlucid.seat.reservation.released": {
+    label: "Trial seat released",
+    helpText: "A trial seat reservation expired or was released, freeing capacity (operator UI: trial seats).",
+  },
+};
+
+// Renders the canonical trigger label, falling back to the raw event type for forward-compat
+// when the server adds a new trigger before the UI has shipped a friendly label for it.
+function describeTrigger(eventType: string): { label: string; helpText: string } {
+  return (
+    TRIGGER_DESCRIPTIONS[eventType] ?? {
+      label: eventType,
+      helpText: `Custom or newly added trigger (${eventType}).`,
+    }
+  );
+}
+
 export default function TeamsNotificationsIntegrationPage() {
   const canMutate = useEnterpriseMutationCapability();
   const [loading, setLoading] = useState(false);
@@ -29,15 +70,22 @@ export default function TeamsNotificationsIntegrationPage() {
   const [conn, setConn] = useState<TeamsIncomingWebhookConnectionResponse | null>(null);
   const [secretName, setSecretName] = useState("");
   const [label, setLabel] = useState("");
+  const [catalog, setCatalog] = useState<string[]>([]);
+  const [enabledTriggers, setEnabledTriggers] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
     setFailure(null);
     try {
-      const data = await getTeamsIncomingWebhookConnection();
+      const [data, triggers] = await Promise.all([
+        getTeamsIncomingWebhookConnection(),
+        getTeamsNotificationTriggerCatalog(),
+      ]);
       setConn(data);
       setSecretName(data.keyVaultSecretName ?? "");
       setLabel(data.label ?? "");
+      setCatalog(triggers);
+      setEnabledTriggers(new Set(data.enabledTriggers ?? triggers));
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -49,6 +97,18 @@ export default function TeamsNotificationsIntegrationPage() {
     void load();
   }, [load]);
 
+  function toggleTrigger(eventType: string, checked: boolean) {
+    setEnabledTriggers((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(eventType);
+      } else {
+        next.delete(eventType);
+      }
+      return next;
+    });
+  }
+
   async function onSave() {
     if (!canMutate) {
       return;
@@ -57,12 +117,16 @@ export default function TeamsNotificationsIntegrationPage() {
     setSaving(true);
     setFailure(null);
     try {
+      // Preserve the catalog ordering when sending so the diff in the audit log is deterministic.
+      const orderedTriggers = catalog.filter((t) => enabledTriggers.has(t));
       const body: TeamsIncomingWebhookConnectionUpsertRequest = {
         keyVaultSecretName: secretName.trim(),
         label: label.trim().length > 0 ? label.trim() : null,
+        enabledTriggers: orderedTriggers,
       };
       const saved = await upsertTeamsIncomingWebhookConnection(body);
       setConn(saved);
+      setEnabledTriggers(new Set(saved.enabledTriggers));
     } catch (e) {
       setFailure(toApiLoadFailure(e));
     } finally {
@@ -160,6 +224,46 @@ export default function TeamsNotificationsIntegrationPage() {
               placeholder="Channel or team name"
             />
           </div>
+
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              Notification triggers
+            </legend>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              Select which integration events fan out to this Teams channel. The Logic Apps workflow filters server-side
+              before delivery, so disabled triggers cannot reach the channel even if upstream routing misbehaves.
+            </p>
+
+            <ul className="space-y-2">
+              {catalog.map((eventType) => {
+                const description = describeTrigger(eventType);
+                const checkboxId = `trigger-${eventType.replace(/\./g, "-")}`;
+                const checked = enabledTriggers.has(eventType);
+                return (
+                  <li key={eventType} className="flex items-start gap-2">
+                    <input
+                      id={checkboxId}
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => toggleTrigger(eventType, e.target.checked)}
+                      disabled={!canMutate || saving}
+                      className="mt-1 h-4 w-4 rounded border-neutral-300 text-blue-700 focus:ring-blue-500 dark:border-neutral-700"
+                      aria-describedby={`${checkboxId}-help`}
+                    />
+                    <div className="flex-1">
+                      <Label htmlFor={checkboxId} className="font-medium">
+                        {description.label}
+                      </Label>
+                      <p id={`${checkboxId}-help`} className="text-xs text-neutral-500 dark:text-neutral-400">
+                        {description.helpText}
+                      </p>
+                      <p className="font-mono text-[10px] text-neutral-400 dark:text-neutral-500">{eventType}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </fieldset>
 
           <div className="flex flex-wrap gap-2">
             <Button type="button" onClick={() => void onSave()} disabled={!canMutate || saving || secretName.trim() === ""}>

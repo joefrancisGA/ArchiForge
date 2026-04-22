@@ -10,7 +10,7 @@ Describe how ArchLucid enforces **tenant / workspace / project isolation in SQL 
 
 - Primary store is **SQL Server** (Azure SQL or boxed) with **private connectivity**; SMB/file shares are not used for tenant data at the API boundary.
 - **Entra ID** (or API keys in constrained scenarios) identifies the caller; **scope** (tenant, workspace, project) is derived from claims or headers and validated in the application layer.
-- RLS is rolled out on **every authority table that carries the scope triple on the row** (DbUp `036_RlsArchiforgeTenantScope.sql`).
+- RLS is rolled out on **every authority table that carries the scope triple on the row** (initially DbUp `036_RlsArchiforgeTenantScope.sql`; renamed to `rls.ArchLucidTenantScope` + `rls.archlucid_*_predicate` + `al_*` SESSION_CONTEXT keys in DbUp `108_RlsRenameToArchLucid.sql`, 2026-04-21).
 
 ## 3. Constraints
 
@@ -52,8 +52,8 @@ flowchart LR
 
 1. Request arrives with identity + scope.
 2. API validates scope and permissions (policies, governance).
-3. Before first SQL use on that request, **SESSION_CONTEXT** is populated with scope (`af_tenant_id`, `af_workspace_id`, `af_project_id`) and `af_rls_bypass = 0`, unless bypass ambient is active.
-4. Security policy **`rls.ArchiforgeTenantScope`** uses **`rls.archiforge_scope_predicate`**: row visible when bypass = 1 or when row scope keys match session context.
+3. Before first SQL use on that request, **SESSION_CONTEXT** is populated with scope (`al_tenant_id`, `al_workspace_id`, `al_project_id`) and `al_rls_bypass = 0`, unless bypass ambient is active.
+4. Security policy **`rls.ArchLucidTenantScope`** uses **`rls.archlucid_scope_predicate`**: row visible when bypass = 1 or when row scope keys match session context.
 
 ## 7. Security model
 
@@ -64,17 +64,17 @@ flowchart LR
 
 ## 8. Operational considerations
 
-- **App setting:** `SqlServer:RowLevelSecurity:ApplySessionContext` (default **false** in `appsettings.json`) gates whether the stack calls `sp_set_session_context` on each opened connection. Enable only after DbUp **036** is applied and you are ready to turn the security policy **ON**.
+- **App setting:** `SqlServer:RowLevelSecurity:ApplySessionContext` (default **false** in `appsettings.json`) gates whether the stack calls `sp_set_session_context` on each opened connection. Enable only after DbUp **036** + **108** are applied and you are ready to turn the security policy **ON**.
 - **Enable policy (production):** after `ApplySessionContext` is **true** for all app entry points that hit SQL:
 
   ```sql
-  ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = ON);
+  ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = ON);
   ```
 
 - **Disable for maintenance / debugging:**
 
   ```sql
-  ALTER SECURITY POLICY rls.ArchiforgeTenantScope WITH (STATE = OFF);
+  ALTER SECURITY POLICY rls.ArchLucidTenantScope WITH (STATE = OFF);
   ```
 
 - **Scalability:** Predicate simplicity keeps plans stable; indexes already lead with scope columns on most advisory/alert tables.
@@ -82,9 +82,9 @@ flowchart LR
 - **Cost:** Minimal SQL overhead; engineering cost for migration, testing, and runbooks.
 - **Terraform / IaC:** RLS is **DDL**; shipped via DbUp migrations and mirrored at the end of `ArchLucid.Persistence/Scripts/ArchLucid.sql` for greenfield parity.
 
-## 9. Covered tables and known gaps (DbUp 036 + 046 + 096 + 097)
+## 9. Covered tables and known gaps (DbUp 036 + 046 + 096 + 097 + 108)
 
-**In policy `rls.ArchiforgeTenantScope` (FILTER on all listed tables; ships `STATE = OFF`):**
+**In policy `rls.ArchLucidTenantScope` (FILTER on all listed tables; ships `STATE = OFF`):**
 
 - `dbo.Runs` — `(TenantId, WorkspaceId, ScopeProjectId)`
 - `dbo.ContextSnapshots` — `(TenantId, WorkspaceId, ScopeProjectId)` — denormalized scope (**DbUp 046**, 2026-04-10)
@@ -102,9 +102,9 @@ flowchart LR
 - `dbo.ProductLearningPilotSignals`, `dbo.ProductLearningImprovementThemes`, `dbo.ProductLearningImprovementPlans`
 - `dbo.EvolutionCandidateChangeSets`
 
-**Tenant-only rows (DbUp 096 + 097) — same policy, predicate `rls.archiforge_tenant_predicate(TenantId)`:**
+**Tenant-only rows (DbUp 096 + 097) — same policy, predicate `rls.archlucid_tenant_predicate(TenantId)`:**
 
-When **`096`** has run, these tables use **tenant id only** (no workspace/project on the row). The predicate still honors **`af_rls_bypass`** and **`af_tenant_id`** in **`SESSION_CONTEXT`**:
+When **`096`** has run, these tables use **tenant id only** (no workspace/project on the row). The predicate still honors **`al_rls_bypass`** and **`al_tenant_id`** in **`SESSION_CONTEXT`**:
 
 - `dbo.SentEmails`
 - `dbo.TenantLifecycleTransitions`
@@ -123,7 +123,7 @@ When **`096`** has run, these tables use **tenant id only** (no workspace/projec
 
 ## 10. Evolution
 
-Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030.
+Pilot **`rls.RunsScopeFilter`** / `runs_scope_predicate` (DbUp 030) is **superseded** by **036**: single function **`rls.archiforge_scope_predicate`** and policy **`rls.ArchiforgeTenantScope`**. Brownfield databases receive 036 via DbUp after 030. **DbUp 108 (2026-04-21)** then drops both objects and replaces them with **`rls.archlucid_scope_predicate`** + **`rls.archlucid_tenant_predicate`** under policy **`rls.ArchLucidTenantScope`**, switching SESSION_CONTEXT keys from `af_*` to `al_*`. The cutover is atomic — there is **no dual-read shim**, so the application (`RlsSessionContextApplicator`, `SqlTenantHardPurgeService`, `DevelopmentDefaultScopeTenantBootstrap`) and the policy state must be deployed together.
 
 Integration tests: `ArchLucid.Persistence.Tests/RlsArchLucidScopeIntegrationTests.cs` (SQL Server container) assert cross-tenant isolation on **`dbo.Runs`**, **`dbo.AuditEvents`**, and **`dbo.ContextSnapshots`** with the policy temporarily set to `STATE = ON`.
 

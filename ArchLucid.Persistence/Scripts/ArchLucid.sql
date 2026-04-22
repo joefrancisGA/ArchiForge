@@ -2735,7 +2735,9 @@ BEGIN
 END;
 GO
 
-/* ---- DbUp 036 parity: RLS on scope-keyed authority tables (STATE = OFF; see docs/security/MULTI_TENANT_RLS.md) ---- */
+/* ---- DbUp 036 + 108 parity: RLS on scope-keyed authority tables. Object names follow the
+       ArchLucid rename (DbUp 108): rls.ArchLucidTenantScope / rls.archlucid_*_predicate /
+       SESSION_CONTEXT N'al_*' keys. STATE = OFF; see docs/security/MULTI_TENANT_RLS.md. ---- */
 
 IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'rls')
     EXEC(N'CREATE SCHEMA rls');
@@ -2745,19 +2747,19 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'RunsScopeFilter')
     DROP SECURITY POLICY rls.RunsScopeFilter;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
-    DROP SECURITY POLICY rls.ArchiforgeTenantScope;
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
+    DROP SECURITY POLICY rls.ArchLucidTenantScope;
 GO
 
 IF OBJECT_ID(N'rls.runs_scope_predicate', N'IF') IS NOT NULL
     DROP FUNCTION rls.runs_scope_predicate;
 GO
 
-IF OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
-    DROP FUNCTION rls.archiforge_scope_predicate;
+IF OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
+    DROP FUNCTION rls.archlucid_scope_predicate;
 GO
 
-CREATE FUNCTION rls.archiforge_scope_predicate(
+CREATE FUNCTION rls.archlucid_scope_predicate(
     @TenantId uniqueidentifier,
     @WorkspaceId uniqueidentifier,
     @ProjectScopeId uniqueidentifier)
@@ -2767,148 +2769,148 @@ AS
 RETURN
 (
     SELECT 1 AS access_granted
-    WHERE ISNULL(TRY_CONVERT(int, SESSION_CONTEXT(N'af_rls_bypass')), 0) = 1
+    WHERE ISNULL(TRY_CONVERT(int, SESSION_CONTEXT(N'al_rls_bypass')), 0) = 1
        OR (
-            @TenantId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_tenant_id'))
-        AND @WorkspaceId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_workspace_id'))
-        AND @ProjectScopeId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_project_id'))
+            @TenantId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'al_tenant_id'))
+        AND @WorkspaceId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'al_workspace_id'))
+        AND @ProjectScopeId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'al_project_id'))
        )
 );
 GO
 
-CREATE SECURITY POLICY rls.ArchiforgeTenantScope
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets,
-    ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets BEFORE DELETE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog AFTER INSERT,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog AFTER UPDATE,
-    ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog BEFORE DELETE
+CREATE SECURITY POLICY rls.ArchLucidTenantScope
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets,
+    ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.Runs BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DecisioningTraces BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifests BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ScopeProjectId) ON dbo.ContextSnapshots BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingsSnapshots BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.GoldenManifestAssumptions BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArtifactBundles BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuditEvents BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProvenanceSnapshots BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConversationThreads BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationRecords BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RecommendationLearningProfiles BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanSchedules BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AdvisoryScanExecutions BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureDigests BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestSubscriptions BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.DigestDeliveryAttempts BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRules BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRecords BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertRoutingSubscriptions BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AlertDeliveryAttempts BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.CompositeAlertRules BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPacks BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackAssignments BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.RetrievalIndexingOutbox BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.IntegrationEventOutbox BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.AuthorityPipelineWorkOutbox BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ArchitectureRunIdempotency BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningPilotSignals BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementThemes BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductLearningImprovementPlans BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.EvolutionCandidateChangeSets BEFORE DELETE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog AFTER INSERT,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog AFTER UPDATE,
+    ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.PolicyPackChangeLog BEFORE DELETE
     WITH (STATE = OFF);
 GO
 
@@ -3316,7 +3318,8 @@ BEGIN
 END;
 GO
 
-/* 105: Teams incoming-webhook Key Vault reference per tenant (see Migrations/105_TenantTeamsIncomingWebhookConnections.sql). */
+/* 105 + 107: Teams incoming-webhook Key Vault reference per tenant + per-trigger opt-in matrix
+   (see Migrations/105_TenantTeamsIncomingWebhookConnections.sql + 107_TenantTeamsIncomingWebhookConnections_EnabledTriggers.sql). */
 IF OBJECT_ID(N'dbo.TenantTeamsIncomingWebhookConnections', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.TenantTeamsIncomingWebhookConnections
@@ -3325,10 +3328,15 @@ BEGIN
             CONSTRAINT PK_TenantTeamsIncomingWebhookConnections2 PRIMARY KEY,
         KeyVaultSecretName    NVARCHAR(500)    NOT NULL,
         Label                 NVARCHAR(200)    NULL,
+        EnabledTriggersJson   NVARCHAR(MAX)    NOT NULL
+            CONSTRAINT DF_TenantTeamsIncomingWebhookConnections_EnabledTriggersJson2
+                DEFAULT (N'["com.archlucid.authority.run.completed","com.archlucid.governance.approval.submitted","com.archlucid.alert.fired","com.archlucid.compliance.drift.escalated","com.archlucid.advisory.scan.completed","com.archlucid.seat.reservation.released"]'),
         UpdatedUtc            DATETIME2(7)     NOT NULL
             CONSTRAINT DF_TenantTeamsIncomingWebhookConnections_UpdatedUtc2 DEFAULT SYSUTCDATETIME(),
         CONSTRAINT CK_TenantTeamsIncomingWebhookConnections_NoUrl2
             CHECK (KeyVaultSecretName NOT LIKE N'%://%'),
+        CONSTRAINT CK_TenantTeamsIncomingWebhookConnections_EnabledTriggersJson_IsJson2
+            CHECK (ISJSON(EnabledTriggersJson) = 1),
         CONSTRAINT FK_TenantTeamsIncomingWebhookConnections_Tenants2 FOREIGN KEY (TenantId) REFERENCES dbo.Tenants (Id)
     );
 END;
@@ -3376,7 +3384,7 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.TenantHealthScores', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -3385,15 +3393,15 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantHealthScores')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.TenantHealthScores BEFORE DELETE;
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.ProductFeedback', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -3402,15 +3410,15 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'ProductFeedback')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ProductFeedback BEFORE DELETE;
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.FindingFeedback', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -3419,11 +3427,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'FindingFeedback')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.FindingFeedback BEFORE DELETE;
 END;
 GO
 
@@ -4118,23 +4126,23 @@ END;
 GO
 
 /* 096: RLS tenant-only predicate + SentEmails / TenantLifecycleTransitions / TenantTrialSeatOccupants (see Migrations/096_RlsTenantIdOnlyTables.sql). */
-IF OBJECT_ID(N'rls.archiforge_tenant_predicate', N'IF') IS NOT NULL
-    DROP FUNCTION rls.archiforge_tenant_predicate;
+IF OBJECT_ID(N'rls.archlucid_tenant_predicate', N'IF') IS NOT NULL
+    DROP FUNCTION rls.archlucid_tenant_predicate;
 GO
 
-CREATE FUNCTION rls.archiforge_tenant_predicate(@TenantId uniqueidentifier)
+CREATE FUNCTION rls.archlucid_tenant_predicate(@TenantId uniqueidentifier)
 RETURNS TABLE
 WITH SCHEMABINDING
 AS
 RETURN
 (
     SELECT 1 AS access_granted
-    WHERE ISNULL(TRY_CONVERT(int, SESSION_CONTEXT(N'af_rls_bypass')), 0) = 1
-       OR @TenantId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'af_tenant_id'))
+    WHERE ISNULL(TRY_CONVERT(int, SESSION_CONTEXT(N'al_rls_bypass')), 0) = 1
+       OR @TenantId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'al_tenant_id'))
 );
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.SentEmails', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -4143,15 +4151,15 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'SentEmails')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.SentEmails BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.SentEmails,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.SentEmails AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.SentEmails AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.SentEmails BEFORE DELETE;
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.TenantLifecycleTransitions', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -4160,15 +4168,15 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantLifecycleTransitions')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantLifecycleTransitions BEFORE DELETE;
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.TenantTrialSeatOccupants', N'U') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
@@ -4177,11 +4185,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantTrialSeatOccupants')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantTrialSeatOccupants BEFORE DELETE;
 END;
 GO
 
@@ -4198,9 +4206,9 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.TenantOnboardingState', N'U') IS NOT NULL
-   AND OBJECT_ID(N'rls.archiforge_tenant_predicate', N'IF') IS NOT NULL
+   AND OBJECT_ID(N'rls.archlucid_tenant_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
@@ -4208,11 +4216,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'TenantOnboardingState')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_tenant_predicate(TenantId) ON dbo.TenantOnboardingState BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantOnboardingState,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantOnboardingState AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantOnboardingState AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_tenant_predicate(TenantId) ON dbo.TenantOnboardingState BEFORE DELETE;
 END;
 GO
 
@@ -4329,9 +4337,9 @@ BEGIN
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.ConfluencePublishingTargets', N'U') IS NOT NULL
-   AND OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
+   AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
@@ -4339,17 +4347,17 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'ConfluencePublishingTargets')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishingTargets BEFORE DELETE;
 END;
 GO
 
-IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantScope')
+IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchLucidTenantScope')
    AND OBJECT_ID(N'dbo.ConfluencePublishJobs', N'U') IS NOT NULL
-   AND OBJECT_ID(N'rls.archiforge_scope_predicate', N'IF') IS NOT NULL
+   AND OBJECT_ID(N'rls.archlucid_scope_predicate', N'IF') IS NOT NULL
    AND NOT EXISTS (
         SELECT 1
         FROM sys.security_predicates AS p
@@ -4357,11 +4365,11 @@ IF EXISTS (SELECT 1 FROM sys.security_policies WHERE name = N'ArchiforgeTenantSc
         WHERE SCHEMA_NAME(t.schema_id) = N'dbo'
           AND t.name = N'ConfluencePublishJobs')
 BEGIN
-    ALTER SECURITY POLICY rls.ArchiforgeTenantScope
-        ADD FILTER PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs AFTER INSERT,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs AFTER UPDATE,
-        ADD BLOCK PREDICATE rls.archiforge_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs BEFORE DELETE;
+    ALTER SECURITY POLICY rls.ArchLucidTenantScope
+        ADD FILTER PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs AFTER INSERT,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs AFTER UPDATE,
+        ADD BLOCK PREDICATE rls.archlucid_scope_predicate(TenantId, WorkspaceId, ProjectId) ON dbo.ConfluencePublishJobs BEFORE DELETE;
 END;
 GO
 

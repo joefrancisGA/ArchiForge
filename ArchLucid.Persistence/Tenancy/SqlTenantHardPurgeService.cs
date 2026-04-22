@@ -193,7 +193,7 @@ public sealed class SqlTenantHardPurgeService(ISqlConnectionFactory connectionFa
     {
         await using SqlCommand cmd = connection.CreateCommand();
         cmd.CommandText = "EXEC sp_set_session_context @k, @v, @read_only;";
-        cmd.Parameters.AddWithValue("@k", "af_rls_bypass");
+        cmd.Parameters.AddWithValue("@k", "al_rls_bypass");
         cmd.Parameters.AddWithValue("@v", 1);
         cmd.Parameters.AddWithValue("@read_only", 0);
         await cmd.ExecuteNonQueryAsync(cancellationToken);

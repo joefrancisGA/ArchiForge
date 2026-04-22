@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Contracts.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Notifications.Teams;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
@@ -57,12 +58,21 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                     IsConfigured = false,
                     Label = null,
                     KeyVaultSecretName = null,
+                    EnabledTriggers = TeamsNotificationTriggerCatalog.All,
                     UpdatedUtc = DateTimeOffset.UtcNow,
                 });
         }
 
         return Ok(row);
     }
+
+    /// <summary>Returns the canonical v1 catalog of Teams notification triggers an operator can opt in to.</summary>
+    [HttpGet("triggers")]
+    [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public IActionResult GetTriggerCatalog() => Ok(TeamsNotificationTriggerCatalog.All);
 
     /// <summary>Upserts the Key Vault secret name used to resolve the Teams incoming webhook URL at delivery time.</summary>
     [HttpPost("connections")]
@@ -99,12 +109,25 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                 ProblemTypes.ValidationFailed);
         }
 
+        if (body.EnabledTriggers is not null)
+        {
+            IReadOnlyList<string> unknown = TeamsNotificationTriggerCatalog.Unknown(body.EnabledTriggers);
+
+            if (unknown.Count > 0)
+            {
+                return this.BadRequestProblem(
+                    $"EnabledTriggers contains unknown trigger names: {string.Join(", ", unknown)}. Allowed values: {string.Join(", ", TeamsNotificationTriggerCatalog.All)}.",
+                    ProblemTypes.ValidationFailed);
+            }
+        }
+
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
         TeamsIncomingWebhookConnectionResponse? saved = await _connectionRepository.UpsertAsync(
             scope.TenantId,
             trimmed,
             string.IsNullOrWhiteSpace(body.Label) ? null : body.Label.Trim(),
+            body.EnabledTriggers,
             cancellationToken);
 
         if (saved is null)
@@ -121,7 +144,11 @@ public sealed class TeamsIncomingWebhookConnectionsController(
                 TenantId = scope.TenantId,
                 WorkspaceId = scope.WorkspaceId,
                 ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(new { keyVaultSecretNameLength = trimmed.Length }),
+                DataJson = JsonSerializer.Serialize(new
+                {
+                    keyVaultSecretNameLength = trimmed.Length,
+                    enabledTriggerCount = saved.EnabledTriggers.Count,
+                }),
             },
             cancellationToken);
 

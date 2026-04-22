@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.Integrations;
+using ArchLucid.Core.Notifications.Teams;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -25,6 +26,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
                 TenantId,
                 KeyVaultSecretName,
                 Label,
+                EnabledTriggersJson,
                 UpdatedUtc
             FROM dbo.TenantTeamsIncomingWebhookConnections
             WHERE TenantId = @TenantId;
@@ -46,6 +48,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         Guid tenantId,
         string keyVaultSecretName,
         string? label,
+        IReadOnlyList<string>? enabledTriggers,
         CancellationToken cancellationToken)
     {
         const string tenantExistsSql = """
@@ -65,21 +68,29 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
             return null;
 
 
+        // null EnabledTriggers means "leave existing JSON unchanged on UPDATE; use catalog default on INSERT".
+        // Two-source MERGE keeps that semantic in a single round-trip without a SELECT-then-MERGE race.
+        string? enabledTriggersJson = enabledTriggers is null
+            ? null
+            : TeamsNotificationTriggerCatalog.Serialize(enabledTriggers.Count == 0 ? [] : enabledTriggers);
+
         const string mergeSql = """
             MERGE dbo.TenantTeamsIncomingWebhookConnections AS t
             USING (
                 SELECT
                     @TenantId AS TenantId,
                     @KeyVaultSecretName AS KeyVaultSecretName,
-                    @Label AS Label
+                    @Label AS Label,
+                    @EnabledTriggersJson AS EnabledTriggersJson
             ) AS s
             ON t.TenantId = s.TenantId
             WHEN MATCHED THEN UPDATE SET
                 KeyVaultSecretName = s.KeyVaultSecretName,
                 Label = s.Label,
+                EnabledTriggersJson = COALESCE(s.EnabledTriggersJson, t.EnabledTriggersJson),
                 UpdatedUtc = SYSUTCDATETIME()
-            WHEN NOT MATCHED THEN INSERT (TenantId, KeyVaultSecretName, Label, UpdatedUtc)
-            VALUES (s.TenantId, s.KeyVaultSecretName, s.Label, SYSUTCDATETIME());
+            WHEN NOT MATCHED THEN INSERT (TenantId, KeyVaultSecretName, Label, EnabledTriggersJson, UpdatedUtc)
+            VALUES (s.TenantId, s.KeyVaultSecretName, s.Label, COALESCE(s.EnabledTriggersJson, @CatalogDefaultJson), SYSUTCDATETIME());
             """;
 
         await connection.ExecuteAsync(
@@ -90,6 +101,8 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
                     TenantId = tenantId,
                     KeyVaultSecretName = keyVaultSecretName,
                     Label = label,
+                    EnabledTriggersJson = enabledTriggersJson,
+                    CatalogDefaultJson = TeamsNotificationTriggerCatalog.DefaultEnabledTriggersJson,
                 },
                 cancellationToken: cancellationToken));
 
@@ -118,6 +131,7 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
             IsConfigured = isConfigured,
             Label = row.Label,
             KeyVaultSecretName = row.KeyVaultSecretName,
+            EnabledTriggers = TeamsNotificationTriggerCatalog.ParseOrDefault(row.EnabledTriggersJson),
             UpdatedUtc = new DateTimeOffset(row.UpdatedUtc, TimeSpan.Zero),
         };
 
@@ -128,6 +142,8 @@ public sealed class DapperTenantTeamsIncomingWebhookConnectionRepository(ISqlCon
         public string KeyVaultSecretName { get; init; } = "";
 
         public string? Label { get; init; }
+
+        public string? EnabledTriggersJson { get; init; }
 
         public DateTime UpdatedUtc { get; init; }
     }

@@ -2,7 +2,7 @@
 
 # Pending questions (product and operations)
 
-**Last updated:** 2026-04-21 (interactive owner Q&A session + same-day 5-decision follow-up — see *Resolved 2026-04-21 (owner Q&A — 19 decisions)* and *Resolved 2026-04-21 (follow-up Q&A — 5 decisions)* tables below; supersedes the prior `Last updated` entry)
+**Last updated:** 2026-04-21 (interactive owner Q&A session + same-day 5-decision follow-up + bundled DDL change set — see *Resolved 2026-04-21 (owner Q&A — 19 decisions)*, *Resolved 2026-04-21 (follow-up Q&A — 5 decisions)*, and *Resolved 2026-04-21 (bundled DDL change set — Teams + RLS)* tables below; supersedes the prior `Last updated` entry)
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
 
@@ -47,6 +47,18 @@ These decisions came out of a same-day five-question follow-up after the 19-deci
 | **Public-sector US — CJIS scope** | **FedRAMP Moderate / NIST SP 800-53 Rev. 5 only** in v1. Drop the CJIS Security Policy reference from the policy-pack metadata, brief, wizard preset, and rule descriptions. CJIS overlay is captured as a future pack rather than v1 work. | `templates/policy-packs/public-sector-us/policy-pack.json`, mirrored UI copy at `archlucid-ui/public/vertical-templates/public-sector-us/policy-pack.json`, `templates/policy-packs/public-sector-us/compliance-rules.json`, `templates/briefs/public-sector-us/brief.md`, `archlucid-ui/src/lib/vertical-wizard-presets.ts`, `templates/README.md` § Owner decisions. |
 | **ROI bulletin sign-off audit format** | **Dedicated tagged section** in `docs/CHANGELOG.md` of the form `## YYYY-MM-DD — ROI bulletin signed: Q?-YYYY` — greppable with one `rg` command. The section *is* the signature; no separate signature artifact, no co-signer. | `docs/go-to-market/AGGREGATE_ROI_BULLETIN_TEMPLATE.md` § Owner-approval gate (column rename) + new § Sign-off audit format (heading shape + `rg` recipe + "no bulletin without a section" rule). |
 | **Microsoft Teams — per-trigger opt-in** | **Per-trigger opt-in matrix** per connection (defaults to all-on so existing rows keep current behaviour). Costs an extra column on `dbo.TenantTeamsIncomingWebhookConnections` (`EnabledTriggersJson NVARCHAR(MAX) NOT NULL`) and a UI checkbox matrix on `/integrations/teams`; Logic Apps workflow filters server-side before fan-out. To be done in a **separate session** alongside the RLS object-name SQL migration so both DDL change sets are reviewable together. | New "Still open" sub-item under item **23** ("Per-trigger Teams opt-in matrix — queued for dedicated session"). |
+
+---
+
+## Resolved 2026-04-21 (bundled DDL change set — Teams + RLS)
+
+These two work items were the dedicated-session items queued by the same-day follow-up table above. Both ship together so the two SQL DDL changes are reviewable in a single window.
+
+| Decision | Answer | Affects |
+|----------|--------|---------|
+| **Microsoft Teams — per-trigger opt-in matrix (Part A)** | **Implemented.** DbUp **`107_TeamsConnectionsEnabledTriggers.sql`** + master DDL mirror, canonical six-trigger catalog, `EnabledTriggers` round-tripped through contracts + Dapper / InMemory repos, controller subset validation (400 on unknown), `/integrations/teams` UI checkbox matrix, Logic Apps `teams-notification-fanout` README updated for server-side filter, tests for round-trip + invalid-trigger + default-all-on. | Closes the new "Still open" sub-item under item **23** ("Per-trigger Teams opt-in matrix — queued for dedicated session"). See `docs/CHANGELOG.md` 2026-04-21 entry "Teams per-trigger opt-in matrix (Part A) + ArchLucid RLS object-name SQL migration (Part B)". |
+| **ArchLucid rename — RLS object-name SQL migration (Part B)** — **`SESSION_CONTEXT` keys naming** | **Atomic cutover to `al_*`** (no dual-read shim). Owner answer to in-session question `q_session_context_keys` was **`rename_to_al`**. | DbUp **`108_RlsRenameToArchLucid.sql`** + rollback `R108`; master DDL substitution; `RlsSessionContextApplicator` / `RlsBypassPolicyBootstrap` / `DevelopmentDefaultScopeTenantBootstrap` / `SqlTenantHardPurgeService`; integration tests updated (CI string-concatenation workaround retired). |
+| **ArchLucid rename — RLS object-name SQL migration (Part B)** — **Brownfield rollout sequencing** | **Apply migration 108 + deploy application binaries together.** No compatibility window — old binaries writing `af_*` after 108 will be denied by the new predicates. Documented in `docs/CHANGELOG.md` Part B entry. | Closes item "ArchLucid rename — RLS object-name SQL migration" in the 19-decision table. Closes RLS leftover row at `docs/ARCHLUCID_RENAME_CHECKLIST.md` § 7.9. |
 
 ---
 
