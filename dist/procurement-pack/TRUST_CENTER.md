@@ -7,7 +7,7 @@
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.
 
-**Last reviewed:** 2026-04-21
+**Last reviewed:** 2026-04-22
 
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
@@ -37,14 +37,14 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 - [Statement of work template](../security/PEN_TEST_SOW_TEMPLATE.md)
 - [Redacted customer summary template](../security/PEN_TEST_REDACTED_SUMMARY_TEMPLATE.md)
 - [2026 Q2 — **awarded** SoW (Aeronova Red Team LLC)](../security/pen-test-summaries/2026-Q2-SOW.md)
-- [2026 Q2 — redacted summary placeholder](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (replace narrative tables after assessor delivery)
+- [2026 Q2 — redacted summary working copy](../security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md) (assessor narrative — **not** a public artefact)
+
+**NDA-gated pen-test summaries (decision 2026-04-22 — [`docs/PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 20):** Pen-test redacted summaries are made available **under NDA only**; the public Trust Center records the existence of the engagement and the high-level posture. To request the most recent redacted summary, contact **`security@archlucid.com`**. The discipline folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) remains the **in-repo working surface** for procurement alignment — it does **not** imply public publication of Aeronova deliverables.
 
 **Questionnaires (pre-filled):**
 
 - [CAIQ Lite pre-fill (2026)](../security/CAIQ_LITE_2026.md) — map to CSA CAIQ v4 spreadsheet for STAR submissions
 - [SIG Core pre-fill (2026)](../security/SIG_CORE_2026.md) — map to Shared Assessments SIG Core workbook
-
-**Published redacted summaries:** the publication folder [`docs/security/pen-test-summaries/`](../security/pen-test-summaries/README.md) holds discipline notes. After Aeronova delivers the customer-shareable excerpt, replace the placeholder sections in `2026-Q2-REDACTED-SUMMARY.md` and record `POST /v1/admin/security-trust/publications` so the operator **Security & trust** page (`/security-trust`) shows the **SecurityAssessmentPublished** badge.
 
 ---
 
@@ -97,16 +97,31 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 
 | Item | Status | Notes |
 |------|--------|--------|
-| **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). **Revisit trigger:** owner-defined ARR threshold (tracked in `docs/PENDING_QUESTIONS.md` item 6 — assistant cannot set the dollar figure). External readiness consultant + CPA firm selection paused until that trigger fires; G-001 in the self-assessment captures the resumption checklist. |
+| **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). We will pursue SOC 2 Type 1 readiness once we cross approximately **$1M ARR**; until then, we publish a self-attested security and compliance summary. (Directional, not contractual — see `docs/PENDING_QUESTIONS.md` item 6 resolved 2026-04-22.) External readiness consultant + CPA firm selection paused until that threshold; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
+
+---
+
+## Commercial terms
+
+**Drafted 2026-04-22; pending legal sign-off before any commerce un-hold.**
+
+**Chargebacks:** bank-initiated disputes; Vendor responds via Stripe with contract + delivery evidence; outcome follows card-network rules.
+
+**Refunds:** no Customer early-cancellation refund unless agreed in writing (aligned with order form **§5** / **§9**).
+
+**Dunning:** Stripe smart retries for cards by default; suspension after **15 days past due** aligns with order form **§7** after notice.
+
+Full text: [ORDER_FORM_TEMPLATE.md § 9](ORDER_FORM_TEMPLATE.md).
 
 ---
 
 ## Contact
 
 - **Security inquiries:** `security@archlucid.com` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
-- **PGP (optional):** when the security custodian publishes a key, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) § PGP). Until that file exists, use plain email for coordinated disclosure.
+- **Accessibility barriers (non-security):** `accessibility@archlucid.com` — same operational custodian as `security@archlucid.com` (decision 2026-04-22); see [../security/ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) and the public marketing route **`/accessibility`**.
+- **Coordinated disclosure key:** generation procedure: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) (key publication pending). When published, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) PGP). Until that file exists, use plain email.
 
 For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).
 

@@ -7,6 +7,12 @@
 
 Release entries newest-first. Each section condenses the detailed prompt logs preserved in `docs/archive/`.
 
+## 2026-04-22 — ADR 0031 — cross-tenant pattern library drafted in full for owner sign-off (per decision 2026-04-22)
+
+**Outcome.** New [`docs/adr/0031-cross-tenant-pattern-library.md`](adr/0031-cross-tenant-pattern-library.md) (**Status: Proposed**) records architecture for optional **anonymised industry pattern guidance** (committed-manifest fingerprints, **k ≥ 5**, dedicated service principal + materialised aggregate surface, nightly ETL, **RLS unchanged** on tenant tables). [`docs/PENDING_QUESTIONS.md`](PENDING_QUESTIONS.md) item **14** and the **Cross-tenant pattern library** resolved row point at ADR 0031. [`docs/go-to-market/DPA_TEMPLATE.md`](go-to-market/DPA_TEMPLATE.md) gains **Section 10 — Cross-tenant patterns opt-in** (Signature renumbered to **Section 11**). [`docs/adr/README.md`](adr/README.md) lists ADR 0030 / 0031. **`dist/procurement-pack`** / **`dist/procurement-pack.zip`** regenerated via `scripts/build_procurement_pack.py`. **No application code, SQL migrations, controllers, or UI** — design-only.
+
+---
+
 ## 2026-04-22 — PGP key generation recipe scaffolded; owner-self custodian (items 10 / 21)
 
 **Outcome.** Documents the **executable** custodian path for coordinated-disclosure OpenPGP material on **`security@archlucid.com`**: new [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](security/PGP_KEY_GENERATION_RECIPE.md) (Ed25519/ECC preferred, RSA 4096 fallback, interactive and optional batch `gpg` flows, export to `archlucid-ui/public/.well-known/pgp-key.txt`, rotation, revocation, where private material may live). **[`SECURITY.md`](../SECURITY.md)** PGP section points at the recipe and reserves a **Key ID** line for post-publication fingerprint. **[`TRUST_CENTER.md`](go-to-market/TRUST_CENTER.md)** Contact adds a one-line cross-reference (publication still **pending**). **CI:** [`scripts/ci/assert_pgp_key_present.py`](../scripts/ci/assert_pgp_key_present.py) now **warn-only** when `pgp-key.txt` is absent (stderr: pending owner publication) and **validates ASCII-armored public key** shape when the file exists; unit tests updated. **Owner gate:** generate the key, commit `pgp-key.txt`, record fingerprint in `SECURITY.md` / recipe table.

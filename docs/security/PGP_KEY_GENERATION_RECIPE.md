@@ -118,10 +118,11 @@ From the repo root (adjust path if your shell is elsewhere). Prefer export by **
 gpg --armor --export "security@archlucid.com" > archlucid-ui/public/.well-known/pgp-key.txt
 ```
 
-If you have **multiple** keys for that UID, export by **fingerprint** (no spaces in the argument):
+If you have **multiple** keys for that UID, export by **fingerprint** (no spaces in the argument). Copy the **40-character** primary fingerprint from `gpg -K security@archlucid.com` (hex only, no spaces), then:
 
 ```bash
-gpg --armor --export ABCDEF0123456789ABCDEF0123456789ABCDEF > archlucid-ui/public/.well-known/pgp-key.txt
+# Replace the placeholder with your real 40-hex fingerprint from gpg (do not commit secrets).
+gpg --armor --export "PASTE_PRIMARY_FINGERPRINT_40_HEX_NO_SPACES" > archlucid-ui/public/.well-known/pgp-key.txt
 ```
 
 Inspect the file:
@@ -141,7 +142,7 @@ You must see **`-----BEGIN PGP PUBLIC KEY BLOCK-----`** at the top and **`-----E
 
 3. **After merge**, confirm the marketing host serves **`/.well-known/pgp-key.txt`** over **HTTPS** (same path as source).
 
-4. **Fingerprint (short form) for humans:** take the **last 16 hex digits** of the fingerprint (sometimes called **64-bit key id**). Append to [SECURITY.md](../../SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets, e.g. `Key ID: ABCD0123EF456789`.
+4. **Fingerprint (short form) for humans:** take the **last 16 hex digits** of the fingerprint (sometimes called **64-bit key id**). Append to [SECURITY.md](../../SECURITY.md) under the PGP section and to [TRUST_CENTER.md](../go-to-market/TRUST_CENTER.md) Contact bullets using a short line such as **Key ID** followed by those sixteen digits from `gpg --fingerprint` (do not paste sample key material into git; use only your real values after generation).
 
 5. Update the **custodian record** table at the bottom of **this** file with the full fingerprint.
 

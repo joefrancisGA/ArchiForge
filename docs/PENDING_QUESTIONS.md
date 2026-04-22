@@ -81,7 +81,7 @@ These decisions came out of a structured owner Q&A session driven by the latest 
 
 | Pending-questions item | Decision | Affects |
 |------------------------|----------|---------|
-| **14 — implementing ADR ownership** | **Assistant drafts in full** (`adr/0031-cross-tenant-pattern-library.md`); owner reviews and signs. | Item 14 closed for drafting authorization; sign-off remains owner-only. |
+| **14 — implementing ADR ownership** | **Resolved 2026-04-22** — **ADR 0031** drafted in full for owner sign-off: [`docs/adr/0031-cross-tenant-pattern-library.md`](adr/0031-cross-tenant-pattern-library.md) (**Status: Proposed** until owner flips to **Accepted**). | Item 14 closed for drafting; **implementation PRs remain blocked** until ADR **Accepted**. |
 
 ### Golden-cohort real-LLM (items 15 / 25)
 
@@ -199,7 +199,7 @@ These two work items were the dedicated-session items queued by the same-day fol
 | Terraform `state mv` (Phase 7.5–7.8) | **Waived** — no maintenance window; resource addresses may retain historical tokens per ADR / rename checklist. |
 | Commercial rails | **Stripe + Azure Marketplace** acceptable when each path is justified; ship Stripe before Marketplace unless a MACC buyer forces procurement path first. |
 | Penetration testing | **Owner-conducted** security assessment (OWASP ASVS–style) until budget for **external** assessor; see [`docs/security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md`](security/OWNER_SECURITY_ASSESSMENT_2026_Q2-DRAFT.md). |
-| Cross-tenant pattern library | **Approved** (opt-in, k-anonymity, DPA carve-out) — requires ADR before implementation lands. |
+| Cross-tenant pattern library | **Approved** (opt-in, k-anonymity, DPA carve-out) 2026-04-21 — implementing **ADR 0031** drafted 2026-04-22: [`docs/adr/0031-cross-tenant-pattern-library.md`](adr/0031-cross-tenant-pattern-library.md) (**Proposed** until owner **Accepted**). |
 | Azure subscriptions | **Staging:** existing subscription. **Production:** **second subscription** dedicated to prod (create empty; wire Terraform/CD after staging is green). |
 | Production Azure subscription ID | **`aab65184-5005-4b0d-a884-9e28328630b1`** — recorded in [`AZURE_SUBSCRIPTIONS.md`](AZURE_SUBSCRIPTIONS.md) as the single source of truth. Operator action: set GitHub Environment secret `AZURE_SUBSCRIPTION_ID` on the **`production`** environment to this value (and confirm sibling `AZURE_TENANT_ID` / `AZURE_CLIENT_ID` are populated for OIDC). Default region: **`centralus`**. |
 | DNS / TLS | Owner **approves** DNS and TLS cutover for production hostnames. |
@@ -268,7 +268,7 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
     - **Repo wiring (2026-04-22):** anonymous **`POST /v1/marketing/pricing/quote-request`** + **`dbo.MarketingPricingQuoteRequests`** capture intent when live checkout is not the chosen path; CRM / Salesforce owner decisions still apply before production mail-forwarding.
 
-14. **Cross-tenant pattern-library implementing ADR ownership** — approved per item above (`Resolved` table) but the implementing ADR has not been drafted; who owns it?
+14. **Cross-tenant pattern library — Resolved 2026-04-22.** Implementing **ADR 0031** is drafted for owner sign-off: [`docs/adr/0031-cross-tenant-pattern-library.md`](adr/0031-cross-tenant-pattern-library.md). **Status remains Proposed** until the owner flips to **Accepted**; no implementation merge until then.
 
 15. **Golden-cohort LLM budget approval** — Prompt 6 stands up a nightly golden-cohort drift detector. Owner approves a dedicated Azure OpenAI deployment + estimated monthly token budget for the nightly run.
 

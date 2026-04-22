@@ -101,7 +101,25 @@ See [INCIDENT_COMMUNICATIONS_POLICY.md](INCIDENT_COMMUNICATIONS_POLICY.md) for s
 
 ---
 
-## 10. Signature
+## 10. Cross-tenant patterns opt-in
+
+**Purpose (product):** Where the Services offer **anonymised industry guidance** (patterns derived from multiple customers’ committed architecture manifests, surfaced only when a statistical privacy floor is met), that processing is **optional** and **separate** from core tenant-private processing.
+
+10.1 **Default:** Cross-tenant pattern participation is **OFF** unless Controller **explicitly** enables it in the product controls and, where required, documents that choice in the subscription or order form.
+
+10.2 **What is processed:** **[Legal — describe]** — only **[non-identifying structural fingerprints / coarse aggregates]** as defined in the then-current product documentation (e.g. [ADR 0031 — Cross-tenant pattern library](../adr/0031-cross-tenant-pattern-library.md)); **not** free-text titles, URLs, user names, or customer-identifying labels in the operator-facing guidance surface.
+
+10.3 **Privacy mechanism:** **[Legal — describe]** — Processor applies a **minimum cohort size** (product default **k ≥ 5** distinct contributing tenants per published bucket unless a stricter value is agreed) before showing any pattern to other tenants.
+
+10.4 **Withdrawal:** When Controller disables the feature, Processor removes Controller’s contributions from publishable aggregates within **[e.g., 24]** hours, subject to documented backup and rebuild windows.
+
+10.5 **Processor role:** For this optional feature, Processor may process **[categories of data]** solely to compute **[aggregates]** in line with documented instructions; Controller warrants it has **[lawful basis / authority]** where required.
+
+**Important:** Qualified legal counsel must replace bracketed stubs and reconcile this section with Controller’s DPIA, industry rules, and the main agreement.
+
+---
+
+## 11. Signature
 
 | Controller | Processor |
 |------------|-----------|
