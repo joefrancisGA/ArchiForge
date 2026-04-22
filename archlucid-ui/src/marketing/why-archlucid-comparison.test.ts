@@ -8,15 +8,27 @@ import {
 /** Every ArchLucid proof line must point at a docs/ or adr/ path so claims stay traceable to the repo. */
 const CITATION_EVIDENCE = /docs\/|docs\\|adr\/|adr\\/i;
 
+const EVIDENCE_API = /GET \/v1\/|POST \/v1\/|GET \/openapi\//i;
+
+const EVIDENCE_MARKETING = /\/marketing\/why\//i;
+
 describe("WHY_ARCHLUCID_COMPARISON_ROWS", () => {
-  it("has at least one row", () => {
-    expect(WHY_ARCHLUCID_COMPARISON_ROWS.length).toBeGreaterThanOrEqual(4);
+  it("has at least twelve anchored rows", () => {
+    expect(WHY_ARCHLUCID_COMPARISON_ROWS.length).toBeGreaterThanOrEqual(12);
   });
 
   it("requires a docs/ or adr/ citation on every ArchLucid cell", () => {
     for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
       expect(row.archlucidCitation.trim().length, `dimension=${row.dimension}`).toBeGreaterThan(10);
       expect(row.archlucidCitation, `dimension=${row.dimension}`).toMatch(CITATION_EVIDENCE);
+    }
+  });
+
+  it("requires an evidence anchor with API path and marketing asset on every row", () => {
+    for (const row of WHY_ARCHLUCID_COMPARISON_ROWS) {
+      expect(row.evidenceAnchor.trim().length, `dimension=${row.dimension}`).toBeGreaterThan(8);
+      expect(row.evidenceAnchor, `dimension=${row.dimension}`).toMatch(EVIDENCE_API);
+      expect(row.evidenceAnchor, `dimension=${row.dimension}`).toMatch(EVIDENCE_MARKETING);
     }
   });
 

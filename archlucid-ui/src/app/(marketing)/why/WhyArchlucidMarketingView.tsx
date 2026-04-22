@@ -141,6 +141,10 @@ export function WhyArchlucidMarketingView({ rows, showDemoEmbed = true }: WhyArc
                       <span className="font-medium text-neutral-600 dark:text-neutral-400">Proof: </span>
                       <cite className="not-italic">{row.archlucidCitation}</cite>
                     </p>
+                    <p className="mt-2 text-xs leading-snug text-neutral-500 dark:text-neutral-500">
+                      <span className="font-medium text-neutral-600 dark:text-neutral-400">Evidence: </span>
+                      <span className="not-italic">{row.evidenceAnchor}</span>
+                    </p>
                   </td>
                 </tr>
               ))}

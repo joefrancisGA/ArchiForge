@@ -10,8 +10,8 @@ Decision: **PENDING_QUESTIONS.md item 31**, resolved 2026-04-21 (ship both PDF a
 section, with a CI sync check).
 
 The check is intentionally a **content** comparison, not a tokenized AST diff. It extracts
-six fields per row from each file (``dimension``, ``leanix``, ``ardoq``, ``megaHopex``,
-``archlucid``, ``archlucidCitation``) and asserts equality after light normalization
+seven fields per row from each file (``dimension``, ``leanix``, ``ardoq``, ``megaHopex``,
+``archlucid``, ``archlucidCitation``, ``evidenceAnchor``) and asserts equality after light normalization
 (collapse whitespace, decode common JSON / C-string escapes).
 
 Usage:
@@ -43,6 +43,7 @@ ROW_FIELDS: Tuple[str, ...] = (
     "megaHopex",
     "archlucid",
     "archlucidCitation",
+    "evidenceAnchor",
 )
 
 
@@ -135,8 +136,8 @@ def _extract_ts_rows(ts_text: str) -> List[Tuple[str, ...]]:
 def _extract_cs_rows(cs_text: str) -> List[Tuple[str, ...]]:
     """Pull the tuple-array literal inside ``BuildIncumbentMarkdownTable`` and parse each row.
 
-    Each tuple is six C# string literals in the order
-    ``(Dimension, Leanix, Ardoq, Mega, Archlucid, ArchCitation)``.
+    Each tuple is seven C# string literals in the order
+    ``(Dimension, Leanix, Ardoq, Mega, Archlucid, ArchCitation, EvidenceAnchor)``.
     """
     method_match = re.search(
         r"BuildIncumbentMarkdownTable\s*\(\)\s*\{(?P<body>.*?)return\s+t\.ToString",

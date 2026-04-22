@@ -57,6 +57,8 @@ A successful Core Pilot should prove that a team can:
 
 That is the main V1 buying motion.
 
+**Procurement-facing proof surfaces (light pointer):** the public marketing comparison table lives at **`/why`**; the operator telemetry proof page is **`/why-archlucid`**; the sourced incumbent-aligned PDF bundle is **`GET /v1/marketing/why-archlucid-pack.pdf`** (see [API_CONTRACTS.md](API_CONTRACTS.md)). The sponsor narrative in this brief remains canonical.
+
 ---
 
 ## 4. What measurable value a pilot should show
