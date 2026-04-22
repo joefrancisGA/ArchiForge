@@ -40,25 +40,7 @@ public sealed class ApiControllerMutationPolicyGuardTests
                 continue;
             }
 
-            foreach (MethodInfo method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            {
-                if (!MethodDeclaresMutationVerb(method))
-                {
-                    continue;
-                }
-
-                if (MethodOrTypeAllowsAnonymous(type, method))
-                {
-                    continue;
-                }
-
-                string? policy = FirstNonEmptyPolicyOnMethod(method) ?? FirstNonEmptyPolicyOnType(type);
-
-                if (string.IsNullOrWhiteSpace(policy))
-                {
-                    violations.Add($"{type.FullName}.{method.Name} is a mutation without a named [Authorize(Policy = ...)] on the method or controller.");
-                }
-            }
+            violations.AddRange(from method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) where MethodDeclaresMutationVerb(method) where !MethodOrTypeAllowsAnonymous(type, method) let policy = FirstNonEmptyPolicyOnMethod(method) ?? FirstNonEmptyPolicyOnType(type) where string.IsNullOrWhiteSpace(policy) select $"{type.FullName}.{method.Name} is a mutation without a named [Authorize(Policy = ...)] on the method or controller.");
         }
 
         violations.Should().BeEmpty();
@@ -148,59 +130,23 @@ public sealed class ApiControllerMutationPolicyGuardTests
     private static bool MethodOrTypeAllowsAnonymous(Type controllerType, MethodInfo method)
     {
         if (method.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null)
-        {
             return true;
-        }
 
-        if (controllerType.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null)
-        {
-            return true;
-        }
-
-        return false;
+        return controllerType.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null;
     }
 
     private static string? FirstNonEmptyPolicyOnMethod(MethodInfo method)
     {
-        foreach (AuthorizeAttribute attribute in method.GetCustomAttributes<AuthorizeAttribute>(inherit: false))
-        {
-            if (!string.IsNullOrWhiteSpace(attribute.Policy))
-            {
-                return attribute.Policy;
-            }
-        }
-
-        return null;
+        return (from attribute in method.GetCustomAttributes<AuthorizeAttribute>(inherit: false) where !string.IsNullOrWhiteSpace(attribute.Policy) select attribute.Policy).FirstOrDefault();
     }
 
     private static string? FirstNonEmptyPolicyOnType(Type controllerType)
     {
-        foreach (AuthorizeAttribute attribute in controllerType.GetCustomAttributes<AuthorizeAttribute>(inherit: true))
-        {
-            if (!string.IsNullOrWhiteSpace(attribute.Policy))
-            {
-                return attribute.Policy;
-            }
-        }
-
-        return null;
+        return (from attribute in controllerType.GetCustomAttributes<AuthorizeAttribute>(inherit: true) where !string.IsNullOrWhiteSpace(attribute.Policy) select attribute.Policy).FirstOrDefault();
     }
 
     private static bool MethodDeclaresMutationVerb(MethodInfo method)
     {
-        foreach (object attribute in method.GetCustomAttributes(inherit: true))
-        {
-            string name = attribute.GetType().Name;
-
-            if (name.Equals("HttpPostAttribute", StringComparison.Ordinal)
-                || name.Equals("HttpPutAttribute", StringComparison.Ordinal)
-                || name.Equals("HttpPatchAttribute", StringComparison.Ordinal)
-                || name.Equals("HttpDeleteAttribute", StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return method.GetCustomAttributes(inherit: true).Select(attribute => attribute.GetType().Name).Any(name => name.Equals("HttpPostAttribute", StringComparison.Ordinal) || name.Equals("HttpPutAttribute", StringComparison.Ordinal) || name.Equals("HttpPatchAttribute", StringComparison.Ordinal) || name.Equals("HttpDeleteAttribute", StringComparison.Ordinal));
     }
 }

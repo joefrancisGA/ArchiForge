@@ -44,8 +44,7 @@ public sealed class GoldenCohortSimulatorDeterminismTests
                 IReadOnlyList<AgentResult> results = await simulator.ExecuteAsync(ProbeRunId, request, evidence, tasks);
                 string wire = JsonSerializer.Serialize(results, ContractJson.Default);
 
-                if (baselineJson is null)
-                    baselineJson = wire;
+                baselineJson ??= wire;
 
                 wire.Should().Be(baselineJson, because: $"item {item.Id} repetition {i.ToString()} must match the Simulator baseline wire payload");
             }

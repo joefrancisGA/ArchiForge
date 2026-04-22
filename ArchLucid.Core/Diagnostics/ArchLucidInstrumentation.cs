@@ -348,7 +348,7 @@ public static class ArchLucidInstrumentation
 
     /// <summary>Seconds from trial anchor to first golden manifest commit (self-service trials).</summary>
     public static readonly Histogram<double> TrialFirstRunSeconds =
-        AppMeter.CreateHistogram<double>(
+        AppMeter.CreateHistogram(
             "archlucid_trial_first_run_seconds",
             unit: "s",
             description: "Seconds from tenant trial anchor (TrialStartUtc or CreatedUtc) to first committed manifest.",
@@ -362,7 +362,7 @@ public static class ArchLucidInstrumentation
 
     /// <summary><c>TrialRunsUsed / TrialRunsLimit</c> at first manifest commit for metered trials (0.0–1.0+).</summary>
     public static readonly Histogram<double> TrialRunsUsedRatio =
-        AppMeter.CreateHistogram<double>(
+        AppMeter.CreateHistogram(
             "archlucid_trial_runs_used_ratio",
             description: "TrialRunsUsed divided by TrialRunsLimit when the first manifest commits (labels none).",
             advice: new InstrumentAdvice<double>

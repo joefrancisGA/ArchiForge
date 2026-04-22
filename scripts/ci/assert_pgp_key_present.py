@@ -1,14 +1,15 @@
 """
 assert_pgp_key_present.py
 -------------------------
-Advisory guard: if the Trust Center promises a **PGP** key at ``/.well-known/pgp-key.txt``,
-the corresponding repo file ``archlucid-ui/public/.well-known/pgp-key.txt`` must exist and be non-empty.
+PGP publication guard aligned with ``docs/go-to-market/TRUST_CENTER.md`` and ``docs/security/PGP_KEY_GENERATION_RECIPE.md``.
 
-Run: python scripts/ci/assert_pgp_key_present.py
+* If the Trust Center does **not** promise ``pgp-key.txt`` → exit **0** (nothing to check).
+* If it **does** promise PGP but ``archlucid-ui/public/.well-known/pgp-key.txt`` is **missing** → log
+  **pending owner publication** to stderr and exit **0** (warn-only; owner follows the recipe when ready).
+* If the file **exists** → it must contain a valid **ASCII-armoured public key** block (BEGIN/END markers and
+  substantial body). Malformed files exit **1** (merge-blocking once the workflow step drops ``continue-on-error``).
 
-Exit 0 = OK (key present, or Trust Center does not reference PGP). Exit 1 = Trust Center references PGP but key file missing/empty.
-
-**Workflow:** keep ``continue-on-error: true`` until the custodian commits ``pgp-key.txt``; then flip the step to merge-blocking.
+Run: ``python scripts/ci/assert_pgp_key_present.py``
 """
 
 from __future__ import annotations
@@ -36,15 +37,25 @@ def _read(rel_path: str) -> str:
         return handle.read()
 
 
-def _key_material_ok() -> bool:
-    path = os.path.join(REPO_ROOT, PGP_KEY_REL)
-    if not os.path.isfile(path):
+def _armored_public_key_valid(body: str) -> bool:
+    stripped = body.strip()
+    begin_tag = "-----BEGIN PGP PUBLIC KEY BLOCK-----"
+    end_tag = "-----END PGP PUBLIC KEY BLOCK-----"
+
+    if begin_tag not in stripped or end_tag not in stripped:
         return False
 
-    with open(path, encoding="utf-8") as handle:
-        body = handle.read().strip()
+    begin_idx = stripped.index(begin_tag)
+    end_idx = stripped.index(end_tag)
+    if end_idx < begin_idx:
+        return False
 
-    return len(body) > 20
+    inner = stripped[begin_idx + len(begin_tag) : end_idx].strip()
+    # Real armored keys include multiple radix-64 lines; reject trivial placeholders.
+    if len(inner) < 64:
+        return False
+
+    return True
 
 
 def main() -> int:
@@ -56,17 +67,37 @@ def main() -> int:
     if not PGP_SIGNAL.search(trust_center):
         return 0
 
-    if _key_material_ok():
+    key_path = os.path.join(REPO_ROOT, PGP_KEY_REL)
+
+    if not os.path.isfile(key_path):
+        print(
+            "assert_pgp_key_present: pending owner publication - "
+            f"{PGP_KEY_REL} is not present yet. Follow docs/security/PGP_KEY_GENERATION_RECIPE.md when ready.",
+            file=sys.stderr,
+        )
         return 0
 
-    print(
-        "assert_pgp_key_present: Trust Center references PGP publication "
-        f"({TRUST_CENTER_REL}) but {PGP_KEY_REL} is missing or effectively empty. "
-        "Add the custodian-published public key, or remove the PGP promise from the Trust Center.",
-        file=sys.stderr,
-    )
+    with open(key_path, encoding="utf-8") as handle:
+        body = handle.read()
 
-    return 1
+    if not body.strip():
+        print(
+            "assert_pgp_key_present: invalid PGP publication - "
+            f"{PGP_KEY_REL} exists but is empty. Remove the file or add a valid ASCII-armored public key.",
+            file=sys.stderr,
+        )
+        return 1
+
+    if not _armored_public_key_valid(body):
+        print(
+            "assert_pgp_key_present: invalid PGP publication - "
+            f"{PGP_KEY_REL} must contain a complete ASCII-armored public key block "
+            f"(see docs/security/PGP_KEY_GENERATION_RECIPE.md, section Export public key).",
+            file=sys.stderr,
+        )
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":

@@ -121,7 +121,7 @@ Full text: [ORDER_FORM_TEMPLATE.md § 9](ORDER_FORM_TEMPLATE.md).
 
 - **Security inquiries:** `security@archlucid.com` (canonical mailbox — confirmed 2026-04-21; aligns `SECURITY.md`, this Trust Center, and the eventual PGP UID).
 - **Accessibility barriers (non-security):** `accessibility@archlucid.com` — same operational custodian as `security@archlucid.com` (decision 2026-04-22); see [../security/ACCESSIBILITY_MAILBOX.md](../security/ACCESSIBILITY_MAILBOX.md) and the public marketing route **`/accessibility`**.
-- **PGP (optional):** when the security custodian publishes a key, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) § PGP). Until that file exists, use plain email for coordinated disclosure.
+- **Coordinated disclosure key:** generation procedure: [../security/PGP_KEY_GENERATION_RECIPE.md](../security/PGP_KEY_GENERATION_RECIPE.md) (key publication pending). When published, the public material is served at **`/.well-known/pgp-key.txt`** on the marketing site (see [../SECURITY.md](../SECURITY.md) PGP). Until that file exists, use plain email.
 
 For support alignment during incidents, clients should include **`X-Correlation-ID`** on API requests where possible ([../CUSTOMER_TRUST_AND_ACCESS.md](../CUSTOMER_TRUST_AND_ACCESS.md) §8).
 

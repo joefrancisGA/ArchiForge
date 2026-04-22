@@ -50,6 +50,8 @@ Security patches are applied to the **latest release branch / current default br
 
 ## PGP / encrypted email
 
-**PGP key material:** the canonical public key path is **`/.well-known/pgp-key.txt`** on the marketing site (source file [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt)). **Publication is pending** until the security custodian generates the key pair (UID **`security@archlucid.com`** — canonical mailbox confirmed 2026-04-21) and commits that file — see [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) items **3**, **10**, **21**.
+**Public key publication procedure:** follow [`docs/security/PGP_KEY_GENERATION_RECIPE.md`](docs/security/PGP_KEY_GENERATION_RECIPE.md) (owner-self custodian, decision **2026-04-22** — [`docs/PENDING_QUESTIONS.md`](docs/PENDING_QUESTIONS.md) items **10**, **21**). Until the public key file exists at [`archlucid-ui/public/.well-known/pgp-key.txt`](../archlucid-ui/public/.well-known/pgp-key.txt) and is served at **`/.well-known/pgp-key.txt`** on the marketing site, use **plain email** to **`security@archlucid.com`** for coordinated disclosure.
+
+**After publication:** add the **short fingerprint** (16 hex chars) from `gpg -K security@archlucid.com` on a line here for humans scanning `SECURITY.md` only — **Key ID:** *(owner completes)*.
 
 **Contact file:** [`archlucid-ui/public/.well-known/security.txt`](../archlucid-ui/public/.well-known/security.txt) is published at `https://archlucid.com/.well-known/security.txt` when the marketing site is live.

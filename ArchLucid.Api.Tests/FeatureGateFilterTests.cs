@@ -34,7 +34,7 @@ public sealed class FeatureGateFilterTests
         await sut.OnActionExecutionAsync(executing, () =>
         {
             delegateInvoked = true;
-            return Task.FromResult<ActionExecutedContext>(BuildExecutedContext(executing));
+            return Task.FromResult(BuildExecutedContext(executing));
         });
 
         delegateInvoked.Should().BeTrue();
@@ -52,7 +52,7 @@ public sealed class FeatureGateFilterTests
         await sut.OnActionExecutionAsync(executing, () =>
         {
             delegateInvoked = true;
-            return Task.FromResult<ActionExecutedContext>(BuildExecutedContext(executing));
+            return Task.FromResult(BuildExecutedContext(executing));
         });
 
         delegateInvoked.Should().BeFalse("the filter must short-circuit before the action runs");

@@ -59,21 +59,7 @@ public sealed class ApiControllerAuthorizationGuardTests
                 continue;
             }
 
-            foreach (MethodInfo method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
-            {
-                if (!MethodDeclaresHttpVerb(method))
-                {
-                    continue;
-                }
-
-                bool actionAuthorize = method.GetCustomAttribute<AuthorizeAttribute>(inherit: true) is not null;
-                bool actionAllowAnonymous = method.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null;
-
-                if (!actionAuthorize && !actionAllowAnonymous)
-                {
-                    violations.Add($"{type.FullName}.{method.Name} is missing [Authorize] or [AllowAnonymous].");
-                }
-            }
+            violations.AddRange(from method in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly) where MethodDeclaresHttpVerb(method) let actionAuthorize = method.GetCustomAttribute<AuthorizeAttribute>(inherit: true) is not null let actionAllowAnonymous = method.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true) is not null where !actionAuthorize && !actionAllowAnonymous select $"{type.FullName}.{method.Name} is missing [Authorize] or [AllowAnonymous].");
         }
 
         violations.Should().BeEmpty();

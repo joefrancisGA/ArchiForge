@@ -179,9 +179,9 @@ jobs:
         # six comparison-row fields.
         run: python scripts/ci/check_why_archlucid_comparison_sync.py
 
-      - name: "Advisory — PGP public key vs Trust Center (set merge-blocking when pgp-key.txt exists)"
+      - name: "PGP public key — validate armored key when present; warn when pending"
         continue-on-error: true
-        # When archlucid-ui/public/.well-known/pgp-key.txt is committed, flip continue-on-error to false on this step.
+        # Missing key: script exits 0 (stderr notice). Invalid committed key: exits 1 — then fix or set merge-blocking.
         run: python scripts/ci/assert_pgp_key_present.py
 
       - name: PGP key presence guard unit tests
