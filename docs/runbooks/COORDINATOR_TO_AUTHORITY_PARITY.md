@@ -34,6 +34,7 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 <!-- coordinator-parity-probe:table -->
 | Window start (UTC) | Window end (UTC) | Tenant sample | Coordinator p95 ms | Authority p95 ms | Audit rows/hr | Replay parity OK? | Notes |
 |--------------------|------------------|-----------------|----------------------|------------------|-----------------|---------------------|-------|
+| 2026-04-21 06:41 UTC | 2026-04-22 06:41 UTC | *(sample)* | - | - | - / - / - | - | auto `scripts/ci/coordinator_parity_probe.py` |
 <!-- /coordinator-parity-probe:table -->
 
 ## Phase 3 gate status (2026-04-21, updated 2026-04-22)
