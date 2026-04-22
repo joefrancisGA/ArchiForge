@@ -13,8 +13,8 @@ namespace ArchLucid.AgentSimulator.Services;
 public static class FakeScenarioFactory
 {
     /// <summary>
-    /// Fixed synthetic timestamp for Simulator <see cref="AgentResult.CreatedUtc"/> so golden-cohort locks and
-    /// determinism tests do not depend on wall-clock time.
+    ///     Fixed synthetic timestamp for Simulator <see cref="AgentResult.CreatedUtc" /> so golden-cohort locks and
+    ///     determinism tests do not depend on wall-clock time.
     /// </summary>
     private static readonly DateTime SimulatorSyntheticCreatedUtc = new(2024, 6, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -206,7 +206,7 @@ public static class FakeScenarioFactory
         ];
 
         if (request.Constraints.Any(c =>
-            c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))
+                c.Contains("encryption", StringComparison.OrdinalIgnoreCase)))
 
             requiredControls.Add("Encryption At Rest");
 

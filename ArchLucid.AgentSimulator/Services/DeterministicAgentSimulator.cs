@@ -59,6 +59,8 @@ public sealed class DeterministicAgentSimulator : IAgentExecutor
             return FakeScenarioFactory.CreateComplianceResult(runId, taskId, request);
 
 
-        return string.Equals(agentTypeKey, AgentTypeKeys.Critic, StringComparison.OrdinalIgnoreCase) ? FakeScenarioFactory.CreateCriticResult(runId, taskId, request) : throw new InvalidOperationException($"Unsupported agent type key: {agentTypeKey}");
+        return string.Equals(agentTypeKey, AgentTypeKeys.Critic, StringComparison.OrdinalIgnoreCase)
+            ? FakeScenarioFactory.CreateCriticResult(runId, taskId, request)
+            : throw new InvalidOperationException($"Unsupported agent type key: {agentTypeKey}");
     }
 }
