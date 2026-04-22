@@ -6,9 +6,17 @@
 
 **Status:** Sponsor-facing V1 summary. This brief is grounded in what the current product supports today. It is not a pricing sheet and it does not claim enterprise-wide transformation.
 
-**Canonical buyer narrative:** This file is the **outward sponsor story of record**—why a pilot matters, what success should look like in plain language, and what not to over-claim. Other entry docs, UI-facing intros, and go-to-market pages should **align with this brief or defer here** rather than growing a second, looser buyer story.
+This file is the outward **sponsor story of record**: why a pilot matters, what success should look like in plain language, and what not to over-claim. Other docs and go-to-market pages should align here rather than grow a second buyer story. Use the related links for ROI measurement, packaging semantics, operator motion, and positioning.
 
-**Related:** [README.md](../README.md) · [PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) · [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) · [CORE_PILOT.md](CORE_PILOT.md) · [go-to-market/POSITIONING.md](go-to-market/POSITIONING.md) (short positioning; must stay consistent with this brief)
+---
+
+## Related
+
+- **[README.md](../README.md)** — repo entry and deeper operator material
+- **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — pilot measurement companion
+- **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** — capability layers and UI seams
+- **[CORE_PILOT.md](CORE_PILOT.md)** — operator first-pilot motion
+- **[go-to-market/POSITIONING.md](go-to-market/POSITIONING.md)** — positioning aligned to this brief
 
 **One-shot sponsor PDF:** the operator-shell run-detail page (`/runs/[runId]`) shows a non-modal **"Email this run to your sponsor"** banner after a successful commit. The banner downloads a PDF projection of the canonical first-value-report for that run via **`POST /v1/pilots/runs/{runId}/first-value-report.pdf`** — same content as the Markdown sibling, attached to the sponsor's email by the operator. When the tenant’s first committed manifest timestamp is known, the banner can show a small **“Day N since first commit”** badge (UTC day count) so the pitch is anchored in the tenant’s own clock — see [SPONSOR_BANNER_FIRST_COMMIT_BADGE.md](SPONSOR_BANNER_FIRST_COMMIT_BADGE.md). Contract details: [API_CONTRACTS.md §Pilots](API_CONTRACTS.md#pilots-v1pilots).
 

@@ -169,6 +169,14 @@ jobs:
       - name: Pricing single-source-of-truth guard
         run: python scripts/ci/check_pricing_single_source.py
 
+      - name: README opener link density (max 12 links above first <details>)
+        run: python scripts/ci/check_readme_density.py
+
+      - name: README opener link density guard unit tests
+        run: |
+          cd scripts/ci
+          python -m unittest test_check_readme_density -q
+
       - name: Marketplace pricing tier alignment vs PRICING_PHILOSOPHY
         run: python scripts/ci/assert_marketplace_pricing_alignment.py
 

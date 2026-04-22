@@ -2,7 +2,7 @@
 
 # Five-document onboarding spine
 
-Contributor and operator cognitive load is intentionally capped: **five** checked-in documents define the default path. Read anything else (maps, ADRs, runbooks) **only when you have a specific reason** — each non-spine doc carries a top-of-file **Spine doc** pointer.
+Contributor and operator cognitive load is intentionally capped: **five** checked-in documents define the default path. Read anything else only when you have a specific reason; each non-spine doc carries a top-of-file **Spine doc** pointer.
 
 | # | Spine document | Role | Time |
 |---|------------------|------|------|

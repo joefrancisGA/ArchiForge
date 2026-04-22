@@ -42,7 +42,7 @@ The **ArchLucid CLI** prints **`Next:`** lines on **stderr** after many failures
 |--------|----------------|-------------|
 | API **does not start**; log mentions migration / DbUp | Bad **connection string**, DB unreachable, or migration failure | Fix **`ConnectionStrings:ArchLucid`**. Confirm SQL is up. See log lines mentioning **DbUp** or **migration**. [BUILD.md](BUILD.md), [SQL_SCRIPTS.md](SQL_SCRIPTS.md) |
 | **`/health/ready`** returns **503** | Database (when using Sql), schema files, rule pack, or temp directory check failed | Read JSON body for which check failed. Fix config/paths/permissions. |
-| **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchLucidAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [README.md](../README.md#api-authentication-archlucidauth) |
+| **`401` / `403`** on API | Auth mode / role mismatch | **Development:** ensure `ArchLucidAuth` is **DevelopmentBypass** for local pilots. **JWT:** confirm token roles map to Reader/Operator/Admin. [API_CONTRACTS.md](API_CONTRACTS.md#security-schemes-swashbuckle) |
 | **`429 Too Many Requests`** | Rate limiting | Wait for the window to reset or adjust `RateLimiting:*` in config (non-production). |
 | **`404`** on run or manifest | Wrong **run ID**, wrong **scope** (tenant/workspace/project), or data not in that scope | Re-use default scope headers or match the scope used at create time. |
 | **`409`** on commit | Run state / idempotency conflict | Follow message; may need to re-fetch run status or use a fresh run. [API_CONTRACTS.md](API_CONTRACTS.md) |

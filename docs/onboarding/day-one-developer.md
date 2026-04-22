@@ -31,7 +31,7 @@
 |---------|--------|
 | Build / packages | [BUILD.md](../BUILD.md), [TROUBLESHOOTING.md](../TROUBLESHOOTING.md) |
 | SQL / migrations | [SQL_SCRIPTS.md](../SQL_SCRIPTS.md) |
-| Auth locally | Root [README.md](../../README.md#api-authentication-archlucidauth) |
+| Auth locally | [API_CONTRACTS.md](../API_CONTRACTS.md#security-schemes-swashbuckle) |
 
 **Last reviewed:** 2026-04-17
 

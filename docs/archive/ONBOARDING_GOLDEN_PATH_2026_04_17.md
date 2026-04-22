@@ -56,7 +56,7 @@ flowchart LR
 
 | Step | Action | Detail |
 |------|--------|--------|
-| 1 | Install prerequisites | [.NET 10 SDK](https://dotnet.microsoft.com/download), Git; optional Docker, Node 22 for UI — see root **[README.md](../README.md#prerequisites)** |
+| 1 | Install prerequisites | [.NET 10 SDK](https://dotnet.microsoft.com/download), Git; optional Docker, Node 22 for UI — see **[INSTALL_ORDER.md](../INSTALL_ORDER.md)** |
 | 2 | Clone and restore | `git clone …`, `dotnet restore`, `dotnet build` — **[CONTRIBUTOR_ONBOARDING.md](CONTRIBUTOR_ONBOARDING.md)** |
 | 3 | (Optional) Dev Container | **[DEVCONTAINER.md](DEVCONTAINER.md)** |
 
@@ -71,7 +71,7 @@ flowchart LR
 | Step | Action | Detail |
 |------|--------|--------|
 | 1 | Start SQL + sidecars | `dotnet run --project ArchLucid.Cli -- dev up` **or** `docker compose up -d` — **[CONTAINERIZATION.md](CONTAINERIZATION.md)** |
-| 2 | Configure connection string | User secrets `ConnectionStrings:ArchLucid` — root **[README.md](../README.md#secrets-development)** |
+| 2 | Configure connection string | User secrets `ConnectionStrings:ArchLucid` — **[OPERATOR_QUICKSTART.md](../OPERATOR_QUICKSTART.md#local-api-example)** |
 | 3 | Run API | `dotnet run --project ArchLucid.Api` |
 | 4 | Verify | `GET /health/live`, `GET /health/ready` — **[BUILD.md](BUILD.md)** (startup vs migration failure) |
 | 5 | Fix issues | **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** |
@@ -87,7 +87,7 @@ flowchart LR
 | Step | Action | Detail |
 |------|--------|--------|
 | 1 | Confirm SQL storage | `ArchLucid:StorageProvider=Sql` for production-aligned paths — **[adr/0011-inmemory-vs-sql-storage-provider.md](adr/0011-inmemory-vs-sql-storage-provider.md)** |
-| 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — root **[README.md](../README.md#api-authentication-archlucidauth)**, sample **[ArchLucid.Api/appsettings.Entra.sample.json](../ArchLucid.Api/appsettings.Entra.sample.json)** |
+| 2 | Exercise auth you will use in prod | **JwtBearer** or **ApiKey** — **[API_CONTRACTS.md](../API_CONTRACTS.md#security-schemes-swashbuckle)**, sample **[ArchLucid.Api/appsettings.Entra.sample.json](../ArchLucid.Api/appsettings.Entra.sample.json)** |
 | 3 | Run integration / regression | Set `ARCHLUCID_SQL_TEST` (or API test var); scripts — **[BUILD.md](BUILD.md)**, **[TEST_EXECUTION_MODEL.md](TEST_EXECUTION_MODEL.md)** |
 | 4 | Optional release smoke | `release-smoke` with `ARCHLUCID_SMOKE_SQL` — **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** |
 | 5 | Optional operator UI | `archlucid-ui/` — **[operator-shell.md](operator-shell.md)**, **[archlucid-ui/README.md](../archlucid-ui/README.md)** |

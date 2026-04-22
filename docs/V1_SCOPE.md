@@ -5,13 +5,22 @@
 
 # ArchLucid V1 — scope contract
 
-**Audience:** product, engineering, pilots, and operators who need a single, decisive boundary for what "V1" means in **this repository**.
+**Audience:** Product, engineering, pilots, and operators who need a single, decisive boundary for what "V1" means in this repository.
 
-**Status:** Contract for the current codebase and docs. It describes what is **implemented and supportable today**, not a roadmap of net-new capabilities.
+**Status:** Contract for the current codebase and docs. It describes what is implemented and supportable today, not a roadmap of net-new capabilities.
 
-**Naming:** User-facing product name is **ArchLucid**. Application configuration uses **`ArchLucid*`** keys post–Phase 7; **historical** SQL migration filenames, some **RLS** object names, and **Terraform resource addresses** may still contain **`archlucid`** until follow-up work ([BREAKING_CHANGES.md](../BREAKING_CHANGES.md), [ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)). See [GLOSSARY.md](GLOSSARY.md) and [README.md](../README.md).
+This scope document lists in-scope capabilities, explicit out-of-scope items, the operator happy path, and minimum release checks. Naming and rename posture are summarized in **Related** below.
 
-**Architecture poster:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) · **Operator atlas:** [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)
+---
+
+## Related
+
+- **[README.md](../README.md)** — repo overview and install spine
+- **[GLOSSARY.md](GLOSSARY.md)** — terms and naming
+- **[BREAKING_CHANGES.md](../BREAKING_CHANGES.md)** — breaking change trail
+- **[ARCHLUCID_RENAME_CHECKLIST.md](ARCHLUCID_RENAME_CHECKLIST.md)** — remaining rename phases
+- **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** — architecture poster
+- **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — operator atlas
 
 ---
 
@@ -21,7 +30,7 @@
 - States **what is out of V1** (deferred, optional, or non-goals).
 - Defines the **core operator happy path** and **minimum release checks** aligned with existing scripts and guides.
 
-For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md), [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md), and [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md).
+For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md) and [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
 **Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
 
@@ -42,7 +51,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 - Create a **run** from a structured **architecture request** (`POST /v1/architecture/request`).
 - Drive the run through **execution** so agent work completes under the configured **simulator or real** execution mode.
 - **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
-- Both the **coordinator string-run** path and the **authority ingestion** path converge on manifests, artifacts, and review ([DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md)).
+- End-to-end request → execute → commit behavior, including convergence on manifests and artifacts, is described in [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md).
 
 #### 2.2 Manifest and artifact review
 
@@ -153,7 +162,7 @@ The **Core Pilot path** is the minimum journey every pilot must complete. It map
 1. **Configure** storage (typically **Sql**), connection string, and auth for the environment ([PILOT_GUIDE.md](PILOT_GUIDE.md)).
 2. **Start** the API; confirm **live/ready** and note **version** for any ticket.
 3. **Create a run** from a structured request (`POST /v1/architecture/request`) — use the seven-step wizard in the operator UI or the CLI.
-4. **Execute** the run and wait until it is ready to commit (coordinator-driven; watch the pipeline timeline in the UI or poll the API).
+4. **Execute** the run and wait until it is ready to commit (watch the pipeline timeline in the UI or poll the API).
 5. **Commit** (`POST /v1/architecture/run/{runId}/commit`) to produce a **golden manifest** and **artifacts**.
 6. **Review** the manifest and artifacts in the operator UI (run detail → Artifacts table) or via API/CLI ([operator-shell.md](operator-shell.md)).
 

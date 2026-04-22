@@ -30,7 +30,7 @@ Default local setups often use a **simulator** for agents so you do not need clo
 |------|--------|
 | **.NET 10 SDK** | [Download](https://dotnet.microsoft.com/download). |
 | **SQL Server** | LocalDB, Express, Docker (`dotnet run --project ArchLucid.Cli -- dev up`), or an existing instance. |
-| **Connection string** | Set `ConnectionStrings:ArchLucid` (User Secrets in Development, or environment variables in production). See [README.md](../README.md#secrets-development). |
+| **Connection string** | Set `ConnectionStrings:ArchLucid` (User Secrets in Development, or environment variables in production). See [OPERATOR_QUICKSTART.md](../OPERATOR_QUICKSTART.md#local-api-example). |
 | **Storage mode** | For a normal pilot, use **`ArchLucid:StorageProvider`** = **`Sql`** (typical default in appsettings). |
 | **Node.js 22+** | Optional; only for the **operator UI** in `archlucid-ui/`. |
 | **Advanced API config** | Optional. `ArchLucid.Api/appsettings.Advanced.json` (gitignored locally if you create it) is loaded after `appsettings.json` when present; use it for profiles, observability, LLM tuning, and integration settings without bloating the default file. |

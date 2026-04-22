@@ -6,18 +6,22 @@
 
 **Purpose:** Define the default, minimal journey from an empty tenant to a reviewed, exportable architecture run — without requiring any advanced features.
 
-**Canonical buyer narrative:** For sponsor-facing summary and outward buyer messaging, start with **[docs/EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)**. This document is the operator-facing first-pilot path, not a second buyer summary.
+This document is the operator-facing first-pilot path. The sponsor-facing narrative lives in the executive brief. C4 context, route maps, and UI seam rules are linked below when your work touches layout, nav, or API policy alignment.
 
-**Canonical maps:** [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md) (C4 + ownership) · [OPERATOR_ATLAS.md](OPERATOR_ATLAS.md) (route × API × CLI).
+---
 
-**Related docs:**
-- [docs/PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 — *Code seams* / *Contributor drift guard*: keep operator **nav**, **`LayerHeader`**, and **API** policies aligned when a route sits on the Core Pilot path vs discovery-only surfaces. **`archlucid-ui/src/lib/authority-seam-regression.test.ts`** guards **tier → authority** composition vs **Core Pilot** defaults (incl. Advanced **Ask-only** strip when disclosure is off). **`archlucid-ui/src/lib/authority-execute-floor-regression.test.ts`** guards the shared **Execute** numeric line between **nav** (**`ExecuteAuthority`** link rows) and **mutation soft-enable** (see [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) §3 *Read vs Execute in the UI*). **`archlucid-ui/src/lib/authority-shaped-ui-regression.test.ts`** guards every catalog **`ExecuteAuthority`** nav row at Read vs Execute rank plus shell bootstrap vs mutation flag. **`archlucid-ui/src/app/(operator)/authority-shaped-layout-regression.test.tsx`** guards Enterprise **inspect-first** layout when mutation is off (**UI only**).
-- [docs/V1_SCOPE.md](V1_SCOPE.md) §4 — authoritative V1 boundary and extended-operation inventory.
-- [docs/operator-shell.md](operator-shell.md) — operator UI workflow and API contract expectations.
-- [docs/PILOT_GUIDE.md](PILOT_GUIDE.md) — full pilot onboarding narrative.
-- [docs/OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — copy-paste CLI and API commands.
-- [docs/PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) — measurement companion for pilot success.
-- [docs/SECOND_RUN.md](SECOND_RUN.md) — **your own data** in one page (`archlucid second-run`) right after the demo.
+## Related
+
+- **[EXECUTIVE_SPONSOR_BRIEF.md](EXECUTIVE_SPONSOR_BRIEF.md)** — sponsor story of record
+- **[ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md)** — C4 + ownership
+- **[OPERATOR_ATLAS.md](OPERATOR_ATLAS.md)** — route × API × CLI
+- **[PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md)** §3 — operator nav, `LayerHeader`, API policies, Vitest seam index (`authority-seam-regression.test.ts`, `authority-execute-floor-regression.test.ts`, `authority-shaped-ui-regression.test.ts`, `authority-shaped-layout-regression.test.tsx`)
+- **[V1_SCOPE.md](V1_SCOPE.md)** §4 — V1 boundary
+- **[operator-shell.md](operator-shell.md)** — operator UI workflow and API contracts
+- **[PILOT_GUIDE.md](PILOT_GUIDE.md)** — full pilot onboarding narrative
+- **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)** — copy-paste CLI and API commands
+- **[PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md)** — measurement companion
+- **[SECOND_RUN.md](SECOND_RUN.md)** — your own data after the demo (`archlucid second-run`)
 
 ---
 
