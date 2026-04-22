@@ -4,11 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Manifest.Mapping;
 using ArchLucid.Persistence.BlobStore;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.GoldenManifests;
 using ArchLucid.Persistence.RelationalRead;
 using ArchLucid.Persistence.Serialization;
+using Cm = ArchLucid.Contracts.Manifest;
 
 using Dapper;
 
@@ -56,6 +58,29 @@ public sealed class SqlGoldenManifestRepository(
             tx.Rollback();
             throw;
         }
+    }
+
+    public async Task<GoldenManifest> SaveAsync(
+        Cm.GoldenManifest contract,
+        ScopeContext scope,
+        SaveContractsManifestOptions keying,
+        IManifestHashService contractHash,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        if (contract is null)
+            throw new ArgumentNullException(nameof(contract));
+        if (scope is null)
+            throw new ArgumentNullException(nameof(scope));
+        if (keying is null)
+            throw new ArgumentNullException(nameof(keying));
+        if (contractHash is null)
+            throw new ArgumentNullException(nameof(contractHash));
+        GoldenManifest model = ContractGoldenManifestMapper.ToAuthorityModel(contract, scope, keying);
+        model.ManifestHash = contractHash.ComputeHash(model);
+        await SaveAsync(model, ct, connection, transaction);
+        return model;
     }
 
     private async Task SaveCoreAsync(

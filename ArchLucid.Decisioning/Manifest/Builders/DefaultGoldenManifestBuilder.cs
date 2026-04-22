@@ -1,5 +1,6 @@
 using System.Globalization;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
@@ -7,7 +8,10 @@ using ArchLucid.Decisioning.Findings.Payloads;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Sections;
 using ArchLucid.Decisioning.Models;
+using ArchLucid.KnowledgeGraph;
 using ArchLucid.KnowledgeGraph.Models;
+
+using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Manifest.Builders;
 
@@ -46,6 +50,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
         PopulateRequirements(manifest, findingsSnapshot);
         PopulateTopologyFromGraph(manifest, graphSnapshot);
+        PopulateTypedTopologyFromGraph(manifest, graphSnapshot);
         PopulateTopology(manifest, findingsSnapshot);
         PopulateSecurity(manifest, findingsSnapshot);
         PopulateCompliance(manifest, findingsSnapshot);
@@ -80,6 +85,12 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         manifest.Topology.Resources = manifest.Topology.Resources
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Topology.Services = manifest.Topology.Services
+            .OrderBy(x => x.ServiceName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        manifest.Topology.Datastores = manifest.Topology.Datastores
+            .OrderBy(x => x.DatastoreName, StringComparer.OrdinalIgnoreCase)
             .ToList();
         manifest.Topology.Gaps = manifest.Topology.Gaps
             .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
@@ -186,12 +197,79 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
     private static void PopulateTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
     {
-        foreach (GraphNode node in graphSnapshot.GetNodesByType("TopologyResource"))
+        foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
             if (string.IsNullOrWhiteSpace(node.Label))
                 continue;
             manifest.Topology.Resources.Add(node.Label);
         }
+    }
+
+    /// <summary>
+    /// PR A0.5 / owner 35f — <see cref="GraphNode.Properties"/> carry optional
+    /// <c>serviceType</c>, <c>runtimePlatform</c>, <c>datastoreType</c> keys (enum names, case-insensitive).
+    /// </summary>
+    private static void PopulateTypedTopologyFromGraph(GoldenManifest manifest, GraphSnapshot graphSnapshot)
+    {
+        foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
+        {
+            if (string.IsNullOrWhiteSpace(node.Label))
+                continue;
+
+            string? category = node.Category;
+            bool isDatastore = string.Equals(category, GraphTopologyCategories.Data, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(category, GraphTopologyCategories.Storage, StringComparison.OrdinalIgnoreCase);
+
+            if (isDatastore)
+            {
+                manifest.Topology.Datastores.Add(
+                    new Cm.ManifestDatastore
+                    {
+                        DatastoreId = node.NodeId,
+                        DatastoreName = node.Label,
+                        DatastoreType = ParseEnumKey<DatastoreType>(node.Properties, "datastoreType"),
+                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform"),
+                    });
+            }
+            else
+            {
+                manifest.Topology.Services.Add(
+                    new Cm.ManifestService
+                    {
+                        ServiceId = node.NodeId,
+                        ServiceName = node.Label,
+                        ServiceType = ParseEnumKey<ServiceType>(node.Properties, "serviceType"),
+                        RuntimePlatform = ParseEnumKey<RuntimePlatform>(node.Properties, "runtimePlatform"),
+                    });
+            }
+        }
+    }
+
+    private static TEnum ParseEnumKey<TEnum>(Dictionary<string, string> properties, string key)
+        where TEnum : struct, Enum
+    {
+        if (properties is null)
+            return default;
+
+        if (string.IsNullOrEmpty(key))
+            return default;
+
+        string? raw = null;
+        foreach (KeyValuePair<string, string> kv in properties)
+        {
+            if (string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase) is false)
+                continue;
+            raw = kv.Value;
+            break;
+        }
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return default;
+
+        if (Enum.TryParse(raw, true, out TEnum e))
+            return e;
+
+        return default;
     }
 
     private static void PopulateTopology(GoldenManifest manifest, FindingsSnapshot findingsSnapshot)

@@ -122,6 +122,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
+        services.Configure<LegacyRunCommitPathOptions>(configuration.GetSection(LegacyRunCommitPathOptions.SectionName));
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();

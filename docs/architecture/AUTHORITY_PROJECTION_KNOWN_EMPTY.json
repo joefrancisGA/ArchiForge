@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "emptyFields": [
+    {
+      "name": "Relationships",
+      "rationale": "No graph-edge projection in Commit projection yet; tracked by follow-on Relationships PR.",
+      "trackedBy": "TBD-Relationships-Graph-PR"
+    }
+  ]
+}

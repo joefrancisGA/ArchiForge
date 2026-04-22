@@ -3,6 +3,9 @@ namespace ArchLucid.Contracts.Common;
 /// <summary>Azure runtime hosting platform assigned to a service or datastore in the manifest.</summary>
 public enum RuntimePlatform
 {
+    /// <summary>Unspecified — populate from knowledge-graph <c>Properties</c> or explicit design-time input.</summary>
+    Unknown = 0,
+
     /// <summary>Azure App Service (PaaS web/API hosting).</summary>
     AppService = 1,
     /// <summary>Azure Functions (serverless compute).</summary>

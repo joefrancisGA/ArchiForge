@@ -32,6 +32,28 @@ public sealed class CachingGoldenManifestRepository(
     }
 
     /// <inheritdoc />
+    public async Task<GoldenManifest> SaveAsync(
+        ArchLucid.Contracts.Manifest.GoldenManifest contract,
+        ScopeContext scope,
+        SaveContractsManifestOptions keying,
+        IManifestHashService manifestHashService,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        GoldenManifest result = await _inner.SaveAsync(
+            contract,
+            scope,
+            keying,
+            manifestHashService,
+            ct,
+            connection,
+            transaction);
+        await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, result.ManifestId, ct);
+        return result;
+    }
+
+    /// <inheritdoc />
     public Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(scope);

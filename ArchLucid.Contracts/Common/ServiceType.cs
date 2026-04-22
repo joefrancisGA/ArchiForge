@@ -3,6 +3,9 @@ namespace ArchLucid.Contracts.Common;
 /// <summary>Classifies the functional role of a service within the architecture topology.</summary>
 public enum ServiceType
 {
+    /// <summary>Unspecified — populate from knowledge-graph <c>Properties</c> or explicit design-time input.</summary>
+    Unknown = 0,
+
     /// <summary>HTTP API or REST/GraphQL service.</summary>
     Api = 1,
     /// <summary>Background worker or queue processor.</summary>

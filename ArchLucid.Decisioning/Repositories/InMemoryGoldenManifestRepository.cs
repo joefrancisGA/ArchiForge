@@ -2,7 +2,9 @@ using System.Data;
 
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Manifest.Mapping;
 using ArchLucid.Decisioning.Models;
+using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Repositories;
 
@@ -34,6 +36,37 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
         return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<GoldenManifest> SaveAsync(
+        Cm.GoldenManifest contract,
+        ScopeContext scope,
+        SaveContractsManifestOptions keying,
+        IManifestHashService manifestHashService,
+        CancellationToken ct,
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null)
+    {
+        if (contract is null)
+            throw new ArgumentNullException(nameof(contract));
+        if (scope is null)
+            throw new ArgumentNullException(nameof(scope));
+        if (keying is null)
+            throw new ArgumentNullException(nameof(keying));
+        if (manifestHashService is null)
+            throw new ArgumentNullException(nameof(manifestHashService));
+        _ = connection;
+        _ = transaction;
+        GoldenManifest model = ContractGoldenManifestMapper.ToAuthorityModel(contract, scope, keying);
+        model.ManifestHash = manifestHashService.ComputeHash(model);
+        lock (_lock)
+        {
+            _store.Add(model);
+            if (_store.Count > MaxEntries)
+                _store.RemoveRange(0, _store.Count - MaxEntries);
+        }
+        return Task.FromResult(model);
     }
 
     public Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct)
