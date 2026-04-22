@@ -263,10 +263,7 @@ public sealed class RunQueryController(
         {
             byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runId, scope, maxZipBytes, cancellationToken);
 
-            if (zip is null)
-                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
-
-            return File(zip, "application/zip", $"traceability-{runId}.zip");
+            return zip is null ? this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound) : File(zip, "application/zip", $"traceability-{runId}.zip");
         }
         catch (TraceabilityBundleTooLargeException ex)
         {

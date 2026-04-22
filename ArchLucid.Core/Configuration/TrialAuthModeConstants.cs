@@ -12,12 +12,6 @@ public static class TrialAuthModeConstants
         if (modes is null || modes.Count == 0 || string.IsNullOrWhiteSpace(mode))
             return false;
 
-        foreach (string m in modes)
-
-            if (string.Equals(m.Trim(), mode, StringComparison.OrdinalIgnoreCase))
-                return true;
-
-
-        return false;
+        return modes.Any(m => string.Equals(m.Trim(), mode, StringComparison.OrdinalIgnoreCase));
     }
 }

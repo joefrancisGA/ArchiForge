@@ -355,7 +355,7 @@ public sealed class ArchLucidApiClient
             Gen.CommitRunResponse result = await _api.CommitAsync(runId, ct);
             CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
 
-            return new CommitRunResult(true, mapped, null, null, null);
+            return new CommitRunResult(true, mapped, null);
         }
         catch (Gen.ArchLucidApiException ex)
         {
@@ -938,23 +938,7 @@ public sealed class ArchLucidApiClient
     /// </summary>
     private static string? TryReadCorrelationId(Gen.ArchLucidApiException ex)
     {
-        if (ex.Headers is null)
-            return null;
-
-
-        foreach (KeyValuePair<string, IEnumerable<string>> pair in ex.Headers)
-        {
-            if (!pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase))
-                continue;
-
-
-            string? first = pair.Value.FirstOrDefault();
-
-            if (!string.IsNullOrWhiteSpace(first))
-                return first.Trim();
-        }
-
-        return null;
+        return (from pair in ex.Headers where pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase) select pair.Value.FirstOrDefault() into first where !string.IsNullOrWhiteSpace(first) select first.Trim()).FirstOrDefault();
     }
 
     private static string ResolveApiErrorMessage(Gen.ArchLucidApiException ex)
@@ -964,15 +948,13 @@ public sealed class ArchLucidApiClient
         if (!string.IsNullOrWhiteSpace(fromBody))
             return fromBody;
 
-
         if (ex is not Gen.ArchLucidApiException<Gen.ProblemDetails> typed)
             return ex.Message;
 
-        if (!string.IsNullOrWhiteSpace(typed.Result?.Detail))
+        if (!string.IsNullOrWhiteSpace(typed.Result.Detail))
             return typed.Result.Detail;
 
-
-        return !string.IsNullOrWhiteSpace(typed.Result?.Title) ? typed.Result.Title : ex.Message;
+        return !string.IsNullOrWhiteSpace(typed.Result.Title) ? typed.Result.Title : ex.Message;
     }
 
     /// <summary>
@@ -1016,7 +998,7 @@ public sealed class ArchLucidApiClient
         int? StatusCode,
         string? CorrelationId = null)
     {
-        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null, null);
+        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null);
 
         public static CreateRunResult Fail(int? statusCode, string error, string? correlationId = null) =>
             new(false, null, error, statusCode, correlationId);
