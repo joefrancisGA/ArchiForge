@@ -6,7 +6,7 @@
 # ADR 0029: Coordinator strangler acceleration — Phase 3 cut-over to **2026-05-15**
 
 - **Status:** Accepted
-- **Date:** 2026-04-21
+- **Date:** 2026-04-21 (§ Lifecycle amended 2026-04-22 — **PR B — audit-constant retirement checklist** + tracker mirror per `PENDING_QUESTIONS.md` item **35e**)
 - **Supersedes:** [ADR 0028 (Draft) — Coordinator strangler completion (scaffold)](0028-coordinator-strangler-completion.md) (the calendar-date and exit-gate `_TODO (owner)_` placeholders in 0028 are answered by this ADR)
 - **Superseded by:** *(none yet — see § Lifecycle below)*
 - **Amends:** [ADR 0021 — Coordinator pipeline strangler plan](0021-coordinator-pipeline-strangler-plan.md) (cut-over date and Phase 3 30-day exit-gate waiver)
@@ -76,6 +76,16 @@ Unchanged. The acceleration removes a calendar-time buffer but does not change a
 - **ADR 0022 lifecycle (per Q&A item 16).** ADR 0022 flips to **Superseded** by a Phase 3 *deletion* ADR when PR A merges (no longer waiting for 14 contiguous green daily rows, which would never accumulate pre-release). ADR 0022's `Superseded by` field is filled inside PR A itself.
 
 ### Lifecycle
+
+#### PR B — audit-constant retirement checklist
+
+This checklist is **the** authoritative inline tracker for Phase 3 **PR B** (audit-constant retirement). The standalone [`docs/architecture/PHASE_3_PR_B_TODO.md`](../architecture/PHASE_3_PR_B_TODO.md) mirrors this checklist for day-to-day execution; CI compares checkbox labels via `scripts/ci/assert_pr_b_tracker_in_sync.py` (**warn-only** until at least one PR B iteration has landed — see script docstring; use `ARCHLUCID_PR_B_TRACKER_STRICT=1` later for merge-blocking contradiction detection).
+
+- [ ] PR A3 has merged on `main` (Coordinator concretes deleted).
+- [ ] All `AuditEventTypes.CoordinatorRun*` references are gone from application code (grep should return only the constants file itself).
+- [ ] Migration prepared to drop the `AuditEventTypes.CoordinatorRun*` constants definition.
+- [ ] Calendar date 2026-05-15 reached or owner has explicitly approved earlier merge.
+- [ ] PR B opened, CI green, owner approves, merged.
 
 | Event | Action |
 |-------|--------|

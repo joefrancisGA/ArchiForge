@@ -80,6 +80,13 @@ jobs:
       - name: Check relative markdown links
         run: python scripts/ci/check_doc_links.py
 
+      - name: "Advisory — PR B tracker vs ADR 0029 checklist (warn-only; strict via ARCHLUCID_PR_B_TRACKER_STRICT)"
+        continue-on-error: true
+        run: python scripts/ci/assert_pr_b_tracker_in_sync.py
+
+      - name: PR B tracker sync guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_pr_b_tracker_in_sync.py"
+
       - name: Golden cohort baseline locked — no placeholder SHAs
         env:
           ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
