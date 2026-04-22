@@ -1,0 +1,113 @@
+{
+  "canonical_entries": [
+    {
+      "pack_path": "SECURITY.md",
+      "source_repo_path": "docs/SECURITY.md",
+      "description": "Security policy and operational commitments"
+    },
+    {
+      "pack_path": "README.md",
+      "source_repo_path": "README.md",
+      "description": "Repository overview"
+    },
+    {
+      "pack_path": "TRUST_CENTER.md",
+      "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
+      "description": "Buyer-facing trust index"
+    },
+    {
+      "pack_path": "DATA_SUBPROCESSORS.md",
+      "source_repo_path": "docs/go-to-market/SUBPROCESSORS.md",
+      "description": "Subprocessor register (buyer-facing filename; source is SUBPROCESSORS.md)"
+    },
+    {
+      "pack_path": "DPA_TEMPLATE.md",
+      "source_repo_path": "docs/go-to-market/DPA_TEMPLATE.md",
+      "description": "Data processing agreement template"
+    },
+    {
+      "pack_path": "INTEGRATION_CATALOG.md",
+      "source_repo_path": "docs/go-to-market/INTEGRATION_CATALOG.md",
+      "description": "Third-party integrations touching tenant data"
+    },
+    {
+      "pack_path": "AUDIT_COVERAGE_MATRIX.md",
+      "source_repo_path": "docs/AUDIT_COVERAGE_MATRIX.md",
+      "description": "Audit event coverage"
+    },
+    {
+      "pack_path": "MULTI_TENANT_RLS.md",
+      "source_repo_path": "docs/security/MULTI_TENANT_RLS.md",
+      "description": "Tenant isolation (RLS)"
+    },
+    {
+      "pack_path": "ACCESSIBILITY.md",
+      "source_repo_path": "docs/ACCESSIBILITY.md",
+      "description": "Accessibility posture / WCAG alignment"
+    },
+    {
+      "pack_path": "SECURITY.txt",
+      "source_repo_path": "archlucid-ui/public/.well-known/security.txt",
+      "description": "security.txt (RFC 9116) contents"
+    },
+    {
+      "pack_path": "OWNER_SECURITY_ASSESSMENT_REDACTED.md",
+      "source_repo_path": "docs/go-to-market/OWNER_SECURITY_ASSESSMENT_REDACTED_FOR_PACK.md",
+      "description": "Owner self-assessment — procurement-safe excerpt (no customer names)"
+    },
+    {
+      "pack_path": "PEN_TEST_SUMMARY.md",
+      "source_repo_path": "docs/go-to-market/PEN_TEST_SUMMARY_PROCUREMENT_PLACEHOLDER.md",
+      "description": "Penetration test summary pointer (third-party engagement pending)"
+    },
+    {
+      "pack_path": "SOC2_STATUS.md",
+      "source_repo_path": "docs/go-to-market/SOC2_STATUS_PROCUREMENT.md",
+      "description": "SOC 2 attestation status (deferred; see TRUST_CENTER)"
+    },
+    {
+      "pack_path": "API_CONTRACTS.md",
+      "source_repo_path": "docs/API_CONTRACTS.md",
+      "description": "API contract surface"
+    },
+    {
+      "pack_path": "INTEGRATION_EVENTS_AND_WEBHOOKS.md",
+      "source_repo_path": "docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md",
+      "description": "Integration events and webhooks"
+    },
+    {
+      "pack_path": "CUSTOMER_TRUST_AND_ACCESS.md",
+      "source_repo_path": "docs/CUSTOMER_TRUST_AND_ACCESS.md",
+      "description": "Customer trust and access model"
+    },
+    {
+      "pack_path": "V1_SCOPE.md",
+      "source_repo_path": "docs/V1_SCOPE.md",
+      "description": "V1 product scope"
+    },
+    {
+      "pack_path": "BREAKING_CHANGES.md",
+      "source_repo_path": "BREAKING_CHANGES.md",
+      "description": "Breaking change policy and log"
+    },
+    {
+      "pack_path": "PROCUREMENT_PACK_COVER.md",
+      "source_repo_path": "docs/go-to-market/PROCUREMENT_PACK_COVER.md",
+      "description": "Cover letter scaffold (owner completes before sending)"
+    }
+  ],
+  "excluded_from_canonical_pack": [
+    {
+      "path": "docs/security/CAIQ_LITE_2026.md",
+      "reason": "CSA CAIQ Lite pre-fill — not on the canonical procurement reviewer checklist; provide on request for STAR / enterprise questionnaires."
+    },
+    {
+      "path": "docs/security/SIG_CORE_2026.md",
+      "reason": "Shared Assessments SIG Core pre-fill — not on the canonical checklist; provide on request."
+    },
+    {
+      "path": "docs/go-to-market/SLA_SUMMARY.md",
+      "reason": "SLA summary — referenced from TRUST_CENTER; omitted from minimal canonical ZIP to avoid duplicate policy threads (add to pack if buyer requests SLA excerpt explicitly)."
+    }
+  ]
+}

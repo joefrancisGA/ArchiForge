@@ -1,0 +1,5 @@
+git_commit_sha=146a8a8414c0463267cd95ef32f79283c0be3e42
+built_utc=2026-04-22T17:43:12Z
+archlucid_cli_version=1.0.0
+
+Built by scripts/build_procurement_pack.py — see docs/go-to-market/HOW_TO_REQUEST_PROCUREMENT_PACK.md.

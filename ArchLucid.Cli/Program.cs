@@ -104,6 +104,9 @@ namespace ArchLucid.Cli
 
                         return CliExitCode.UsageError;
 
+                    case "procurement-pack":
+                        return await ProcurementPackCommand.RunAsync(normalized.Skip(1).ToArray());
+
                     case "first-value-report":
                         if (normalized.Length > 1)
                         {

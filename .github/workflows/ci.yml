@@ -90,6 +90,9 @@ jobs:
           cd scripts/ci
           python -m unittest test_assert_golden_cohort_baseline_locked
 
+      - name: Procurement pack canonical sources (dry-run)
+        run: python scripts/ci/assert_procurement_pack_buildable.py
+
       - name: "Advisory — game-day closing report vs calendar (strict after second logged run)"
         continue-on-error: true
         # Today: warn-only. After two completed quarterly close-outs, remove continue-on-error

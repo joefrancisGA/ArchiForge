@@ -1,0 +1,7 @@
+Contact: mailto:security@archlucid.com
+Expires: 2027-04-21T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://archlucid.com/.well-known/security.txt
+
+# ArchLucid — security contact
+# PGP: publish public key at https://archlucid.com/.well-known/pgp-key.txt when available (see SECURITY.md in repo).
