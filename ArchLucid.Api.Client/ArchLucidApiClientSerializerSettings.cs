@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace ArchLucid.Api.Client.Generated;
 
 /// <summary>
-/// NSwag-generated <see cref="ArchLucidApiClient"/> defaults omit a global enum converter; the live API serializes
-/// contract enums as JSON strings (ASP.NET <c>JsonStringEnumConverter</c>). Wire settings must match so typed
-/// responses (create / execute / commit) deserialize without <see cref="JsonException"/>.
+///     NSwag-generated <see cref="ArchLucidApiClient" /> defaults omit a global enum converter; the live API serializes
+///     contract enums as JSON strings (ASP.NET <c>JsonStringEnumConverter</c>). Wire settings must match so typed
+///     responses (create / execute / commit) deserialize without <see cref="JsonException" />.
 /// </summary>
 public partial class ArchLucidApiClient
 {
