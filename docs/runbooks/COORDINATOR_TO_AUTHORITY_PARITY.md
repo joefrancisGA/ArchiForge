@@ -62,4 +62,4 @@ Mechanical counts from `dbo.AuditEvents` (last 24h window): **legacy coordinator
 ## Related
 
 - [ADR 0021 — Coordinator pipeline strangler plan](../adr/0021-coordinator-pipeline-strangler-plan.md)
-- [DUAL_PIPELINE_NAVIGATOR.md](../DUAL_PIPELINE_NAVIGATOR.md)
+- [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md)

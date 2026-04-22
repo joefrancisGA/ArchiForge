@@ -40,6 +40,7 @@ public static class ArchLucidConfigurationRules
         ObservabilityRules.CollectOtlp(configuration, errors);
         ObservabilityRules.CollectPrometheus(configuration, errors);
         LlmTokenQuotaRules.Collect(configuration, errors);
+        LlmDailyTenantBudgetRules.Collect(configuration, errors);
         E2EHarnessRules.Collect(configuration, environment, errors);
 
         if (environment.IsStaging())

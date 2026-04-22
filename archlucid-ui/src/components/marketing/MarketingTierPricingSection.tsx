@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { PricingDoc } from "@/lib/pricing-types";
@@ -27,12 +27,21 @@ export type MarketingTierPricingSectionProps = {
   signupCallToActionLabel?: string;
   /** When false, omit the trailing “Start free trial” button (e.g. welcome page already has a hero CTA). */
   showSignupCallToAction?: boolean;
+  /** DOM id of the quote panel on the same page (Pro / Enterprise “Talk to sales” scroll target). */
+  quoteSectionDomId?: string;
 };
 
 /** Loads `/pricing.json` and renders tier cards — shared by welcome and `/pricing`. */
 export function MarketingTierPricingSection(props: MarketingTierPricingSectionProps) {
+  const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
   const [pricing, setPricing] = useState<PricingDoc | null>(null);
   const [pricingError, setPricingError] = useState(false);
+
+  const scrollToQuote = useCallback(() => {
+    if (typeof document === "undefined") return;
+
+    document.getElementById(quoteSectionDomId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [quoteSectionDomId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,17 +116,30 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
                     </div>
                   ) : null}
                 </dl>
-                {pkg.id === "team" &&
-                typeof pricing.teamStripeCheckoutUrl === "string" &&
-                pricing.teamStripeCheckoutUrl.trim().length > 0 ? (
-                  <div className="mt-4">
+                <div className="mt-4 flex flex-col gap-2">
+                  {pkg.id === "team" ? (
+                    <Button
+                      asChild
+                      className="w-full bg-teal-700 text-white hover:bg-teal-800 dark:bg-teal-800 dark:hover:bg-teal-700"
+                    >
+                      <Link href={props.signupHref}>{props.signupCallToActionLabel ?? "Start free trial"}</Link>
+                    </Button>
+                  ) : null}
+                  {pkg.id === "team" &&
+                  typeof pricing.teamStripeCheckoutUrl === "string" &&
+                  pricing.teamStripeCheckoutUrl.trim().length > 0 ? (
                     <Button asChild className="w-full" variant="outline">
                       <a href={pricing.teamStripeCheckoutUrl.trim()} rel="noopener noreferrer" target="_blank">
                         Subscribe with Stripe
                       </a>
                     </Button>
-                  </div>
-                ) : null}
+                  ) : null}
+                  {pkg.id === "professional" || pkg.id === "enterprise" ? (
+                    <Button type="button" className="w-full" variant="outline" onClick={() => scrollToQuote()}>
+                      Talk to sales
+                    </Button>
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>

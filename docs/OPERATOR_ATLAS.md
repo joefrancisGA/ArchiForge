@@ -37,7 +37,7 @@
 |--------|-----|-------------|-------------|-----------|---------------|
 | Graph / provenance | — | graph + run payloads | `/graph` | Read | [ARCHITECTURE_COMPONENTS.md](ARCHITECTURE_COMPONENTS.md) |
 | Compare two runs | `… comparisons …` | compare controllers | `/compare` | Read | [ARCHITECTURE_FLOWS.md § Flow C](ARCHITECTURE_FLOWS.md#flow-c-comparison-lifecycle-compare--persist-record--replayexport--verify-drift) |
-| Replay authority chain | `… trace <runId>` | replay endpoints | `/replay` | Execute | [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md) |
+| Replay authority chain | `… trace <runId>` | replay endpoints | `/replay` | Execute | [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) |
 | Demo telemetry / sponsor story | — | pilot + demo reads | `/why-archlucid` | Read | [DEMO_QUICKSTART.md](go-to-market/DEMO_QUICKSTART.md) |
 
 ---

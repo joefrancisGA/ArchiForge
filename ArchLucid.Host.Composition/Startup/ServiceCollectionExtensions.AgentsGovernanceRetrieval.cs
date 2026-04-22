@@ -108,6 +108,8 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<AuditRetryDrainHostedService>();
         services.AddSingleton<CircuitBreakerAuditBridge>();
         services.Configure<LlmTokenQuotaOptions>(configuration.GetSection(LlmTokenQuotaOptions.SectionName));
+        services.Configure<LlmDailyTenantBudgetOptions>(configuration.GetSection(LlmDailyTenantBudgetOptions.SectionName));
+        services.AddSingleton<LlmDailyTenantBudgetTracker>();
         services.Configure<LlmTelemetryOptions>(configuration.GetSection(LlmTelemetryOptions.SectionName));
         services.Configure<FallbackLlmOptions>(configuration.GetSection(FallbackLlmOptions.SectionName));
         services.Configure<AgentExecutionTraceStorageOptions>(
@@ -349,6 +351,10 @@ public static partial class ServiceCollectionExtensions
                 sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
             IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
             IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
+            IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyBudgetOpts =
+                sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantBudgetOptions>>();
+            LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
+            IAuditService auditService = sp.GetRequiredService<IAuditService>();
             ILogger<LlmCompletionAccountingClient> accountingLogger =
                 sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
@@ -362,6 +368,9 @@ public static partial class ServiceCollectionExtensions
                 redactionOpts,
                 promptRedactor,
                 usageMetering,
+                dailyBudgetOpts,
+                dailyBudgetTracker,
+                auditService,
                 accountingLogger);
 
             IConfiguration config = sp.GetRequiredService<IConfiguration>();
@@ -621,6 +630,10 @@ public static partial class ServiceCollectionExtensions
             sp.GetRequiredService<IOptionsMonitor<LlmPromptRedactionOptions>>();
         IPromptRedactor promptRedactor = sp.GetRequiredService<IPromptRedactor>();
         IUsageMeteringService usageMetering = sp.GetRequiredService<IUsageMeteringService>();
+        IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyBudgetOpts =
+            sp.GetRequiredService<IOptionsMonitor<LlmDailyTenantBudgetOptions>>();
+        LlmDailyTenantBudgetTracker dailyBudgetTracker = sp.GetRequiredService<LlmDailyTenantBudgetTracker>();
+        IAuditService auditService = sp.GetRequiredService<IAuditService>();
         ILogger<LlmCompletionAccountingClient> accountingLogger =
             sp.GetRequiredService<ILogger<LlmCompletionAccountingClient>>();
 
@@ -634,6 +647,9 @@ public static partial class ServiceCollectionExtensions
             redactionOpts,
             promptRedactor,
             usageMetering,
+            dailyBudgetOpts,
+            dailyBudgetTracker,
+            auditService,
             accountingLogger);
 
         IConfiguration config = sp.GetRequiredService<IConfiguration>();

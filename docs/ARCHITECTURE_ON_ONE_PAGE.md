@@ -69,7 +69,7 @@ Rel(worker, openai, "HTTPS", "Optional batch use")
 | ArchLucid.Worker | `ArchLucid.Worker/` | [SYSTEM_MAP.md](SYSTEM_MAP.md) | Hosted-loop coverage via API / Decisioning tests + release smoke |
 | ArchLucid.Cli | `ArchLucid.Cli/` | [CLI_USAGE.md](CLI_USAGE.md) | CLI integration / smoke scripts |
 | SQL Server | `ArchLucid.Persistence*`, `Scripts/ArchLucid.sql` | [SQL_SCRIPTS.md](SQL_SCRIPTS.md) | Persistence + API integration |
-| Azure OpenAI (ext) | Configuration + agent hosts | [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md) | Decisioning + API tests (simulator default) |
+| Azure OpenAI (ext) | Configuration + agent hosts | [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) | Decisioning + API tests (simulator default) |
 
 ---
 

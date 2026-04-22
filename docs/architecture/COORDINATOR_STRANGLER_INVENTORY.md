@@ -59,5 +59,5 @@
 ## Related automation
 
 - Reference-count ceiling (non-test `.cs` hits vs baseline): `scripts/ci/assert_coordinator_reference_ceiling.py`
-- Dual-pipeline map: `docs/DUAL_PIPELINE_NAVIGATOR.md`
+- Archived dual-path map: `docs/archive/dual-pipeline-navigator-superseded.md`
 - Draft completion ADR scaffold: `docs/adr/0028-coordinator-strangler-completion.md`

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AfterCorePilotChecklistHint } from "@/components/AfterCorePilotChecklistHint";
+import { PilotOutcomeCard } from "@/components/PilotOutcomeCard";
 import { OperatorTaskSuccessTile } from "@/components/OperatorTaskSuccessTile";
 import { BeforeAfterDeltaPanel } from "@/components/BeforeAfterDeltaPanel";
 import { OperatorFirstRunWorkflowPanel } from "@/components/OperatorFirstRunWorkflowPanel";
@@ -30,6 +31,8 @@ export default function HomePage() {
       </p>
 
       <WelcomeBanner />
+
+      <PilotOutcomeCard />
 
       <OperatorTaskSuccessTile />
 

@@ -67,7 +67,7 @@ flowchart LR
   S7 -. polls run summary .-> ART
 ```
 
-Deep dives: **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** (run lifecycle narrative), **[DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md)** (coordinator vs authority, shared artifacts).
+Deep dives: **[ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md)** (run lifecycle narrative), **[CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md)** (operator pipeline overview).
 
 ---
 
@@ -175,7 +175,7 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 |---------|----------------|
 | **Cannot create run / network error** | UI uses **`/api/proxy`** to reach the API. Verify API base URL, API key (server env), and JWT if enabled — see `archlucid-ui` docs and **`docs/TROUBLESHOOTING.md`**. |
 | **Run id returned but Step 7 stays all Pending** | API may be down for authority workers, or scope headers point at the wrong project. Confirm **`GET .../runs/{id}/summary`** outside the UI. |
-| **Stuck in “Created” / no snapshots** | Coordinator vs authority nuances: **DUAL_PIPELINE_NAVIGATOR.md**. Check host logs for `AuthorityPipelineStagesExecutor` / stage failures. |
+| **Stuck in “Created” / no snapshots** | Run lifecycle nuances: **CANONICAL_PIPELINE.md**. Check host logs for `AuthorityPipelineStagesExecutor` / stage failures. |
 | **Timeout (~2 min) with no golden manifest** | Pipeline may still be running; open **run detail** and refresh later. If permanently stuck, inspect SQL run row, worker health, and **OPERATIONS** runbooks. |
 | **Empty manifest after “ready”** | “Ready” in the wizard means **summary flags**; **commit** and **artifact** availability are separate steps — **OPERATOR_QUICKSTART.md**. |
 
@@ -188,5 +188,5 @@ Primary operator reference: **[OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md)**
 | [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md) | Single HTTP journey spine (auth → request → authority → commit). |
 | [OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) | Day-1 commands, commit, manifests, exports. |
 | [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md) | Flow A run lifecycle + authority span names. |
-| [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md) | Two pipelines, traces, manifest ports. |
+| [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md) | Request → stages → commit → artifacts (operator map). |
 | [API_CONTRACTS.md](API_CONTRACTS.md) | `ArchitectureRequest`, idempotency, error shapes. |

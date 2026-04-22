@@ -21,7 +21,7 @@
 - States **what is out of V1** (deferred, optional, or non-goals).
 - Defines the **core operator happy path** and **minimum release checks** aligned with existing scripts and guides.
 
-For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md), [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md), and [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md).
+For deeper flow detail, use [ONBOARDING_HAPPY_PATH.md](ONBOARDING_HAPPY_PATH.md), [ARCHITECTURE_FLOWS.md](ARCHITECTURE_FLOWS.md), and [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md).
 
 **Deferred / exploratory inventory (doc-sourced):** [V1_DEFERRED.md](V1_DEFERRED.md) — consolidates partial stories so V1 does not read as open-ended.
 
@@ -42,7 +42,7 @@ The minimum set every pilot must complete. Delivered by default; no additional c
 - Create a **run** from a structured **architecture request** (`POST /v1/architecture/request`).
 - Drive the run through **execution** so agent work completes under the configured **simulator or real** execution mode.
 - **Commit** a **golden manifest** (`POST /v1/architecture/run/{runId}/commit`), with documented state and conflict behavior ([API_CONTRACTS.md](API_CONTRACTS.md)).
-- Both the **coordinator string-run** path and the **authority ingestion** path converge on manifests, artifacts, and review ([DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md)).
+- Both the **architecture request** path and the **ingestion-backed** path converge on manifests, artifacts, and review ([CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md)).
 
 #### 2.2 Manifest and artifact review
 

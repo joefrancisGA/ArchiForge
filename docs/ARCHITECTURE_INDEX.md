@@ -64,7 +64,7 @@
 - **Architecture constraint tests** – NetArchTest + assembly-reference rules (`ArchLucid.Architecture.Tests`, `Suite=Core`)  
   - `docs/ARCHITECTURE_CONSTRAINTS.md`
 - **Dual pipeline navigator** – Coordinator (string run) vs Authority (ingestion) paths, shared artifacts, `RunEventTrace` vs `RuleAuditTrace` (JSON still one `DecisionTrace` envelope with `kind`); now opens with a "Which path do I use?" decision tree and a "Why we have not collapsed these" section linking ADR 0010, ADR 0012, and proposed ADR 0021  
-  - `docs/DUAL_PIPELINE_NAVIGATOR.md`
+  - `docs/CANONICAL_PIPELINE.md` (operator); `docs/archive/dual-pipeline-navigator-superseded.md` (engineering archive)
 - **Coordinator pipeline strangler plan** – proposed phased retirement of the Coordinator interface family in favour of the Authority family; **`Status: Proposed`** — implementation gated on architecture-review acceptance per the ADR's own decision-review gate  
   - `docs/adr/0021-coordinator-pipeline-strangler-plan.md`
 - **DI registration map** – `AddArchLucidApplicationServices` order (`ArchLucid.Host.Composition`), `AddArchLucidStorage`, partial `ServiceCollectionExtensions`, config gates  

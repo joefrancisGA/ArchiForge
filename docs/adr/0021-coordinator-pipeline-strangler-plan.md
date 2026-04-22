@@ -41,7 +41,7 @@ Both pipelines were declared deliberately distinct in **[ADR 0010 — Dual manif
 
 Two independent forces are now creating pressure to revisit ADR 0010:
 
-- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
+- **Architectural integrity.** External readers of the architecture (the [Quality Assessment 2026-04-20 § Improvement 3](../archive/quality/QUALITY_ASSESSMENT_2026_04_20_WEIGHTED_80_72.md)) consistently flag the dual interface families as "two ways to do the same thing" and lose time disambiguating which path to extend. The [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) decision tree mitigates this *for contributors* but does not eliminate the underlying duplication.
 - **Cognitive load + onboarding cost.** Day-1 developer onboarding (`docs/onboarding/day-one-developer.md`) currently sends a new contributor through both interface families even when the day-1 task only touches one. The dual-pipeline model is a real source of "I changed the wrong repository" defects in PR review history.
 
 ADR 0010 cannot be overridden by a single "while I'm in here" refactor PR. The project's ADR governance (`docs/adr/README.md`) requires accepted ADRs to be **superseded** by a new ADR rather than rewritten or deleted.
@@ -64,14 +64,14 @@ This ADR moves from `Proposed` → `Accepted` only when **all** of the following
 
 - A signed-off architecture-review note (date + reviewers, attached to the PR that flips this ADR's status) confirming Phase 0 evidence is sufficient.
 - The two regression tests from § Implementation hardening below have been green on `main` for at least 14 days.
-- The [`DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) decision tree has not flagged a *new* coordinator-only event constant in those 14 days (i.e. nobody is actively extending the doomed family during the review window).
+- The [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) decision tree has not flagged a *new* coordinator-only event constant in those 14 days (i.e. nobody is actively extending the doomed family during the review window).
 - A run-volume parity report comparing Coordinator vs Authority p95 latency, p99 latency, audit-row counts, and replay parity on a representative tenant exists at `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`.
 
 ### Phase 0 — Strangler hardening (no behaviour change)
 
 **Status:** Shipped 2026-04-20 alongside this ADR. Listed here for completeness so the timeline reads in order.
 
-- Sharpen [`docs/DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) with a "Which path do I use?" decision tree that answers the day-1 question before a contributor has to read this ADR.
+- Sharpen [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) with a "Which path do I use?" decision tree that answers the day-1 question before a contributor has to read this ADR.
 - Add `ArchLucid.Core.Tests/Audit/AuditEventTypes_DoNotCollideAcrossPipelinesTests.cs` so any new constant that violates the dual-pipeline boundary fails the build.
 - Add `ArchLucid.Api.Tests/Startup/DualPipelineRegistrationDisciplineTests.cs` so the renamed `ICoordinator*` family cannot silently regrow into the unprefixed namespace.
 
@@ -121,7 +121,7 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 ## Consequences
 
 - **Positive — Architectural integrity (weight 7).** Eliminates a long-standing "two ways to do the same thing" finding in external architecture reviews after Phase 3. Single audit catalog after Phase 2 simplifies operator runbooks and customer-visible audit search.
-- **Positive — Cognitive load (weight 4).** Day-1 contributors stop having to learn both interface families. The decision tree at the top of `DUAL_PIPELINE_NAVIGATOR.md` becomes obsolete after Phase 3 (we can collapse the navigator to a single-pipeline page).
+- **Positive — Cognitive load (weight 4).** Day-1 contributors stop having to learn both interface families. The decision tree at the top of `docs/archive/dual-pipeline-navigator-superseded.md` becomes obsolete after Phase 3 (we can collapse the navigator to a single-pipeline page).
 - **Positive — Testability (weight 3).** A single golden-manifest read path is easier to mock and easier to property-test.
 - **Negative — Risk surface during transition.** The dual-write of audit events in Phase 2 doubles the audit row volume for the deprecation window. Plan for ~2× `dbo.AuditEvents` ingest rate; update the Grafana ingest-rate panels and the [`OBSERVABILITY.md`](../OBSERVABILITY.md) ingest-budget table accordingly.
 - **Negative — Customer-visible behaviour change in Phase 2.** Customers with audit-search automations keyed on `CoordinatorRun*` constants must update; the `Sunset` header gives them one full quarter under the existing deprecation policy.
@@ -131,7 +131,7 @@ The two regression tests below ship with this ADR's Phase 0 and pin the boundary
 
 - [ADR 0010 — Dual manifest and decision-trace repository contracts](0010-dual-manifest-trace-repository-contracts.md) (the boundary this ADR plans to retire).
 - [ADR 0012 — Runs / authority convergence write-freeze](0012-runs-authority-convergence-write-freeze.md) (the partial unification this ADR builds on).
-- [`docs/DUAL_PIPELINE_NAVIGATOR.md`](../DUAL_PIPELINE_NAVIGATOR.md) (decision tree + "Why we have not collapsed these" pointing back here).
+- [`docs/archive/dual-pipeline-navigator-superseded.md`](../archive/dual-pipeline-navigator-superseded.md) (decision tree + "Why we have not collapsed these" pointing back here).
 - [`docs/AUDIT_COVERAGE_MATRIX.md`](../AUDIT_COVERAGE_MATRIX.md) (audit-event catalog the regression tests assert against).
 - [`docs/API_CONTRACTS.md`](../API_CONTRACTS.md) (deprecation policy used by Phase 2's `Sunset` header).
 - [`docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md`](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md) (parity report — latency, audit volume, replay parity per cadence).

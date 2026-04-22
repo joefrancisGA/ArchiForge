@@ -63,6 +63,15 @@ public sealed class DemoCommitPagePreviewController(
     private readonly IDemoCommitPagePreviewClient _previewClient =
         previewClient ?? throw new ArgumentNullException(nameof(previewClient));
 
+    /// <summary>Public procurement alias — identical payload to <c>GET preview</c> (rate limit + demo gate apply).</summary>
+    [HttpGet("/v{version:apiVersion}/public/demo/sample-run")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(DemoCommitPagePreviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public Task<IActionResult> GetPublicDemoSampleRun(CancellationToken cancellationToken = default) =>
+        GetDemoCommitPagePreview(cancellationToken);
+
     /// <summary>Returns the bundled commit-page preview JSON for the latest committed demo-seed run.</summary>
     [HttpGet("preview")]
     [Produces("application/json")]

@@ -27,6 +27,10 @@ vi.mock("@/components/TrialWelcomeRunDeepLink", () => ({
   TrialWelcomeRunDeepLink: () => null,
 }));
 
+vi.mock("@/components/PilotOutcomeCard", () => ({
+  PilotOutcomeCard: () => <div data-testid="pilot-outcome-mock" aria-hidden />,
+}));
+
 vi.mock("@/components/OperatorHomeGate", () => ({
   OperatorHomeGate: ({ children }: { children: import("react").ReactNode }) => <>{children}</>,
 }));

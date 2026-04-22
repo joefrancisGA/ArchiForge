@@ -1462,6 +1462,48 @@ public sealed class ArchLucidConfigurationRulesTests
     }
 
     [Fact]
+    public void CollectErrors_WhenLlmDailyTenantBudgetEnabledWithoutPositiveMax_contains_error()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["LlmDailyTenantBudget:Enabled"] = "true",
+            ["LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay"] = "0",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().Contain(e => e.Contains("LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void CollectErrors_WhenLlmDailyTenantBudgetDisabled_skips_daily_budget_validation()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["LlmDailyTenantBudget:Enabled"] = "false",
+            ["LlmDailyTenantBudget:MaxTotalTokensPerTenantPerUtcDay"] = "0",
+            ["WebhookDelivery:UseHttpClient"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("LlmDailyTenantBudget", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void CollectErrors_WhenCosmosFeatureEnabledWithoutConnectionString_contains_error()
     {
         Dictionary<string, string?> data = new()

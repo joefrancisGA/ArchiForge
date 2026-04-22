@@ -37,7 +37,7 @@ This doc describes the main runtime flows in “sequence narrative” form. It�
 5. **Fetch artifacts**
    - Client can retrieve run status, tasks, results, manifest, summaries, exports, etc.
 
-**Authority (ingestion) path (parallel contract):** For runs driven by context ingestion + graph + findings + decisioning + artifact synthesis, the server executes **`AuthorityPipelineStagesExecutor`** after the run row exists. OpenTelemetry records **five child spans** under the orchestrator’s run activity (`authority.context_ingestion`, `authority.graph`, `authority.findings`, `authority.decisioning`, `authority.artifacts`), each tagged with **`archlucid.stage.name`** for cross-cutting queries; see [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) §10 and [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md).
+**Authority (ingestion) path (parallel contract):** For runs driven by context ingestion + graph + findings + decisioning + artifact synthesis, the server executes **`AuthorityPipelineStagesExecutor`** after the run row exists. OpenTelemetry records **five child spans** under the orchestrator’s run activity (`authority.context_ingestion`, `authority.graph`, `authority.findings`, `authority.decisioning`, `authority.artifacts`), each tagged with **`archlucid.stage.name`** for cross-cutting queries; see [BACKGROUND_JOB_CORRELATION.md](BACKGROUND_JOB_CORRELATION.md) §10 and [CANONICAL_PIPELINE.md](CANONICAL_PIPELINE.md).
 
 ---
 

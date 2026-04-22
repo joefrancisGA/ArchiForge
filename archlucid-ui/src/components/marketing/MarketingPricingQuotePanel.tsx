@@ -47,7 +47,11 @@ export function MarketingPricingQuotePanel() {
   }
 
   return (
-    <section aria-labelledby="quote-request-heading" className="mt-10 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+    <section
+      id="pricing-quote-request"
+      aria-labelledby="quote-request-heading"
+      className="mt-10 rounded-md border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+    >
       <h2 id="quote-request-heading" className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
         Request a quote
       </h2>

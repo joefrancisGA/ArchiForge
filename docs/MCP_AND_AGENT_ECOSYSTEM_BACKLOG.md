@@ -12,7 +12,7 @@
 - [V1_SCOPE.md](V1_SCOPE.md) is the **V1 contract** — frozen. This file does **not** modify it.
 - [V1_DEFERRED.md](V1_DEFERRED.md) is the **doc inventory** of partial / V1.1+ stories. New items in this backlog land there only when promoted by program decision.
 - [adr/README.md](adr/README.md) is the durable decision log. The accompanying ADR for the membrane is **`adr/0029-mcp-membrane-and-agent-ecosystem.md`** (draft).
-- [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md), [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md), [security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md) — the existing posture this plan must respect.
+- [ARCHITECTURE_ON_ONE_PAGE.md](ARCHITECTURE_ON_ONE_PAGE.md), [dual-pipeline-navigator-superseded.md](archive/dual-pipeline-navigator-superseded.md), [security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md) — the existing posture this plan must respect.
 
 **Rules of the road:**
 
@@ -91,7 +91,7 @@ The plan resolves to three architectural decisions:
 
 ### 4.3 Dual-pipeline alignment
 
-The membrane sits **outside** the dual-pipeline distinction described in [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md). It calls into the unified read façade for queries and into the Authority pipeline for proposal writes. It does **not** invoke the Coordinator string-run path directly. This keeps the membrane on the right side of [adr/0021-coordinator-pipeline-strangler-plan.md](adr/0021-coordinator-pipeline-strangler-plan.md).
+The membrane sits **outside** the persistence seam described in [dual-pipeline-navigator-superseded.md](archive/dual-pipeline-navigator-superseded.md). It calls into the unified read façade for queries and into the Authority pipeline for proposal writes. It does **not** invoke the Coordinator string-run path directly. This keeps the membrane on the right side of [adr/0021-coordinator-pipeline-strangler-plan.md](adr/0021-coordinator-pipeline-strangler-plan.md).
 
 ---
 
@@ -223,7 +223,7 @@ Promoting a row out of §9.1 into a sprint pulls a small ripple of doc updates. 
 - [adr/README.md](adr/README.md) — append `0029` (and any future MCP/agent ADRs) to the table.
 - [AUDIT_COVERAGE_MATRIX.md](AUDIT_COVERAGE_MATRIX.md) — add MCP tool rows when audit events ship.
 - [security/MULTI_TENANT_RLS.md](security/MULTI_TENANT_RLS.md) — note the MCP server principal pattern.
-- [DUAL_PIPELINE_NAVIGATOR.md](DUAL_PIPELINE_NAVIGATOR.md) — confirm membrane sits outside the dual pipeline.
+- [dual-pipeline-navigator-superseded.md](archive/dual-pipeline-navigator-superseded.md) — confirm membrane sits outside the historical dual-path map.
 - [PRODUCT_PACKAGING.md](PRODUCT_PACKAGING.md) — only when a customer-visible capability changes layer.
 - `docs/MCP_SURFACE.md` (new with V1.1 §6) — full tool inventory, schemas, examples.
 - `docs/TOOL_APPROVAL_CLASSES.md` (new with V1.1 §7) — taxonomy, mapping to governance workflow, examples.

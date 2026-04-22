@@ -94,6 +94,11 @@
       "pack_path": "PROCUREMENT_PACK_COVER.md",
       "source_repo_path": "docs/go-to-market/PROCUREMENT_PACK_COVER.md",
       "description": "Cover letter scaffold (owner completes before sending)"
+    },
+    {
+      "pack_path": "ENTERPRISE_COMPARISON_ONE_PAGE.md",
+      "source_repo_path": "docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md",
+      "description": "Enterprise comparison one-pager (Markdown; PDF via GET /v1/marketing/enterprise-comparison.pdf)"
     }
   ],
   "excluded_from_canonical_pack": [

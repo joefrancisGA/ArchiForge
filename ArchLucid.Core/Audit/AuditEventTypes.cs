@@ -217,6 +217,9 @@ public static class AuditEventTypes
     /// <summary>Tenant weekly executive digest preferences updated (<c>POST /v1/tenant/exec-digest-preferences</c>).</summary>
     public const string ExecDigestPreferencesUpdated = "ExecDigestPreferencesUpdated";
 
+    /// <summary>Tenant crossed the configured warn threshold for the UTC-day combined LLM token budget (emitted at most once per tenant per UTC day).</summary>
+    public const string LlmTenantDailyBudgetApproaching = "LlmTenantDailyBudgetApproaching";
+
     /// <summary>
     /// Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured <c>ILogger</c> only).
     /// They are <b>not</b> written to <c>dbo.AuditEvents</c>.

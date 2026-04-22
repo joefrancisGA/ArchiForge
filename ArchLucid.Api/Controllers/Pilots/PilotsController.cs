@@ -30,6 +30,7 @@ public sealed class PilotsController(
     FirstValueReportBuilder firstValueReportBuilder,
     FirstValueReportPdfBuilder firstValueReportPdfBuilder,
     PilotScorecardBuilder pilotScorecardBuilder,
+    PilotOutcomeSummaryService pilotOutcomeSummaryService,
     SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
     IWhyArchLucidSnapshotService whyArchLucidSnapshotService,
     IRunDetailQueryService runDetailQueryService,
@@ -48,6 +49,26 @@ public sealed class PilotsController(
         WhyArchLucidSnapshotResponse snapshot = await whyArchLucidSnapshotService.BuildAsync(cancellationToken);
 
         return Ok(snapshot);
+    }
+
+    /// <summary>Trailing 30-day pilot outcome rollup for the current tenant scope (cached ~60s).</summary>
+    [HttpGet("outcome-summary")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PilotScorecardResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PilotScorecardResponse>> GetOutcomeSummary(CancellationToken cancellationToken)
+    {
+        PilotScorecardSummary summary = await pilotOutcomeSummaryService.GetTrailing30DaysAsync(cancellationToken);
+
+        PilotScorecardResponse response = new()
+        {
+            TenantId = summary.TenantId,
+            PeriodStart = summary.PeriodStart,
+            PeriodEnd = summary.PeriodEnd,
+            RunsInPeriod = summary.RunsInPeriod,
+            RunsWithCommittedManifest = summary.RunsWithCommittedManifest
+        };
+
+        return Ok(response);
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm.Redaction;
@@ -25,6 +26,9 @@ public sealed class LlmCompletionAccountingClient(
     IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
     IPromptRedactor promptRedactor,
     IUsageMeteringService usageMetering,
+    IOptionsMonitor<LlmDailyTenantBudgetOptions> dailyTenantBudgetOptions,
+    LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
+    IAuditService auditService,
     ILogger<LlmCompletionAccountingClient> logger)
     : IAgentCompletionClient
 {
@@ -57,6 +61,15 @@ public sealed class LlmCompletionAccountingClient(
     private readonly IUsageMeteringService _usageMetering =
         usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
 
+    private readonly IOptionsMonitor<LlmDailyTenantBudgetOptions> _dailyTenantBudgetOptions =
+        dailyTenantBudgetOptions ?? throw new ArgumentNullException(nameof(dailyTenantBudgetOptions));
+
+    private readonly LlmDailyTenantBudgetTracker _dailyTenantBudgetTracker =
+        dailyTenantBudgetTracker ?? throw new ArgumentNullException(nameof(dailyTenantBudgetTracker));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
     /// <inheritdoc />
     public LlmProviderDescriptor Descriptor => _inner.Descriptor;
 
@@ -66,6 +79,10 @@ public sealed class LlmCompletionAccountingClient(
         CancellationToken cancellationToken = default)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
+        string providerKind = _inner.Descriptor.ProviderKind;
+
+        if (_dailyTenantBudgetOptions.CurrentValue.Enabled)
+            _dailyTenantBudgetTracker.EnsureWithinBudgetBeforeCall(scope.TenantId, providerKind);
 
         if (_quotaOptions.CurrentValue.Enabled)
 
@@ -105,6 +122,14 @@ public sealed class LlmCompletionAccountingClient(
                     out int completionTok))
             {
                 _quotaTracker.RecordUsage(scope.TenantId, promptTok, completionTok);
+
+                _dailyTenantBudgetTracker.RecordUsageAndMaybeWarn(
+                    scope.TenantId,
+                    providerKind,
+                    _scopeProvider,
+                    _auditService,
+                    promptTok,
+                    completionTok);
 
                 bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
                 string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;

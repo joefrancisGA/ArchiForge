@@ -89,7 +89,7 @@ Unchanged. Premature deletion would increase operational risk (partial pipeline,
 - [ADR 0012 — Runs / authority convergence write-freeze](0012-runs-authority-convergence-write-freeze.md)
 - [ADR 0021 — Coordinator pipeline strangler plan](0021-coordinator-pipeline-strangler-plan.md)
 - [COORDINATOR_TO_AUTHORITY_PARITY.md](../runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md)
-- [DUAL_PIPELINE_NAVIGATOR.md](../DUAL_PIPELINE_NAVIGATOR.md)
+- [dual-pipeline-navigator-superseded.md](../archive/dual-pipeline-navigator-superseded.md)
 
 ## Follow-up (unblock Phase 3)
 

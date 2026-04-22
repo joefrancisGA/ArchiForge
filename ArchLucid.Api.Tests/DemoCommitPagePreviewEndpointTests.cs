@@ -78,6 +78,10 @@ public sealed class DemoCommitPagePreviewEndpointTests : IClassFixture<ArchLucid
 
         byte[] firstBytes = await first.Content.ReadAsByteArrayAsync();
 
+        HttpResponseMessage alias = await client.GetAsync("/v1/public/demo/sample-run");
+        alias.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await alias.Content.ReadAsByteArrayAsync()).Should().Equal(firstBytes);
+
         HttpResponseMessage second = await client.GetAsync("/v1/demo/preview");
         second.StatusCode.Should().Be(HttpStatusCode.OK);
         byte[] secondBytes = await second.Content.ReadAsByteArrayAsync();
