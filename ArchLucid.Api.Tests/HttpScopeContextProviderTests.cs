@@ -25,10 +25,12 @@ public sealed class HttpScopeContextProviderTests
         Guid claimTenant = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         Guid headerTenant = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity(
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim("tenant_id", claimTenant.ToString("D"))],
-            authenticationType: "Bearer"));
+            authenticationType: "Bearer"))
+        };
         http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
 
         ScopeContext scope = CreateProvider(http).GetCurrentScope();
@@ -43,8 +45,10 @@ public sealed class HttpScopeContextProviderTests
     {
         Guid headerTenant = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity());
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity())
+        };
         http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
 
         ScopeContext scope = CreateProvider(http).GetCurrentScope();
@@ -55,10 +59,12 @@ public sealed class HttpScopeContextProviderTests
     [Fact]
     public void GetCurrentScope_uses_default_when_claim_invalid_and_header_absent()
     {
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity(
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim("tenant_id", "not-a-guid")],
-            authenticationType: "Bearer"));
+            authenticationType: "Bearer"))
+        };
 
         ScopeContext scope = CreateProvider(http).GetCurrentScope();
 
@@ -70,10 +76,12 @@ public sealed class HttpScopeContextProviderTests
     {
         Guid headerTenant = Guid.Parse("dededede-dede-dede-dede-dededededede");
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity(
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim("tenant_id", "not-a-guid")],
-            authenticationType: "Bearer"));
+            authenticationType: "Bearer"))
+        };
         http.Request.Headers["x-tenant-id"] = headerTenant.ToString("D");
 
         ScopeContext scope = CreateProvider(http).GetCurrentScope();
@@ -87,10 +95,12 @@ public sealed class HttpScopeContextProviderTests
         Guid ambientTenant = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
         Guid claimTenant = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity(
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
             [new Claim("tenant_id", claimTenant.ToString("D"))],
-            authenticationType: "Bearer"));
+            authenticationType: "Bearer"))
+        };
         http.Request.Headers["x-tenant-id"] = claimTenant.ToString("D");
 
         using (AmbientScopeContext.Push(new ScopeContext
@@ -113,13 +123,15 @@ public sealed class HttpScopeContextProviderTests
         Guid claimProj = Guid.Parse("18181818-1818-1818-1818-181818181818");
         Guid headerProj = Guid.Parse("19191919-1919-1919-1919-191919191919");
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity(
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
             [
                 new Claim("workspace_id", claimWs.ToString("D")),
                 new Claim("project_id", claimProj.ToString("D"))
             ],
-            authenticationType: "Bearer"));
+            authenticationType: "Bearer"))
+        };
         http.Request.Headers["x-workspace-id"] = headerWs.ToString("D");
         http.Request.Headers["x-project-id"] = headerProj.ToString("D");
 

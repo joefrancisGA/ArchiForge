@@ -83,8 +83,10 @@ public sealed class FeatureGateFilterTests
 
     private static ActionExecutingContext BuildExecutingContext(string requestPath)
     {
-        DefaultHttpContext httpContext = new();
-        httpContext.Request.Path = requestPath;
+        DefaultHttpContext httpContext = new()
+        {
+            Request = { Path = requestPath }
+        };
 
         ActionContext actionContext = new(
             httpContext,

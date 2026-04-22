@@ -21,8 +21,10 @@ public sealed class RetrievalControllerTests
     {
         Mock<IRetrievalQueryService> retrieval = new();
         Mock<IScopeContextProvider> scopeProvider = new();
-        RetrievalController sut = new(retrieval.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        RetrievalController sut = new(retrieval.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.Search(q: "   ", runId: null, manifestId: null, topK: 8, CancellationToken.None);
 
@@ -44,8 +46,10 @@ public sealed class RetrievalControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId });
-        RetrievalController sut = new(retrieval.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        RetrievalController sut = new(retrieval.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.Search(q: "hello", runId: null, manifestId: null, topK: 0, CancellationToken.None);
 
@@ -70,8 +74,10 @@ public sealed class RetrievalControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(
             new ScopeContext { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId });
-        RetrievalController sut = new(retrieval.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        RetrievalController sut = new(retrieval.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.Search(q: "scope", runId: null, manifestId: null, topK: 200, CancellationToken.None);
 

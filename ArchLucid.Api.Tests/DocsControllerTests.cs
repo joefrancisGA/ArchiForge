@@ -15,10 +15,13 @@ public sealed class DocsControllerTests
     public void ReplayRecipes_returns_html_linking_scalar_and_replay_endpoints()
     {
         DocsController sut = new();
-        DefaultHttpContext http = new();
-        http.Request.Scheme = "https";
-        http.Request.Host = new HostString("api.example.com");
-        http.Request.PathBase = PathString.Empty;
+        DefaultHttpContext http = new()
+        {
+            Request =
+            {
+                Scheme = "https", Host = new HostString("api.example.com"), PathBase = PathString.Empty
+            }
+        };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 
         IActionResult result = sut.ReplayRecipes();

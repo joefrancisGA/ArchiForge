@@ -47,8 +47,10 @@ public sealed class SecurityHeadersMiddlewareTests
     [InlineData("/sitemap.xml")]
     public async Task InvokeAsync_PublicCrawlerPaths_UseShortPublicCache(string path)
     {
-        DefaultHttpContext context = new();
-        context.Request.Path = path;
+        DefaultHttpContext context = new()
+        {
+            Request = { Path = path }
+        };
         SecurityHeadersMiddleware middleware = new(_ => Task.CompletedTask);
 
         await middleware.InvokeAsync(context);

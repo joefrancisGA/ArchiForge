@@ -65,8 +65,10 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IComplianceDriftTrendService>(),
             NullLogger<GovernanceController>.Instance);
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "tester")]));
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "tester")]))
+        };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 
         IActionResult actionResult = await sut.SubmitApprovalRequest(
@@ -124,8 +126,10 @@ public sealed class GovernanceControllerDryRunTests
             Mock.Of<IComplianceDriftTrendService>(),
             NullLogger<GovernanceController>.Instance);
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "promoter")]));
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.Name, "promoter")]))
+        };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 
         IActionResult actionResult = await sut.Promote(

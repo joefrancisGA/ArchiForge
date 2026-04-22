@@ -18,8 +18,10 @@ public sealed class MeteringAdminControllerTests
     public async Task GetTenantSummaryAsync_returns_bad_request_when_period_end_not_after_start()
     {
         Mock<IUsageMeteringService> metering = new();
-        MeteringAdminController sut = new(metering.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        MeteringAdminController sut = new(metering.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
         Guid tenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         DateTimeOffset start = DateTimeOffset.Parse("2026-01-01T00:00:00Z");
         DateTimeOffset end = start;
@@ -51,8 +53,10 @@ public sealed class MeteringAdminControllerTests
         metering
             .Setup(m => m.GetSummaryAsync(tenantId, periodStart, periodEnd, It.IsAny<CancellationToken>()))
             .ReturnsAsync([row]);
-        MeteringAdminController sut = new(metering.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        MeteringAdminController sut = new(metering.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetTenantSummaryAsync(tenantId, periodStart, periodEnd, CancellationToken.None);
 

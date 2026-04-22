@@ -25,8 +25,10 @@ public sealed class ScopeDebugControllerTests
         };
         Mock<IScopeContextProvider> provider = new();
         provider.Setup(p => p.GetCurrentScope()).Returns(expected);
-        ScopeDebugController sut = new(provider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        ScopeDebugController sut = new(provider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = sut.GetScope();
 

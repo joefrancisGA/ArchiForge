@@ -59,8 +59,10 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             formatter.Object,
             audit.Object);
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u1")]));
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u1")]))
+        };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 
         IActionResult result = await sut.CompareExportRecordsSummary(
@@ -112,8 +114,10 @@ public sealed class ExportsControllerCompareSummaryAuditTests
             formatter.Object,
             audit.Object);
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u1")]));
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u1")]))
+        };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 
         IActionResult result = await sut.CompareExportRecordsSummary(

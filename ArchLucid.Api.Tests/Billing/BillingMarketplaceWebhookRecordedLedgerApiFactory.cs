@@ -15,7 +15,7 @@ namespace ArchLucid.Api.Tests.Billing;
 /// <summary>GA-on marketplace webhook factory with <see cref="BillingLedgerDapperDispatchRecorder"/> over <see cref="SqlBillingLedger"/>.</summary>
 internal sealed class BillingMarketplaceWebhookRecordedLedgerApiFactory : BillingMarketplaceWebhookApiFactoryBase
 {
-    public ConcurrentBag<string> RecordedStoredProcedureLogicalNames { get; } = new();
+    public ConcurrentBag<string> RecordedStoredProcedureLogicalNames { get; } = [];
 
     protected override bool GaEnabled => true;
 

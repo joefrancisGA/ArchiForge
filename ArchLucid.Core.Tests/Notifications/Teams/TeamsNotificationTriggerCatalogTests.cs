@@ -80,11 +80,10 @@ public sealed class TeamsNotificationTriggerCatalogTests
     [Fact]
     public void Serialize_orders_known_subset_canonically()
     {
-        string serialized = TeamsNotificationTriggerCatalog.Serialize(new[]
-        {
+        string serialized = TeamsNotificationTriggerCatalog.Serialize([
             IntegrationEventTypes.AlertFiredV1,
-            IntegrationEventTypes.AuthorityRunCompletedV1,
-        });
+            IntegrationEventTypes.AuthorityRunCompletedV1
+        ]);
 
         string[] parsed = JsonSerializer.Deserialize<string[]>(serialized)!;
         parsed.Should().Equal(
@@ -105,14 +104,13 @@ public sealed class TeamsNotificationTriggerCatalogTests
     [Fact]
     public void Unknown_returns_only_unknown_distinct_entries()
     {
-        IReadOnlyList<string> unknown = TeamsNotificationTriggerCatalog.Unknown(new[]
-        {
+        IReadOnlyList<string> unknown = TeamsNotificationTriggerCatalog.Unknown([
             IntegrationEventTypes.AuthorityRunCompletedV1,
             "com.archlucid.bad.one",
             "com.archlucid.bad.one",
             "",
-            "com.archlucid.bad.two",
-        });
+            "com.archlucid.bad.two"
+        ]);
 
         unknown.Should().BeEquivalentTo(new[] { "com.archlucid.bad.one", "com.archlucid.bad.two" });
     }

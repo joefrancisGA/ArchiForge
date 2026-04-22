@@ -24,8 +24,10 @@ public sealed class DemoControllerTests
         Mock<IDemoSeedService> demoSeed = new();
         Mock<IWebHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns(Environments.Production);
-        DemoController sut = new(demoSeed.Object, Options.Create(new DemoOptions { Enabled = true }), env.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        DemoController sut = new(demoSeed.Object, Options.Create(new DemoOptions { Enabled = true }), env.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.SeedAsync(CancellationToken.None);
 
@@ -40,8 +42,10 @@ public sealed class DemoControllerTests
         Mock<IDemoSeedService> demoSeed = new();
         Mock<IWebHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns(Environments.Development);
-        DemoController sut = new(demoSeed.Object, Options.Create(new DemoOptions { Enabled = false }), env.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        DemoController sut = new(demoSeed.Object, Options.Create(new DemoOptions { Enabled = false }), env.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.SeedAsync(CancellationToken.None);
 
@@ -57,8 +61,10 @@ public sealed class DemoControllerTests
         demoSeed.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         Mock<IWebHostEnvironment> env = new();
         env.SetupGet(e => e.EnvironmentName).Returns(Environments.Development);
-        DemoController sut = new(demoSeed.Object, Options.Create(new DemoOptions { Enabled = true }), env.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        DemoController sut = new(demoSeed.Object, Options.Create(new DemoOptions { Enabled = true }), env.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.SeedAsync(CancellationToken.None);
 

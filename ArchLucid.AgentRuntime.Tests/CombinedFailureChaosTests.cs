@@ -28,25 +28,25 @@ public sealed class CombinedFailureChaosTests
 
         ChaosFaultStrategyOptions chaosOptions = new()
         {
-            InjectionRate = 1.0
-        };
-        chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
-        chaosOptions.FaultGenerator = _ =>
-        {
-            int w = chaosWave;
-
-            if (w == 1)
+            InjectionRate = 1.0,
+            EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2),
+            FaultGenerator = _ =>
             {
-                return new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613));
-            }
+                int w = chaosWave;
 
-            if (w == 2)
-            {
-                return new ValueTask<Exception?>(
-                    new HttpRequestException("429", null, HttpStatusCode.TooManyRequests));
-            }
+                if (w == 1)
+                {
+                    return new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613));
+                }
 
-            return new ValueTask<Exception?>((Exception?)null);
+                if (w == 2)
+                {
+                    return new ValueTask<Exception?>(
+                        new HttpRequestException("429", null, HttpStatusCode.TooManyRequests));
+                }
+
+                return new ValueTask<Exception?>((Exception?)null);
+            }
         };
 
         ResiliencePipeline pipeline = new ResiliencePipelineBuilder()

@@ -55,7 +55,7 @@ public sealed class RetrievalIndexingOutboxProcessorCorrelationTests
             .Setup(q => q.GetRunDetailAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((RunDetailDto?)null);
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => outbox.Object);
         services.AddScoped(_ => query.Object);
         services.AddScoped(_ => Mock.Of<IRetrievalRunCompletionIndexer>());

@@ -20,10 +20,12 @@ public sealed class ClientErrorTelemetryControllerTests
     {
         IScopeContextProvider scopeProvider = scopeProviderOverride ?? CreateDefaultScopeProvider();
 
-        ClientErrorTelemetryController controller = new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider);
-        controller.ControllerContext = new ControllerContext
+        ClientErrorTelemetryController controller = new(NullLogger<ClientErrorTelemetryController>.Instance, scopeProvider)
         {
-            HttpContext = new DefaultHttpContext(),
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext(),
+            }
         };
 
         return controller;

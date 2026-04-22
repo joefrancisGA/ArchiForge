@@ -16,8 +16,10 @@ public sealed class TrialLimitFilterTests
     [Fact]
     public void Trial_limit_problem_json_contains_required_extensions()
     {
-        DefaultHttpContext http = new();
-        http.TraceIdentifier = "test-correlation";
+        DefaultHttpContext http = new()
+        {
+            TraceIdentifier = "test-correlation"
+        };
         TrialLimitExceededException ex = new(TrialLimitReason.Expired, daysRemaining: 0);
 
         ObjectResult result = TrialLimitProblemResponse.CreateResult(ex, "/v1/runs", http);

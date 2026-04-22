@@ -30,10 +30,9 @@ public sealed class SqlOpenResilienceSimmyTests
         ChaosFaultStrategyOptions chaosOptions = new()
         {
             InjectionRate = 1.0,
+            EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2),
+            FaultGenerator = static _ => new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613))
         };
-
-        chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
-        chaosOptions.FaultGenerator = static _ => new ValueTask<Exception?>(SqlExceptionTestFactory.Create(40613));
 
         ResiliencePipeline combined = new ResiliencePipelineBuilder()
             .AddPipeline(sqlRetry)

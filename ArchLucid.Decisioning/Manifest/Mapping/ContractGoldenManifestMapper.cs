@@ -1,7 +1,7 @@
 using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest.Sections;
-using ArchLucid.Decisioning.Models;
+
 using Cm = ArchLucid.Contracts.Manifest;
 
 namespace ArchLucid.Decisioning.Manifest.Mapping;
@@ -47,34 +47,35 @@ public static class ContractGoldenManifestMapper
                 Status = "Draft",
                 Summary = contract.Metadata.ChangeDescription,
             },
+            Topology = { Services = [.. contract.Services], Datastores = [.. contract.Datastores], Resources =
+                [.. contract.Services.Select(s => s.ServiceName)
+                    .Concat(contract.Datastores.Select(d => d.DatastoreName))]
+            },
+            Security = { Controls =
+                [.. contract.Services.SelectMany(
+                    s => s.RequiredControls.Select(
+                        c => new SecurityPostureItem
+                        {
+                            ControlName = c,
+                            Status = "stated",
+                            ControlId = c,
+                            Impact = string.Empty,
+                        }))]
+            },
+            Compliance = { Controls =
+                [.. contract.Governance.ComplianceTags
+                    .Select(
+                        t => new CompliancePostureItem
+                        {
+                            ControlName = t,
+                            ControlId = t,
+                            AppliesToCategory = "governance",
+                            Status = "Tagged",
+                        })]
+            },
+            Policy = { Notes = [.. contract.Governance.PolicyConstraints] }
         };
 
-        model.Topology.Services = [.. contract.Services];
-        model.Topology.Datastores = [.. contract.Datastores];
-        model.Topology.Resources = [.. contract.Services.Select(s => s.ServiceName)
-            .Concat(contract.Datastores.Select(d => d.DatastoreName))];
-
-        model.Security.Controls = [.. contract.Services.SelectMany(
-            s => s.RequiredControls.Select(
-                c => new SecurityPostureItem
-                {
-                    ControlName = c,
-                    Status = "stated",
-                    ControlId = c,
-                    Impact = string.Empty,
-                }))];
-
-        model.Compliance.Controls = [.. contract.Governance.ComplianceTags
-            .Select(
-                t => new CompliancePostureItem
-                {
-                    ControlName = t,
-                    ControlId = t,
-                    AppliesToCategory = "governance",
-                    Status = "Tagged",
-                })];
-
-        model.Policy.Notes = [.. contract.Governance.PolicyConstraints];
         return model;
     }
 }

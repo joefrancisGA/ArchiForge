@@ -50,10 +50,9 @@ public sealed class BlobStoreSimmyChaosTests
         ChaosFaultStrategyOptions chaosOptions = new()
         {
             InjectionRate = 1.0,
+            EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2),
+            FaultGenerator = _ => new ValueTask<Exception?>(new IOException("simulated blob store fault"))
         };
-
-        chaosOptions.EnabledGenerator = _ => new ValueTask<bool>(Interlocked.Increment(ref chaosWave) <= 2);
-        chaosOptions.FaultGenerator = _ => new ValueTask<Exception?>(new IOException("simulated blob store fault"));
 
         ResiliencePipeline<string> pipeline = new ResiliencePipelineBuilder<string>()
             .AddRetry(

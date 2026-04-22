@@ -79,9 +79,10 @@ public sealed class AnalysisReportsControllerAuditTests
             Mock.Of<IRunExportAuditService>(),
             Mock.Of<IBackgroundJobQueue>(),
             audit.Object,
-            NullLogger<AnalysisReportsController>.Instance);
-
-        sut.ControllerContext = CreateControllerContext();
+            NullLogger<AnalysisReportsController>.Instance)
+        {
+            ControllerContext = CreateControllerContext()
+        };
 
         IActionResult response = await sut.AnalyzeRun(runId, new ArchitectureAnalysisRequest(), CancellationToken.None);
 
@@ -99,8 +100,10 @@ public sealed class AnalysisReportsControllerAuditTests
 
     internal static ControllerContext CreateControllerContext()
     {
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "test-user")]));
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "test-user")]))
+        };
 
         return new ControllerContext { HttpContext = http };
     }
@@ -180,9 +183,10 @@ public sealed class DocxExportControllerAuditTests
             Mock.Of<IExplanationService>(),
             Mock.Of<IProvenanceSnapshotRepository>(),
             scope.Object,
-            audit.Object);
-
-        sut.ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext();
+            audit.Object)
+        {
+            ControllerContext = AnalysisReportsControllerAuditTests.CreateControllerContext()
+        };
 
         IActionResult result = await sut.ExportRunDocx(runId, compareWith, explainRun: false, includeComparisonExplanation: false, CancellationToken.None);
 
@@ -235,9 +239,11 @@ public sealed class ExportsControllerReplayExportAuditTests
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             audit.Object);
 
-        DefaultHttpContext http = new();
-        http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u")]));
-        http.Request.Method = "POST";
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u")])),
+            Request = { Method = "POST" }
+        };
         sut.ControllerContext = new ControllerContext { HttpContext = http };
 
         await sut.ReplayExportRecord(

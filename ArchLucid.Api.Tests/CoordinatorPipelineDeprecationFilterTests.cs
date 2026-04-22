@@ -97,8 +97,10 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
 
     private static ActionExecutingContext BuildExecutingContext(string requestPath, out CapturingHttpResponseFeature responseFeature)
     {
-        DefaultHttpContext httpContext = new();
-        httpContext.Request.Path = requestPath;
+        DefaultHttpContext httpContext = new()
+        {
+            Request = { Path = requestPath }
+        };
 
         // Replace DefaultHttpContext's response feature with a capturing implementation that lets
         // tests fire the OnStarting callbacks deterministically (the default impl only fires them
@@ -133,14 +135,18 @@ public sealed class CoordinatorPipelineDeprecationFilterTests
         private readonly List<(Func<object, Task> Callback, object State)> _onStarting = [];
 
         public int StatusCode { get; set; } = StatusCodes.Status200OK;
-        public string? ReasonPhrase { get; set; }
+        public string? ReasonPhrase
+        {
+            get; set;
+        }
         public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
         public Stream Body { get; set; } = Stream.Null;
         public bool HasStarted => false;
 
         public void OnStarting(Func<object, Task> callback, object state)
         {
-            if (callback is null) throw new ArgumentNullException(nameof(callback));
+            if (callback is null)
+                throw new ArgumentNullException(nameof(callback));
 
             _onStarting.Add((callback, state));
         }

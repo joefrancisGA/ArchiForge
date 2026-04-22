@@ -605,7 +605,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         IAuditService? auditService = null)
     {
         IOptions<LlmCostEstimationOptions> cost = costOptions ?? Options.Create(new LlmCostEstimationOptions { Enabled = false });
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped<IAgentExecutionTraceRepository>(_ => repo);
         services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
         services.AddSingleton(cost);

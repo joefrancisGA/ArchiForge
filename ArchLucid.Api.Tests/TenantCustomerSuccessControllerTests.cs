@@ -32,8 +32,10 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
 
@@ -63,8 +65,10 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetHealthScoreAsync(CancellationToken.None);
 
@@ -83,8 +87,10 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.PostProductFeedbackAsync(null!, CancellationToken.None);
 
@@ -106,8 +112,10 @@ public sealed class TenantCustomerSuccessControllerTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
 
-        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantCustomerSuccessController sut = new(repo.Object, scopeProvider.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         ProductFeedbackRequest request = new()
         {

@@ -24,12 +24,14 @@ public sealed class TrialSeatReservationMiddlewareTests
         ClaimsPrincipal user,
         Mock<ITenantRepository> tenants)
     {
-        DefaultHttpContext http = new();
-        http.Request.Path = path;
-        http.User = user;
-        http.Response.Body = new MemoryStream();
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = path },
+            User = user,
+            Response = { Body = new MemoryStream() }
+        };
 
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
         services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
         services.AddSingleton(tenants.Object);

@@ -1,13 +1,11 @@
 using ArchLucid.Contracts.Common;
-using ArchLucid.Contracts.Manifest;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Manifest;
-using Cm = ArchLucid.Contracts.Manifest;
-using Dm = ArchLucid.Decisioning.Models;
 
 using FluentAssertions;
 
-using Xunit;
+using Cm = ArchLucid.Contracts.Manifest;
+using Dm = ArchLucid.Decisioning.Models;
 
 namespace ArchLucid.Decisioning.Tests;
 
@@ -29,10 +27,8 @@ public sealed class AuthorityCommitProjectionBuilderTests
             RuleSetId = "r",
             RuleSetVersion = "1",
             RuleSetHash = "h",
+            Metadata = { Version = "v1", Summary = "S", Name = "N" }
         };
-        model.Metadata.Version = "v1";
-        model.Metadata.Summary = "S";
-        model.Metadata.Name = "N";
         model.Topology.Services.Add(
             new Cm.ManifestService
             {
@@ -44,7 +40,10 @@ public sealed class AuthorityCommitProjectionBuilderTests
 
         Cm.GoldenManifest c = await sut.BuildAsync(
             model,
-            new() { SystemName = "Contoso" },
+            new()
+            {
+                SystemName = "Contoso"
+            },
             CancellationToken.None);
         c.Services.Should().HaveCount(1);
         c.Datastores.Should().BeEmpty();

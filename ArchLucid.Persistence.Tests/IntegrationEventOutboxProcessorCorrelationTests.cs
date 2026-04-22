@@ -134,7 +134,7 @@ public sealed class IntegrationEventOutboxProcessorCorrelationTests
         IIntegrationEventOutboxRepository outbox,
         IIntegrationEventPublisher publisher)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => outbox);
         services.AddScoped(_ => publisher);
         ServiceProvider provider = services.BuildServiceProvider();

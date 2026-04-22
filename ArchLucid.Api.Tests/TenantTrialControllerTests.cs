@@ -38,8 +38,10 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -76,8 +78,10 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -119,8 +123,10 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -166,8 +172,10 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 
@@ -211,8 +219,10 @@ public sealed class TenantTrialControllerTests
         Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
         schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
 
-        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object);
-        sut.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        TenantTrialController sut = new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, schedulerOpts.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
 

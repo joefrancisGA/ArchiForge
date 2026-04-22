@@ -27,9 +27,11 @@ public sealed class ApiRequestMeteringMiddlewareTests
 
     private static DefaultHttpContext CreateContext(string path)
     {
-        DefaultHttpContext context = new();
-        context.Request.Path = path;
-        context.TraceIdentifier = "trace-1";
+        DefaultHttpContext context = new()
+        {
+            Request = { Path = path },
+            TraceIdentifier = "trace-1"
+        };
 
         return context;
     }

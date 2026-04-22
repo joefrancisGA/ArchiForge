@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using ArchLucid.Api.Controllers.Admin;
 using ArchLucid.Api.Models;
 
@@ -5,8 +7,6 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-using System.Security.Claims;
 
 namespace ArchLucid.Api.Tests;
 
@@ -20,11 +20,15 @@ public sealed class AuthDebugControllerTests
         ClaimsIdentity identity = new(
             [new Claim(ClaimTypes.Name, "alice"), new Claim("tid", "tenant-1")],
             authenticationType: "test");
-        DefaultHttpContext httpContext = new();
-        httpContext.User = new ClaimsPrincipal(identity);
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(identity)
+        };
 
-        AuthDebugController sut = new();
-        sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        AuthDebugController sut = new()
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext }
+        };
 
         IActionResult result = sut.Me();
 
@@ -40,11 +44,15 @@ public sealed class AuthDebugControllerTests
     public void Me_returns_ok_when_identity_name_is_null()
     {
         ClaimsIdentity identity = new([], authenticationType: "test");
-        DefaultHttpContext httpContext = new();
-        httpContext.User = new ClaimsPrincipal(identity);
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(identity)
+        };
 
-        AuthDebugController sut = new();
-        sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
+        AuthDebugController sut = new()
+        {
+            ControllerContext = new ControllerContext { HttpContext = httpContext }
+        };
 
         IActionResult result = sut.Me();
 

@@ -50,13 +50,15 @@ public sealed class AuditServiceCorrelationEnrichmentTests
             .Setup(s => s.GetCurrentScope())
             .Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        DefaultHttpContext httpContext = new();
-        httpContext.User = new ClaimsPrincipal(
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
             new ClaimsIdentity(
             [
                 new Claim(ClaimTypes.NameIdentifier, "u1"),
                 new Claim(ClaimTypes.Name, "User One"),
-            ]));
+            ]))
+        };
 
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
 
@@ -96,14 +98,13 @@ public sealed class AuditServiceCorrelationEnrichmentTests
         DefaultHttpContext httpContext = new()
         {
             TraceIdentifier = "http-trace-456",
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.NameIdentifier, "u2"),
+                    new Claim(ClaimTypes.Name, "User Two"),
+                ]))
         };
-
-        httpContext.User = new ClaimsPrincipal(
-            new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, "u2"),
-                new Claim(ClaimTypes.Name, "User Two"),
-            ]));
 
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
 
@@ -135,13 +136,15 @@ public sealed class AuditServiceCorrelationEnrichmentTests
             .Setup(s => s.GetCurrentScope())
             .Returns(new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
-        DefaultHttpContext httpContext = new();
-        httpContext.User = new ClaimsPrincipal(
+        DefaultHttpContext httpContext = new()
+        {
+            User = new ClaimsPrincipal(
             new ClaimsIdentity(
             [
                 new Claim(ClaimTypes.NameIdentifier, "u3"),
                 new Claim(ClaimTypes.Name, "User Three"),
-            ]));
+            ]))
+        };
 
         httpAccessor.Setup(a => a.HttpContext).Returns(httpContext);
 

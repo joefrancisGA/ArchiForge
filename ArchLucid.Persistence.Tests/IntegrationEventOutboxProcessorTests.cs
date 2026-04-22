@@ -271,7 +271,7 @@ public sealed class IntegrationEventOutboxProcessorTests
         IIntegrationEventPublisher publisher,
         IntegrationEventsOptions? options = null)
     {
-        ServiceCollection services = new();
+        ServiceCollection services = [];
         services.AddScoped(_ => outbox);
         services.AddScoped(_ => publisher);
         ServiceProvider provider = services.BuildServiceProvider();

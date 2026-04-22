@@ -19,8 +19,10 @@ public sealed class GovernancePolicyPackContentPropertyTests
     [InlineData("quotes", "say \"hi\"")]
     public void Policy_pack_content_metadata_entry_round_trips_through_shared_options(string key, string value)
     {
-        PolicyPackContentDocument original = new();
-        original.Metadata[key] = value;
+        PolicyPackContentDocument original = new()
+        {
+            Metadata = { [key] = value }
+        };
 
         string json = JsonSerializer.Serialize(original, PolicyPackJsonSerializerOptions.Default);
         PolicyPackContentDocument? back = JsonSerializer.Deserialize<PolicyPackContentDocument>(

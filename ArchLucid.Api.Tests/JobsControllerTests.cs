@@ -17,8 +17,10 @@ public sealed class JobsControllerTests
 {
     private static JobsController CreateSut(Mock<IBackgroundJobQueue> jobs)
     {
-        JobsController controller = new(jobs.Object);
-        controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+        JobsController controller = new(jobs.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
 
         return controller;
     }

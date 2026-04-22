@@ -13,11 +13,13 @@ public static class ValueReportReviewCycleSectionFormatter
     /// <summary>Paragraphs for OpenXML (font sizes match existing value-report sections).</summary>
     public static IReadOnlyList<ValueReportReviewCycleParagraph> GetParagraphs(ValueReportSnapshot snapshot)
     {
-        if (snapshot is null) throw new ArgumentNullException(nameof(snapshot));
+        if (snapshot is null)
+            throw new ArgumentNullException(nameof(snapshot));
 
-        List<ValueReportReviewCycleParagraph> list = [];
-
-        list.Add(new ValueReportReviewCycleParagraph(Heading, Bold: true, Italic: false, FontSizeHalfPoints: 28));
+        List<ValueReportReviewCycleParagraph> list =
+        [
+            new ValueReportReviewCycleParagraph(Heading, Bold: true, Italic: false, FontSizeHalfPoints: 28)
+        ];
 
         if (snapshot.ReviewCycleBaselineProvenance is ReviewCycleBaselineProvenance.NoMeasurementYet)
         {
@@ -106,8 +108,10 @@ public static class ValueReportReviewCycleSectionFormatter
     /// <summary>Appends the Markdown section (## heading + lines). Caller supplies leading blank lines if needed.</summary>
     public static void AppendMarkdownSection(StringBuilder sb, ValueReportSnapshot snapshot)
     {
-        if (sb is null) throw new ArgumentNullException(nameof(sb));
-        if (snapshot is null) throw new ArgumentNullException(nameof(snapshot));
+        if (sb is null)
+            throw new ArgumentNullException(nameof(sb));
+        if (snapshot is null)
+            throw new ArgumentNullException(nameof(snapshot));
 
         IReadOnlyList<ValueReportReviewCycleParagraph> paragraphs = GetParagraphs(snapshot);
 

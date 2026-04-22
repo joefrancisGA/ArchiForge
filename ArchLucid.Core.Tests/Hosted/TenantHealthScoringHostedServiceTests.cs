@@ -19,7 +19,7 @@ public sealed class TenantHealthScoringHostedServiceTests
     public async Task ExecuteAsync_when_scoring_disabled_does_not_call_repository()
     {
         Mock<ITenantCustomerSuccessRepository> repo = new(MockBehavior.Strict);
-        ServiceCollection sc = new();
+        ServiceCollection sc = [];
         sc.AddSingleton(repo.Object);
         ServiceProvider sp = sc.BuildServiceProvider();
 
@@ -55,7 +55,7 @@ public sealed class TenantHealthScoringHostedServiceTests
             .Returns(Task.CompletedTask)
             .Callback(() => hostCts.Cancel());
 
-        ServiceCollection sc = new();
+        ServiceCollection sc = [];
         sc.AddSingleton(repo.Object);
         ServiceProvider sp = sc.BuildServiceProvider();
 

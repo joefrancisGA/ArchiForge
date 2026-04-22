@@ -186,12 +186,12 @@ public sealed class DemoCommitPagePreviewClientTests
         Mock<IArtifactQueryService> artifacts = new();
         artifacts
             .Setup(a => a.ListArtifactsByManifestIdAsync(It.IsAny<ScopeContext>(), manifestId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<ArtifactDescriptor>());
+            .ReturnsAsync([]);
 
         Mock<IRunPipelineAuditTimelineService> pipeline = new();
         pipeline
             .Setup(p => p.GetTimelineAsync(It.IsAny<ScopeContext>(), run.RunId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<RunPipelineTimelineItemDto>());
+            .ReturnsAsync([]);
 
         Mock<IRunExplanationSummaryService> explain = new();
         explain
