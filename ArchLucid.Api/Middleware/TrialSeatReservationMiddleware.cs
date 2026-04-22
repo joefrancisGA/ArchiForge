@@ -37,7 +37,7 @@ public sealed class TrialSeatReservationMiddleware(RequestDelegate next)
             return;
         }
 
-        if (context.User?.Identity?.IsAuthenticated != true)
+        if (context.User.Identity?.IsAuthenticated != true)
         {
             await next(context);
 

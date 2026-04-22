@@ -10,8 +10,10 @@ internal static class ArchLucidApiJsonSerializerOptions
 
     private static JsonSerializerOptions Create()
     {
-        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
-        options.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web)
+        {
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+        };
         options.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: true));
 
         return options;

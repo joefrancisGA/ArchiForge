@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { MarketingPricingPublicCutoverNotice } from "@/components/marketing/MarketingPricingPublicCutoverNotice";
 import { MarketingPricingQuotePanel } from "@/components/marketing/MarketingPricingQuotePanel";
 import { MarketingTierPricingSection } from "@/components/marketing/MarketingTierPricingSection";
 import { buildPricingSignupHref } from "@/lib/marketing/pricing-signup-href";
@@ -26,6 +27,7 @@ export default async function PricingPage(props: PricingPageProps) {
         signupHref={signupHref}
         signupCallToActionLabel="Start trial"
       />
+      <MarketingPricingPublicCutoverNotice />
       <MarketingPricingQuotePanel />
     </main>
   );

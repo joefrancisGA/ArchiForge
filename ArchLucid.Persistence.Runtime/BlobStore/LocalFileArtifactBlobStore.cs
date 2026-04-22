@@ -74,10 +74,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
             if (uri.IsFile)
                 return uri.LocalPath;
 
-            if (Path.IsPathRooted(blobUri))
-                return Path.GetFullPath(blobUri);
-
-            return string.Empty;
+            return Path.IsPathRooted(blobUri) ? Path.GetFullPath(blobUri) : string.Empty;
         }
         catch (UriFormatException)
         {
@@ -87,8 +84,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
 
     private static string SanitizeSegment(string segment)
     {
-        foreach (char c in Path.GetInvalidFileNameChars())
-            segment = segment.Replace(c, '_');
+        segment = Path.GetInvalidFileNameChars().Aggregate(segment, (current, c) => current.Replace(c, '_'));
 
         return segment.Trim();
     }
@@ -98,14 +94,7 @@ public sealed class LocalFileArtifactBlobStore : IArtifactBlobStore
         blobName = blobName.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
 
         List<string> parts = [];
-
-        foreach (string part in blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
-        {
-            string s = SanitizeSegment(part);
-
-            if (s.Length > 0)
-                parts.Add(s);
-        }
+        parts.AddRange(blobName.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).Select(part => SanitizeSegment(part)).Where(s => s.Length > 0));
 
         return parts.Count > 0 ? Path.Combine(parts.ToArray()) : "payload.bin";
     }

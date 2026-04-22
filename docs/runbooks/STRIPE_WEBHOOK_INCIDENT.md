@@ -19,6 +19,10 @@
 | ArchLucid logs show `StripeWebhookIdempotencyConflict` | Stripe redelivered an event; idempotency key already processed — usually safe to ignore. |
 | Charge succeeded in Stripe but tenant tier did not change | Webhook delivered to a stale ArchLucid environment, OR the subscription metadata is missing the `archlucid_tenant_id` key. |
 
+## Statement descriptor
+
+The Stripe **statement descriptor prefix** is locked to **`ARCHLUCID PLATFORM`** (18 characters, within Stripe’s 22-character limit). Configure it as the **prefix** under Stripe Dashboard → **Settings** → **Public details** → **Statement descriptor**. ArchLucid v1 does **not** rely on a per-charge dynamic suffix; leave suffix behavior at Stripe defaults unless product explicitly adopts one later.
+
 ## Triage steps (15 minutes)
 
 1. **Confirm scope.** In the Stripe dashboard, filter webhook attempts to ArchLucid in the last hour. If failures are <1% of attempts, treat as transient and watch.
@@ -27,9 +31,11 @@
      - `traces | where customDimensions.SourceContext startswith "ArchLucid.Application.Billing.Stripe"`
      - Look for `StripeWebhookSignatureInvalid`, `StripeWebhookIdempotencyConflict`, `StripeWebhookSubscriptionLookupMissing`.
 3. **Check the GA flag.** `GET /v1/admin/configuration/billing` — confirm `stripe.gaEnabled`. If `false`, this is the documented rollback path; do not flip without product approval.
-4. **Check the signing-secret age.** If `Billing:Stripe:WebhookSigningSecretRotatedUtc` is older than 90 days, rotate per § Rotation below.
+4. **Check signing-secret hygiene.** Rotation cadence = **owner self**, **quarterly + on-incident**. **On-incident** triggers: any **failed webhook delivery sequence after deploy**; any **suspected secret leak**. If either trigger fires, rotate immediately per § Rotation below. Owner must record each rotation in **`Billing:Stripe:WebhookSigningSecretRotatedUtc`** and in **`docs/CHANGELOG.md`** under `## YYYY-MM-DD — Stripe webhook secret rotated` (append-only audit).
 
 ## Rotation (signing secret)
+
+**Cadence reminder:** same as triage — owner self, quarterly + on-incident; record `Billing:Stripe:WebhookSigningSecretRotatedUtc` + `CHANGELOG` heading on every rotation.
 
 1. In Stripe dashboard, **Roll** the endpoint signing secret. Stripe accepts both old and new for 24 hours.
 2. Update `Billing:Stripe:WebhookSigningSecret` in Key Vault (do **not** commit).

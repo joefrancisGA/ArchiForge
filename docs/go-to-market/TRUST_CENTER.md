@@ -7,7 +7,7 @@
 
 **Audience:** Security reviewers, procurement, and legal teams evaluating ArchLucid as a **vendor-operated (SaaS)** service.
 
-**Last reviewed:** 2026-04-21
+**Last reviewed:** 2026-04-22
 
 ArchLucid is built so that **security, privacy, and operational transparency** are first-class: identity-backed access, defense-in-depth on the data plane, measurable reliability targets, and documentation you can trace to the product and infrastructure code. This page is the **buyer-facing index** into policies and deep technical references maintained in the repository.
 
@@ -100,6 +100,20 @@ archlucid procurement-pack --out .\archlucid-procurement-pack.zip
 | **SOC 2** (Type I / II) | **Deferred** — interim self-assessment + Trust Center honesty until ARR materially supports CPA attestation cost | Interim: [SOC2_SELF_ASSESSMENT_2026.md](../security/SOC2_SELF_ASSESSMENT_2026.md) + [COMPLIANCE_MATRIX.md](../security/COMPLIANCE_MATRIX.md); roadmap [SOC2_ROADMAP.md](SOC2_ROADMAP.md). **Revisit trigger:** owner-defined ARR threshold (tracked in `docs/PENDING_QUESTIONS.md` item 6 — assistant cannot set the dollar figure). External readiness consultant + CPA firm selection paused until that trigger fires; G-001 in the self-assessment captures the resumption checklist. |
 | **GDPR / DPA** | Template available | See [DPA_TEMPLATE.md](DPA_TEMPLATE.md); subprocessors in [SUBPROCESSORS.md](SUBPROCESSORS.md). |
 | **ISO 27001** | Not claimed | Roadmap TBD with SOC 2 program. |
+
+---
+
+## Commercial terms
+
+**Drafted 2026-04-22; pending legal sign-off before any commerce un-hold.**
+
+**Chargebacks:** bank-initiated disputes; Vendor responds via Stripe with contract + delivery evidence; outcome follows card-network rules.
+
+**Refunds:** no Customer early-cancellation refund unless agreed in writing (aligned with order form **§5** / **§9**).
+
+**Dunning:** Stripe smart retries for cards by default; suspension after **15 days past due** aligns with order form **§7** after notice.
+
+Full text: [ORDER_FORM_TEMPLATE.md § 9](ORDER_FORM_TEMPLATE.md).
 
 ---
 

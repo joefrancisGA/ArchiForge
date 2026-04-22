@@ -38,15 +38,14 @@ public static class ArtifactBlobTenantPaths
         string normalized = blobName.Replace("\\", "/", StringComparison.Ordinal).TrimStart('/');
         string[] topSegments = normalized.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-        if (topSegments.Length > 0 && Guid.TryParse(topSegments[0], out Guid leadingFolder))
-        {
-            if (leadingFolder == tenantId)
-                throw new InvalidOperationException("Blob name must not include a tenant prefix; it is applied automatically.");
+        if (topSegments.Length <= 0 || !Guid.TryParse(topSegments[0], out Guid leadingFolder))
+            return prefix + normalized;
 
-            throw new InvalidOperationException("Blob name must not start with another tenant folder segment.");
-        }
+        if (leadingFolder == tenantId)
+            throw new InvalidOperationException("Blob name must not include a tenant prefix; it is applied automatically.");
 
-        return prefix + normalized;
+        throw new InvalidOperationException("Blob name must not start with another tenant folder segment.");
+
     }
 
     /// <summary>

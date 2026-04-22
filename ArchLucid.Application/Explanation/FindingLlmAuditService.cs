@@ -79,7 +79,7 @@ public sealed class FindingLlmAuditService(
         Finding finding,
         CancellationToken cancellationToken)
     {
-        string? preferredId = finding.Trace?.SourceAgentExecutionTraceId;
+        string? preferredId = finding.Trace.SourceAgentExecutionTraceId;
 
         if (!string.IsNullOrWhiteSpace(preferredId))
         {
@@ -96,15 +96,11 @@ public sealed class FindingLlmAuditService(
         if (traces.Count == 0)
             return null;
 
-        if (Enum.TryParse<AgentType>(finding.EngineType, ignoreCase: true, out AgentType engineAgent))
-        {
-            AgentExecutionTrace? typed = traces.FirstOrDefault(t => t.AgentType == engineAgent);
+        if (!Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType engineAgent))
+            return traces[0];
+        AgentExecutionTrace? typed = traces.FirstOrDefault(t => t.AgentType == engineAgent);
 
-            if (typed is not null)
-                return typed;
-        }
-
-        return traces[0];
+        return typed ?? traces[0];
     }
 
     private static string ResolveSystemPrompt(AgentExecutionTrace trace) =>
@@ -123,16 +119,16 @@ public sealed class FindingLlmAuditService(
     {
         Dictionary<string, int> merged = new(StringComparer.OrdinalIgnoreCase);
 
-        void Add(IReadOnlyDictionary<string, int> src)
-        {
-            foreach (KeyValuePair<string, int> kv in src)
-                merged[kv.Key] = merged.GetValueOrDefault(kv.Key, 0) + kv.Value;
-        }
-
         Add(a);
         Add(b);
         Add(c);
 
         return merged;
+
+        void Add(IReadOnlyDictionary<string, int> src)
+        {
+            foreach (KeyValuePair<string, int> kv in src)
+                merged[kv.Key] = merged.GetValueOrDefault(kv.Key, 0) + kv.Value;
+        }
     }
 }

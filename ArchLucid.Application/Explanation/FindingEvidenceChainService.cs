@@ -28,8 +28,10 @@ public sealed class FindingEvidenceChainService(
         string findingId,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(runId)) throw new ArgumentException("Run id is required.", nameof(runId));
-        if (string.IsNullOrWhiteSpace(findingId)) throw new ArgumentException("Finding id is required.", nameof(findingId));
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new ArgumentException("Run id is required.", nameof(runId));
+        if (string.IsNullOrWhiteSpace(findingId))
+            throw new ArgumentException("Finding id is required.", nameof(findingId));
 
         if (!TryParseRunGuid(runId, out Guid runGuid))
             return null;
@@ -77,10 +79,6 @@ public sealed class FindingEvidenceChainService(
 
     private static bool TryParseRunGuid(string runId, out Guid runGuid)
     {
-        if (Guid.TryParseExact(runId, "N", out runGuid))
-            return true;
-
-
-        return Guid.TryParse(runId, out runGuid);
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
     }
 }

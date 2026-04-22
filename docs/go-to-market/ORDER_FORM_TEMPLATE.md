@@ -7,7 +7,7 @@
 
 **Important — not legal advice:** This is a **working template** to reduce friction for SMB-midmarket deals (< $50K ARR). It **does not** constitute legal advice. **Qualified legal counsel** must review and adapt it before use.
 
-**Last reviewed:** 2026-04-17
+**Last reviewed:** 2026-04-22
 
 **Pricing source:** All current list prices (platform fee, seat price, run overage, pilot fee) are in [PRICING_PHILOSOPHY.md §5](PRICING_PHILOSOPHY.md). The worked examples in this document compute totals from those locked prices — the numbers are derived here for convenience, but the prices themselves live only in that file. The CI guard `scripts/ci/check_pricing_single_source.py` allows price literals in this file.
 
@@ -166,6 +166,24 @@ In the event of conflict, the order of precedence is: this Order Form > DPA > Te
 
 ---
 
+## 9. Chargeback, refund, and dunning
+
+**Drafted 2026-04-22; pending legal sign-off before any commerce un-hold.**
+
+### Chargeback
+
+A **chargeback** is a bank-initiated dispute after the card network’s rules-based window opens for the cardholder. Vendor may submit an **evidence package** (invoices, delivery logs, contract acceptance) through Stripe’s dispute flow. **Liability** follows the card network outcome: if the dispute is upheld, the charge is reversed and network fees may apply; if Vendor wins, funds are released per Stripe settlement timing.
+
+### Refund
+
+**Refunds** follow the tier and term rules in **§5** (annual prepay): Vendor provides a **pro-rata refund of prepaid unused months** when Vendor terminates; there is **no Customer-initiated early-cancellation refund** unless **agreed in writing** in the order form or a signed amendment. Monthly billing refunds (if any) are handled case-by-case under the same written-agreement rule — do not imply automatic refunds in quotes without legal review.
+
+### Dunning
+
+**Dunning** for card failures uses **Stripe smart retries** by default unless Customer is on invoice-only terms. After repeated failure, access may align with **§7** — Vendor may suspend after **15 days past due** following **10 days’** written notice, consistent with the late-payment row in §7.
+
+---
+
 ## Addendum A — Annual prepay schedule
 
 *(Complete if Customer selects annual billing in §2)*
@@ -214,7 +232,7 @@ In the event of conflict, the order of precedence is: this Order Form > DPA > Te
 
 ---
 
-## 9. Signature
+## 10. Signature
 
 | | Customer | Vendor |
 |--|----------|--------|

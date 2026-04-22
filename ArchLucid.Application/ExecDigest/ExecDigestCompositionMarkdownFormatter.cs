@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Value;
+
 namespace ArchLucid.Application.ExecDigest;
 
 /// <summary>Markdown projection of <see cref="ExecDigestComposition"/> for board-pack PDF reuse (same fields as weekly email model).</summary>
@@ -42,12 +44,12 @@ public static class ExecDigestCompositionMarkdownFormatter
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(composition.ComplianceDriftMarkdown))
-        {
-            sb.AppendLine();
-            sb.AppendLine("## Compliance drift");
-            sb.AppendLine(composition.ComplianceDriftMarkdown);
-        }
+        if (string.IsNullOrWhiteSpace(composition.ComplianceDriftMarkdown))
+            return sb.ToString();
+
+        sb.AppendLine();
+        sb.AppendLine("## Compliance drift");
+        sb.AppendLine(composition.ComplianceDriftMarkdown);
 
         return sb.ToString();
     }

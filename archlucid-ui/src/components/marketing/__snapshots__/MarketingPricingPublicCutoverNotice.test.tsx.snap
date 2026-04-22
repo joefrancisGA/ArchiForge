@@ -1,0 +1,18 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MarketingPricingPublicCutoverNotice > matches snapshot (Marketplace go-live / public price list notice) 1`] = `
+<aside
+  aria-label="Public price list and Marketplace go-live timing"
+  class="mb-6 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-300"
+>
+  These prices become the canonical public list at Azure Marketplace go-live (Q2 2026 — see
+   
+  <code
+    class="rounded bg-white px-1 font-mono text-xs text-neutral-800 dark:bg-neutral-950 dark:text-neutral-200"
+  >
+    docs/PENDING_QUESTIONS.md
+  </code>
+   
+  item 22). Until then, list prices are subject to change without notice.
+</aside>
+`;
