@@ -24,6 +24,18 @@ describe("FindingExplainPanel", () => {
     };
 
     const spy = vi.spyOn(api, "getFindingLlmAudit").mockResolvedValue(sample);
+    const chainSpy = vi.spyOn(api, "getFindingEvidenceChain").mockResolvedValue({
+      runId: "run-a",
+      findingId: "f-1",
+      manifestVersion: "v1-run",
+      findingsSnapshotId: null,
+      contextSnapshotId: null,
+      graphSnapshotId: null,
+      decisionTraceId: null,
+      goldenManifestId: null,
+      relatedGraphNodeIds: ["n1"],
+      agentExecutionTraceIds: [],
+    });
     const postSpy = vi.spyOn(api, "postFindingFeedback").mockResolvedValue(undefined);
 
     render(<FindingExplainPanel runId="run-a" findingId="f-1" />);
@@ -34,9 +46,13 @@ describe("FindingExplainPanel", () => {
 
     expect(screen.getByText(/user/)).toBeInTheDocument();
     expect(screen.getByText(/resp/)).toBeInTheDocument();
+    expect(screen.getByText(/Evidence chain/)).toBeInTheDocument();
+    expect(screen.getByText("v1-run")).toBeInTheDocument();
     expect(spy).toHaveBeenCalledWith("run-a", "f-1");
+    expect(chainSpy).toHaveBeenCalledWith("run-a", "f-1");
     expect(postSpy).not.toHaveBeenCalled();
     spy.mockRestore();
+    chainSpy.mockRestore();
     postSpy.mockRestore();
   });
 
@@ -51,6 +67,18 @@ describe("FindingExplainPanel", () => {
     };
 
     vi.spyOn(api, "getFindingLlmAudit").mockResolvedValue(sample);
+    vi.spyOn(api, "getFindingEvidenceChain").mockResolvedValue({
+      runId: "run-a",
+      findingId: "f-1",
+      manifestVersion: null,
+      findingsSnapshotId: null,
+      contextSnapshotId: null,
+      graphSnapshotId: null,
+      decisionTraceId: null,
+      goldenManifestId: null,
+      relatedGraphNodeIds: [],
+      agentExecutionTraceIds: [],
+    });
     const postSpy = vi.spyOn(api, "postFindingFeedback").mockResolvedValue(undefined);
 
     render(<FindingExplainPanel runId="run-a" findingId="f-1" />);

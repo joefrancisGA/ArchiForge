@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { FindingExplainabilityDialog } from "@/components/FindingExplainabilityDialog";
@@ -67,17 +68,22 @@ export function RunFindingExplainabilityTable({ runId, rows }: RunFindingExplain
                   <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{row.traceConfidenceLabel}</td>
                   <td className="py-2 pr-3 tabular-nums text-neutral-700 dark:text-neutral-300">{pct}%</td>
                   <td className="py-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        setActiveFindingId(row.findingId);
-                        setOpen(true);
-                      }}
-                    >
-                      View trace
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setActiveFindingId(row.findingId);
+                          setOpen(true);
+                        }}
+                      >
+                        View trace
+                      </Button>
+                      <Button type="button" size="sm" variant="ghost" asChild>
+                        <Link href={`/runs/${runId}/findings/${encodeURIComponent(row.findingId)}`}>Explain page</Link>
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );

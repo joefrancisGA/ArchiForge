@@ -96,6 +96,20 @@ export type FindingExplainabilityEvidence = {
   ruleId: string;
 };
 
+/** Pointers linking one finding to persisted run artifacts (`GET /v1/architecture/run/.../findings/.../evidence-chain`). */
+export type FindingEvidenceChain = {
+  runId: string;
+  findingId: string;
+  manifestVersion?: string | null;
+  findingsSnapshotId?: string | null;
+  contextSnapshotId?: string | null;
+  graphSnapshotId?: string | null;
+  decisionTraceId?: string | null;
+  goldenManifestId?: string | null;
+  relatedGraphNodeIds: string[];
+  agentExecutionTraceIds: string[];
+};
+
 /** Redacted LLM audit slice for one finding (`GET /v1/explain/runs/.../findings/.../llm-audit`). */
 export type FindingLlmAudit = {
   traceId: string;

@@ -5,6 +5,8 @@ using System.Text.Json;
 
 using ArchLucid.Cli.Commands;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Requests;
 
 using Gen = ArchLucid.Api.Client.Generated;
@@ -337,6 +339,73 @@ public sealed class ArchLucidApiClient
         catch (TaskCanceledException)
         {
             return new CommitRunResult(false, null, "Request timed out.");
+        }
+    }
+
+    /// <summary>POST <c>/v1/architecture/run/{runId}/execute</c> (simulator or real execution per API host configuration).</summary>
+    public async Task<ExecuteRunResult?> ExecuteRunAsync(string runId, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new ArgumentException("Run id is required.", nameof(runId));
+
+        try
+        {
+            _ = await _api.ExecuteAsync(runId, ct);
+
+            return new ExecuteRunResult(true, null);
+        }
+        catch (Gen.ArchLucidApiException ex)
+        {
+            return new ExecuteRunResult(false, ResolveApiErrorMessage(ex), ex.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new ExecuteRunResult(false, $"Cannot connect to ArchLucid API: {ex.Message}", null);
+        }
+        catch (TaskCanceledException)
+        {
+            return new ExecuteRunResult(false, "Request timed out.", null);
+        }
+    }
+
+    /// <summary>
+    /// Commits a run and returns a SHA-256 fingerprint of the committed <see cref="GoldenManifest"/> using <see cref="ContractJson.Default"/> serialization.
+    /// </summary>
+    public async Task<GoldenManifestFingerprintResult?> TryCommitAndFingerprintGoldenManifestAsync(string runId, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            throw new ArgumentException("Run id is required.", nameof(runId));
+
+        try
+        {
+            Gen.CommitRunResponse gen = await _api.CommitAsync(runId, ct);
+            Gen.GoldenManifest? gm = gen.Manifest;
+
+            if (gm is null)
+                return new GoldenManifestFingerprintResult(false, null, "Commit response contained no manifest.");
+
+            string wireJson = JsonSerializer.Serialize(gm, gm.GetType(), _jsonOptions);
+            JsonSerializerOptions contractRead = new(ContractJson.Default) { PropertyNameCaseInsensitive = true };
+            GoldenManifest? manifest = JsonSerializer.Deserialize<GoldenManifest>(wireJson, contractRead);
+
+            if (manifest is null)
+                return new GoldenManifestFingerprintResult(false, null, "Manifest could not be deserialized to GoldenManifest.");
+
+            string sha = GoldenManifestFingerprint.ComputeSha256Hex(manifest);
+
+            return new GoldenManifestFingerprintResult(true, sha, null);
+        }
+        catch (Gen.ArchLucidApiException ex)
+        {
+            return new GoldenManifestFingerprintResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode);
+        }
+        catch (HttpRequestException ex)
+        {
+            return new GoldenManifestFingerprintResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}");
+        }
+        catch (TaskCanceledException)
+        {
+            return new GoldenManifestFingerprintResult(false, null, "Request timed out.");
         }
     }
 
@@ -950,6 +1019,14 @@ public sealed class ArchLucidApiClient
     }
 
     public sealed record CommitRunResult(bool Success, CommitRunResponse? Response, string? Error, int? HttpStatusCode = null);
+
+    public sealed record ExecuteRunResult(bool Success, string? Error, int? HttpStatusCode = null);
+
+    public sealed record GoldenManifestFingerprintResult(
+        bool Success,
+        string? Sha256HexUpper,
+        string? Error,
+        int? HttpStatusCode = null);
 
     public sealed class CommitRunResponse
     {

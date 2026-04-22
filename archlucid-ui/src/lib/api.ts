@@ -16,6 +16,7 @@ import type { GoldenManifestComparison } from "@/types/comparison";
 import type { DemoExplainResponse } from "@/types/demo-explain";
 import type {
   ComparisonExplanation,
+  FindingEvidenceChain,
   FindingExplainability,
   FindingLlmAudit,
   RunExplanation,
@@ -552,6 +553,15 @@ export async function getFindingExplainability(runId: string, findingId: string)
 
   return apiGet<FindingExplainability>(
     `/v1/explain/runs/${encodeURIComponent(runId)}/findings/${encodedFinding}/explainability`,
+  );
+}
+
+/** Evidence-chain pointers for one finding (ReadAuthority; architecture query surface). */
+export async function getFindingEvidenceChain(runId: string, findingId: string): Promise<FindingEvidenceChain> {
+  const encodedFinding = encodeURIComponent(findingId);
+
+  return apiGet<FindingEvidenceChain>(
+    `/v1/architecture/run/${encodeURIComponent(runId)}/findings/${encodedFinding}/evidence-chain`,
   );
 }
 

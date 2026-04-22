@@ -31,6 +31,7 @@ public sealed class CompletionsCommandTests
             text.Should().Contain("roi-bulletin");
             text.Should().Contain("security-trust");
             text.Should().Contain("marketplace");
+            text.Should().Contain("golden-cohort");
             text.Should().Contain("trial");
         }
         finally

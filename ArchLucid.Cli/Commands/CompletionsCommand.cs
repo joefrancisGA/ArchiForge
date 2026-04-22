@@ -30,6 +30,7 @@ public static class CompletionsCommand
         "comparisons",
         "health",
         "marketplace",
+        "golden-cohort",
         "doctor",
         "check",
         "support-bundle",

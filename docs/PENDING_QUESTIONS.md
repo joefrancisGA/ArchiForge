@@ -87,6 +87,9 @@ These came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_64_14.md`](QUALITY
 
 15. **Golden-cohort LLM budget approval** — Prompt 6 stands up a nightly golden-cohort drift detector. Owner approves a dedicated Azure OpenAI deployment + estimated monthly token budget for the nightly run.
 
+    - **Shipped (simulator, no new Azure spend):** `archlucid golden-cohort lock-baseline [--cohort <path>] [--write]` captures committed-manifest SHA-256 fingerprints against a **Simulator** API host; `.github/workflows/golden-cohort-nightly.yml` can run drift assertions when repository variable `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED` is set to `true` (cohort JSON must contain non-placeholder SHAs first — see item 33).
+    - **Still gated on this item:** optional **real-LLM** cohort execution remains behind `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` plus injected Azure OpenAI secrets on a protected GitHub Environment (the assistant does not provision deployments or spend).
+
 16. **ADR 0021 Phase 3 — owner policy (Prompt 2 landed code + stopped at gate)** — Phase 2 catalog (`AuditEventTypes.Run.*` + dual-write), `IRunCommitOrchestrator` façade, and parity probe tooling shipped **2026-04-21**; Phase 3 **deletion** PRs remain blocked until ADR 0021 exit gates **(i)–(iv)**. Owner must decide:
     - **Legacy `CoordinatorRun*` sunset:** Confirm the fixed calendar date **2026-07-20** (already published in API deprecation headers) is still the authoritative cut-over for **removing** legacy wire values after dashboards/exports migrate, or pick a different date with platform sign-off.
     - **Parity probe write path:** Nightly **`.github/workflows/coordinator-parity-daily.yml`** can `git push` marker upserts into `docs/runbooks/COORDINATOR_TO_AUTHORITY_PARITY.md` on `main` when `contents: write` is permitted. Confirm **auto-commit to docs on default branch** is acceptable, or require a **bot PR** / **manual paste** instead (branch protection may block pushes — confirm token policy).
@@ -122,6 +125,9 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
 
 25. **Golden-cohort dedicated Azure OpenAI deployment + monthly token budget** — needed to flip the nightly real-LLM golden-cohort run from optional to mandatory. (Improvement 8 / Prompt 8 — same shape as item 15 but specific to the cohort.)
 
+    - **Repo wiring today:** drift + lock-baseline **refuse** when `ARCHLUCID_GOLDEN_COHORT_REAL_LLM` is truthy in the operator shell, and the placeholder `cohort-real-llm-gate` job in `golden-cohort-nightly.yml` stays disabled until this item plus secrets are in place.
+    - **Needed from owner:** the same deployment/budget answers as item 15, scoped explicitly to the **20-row cohort** workload (expected longer prompts than a single interactive chat turn).
+
 26. **VPAT publication decision** — produce a formal VPAT for accessibility published on the Trust Center, or stay with the WCAG 2.1 AA self-attestation in `ACCESSIBILITY.md`? (Adjacent to item 12 — accessibility publication channel.)
 
 27. **Aggregate ROI bulletin publication cadence** — Improvement 5's "publish a sanitized aggregate ROI bulletin quarterly" needs an owner approval before the first bulletin can ship: which percentile bands (p50 / p90), what minimum tenant N before publication, who signs off on each issue.
@@ -133,6 +139,8 @@ These items came out of [`QUALITY_ASSESSMENT_2026_04_21_INDEPENDENT_67_61.md`](Q
     - **Needed from owner:** (a) sign-off on the shipped copy in [`docs/go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md`](go-to-market/TRIAL_BASELINE_PRIVACY_NOTE.md) (or delegate edits to legal/comms); (b) confirm the **GitHub main link** from the signup form to that note is the correct public surface vs hosting the same text on `archlucid.com`; (c) whether marketing wants **any** additional in-form disclaimer beyond the inline note + tooltip.
 
 31. **Public `/why` comparison delivery** — Should the competitive differentiation ship as **PDF download only** (current `GET /v1/marketing/why-archlucid-pack.pdf` path), **inline page section only**, or **both** with synchronized copy?
+
+33. **Golden-cohort baseline SHA lock timing** — Lock committed-manifest SHA-256 values in `tests/golden-cohort/cohort.json` from a **single approved Simulator run today** (`archlucid golden-cohort lock-baseline --write` after setting `ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true` for that shell only), **or** wait for product review to approve the cohort scenario list before locking? Either path is valid; the CLI `--write` gate exists so SHAs are not rewritten without an explicit owner ack.
 
 ---
 

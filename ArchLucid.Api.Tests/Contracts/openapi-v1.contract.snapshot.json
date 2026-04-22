@@ -9209,6 +9209,45 @@
         },
         "type": "object"
       },
+      "RoiBulletinPreviewResponse": {
+        "properties": {
+          "meanBaselineHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "medianBaselineHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "p90BaselineHours": {
+            "format": "double",
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d\u002B)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ]
+          },
+          "quarter": {
+            "type": "string"
+          },
+          "tenantCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "RuleCandidateComparisonRequest": {
         "properties": {
           "candidateACompositeRule": {
@@ -10133,6 +10172,12 @@
             "type": "string"
           },
           "assessorDisplayName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "publishedOn": {
             "type": [
               "null",
               "string"
@@ -11779,6 +11824,77 @@
         },
         "tags": [
           "MeteringAdmin"
+        ]
+      }
+    },
+    "/v1/admin/roi-bulletin-preview": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "quarter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "minTenants",
+            "schema": {
+              "default": 5,
+              "format": "int32",
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoiBulletinPreviewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoiBulletinPreviewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoiBulletinPreviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "RoiBulletinAdmin"
         ]
       }
     },
@@ -28648,6 +28764,31 @@
         ]
       }
     },
+    "/v1/marketing/why-archlucid-pack.pdf": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {}
+            },
+            "description": "OK"
+          },
+          "404": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found"
+          }
+        },
+        "tags": [
+          "WhyArchlucidMarketingPack"
+        ]
+      }
+    },
     "/v1/notifications/customer-channel-preferences": {
       "get": {
         "responses": {
@@ -31725,6 +31866,9 @@
       "name": "Retrieval"
     },
     {
+      "name": "RoiBulletinAdmin"
+    },
+    {
       "name": "RunAgentEvaluation"
     },
     {
@@ -31762,6 +31906,9 @@
     },
     {
       "name": "Version"
+    },
+    {
+      "name": "WhyArchlucidMarketingPack"
     }
   ]
 }

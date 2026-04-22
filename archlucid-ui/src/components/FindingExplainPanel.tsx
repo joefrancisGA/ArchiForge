@@ -6,11 +6,11 @@ import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/OperatorShellMessage";
 import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
-import { getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
+import { getFindingEvidenceChain, getFindingLlmAudit, postFindingFeedback } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import type { FindingLlmAudit } from "@/types/explanation";
+import type { FindingEvidenceChain, FindingLlmAudit } from "@/types/explanation";
 
 export type FindingExplainPanelProps = {
   runId: string;
@@ -24,6 +24,7 @@ export type FindingExplainPanelProps = {
 export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelProps) {
   const rank = useNavCallerAuthorityRank();
   const [audit, setAudit] = useState<FindingLlmAudit | null>(null);
+  const [evidenceChain, setEvidenceChain] = useState<FindingEvidenceChain | null>(null);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedbackBusy, setFeedbackBusy] = useState(false);
@@ -37,10 +38,18 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
     setLoading(true);
     setFailure(null);
     setFeedbackNote(null);
+    setEvidenceChain(null);
 
     try {
       const a = await getFindingLlmAudit(runId, findingId.trim());
       setAudit(a);
+
+      try {
+        const chain = await getFindingEvidenceChain(runId, findingId.trim());
+        setEvidenceChain(chain);
+      } catch {
+        setEvidenceChain(null);
+      }
     } catch (err) {
       setFailure(toApiLoadFailure(err));
     } finally {
@@ -74,6 +83,62 @@ export function FindingExplainPanel({ runId, findingId }: FindingExplainPanelPro
         <code className="rounded bg-neutral-200 px-1 text-[0.7rem] dark:bg-neutral-800">…/explainability</code>
         ).
       </p>
+
+      {!loading && failure === null && evidenceChain !== null ? (
+        <section aria-labelledby="finding-evidence-chain-heading" className="space-y-2 rounded-md border border-violet-200 bg-violet-50/80 p-3 dark:border-violet-900 dark:bg-violet-950/30">
+          <h4
+            id="finding-evidence-chain-heading"
+            className="m-0 text-xs font-semibold uppercase tracking-wide text-violet-900 dark:text-violet-100"
+          >
+            Evidence chain (persisted pointers)
+          </h4>
+          <p className="m-0 text-xs text-violet-900/90 dark:text-violet-100/90">
+            From{" "}
+            <code className="rounded bg-violet-200/80 px-1 text-[0.65rem] dark:bg-violet-900/80">
+              GET /v1/architecture/run/…/findings/…/evidence-chain
+            </code>
+            .
+          </p>
+          <dl className="m-0 grid gap-2 text-xs text-violet-950 dark:text-violet-50 sm:grid-cols-2">
+            <div>
+              <dt className="font-semibold">Manifest version</dt>
+              <dd className="m-0 font-mono">{evidenceChain.manifestVersion?.trim() ? evidenceChain.manifestVersion : "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Findings snapshot</dt>
+              <dd className="m-0 font-mono">{evidenceChain.findingsSnapshotId ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Decision trace</dt>
+              <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="font-semibold">Golden manifest id</dt>
+              <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? "—"}</dd>
+            </div>
+          </dl>
+          {evidenceChain.relatedGraphNodeIds.length > 0 ? (
+            <div>
+              <p className="m-0 mb-1 text-xs font-semibold text-violet-900 dark:text-violet-100">Related graph nodes</p>
+              <ul className="m-0 list-disc space-y-0.5 pl-5 font-mono text-[0.7rem]">
+                {evidenceChain.relatedGraphNodeIds.map((id) => (
+                  <li key={id}>{id}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {evidenceChain.agentExecutionTraceIds.length > 0 ? (
+            <div>
+              <p className="m-0 mb-1 text-xs font-semibold text-violet-900 dark:text-violet-100">Agent execution traces</p>
+              <ul className="m-0 list-disc space-y-0.5 pl-5 font-mono text-[0.7rem]">
+                {evidenceChain.agentExecutionTraceIds.map((id) => (
+                  <li key={id}>{id}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {loading ? (
         <OperatorLoadingNotice>

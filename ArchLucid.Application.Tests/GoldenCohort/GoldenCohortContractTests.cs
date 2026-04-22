@@ -1,40 +1,51 @@
-using System.Text.Json;
 using System.Text.RegularExpressions;
+
+using ArchLucid.Application.GoldenCohort;
+
+using Xunit.Abstractions;
 
 namespace ArchLucid.Application.Tests.GoldenCohort;
 
 /// <summary>
 /// Validates the committed golden cohort JSON (N=20) used for nightly simulator drift automation.
 /// </summary>
-public sealed class GoldenCohortContractTests
+public sealed class GoldenCohortContractTests(ITestOutputHelper output)
 {
     [Fact]
-    public void Cohort_json_exists_has_twenty_items_and_valid_sha_placeholders()
+    public void Cohort_json_exists_has_twenty_items_and_valid_sha_fields()
     {
         string path = Path.Combine(AppContext.BaseDirectory, "golden-cohort", "cohort.json");
         Assert.True(File.Exists(path), $"Missing {path} — ensure cohort.json is copied to output.");
 
-        string json = File.ReadAllText(path);
-        using JsonDocument doc = JsonDocument.Parse(json);
-        JsonElement root = doc.RootElement;
+        GoldenCohortDocument document = GoldenCohortDocument.Load(path);
 
-        Assert.Equal(1, root.GetProperty("schemaVersion").GetInt32());
+        Assert.Equal(1, document.SchemaVersion);
+        Assert.Equal(20, document.Items.Count);
 
-        JsonElement items = root.GetProperty("items");
-        Assert.Equal(20, items.GetArrayLength());
+        Regex sha = new("^[0-9a-fA-F]{64}$", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
-        Regex sha = new("^[0-9a-f]{64}$", RegexOptions.CultureInvariant | RegexOptions.Compiled);
+        bool allShaPlaceholders = document.Items.TrueForAll(static item =>
+            string.Equals(
+                item.ExpectedCommittedManifestSha256.Trim(),
+                GoldenCohortBaselineConstants.UnlockedManifestSha256Placeholder,
+                StringComparison.OrdinalIgnoreCase));
 
-        foreach (JsonElement item in items.EnumerateArray())
+        if (allShaPlaceholders)
         {
-            string id = item.GetProperty("id").GetString() ?? "";
-            Assert.False(string.IsNullOrWhiteSpace(id), "Each item needs an id.");
+            output.WriteLine(
+                "Baseline not yet locked — run `archlucid golden-cohort lock-baseline --write` against a Simulator API host "
+                + "after explicit owner approval (set ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCK_APPROVED=true for that shell only; "
+                + "see docs/PENDING_QUESTIONS.md item 33).");
+        }
 
-            string hash = item.GetProperty("expectedCommittedManifestSha256").GetString() ?? "";
-            Assert.True(sha.IsMatch(hash), $"Item {id}: expectedCommittedManifestSha256 must be 64 hex chars.");
+        foreach (GoldenCohortItem item in document.Items)
+        {
+            Assert.False(string.IsNullOrWhiteSpace(item.Id), "Each item needs an id.");
 
-            JsonElement cats = item.GetProperty("expectedFindingCategories");
-            Assert.True(cats.GetArrayLength() > 0, $"Item {id}: expectedFindingCategories must not be empty.");
+            string hash = item.ExpectedCommittedManifestSha256.Trim();
+            Assert.True(sha.IsMatch(hash), $"Item {item.Id}: expectedCommittedManifestSha256 must be 64 hex chars.");
+
+            Assert.True(item.ExpectedFindingCategories.Count > 0, $"Item {item.Id}: expectedFindingCategories must not be empty.");
         }
     }
 }

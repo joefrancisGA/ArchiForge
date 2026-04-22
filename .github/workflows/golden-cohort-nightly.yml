@@ -1,4 +1,4 @@
-# Nightly golden cohort contract + placeholder for simulator/real-LLM drift (see tests/golden-cohort/README.md).
+# Nightly golden cohort: JSON contract (always) + optional simulator drift when baseline SHAs are locked in repo.
 name: golden-cohort-nightly
 
 on:
@@ -23,5 +23,70 @@ jobs:
       - name: Test golden cohort JSON contract
         run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter "FullyQualifiedName~GoldenCohortContractTests" --configuration Release
 
-      # Real LLM / manifest drift runner is intentionally not wired here until budget approval (docs/PENDING_QUESTIONS.md item 15).
-      # When enabled, set ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true and Azure OpenAI secrets in GitHub Environments.
+  cohort-simulator-drift:
+    needs: cohort-contract
+    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED == 'true' }}
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore + build API integration tests (Release)
+        run: |
+          dotnet restore ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-restore -c Release
+
+      - name: Archive prior drift summary (best-effort)
+        run: |
+          set -euo pipefail
+          if [ -f docs/quality/golden-cohort-drift-latest.md ]; then
+            mkdir -p docs/quality/archive
+            cp docs/quality/golden-cohort-drift-latest.md "docs/quality/archive/$(date -u +%Y-%m-%d).md"
+          fi
+
+      - name: Simulator drift vs locked cohort.json
+        env:
+          ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
+          ARCHLUCID_GOLDEN_COHORT_DRIFT_REPORT_ROOT: ${{ github.workspace }}/docs/quality
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: >
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --no-build -c Release
+          --filter "FullyQualifiedName~GoldenCohortSimulatorDriftTests"
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: golden-cohort-drift
+          path: |
+            docs/quality/golden-cohort-drift-latest.md
+            docs/quality/archive/*.md
+          if-no-files-found: warn
+
+  cohort-real-llm-gate:
+    needs: cohort-contract
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reserved — real LLM golden cohort (items 15 / 25)
+        run: |
+          echo "When budget-approved, enable ARCHLUCID_GOLDEN_COHORT_REAL_LLM on a protected GitHub Environment with Azure OpenAI secrets, then replace this placeholder job."
+          exit 0
