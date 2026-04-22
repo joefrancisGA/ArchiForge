@@ -1,5 +1,6 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.AgentRuntime.Safety;
+using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Safety;
 using ArchLucid.Core.Scoping;
@@ -124,6 +125,25 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         IContentSafetyGuard guard = provider.GetRequiredService<IContentSafetyGuard>();
 
         guard.Should().BeOfType<AzureContentSafetyGuard>();
+    }
+
+    [Fact]
+    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_RunCommitPathSelector()
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
+            .Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+        services.AddHttpContextAccessor();
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        await using ServiceProvider provider = services.BuildServiceProvider();
+        await using AsyncServiceScope scope = provider.CreateAsyncScope();
+        IArchitectureRunCommitOrchestrator orchestrator =
+            scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
+
+        orchestrator.Should().BeOfType<RunCommitPathSelector>();
     }
 
     [Fact]

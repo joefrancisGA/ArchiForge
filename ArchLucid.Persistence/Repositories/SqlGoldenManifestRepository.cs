@@ -67,7 +67,8 @@ public sealed class SqlGoldenManifestRepository(
         IManifestHashService contractHash,
         CancellationToken ct,
         IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
+        IDbTransaction? transaction = null,
+        GoldenManifest? authorityPersistBody = null)
     {
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
@@ -77,7 +78,11 @@ public sealed class SqlGoldenManifestRepository(
             throw new ArgumentNullException(nameof(keying));
         if (contractHash is null)
             throw new ArgumentNullException(nameof(contractHash));
-        GoldenManifest model = ContractGoldenManifestMapper.ToAuthorityModel(contract, scope, keying);
+        GoldenManifest model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
+            contract,
+            scope,
+            keying,
+            authorityPersistBody);
         model.ManifestHash = contractHash.ComputeHash(model);
         await SaveAsync(model, ct, connection, transaction);
         return model;

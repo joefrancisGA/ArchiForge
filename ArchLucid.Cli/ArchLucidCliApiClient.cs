@@ -250,7 +250,7 @@ public sealed class ArchLucidApiClient
         }
         catch (Gen.ArchLucidApiException ex)
         {
-            return CreateRunResult.Fail(ex.StatusCode, ResolveApiErrorMessage(ex));
+            return CreateRunResult.Fail(ex.StatusCode, ResolveApiErrorMessage(ex), TryReadCorrelationId(ex));
         }
         catch (HttpRequestException ex)
         {
@@ -326,19 +326,19 @@ public sealed class ArchLucidApiClient
             Gen.CommitRunResponse result = await _api.CommitAsync(runId, ct);
             CommitRunResponse? mapped = DeserializeRoundTrip<CommitRunResponse>(result);
 
-            return new CommitRunResult(true, mapped, null);
+            return new CommitRunResult(true, mapped, null, null, null);
         }
         catch (Gen.ArchLucidApiException ex)
         {
-            return new CommitRunResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode);
+            return new CommitRunResult(false, null, ResolveApiErrorMessage(ex), ex.StatusCode, TryReadCorrelationId(ex));
         }
         catch (HttpRequestException ex)
         {
-            return new CommitRunResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}");
+            return new CommitRunResult(false, null, $"Cannot connect to ArchLucid API: {ex.Message}", null, null);
         }
         catch (TaskCanceledException)
         {
-            return new CommitRunResult(false, null, "Request timed out.");
+            return new CommitRunResult(false, null, "Request timed out.", null, null);
         }
     }
 
@@ -352,19 +352,19 @@ public sealed class ArchLucidApiClient
         {
             _ = await _api.ExecuteAsync(runId, ct);
 
-            return new ExecuteRunResult(true, null);
+            return new ExecuteRunResult(true, null, null, null);
         }
         catch (Gen.ArchLucidApiException ex)
         {
-            return new ExecuteRunResult(false, ResolveApiErrorMessage(ex), ex.StatusCode);
+            return new ExecuteRunResult(false, ResolveApiErrorMessage(ex), ex.StatusCode, TryReadCorrelationId(ex));
         }
         catch (HttpRequestException ex)
         {
-            return new ExecuteRunResult(false, $"Cannot connect to ArchLucid API: {ex.Message}", null);
+            return new ExecuteRunResult(false, $"Cannot connect to ArchLucid API: {ex.Message}", null, null);
         }
         catch (TaskCanceledException)
         {
-            return new ExecuteRunResult(false, "Request timed out.", null);
+            return new ExecuteRunResult(false, "Request timed out.", null, null);
         }
     }
 
@@ -904,6 +904,27 @@ public sealed class ArchLucidApiClient
     /// NSwag reads ProblemDetails from the stream with <c>ReadResponseAsString=false</c>, so <see cref="Gen.ArchLucidApiException.Response"/>
     /// is often empty even when <see cref="Gen.ArchLucidApiException{TResult}"/> carries a typed <see cref="Gen.ProblemDetails"/> body.
     /// </summary>
+    private static string? TryReadCorrelationId(Gen.ArchLucidApiException ex)
+    {
+        if (ex.Headers is null)
+            return null;
+
+
+        foreach (KeyValuePair<string, IEnumerable<string>> pair in ex.Headers)
+        {
+            if (!pair.Key.Equals("X-Correlation-ID", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+
+            string? first = pair.Value.FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(first))
+                return first.Trim();
+        }
+
+        return null;
+    }
+
     private static string ResolveApiErrorMessage(Gen.ArchLucidApiException ex)
     {
         string? fromBody = TryParseError(ex.Response ?? string.Empty);
@@ -956,10 +977,17 @@ public sealed class ArchLucidApiClient
         return null;
     }
 
-    public sealed record CreateRunResult(bool Success, CreateRunResponse? Response, string? Error, int? StatusCode)
+    public sealed record CreateRunResult(
+        bool Success,
+        CreateRunResponse? Response,
+        string? Error,
+        int? StatusCode,
+        string? CorrelationId = null)
     {
-        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null);
-        public static CreateRunResult Fail(int? statusCode, string error) => new(false, null, error, statusCode);
+        public static CreateRunResult Ok(CreateRunResponse? r) => new(true, r, null, null, null);
+
+        public static CreateRunResult Fail(int? statusCode, string error, string? correlationId = null) =>
+            new(false, null, error, statusCode, correlationId);
     }
 
     public sealed class CreateRunResponse
@@ -1018,9 +1046,18 @@ public sealed class ArchLucidApiClient
         public List<object> Results { get; set; } = [];
     }
 
-    public sealed record CommitRunResult(bool Success, CommitRunResponse? Response, string? Error, int? HttpStatusCode = null);
+    public sealed record CommitRunResult(
+        bool Success,
+        CommitRunResponse? Response,
+        string? Error,
+        int? HttpStatusCode = null,
+        string? CorrelationId = null);
 
-    public sealed record ExecuteRunResult(bool Success, string? Error, int? HttpStatusCode = null);
+    public sealed record ExecuteRunResult(
+        bool Success,
+        string? Error,
+        int? HttpStatusCode = null,
+        string? CorrelationId = null);
 
     public sealed record GoldenManifestFingerprintResult(
         bool Success,

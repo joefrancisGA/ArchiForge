@@ -46,6 +46,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     IDecisionEngine decisionEngine,
     DecisioningIdTraceRepository decisionTraceRepository,
     DecisioningIGoldenManifestRepository goldenManifestRepository,
+    IManifestHashService manifestHashService,
     IAuthorityCommitProjectionBuilder projectionBuilder,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IPreCommitGovernanceGate preCommitGovernanceGate,
@@ -81,6 +82,9 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
 
     private readonly DecisioningIGoldenManifestRepository _goldenManifestRepository =
         goldenManifestRepository ?? throw new ArgumentNullException(nameof(goldenManifestRepository));
+
+    private readonly IManifestHashService _manifestHashService =
+        manifestHashService ?? throw new ArgumentNullException(nameof(manifestHashService));
 
     private readonly IAuthorityCommitProjectionBuilder _projectionBuilder =
         projectionBuilder ?? throw new ArgumentNullException(nameof(projectionBuilder));
@@ -357,13 +361,15 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
             throw;
         }
 
+        Dm.GoldenManifest persisted;
+
         try
         {
-            await PersistAuthorityAsync(manifestModel, trace, cancellationToken);
+            persisted = await PersistAuthorityAsync(manifestModel, contract, trace, cancellationToken);
             await TryMarkRunHeaderCommittedForAuthorityAsync(
                 runId,
                 contract.Metadata.ManifestVersion,
-                manifestModel.ManifestId,
+                persisted.ManifestId,
                 trace.RequireRuleAudit().DecisionTraceId,
                 cancellationToken);
         }
@@ -394,7 +400,7 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 AuditEventTypes.Baseline.Architecture.RunCompleted,
                 actor,
                 runId,
-                $"ManifestVersion={contract.Metadata.ManifestVersion}; Authority=true; WarningCount={manifestModel.Warnings.Count}",
+                $"ManifestVersion={contract.Metadata.ManifestVersion}; Authority=true; WarningCount={persisted.Warnings.Count}",
                 cancellationToken);
 
         ScopeContext commitScope = _scopeContextProvider.GetCurrentScope();
@@ -445,21 +451,25 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 "Architecture run committed (authority): RunId={RunId} ManifestVersion={Version} WarningCount={Wc}",
                 LogSanitizer.Sanitize(runId),
                 contract.Metadata.ManifestVersion,
-                manifestModel.Warnings.Count);
+                persisted.Warnings.Count);
 
         return new CommitRunResult
         {
             Manifest = contract,
             DecisionTraces = [trace],
-            Warnings = manifestModel.Warnings.Count == 0 ? [] : [.. manifestModel.Warnings]
+            Warnings = persisted.Warnings.Count == 0 ? [] : [.. persisted.Warnings]
         };
     }
 
-    private async Task PersistAuthorityAsync(
+    private async Task<Dm.GoldenManifest> PersistAuthorityAsync(
         Dm.GoldenManifest manifestModel,
+        Cm.GoldenManifest contract,
         DecisionTrace trace,
         CancellationToken cancellationToken)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        SaveContractsManifestOptions keying = BuildSaveContractsManifestOptions(manifestModel, trace);
+
         await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
 
         try
@@ -472,25 +482,60 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                     uow.Connection,
                     uow.Transaction);
 
-                await _goldenManifestRepository.SaveAsync(
-                    manifestModel,
+                Dm.GoldenManifest persisted = await _goldenManifestRepository.SaveAsync(
+                    contract,
+                    scope,
+                    keying,
+                    _manifestHashService,
                     cancellationToken,
                     uow.Connection,
-                    uow.Transaction);
-            }
-            else
-            {
-                await _decisionTraceRepository.SaveAsync(trace, cancellationToken);
-                await _goldenManifestRepository.SaveAsync(manifestModel, cancellationToken);
+                    uow.Transaction,
+                    authorityPersistBody: manifestModel);
+
+                await uow.CommitAsync(cancellationToken);
+
+                return persisted;
             }
 
+            await _decisionTraceRepository.SaveAsync(trace, cancellationToken);
+            Dm.GoldenManifest persistedNoTx = await _goldenManifestRepository.SaveAsync(
+                contract,
+                scope,
+                keying,
+                _manifestHashService,
+                cancellationToken,
+                authorityPersistBody: manifestModel);
+
             await uow.CommitAsync(cancellationToken);
+
+            return persistedNoTx;
         }
         catch
         {
             await uow.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    private static SaveContractsManifestOptions BuildSaveContractsManifestOptions(
+        Dm.GoldenManifest manifestModel,
+        DecisionTrace trace)
+    {
+        RuleAuditTracePayload audit = trace.RequireRuleAudit();
+
+        return new SaveContractsManifestOptions
+        {
+            ManifestId = manifestModel.ManifestId,
+            RunId = manifestModel.RunId,
+            ContextSnapshotId = manifestModel.ContextSnapshotId,
+            GraphSnapshotId = manifestModel.GraphSnapshotId,
+            FindingsSnapshotId = manifestModel.FindingsSnapshotId,
+            DecisionTraceId = audit.DecisionTraceId,
+            RuleSetId = manifestModel.RuleSetId,
+            RuleSetVersion = manifestModel.RuleSetVersion,
+            RuleSetHash = manifestModel.RuleSetHash,
+            CreatedUtc = manifestModel.CreatedUtc,
+        };
     }
 
     private async Task<CommitRunResult?> TryReturnAuthorityCommittedIdempotentAsync(

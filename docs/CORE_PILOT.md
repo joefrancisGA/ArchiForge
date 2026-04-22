@@ -17,6 +17,7 @@
 - [docs/PILOT_GUIDE.md](PILOT_GUIDE.md) — full pilot onboarding narrative.
 - [docs/OPERATOR_QUICKSTART.md](OPERATOR_QUICKSTART.md) — copy-paste CLI and API commands.
 - [docs/PILOT_ROI_MODEL.md](PILOT_ROI_MODEL.md) — measurement companion for pilot success.
+- [docs/SECOND_RUN.md](SECOND_RUN.md) — **your own data** in one page (`archlucid second-run`) right after the demo.
 
 ---
 
@@ -97,6 +98,14 @@ Commit produces the **golden manifest** and synthesizes **artifacts**. Nothing i
 **API:** `GET /v1/architecture/manifest/{version}` — retrieve the committed manifest JSON.
 
 At this point, the Core Pilot deliverable is complete.
+
+### Step 5 — Same four steps with **your** inputs (no doc stack)
+
+After `archlucid try` (or the operator wizard demo), the lowest-friction “real” second run is a **one-page** `SECOND_RUN.toml` / `.json` file plus a single CLI command — no need to read OPERATOR_QUICKSTART, PILOT_GUIDE, or CONTEXT_INGESTION for the happy path.
+
+**CLI:** `archlucid second-run SECOND_RUN.toml` — see **[docs/SECOND_RUN.md](SECOND_RUN.md)** for the 60-second template, limits, and failure hints (correlation id + audit event names for log grep).
+
+**Operator UI:** On **New run → Starting point**, use **Paste SECOND_RUN.toml** (or JSON) to pre-fill the wizard from the same schema, then continue through identity and constraints as usual.
 
 ---
 

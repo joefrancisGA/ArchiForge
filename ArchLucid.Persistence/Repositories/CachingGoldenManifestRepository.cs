@@ -39,7 +39,8 @@ public sealed class CachingGoldenManifestRepository(
         IManifestHashService manifestHashService,
         CancellationToken ct,
         IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
+        IDbTransaction? transaction = null,
+        GoldenManifest? authorityPersistBody = null)
     {
         GoldenManifest result = await _inner.SaveAsync(
             contract,
@@ -48,7 +49,8 @@ public sealed class CachingGoldenManifestRepository(
             manifestHashService,
             ct,
             connection,
-            transaction);
+            transaction,
+            authorityPersistBody);
         await HotPathCacheEviction.RemoveManifestAsync(_hotPathReadCache, scope, result.ManifestId, ct);
         return result;
     }

@@ -15,6 +15,8 @@ public interface IGoldenManifestRepository
         IDbTransaction? transaction = null);
 
     /// <summary>PR A1 — persist a coordinator-shaped manifest; returns the authority model including computed hash.</summary>
+    /// <param name="authorityPersistBody">When non-null, this authority-shaped row (full JSON slices) is persisted as-is after
+    /// scope alignment and idempotency-key validation against <paramref name="keying"/>; <paramref name="contract"/> is still required for API symmetry.</param>
     Task<GoldenManifest> SaveAsync(
         Cm.GoldenManifest contract,
         ScopeContext scope,
@@ -22,7 +24,8 @@ public interface IGoldenManifestRepository
         IManifestHashService manifestHashService,
         CancellationToken ct,
         IDbConnection? connection = null,
-        IDbTransaction? transaction = null);
+        IDbTransaction? transaction = null,
+        GoldenManifest? authorityPersistBody = null);
 
     Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct);
 }

@@ -242,7 +242,12 @@ export function NewRunWizardClient() {
             completedSteps={completedMacroSteps}
           />
 
-          {stepIndex === 0 ? <WizardStepPreset featuredSampleRunId={featuredSampleRunId} /> : null}
+          {stepIndex === 0 ? (
+            <WizardStepPreset
+              featuredSampleRunId={featuredSampleRunId}
+              onWizardNotice={(kind, message) => showToast(kind === "ok" ? "ok" : "err", message)}
+            />
+          ) : null}
           {stepIndex === 1 ? <WizardStepIdentity /> : null}
           {stepIndex === 2 ? <WizardStepDescription /> : null}
           {stepIndex === 3 ? <WizardStepConstraints /> : null}

@@ -39,6 +39,7 @@ public sealed class RunDetailQueryServiceTests
     private readonly Mock<IAgentResultRepository> _resultRepo;
     private readonly Mock<IUnifiedGoldenManifestReader> _unifiedManifestReader;
     private readonly Mock<ICoordinatorDecisionTraceRepository> _traceRepo;
+    private readonly Mock<IDecisionTraceRepository> _authorityTraceRepo;
     private readonly RunDetailQueryService _sut;
 
     public RunDetailQueryServiceTests()
@@ -49,6 +50,7 @@ public sealed class RunDetailQueryServiceTests
         _resultRepo = new Mock<IAgentResultRepository>();
         _unifiedManifestReader = new Mock<IUnifiedGoldenManifestReader>();
         _traceRepo = new Mock<ICoordinatorDecisionTraceRepository>();
+        _authorityTraceRepo = new Mock<IDecisionTraceRepository>();
 
         _scopeProvider.Setup(s => s.GetCurrentScope()).Returns(_scope);
 
@@ -59,6 +61,7 @@ public sealed class RunDetailQueryServiceTests
             _resultRepo.Object,
             _unifiedManifestReader.Object,
             _traceRepo.Object,
+            _authorityTraceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
     }
 

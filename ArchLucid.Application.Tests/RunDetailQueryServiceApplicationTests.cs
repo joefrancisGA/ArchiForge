@@ -43,6 +43,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
+        Mock<IDecisionTraceRepository> authorityTraceRepo = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
 
@@ -73,6 +74,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             resultRepo.Object,
             unifiedReader.Object,
             traceRepo.Object,
+            authorityTraceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);
@@ -96,6 +98,7 @@ public sealed class RunDetailQueryServiceApplicationTests
         Mock<IAgentResultRepository> resultRepo = new();
         Mock<IUnifiedGoldenManifestReader> unifiedReader = new();
         Mock<ICoordinatorDecisionTraceRepository> traceRepo = new();
+        Mock<IDecisionTraceRepository> authorityTraceRepo = new();
 
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
 
@@ -138,6 +141,7 @@ public sealed class RunDetailQueryServiceApplicationTests
             resultRepo.Object,
             unifiedReader.Object,
             traceRepo.Object,
+            authorityTraceRepo.Object,
             new Mock<ILogger<RunDetailQueryService>>().Object);
 
         ArchitectureRunDetail? detail = await sut.GetRunDetailAsync(runN);

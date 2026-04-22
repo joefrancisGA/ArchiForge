@@ -10,6 +10,8 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
 
+using DecisioningTraceRepository = ArchLucid.Decisioning.Interfaces.IDecisionTraceRepository;
+
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application;
@@ -27,6 +29,7 @@ public sealed class RunDetailQueryService(
     IAgentResultRepository resultRepository,
     IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
     ICoordinatorDecisionTraceRepository decisionTraceRepository,
+    DecisioningTraceRepository authorityDecisionTraceRepository,
     ILogger<RunDetailQueryService> logger)
     : IRunDetailQueryService
 {
@@ -91,6 +94,15 @@ public sealed class RunDetailQueryService(
                 await decisionTraceRepository.GetByRunIdAsync(runId, cancellationToken);
 
             decisionTraces = traces is null ? [] : traces.ToList();
+
+            if (decisionTraces.Count == 0 && record.DecisionTraceId is { } authorityTraceId)
+            {
+                DecisionTrace? authorityTrace =
+                    await authorityDecisionTraceRepository.GetByIdAsync(scope, authorityTraceId, cancellationToken);
+
+                if (authorityTrace is not null)
+                    decisionTraces = [authorityTrace];
+            }
         }
 
         return new ArchitectureRunDetail

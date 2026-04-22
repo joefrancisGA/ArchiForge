@@ -46,7 +46,8 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         IManifestHashService manifestHashService,
         CancellationToken ct,
         IDbConnection? connection = null,
-        IDbTransaction? transaction = null)
+        IDbTransaction? transaction = null,
+        GoldenManifest? authorityPersistBody = null)
     {
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
@@ -58,7 +59,11 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             throw new ArgumentNullException(nameof(manifestHashService));
         _ = connection;
         _ = transaction;
-        GoldenManifest model = ContractGoldenManifestMapper.ToAuthorityModel(contract, scope, keying);
+        GoldenManifest model = ContractGoldenManifestPersistence.ResolveGoldenManifestForContractSave(
+            contract,
+            scope,
+            keying,
+            authorityPersistBody);
         model.ManifestHash = manifestHashService.ComputeHash(model);
         lock (_lock)
         {
