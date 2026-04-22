@@ -75,7 +75,7 @@ public sealed class TraceabilityBundleBuilderTests
                 projectId,
                 It.Is<AuditEventFilter>(f => f.RunId == runGuid && f.Take == 1000),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Array.Empty<AuditEvent>());
+            .ReturnsAsync([]);
 
         TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
         ScopeContext scope = new()
@@ -88,12 +88,12 @@ public sealed class TraceabilityBundleBuilderTests
         byte[]? zipBytes = await sut.BuildAsync(runGuid.ToString("N"), scope, 10_000_000, CancellationToken.None);
 
         zipBytes.Should().NotBeNull();
-        ReadOnlySpan<byte> head = zipBytes.AsSpan(0, Math.Min(4, zipBytes!.Length));
+        ReadOnlySpan<byte> head = zipBytes.AsSpan(0, Math.Min(4, zipBytes.Length));
         head[0].Should().Be(0x50);
         head[1].Should().Be(0x4B);
 
         using MemoryStream ms = new(zipBytes);
-        using ZipArchive zip = new(ms, ZipArchiveMode.Read, leaveOpen: false);
+        await using ZipArchive zip = new(ms, ZipArchiveMode.Read, leaveOpen: false);
         zip.GetEntry("run-summary.json").Should().NotBeNull();
         zip.GetEntry("audit-events.json").Should().NotBeNull();
         zip.GetEntry("decision-traces.json").Should().NotBeNull();

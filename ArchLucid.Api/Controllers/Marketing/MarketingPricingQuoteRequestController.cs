@@ -58,7 +58,7 @@ public sealed class MarketingPricingQuoteRequestController(
         if (string.IsNullOrWhiteSpace(body.TierInterest))
             return this.BadRequestProblem("Tier interest is required.", ProblemTypes.ValidationFailed);
 
-        if (body.Message is null || body.Message.Length > MaxMessageChars)
+        if (body.Message.Length > MaxMessageChars)
             return this.BadRequestProblem($"Message must be at most {MaxMessageChars} characters.", ProblemTypes.ValidationFailed);
 
         byte[]? ipHash = TryHashRemoteIp(HttpContext);

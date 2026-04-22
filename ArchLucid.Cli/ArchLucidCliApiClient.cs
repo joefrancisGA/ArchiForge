@@ -414,7 +414,10 @@ public sealed class ArchLucidApiClient
                 return new GoldenManifestFingerprintResult(false, null, "Commit response contained no manifest.");
 
             string wireJson = JsonSerializer.Serialize(gm, gm.GetType(), _jsonOptions);
-            JsonSerializerOptions contractRead = new(ContractJson.Default) { PropertyNameCaseInsensitive = true };
+            JsonSerializerOptions contractRead = new(ContractJson.Default)
+            {
+                PropertyNameCaseInsensitive = true
+            };
             GoldenManifest? manifest = JsonSerializer.Deserialize<GoldenManifest>(wireJson, contractRead);
 
             if (manifest is null)
@@ -1029,7 +1032,10 @@ public sealed class ArchLucidApiClient
     {
         public string RunId { get; set; } = "";
         public string RequestId { get; set; } = "";
-        public ArchitectureRunStatus Status { get; set; }
+        public ArchitectureRunStatus Status
+        {
+            get; set;
+        }
         public DateTime CreatedUtc
         {
             get; set;
@@ -1054,9 +1060,15 @@ public sealed class ArchLucidApiClient
     {
         public string TaskId { get; set; } = "";
         public string RunId { get; set; } = "";
-        public AgentType AgentType { get; set; }
+        public AgentType AgentType
+        {
+            get; set;
+        }
         public string Objective { get; set; } = "";
-        public AgentTaskStatus Status { get; set; }
+        public AgentTaskStatus Status
+        {
+            get; set;
+        }
     }
 
     public sealed class GetRunResult
