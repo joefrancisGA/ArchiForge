@@ -14,7 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Records publication of a procurement-facing security assessment (emits <see cref="AuditEventTypes.SecurityAssessmentPublished"/>).
+///     Records publication of a procurement-facing security assessment (emits
+///     <see cref="AuditEventTypes.SecurityAssessmentPublished" />).
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
@@ -42,7 +43,8 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
         if (!string.IsNullOrWhiteSpace(body.PublishedOn))
         {
             if (!DateOnly.TryParse(body.PublishedOn.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
-                return this.BadRequestProblem("PublishedOn must be a calendar date (YYYY-MM-DD).", ProblemTypes.ValidationFailed);
+                return this.BadRequestProblem("PublishedOn must be a calendar date (YYYY-MM-DD).",
+                    ProblemTypes.ValidationFailed);
         }
 
         string payload = JsonSerializer.Serialize(
@@ -51,15 +53,11 @@ public sealed class SecurityTrustPublicationController(IAuditService auditServic
                 assessmentCode = body.AssessmentCode.Trim(),
                 summaryReference = body.SummaryReference.Trim(),
                 assessorDisplayName = body.AssessorDisplayName?.Trim(),
-                publishedOn = string.IsNullOrWhiteSpace(body.PublishedOn) ? null : body.PublishedOn.Trim(),
+                publishedOn = string.IsNullOrWhiteSpace(body.PublishedOn) ? null : body.PublishedOn.Trim()
             });
 
         await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.SecurityAssessmentPublished,
-                DataJson = payload,
-            },
+            new AuditEvent { EventType = AuditEventTypes.SecurityAssessmentPublished, DataJson = payload },
             cancellationToken);
 
         return NoContent();

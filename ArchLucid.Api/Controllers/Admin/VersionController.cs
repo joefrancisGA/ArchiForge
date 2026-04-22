@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Returns non-secret build and version identity for the running API process.
-/// Intentionally <see cref="AllowAnonymousAttribute"/> so operators and automation
-/// can discover version without credentials during pilot/support triage.
-/// Marked <see cref="ApiVersionNeutralAttribute"/> because this is infrastructure,
-/// not a versioned domain endpoint.
+///     Returns non-secret build and version identity for the running API process.
+///     Intentionally <see cref="AllowAnonymousAttribute" /> so operators and automation
+///     can discover version without credentials during pilot/support triage.
+///     Marked <see cref="ApiVersionNeutralAttribute" /> because this is infrastructure,
+///     not a versioned domain endpoint.
 /// </summary>
 [ApiController]
 [Route("version")]

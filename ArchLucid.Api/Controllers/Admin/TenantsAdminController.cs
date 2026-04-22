@@ -17,11 +17,11 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class TenantsAdminController(ITenantRepository tenantRepository, ITenantProvisioningService provisioning)
     : ControllerBase
 {
-    private readonly ITenantRepository _tenantRepository =
-        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
-
     private readonly ITenantProvisioningService _provisioning =
         provisioning ?? throw new ArgumentNullException(nameof(provisioning));
+
+    private readonly ITenantRepository _tenantRepository =
+        tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
 
     /// <summary>Lists registered tenants (global admin metadata; not RLS-scoped).</summary>
     [HttpGet]
@@ -47,12 +47,7 @@ public sealed class TenantsAdminController(ITenantRepository tenantRepository, I
         try
         {
             TenantProvisioningResult result = await _provisioning.ProvisionAsync(
-                new TenantProvisioningRequest
-                {
-                    Name = body.Name,
-                    AdminEmail = body.AdminEmail,
-                    Tier = body.Tier,
-                },
+                new TenantProvisioningRequest { Name = body.Name, AdminEmail = body.AdminEmail, Tier = body.Tier },
                 cancellationToken);
 
             return Ok(result);

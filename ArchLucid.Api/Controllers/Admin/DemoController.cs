@@ -1,7 +1,7 @@
-using ArchLucid.Core.Authorization;
-using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Bootstrap;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.Configuration;
 
 using Asp.Versioning;
 

@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Accepts operator-shell client error reports for structured Serilog emission (no persistence).
+///     Accepts operator-shell client error reports for structured Serilog emission (no persistence).
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -30,7 +30,7 @@ public sealed class ClientErrorTelemetryController(
         "1-3",
         "4-7",
         "8-30",
-        "30+",
+        "30+"
     ];
 
     private readonly ILogger<ClientErrorTelemetryController> _logger =
@@ -108,8 +108,6 @@ public sealed class ClientErrorTelemetryController(
                     return this.BadRequestProblem(
                         $"Context keys must be at most {ClientErrorTelemetryIngestLimits.MaxContextKeyLength} characters and values at most {ClientErrorTelemetryIngestLimits.MaxContextValueLength} characters.",
                         ProblemTypes.ValidationFailed);
-
-
         }
 
         if (_logger.IsEnabled(LogLevel.Warning))

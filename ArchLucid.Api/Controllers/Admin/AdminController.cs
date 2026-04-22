@@ -58,7 +58,8 @@ public sealed class AdminController(
     public async Task<IActionResult> GetAsyncAuthorityPipelineFeature(CancellationToken cancellationToken = default)
     {
         bool enabled =
-            await _featureManager.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline, cancellationToken);
+            await _featureManager.IsEnabledAsync(AuthorityPipelineFeatureFlags.AsyncAuthorityPipeline,
+                cancellationToken);
 
         return Ok(new AsyncAuthorityPipelineFeatureState(enabled));
     }
@@ -88,8 +89,8 @@ public sealed class AdminController(
     }
 
     /// <summary>
-    /// Lists or deletes orphan <c>ComparisonRecords</c> whose run ids are missing from <c>dbo.Runs</c>.
-    /// Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake"/> rows per call.
+    ///     Lists or deletes orphan <c>ComparisonRecords</c> whose run ids are missing from <c>dbo.Runs</c>.
+    ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-comparison-records")]
     [EnableRateLimiting("expensive")]
@@ -106,8 +107,9 @@ public sealed class AdminController(
     }
 
     /// <summary>
-    /// Lists or deletes orphan <c>dbo.GoldenManifests</c> (missing <c>dbo.Runs</c>), removing <c>dbo.ArtifactBundles</c> first.
-    /// Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake"/> rows per call.
+    ///     Lists or deletes orphan <c>dbo.GoldenManifests</c> (missing <c>dbo.Runs</c>), removing <c>dbo.ArtifactBundles</c>
+    ///     first.
+    ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-golden-manifests")]
     [EnableRateLimiting("expensive")]
@@ -124,8 +126,8 @@ public sealed class AdminController(
     }
 
     /// <summary>
-    /// Lists or deletes orphan <c>dbo.FindingsSnapshots</c> (missing run, not referenced by a golden manifest).
-    /// Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake"/> rows per call.
+    ///     Lists or deletes orphan <c>dbo.FindingsSnapshots</c> (missing run, not referenced by a golden manifest).
+    ///     Use <c>dryRun=true</c> first. Capped at <see cref="PaginationDefaults.MaxListingTake" /> rows per call.
     /// </summary>
     [HttpPost("diagnostics/data-consistency/orphan-findings-snapshots")]
     [EnableRateLimiting("expensive")]
@@ -182,7 +184,8 @@ public sealed class AdminController(
 
 
         if (body.RunIds.Count > 100)
-            return this.BadRequestProblem("At most 100 run ids are allowed per request.", ProblemTypes.ValidationFailed);
+            return this.BadRequestProblem("At most 100 run ids are allowed per request.",
+                ProblemTypes.ValidationFailed);
 
 
         RunArchiveByIdsResult result =

@@ -4,5 +4,9 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AdminArchiveRunsByIdsRequest
 {
     /// <summary>Run primary keys to archive (max 100, duplicates ignored).</summary>
-    public IReadOnlyList<Guid> RunIds { get; set; } = [];
+    public IReadOnlyList<Guid> RunIds
+    {
+        get;
+        set;
+    } = [];
 }

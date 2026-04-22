@@ -1,5 +1,5 @@
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Models;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Services;
 
 using Asp.Versioning;
@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Exposes internal diagnostics for replay and comparison operations; restricted to privileged principals.
+///     Exposes internal diagnostics for replay and comparison operations; restricted to privileged principals.
 /// </summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -22,9 +22,15 @@ public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagn
 {
     private const int MaxReplayDiagnosticsEntries = 100;
 
-    /// <summary>Returns the most recent in-memory replay diagnostic entries captured by <see cref="IReplayDiagnosticsRecorder"/>.</summary>
-    /// <param name="maxCount">Maximum number of entries to return (1–<see cref="MaxReplayDiagnosticsEntries"/>; defaults to 50).</param>
-    /// <returns>200 with a <see cref="ReplayDiagnosticsResponse"/> containing up to <paramref name="maxCount"/> entries.</returns>
+    /// <summary>
+    ///     Returns the most recent in-memory replay diagnostic entries captured by
+    ///     <see cref="IReplayDiagnosticsRecorder" />.
+    /// </summary>
+    /// <param name="maxCount">
+    ///     Maximum number of entries to return (1–<see cref="MaxReplayDiagnosticsEntries" />; defaults to
+    ///     50).
+    /// </param>
+    /// <returns>200 with a <see cref="ReplayDiagnosticsResponse" /> containing up to <paramref name="maxCount" /> entries.</returns>
     [HttpGet("comparisons/diagnostics/replay")]
     [Authorize(Policy = ArchLucidPolicies.CanViewReplayDiagnostics)]
     [ProducesResponseType(typeof(ReplayDiagnosticsResponse), StatusCodes.Status200OK)]
@@ -52,4 +58,3 @@ public sealed class DiagnosticsController(IReplayDiagnosticsRecorder replayDiagn
         });
     }
 }
-

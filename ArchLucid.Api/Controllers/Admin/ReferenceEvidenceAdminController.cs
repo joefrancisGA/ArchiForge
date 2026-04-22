@@ -1,5 +1,5 @@
-using ArchLucid.Application.Pilots;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Pilots;
 using ArchLucid.Core.Authorization;
 
 using Asp.Versioning;
@@ -14,16 +14,17 @@ namespace ArchLucid.Api.Controllers.Admin;
 [Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
 [ApiVersion("1.0")]
 [Route("v{version:apiVersion}/admin/tenants/{tenantId:guid}/reference-evidence")]
-public sealed class ReferenceEvidenceAdminController(IReferenceEvidenceAdminExportService exportService) : ControllerBase
+public sealed class ReferenceEvidenceAdminController(IReferenceEvidenceAdminExportService exportService)
+    : ControllerBase
 {
     private readonly IReferenceEvidenceAdminExportService _exportService =
         exportService ?? throw new ArgumentNullException(nameof(exportService));
 
     /// <summary>
-    /// ZIP containing <c>pilot-run-deltas.json</c>, first-value Markdown/PDF, optional sponsor one-pager, and a README.
+    ///     ZIP containing <c>pilot-run-deltas.json</c>, first-value Markdown/PDF, optional sponsor one-pager, and a README.
     /// </summary>
     /// <param name="tenantId">Tenant whose latest committed (non-demo by default) run anchors the bundle.</param>
-    /// <param name="includeDemo">When <see langword="true"/>, allow Contoso demo seed runs as the anchor.</param>
+    /// <param name="includeDemo">When <see langword="true" />, allow Contoso demo seed runs as the anchor.</param>
     [HttpGet]
     [Produces("application/zip")]
     [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]

@@ -18,7 +18,10 @@ public sealed class MeteringAdminController(IUsageMeteringService metering) : Co
 {
     private readonly IUsageMeteringService _metering = metering ?? throw new ArgumentNullException(nameof(metering));
 
-    /// <summary>Aggregated usage for a tenant between <paramref name="periodStart"/> (inclusive) and <paramref name="periodEnd"/> (exclusive).</summary>
+    /// <summary>
+    ///     Aggregated usage for a tenant between <paramref name="periodStart" /> (inclusive) and
+    ///     <paramref name="periodEnd" /> (exclusive).
+    /// </summary>
     [HttpGet("tenants/{tenantId:guid}/summary")]
     [ProducesResponseType(typeof(IReadOnlyList<TenantUsageSummary>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]

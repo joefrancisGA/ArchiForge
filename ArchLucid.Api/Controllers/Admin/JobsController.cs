@@ -1,7 +1,7 @@
-using ArchLucid.Core.Authorization;
-using ArchLucid.Host.Core.Jobs;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Jobs;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Host.Core.Jobs;
 
 using Asp.Versioning;
 
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Provides status and result-file access for background export jobs.
+///     Provides status and result-file access for background export jobs.
 /// </summary>
 /// <remarks>Routes under <c>v{version}/jobs</c>.</remarks>
 [ApiController]
@@ -37,15 +37,17 @@ public sealed class JobsController(IBackgroundJobQueue jobs) : ControllerBase
             return this.BadRequestProblem("jobId is required.", ProblemTypes.ValidationFailed);
 
         BackgroundJobInfo? info = await jobs.GetInfoAsync(jobId, cancellationToken);
-        return info is null ? this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound) : Ok(info);
+        return info is null
+            ? this.NotFoundProblem($"Job '{jobId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(info);
     }
 
     /// <summary>Downloads the result file produced by a completed background job.</summary>
     /// <param name="jobId">Background job identifier.</param>
     /// <returns>
-    /// The file bytes with the appropriate content type on success;
-    /// 404 when the job is not found;
-    /// 409 when the job has not yet succeeded or has no file attached.
+    ///     The file bytes with the appropriate content type on success;
+    ///     404 when the job is not found;
+    ///     409 when the job has not yet succeeded or has no file attached.
     /// </returns>
     [HttpGet("{jobId}/file")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]

@@ -50,7 +50,7 @@ public sealed class RoiBulletinAdminController(IRoiBulletinAggregateReader reade
                 TenantCount = result.TenantCount,
                 MeanBaselineHours = result.MeanBaselineHours,
                 MedianBaselineHours = result.MedianBaselineHours,
-                P90BaselineHours = result.P90BaselineHours,
+                P90BaselineHours = result.P90BaselineHours
             });
     }
 }

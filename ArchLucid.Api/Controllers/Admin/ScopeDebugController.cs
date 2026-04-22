@@ -10,10 +10,11 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Returns the resolved <see cref="ScopeContext"/> for the current request (claims, headers, or ambient override).
+///     Returns the resolved <see cref="ScopeContext" /> for the current request (claims, headers, or ambient override).
 /// </summary>
 /// <remarks>
-/// Intended for development and troubleshooting multi-tenant routing. Same resolution path as governance, compliance, and scoped repositories.
+///     Intended for development and troubleshooting multi-tenant routing. Same resolution path as governance, compliance,
+///     and scoped repositories.
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]

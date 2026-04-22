@@ -2,13 +2,13 @@ using System.Globalization;
 using System.Reflection;
 
 using ArchLucid.Api.Attributes;
-using ArchLucid.Core.Authorization;
 using ArchLucid.Api.Formatters;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
-using ArchLucid.Core.Tenancy;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Audit;
 
 using Asp.Versioning;
@@ -20,11 +20,13 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace ArchLucid.Api.Controllers.Admin;
 
 /// <summary>
-/// Returns a pageable audit event log for the caller's tenant/workspace/project scope.
+///     Returns a pageable audit event log for the caller's tenant/workspace/project scope.
 /// </summary>
 /// <remarks>
-/// Events are appended by all mutating operations across the ArchLucid API (run creation, governance promotion, alert delivery, etc.).
-/// Results are ordered newest-first and capped by the <c>take</c> parameter (max <see cref="PaginationDefaults.MaxListingTake"/>).
+///     Events are appended by all mutating operations across the ArchLucid API (run creation, governance promotion, alert
+///     delivery, etc.).
+///     Results are ordered newest-first and capped by the <c>take</c> parameter (max
+///     <see cref="PaginationDefaults.MaxListingTake" />).
 /// </remarks>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
@@ -34,9 +36,9 @@ namespace ArchLucid.Api.Controllers.Admin;
 public sealed class AuditController(IAuditRepository repo, IScopeContextProvider scopeProvider) : ControllerBase
 {
     /// <summary>Returns recent audit events for the current scope, newest first.</summary>
-    /// <param name="take">Maximum events to return (1–<see cref="PaginationDefaults.MaxListingTake"/>, default 100).</param>
+    /// <param name="take">Maximum events to return (1–<see cref="PaginationDefaults.MaxListingTake" />, default 100).</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>List of <see cref="AuditEvent"/> rows ordered by most-recent first.</returns>
+    /// <returns>List of <see cref="AuditEvent" /> rows ordered by most-recent first.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<AuditEvent>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAudit([FromQuery] int take = 100, CancellationToken ct = default)
@@ -81,7 +83,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
             CorrelationId = correlationId,
             ActorUserId = actorUserId,
             RunId = runId,
-            Take = clampedTake,
+            Take = clampedTake
         };
 
         IReadOnlyList<AuditEvent> events = await repo.GetFilteredAsync(
@@ -94,7 +96,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         return Ok(events);
     }
 
-    /// <summary>Lists distinct Core <see cref="AuditEventTypes"/> string constants (dropdown support).</summary>
+    /// <summary>Lists distinct Core <see cref="AuditEventTypes" /> string constants (dropdown support).</summary>
     [HttpGet("event-types")]
     [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
     public IActionResult GetEventTypes()
@@ -136,7 +138,7 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
                 ProblemTypes.ValidationFailed);
 
 
-        if ((to - from) > TimeSpan.FromDays(90))
+        if (to - from > TimeSpan.FromDays(90))
             return this.BadRequestProblem(
                 "The requested date range must not exceed 90 days.",
                 ProblemTypes.ValidationFailed);
@@ -161,13 +163,15 @@ public sealed class AuditController(IAuditRepository repo, IScopeContextProvider
         return Ok(events);
     }
 
-    private static DateTime NormalizeExportInstant(DateTime value) =>
-        value.Kind switch
+    private static DateTime NormalizeExportInstant(DateTime value)
+    {
+        return value.Kind switch
         {
             DateTimeKind.Utc => value,
             DateTimeKind.Local => value.ToUniversalTime(),
-            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
         };
+    }
 
     private static string BuildAuditExportCsvFileName(DateTime fromUtc, DateTime toUtc)
     {
