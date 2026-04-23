@@ -56,7 +56,6 @@ import type {
   ExecDigestPreferencesResponse,
   ExecDigestPreferencesUpsertRequest,
 } from "@/types/exec-digest-preferences";
-import type { TenantCostEstimateResponse } from "@/types/tenant-cost-estimate";
 import type {
   TeamsIncomingWebhookConnectionResponse,
   TeamsIncomingWebhookConnectionUpsertRequest,

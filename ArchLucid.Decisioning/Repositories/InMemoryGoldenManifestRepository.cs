@@ -86,5 +86,31 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
             return Task.FromResult(result);
         }
     }
+
+    /// <inheritdoc />
+    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion, CancellationToken ct)
+    {
+        if (scope is null)
+            throw new ArgumentNullException(nameof(scope));
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
+
+        ct.ThrowIfCancellationRequested();
+
+        lock (_lock)
+        {
+            GoldenManifest? match = _store
+                .Where(x =>
+                    x.TenantId == scope.TenantId &&
+                    x.WorkspaceId == scope.WorkspaceId &&
+                    x.ProjectId == scope.ProjectId &&
+                    string.Equals(x.Metadata.Version, manifestVersion, StringComparison.Ordinal))
+                .OrderByDescending(x => x.CreatedUtc)
+                .FirstOrDefault();
+
+            return Task.FromResult(match);
+        }
+    }
 }
 

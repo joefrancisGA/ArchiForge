@@ -16,5 +16,7 @@ regexes = [
   # Removed from HEAD (ArchLucidConfigurationRulesTests) but still present in git blobs; gitleaks scans full history (ci.yml fetch-depth: 0). Not a real Stripe key — never reuse this pattern in new commits.
   "sk_test_12345678901234567890123456789012",
   # PGP recipe doc once showed a Markdown inline example of a 16-hex short key id; not a real API key (gitleaks generic-api-key false positive in git history).
+  # generic-api-key stores only the captured secret (the hex tail), not the full "Key ID: …" prefix — allowlist both shapes.
   "Key ID: ABCD0123EF456789",
+  "ABCD0123EF456789",
 ]

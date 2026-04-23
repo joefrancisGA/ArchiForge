@@ -28,5 +28,11 @@ public interface IGoldenManifestRepository
         GoldenManifest? authorityPersistBody = null);
 
     Task<GoldenManifest?> GetByIdAsync(ScopeContext scope, Guid manifestId, CancellationToken ct);
+
+    /// <summary>
+    /// ADR 0030 — resolves an authority-row manifest whose persisted metadata version matches the coordinator
+    /// <c>ManifestVersion</c> string (see <c>MetadataJson</c> <c>Version</c>), within the caller's scope.
+    /// </summary>
+    Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion, CancellationToken ct);
 }
 

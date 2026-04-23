@@ -2,6 +2,19 @@
 
 # ArchLucid
 
+[![Hosted SaaS probe](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml/badge.svg)](https://github.com/joefrancisGA/ArchLucid/actions/workflows/hosted-saas-probe.yml)
+
+ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package and helps teams produce committed manifests, reviewable artifacts, and governance evidence with less manual assembly.
+
+**Try it:** run **`dotnet run --project ArchLucid.Cli -- try`** from the repo root when you have the .NET 10 SDK and Docker, or run **`.\scripts\demo-start.ps1`** on Windows for the Docker-only demo stack.
+
+**Walkthrough** (includes screenshot placeholders): [docs/FIRST_30_MINUTES.md](docs/FIRST_30_MINUTES.md)
+
+- **Sponsor / buyer narrative:** [docs/EXECUTIVE_SPONSOR_BRIEF.md](docs/EXECUTIVE_SPONSOR_BRIEF.md)
+
+<details>
+<summary><strong>Deeper docs</strong> — full README (install, personas, layers, API, CLI, tests, architecture)</summary>
+
 ArchLucid shortens the path from an architecture request to a reviewable, defensible architecture package. It helps teams produce committed manifests, reviewable artifacts, and stronger governance evidence with less manual assembly and less ambiguity about what changed and why.
 
 At the product level, ArchLucid is an AI-assisted architecture workflow system: it coordinates topology, cost, and compliance analysis to produce manifests, artifacts, and evidence that architects, reviewers, and governance stakeholders can actually use.
@@ -347,3 +360,4 @@ For deeper dives after the poster:
 - `docs/COMPARISON_REPLAY.md` – comparison replay API, modes, and recipes.
 - `docs/HOWTO_ADD_COMPARISON_TYPE.md` – step-by-step for introducing new comparison types.
 - `docs/RUNBOOK_REPLAY_DRIFT.md` – debugging replay/drift verification issues.
+</details>

@@ -139,6 +139,45 @@ public abstract class GoldenManifestRepositoryContractTests
         loaded.Should().BeNull();
     }
 
+    [SkippableFact]
+    public async Task GetByContractManifestVersionAsync_matches_metadata_version_in_scope()
+    {
+        SkipIfSqlServerUnavailable();
+        IGoldenManifestRepository repo = CreateRepository();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("d1d1d1d1-d1d1-d1d1-d1d1-d1d1d1d1d1d1"),
+            WorkspaceId = Guid.Parse("d2d2d2d2-d2d2-d2d2-d2d2-d2d2d2d2d2d2"),
+            ProjectId = Guid.Parse("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3"),
+        };
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        Guid findingsId = Guid.NewGuid();
+        Guid traceId = Guid.NewGuid();
+        Guid manifestId = Guid.NewGuid();
+
+        await PrepareAuthorityChainForManifestAsync(
+            scope,
+            runId,
+            contextId,
+            graphId,
+            findingsId,
+            traceId,
+            CancellationToken.None);
+
+        GoldenManifest manifest = NewMinimalManifest(scope, runId, contextId, graphId, findingsId, traceId, manifestId);
+        manifest.Metadata.Version = "ver-contract-lookup-42";
+        await repo.SaveAsync(manifest, CancellationToken.None);
+
+        GoldenManifest? byVersion =
+            await repo.GetByContractManifestVersionAsync(scope, "ver-contract-lookup-42", CancellationToken.None);
+
+        byVersion.Should().NotBeNull();
+        byVersion!.ManifestId.Should().Be(manifestId);
+    }
+
     /// <summary>
     /// SQL subclasses seed FK chain; in-memory is a no-op.
     /// </summary>

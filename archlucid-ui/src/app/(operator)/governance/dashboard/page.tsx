@@ -58,7 +58,7 @@ import type {
 } from "@/types/governance-dashboard";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useNavSurface } from "@/lib/use-nav-surface";
 import { governanceStatusBadgeClass } from "./governance-status-badge-class";
 
 const EMPTY_PENDING_APPROVALS: GovernanceApprovalRequest[] = [];
@@ -96,7 +96,7 @@ function navigateToWorkflowReview(router: ReturnType<typeof useRouter>, runId: s
 
 export default function GovernanceDashboardPage() {
   const router = useRouter();
-  const canMutateGovernance = useEnterpriseMutationCapability();
+  const canMutateGovernance = useNavSurface("governance-dashboard").mutationCapability;
   const [summary, setSummary] = useState<GovernanceDashboardSummary | null>(null);
   const [trendPoints, setTrendPoints] = useState<ComplianceDriftTrendPoint[]>([]);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);

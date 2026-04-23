@@ -21,7 +21,8 @@ public sealed class UnifiedGoldenManifestReader(
     IRunRepository runRepository,
     IGoldenManifestRepository authorityGoldenManifests,
     IAuthorityCommitProjectionBuilder projectionBuilder,
-    IArchitectureRequestRepository requestRepository) : IUnifiedGoldenManifestReader
+    IArchitectureRequestRepository requestRepository,
+    IScopeContextProvider scopeContextProvider) : IUnifiedGoldenManifestReader
 {
     private readonly ICoordinatorGoldenManifestRepository _coordinatorGoldenManifests =
         coordinatorGoldenManifests ?? throw new ArgumentNullException(nameof(coordinatorGoldenManifests));
@@ -37,9 +38,36 @@ public sealed class UnifiedGoldenManifestReader(
     private readonly IArchitectureRequestRepository _requestRepository =
         requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
 
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
     /// <inheritdoc />
-    public Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default) =>
-        _coordinatorGoldenManifests.GetByVersionAsync(manifestVersion, cancellationToken);
+    public async Task<GoldenManifest?> GetByVersionAsync(string manifestVersion, CancellationToken cancellationToken = default)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        ArchLucid.Decisioning.Models.GoldenManifest? authorityModel =
+            await _authorityGoldenManifests
+                .GetByContractManifestVersionAsync(scope, manifestVersion, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (authorityModel is not null)
+        {
+            RunRecord? run = await _runRepository.GetByIdAsync(scope, authorityModel.RunId, cancellationToken)
+                .ConfigureAwait(false);
+
+            string systemName = run is null
+                ? "Unknown"
+                : await ResolveSystemNameAsync(run, cancellationToken).ConfigureAwait(false);
+
+            return await _projectionBuilder
+                .BuildAsync(authorityModel, new() { SystemName = systemName }, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        return await _coordinatorGoldenManifests
+            .GetByVersionAsync(manifestVersion, cancellationToken)
+            .ConfigureAwait(false);
+    }
 
     /// <inheritdoc />
     public async Task<GoldenManifest?> ReadByRunIdAsync(
@@ -68,13 +96,28 @@ public sealed class UnifiedGoldenManifestReader(
             }
         }
 
-
         string runKey = runId.ToString("N");
         string manifestVersionKey = string.IsNullOrWhiteSpace(run.CurrentManifestVersion)
             ? $"v1-{runKey}"
             : run.CurrentManifestVersion!;
 
-        GoldenManifest? manifest = await _coordinatorGoldenManifests.GetByVersionAsync(manifestVersionKey, cancellationToken);
+        ArchLucid.Decisioning.Models.GoldenManifest? authorityByVersion =
+            await _authorityGoldenManifests
+                .GetByContractManifestVersionAsync(scope, manifestVersionKey, cancellationToken)
+                .ConfigureAwait(false);
+
+        if (authorityByVersion is not null)
+        {
+            string systemName = await ResolveSystemNameAsync(run, cancellationToken);
+
+            return await _projectionBuilder
+                .BuildAsync(authorityByVersion, new() { SystemName = systemName }, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        GoldenManifest? manifest = await _coordinatorGoldenManifests
+            .GetByVersionAsync(manifestVersionKey, cancellationToken)
+            .ConfigureAwait(false);
 
         if (manifest is null)
             return null;

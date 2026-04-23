@@ -496,6 +496,54 @@ public sealed class SqlGoldenManifestRepository(
         return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
     }
 
+    /// <inheritdoc />
+    public async Task<GoldenManifest?> GetByContractManifestVersionAsync(
+        ScopeContext scope,
+        string manifestVersion,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (string.IsNullOrWhiteSpace(manifestVersion))
+            throw new ArgumentException("Manifest version is required.", nameof(manifestVersion));
+
+        const string sql = """
+            SELECT TOP (1)
+                TenantId, WorkspaceId, ProjectId,
+                ManifestId, RunId, ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId, DecisionTraceId,
+                CreatedUtc, ManifestHash, RuleSetId, RuleSetVersion, RuleSetHash,
+                MetadataJson, RequirementsJson, TopologyJson, SecurityJson, ComplianceJson, CostJson,
+                ConstraintsJson, UnresolvedIssuesJson, DecisionsJson, AssumptionsJson,
+                WarningsJson, ProvenanceJson, ManifestPayloadBlobUri
+            FROM dbo.GoldenManifests
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND JSON_VALUE(MetadataJson, '$.Version') = @ManifestVersion
+            ORDER BY CreatedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await manifestLookupReadConnectionFactory.CreateOpenConnectionAsync(ct);
+        GoldenManifestStorageRow? row = await connection.QuerySingleOrDefaultAsync<GoldenManifestStorageRow>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    scope.TenantId,
+                    scope.WorkspaceId,
+                    scope.ProjectId,
+                    ManifestVersion = manifestVersion,
+                },
+                cancellationToken: ct));
+
+        if (row is null)
+            return null;
+
+        row = await ApplyManifestBlobOverlayIfPresentAsync(row, ct);
+
+        return await GoldenManifestPhase1RelationalRead.HydrateAsync(connection, row, ct);
+    }
+
     private async Task<GoldenManifestStorageRow> ApplyManifestBlobOverlayIfPresentAsync(
         GoldenManifestStorageRow row,
         CancellationToken ct)

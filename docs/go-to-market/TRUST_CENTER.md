@@ -48,6 +48,21 @@ For a **STRIDE-oriented** view of the whole product boundary, see [../security/S
 
 ---
 
+## Recent assurance activity
+
+This table lists **engagement metadata only** — not redacted findings, not customer names. Each row records that an assurance activity occurred, what it covered, and how to obtain redacted material under NDA (where applicable). Procurement teams can cite the table as evidence that the relevant control has a current, dated review on record without ArchLucid having to lower the NDA wall.
+
+| Engagement | Vendor | Scope | Completed (UTC) | Summary access |
+|------------|--------|-------|-----------------|----------------|
+| 2026-Q2 third-party penetration test | Aeronova Red Team LLC | API, operator UI, hosted SaaS data plane | Engagement awarded 2026-04-21; kickoff 2026-05-06 (in flight — see [`pen-test-summaries/2026-Q2-SOW.md`](../security/pen-test-summaries/2026-Q2-SOW.md)) | NDA-only — email `security@archlucid.com` once assessor delivers redacted summary |
+| Internal owner security self-assessment | ArchLucid (internal CISO ownership) | STRIDE-aligned control review across SOC 2 Common Criteria mapping | 2026-Q2 (latest revision tracked in [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md)) | Public summary available at [`SOC2_SELF_ASSESSMENT_2026.md`](../security/SOC2_SELF_ASSESSMENT_2026.md); detailed gap register on request |
+| Accessibility self-attestation review | ArchLucid (accessibility custodian, same operational team as `security@`) | WCAG 2.1 Level AA against operator UI top routes via axe-core + jsx-a11y | 2026-04-22 (annual cadence; next window 2027-04-22 — see [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) "Review cadence") | Public — see marketing route `/accessibility` and root [`ACCESSIBILITY.md`](../../ACCESSIBILITY.md) |
+| Quarterly staging chaos exercise | ArchLucid Platform / on-call | Staging-only fault injection (SQL pool exhaustion 2026-04-29; subsequent runs 2026-07-29, 2026-10-28) — production chaos out-of-scope per owner decision 2026-04-22 ([`PENDING_QUESTIONS.md`](../PENDING_QUESTIONS.md) item 34) | Calendar published 2026-04-22; first run 2026-04-29 (staging) — see [`docs/quality/game-day-log/`](../quality/game-day-log/README.md) | Public — closing reports linked from the game-day calendar |
+
+> Wording note: the quarterly chaos row is intentionally conservative — it records that a calendar is published and the first run is scheduled, not that production fault injection is in scope. `PENDING_QUESTIONS.md` item 34 remains the owner gate for any production chaos.
+
+---
+
 ## Trust documents
 
 ### Get the procurement pack

@@ -38,6 +38,7 @@ The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `
 | **`IX_AuditEvents_Scope_OccurredUtc`** | `(TenantId, WorkspaceId, ProjectId, OccurredUtc DESC)` | Default newest-first listing within scope. |
 | **`IX_AuditEvents_CorrelationId`** | `(CorrelationId)` **filtered** `WHERE CorrelationId IS NOT NULL` | Fast `GET /v1/audit/search?correlationId=…` and cross-request forensics. Added in migration **`055_AuditEvents_CorrelationId_RunId_Indexes.sql`**. |
 | **`IX_AuditEvents_RunId_OccurredUtc`** | `(RunId, OccurredUtc DESC)` **filtered** `WHERE RunId IS NOT NULL` | Per-run audit timeline by `RunId`. Same migration. |
+| **`IX_AuditEvents_OccurredUtc_EventId`** | `(OccurredUtc DESC, EventId DESC)` **INCLUDE** tenant/workspace/project + `EventType` + `ActorUserId` + `RunId` | Stable keyset pagination for `GET /v1/audit/search` when many events share the same `OccurredUtc`. Migration **`109_AuditEvents_OccurredUtc_EventId_KeysetIndex.sql`**. |
 
 ---
 

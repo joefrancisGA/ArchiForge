@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
 import { EnterpriseControlsExecutePageHint } from "@/components/EnterpriseControlsContextHints";
 import { LayerHeader } from "@/components/LayerHeader";
+import { useNavSurface } from "@/lib/use-nav-surface";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
@@ -79,7 +79,7 @@ const VERTICAL_POLICY_PACK_IMPORTS: ReadonlyArray<{ slug: string; label: string 
 ];
 
 export default function PolicyPacksPage() {
-  const canMutatePacks = useEnterpriseMutationCapability();
+  const canMutatePacks = useNavSurface("policy-packs").mutationCapability;
   const [packs, setPacks] = useState<PolicyPack[]>([]);
   const [effective, setEffective] = useState<EffectivePolicyPackSet | null>(null);
   const [effectiveContent, setEffectiveContent] = useState<PolicyPackContentDocument | null>(null);

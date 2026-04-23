@@ -128,8 +128,11 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
+        services.Configure<LegacyRunCommitPathOptions>(
+            configuration.GetSection(LegacyRunCommitPathOptions.SectionPath));
+        services.AddScoped<ArchitectureRunCommitOrchestrator>();
         services.AddScoped<AuthorityDrivenArchitectureRunCommitOrchestrator>();
-        services.AddScoped<IArchitectureRunCommitOrchestrator, AuthorityDrivenArchitectureRunCommitOrchestrator>();
+        services.AddScoped<IArchitectureRunCommitOrchestrator, RunCommitPathSelector>();
         services.AddScoped<IRunCommitOrchestrator, RunCommitOrchestratorFacade>();
         services.AddScoped<IArchitectureRunService, ArchitectureRunService>();
         services.AddScoped<IRunDetailQueryService, RunDetailQueryService>();

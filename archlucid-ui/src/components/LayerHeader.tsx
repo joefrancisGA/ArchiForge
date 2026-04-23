@@ -1,12 +1,7 @@
 "use client";
 
-import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProvider";
-import {
-  layerHeaderEnterpriseOperatorRankLine,
-  layerHeaderEnterpriseReaderRankLine,
-} from "@/lib/enterprise-controls-context-copy";
-import { LAYER_PAGE_GUIDANCE, type LayerGuidancePageKey } from "@/lib/layer-guidance";
-import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { type LayerGuidancePageKey } from "@/lib/layer-guidance";
+import { useNavSurface } from "@/lib/use-nav-surface";
 import { cn } from "@/lib/utils";
 
 export type LayerHeaderProps = {
@@ -44,15 +39,9 @@ export type LayerHeaderProps = {
  * @see `authority-shaped-layout-regression.test.tsx` — read-tier **page** column order / hierarchy (this strip does not control layout).
  */
 export function LayerHeader({ pageKey, className }: LayerHeaderProps) {
-  const block = LAYER_PAGE_GUIDANCE[pageKey];
-  const callerAuthorityRank = useNavCallerAuthorityRank();
-  const enterpriseRankCue =
-    block.layerBadge === "Enterprise Controls"
-      ? callerAuthorityRank < AUTHORITY_RANK.ExecuteAuthority
-        ? layerHeaderEnterpriseReaderRankLine
-        : layerHeaderEnterpriseOperatorRankLine
-      : null;
-
+  const surface = useNavSurface(pageKey);
+  const block = surface.layerGuidance;
+  const enterpriseRankCue = surface.contextHints.layerHeaderEnterpriseRankCue;
   const isEnterpriseControls = block.enterpriseFootnote !== null && block.enterpriseFootnote !== undefined;
 
   return (

@@ -69,6 +69,10 @@ public sealed class CachingGoldenManifestRepository(
             HotPathCacheKeys.LegacyManifest(scope, manifestId));
     }
 
+    /// <inheritdoc />
+    public Task<GoldenManifest?> GetByContractManifestVersionAsync(ScopeContext scope, string manifestVersion, CancellationToken ct) =>
+        _inner.GetByContractManifestVersionAsync(scope, manifestVersion, ct);
+
     private static ScopeContext AmbientScope(GoldenManifest manifest) => new()
     {
         TenantId = manifest.TenantId,

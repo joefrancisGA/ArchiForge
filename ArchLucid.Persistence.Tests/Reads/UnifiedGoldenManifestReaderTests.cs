@@ -23,18 +23,33 @@ public sealed class UnifiedGoldenManifestReaderTests
         Mock<IRunRepository> runs,
         Mock<IGoldenManifestRepository>? authority = null,
         Mock<IAuthorityCommitProjectionBuilder>? projection = null,
-        Mock<IArchitectureRequestRepository>? requests = null)
+        Mock<IArchitectureRequestRepository>? requests = null,
+        Mock<IScopeContextProvider>? scopeProvider = null)
     {
         authority ??= new Mock<IGoldenManifestRepository>();
+        authority.Setup(a => a.GetByContractManifestVersionAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Dm.GoldenManifest?)null);
         projection ??= new Mock<IAuthorityCommitProjectionBuilder>();
         requests ??= new Mock<IArchitectureRequestRepository>();
+        scopeProvider ??= new Mock<IScopeContextProvider>();
+        ScopeContext ambientScope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(ambientScope);
 
         return new UnifiedGoldenManifestReader(
             coordinator.Object,
             runs.Object,
             authority.Object,
             projection.Object,
-            requests.Object);
+            requests.Object,
+            scopeProvider.Object);
     }
 
     [Fact]

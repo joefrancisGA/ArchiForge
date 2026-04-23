@@ -47,7 +47,7 @@ import {
   enterpriseMutationControlDisabledTitle,
 } from "@/lib/enterprise-controls-context-copy";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
-import { useEnterpriseMutationCapability } from "@/hooks/use-enterprise-mutation-capability";
+import { useNavSurface } from "@/lib/use-nav-surface";
 import { applyAlertAction, listAlertsPaged } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
@@ -85,7 +85,7 @@ function severityBadgeClass(severity: string): string {
 }
 
 export default function AlertsPage() {
-  const canMutateAlertInbox = useEnterpriseMutationCapability();
+  const canMutateAlertInbox = useNavSurface("alerts").mutationCapability;
   const [alerts, setAlerts] = useState<AlertRecord[]>([]);
   const [status, setStatus] = useState<string>("Open");
   const [page, setPage] = useState(1);

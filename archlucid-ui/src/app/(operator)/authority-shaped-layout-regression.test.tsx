@@ -18,6 +18,22 @@ vi.mock("@/hooks/use-enterprise-mutation-capability", () => ({
   useEnterpriseMutationCapability: (): boolean => mutateCapability.current,
 }));
 
+// Pages migrated to `useNavSurface()` resolve `mutationCapability` through
+// the composed hook; mock it so the same `mutateCapability.current` ref
+// drives every page in this suite.
+vi.mock("@/lib/use-nav-surface", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/use-nav-surface")>();
+
+  return {
+    ...mod,
+    useNavSurface: (routeKey: import("@/lib/layer-guidance").LayerGuidancePageKey) => {
+      const real = mod.composeNavSurface(routeKey, 0, false, false, true);
+
+      return { ...real, mutationCapability: mutateCapability.current };
+    },
+  };
+});
+
 vi.mock("next/navigation", () => ({
   useSearchParams: (): URLSearchParams => new URLSearchParams(),
 }));

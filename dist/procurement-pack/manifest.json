@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-04-22T19:59:17.403388+00:00",
+  "generated_utc": "2026-04-23T02:35:03.248231+00:00",
   "files": [
     {
       "pack_path": "SECURITY.md",
@@ -10,14 +10,14 @@
     {
       "pack_path": "README.md",
       "source_repo_path": "README.md",
-      "bytes": 31853,
-      "sha256": "b8f77462e09fae58384326b3cea59d5feebf5c3347b510f06a33aaae8bc68b9c"
+      "bytes": 32851,
+      "sha256": "0451e1358b4c46688414655defd22a09f4737b73438106ccc5bdba330b948463"
     },
     {
       "pack_path": "TRUST_CENTER.md",
       "source_repo_path": "docs/go-to-market/TRUST_CENTER.md",
-      "bytes": 11746,
-      "sha256": "cdc8f7a2aaee4527647c4b8d869e55c3c14c98ed9e58bf04883b5b3552f9bd1b"
+      "bytes": 14257,
+      "sha256": "ef7b352449dd430aad2d0ae5107cb059e68939e9aae04627f6b5892e6f25e0c7"
     },
     {
       "pack_path": "DATA_SUBPROCESSORS.md",
@@ -40,8 +40,8 @@
     {
       "pack_path": "AUDIT_COVERAGE_MATRIX.md",
       "source_repo_path": "docs/AUDIT_COVERAGE_MATRIX.md",
-      "bytes": 33328,
-      "sha256": "c3b9566932c38d4d84a87fbb1b7838cbc6099b930dda4ca0f3a84d8324d4e24c"
+      "bytes": 33657,
+      "sha256": "260b52c9a0d3871770ca9783db9260a715ed4305f17534749b24780586065702"
     },
     {
       "pack_path": "MULTI_TENANT_RLS.md",
@@ -100,8 +100,8 @@
     {
       "pack_path": "V1_SCOPE.md",
       "source_repo_path": "docs/V1_SCOPE.md",
-      "bytes": 14998,
-      "sha256": "3d5ae88ad6976c5ddadee9f8b7df925419765ac05069beda038d17dad920c70d"
+      "bytes": 14951,
+      "sha256": "a5721e7aceeeeaa6dca3d2fc5c823828bd965d5ab33e354f64bb2c07810d8f63"
     },
     {
       "pack_path": "BREAKING_CHANGES.md",
@@ -114,6 +114,12 @@
       "source_repo_path": "docs/go-to-market/PROCUREMENT_PACK_COVER.md",
       "bytes": 1511,
       "sha256": "f9a0cfda2f73047af807466ec35034718eb5f8dc08f89805eece890ad2e75492"
+    },
+    {
+      "pack_path": "ENTERPRISE_COMPARISON_ONE_PAGE.md",
+      "source_repo_path": "docs/go-to-market/ENTERPRISE_COMPARISON_ONE_PAGE.md",
+      "bytes": 1396,
+      "sha256": "673bfd8ee75d3db6ad97dc8669554624412205d6d21dd017824a2115c33e3473"
     }
   ]
 }

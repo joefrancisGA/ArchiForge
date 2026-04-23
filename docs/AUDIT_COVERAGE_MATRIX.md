@@ -12,7 +12,7 @@ This document maps **state-changing** workflows to the audit signals they emit. 
 
 `ArchLucid.Application.Governance.GovernanceAuditEventTypes` mirrors **`AuditEventTypes.Baseline.Governance`** values for documentation and some workflow code paths. **`GovernanceWorkflowService`** dual-writes: baseline channel with **`Baseline.Governance.*`** **and** `IAuditService` with top-level `GovernanceApprovalSubmitted` / `GovernanceApprovalApproved` / `GovernanceApprovalRejected` / `GovernanceManifestPromoted` / `GovernanceEnvironmentActivated` (durable `EventType` strings differ from baseline — see XML remarks on `AuditEventTypes.Baseline`).
 
-<!-- audit-core-const-count:104 -->
+<!-- audit-core-const-count:105 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` compares `grep -c 'public const string' ArchLucid.Core/Audit/AuditEventTypes.cs` to the number in this comment. Update the comment whenever Core constants change, and extend the appendix table below.
 
@@ -113,6 +113,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Weekly executive digest preferences upsert | `TenantExecDigestPreferencesController` (`POST …/tenant/exec-digest-preferences`) | `ExecDigestPreferencesUpdated` | Tenant + default workspace/project from scope | digest cadence / channel booleans (JSON) |
 | Trial converted (billing integration stub) | `TenantTrialController` (`POST …/convert`) | `TenantTrialConverted` | Tenant from ambient scope | `{ targetTier }` from request body when present |
 | Trial lifecycle automation (expiry → read-only → export-only → purge) | `TrialLifecycleTransitionEngine` (Worker) | `TrialLifecycleTransition` | Tenant + default workspace when known | `{ fromStatus, toStatus, reason }` JSON |
+| LLM tenant daily budget warn (fire-and-forget) | `LlmDailyTenantBudgetTracker` | `AuditEventTypes.LlmTenantDailyBudgetApproaching` | Tenant/Workspace/Project from ambient scope | `{ utcDay, usedTotal, warnAt, maxTotal }` — emitted at most **once per tenant per UTC day**; scheduled on the thread pool with exception swallowing so the LLM completion path is never blocked. |
 
 ---
 
@@ -130,10 +131,15 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 
 ## Known gaps (mutating behavior without durable `IAuditService` event)
 
-No open gaps are tracked here for the areas previously listed. Notes:
+**Open gaps: 0** as of 2026-04-22 (independent assessment improvement 6 verification — see `docs/CHANGELOG.md`). Every `IBaselineMutationAuditService.RecordAsync` call site in `ArchLucid.Application/**` is paired with a sibling durable `IAuditService.LogAsync` (or `DurableAuditLogRetry.TryLogAsync` / `CoordinatorRunFailedDurableAudit.TryLogAsync`) call. The pairing is enforced at code-review time and asserted by the test below.
 
-- **ConversationController** — Removed from the gap list: the controller is read-only (GET endpoints only); there are no state mutations to audit.
-- **GovernanceController** — Removed from the gap list: all POST actions delegate to `GovernanceWorkflowService`, which already dual-writes `IAuditService` (Core governance event types) and `IBaselineMutationAuditService`.
+| Surface previously flagged | Resolution | Verification |
+|---------------------------|-----------|--------------|
+| `ConversationController` | Read-only (GET endpoints only); no state to audit | Controller surface review |
+| `GovernanceController` | All POST actions delegate to `GovernanceWorkflowService`, which already dual-writes | Five `RecordAsync` ↔ `LogAsync` pairs in `GovernanceWorkflowService.cs` |
+| Coordinator orchestrators (`Create`, `Execute`, `Commit`) | Dual-write live; failure-path uses `CoordinatorRunFailedDurableAudit.TryLogAsync` to keep retry semantics | `ArchitectureRunCreateOrchestrator.cs` lines 151/208/239, `ArchitectureRunExecuteOrchestrator.cs`, `ArchitectureRunCommitOrchestrator.cs` |
+
+**Future-drift signal.** Any new `IBaselineMutationAuditService.RecordAsync` call site that is NOT followed by a sibling `IAuditService.LogAsync` (or one of the durable wrappers above) within the same orchestration method violates the dual-write contract. The pairing is asserted by `ArchLucid.Application.Tests/Audit/BaselineMutationAuditDualWritePairingTests` (added 2026-04-22 as part of independent assessment improvement 6 — static assertion against `ArchLucid.Application` source).
 
 ---
 
@@ -141,7 +147,7 @@ No open gaps are tracked here for the areas previously listed. Notes:
 
 | Metric | Approximate value |
 |--------|-------------------|
-| **Core `AuditEventTypes` `public const string` rows** | 104 (see CI marker above; includes nested `Baseline` and nested `Run`) |
+| **Core `AuditEventTypes` `public const string` rows** | 105 (see CI marker above; includes nested `Baseline` and nested `Run`) |
 | **`await *auditService.LogAsync` production call sites** | ~43 (excluding tests; includes bridge) |
 | **`IBaselineMutationAuditService.RecordAsync` call sites** | Orchestrators + `GovernanceWorkflowService` (log-only) |
 | **Gaps listed** | 0 (resolved / out-of-scope notes in section above) |
@@ -246,6 +252,7 @@ No open gaps are tracked here for the areas previously listed. Notes:
 | `AgentResultSchemaViolation` | `AgentResultSchemaViolation` | `AgentResultSchemaViolationAudit` (topology / compliance / critic handlers on `AgentResultSchemaViolationException`) |
 | `AgentTraceBlobPersistenceFailed` | `AgentTraceBlobPersistenceFailed` | `AgentExecutionTraceRecorder` |
 | `AgentTraceInlineFallbackFailed` | `AgentTraceInlineFallbackFailed` | `AgentExecutionTraceRecorder` |
+| `LlmTenantDailyBudgetApproaching` | `LlmTenantDailyBudgetApproaching` | `LlmDailyTenantBudgetTracker` (fire-and-forget; one row per tenant per UTC day) |
 
 When adding a Core constant, add a row here and bump `audit-core-const-count`.
 

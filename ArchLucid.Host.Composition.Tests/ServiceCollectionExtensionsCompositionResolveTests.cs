@@ -128,7 +128,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
     }
 
     [Fact]
-    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_AuthorityDrivenArchitectureRunCommitOrchestrator()
+    public async Task AddArchLucidApplicationServices_Simulator_resolves_IArchitectureRunCommitOrchestrator_as_RunCommitPathSelector()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(CreateSimulatorCompositionDictionary())
@@ -143,7 +143,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
         IArchitectureRunCommitOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IArchitectureRunCommitOrchestrator>();
 
-        orchestrator.Should().BeOfType<AuthorityDrivenArchitectureRunCommitOrchestrator>();
+        orchestrator.Should().BeOfType<RunCommitPathSelector>();
     }
 
     [Fact]
@@ -297,6 +297,7 @@ public sealed class ServiceCollectionExtensionsCompositionResolveTests
             ["RateLimiting:Expensive:WindowMinutes"] = "1",
             ["LlmCompletionCache:Enabled"] = "false",
             ["HotPathCache:Enabled"] = "false",
+            ["Coordinator:LegacyRunCommitPath"] = "false",
         };
     }
 

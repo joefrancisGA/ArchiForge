@@ -100,6 +100,12 @@ jobs:
       - name: PR B tracker sync guard unit tests
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_pr_b_tracker_in_sync.py"
 
+      - name: ADR 0030 authority projection known-empty JSON guard
+        run: python scripts/ci/assert_authority_projection_known_empty.py
+
+      - name: ADR 0030 authority projection known-empty guard unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_assert_authority_projection_known_empty.py"
+
       - name: Golden cohort baseline locked — no placeholder SHAs
         env:
           ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
