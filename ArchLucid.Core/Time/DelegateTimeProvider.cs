@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Time;
 
-/// <summary>Test or bridge <see cref="TimeProvider"/> backed by a delegate returning UTC wall clock.</summary>
+/// <summary>Test or bridge <see cref="TimeProvider" /> backed by a delegate returning UTC wall clock.</summary>
 internal sealed class DelegateTimeProvider : TimeProvider
 {
     private readonly Func<DateTimeOffset> _getUtcNow;
@@ -10,5 +10,8 @@ internal sealed class DelegateTimeProvider : TimeProvider
         _getUtcNow = getUtcNow ?? throw new ArgumentNullException(nameof(getUtcNow));
     }
 
-    public override DateTimeOffset GetUtcNow() => _getUtcNow();
+    public override DateTimeOffset GetUtcNow()
+    {
+        return _getUtcNow();
+    }
 }

@@ -7,21 +7,25 @@ public sealed class FallbackLlmOptions
 
     public bool Enabled
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? Endpoint
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? DeploymentName
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? ApiKey
     {
-        get; set;
+        get;
+        set;
     }
 }

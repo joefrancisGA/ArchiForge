@@ -5,26 +5,31 @@ public sealed class TenantUsageSummary
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public UsageMeterKind Kind
     {
-        get; init;
+        get;
+        init;
     }
 
     public long TotalQuantity
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset PeriodStartUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset PeriodEndUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -3,18 +3,18 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Structured <see cref="ILogger"/> helpers for Warning-level messages that include two or three
-/// externally influenced strings (CWE-117).
+///     Structured <see cref="ILogger" /> helpers for Warning-level messages that include two or three
+///     externally influenced strings (CWE-117).
 /// </summary>
 /// <remarks>
-/// CodeQL <c>cs/log-forging</c> may not propagate the custom <see cref="LogSanitizer.Sanitize"/> barrier
-/// through <see cref="LoggerExtensions.LogWarning(ILogger, string?, params object?[])"/> <c>params</c>
-/// boxing at call sites. Sanitizing in this helper keeps barrier and sink adjacent (see <c>docs/CODEQL_TRIAGE.md</c>).
+///     CodeQL <c>cs/log-forging</c> may not propagate the custom <see cref="LogSanitizer.Sanitize" /> barrier
+///     through <see cref="LoggerExtensions.LogWarning(ILogger, string?, params object?[])" /> <c>params</c>
+///     boxing at call sites. Sanitizing in this helper keeps barrier and sink adjacent (see <c>docs/CODEQL_TRIAGE.md</c>).
 /// </remarks>
 public static class SanitizedLoggerWarningExtensions
 {
     /// <summary>
-    /// Logs a warning whose template has two placeholders filled from externally influenced strings after sanitization.
+    ///     Logs a warning whose template has two placeholders filled from externally influenced strings after sanitization.
     /// </summary>
     public static void LogWarningWithTwoSanitizedUserStrings(
         this ILogger logger,
@@ -32,7 +32,7 @@ public static class SanitizedLoggerWarningExtensions
     }
 
     /// <summary>
-    /// Logs a warning whose template has three placeholders filled from externally influenced strings after sanitization.
+    ///     Logs a warning whose template has three placeholders filled from externally influenced strings after sanitization.
     /// </summary>
     public static void LogWarningWithThreeSanitizedUserStrings(
         this ILogger logger,
@@ -52,13 +52,13 @@ public static class SanitizedLoggerWarningExtensions
     }
 
     /// <summary>
-    /// Logs comparison replay failure with an exception and user-derived strings after sanitization.
+    ///     Logs comparison replay failure with an exception and user-derived strings after sanitization.
     /// </summary>
     /// <remarks>
-    /// <see cref="InvalidOperationException.Message"/> / <see cref="Exception.Message"/> and comparison record ids
-    /// can include control characters; booleans cannot (CWE-117 is string-sink concern). Call this instead of
-    /// <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, object?[])"/> at the replay API boundary
-    /// so CodeQL sees the sanitizer adjacent to the sink (see <c>docs/CODEQL_TRIAGE.md</c>).
+    ///     <see cref="InvalidOperationException.Message" /> / <see cref="Exception.Message" /> and comparison record ids
+    ///     can include control characters; booleans cannot (CWE-117 is string-sink concern). Call this instead of
+    ///     <see cref="LoggerExtensions.LogWarning(ILogger, Exception?, string?, object?[])" /> at the replay API boundary
+    ///     so CodeQL sees the sanitizer adjacent to the sink (see <c>docs/CODEQL_TRIAGE.md</c>).
     /// </remarks>
     public static void LogWarningComparisonReplayFailed(
         this ILogger logger,

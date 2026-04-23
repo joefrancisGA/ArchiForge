@@ -5,23 +5,27 @@ public sealed class AuditEventFilter
 {
     public string? EventType
     {
-        get; set;
+        get;
+        set;
     }
 
     public DateTime? FromUtc
     {
-        get; set;
+        get;
+        set;
     }
 
     public DateTime? ToUtc
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Cursor: return only events with OccurredUtc strictly before this value. Enables keyset pagination.</summary>
     public DateTime? BeforeUtc
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>
@@ -31,23 +35,31 @@ public sealed class AuditEventFilter
     /// </summary>
     public Guid? BeforeEventId
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? CorrelationId
     {
-        get; set;
+        get;
+        set;
     }
 
     public string? ActorUserId
     {
-        get; set;
+        get;
+        set;
     }
 
     public Guid? RunId
     {
-        get; set;
+        get;
+        set;
     }
 
-    public int Take { get; set; } = 100;
+    public int Take
+    {
+        get;
+        set;
+    } = 100;
 }

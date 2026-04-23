@@ -12,7 +12,7 @@ public interface ITenantCustomerSuccessRepository
     Task InsertProductFeedbackAsync(ProductFeedbackSubmission submission, CancellationToken ct);
 
     /// <summary>
-    /// Recomputes and upserts health scores for all tenants (leader-elected worker; uses RLS bypass ambient).
+    ///     Recomputes and upserts health scores for all tenants (leader-elected worker; uses RLS bypass ambient).
     /// </summary>
     Task RefreshAllTenantHealthScoresAsync(CancellationToken ct);
 }

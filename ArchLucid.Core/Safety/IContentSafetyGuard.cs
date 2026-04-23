@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Safety;
 
 /// <summary>
-/// Optional pre/post filter for LLM prompts and completions. Implementations should be fast-fail when unsafe.
+///     Optional pre/post filter for LLM prompts and completions. Implementations should be fast-fail when unsafe.
 /// </summary>
 public interface IContentSafetyGuard
 {

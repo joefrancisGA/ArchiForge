@@ -13,5 +13,5 @@ public enum UsageMeterKind
 
     ArtifactStorageBytes = 4,
 
-    AgentExecution = 5,
+    AgentExecution = 5
 }

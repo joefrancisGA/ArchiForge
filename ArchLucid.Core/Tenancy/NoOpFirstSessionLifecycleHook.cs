@@ -10,6 +10,8 @@ public sealed class NoOpFirstSessionLifecycleHook : IFirstSessionLifecycleHook
     }
 
     /// <inheritdoc />
-    public Task OnSuccessfulManifestCommitAsync(Guid tenantId, CancellationToken cancellationToken) =>
-        Task.CompletedTask;
+    public Task OnSuccessfulManifestCommitAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 }

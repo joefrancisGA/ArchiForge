@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Configuration;
 
-/// <summary>Stable <see cref="BillingOptions.Provider"/> literals.</summary>
+/// <summary>Stable <see cref="BillingOptions.Provider" /> literals.</summary>
 public static class BillingProviderNames
 {
     public const string Noop = "Noop";

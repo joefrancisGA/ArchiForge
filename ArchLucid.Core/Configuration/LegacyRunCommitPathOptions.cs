@@ -7,8 +7,13 @@ public sealed class LegacyRunCommitPathOptions
     public const string SectionPath = "Coordinator";
 
     /// <summary>
-    /// When <see langword="true"/>, <see cref="ArchLucid.Application.Runs.Orchestration.ArchitectureRunCommitOrchestrator"/>
-    /// handles commits (legacy JSON table). When <see langword="false"/>, authority path is used.
+    ///     When <see langword="true" />,
+    ///     <see cref="ArchLucid.Application.Runs.Orchestration.ArchitectureRunCommitOrchestrator" />
+    ///     handles commits (legacy JSON table). When <see langword="false" />, authority path is used.
     /// </summary>
-    public bool LegacyRunCommitPath { get; set; }
+    public bool LegacyRunCommitPath
+    {
+        get;
+        set;
+    }
 }

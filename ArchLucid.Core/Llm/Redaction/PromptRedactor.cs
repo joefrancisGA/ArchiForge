@@ -8,15 +8,14 @@ using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Core.Llm.Redaction;
 
-/// <summary>Default deny-list redactor: compiled invariant-culture regexes with bounded work via <see cref="Regex.Replace(string, string, RegexOptions, TimeSpan)"/>.</summary>
-public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> options, ILogger<PromptRedactor> logger) : IPromptRedactor
+/// <summary>
+///     Default deny-list redactor: compiled invariant-culture regexes with bounded work via
+///     <see cref="Regex.Replace(string, string, RegexOptions, TimeSpan)" />.
+/// </summary>
+public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> options, ILogger<PromptRedactor> logger)
+    : IPromptRedactor
 {
     private static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(250);
-
-    private readonly IOptionsMonitor<LlmPromptRedactionOptions> _options =
-        options ?? throw new ArgumentNullException(nameof(options));
-
-    private readonly ILogger<PromptRedactor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     private static readonly (string Category, Regex Pattern)[] BuiltInRules =
     [
@@ -39,8 +38,13 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
         ("api_key", new Regex(
             @"\b[A-Za-z0-9]{32,}\b",
             RegexOptions.CultureInvariant | RegexOptions.Compiled,
-            MatchTimeout)),
+            MatchTimeout))
     ];
+
+    private readonly ILogger<PromptRedactor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+    private readonly IOptionsMonitor<LlmPromptRedactionOptions> _options =
+        options ?? throw new ArgumentNullException(nameof(options));
 
     /// <inheritdoc />
     public PromptRedactionOutcome Redact(string? input)
@@ -53,7 +57,9 @@ public sealed class PromptRedactor(IOptionsMonitor<LlmPromptRedactionOptions> op
         if (!opts.Enabled)
             return new PromptRedactionOutcome(input, ImmutableDictionary<string, int>.Empty);
 
-        string replacement = string.IsNullOrWhiteSpace(opts.ReplacementToken) ? "[REDACTED]" : opts.ReplacementToken.Trim();
+        string replacement = string.IsNullOrWhiteSpace(opts.ReplacementToken)
+            ? "[REDACTED]"
+            : opts.ReplacementToken.Trim();
         Dictionary<string, int> counts = [];
 
         string working = input;

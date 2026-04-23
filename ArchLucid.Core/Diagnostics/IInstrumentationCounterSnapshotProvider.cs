@@ -1,9 +1,9 @@
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Returns a point-in-time copy of cumulative ArchLucid counter measurements (see
-/// <see cref="InstrumentationCounterSnapshot"/>). Implementations are expected to be safe for repeated
-/// concurrent calls; callers should treat the returned snapshot as immutable.
+///     Returns a point-in-time copy of cumulative ArchLucid counter measurements (see
+///     <see cref="InstrumentationCounterSnapshot" />). Implementations are expected to be safe for repeated
+///     concurrent calls; callers should treat the returned snapshot as immutable.
 /// </summary>
 public interface IInstrumentationCounterSnapshotProvider
 {

@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Billing;
 
-/// <summary>Payment / marketplace integration behind <see cref="IBillingProviderRegistry"/>.</summary>
+/// <summary>Payment / marketplace integration behind <see cref="IBillingProviderRegistry" />.</summary>
 public interface IBillingProvider
 {
     string ProviderName

@@ -5,111 +5,142 @@ public sealed class TenantRecord
 {
     public Guid Id
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string Name { get; init; } = string.Empty;
+    public string Name
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Slug { get; init; } = string.Empty;
+    public string Slug
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public TenantTier Tier
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Azure AD / Entra directory tenant id when the row is linked for multi-org auth.</summary>
     public Guid? EntraTenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset CreatedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? SuspendedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? TrialStartUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? TrialExpiresUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public int? TrialRunsLimit
     {
-        get; init;
+        get;
+        init;
     }
 
     public int TrialRunsUsed
     {
-        get; init;
+        get;
+        init;
     }
 
     public int? TrialSeatsLimit
     {
-        get; init;
+        get;
+        init;
     }
 
     public int TrialSeatsUsed
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary><see cref="TrialLifecycleStatus"/> or null when the tenant is not on a self-service trial.</summary>
+    /// <summary><see cref="TrialLifecycleStatus" /> or null when the tenant is not on a self-service trial.</summary>
     public string? TrialStatus
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid? TrialSampleRunId
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>When set, the trial pre-seed worker has queued a simulator run for this tenant.</summary>
     public DateTimeOffset? TrialArchitecturePreseedEnqueuedUtc
     {
-        get; init;
-    }
-
-    /// <summary>First committed authority run id (32-char hex as <see cref="Guid"/>) after trial bootstrap — drives operator deep link.</summary>
-    public Guid? TrialWelcomeRunId
-    {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>
-    /// First time this tenant committed a golden manifest (trial funnel anchor). Used for sponsor-banner time-anchoring in the operator UI;
-    /// surfaced on the wire as <c>firstCommitUtc</c> on <c>GET /v1/tenant/trial-status</c>.
+    ///     First committed authority run id (32-char hex as <see cref="Guid" />) after trial bootstrap — drives operator
+    ///     deep link.
+    /// </summary>
+    public Guid? TrialWelcomeRunId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     First time this tenant committed a golden manifest (trial funnel anchor). Used for sponsor-banner time-anchoring in
+    ///     the operator UI;
+    ///     surfaced on the wire as <c>firstCommitUtc</c> on <c>GET /v1/tenant/trial-status</c>.
     /// </summary>
     public DateTimeOffset? TrialFirstManifestCommittedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     /// <summary>Optional: prospect median hours from architecture request to reviewable package (trial signup).</summary>
     public decimal? BaselineReviewCycleHours
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>Optional short provenance for <see cref="BaselineReviewCycleHours"/>.</summary>
+    /// <summary>Optional short provenance for <see cref="BaselineReviewCycleHours" />.</summary>
     public string? BaselineReviewCycleSource
     {
-        get; init;
+        get;
+        init;
     }
 
-    /// <summary>When <see cref="BaselineReviewCycleHours"/> was captured (signup time).</summary>
+    /// <summary>When <see cref="BaselineReviewCycleHours" /> was captured (signup time).</summary>
     public DateTimeOffset? BaselineReviewCycleCapturedUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

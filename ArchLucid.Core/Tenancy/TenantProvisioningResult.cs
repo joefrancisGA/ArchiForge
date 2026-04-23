@@ -5,21 +5,25 @@ public sealed class TenantProvisioningResult
 {
     public Guid TenantId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid DefaultWorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid DefaultProjectId
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool WasAlreadyProvisioned
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -1,8 +1,8 @@
 namespace ArchLucid.Core.Authorization;
 
 /// <summary>
-/// ASP.NET Core authorization policy names. Use these constants with <c>[Authorize(Policy = ...)]</c>
-/// so registration and controllers stay aligned.
+///     ASP.NET Core authorization policy names. Use these constants with <c>[Authorize(Policy = ...)]</c>
+///     so registration and controllers stay aligned.
 /// </summary>
 public static class ArchLucidPolicies
 {
@@ -15,13 +15,13 @@ public static class ArchLucidPolicies
     /// <summary>Required for host administration and policy-pack lifecycle (see RBAC table in docs/SECURITY.md).</summary>
     public const string AdminAuthority = "AdminAuthority";
 
-    /// <summary>Same policy as <see cref="ReadAuthority"/> (alias for RBAC documentation).</summary>
+    /// <summary>Same policy as <see cref="ReadAuthority" /> (alias for RBAC documentation).</summary>
     public const string RequireReadOnly = ReadAuthority;
 
-    /// <summary>Same policy as <see cref="ExecuteAuthority"/>.</summary>
+    /// <summary>Same policy as <see cref="ExecuteAuthority" />.</summary>
     public const string RequireOperator = ExecuteAuthority;
 
-    /// <summary>Same policy as <see cref="AdminAuthority"/>.</summary>
+    /// <summary>Same policy as <see cref="AdminAuthority" />.</summary>
     public const string RequireAdmin = AdminAuthority;
 
     /// <summary>Audit CSV/JSON export and other auditor-only surfaces.</summary>

@@ -7,5 +7,5 @@ public enum MarketplaceWebhookMutationOutcome
     DeferredGaDisabled,
 
     /// <summary>Ledger mutation attempted (GA on).</summary>
-    Applied,
+    Applied
 }

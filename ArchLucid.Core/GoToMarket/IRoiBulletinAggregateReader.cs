@@ -4,8 +4,10 @@ namespace ArchLucid.Core.GoToMarket;
 public interface IRoiBulletinAggregateReader
 {
     /// <summary>
-    /// Returns tenant-supplied baseline aggregates for tenants whose baseline was captured in <paramref name="window"/>.
-    /// <see cref="RoiBulletinAggregateReadResult.IsSufficientSample"/> is false when <c>TenantCount &lt; minimumTenantsRequired</c>.
+    ///     Returns tenant-supplied baseline aggregates for tenants whose baseline was captured in <paramref name="window" />.
+    ///     <see cref="RoiBulletinAggregateReadResult.IsSufficientSample" /> is false when
+    ///     <c>TenantCount &lt; minimumTenantsRequired</c>.
     /// </summary>
-    Task<RoiBulletinAggregateReadResult> ReadAsync(RoiBulletinQuarterWindow window, int minimumTenantsRequired, CancellationToken cancellationToken = default);
+    Task<RoiBulletinAggregateReadResult> ReadAsync(RoiBulletinQuarterWindow window, int minimumTenantsRequired,
+        CancellationToken cancellationToken = default);
 }

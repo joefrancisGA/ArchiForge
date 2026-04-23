@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Explanation;
 
 /// <summary>
-/// Identifies which agent configuration and prompt revision produced an <see cref="ExplanationResult"/>.
+///     Identifies which agent configuration and prompt revision produced an <see cref="ExplanationResult" />.
 /// </summary>
 public sealed record ExplanationProvenance(
     string AgentType,

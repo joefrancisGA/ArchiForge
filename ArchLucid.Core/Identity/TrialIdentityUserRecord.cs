@@ -5,51 +5,79 @@ public sealed class TrialIdentityUserRecord
 {
     public Guid Id
     {
-        get; init;
+        get;
+        init;
     }
 
-    public string NormalizedEmail { get; init; } = string.Empty;
+    public string NormalizedEmail
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string Email { get; init; } = string.Empty;
+    public string Email
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string PasswordHash { get; init; } = string.Empty;
+    public string PasswordHash
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string SecurityStamp { get; init; } = string.Empty;
+    public string SecurityStamp
+    {
+        get;
+        init;
+    } = string.Empty;
 
-    public string ConcurrencyStamp { get; init; } = string.Empty;
+    public string ConcurrencyStamp
+    {
+        get;
+        init;
+    } = string.Empty;
 
     public bool EmailConfirmed
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? EmailVerifiedUtc
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? LockoutEnd
     {
-        get; init;
+        get;
+        init;
     }
 
     public bool LockoutEnabled
     {
-        get; init;
+        get;
+        init;
     }
 
     public int AccessFailedCount
     {
-        get; init;
+        get;
+        init;
     }
 
     public string? EmailConfirmationTokenHash
     {
-        get; init;
+        get;
+        init;
     }
 
     public DateTimeOffset? EmailConfirmationExpiresUtc
     {
-        get; init;
+        get;
+        init;
     }
 }

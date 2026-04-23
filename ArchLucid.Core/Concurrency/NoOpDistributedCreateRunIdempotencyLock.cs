@@ -19,6 +19,9 @@ public sealed class NoOpDistributedCreateRunIdempotencyLock : IDistributedCreate
     {
         public static readonly EmptySessionLock Instance = new();
 
-        public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+        public ValueTask DisposeAsync()
+        {
+            return ValueTask.CompletedTask;
+        }
     }
 }

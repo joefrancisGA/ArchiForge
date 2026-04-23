@@ -5,11 +5,13 @@ public sealed class TenantWorkspaceLink
 {
     public Guid WorkspaceId
     {
-        get; init;
+        get;
+        init;
     }
 
     public Guid DefaultProjectId
     {
-        get; init;
+        get;
+        init;
     }
 }

@@ -6,18 +6,35 @@ public sealed class AskResponse
     /// <summary>Conversation thread id (new or existing).</summary>
     public Guid ThreadId
     {
-        get; set;
+        get;
+        set;
     }
 
     /// <summary>Natural-language answer (or fallback when the LLM is unreachable).</summary>
-    public string Answer { get; set; } = "";
+    public string Answer
+    {
+        get;
+        set;
+    } = "";
 
     /// <summary>Decision titles/ids the model cited (normalized, case-insensitive distinct).</summary>
-    public List<string> ReferencedDecisions { get; set; } = [];
+    public List<string> ReferencedDecisions
+    {
+        get;
+        set;
+    } = [];
 
     /// <summary>Finding references when provided by the model.</summary>
-    public List<string> ReferencedFindings { get; set; } = [];
+    public List<string> ReferencedFindings
+    {
+        get;
+        set;
+    } = [];
 
     /// <summary>Artifact or provenance labels when provided by the model.</summary>
-    public List<string> ReferencedArtifacts { get; set; } = [];
+    public List<string> ReferencedArtifacts
+    {
+        get;
+        set;
+    } = [];
 }

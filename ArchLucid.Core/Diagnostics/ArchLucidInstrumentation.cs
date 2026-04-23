@@ -3,18 +3,20 @@ using System.Diagnostics.Metrics;
 
 namespace ArchLucid.Core.Diagnostics;
 
-/// <summary>Thread-safe completion count for one <c>RealAgentExecutor.ExecuteAsync</c> batch (parallel handlers share one instance).</summary>
+/// <summary>
+///     Thread-safe completion count for one <c>RealAgentExecutor.ExecuteAsync</c> batch (parallel handlers share one
+///     instance).
+/// </summary>
 public sealed class AgentExecutionLlmCallAccumulator
 {
     private int _count;
 
-    /// <summary>Adds <paramref name="delta"/> successful remote completions (ignored if non-positive).</summary>
+    /// <summary>Adds <paramref name="delta" /> successful remote completions (ignored if non-positive).</summary>
     public void AddCompletions(int delta)
     {
         if (delta > 0)
 
             _ = Interlocked.Add(ref _count, delta);
-
     }
 
     /// <summary>Reads and resets the accumulated count.</summary>
@@ -25,7 +27,8 @@ public sealed class AgentExecutionLlmCallAccumulator
 }
 
 /// <summary>
-/// Shared <see cref="ActivitySource"/> and <see cref="Meter"/> names for cross-cutting observability (OTel wiring in the API host).
+///     Shared <see cref="ActivitySource" /> and <see cref="Meter" /> names for cross-cutting observability (OTel wiring in
+///     the API host).
 /// </summary>
 public static class ArchLucidInstrumentation
 {
@@ -45,104 +48,6 @@ public static class ArchLucidInstrumentation
     private static Func<long>? _auditRetryQueuePendingReader;
 
     private static long _rlsBypassProductionLikeEnabled;
-
-    /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered"/>.</summary>
-    public static OutboxDepthGaugeState OutboxDepthGauges { get; } = new();
-
-    /// <summary>
-    /// Supplies pending audit-retry depth for <c>archlucid_audit_retry_queue_pending</c> (last writer wins; use a singleton queue).
-    /// </summary>
-    public static void SetAuditRetryQueuePendingReader(Func<long>? reader) =>
-        Volatile.Write(ref _auditRetryQueuePendingReader, reader);
-
-    /// <summary>Sets the observable gauge backing <c>archlucid_rls_bypass_enabled_info</c> (1 when break-glass is on in a production-like host).</summary>
-    public static void SetRlsBypassProductionLikeEnabled(long zeroOrOne) =>
-        Volatile.Write(ref _rlsBypassProductionLikeEnabled, zeroOrOne != 0 ? 1 : 0);
-
-    /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
-    public static void EnsureOutboxDepthObservableGaugesRegistered()
-    {
-        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0)
-            return;
-
-
-        OutboxDepthGaugeState s = OutboxDepthGauges;
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_authority_pipeline_work_pending",
-            () => new Measurement<long>(s.Current.AuthorityPipelineWorkPending),
-            description: "Rows in dbo.AuthorityPipelineWorkOutbox awaiting processing.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
-            () => new Measurement<double>(s.Current.AuthorityPipelineWorkOldestPendingAgeSeconds),
-            unit: "s",
-            description: "Age in seconds of the oldest pending authority pipeline work outbox row.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_retrieval_indexing_outbox_pending",
-            () => new Measurement<long>(s.Current.RetrievalIndexingOutboxPending),
-            description: "Rows in dbo.RetrievalIndexingOutbox awaiting indexing.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_retrieval_indexing_outbox_oldest_pending_age_seconds",
-            () => new Measurement<double>(s.Current.RetrievalIndexingOutboxOldestPendingAgeSeconds),
-            unit: "s",
-            description: "Age in seconds of the oldest pending retrieval indexing outbox row.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_integration_event_outbox_publish_pending",
-            () => new Measurement<long>(s.Current.IntegrationEventOutboxPublishPending),
-            description: "Integration outbox rows eligible for Service Bus publish (excludes dead letters).");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_integration_event_outbox_dead_letter",
-            () => new Measurement<long>(s.Current.IntegrationEventOutboxDeadLetter),
-            description: "Integration outbox rows in dead-letter state.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds",
-            () => new Measurement<double>(s.Current.IntegrationEventOutboxOldestActionablePendingAgeSeconds),
-            unit: "s",
-            description: "Age in seconds of the oldest actionable integration outbox publish row.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_audit_retry_queue_pending",
-            () => new Measurement<long>(_auditRetryQueuePendingReader?.Invoke() ?? 0),
-            description: "Approximate audit events waiting in memory for durable write after hot-path failure.");
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_rls_bypass_enabled_info",
-            () => new Measurement<long>(
-                Volatile.Read(ref _rlsBypassProductionLikeEnabled),
-                new KeyValuePair<string, object?>("scope", "production_like")),
-            description:
-            "1 when SQL RLS break-glass bypass is enabled (env + ArchLucid:Persistence:AllowRlsBypass) on a Production/Staging-classified host.");
-    }
-
-    /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
-    public static void EnsureTrialFunnelObservableGaugesRegistered()
-    {
-        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
-            return;
-
-
-        AppMeter.CreateObservableGauge(
-            "archlucid_trial_active_tenants",
-            () => new Measurement<long>(Volatile.Read(ref _trialActiveTenantsCached)),
-            description: "Tenants currently on an active self-service trial (TrialStatus=Active, TrialExpiresUtc set).");
-    }
-
-    /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>
-    public static void PublishTrialActiveTenantCount(long count)
-    {
-        if (count < 0)
-
-            count = 0;
-
-
-        Volatile.Write(ref _trialActiveTenantsCached, count);
-    }
 
     /// <summary>Scheduled advisory scan pipeline (<c>AdvisoryScanRunner</c>).</summary>
     public static readonly ActivitySource AdvisoryScan = new("ArchLucid.AdvisoryScan", "1.0.0");
@@ -169,41 +74,44 @@ public static class ArchLucidInstrumentation
     public static readonly ActivitySource DataArchival = new("ArchLucid.DataArchival", "1.0.0");
 
     /// <summary>Digest channel send succeeded (labels: <c>channel</c>).</summary>
-    public static readonly Counter<long> DigestDeliverySucceeded = AppMeter.CreateCounter<long>("digest_delivery_succeeded");
+    public static readonly Counter<long> DigestDeliverySucceeded =
+        AppMeter.CreateCounter<long>("digest_delivery_succeeded");
 
     /// <summary>Digest channel send failed after non-cancellation error (labels: <c>channel</c>).</summary>
     public static readonly Counter<long> DigestDeliveryFailed = AppMeter.CreateCounter<long>("digest_delivery_failed");
 
     /// <summary>
-    /// Wall time for <c>EvaluateAndPersistAsync</c> (labels: <c>rule_kind</c> = <c>simple</c> | <c>composite</c>).
+    ///     Wall time for <c>EvaluateAndPersistAsync</c> (labels: <c>rule_kind</c> = <c>simple</c> | <c>composite</c>).
     /// </summary>
     public static readonly Histogram<double> AlertEvaluationDurationMilliseconds = AppMeter.CreateHistogram<double>(
         "alert_evaluation_duration_ms",
-        unit: "ms",
-        description: "Time spent in alert EvaluateAndPersistAsync per rule kind.");
+        "ms",
+        "Time spent in alert EvaluateAndPersistAsync per rule kind.");
 
     /// <summary>Wall time for effective governance resolution (<c>IEffectiveGovernanceResolver.ResolveAsync</c>).</summary>
     public static readonly Histogram<double> GovernanceResolveDurationMilliseconds = AppMeter.CreateHistogram<double>(
         "governance_resolve_duration_ms",
-        unit: "ms",
-        description: "Time to resolve effective governance for a tenant/workspace/project scope.");
+        "ms",
+        "Time to resolve effective governance for a tenant/workspace/project scope.");
 
     /// <summary>
-    /// Per advisory scan: fraction of explainability trace fields populated across findings (0.0–1.0; label <c>scan_type</c>).
+    ///     Per advisory scan: fraction of explainability trace fields populated across findings (0.0–1.0; label
+    ///     <c>scan_type</c>).
     /// </summary>
     public static readonly Histogram<double> ExplainabilityTraceCompleteness = AppMeter.CreateHistogram<double>(
         "archlucid_explainability_trace_completeness_ratio",
         description: "Per-scan trace completeness ratio (0.0–1.0).");
 
     /// <summary>
-    /// Heuristic overlap between aggregate explanation tokens and flattened finding <c>ExplainabilityTrace</c> text (0.0–1.0).
+    ///     Heuristic overlap between aggregate explanation tokens and flattened finding <c>ExplainabilityTrace</c> text
+    ///     (0.0–1.0).
     /// </summary>
     public static readonly Histogram<double> ExplanationFaithfulnessRatio = AppMeter.CreateHistogram<double>(
         "archlucid_explanation_faithfulness_ratio",
         description: "Heuristic faithfulness of run explanation vs finding traces (0.0–1.0).");
 
     /// <summary>
-    /// Per provenance response: fraction of manifest decisions with finding, rule, and graph-context edges (0.0–1.0).
+    ///     Per provenance response: fraction of manifest decisions with finding, rule, and graph-context edges (0.0–1.0).
     /// </summary>
     public static readonly Histogram<double> ProvenanceCompleteness = AppMeter.CreateHistogram<double>(
         "archlucid_provenance_completeness_ratio",
@@ -228,16 +136,19 @@ public static class ArchLucidInstrumentation
             description: "Half-open probe results (labels: gate, outcome=success|failure|cancelled).");
 
     /// <summary>
-    /// LLM call retry attempts before the circuit breaker records a failure (labels: <c>gate</c>, <c>attempt</c>, <c>exception_type</c>).
+    ///     LLM call retry attempts before the circuit breaker records a failure (labels: <c>gate</c>, <c>attempt</c>,
+    ///     <c>exception_type</c>).
     /// </summary>
     public static readonly Counter<long> LlmCallRetries =
         AppMeter.CreateCounter<long>(
             "archlucid_llm_call_retries_total",
-            description: "LLM call retry attempts before circuit breaker recording (labels: gate, attempt, exception_type).");
+            description:
+            "LLM call retry attempts before circuit breaker recording (labels: gate, attempt, exception_type).");
 
     /// <summary>
-    /// Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside <c>EffectiveGovernanceResolver</c>
-    /// (avoids duplicate JSON work when the same version appears on multiple assignments).
+    ///     Hits on the in-resolve <c>(packId, version)</c> deserialized content cache inside
+    ///     <c>EffectiveGovernanceResolver</c>
+    ///     (avoids duplicate JSON work when the same version appears on multiple assignments).
     /// </summary>
     public static readonly Counter<long> GovernancePackContentDeserializeCacheHits =
         AppMeter.CreateCounter<long>("governance_pack_content_deserialize_cache_hits");
@@ -274,14 +185,15 @@ public static class ArchLucidInstrumentation
     public static readonly Counter<long> FindingEngineFailuresTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_finding_engine_failures_total",
-            description: "Finding engines that failed during findings snapshot generation (labels: engine_type, category).");
+            description:
+            "Finding engines that failed during findings snapshot generation (labels: engine_type, category).");
 
     /// <summary>LLM completion calls made during a single <c>RealAgentExecutor.ExecuteAsync</c> batch.</summary>
     public static readonly Histogram<int> LlmCallsPerRun =
         AppMeter.CreateHistogram<int>(
             "archlucid_llm_calls_per_run",
-            unit: "{call}",
-            description: "Number of LLM completion calls made during a single authority run.");
+            "{call}",
+            "Number of LLM completion calls made during a single authority run.");
 
     /// <summary>Aggregate explanation cache hits (<c>CachingRunExplanationSummaryService</c>).</summary>
     public static readonly Counter<long> ExplanationCacheHits =
@@ -307,13 +219,19 @@ public static class ArchLucidInstrumentation
             "archlucid.demo.preview.cache_miss_total",
             description: "Demo marketing preview bundle cache misses (GET /v1/demo/preview).");
 
-    /// <summary>Schema validation of raw <c>AgentResult</c> LLM JSON (labels: <c>agent_type</c>, <c>outcome</c>=valid|invalid).</summary>
+    /// <summary>
+    ///     Schema validation of raw <c>AgentResult</c> LLM JSON (labels: <c>agent_type</c>, <c>outcome</c>
+    ///     =valid|invalid).
+    /// </summary>
     public static readonly Counter<long> AgentResultSchemaValidationsTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_agent_result_schema_validations_total",
             description: "Schema validation of raw AgentResult LLM output (labels: agent_type, outcome).");
 
-    /// <summary>Schema validation of explanation LLM JSON (labels: <c>explanation_type</c>, <c>outcome</c>=valid|invalid|skipped).</summary>
+    /// <summary>
+    ///     Schema validation of explanation LLM JSON (labels: <c>explanation_type</c>, <c>outcome</c>
+    ///     =valid|invalid|skipped).
+    /// </summary>
     public static readonly Counter<long> ExplanationSchemaValidationsTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_explanation_schema_validations_total",
@@ -323,8 +241,8 @@ public static class ArchLucidInstrumentation
     public static readonly Histogram<double> AuthorityPipelineStageDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
             "archlucid_authority_pipeline_stage_duration_ms",
-            unit: "ms",
-            description: "Per-stage wall time inside the authority pipeline (labels: stage, outcome).");
+            "ms",
+            "Per-stage wall time inside the authority pipeline (labels: stage, outcome).");
 
     /// <summary>Successful self-service trial activations (labels: <c>source</c>, <c>mode</c>).</summary>
     public static readonly Counter<long> TrialSignupsTotal =
@@ -339,7 +257,8 @@ public static class ArchLucidInstrumentation
             description: "Self-service trial funnel: failed signup or bootstrap attempts (labels: stage, reason).");
 
     /// <summary>
-    /// Successful <c>POST /v1/register</c> where the prospect did not supply <c>baselineReviewCycleHours</c> (soft-default / model path).
+    ///     Successful <c>POST /v1/register</c> where the prospect did not supply <c>baselineReviewCycleHours</c> (soft-default
+    ///     / model path).
     /// </summary>
     public static readonly Counter<long> TrialSignupBaselineSkippedTotal =
         AppMeter.CreateCounter<long>(
@@ -350,14 +269,14 @@ public static class ArchLucidInstrumentation
     public static readonly Histogram<double> TrialFirstRunSeconds =
         AppMeter.CreateHistogram(
             "archlucid_trial_first_run_seconds",
-            unit: "s",
-            description: "Seconds from tenant trial anchor (TrialStartUtc or CreatedUtc) to first committed manifest.",
+            "s",
+            "Seconds from tenant trial anchor (TrialStartUtc or CreatedUtc) to first committed manifest.",
             advice: new InstrumentAdvice<double>
             {
                 HistogramBucketBoundaries =
                 [
-                    5, 15, 30, 60, 120, 300, 600, 1200, 3600, 7200, 86400,
-                ],
+                    5, 15, 30, 60, 120, 300, 600, 1200, 3600, 7200, 86400
+                ]
             });
 
     /// <summary><c>TrialRunsUsed / TrialRunsLimit</c> at first manifest commit for metered trials (0.0–1.0+).</summary>
@@ -369,8 +288,8 @@ public static class ArchLucidInstrumentation
             {
                 HistogramBucketBoundaries =
                 [
-                    0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.0, 1.25, 2.0,
-                ],
+                    0.05, 0.1, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.0, 1.25, 2.0
+                ]
             });
 
     /// <summary>Trial conversions to paid or higher tier (labels: <c>from_state</c>, <c>to_tier</c>).</summary>
@@ -392,15 +311,18 @@ public static class ArchLucidInstrumentation
             description: "Increments once per tenant on first successful manifest commit.");
 
     /// <summary>
-    /// Operator onboarding funnel successes (labels: <c>task</c> = <c>first_run_committed</c> | <c>first_session_completed</c>).
+    ///     Operator onboarding funnel successes (labels: <c>task</c> = <c>first_run_committed</c> |
+    ///     <c>first_session_completed</c>).
     /// </summary>
     public static readonly Counter<long> OperatorTaskSuccessTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_operator_task_success_total",
-            description: "Server-side verified onboarding milestones (label task=first_run_committed|first_session_completed).");
+            description:
+            "Server-side verified onboarding milestones (label task=first_run_committed|first_session_completed).");
 
     /// <summary>
-    /// Operator UI sponsor banner showed the days-since-first-commit badge (labels: <c>tenant_id</c>, <c>days_since_first_commit_bucket</c>).
+    ///     Operator UI sponsor banner showed the days-since-first-commit badge (labels: <c>tenant_id</c>,
+    ///     <c>days_since_first_commit_bucket</c>).
     /// </summary>
     public static readonly Counter<long> SponsorBannerFirstCommitBadgeRenderedTotal =
         AppMeter.CreateCounter<long>(
@@ -433,14 +355,18 @@ public static class ArchLucidInstrumentation
             description: "Agent handler invocations by type and outcome.");
 
     /// <summary>
-    /// Fraction of expected <c>AgentResult</c> JSON keys present on <c>ParsedResultJson</c> (0.0–1.0; label <c>agent_type</c>).
+    ///     Fraction of expected <c>AgentResult</c> JSON keys present on <c>ParsedResultJson</c> (0.0–1.0; label
+    ///     <c>agent_type</c>).
     /// </summary>
     public static readonly Histogram<double> AgentOutputStructuralCompletenessRatio =
         AppMeter.CreateHistogram<double>(
             "archlucid_agent_output_structural_completeness_ratio",
             description: "Structural completeness of persisted agent parsed JSON (0.0–1.0).");
 
-    /// <summary>Trace JSON that is not a JSON object or failed <see cref="System.Text.Json"/> parse (label <c>agent_type</c>).</summary>
+    /// <summary>
+    ///     Trace JSON that is not a JSON object or failed <see cref="System.Text.Json" /> parse (label <c>agent_type</c>
+    ///     ).
+    /// </summary>
     public static readonly Counter<long> AgentOutputParseFailuresTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_agent_output_parse_failures_total",
@@ -456,11 +382,12 @@ public static class ArchLucidInstrumentation
     public static readonly Histogram<double> AgentTraceBlobPersistDurationMs =
         AppMeter.CreateHistogram<double>(
             "archlucid_agent_trace_blob_persist_duration_ms",
-            unit: "ms",
-            description: "Duration in milliseconds for full prompt/response blob writes per trace.");
+            "ms",
+            "Duration in milliseconds for full prompt/response blob writes per trace.");
 
     /// <summary>
-    /// Real-mode SQL inline fallback for full prompt/response when blob key is missing (labels: <c>agent_type</c>, <c>blob_type</c>=system_prompt|user_prompt|response).
+    ///     Real-mode SQL inline fallback for full prompt/response when blob key is missing (labels: <c>agent_type</c>,
+    ///     <c>blob_type</c>=system_prompt|user_prompt|response).
     /// </summary>
     public static readonly Counter<long> AgentTracePromptInlineFallbacksTotal =
         AppMeter.CreateCounter<long>(
@@ -474,7 +401,8 @@ public static class ArchLucidInstrumentation
             description: "Agent output semantic quality score (0-1).");
 
     /// <summary>
-    /// Quality gate outcomes after structural + semantic evaluation (labels: <c>agent_type</c>, <c>outcome</c>=accepted|warned|rejected).
+    ///     Quality gate outcomes after structural + semantic evaluation (labels: <c>agent_type</c>, <c>outcome</c>
+    ///     =accepted|warned|rejected).
     /// </summary>
     public static readonly Counter<long> AgentOutputQualityGateTotal =
         AppMeter.CreateCounter<long>(
@@ -487,14 +415,17 @@ public static class ArchLucidInstrumentation
             "archlucid_agent_output_reference_case_evaluations_total",
             description: "Reference-case agent output evaluations (labels: case_id, agent_type, outcome=pass|fail).");
 
-    /// <summary>Mean of structural completeness and semantic score for each reference-case evaluation (labels: <c>case_id</c>, <c>agent_type</c>).</summary>
+    /// <summary>
+    ///     Mean of structural completeness and semantic score for each reference-case evaluation (labels: <c>case_id</c>,
+    ///     <c>agent_type</c>).
+    /// </summary>
     public static readonly Histogram<double> AgentOutputReferenceCaseScoreRatio =
         AppMeter.CreateHistogram<double>(
             "archlucid_agent_output_reference_case_score_ratio",
             description: "Combined reference-case score (structural+semantic)/2 (0.0–1.0).");
 
     /// <summary>
-    /// Aggregate explanation replaced LLM text with deterministic manifest narrative due to low explanation faithfulness.
+    ///     Aggregate explanation replaced LLM text with deterministic manifest narrative due to low explanation faithfulness.
     /// </summary>
     public static readonly Counter<long> ExplanationAggregateFaithfulnessFallbacksTotal =
         AppMeter.CreateCounter<long>(
@@ -523,16 +454,20 @@ public static class ArchLucidInstrumentation
     public static readonly Counter<long> ContainerJobRunsTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_container_job_runs_total",
-            description: "ArchLucid.Jobs.Cli job runs (labels: job_name, exit_class=success|failure|unknown_job|configuration_error|cancelled).");
+            description:
+            "ArchLucid.Jobs.Cli job runs (labels: job_name, exit_class=success|failure|unknown_job|configuration_error|cancelled).");
 
     /// <summary>Wall time for <c>IArchLucidJob.RunOnceAsync</c> (labels: <c>job_name</c>, <c>exit_code</c>).</summary>
     public static readonly Histogram<double> ContainerJobRunDurationMilliseconds =
         AppMeter.CreateHistogram<double>(
             "archlucid_container_job_run_duration_ms",
-            unit: "ms",
-            description: "Duration of one-shot background jobs (labels: job_name, exit_code).");
+            "ms",
+            "Duration of one-shot background jobs (labels: job_name, exit_code).");
 
-    /// <summary>Audit events dropped because the in-memory retry queue was full (hot-path enqueue or requeue after drain failure).</summary>
+    /// <summary>
+    ///     Audit events dropped because the in-memory retry queue was full (hot-path enqueue or requeue after drain
+    ///     failure).
+    /// </summary>
     public static readonly Counter<long> AuditRetryEnqueueDroppedTotal =
         AppMeter.CreateCounter<long>(
             "archlucid_audit_retry_enqueue_dropped_total",
@@ -551,17 +486,127 @@ public static class ArchLucidInstrumentation
             description: "Cumulative completion tokens reported by Azure OpenAI completions.");
 
     /// <summary>
-    /// Estimated LLM spend (USD) from configured per-million token rates on recorded traces (label <c>tenant</c>).
+    ///     Estimated LLM spend (USD) from configured per-million token rates on recorded traces (label <c>tenant</c>).
     /// </summary>
     public static readonly Counter<double> LlmCostUsdTotal =
         AppMeter.CreateCounter<double>(
             "archlucid_llm_cost_usd_total",
-            unit: "USD",
-            description: "Estimated LLM USD from token counts × AgentExecution:LlmCostEstimation rates (label tenant).");
+            "USD",
+            "Estimated LLM USD from token counts × AgentExecution:LlmCostEstimation rates (label tenant).");
+
+    /// <summary>Latest outbox depths for <see cref="EnsureOutboxDepthObservableGaugesRegistered" />.</summary>
+    public static OutboxDepthGaugeState OutboxDepthGauges
+    {
+        get;
+    } = new();
 
     /// <summary>
-    /// Associates <paramref name="accumulator"/> with the current async flow so the agent host&apos;s completion client
-    /// can count remote completions toward <see cref="LlmCallsPerRun"/>. Dispose to detach.
+    ///     Supplies pending audit-retry depth for <c>archlucid_audit_retry_queue_pending</c> (last writer wins; use a
+    ///     singleton queue).
+    /// </summary>
+    public static void SetAuditRetryQueuePendingReader(Func<long>? reader)
+    {
+        Volatile.Write(ref _auditRetryQueuePendingReader, reader);
+    }
+
+    /// <summary>
+    ///     Sets the observable gauge backing <c>archlucid_rls_bypass_enabled_info</c> (1 when break-glass is on in a
+    ///     production-like host).
+    /// </summary>
+    public static void SetRlsBypassProductionLikeEnabled(long zeroOrOne)
+    {
+        Volatile.Write(ref _rlsBypassProductionLikeEnabled, zeroOrOne != 0 ? 1 : 0);
+    }
+
+    /// <summary>Registers observable gauges once (call from OpenTelemetry host setup).</summary>
+    public static void EnsureOutboxDepthObservableGaugesRegistered()
+    {
+        if (Interlocked.Exchange(ref _outboxObservableGaugesRegistered, 1) != 0)
+            return;
+
+
+        OutboxDepthGaugeState s = OutboxDepthGauges;
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_authority_pipeline_work_pending",
+            () => new Measurement<long>(s.Current.AuthorityPipelineWorkPending),
+            description: "Rows in dbo.AuthorityPipelineWorkOutbox awaiting processing.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_authority_pipeline_work_oldest_pending_age_seconds",
+            () => new Measurement<double>(s.Current.AuthorityPipelineWorkOldestPendingAgeSeconds),
+            "s",
+            "Age in seconds of the oldest pending authority pipeline work outbox row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_retrieval_indexing_outbox_pending",
+            () => new Measurement<long>(s.Current.RetrievalIndexingOutboxPending),
+            description: "Rows in dbo.RetrievalIndexingOutbox awaiting indexing.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_retrieval_indexing_outbox_oldest_pending_age_seconds",
+            () => new Measurement<double>(s.Current.RetrievalIndexingOutboxOldestPendingAgeSeconds),
+            "s",
+            "Age in seconds of the oldest pending retrieval indexing outbox row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_integration_event_outbox_publish_pending",
+            () => new Measurement<long>(s.Current.IntegrationEventOutboxPublishPending),
+            description: "Integration outbox rows eligible for Service Bus publish (excludes dead letters).");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_integration_event_outbox_dead_letter",
+            () => new Measurement<long>(s.Current.IntegrationEventOutboxDeadLetter),
+            description: "Integration outbox rows in dead-letter state.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_integration_event_outbox_oldest_actionable_pending_age_seconds",
+            () => new Measurement<double>(s.Current.IntegrationEventOutboxOldestActionablePendingAgeSeconds),
+            "s",
+            "Age in seconds of the oldest actionable integration outbox publish row.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_audit_retry_queue_pending",
+            () => new Measurement<long>(_auditRetryQueuePendingReader?.Invoke() ?? 0),
+            description: "Approximate audit events waiting in memory for durable write after hot-path failure.");
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_rls_bypass_enabled_info",
+            () => new Measurement<long>(
+                Volatile.Read(ref _rlsBypassProductionLikeEnabled),
+                new KeyValuePair<string, object?>("scope", "production_like")),
+            description:
+            "1 when SQL RLS break-glass bypass is enabled (env + ArchLucid:Persistence:AllowRlsBypass) on a Production/Staging-classified host.");
+    }
+
+    /// <summary>Registers trial funnel observable gauges once (call from OpenTelemetry host setup).</summary>
+    public static void EnsureTrialFunnelObservableGaugesRegistered()
+    {
+        if (Interlocked.Exchange(ref _trialFunnelObservableGaugesRegistered, 1) != 0)
+            return;
+
+
+        AppMeter.CreateObservableGauge(
+            "archlucid_trial_active_tenants",
+            () => new Measurement<long>(Volatile.Read(ref _trialActiveTenantsCached)),
+            description:
+            "Tenants currently on an active self-service trial (TrialStatus=Active, TrialExpiresUtc set).");
+    }
+
+    /// <summary>Updates the cached value read by <c>archlucid_trial_active_tenants</c> (background metrics collector).</summary>
+    public static void PublishTrialActiveTenantCount(long count)
+    {
+        if (count < 0)
+
+            count = 0;
+
+
+        Volatile.Write(ref _trialActiveTenantsCached, count);
+    }
+
+    /// <summary>
+    ///     Associates <paramref name="accumulator" /> with the current async flow so the agent host&apos;s completion client
+    ///     can count remote completions toward <see cref="LlmCallsPerRun" />. Dispose to detach.
     /// </summary>
     public static IDisposable BeginLlmCallsPerRunAccumulation(AgentExecutionLlmCallAccumulator accumulator)
     {
@@ -580,17 +625,12 @@ public static class ArchLucidInstrumentation
         if (acc is not null)
 
             acc.AddCompletions(1);
-
     }
 
     /// <summary>Increments <c>archlucid_finding_engine_failures_total</c>.</summary>
     public static void RecordFindingEngineFailure(string engineType, string category)
     {
-        TagList tags = new()
-        {
-            { "engine_type", engineType },
-            { "category", category },
-        };
+        TagList tags = new() { { "engine_type", engineType }, { "category", category } };
 
         FindingEngineFailuresTotal.Add(1, tags);
     }
@@ -598,11 +638,7 @@ public static class ArchLucidInstrumentation
     /// <summary>Increments <c>archlucid_agent_result_schema_validations_total</c> (outcome: valid or invalid).</summary>
     public static void RecordAgentResultSchemaValidation(string agentType, string outcome)
     {
-        TagList tags = new()
-        {
-            { "agent_type", agentType },
-            { "outcome", outcome },
-        };
+        TagList tags = new() { { "agent_type", agentType }, { "outcome", outcome } };
 
         AgentResultSchemaValidationsTotal.Add(1, tags);
     }
@@ -610,50 +646,49 @@ public static class ArchLucidInstrumentation
     /// <summary>Increments <c>archlucid_explanation_schema_validations_total</c> (outcome: valid, invalid, or skipped).</summary>
     public static void RecordExplanationSchemaValidation(string explanationType, string outcome)
     {
-        TagList tags = new()
-        {
-            { "explanation_type", explanationType },
-            { "outcome", outcome },
-        };
+        TagList tags = new() { { "explanation_type", explanationType }, { "outcome", outcome } };
 
         ExplanationSchemaValidationsTotal.Add(1, tags);
     }
 
-    /// <summary>Records <see cref="ExplanationFaithfulnessRatio"/> (clamped 0–1).</summary>
+    /// <summary>Records <see cref="ExplanationFaithfulnessRatio" /> (clamped 0–1).</summary>
     public static void RecordExplanationFaithfulnessRatio(double ratio)
     {
         double clamped = Math.Clamp(ratio, 0.0, 1.0);
         ExplanationFaithfulnessRatio.Record(clamped);
     }
 
-    /// <summary>Increments <see cref="TrialSignupsTotal"/>.</summary>
+    /// <summary>Increments <see cref="TrialSignupsTotal" />.</summary>
     public static void RecordTrialSignup(string source, string mode)
     {
         TagList tags = new()
         {
             { "source", string.IsNullOrWhiteSpace(source) ? "unknown" : source.Trim() },
-            { "mode", string.IsNullOrWhiteSpace(mode) ? "unknown" : mode.Trim() },
+            { "mode", string.IsNullOrWhiteSpace(mode) ? "unknown" : mode.Trim() }
         };
 
         TrialSignupsTotal.Add(1, tags);
     }
 
-    /// <summary>Increments <see cref="TrialSignupFailuresTotal"/>.</summary>
+    /// <summary>Increments <see cref="TrialSignupFailuresTotal" />.</summary>
     public static void RecordTrialSignupFailure(string stage, string reason)
     {
         TagList tags = new()
         {
             { "stage", string.IsNullOrWhiteSpace(stage) ? "unknown" : stage.Trim() },
-            { "reason", string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim() },
+            { "reason", string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim() }
         };
 
         TrialSignupFailuresTotal.Add(1, tags);
     }
 
-    /// <summary>Increments <see cref="TrialSignupBaselineSkippedTotal"/> (model-default baseline path at signup).</summary>
-    public static void RecordTrialSignupBaselineSkipped() => TrialSignupBaselineSkippedTotal.Add(1);
+    /// <summary>Increments <see cref="TrialSignupBaselineSkippedTotal" /> (model-default baseline path at signup).</summary>
+    public static void RecordTrialSignupBaselineSkipped()
+    {
+        TrialSignupBaselineSkippedTotal.Add(1);
+    }
 
-    /// <summary>Records <see cref="TrialFirstRunSeconds"/> when positive and finite.</summary>
+    /// <summary>Records <see cref="TrialFirstRunSeconds" /> when positive and finite.</summary>
     public static void RecordTrialFirstRunLatencySeconds(double seconds)
     {
         if (seconds <= 0 || double.IsNaN(seconds) || double.IsInfinity(seconds))
@@ -663,7 +698,7 @@ public static class ArchLucidInstrumentation
         TrialFirstRunSeconds.Record(seconds);
     }
 
-    /// <summary>Records <see cref="TrialRunsUsedRatio"/> clamped to non-negative values.</summary>
+    /// <summary>Records <see cref="TrialRunsUsedRatio" /> clamped to non-negative values.</summary>
     public static void RecordTrialRunsUsedRatio(double ratio)
     {
         if (double.IsNaN(ratio) || double.IsInfinity(ratio))
@@ -673,19 +708,19 @@ public static class ArchLucidInstrumentation
         TrialRunsUsedRatio.Record(Math.Max(0, ratio));
     }
 
-    /// <summary>Increments <see cref="TrialConversionTotal"/>.</summary>
+    /// <summary>Increments <see cref="TrialConversionTotal" />.</summary>
     public static void RecordTrialConversion(string fromState, string toTier)
     {
         TagList tags = new()
         {
             { "from_state", string.IsNullOrWhiteSpace(fromState) ? "unknown" : fromState.Trim() },
-            { "to_tier", string.IsNullOrWhiteSpace(toTier) ? "unknown" : toTier.Trim() },
+            { "to_tier", string.IsNullOrWhiteSpace(toTier) ? "unknown" : toTier.Trim() }
         };
 
         TrialConversionTotal.Add(1, tags);
     }
 
-    /// <summary>Increments <see cref="TrialExpirationsTotal"/>.</summary>
+    /// <summary>Increments <see cref="TrialExpirationsTotal" />.</summary>
     public static void RecordTrialExpiration(string reason)
     {
         string r = string.IsNullOrWhiteSpace(reason) ? "unknown" : reason.Trim();
@@ -694,35 +729,37 @@ public static class ArchLucidInstrumentation
         TrialExpirationsTotal.Add(1, tags);
     }
 
-    /// <summary>Increments <see cref="SponsorBannerFirstCommitBadgeRenderedTotal"/>.</summary>
+    /// <summary>Increments <see cref="SponsorBannerFirstCommitBadgeRenderedTotal" />.</summary>
     public static void RecordSponsorBannerFirstCommitBadgeRendered(Guid tenantId, string daysSinceFirstCommitBucket)
     {
-        string bucket = string.IsNullOrWhiteSpace(daysSinceFirstCommitBucket) ? "unknown" : daysSinceFirstCommitBucket.Trim();
-        TagList tags = new()
-        {
-            { "tenant_id", tenantId.ToString("D") },
-            { "days_since_first_commit_bucket", bucket },
-        };
+        string bucket = string.IsNullOrWhiteSpace(daysSinceFirstCommitBucket)
+            ? "unknown"
+            : daysSinceFirstCommitBucket.Trim();
+        TagList tags = new() { { "tenant_id", tenantId.ToString("D") }, { "days_since_first_commit_bucket", bucket } };
 
         SponsorBannerFirstCommitBadgeRenderedTotal.Add(1, tags);
     }
 
-    /// <summary>Increments <see cref="FirstSessionCompletedTotal"/> once per tenant (caller must gate).</summary>
-    public static void RecordFirstSessionCompleted() => FirstSessionCompletedTotal.Add(1);
+    /// <summary>Increments <see cref="FirstSessionCompletedTotal" /> once per tenant (caller must gate).</summary>
+    public static void RecordFirstSessionCompleted()
+    {
+        FirstSessionCompletedTotal.Add(1);
+    }
 
-    /// <summary>Increments <see cref="OperatorTaskSuccessTotal"/> for a low-cardinality <paramref name="task"/> label.</summary>
+    /// <summary>Increments <see cref="OperatorTaskSuccessTotal" /> for a low-cardinality <paramref name="task" /> label.</summary>
     public static void RecordOperatorTaskSuccess(string task)
     {
         string t = string.IsNullOrWhiteSpace(task) ? "unknown" : task.Trim();
         if (t is not ("first_run_committed" or "first_session_completed"))
-            throw new ArgumentOutOfRangeException(nameof(task), "task must be first_run_committed or first_session_completed.");
+            throw new ArgumentOutOfRangeException(nameof(task),
+                "task must be first_run_committed or first_session_completed.");
 
         TagList tags = new() { { "task", t } };
 
         OperatorTaskSuccessTotal.Add(1, tags);
     }
 
-    /// <summary>Records <see cref="LlmPromptRedactionsTotal"/> for a category bucket.</summary>
+    /// <summary>Records <see cref="LlmPromptRedactionsTotal" /> for a category bucket.</summary>
     public static void RecordLlmPromptRedactions(string category, int matchCount)
     {
         if (matchCount <= 0)
@@ -735,7 +772,7 @@ public static class ArchLucidInstrumentation
         LlmPromptRedactionsTotal.Add(matchCount, tags);
     }
 
-    /// <summary>Increments <see cref="LlmPromptRedactionSkippedTotal"/> when redaction is disabled.</summary>
+    /// <summary>Increments <see cref="LlmPromptRedactionSkippedTotal" /> when redaction is disabled.</summary>
     public static void RecordLlmPromptRedactionSkipped(int count = 1)
     {
         if (count <= 0)
@@ -745,20 +782,20 @@ public static class ArchLucidInstrumentation
         LlmPromptRedactionSkippedTotal.Add(count);
     }
 
-    /// <summary>Increments <see cref="BillingCheckoutsTotal"/>.</summary>
+    /// <summary>Increments <see cref="BillingCheckoutsTotal" />.</summary>
     public static void RecordBillingCheckout(string provider, string tier, string outcome)
     {
         TagList tags = new()
         {
             { "provider", string.IsNullOrWhiteSpace(provider) ? "unknown" : provider.Trim() },
             { "tier", string.IsNullOrWhiteSpace(tier) ? "unknown" : tier.Trim() },
-            { "outcome", string.IsNullOrWhiteSpace(outcome) ? "unknown" : outcome.Trim() },
+            { "outcome", string.IsNullOrWhiteSpace(outcome) ? "unknown" : outcome.Trim() }
         };
 
         BillingCheckoutsTotal.Add(1, tags);
     }
 
-    /// <summary>Adds <paramref name="estimatedCostUsd"/> to <see cref="LlmCostUsdTotal"/> when positive.</summary>
+    /// <summary>Adds <paramref name="estimatedCostUsd" /> to <see cref="LlmCostUsdTotal" /> when positive.</summary>
     public static void RecordLlmCostUsd(decimal estimatedCostUsd, string? tenantLabel)
     {
         if (estimatedCostUsd <= 0m)
@@ -772,9 +809,10 @@ public static class ArchLucidInstrumentation
     }
 
     /// <summary>
-    /// Records LLM token counters. When <paramref name="recordPerTenant"/> is true, also emits tagged series with
-    /// <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
-    /// Optional <paramref name="llmProviderId"/> and <paramref name="llmDeploymentLabel"/> add low-cardinality series for FinOps dashboards.
+    ///     Records LLM token counters. When <paramref name="recordPerTenant" /> is true, also emits tagged series with
+    ///     <c>tenant_id</c> (increases Prometheus cardinality — use only for bounded tenant counts).
+    ///     Optional <paramref name="llmProviderId" /> and <paramref name="llmDeploymentLabel" /> add low-cardinality series
+    ///     for FinOps dashboards.
     /// </summary>
     public static void RecordLlmTokenUsage(
         long promptTokens,
@@ -824,6 +862,9 @@ public static class ArchLucidInstrumentation
 
     private readonly struct LlmCallsPerRunAccumulationScope : IDisposable
     {
-        public void Dispose() => LlmCallsPerRunAccumulator.Value = null;
+        public void Dispose()
+        {
+            LlmCallsPerRunAccumulator.Value = null;
+        }
     }
 }

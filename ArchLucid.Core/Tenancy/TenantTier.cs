@@ -7,5 +7,5 @@ public enum TenantTier
 
     Standard = 1,
 
-    Enterprise = 2,
+    Enterprise = 2
 }

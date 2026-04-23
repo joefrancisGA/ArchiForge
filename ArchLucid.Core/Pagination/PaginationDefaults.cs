@@ -1,7 +1,7 @@
 namespace ArchLucid.Core.Pagination;
 
 /// <summary>
-/// Shared constants and helpers for pagination query parameters across all list endpoints.
+///     Shared constants and helpers for pagination query parameters across all list endpoints.
 /// </summary>
 public static class PaginationDefaults
 {
@@ -10,8 +10,8 @@ public static class PaginationDefaults
     public const int MaxPageSize = 200;
 
     /// <summary>
-    /// Maximum <c>take</c> / <c>limit</c> for large unpaged list reads (audit, alerts, conversation messages,
-    /// admin diagnostics SQL previews, comparison history search limit when non-zero).
+    ///     Maximum <c>take</c> / <c>limit</c> for large unpaged list reads (audit, alerts, conversation messages,
+    ///     admin diagnostics SQL previews, comparison history search limit when non-zero).
     /// </summary>
     public const int MaxListingTake = 500;
 

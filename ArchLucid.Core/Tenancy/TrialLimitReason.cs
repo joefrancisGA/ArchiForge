@@ -1,6 +1,6 @@
 namespace ArchLucid.Core.Tenancy;
 
-/// <summary>Reason a tenant trial write was rejected by <see cref="TrialLimitGate"/> or persistence.</summary>
+/// <summary>Reason a tenant trial write was rejected by <see cref="TrialLimitGate" /> or persistence.</summary>
 public enum TrialLimitReason
 {
     Expired,
@@ -13,5 +13,5 @@ public enum TrialLimitReason
     LifecycleWritesFrozen,
 
     /// <summary><c>ReadOnly</c> / <c>ExportOnly</c> / <c>Deleted</c> — HTTP deletes blocked per trial DPA workflow.</summary>
-    LifecycleDeletesFrozen,
+    LifecycleDeletesFrozen
 }

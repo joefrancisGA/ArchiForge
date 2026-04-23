@@ -5,13 +5,13 @@ using Microsoft.Extensions.Logging;
 namespace ArchLucid.Core.Diagnostics;
 
 /// <summary>
-/// Structured <see cref="ILogger"/> helpers for Information-level messages that include multiple
-/// user-derived strings (CWE-117).
+///     Structured <see cref="ILogger" /> helpers for Information-level messages that include multiple
+///     user-derived strings (CWE-117).
 /// </summary>
 /// <remarks>
-/// CodeQL <c>cs/log-forging</c> may not propagate the custom <see cref="LogSanitizer.Sanitize"/> barrier
-/// through <see cref="LoggerExtensions.LogInformation(ILogger, string?, params object?[])"/> <c>params</c>
-/// boxing at call sites. Sanitizing in this helper keeps barrier and sink adjacent (see <c>docs/CODEQL_TRIAGE.md</c>).
+///     CodeQL <c>cs/log-forging</c> may not propagate the custom <see cref="LogSanitizer.Sanitize" /> barrier
+///     through <see cref="LoggerExtensions.LogInformation(ILogger, string?, params object?[])" /> <c>params</c>
+///     boxing at call sites. Sanitizing in this helper keeps barrier and sink adjacent (see <c>docs/CODEQL_TRIAGE.md</c>).
 /// </remarks>
 public static class SanitizedLoggerInformationExtensions
 {
@@ -36,7 +36,8 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
-    /// Logs an idempotent commit path (manifest already stored — “committed” or “persisted at target version” retry), with two user-derived strings sanitized.
+    ///     Logs an idempotent commit path (manifest already stored — “committed” or “persisted at target version” retry), with
+    ///     two user-derived strings sanitized.
     /// </summary>
     public static void LogInformationCommitRunIdempotentReturn(
         this ILogger logger,
@@ -58,7 +59,7 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
-    /// Logs a successful comparison replay with four externally influenced string placeholders sanitized before the sink.
+    ///     Logs a successful comparison replay with four externally influenced string placeholders sanitized before the sink.
     /// </summary>
     public static void LogInformationComparisonReplaySucceeded(
         this ILogger logger,
@@ -92,7 +93,8 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
-    /// Logs the start of an agent execution batch (run id + joined dispatch keys + task count), with user-derived strings sanitized.
+    ///     Logs the start of an agent execution batch (run id + joined dispatch keys + task count), with user-derived strings
+    ///     sanitized.
     /// </summary>
     public static void LogInformationAgentExecutionBatchStarting(
         this ILogger logger,
@@ -114,7 +116,8 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>Logs completion of an agent execution batch with a sanitized run id and result count.</summary>
-    public static void LogInformationAgentExecutionBatchCompleted(this ILogger logger, string userRunId, int resultCount)
+    public static void LogInformationAgentExecutionBatchCompleted(this ILogger logger, string userRunId,
+        int resultCount)
     {
         ArgumentNullException.ThrowIfNull(logger);
 
@@ -128,7 +131,8 @@ public static class SanitizedLoggerInformationExtensions
     }
 
     /// <summary>
-    /// Logs successful agent result submission (run id + result id from request body, status from persistence), with user-derived strings sanitized.
+    ///     Logs successful agent result submission (run id + result id from request body, status from persistence), with
+    ///     user-derived strings sanitized.
     /// </summary>
     public static void LogInformationAgentResultSubmitted(
         this ILogger logger,

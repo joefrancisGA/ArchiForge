@@ -1,3 +1,5 @@
+using System.Data;
+
 namespace ArchLucid.Core.Tenancy;
 
 /// <summary>Persistence for <c>dbo.Tenants</c> / <c>dbo.TenantWorkspaces</c>.</summary>
@@ -50,31 +52,36 @@ public interface ITenantRepository
     Task MarkTrialConvertedAsync(Guid tenantId, TenantTier? newCommercialTier, CancellationToken ct);
 
     /// <summary>
-    /// When the tenant is on an active trial with a run limit, increments <see cref="TenantRecord.TrialRunsUsed"/> once
-    /// under <see cref="TenantRecord.TrialRunsLimit"/> and before <see cref="TenantRecord.TrialExpiresUtc"/>.
-    /// No-op when the tenant row is missing or not on a metered active trial. Must run in the same SQL transaction as
-    /// inserting the authority run row when <paramref name="connection"/> is supplied.
+    ///     When the tenant is on an active trial with a run limit, increments <see cref="TenantRecord.TrialRunsUsed" /> once
+    ///     under <see cref="TenantRecord.TrialRunsLimit" /> and before <see cref="TenantRecord.TrialExpiresUtc" />.
+    ///     No-op when the tenant row is missing or not on a metered active trial. Must run in the same SQL transaction as
+    ///     inserting the authority run row when <paramref name="connection" /> is supplied.
     /// </summary>
     /// <exception cref="TrialLimitExceededException">Trial expired or run allowance exhausted.</exception>
     Task TryIncrementActiveTrialRunAsync(
         Guid tenantId,
         CancellationToken ct,
-        System.Data.IDbConnection? connection = null,
-        System.Data.IDbTransaction? transaction = null);
+        IDbConnection? connection = null,
+        IDbTransaction? transaction = null);
 
     /// <summary>
-    /// Reserves one trial seat for <paramref name="principalKey"/> when the tenant is on an active trial with a seat limit.
-    /// Idempotent per (<paramref name="tenantId"/>, <paramref name="principalKey"/>).
+    ///     Reserves one trial seat for <paramref name="principalKey" /> when the tenant is on an active trial with a seat
+    ///     limit.
+    ///     Idempotent per (<paramref name="tenantId" />, <paramref name="principalKey" />).
     /// </summary>
     /// <exception cref="TrialLimitExceededException">Seat allowance exhausted for a new principal.</exception>
     Task TryClaimTrialSeatAsync(Guid tenantId, string principalKey, CancellationToken ct);
 
-    /// <summary>Tenants eligible for automated lifecycle transitions (self-service trial; excludes converted commercial tenants).</summary>
+    /// <summary>
+    ///     Tenants eligible for automated lifecycle transitions (self-service trial; excludes converted commercial
+    ///     tenants).
+    /// </summary>
     Task<IReadOnlyList<Guid>> ListTrialLifecycleAutomationTenantIdsAsync(CancellationToken ct);
 
     /// <summary>
-    /// Atomically inserts <c>dbo.TenantLifecycleTransitions</c> and updates <c>dbo.Tenants.TrialStatus</c> when the current
-    /// status matches <paramref name="expectedCurrentStatus"/> (idempotent retry when <c>false</c>).
+    ///     Atomically inserts <c>dbo.TenantLifecycleTransitions</c> and updates <c>dbo.Tenants.TrialStatus</c> when the
+    ///     current
+    ///     status matches <paramref name="expectedCurrentStatus" /> (idempotent retry when <c>false</c>).
     /// </summary>
     Task<bool> TryRecordTrialLifecycleTransitionAsync(
         Guid tenantId,
@@ -84,14 +91,15 @@ public interface ITenantRepository
         CancellationToken ct);
 
     /// <summary>
-    /// Sets <c>TrialFirstManifestCommittedUtc</c> once for self-service trial tenants and returns funnel timing when this invocation performed the transition.
+    ///     Sets <c>TrialFirstManifestCommittedUtc</c> once for self-service trial tenants and returns funnel timing when this
+    ///     invocation performed the transition.
     /// </summary>
     Task<TrialFirstManifestCommitOutcome?> TryMarkTrialFirstManifestCommittedAsync(
         Guid tenantId,
         DateTimeOffset committedUtc,
         CancellationToken ct);
 
-    /// <summary>E2E harness only: sets <see cref="TenantRecord.TrialExpiresUtc"/> (clock tests; never product code).</summary>
+    /// <summary>E2E harness only: sets <see cref="TenantRecord.TrialExpiresUtc" /> (clock tests; never product code).</summary>
     Task E2eHarnessSetTrialExpiresUtcAsync(Guid tenantId, DateTimeOffset expiresUtc, CancellationToken ct);
 
     /// <summary>Marks a self-service trial tenant for background simulator pre-seed (idempotent).</summary>
